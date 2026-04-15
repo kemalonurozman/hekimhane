@@ -1,0 +1,188 @@
+/* ================================================================
+   HEKİMHANE — Global CSS + Tasarım Sistemi
+   tokens.css'den dönüştürüldü
+   ================================================================ */
+
+:root {
+  --navy:       #1B3A69;
+  --navy2:      #294A87;
+  --navy3:      #3A5FA0;
+  --gold:       #D4A843;
+  --gold2:      #B89026;
+  --gold-light: #FEF6E8;
+  --white:      #fff;
+  --cream:      #FBF8F2;
+  --border:     #E5DDD4;
+  --text:       #1A2744;
+  --muted:      #6B7A99;
+  --r:          16px;
+  --sh:         0 4px 24px rgba(27,58,105,.08);
+  --sh-gold:    0 8px 32px rgba(212,168,67,.22);
+
+  /* Fonlar */
+  --font-sans:  'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--cream);
+  color: var(--text);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-sans);
+  border: none;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+
+/* ================================================================
+   YARDIMCI SINIFLAR
+   ================================================================ */
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+@media (max-width: 768px) {
+  .container { padding: 0 16px; }
+}
+
+.section-title {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 11px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.badge-gold {
+  background: var(--gold-light);
+  color: var(--gold2);
+  border: 1px solid rgba(212,168,67,.3);
+}
+
+.badge-navy {
+  background: rgba(27,58,105,.08);
+  color: var(--navy);
+  border: 1px solid rgba(27,58,105,.15);
+}
+
+.badge-green {
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.badge-red {
+  background: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+/* ================================================================
+   KART
+   ================================================================ */
+
+.card {
+  background: white;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  box-shadow: var(--sh);
+  transition: 0.18s;
+}
+
+.card:hover {
+  box-shadow: 0 8px 32px rgba(27,58,105,.12);
+  transform: translateY(-2px);
+}
+
+/* ================================================================
+   BUTON
+   ================================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: 11px;
+  font-size: 13.5px;
+  font-weight: 700;
+  transition: 0.18s;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: white;
+  box-shadow: 0 4px 16px rgba(212,168,67,.3);
+}
+
+.btn-primary:hover {
+  background: var(--gold2);
+  box-shadow: 0 6px 20px rgba(212,168,67,.4);
+  transform: translateY(-1px);
+}
+
+.btn-navy {
+  background: var(--navy);
+  color: white;
+}
+
+.btn-navy:hover {
+  background: var(--navy2);
+}
+
+.btn-ghost {
+  background: white;
+  color: var(--navy);
+  border: 1.5px solid var(--border);
+}
+
+.btn-ghost:hover {
+  border-color: var(--navy);
+  background: rgba(27,58,105,.04);
+}
+
+/* ================================================================
+   YILDIZ PUANI
+   ================================================================ */
+
+.stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--gold);
+  font-size: 13px;
+}
