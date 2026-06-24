@@ -186,3 +186,144 @@ button {
   color: var(--gold);
   font-size: 13px;
 }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ================================================================
+   PROFİL SAYFASI — Responsive Styles (ProfilSayfasi.tsx)
+   ================================================================ */
+
+/* Tab bar: horizontal scroll, hide scrollbar */
+.profil-tab-bar {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.profil-tab-bar::-webkit-scrollbar { display: none; }
+
+/* Hero header: 3-col grid on desktop, stacked on mobile */
+.profil-hero-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 28px;
+  align-items: end;
+}
+
+/* Body: 2-col grid on desktop, 1-col on mobile */
+.profil-body-grid {
+  display: grid;
+  grid-template-columns: 1fr 330px;
+  gap: 28px;
+  padding: 36px 32px;
+  align-items: start;
+}
+
+/* Info grid inside cards: 2-col on desktop, 1-col on mobile */
+.profil-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Photo gallery: 3-col on desktop, 2-col on tablet, 1-col on mobile */
+.profil-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+/* Sahiplen CTA flex row */
+.profil-sahiplen-cta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+/* Logo wrapper */
+.profil-logo-wrap {
+  padding-bottom: 28px;
+}
+
+/* Info column */
+.profil-info-col {
+  padding-bottom: 28px;
+}
+
+/* Action buttons column */
+.profil-action-col {
+  padding-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 200px;
+}
+
+/* ── Tablet (≤ 768px) ── */
+@media (max-width: 768px) {
+  .profil-hero-header {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .profil-logo-wrap {
+    padding-bottom: 16px !important;
+    display: flex;
+    justify-content: center;
+  }
+
+  .profil-info-col {
+    padding-bottom: 16px !important;
+  }
+
+  .profil-info-col h1 {
+    font-size: 24px !important;
+  }
+
+  .profil-action-col {
+    padding-bottom: 20px !important;
+    min-width: unset !important;
+    width: 100%;
+  }
+
+  .profil-body-grid {
+    grid-template-columns: 1fr !important;
+    padding: 20px 16px !important;
+    gap: 0 !important;
+  }
+
+  .profil-info-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .profil-photo-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .profil-sahiplen-cta {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 14px !important;
+  }
+
+  .profil-sahiplen-cta > a {
+    align-self: flex-start;
+  }
+}
+
+/* ── Mobile (≤ 480px) ── */
+@media (max-width: 480px) {
+  .profil-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profil-photo-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .profil-body-grid {
+    padding: 14px 12px;
+  }
+}

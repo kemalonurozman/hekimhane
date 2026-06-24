@@ -1,160 +1,144 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import KategoriKartlari from '@/components/KategoriKartlari';
+import HeroAnimated from '@/components/HeroAnimated';
+import HastalikRehberiSection from '@/components/HastalikRehberiSection';
+import HekimhaneAI from '@/components/HekimhaneAI';
 
 export const metadata: Metadata = {
   title: 'Hekimhane — Türkiye Sağlık Rehberi',
-  description: 'Türkiye\'nin en kapsamlı sağlık rehberi. 1.000+ klinik, 1.800+ hastane, 1.500+ doktor ve 8.700+ eczane bilgisi.',
+  description: 'Türkiye\'nin en kapsamlı sağlık rehberi. Klinik, hastane, doktor ve eczane bilgisi.',
 };
 
-// İstatistikler sunucuda hesaplanır, her build'de güncellenir
 async function getStats() {
-  const [klinik, hastane, doktor, eczane] = await Promise.all([
-    supabase.from('klinikler').select('id', { count: 'exact', head: true }),
-    supabase.from('hastaneler').select('id', { count: 'exact', head: true }),
-    supabase.from('doktorlar').select('id', { count: 'exact', head: true }),
-    supabase.from('eczaneler').select('id', { count: 'exact', head: true }),
-  ]);
-  return {
-    klinik: klinik.count || 0,
-    hastane: hastane.count || 0,
-    doktor: doktor.count || 0,
-    eczane: eczane.count || 0,
-  };
+  try {
+    const [klinik, hastane, doktor, eczane] = await Promise.all([
+      supabase.from('klinikler').select('id', { count: 'exact', head: true }),
+      supabase.from('hastaneler').select('id', { count: 'exact', head: true }),
+      supabase.from('doktorlar').select('id', { count: 'exact', head: true }),
+      supabase.from('eczaneler').select('id', { count: 'exact', head: true }),
+    ]);
+    return {
+      klinik: klinik.count || 0,
+      hastane: hastane.count || 0,
+      doktor: doktor.count || 0,
+      eczane: eczane.count || 0,
+    };
+  } catch {
+    return { klinik: 0, hastane: 0, doktor: 0, eczane: 0 };
+  }
 }
-
-const KATEGORILER = [
-  { href: '/klinikler',  icon: '🦷', label: 'Klinikler',  color: '#EEF2FF', border: '#C7D2FE', text: '#4338CA' },
-  { href: '/hastaneler', icon: '🏥', label: 'Hastaneler', color: '#ECFDF5', border: '#A7F3D0', text: '#065F46' },
-  { href: '/doktorlar',  icon: '👨‍⚕️', label: 'Doktorlar',  color: '#FEF3C7', border: '#FDE68A', text: '#92400E' },
-  { href: '/eczaneler',  icon: '💊', label: 'Eczaneler',  color: '#FEF2F2', border: '#FECACA', text: '#991B1B' },
-];
 
 const POPÜLER_İLLER = [
   'İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya',
   'Adana', 'Konya', 'Gaziantep', 'Muğla', 'Mersin',
 ];
 
+function IconMapPin() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+function IconArrow() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14M12 5l7 7-7 7" />
+    </svg>
+  );
+}
+
 export default async function HomePage() {
   const stats = await getStats();
 
   return (
-    <div style={{ paddingTop: '66px' }}>
+    <div style={{
+      paddingTop: 64,
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
+    }}>
+      <style>{`
+        .cta-section {
+          padding: 80px 0;
+          background: #F5F5F7;
+        }
+        .cta-card {
+          background: linear-gradient(155deg, #0A2540 0%, #163D6E 100%);
+          border-radius: 24px;
+          padding: 52px 56px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 32px;
+        }
+        @media (max-width: 768px) {
+          .cta-section {
+            padding: 40px 0;
+          }
+          .cta-card {
+            padding: 24px;
+            flex-direction: column;
+            align-items: flex-start;
+          }
+        }
+      `}</style>
 
-      {/* ── HERO ── */}
-      <section style={{
-        background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, #1B4080 100%)',
-        padding: '80px 0 100px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'radial-gradient(ellipse 60% 80% at 100% 0%, rgba(212,168,67,.15), transparent 60%)',
-        }}/>
-        <div className="container" style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-          <div style={{
-            display: 'inline-block',
-            background: 'rgba(212,168,67,.15)',
-            border: '1px solid rgba(212,168,67,.3)',
-            borderRadius: '20px',
-            padding: '6px 16px',
-            fontSize: '12px',
-            fontWeight: 700,
-            color: 'var(--gold)',
-            letterSpacing: '0.5px',
-            marginBottom: '20px',
-          }}>
-            TÜRKİYE SAĞLIK REHBERİ
-          </div>
+      {/* ── HERO — canvas partikül + mouse efekti ────────────────── */}
+      <HeroAnimated stats={stats} />
 
-          <h1 style={{
-            fontFamily: 'var(--font-playfair, serif)',
-            fontSize: 'clamp(36px, 5vw, 64px)',
-            fontWeight: 800,
-            color: 'white',
-            lineHeight: 1.15,
-            marginBottom: '20px',
-          }}>
-            Doğru Sağlık Kurumuna<br />
-            <span style={{ color: 'var(--gold)' }}>Hızlıca Ulaşın</span>
-          </h1>
-
-          <p style={{
-            fontSize: '18px', color: 'rgba(255,255,255,0.75)',
-            maxWidth: '560px', margin: '0 auto 36px', lineHeight: 1.6,
-          }}>
-            {stats.klinik.toLocaleString('tr')}+ klinik, {stats.hastane.toLocaleString('tr')}+ hastane,
-            {stats.doktor.toLocaleString('tr')}+ doktor ve {stats.eczane.toLocaleString('tr')}+ eczane
-          </p>
-
-          {/* Arama */}
-          <form action="/klinikler" method="get" style={{
-            display: 'flex', gap: '8px', maxWidth: '560px', margin: '0 auto',
-          }}>
-            <input
-              name="q"
-              placeholder="Klinik, hastane, doktor veya eczane ara..."
-              style={{
-                flex: 1, padding: '14px 20px', borderRadius: '12px',
-                border: 'none', fontSize: '15px', outline: 'none',
-                boxShadow: '0 4px 20px rgba(0,0,0,.15)',
-              }}
-            />
-            <button type="submit" className="btn btn-primary" style={{ padding: '14px 24px' }}>
-              <i className="fa-solid fa-magnifying-glass" /> Ara
-            </button>
-          </form>
-        </div>
-      </section>
-
-      {/* ── KATEGORİLER ── */}
-      <section style={{ padding: '60px 0' }}>
+      {/* ── HEKİMHANE AI ────────────────────────────────────────────── */}
+      <section style={{ padding: '40px 0 0', background: '#F5F5F7' }}>
         <div className="container">
-          <h2 className="section-title" style={{ textAlign: 'center', marginBottom: '36px' }}>
-            Ne Arıyorsunuz?
-          </h2>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '16px',
-          }}>
-            {KATEGORILER.map(k => (
-              <Link key={k.href} href={k.href} style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                padding: '32px 16px',
-                background: k.color,
-                border: `1.5px solid ${k.border}`,
-                borderRadius: '20px',
-                transition: '0.18s',
-                textDecoration: 'none',
-              }}>
-                <span style={{ fontSize: '40px', marginBottom: '12px' }}>{k.icon}</span>
-                <span style={{ fontSize: '16px', fontWeight: 700, color: k.text }}>{k.label}</span>
-              </Link>
-            ))}
-          </div>
+          <HekimhaneAI />
         </div>
       </section>
 
-      {/* ── POPÜLER İLLER ── */}
+      {/* ── KATEGORİLER ─────────────────────────────────────────────── */}
+      <section style={{ padding: '72px 0', background: '#F5F5F7' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <h2 style={{
+              fontSize: 30, fontWeight: 700, letterSpacing: '-0.8px',
+              color: '#1D1D1F', margin: '0 0 10px',
+            }}>
+              Ne Arıyorsunuz?
+            </h2>
+            <p style={{ color: '#6E6E73', fontSize: 15, margin: 0 }}>
+              Türkiye genelinde arama yapın, size en yakını bulun.
+            </p>
+          </div>
+          {/* Client component — hover etkileşimi burada */}
+          <KategoriKartlari stats={stats} />
+        </div>
+      </section>
+
+      {/* ── POPÜLER İLLER ───────────────────────────────────────────── */}
       <section style={{
-        padding: '40px 0 60px',
+        padding: '52px 0',
         background: 'white',
-        borderTop: '1px solid var(--border)',
-        borderBottom: '1px solid var(--border)',
+        borderTop: '1px solid #E5E5EA',
+        borderBottom: '1px solid #E5E5EA',
       }}>
         <div className="container">
-          <h2 className="section-title" style={{ marginBottom: '24px' }}>
-            Şehre Göre Ara
-          </h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+            <span style={{ color: '#6E6E73', display: 'flex' }}><IconMapPin /></span>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1D1D1F', letterSpacing: '-.4px', margin: 0 }}>
+              Şehre Göre Ara
+            </h2>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {POPÜLER_İLLER.map(il => (
               <Link
                 key={il}
                 href={`/klinikler?il=${encodeURIComponent(il)}`}
-                className="badge badge-navy"
-                style={{ padding: '8px 18px', fontSize: '13px', fontWeight: 600 }}
+                style={{
+                  padding: '7px 16px', borderRadius: 20,
+                  border: '1px solid #E5E5EA', background: 'white',
+                  fontSize: 13.5, fontWeight: 500, color: '#3A3A3C',
+                  textDecoration: 'none', letterSpacing: '-.1px',
+                }}
               >
                 {il}
               </Link>
@@ -163,32 +147,38 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── CTA — İşletme Ekle ── */}
-      <section style={{ padding: '80px 0' }}>
+      {/* ── HASTALIK REHBERİ ────────────────────────────────────────── */}
+      <HastalikRehberiSection />
+
+      {/* ── CTA ─────────────────────────────────────────────────────── */}
+      <section className="cta-section">
         <div className="container">
-          <div style={{
-            background: 'linear-gradient(135deg, var(--navy), var(--navy2))',
-            borderRadius: '24px',
-            padding: '56px 48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '24px',
-          }}>
-            <div>
+          <div className="cta-card">
+            <div style={{ maxWidth: 500 }}>
+              <p style={{
+                fontSize: 11, fontWeight: 600, letterSpacing: '1.2px',
+                textTransform: 'uppercase', color: '#D4A843', margin: '0 0 12px',
+              }}>
+                İşletme Sahipleri İçin
+              </p>
               <h2 style={{
-                fontFamily: 'var(--font-playfair, serif)',
-                fontSize: '32px', fontWeight: 800, color: 'white', marginBottom: '10px'
+                fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700,
+                letterSpacing: '-0.8px', color: 'white', margin: '0 0 12px',
               }}>
                 İşletmenizi Listeleyin
               </h2>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', maxWidth: '460px' }}>
+              <p style={{ color: 'rgba(255,255,255,.58)', fontSize: 15, margin: 0, lineHeight: 1.65 }}>
                 Kliniğinizi veya hastanenizi platforma ekleyin, binlerce potansiyel hastaya ulaşın.
               </p>
             </div>
-            <Link href="/katil" className="btn btn-primary" style={{ padding: '14px 28px', fontSize: '15px' }}>
-              Hemen Başlayın →
+            <Link href="/katil" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '14px 28px', borderRadius: 13,
+              background: '#D4A843', color: 'white',
+              fontSize: 15, fontWeight: 600, textDecoration: 'none',
+              letterSpacing: '-.2px', flexShrink: 0,
+            }}>
+              Hemen Başlayın <IconArrow />
             </Link>
           </div>
         </div>

@@ -5,12 +5,14 @@
 export type Database = {
   public: {
     Tables: {
-      klinikler: { Row: Klinik; Insert: Partial<Klinik>; Update: Partial<Klinik> };
-      hastaneler: { Row: Hastane; Insert: Partial<Hastane>; Update: Partial<Hastane> };
-      doktorlar:  { Row: Doktor; Insert: Partial<Doktor>; Update: Partial<Doktor> };
-      eczaneler:  { Row: Eczane; Insert: Partial<Eczane>; Update: Partial<Eczane> };
-      yorumlar:   { Row: Yorum; Insert: Partial<Yorum>; Update: Partial<Yorum> };
-      blog_posts: { Row: BlogPost; Insert: Partial<BlogPost>; Update: Partial<BlogPost> };
+      klinikler:        { Row: Klinik;       Insert: Partial<Klinik>;       Update: Partial<Klinik> };
+      hastaneler:       { Row: Hastane;      Insert: Partial<Hastane>;      Update: Partial<Hastane> };
+      doktorlar:        { Row: Doktor;       Insert: Partial<Doktor>;       Update: Partial<Doktor> };
+      eczaneler:        { Row: Eczane;       Insert: Partial<Eczane>;       Update: Partial<Eczane> };
+      yorumlar:         { Row: Yorum;        Insert: Partial<Yorum>;        Update: Partial<Yorum> };
+      blog_posts:       { Row: BlogPost;     Insert: Partial<BlogPost>;     Update: Partial<BlogPost> };
+      cekim_talepleri:  { Row: CekimTalebi;    Insert: Partial<CekimTalebi>;    Update: Partial<CekimTalebi> };
+      email_aboneleri:  { Row: EmailAbone;    Insert: Partial<EmailAbone>;    Update: Partial<EmailAbone> };
     };
   };
 };
@@ -36,6 +38,16 @@ export interface Klinik {
   slug: string | null;
   logo: string | null;
   cover: string | null;
+  photos: string[] | null;
+  photo360: string | null;
+  tour360url: string | null;
+  video_url: string | null;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  linkedin_url: string | null;
+  calisma_saatleri: string | null;
+  acik_24_saat: boolean;
+  premium: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -62,6 +74,16 @@ export interface Hastane {
   slug: string | null;
   logo: string | null;
   cover: string | null;
+  photos: string[] | null;
+  photo360: string | null;
+  tour360url: string | null;
+  video_url: string | null;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  linkedin_url: string | null;
+  calisma_saatleri: string | null;
+  acik_24_saat: boolean;
+  premium: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -87,6 +109,20 @@ export interface Doktor {
   lng: number;
   slug: string | null;
   photo: string | null;
+  unvan: string | null;
+  bio: string | null;
+  okul: string | null;
+  sigorta: string[] | null;
+  conditions: string[] | null;
+  photos: string[] | null;
+  photo360: string | null;
+  tour360url: string | null;
+  video_url: string | null;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  linkedin_url: string | null;
+  calisma_saatleri: string | null;
+  acik_24_saat: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -100,10 +136,24 @@ export interface Eczane {
   address: string | null;
   tel: string | null;
   nobetci: boolean;
+  nobetci_bilgi: string | null;
   chamber: string | null;
   slug: string | null;
   lat: number;
   lng: number;
+  rat: number;
+  rev: number;
+  claimed: boolean;
+  photos: string[] | null;
+  photo360: string | null;
+  tour360url: string | null;
+  video_url: string | null;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  linkedin_url: string | null;
+  calisma_saatleri: string | null;
+  acik_24_saat: boolean;
+  premium: boolean;
   created_at: string;
 }
 
@@ -118,6 +168,8 @@ export interface Yorum {
   helpful: number;
   verified: boolean;
   created_at: string;
+  reply_text: string | null;
+  reply_at: string | null;
 }
 
 export interface BlogPost {
@@ -158,4 +210,32 @@ export interface HastaneFilters {
   q?: string;
   page?: number;
   limit?: number;
+}
+
+export interface EmailAbone {
+  id: string;
+  email: string;
+  isim: string | null;
+  tip: 'isletme' | 'hasta';
+  kaynak: string | null;
+  entity_id: string | null;
+  entity_type: string | null;
+  entity_name: string | null;
+  aktif: boolean;
+  created_at: string;
+}
+
+export interface CekimTalebi {
+  id: string;
+  isletme_adi: string;
+  isletme_turu: string | null;
+  entity_id: string | null;
+  il: string | null;
+  ilce: string | null;
+  ad_soyad: string;
+  tel: string;
+  email: string | null;
+  notlar: string | null;
+  durum: string;
+  created_at: string;
 }

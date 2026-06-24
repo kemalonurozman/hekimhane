@@ -1,74 +1,84 @@
+export const dynamic = 'force-dynamic';
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import type { KlinikFilters, Klinik } from '@/lib/types';
 import KlinikCard from '@/components/KlinikCard';
-import FilterPanel from '@/components/FilterPanel';
+import ListingLayout from '@/components/ListingLayout';
+import { resolveKonum } from '@/lib/il-koordinatlari';
 
 const PAGE_SIZE = 20;
+const TR = (s: string) => (s||'').toLowerCase()
+  .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
+  .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
 
-// ── Dinamik SEO meta ──────────────────────────────────────────────
 export async function generateMetadata(
   { searchParams }: { searchParams: Record<string, string> }
 ): Promise<Metadata> {
-  const il       = searchParams.il || '';
-  const ilce     = searchParams.ilce || '';
-  const uzmanlik = searchParams.uzmanlik || '';
-  const tip      = searchParams.tip || '';
-
+  const il = searchParams.il || ''; const ilce = searchParams.ilce || ''; const uzmanlik = searchParams.uzmanlik || ''; const tip = searchParams.tip || '';
   let title = 'Diş Klinikleri';
   const parts: string[] = [];
-  if (uzmanlik) parts.push(uzmanlik);
-  if (tip)      parts.push(tip);
-  if (ilce)     parts.push(ilce);
-  else if (il)  parts.push(il);
+  if (uzmanlik) parts.push(uzmanlik); if (tip) parts.push(tip); if (ilce) parts.push(ilce); else if (il) parts.push(il);
   if (parts.length) title = parts.join(', ') + ' — Diş Klinikleri';
-
   const desc = `${parts.join(', ')} bölgesindeki diş klinikleri, yorumlar ve iletişim bilgileri. Hekimhane'de hızlıca karşılaştırın.`;
-
-  return {
-    title,
-    description: desc,
-    openGraph: { title: `${title} | Hekimhane`, description: desc },
-  };
+  return { title, description: desc, openGraph: { title: `${title} | Hekimhane`, description: desc } };
 }
 
-// ── Server-side veri çekimi ───────────────────────────────────────
 async function getKlinikler(filters: KlinikFilters) {
   const from = ((filters.page || 1) - 1) * PAGE_SIZE;
-  const to   = from + PAGE_SIZE - 1;
-
-  let query = supabase
-    .from('klinikler')
-    .select('*', { count: 'exact' })
-    .order('rat', { ascending: false })
-    .range(from, to);
-
+  let query = supabase.from('klinikler').select('*', { count: 'exact' })
+    .order('rat', { ascending: false }).range(from, from + PAGE_SIZE - 1);
   if (filters.il)       query = query.eq('il', filters.il);
   if (filters.ilce)     query = query.eq('ilce', filters.ilce);
   if (filters.tip)      query = query.eq('type', filters.tip);
   if (filters.uzmanlik) query = query.contains('specs', [filters.uzmanlik]);
   if (filters.minRat)   query = query.gte('rat', filters.minRat);
   if (filters.q)        query = query.ilike('name', `%${filters.q}%`);
-
   const { data, count, error } = await query;
-  if (error) console.error('Klinik query error:', error);
+  if (error) console.error(error);
   return { data: data || [], count: count || 0 };
 }
 
-// İl listesi için
-async function getIller() {
-  const { data } = await supabase
-    .from('klinikler')
-    .select('il')
-    .not('il', 'is', null)
-    .order('il');
-
-  const unique = [...new Set((data || []).map(r => r.il).filter(Boolean))];
-  return unique as string[];
+// Şehir sayıları — aktif uzmanlik filtresi dikkate alınır
+async function getIller(uzmanlik?: string) {
+  let query = supabase.from('klinikler').select('il').not('il', 'is', null).limit(100000);
+  if (uzmanlik) query = (query as any).contains('specs', [uzmanlik]);
+  const { data } = await query;
+  const map: Record<string, number> = {};
+  (data || []).forEach((r: { il: string | null }) => { if (r.il) map[r.il] = (map[r.il] || 0) + 1; });
+  return Object.entries(map)
+    .sort((a, b) => a[0].localeCompare(b[0], 'tr'))
+    .map(([il, count]) => ({ value: il, label: il, count }));
 }
 
-// ── Sayfa Bileşeni ───────────────────────────────────────────────
+// Uzmanlık sayıları — aktif il filtresi dikkate alınır
+async function getUzmanliklar(il?: string) {
+  let query = supabase.from('klinikler').select('specs').not('specs', 'is', null).limit(100000);
+  if (il) query = query.eq('il', il);
+  const { data } = await query;
+  const map: Record<string, number> = {};
+  (data || []).forEach((r: { specs: string[] | null }) => {
+    (r.specs || []).forEach(s => { if (s) map[s] = (map[s] || 0) + 1; });
+  });
+  return Object.entries(map)
+    .sort((a, b) => b[1] - a[1])
+    .map(([uzmanlik, count]) => ({ value: uzmanlik, label: uzmanlik, count }));
+}
+
+async function getKonumlar(filters: KlinikFilters) {
+  // Yalnızca gerçek koordinatı olan klinikler — null ve 0 değerleri hariç
+  let query = supabase.from('klinikler')
+    .select('id,name,lat,lng,tel,type,il,ilce,slug')
+    .not('lat', 'is', null).not('lng', 'is', null)
+    .neq('lat', 0).neq('lng', 0);
+  if (filters.il)       query = query.eq('il', filters.il);
+  if (filters.ilce)     query = query.eq('ilce', filters.ilce);
+  if (filters.tip)      query = query.eq('type', filters.tip);
+  if (filters.uzmanlik) query = (query as any).contains('specs', [filters.uzmanlik]);
+  if (filters.q)        query = query.ilike('name', `%${filters.q}%`);
+  const { data } = await query.limit(5000);
+  return data || [];
+}
+
 export default async function KliniklerPage(
   { searchParams }: { searchParams: Record<string, string> }
 ) {
@@ -82,133 +92,81 @@ export default async function KliniklerPage(
     page:     searchParams.page     ? parseInt(searchParams.page) : 1,
   };
 
-  const [{ data: klinikler, count }, iller] = await Promise.all([
+  const [{ data: klinikler, count }, illerWithCount, uzmanliklarWithCount, konumlar] = await Promise.all([
     getKlinikler(filters),
-    getIller(),
+    getIller(filters.uzmanlik),
+    getUzmanliklar(filters.il),
+    getKonumlar(filters),
   ]);
 
   const totalPages = Math.ceil(count / PAGE_SIZE);
 
-  // Breadcrumb
-  const breadcrumb = [
-    { label: 'Ana Sayfa', href: '/' },
-    { label: 'Klinikler', href: '/klinikler' },
-    ...(filters.il ? [{ label: filters.il, href: `/klinikler?il=${filters.il}` }] : []),
-    ...(filters.ilce ? [{ label: filters.ilce, href: `/klinikler?il=${filters.il}&ilce=${filters.ilce}` }] : []),
-  ];
+  const title = filters.uzmanlik ? `${filters.uzmanlik} Klinikleri`
+    : filters.ilce ? `${filters.ilce} Diş Klinikleri`
+    : filters.il   ? `${filters.il} Diş Klinikleri`
+    : 'Tüm Diş Klinikleri';
 
   return (
-    <div style={{ paddingTop: '66px' }}>
-
-      {/* Breadcrumb */}
-      <div style={{ background: 'white', borderBottom: '1px solid var(--border)', padding: '12px 0' }}>
-        <div className="container" style={{ display: 'flex', gap: '6px', fontSize: '12px', color: 'var(--muted)' }}>
-          {breadcrumb.map((b, i) => (
-            <span key={b.href} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {i > 0 && <i className="fa-solid fa-chevron-right" style={{ fontSize: '8px' }} />}
-              {i === breadcrumb.length - 1
-                ? <span style={{ color: 'var(--navy)', fontWeight: 600 }}>{b.label}</span>
-                : <Link href={b.href} style={{ color: 'var(--navy)', fontWeight: 500 }}>{b.label}</Link>
-              }
-            </span>
-          ))}
+    <ListingLayout
+      basePath="/klinikler"
+      entityLabel="klinik"
+      entityLabelPlural="klinik"
+      color="#1B3A69"
+      gradient="linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%)"
+      icon={
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2C9.2 2 7 4 7 6.5c0 1.4.4 2.4.9 3.4.9 2 .8 5.2-.4 9.4-.3 1.3.8 2.2 1.7.7.4-.7.9-1.3 2.3-1.3 1.4 0 1.9.6 2.3 1.3.9 1.5 2 .6 1.7-.7-1.2-4.2-1.3-7.4-.4-9.4.5-1 .9-2 .9-3.4C16 4 13.8 2 12 2z"/>
+        </svg>
+      }
+      iconBg="linear-gradient(135deg,var(--navy),var(--navy2))"
+      title={title}
+      count={count}
+      cityCount={illerWithCount.length}
+      breadcrumb={[
+        { label: 'Ana Sayfa', href: '/' },
+        { label: 'Klinikler', href: '/klinikler' },
+        ...(filters.il ? [{ label: filters.il, href: `/klinikler?il=${encodeURIComponent(filters.il)}` }] : []),
+        ...(filters.ilce ? [{ label: filters.ilce, href: `/klinikler?il=${filters.il}&ilce=${filters.ilce}` }] : []),
+      ]}
+      filterSections={[
+        { key: 'q',        label: 'Arama',    type: 'search',   placeholder: 'Klinik ara...' },
+        { key: 'il',       label: 'Şehir',    type: 'radio',    options: illerWithCount },
+        { key: 'uzmanlik', label: 'Uzmanlık', type: 'checkbox', options: uzmanliklarWithCount },
+      ]}
+      activeFilters={{ il: filters.il, ilce: filters.ilce, uzmanlik: filters.uzmanlik, tip: filters.tip, q: filters.q }}
+      hasActiveFilters={!!(filters.il || filters.ilce || filters.uzmanlik || filters.tip || filters.q)}
+      markers={konumlar.map(k => ({
+        id: k.id, name: k.name, lat: k.lat, lng: k.lng, tel: k.tel, type: k.type,
+        il: k.il, ilce: k.ilce,
+        href: k.slug ? `/klinikler/${TR(k.il||'turkiye')}/${TR(k.ilce||'merkez')}/${k.slug}` : `/klinikler/${k.id}`,
+      }))}
+      totalPages={totalPages}
+      currentPage={filters.page || 1}
+      searchParams={searchParams}
+    >
+      {klinikler.length === 0 ? (
+        <EmptyState href="/klinikler" />
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {klinikler.map(k => <KlinikCard key={k.id} klinik={k as Klinik} />)}
         </div>
+      )}
+    </ListingLayout>
+  );
+}
+
+function EmptyState({ href }: { href: string }) {
+  return (
+    <div style={{ textAlign: 'center', padding: '64px 32px', background: 'white', borderRadius: 20, border: '1px solid var(--border)' }}>
+      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <circle cx="22" cy="22" r="14" stroke="#C7D2E0" strokeWidth="3"/>
+          <path d="M32 32 43 43" stroke="#C7D2E0" strokeWidth="3" strokeLinecap="round"/>
+        </svg>
       </div>
-
-      {/* Başlık */}
-      <div style={{
-        background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%)',
-        padding: '32px 0',
-      }}>
-        <div className="container">
-          <h1 style={{
-            fontFamily: 'var(--font-playfair, serif)',
-            fontSize: '28px', fontWeight: 800, color: 'white', marginBottom: '6px'
-          }}>
-            {filters.uzmanlik
-              ? `${filters.uzmanlik} Klinikleri`
-              : filters.ilce
-              ? `${filters.ilce} Diş Klinikleri`
-              : filters.il
-              ? `${filters.il} Diş Klinikleri`
-              : 'Tüm Diş Klinikleri'}
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
-            {count.toLocaleString('tr')} klinik bulundu
-          </p>
-        </div>
-      </div>
-
-      {/* İçerik */}
-      <div className="container" style={{
-        display: 'grid',
-        gridTemplateColumns: '280px 1fr',
-        gap: '24px',
-        padding: '32px',
-        alignItems: 'start',
-      }}>
-        {/* Filter Panel — client component */}
-        <FilterPanel iller={iller} filters={filters} />
-
-        {/* Sonuçlar */}
-        <div>
-          {klinikler.length === 0 ? (
-            <div style={{
-              textAlign: 'center', padding: '64px 32px',
-              background: 'white', borderRadius: '20px',
-              border: '1px solid var(--border)',
-            }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-              <h3 style={{ fontWeight: 700, marginBottom: '8px' }}>Sonuç bulunamadı</h3>
-              <p style={{ color: 'var(--muted)', fontSize: '14px' }}>
-                Filtreleri değiştirerek tekrar deneyin.
-              </p>
-              <Link href="/klinikler" className="btn btn-navy" style={{ marginTop: '16px', display: 'inline-flex' }}>
-                Filtreleri Temizle
-              </Link>
-            </div>
-          ) : (
-            <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {klinikler.map(k => (
-                  <KlinikCard key={k.id} klinik={k} />
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div style={{
-                  display: 'flex', justifyContent: 'center', gap: '8px',
-                  marginTop: '32px', flexWrap: 'wrap',
-                }}>
-                  {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => i + 1).map(p => {
-                    const params = new URLSearchParams(searchParams);
-                    params.set('page', String(p));
-                    return (
-                      <Link
-                        key={p}
-                        href={`/klinikler?${params.toString()}`}
-                        style={{
-                          width: '36px', height: '36px',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          borderRadius: '8px',
-                          fontWeight: 600, fontSize: '14px',
-                          background: filters.page === p ? 'var(--navy)' : 'white',
-                          color: filters.page === p ? 'white' : 'var(--text)',
-                          border: `1px solid ${filters.page === p ? 'var(--navy)' : 'var(--border)'}`,
-                          transition: '0.15s',
-                        }}
-                      >
-                        {p}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </div>
+      <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Sonuç bulunamadı</h3>
+      <p style={{ color: 'var(--muted)', fontSize: 14 }}>Filtreleri değiştirerek tekrar deneyin.</p>
+      <a href={href} className="btn btn-navy" style={{ marginTop: 16, display: 'inline-flex' }}>Filtreleri Temizle</a>
     </div>
   );
 }
