@@ -327,3 +327,69 @@ button {
     padding: 14px 12px;
   }
 }
+
+/* ================================================================
+   HASTALIK SAYFALARI — Responsive Grid Sınıfları
+   ================================================================ */
+
+.hastalik-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.hastalik-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 32px;
+  align-items: start;
+}
+
+.kategori-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 32px;
+  align-items: start;
+}
+
+.doktor-bul-cta-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+}
+
+.risk-korunma-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .hastalik-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hastalik-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kategori-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .doktor-bul-cta-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .risk-korunma-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hastalik-sidebar aside,
+  .kategori-sidebar aside {
+    position: static !important;
+  }
+}

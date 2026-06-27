@@ -67,7 +67,7 @@ export default function HastalıkDetayPage({ params }: Props) {
             <span style={{ color: 'rgba(255,255,255,.9)' }}>{h.ad}</span>
           </nav>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 24, alignItems: 'flex-start' }}>
+          <div className="hastalik-hero-grid">
             <div>
               <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
                 <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, background: 'rgba(255,255,255,.2)', color: 'white' }}>
@@ -82,7 +82,7 @@ export default function HastalıkDetayPage({ params }: Props) {
             </div>
 
             {/* İstatistik kartı */}
-            <div style={{ background: 'rgba(255,255,255,.15)', backdropFilter: 'blur(8px)', borderRadius: 16, padding: '20px 24px', border: '1px solid rgba(255,255,255,.2)', minWidth: 200, flexShrink: 0 }}>
+            <div style={{ background: 'rgba(255,255,255,.15)', backdropFilter: 'blur(8px)', borderRadius: 16, padding: '20px 24px', border: '1px solid rgba(255,255,255,.2)' }}>
               <div style={{ marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid rgba(255,255,255,.2)' }}>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,.6)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>Görülme Oranı</div>
                 <div style={{ fontWeight: 700, fontSize: 14, color: 'white' }}>{h.gorulmeOrani}</div>
@@ -123,7 +123,7 @@ export default function HastalıkDetayPage({ params }: Props) {
         </div>
       </div>
 
-      <div className="container" style={{ padding: '40px 20px', display: 'grid', gridTemplateColumns: '1fr 280px', gap: 32, alignItems: 'start' }}>
+      <div className="container hastalik-content-grid" style={{ padding: '40px 20px' }}>
 
         {/* Ana makale */}
         <article>
@@ -209,7 +209,7 @@ export default function HastalıkDetayPage({ params }: Props) {
               <span style={{ width: 36, height: 36, borderRadius: 10, background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>⚠️</span>
               Risk Faktörleri ve Korunma
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+            <div className="risk-korunma-grid">
               <div>
                 <h3 style={{ fontSize: 15, fontWeight: 700, color: '#DC2626', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span>🚨</span> Risk Faktörleri
@@ -296,7 +296,7 @@ export default function HastalıkDetayPage({ params }: Props) {
         </article>
 
         {/* Sidebar */}
-        <aside style={{ position: 'sticky', top: 60 }}>
+        <aside className="hastalik-sidebar" style={{ position: 'sticky', top: 60 }}>
 
           {/* İçindekiler */}
           <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 16 }}>

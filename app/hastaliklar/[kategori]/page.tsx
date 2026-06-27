@@ -95,7 +95,7 @@ export default function KategoriPage({ params }: Props) {
         </div>
       </div>
 
-      <div className="container" style={{ padding: '40px 20px', display: 'grid', gridTemplateColumns: '1fr 260px', gap: 32, alignItems: 'start' }}>
+      <div className="container kategori-content-grid" style={{ padding: '40px 20px' }}>
 
         {/* Ana içerik: Alt kategoriler + hastalıklar */}
         <div>
@@ -178,10 +178,9 @@ export default function KategoriPage({ params }: Props) {
           ))}
 
           {/* Doktor bul CTA */}
-          <div style={{
+          <div className="doktor-bul-cta-grid" style={{
             background: `linear-gradient(135deg, ${kat.renk} 0%, ${kat.renk}cc 100%)`,
             borderRadius: 20, padding: '32px',
-            display: 'grid', gridTemplateColumns: '1fr auto', gap: 24, alignItems: 'center',
           }}>
             <div>
               <h3 style={{ fontSize: 18, fontWeight: 800, color: 'white', margin: '0 0 8px' }}>
@@ -205,7 +204,7 @@ export default function KategoriPage({ params }: Props) {
         </div>
 
         {/* Sidebar */}
-        <aside style={{ position: 'sticky', top: 60 }}>
+        <aside className="kategori-sidebar" style={{ position: 'sticky', top: 60 }}>
           {/* Diğer kategoriler */}
           <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 16 }}>
             <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)' }}>
