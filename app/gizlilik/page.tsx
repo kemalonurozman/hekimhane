@@ -103,7 +103,7 @@ Bu haklarınızı kullanmak için **iletisim@hekimhane.com.tr** adresine başvur
         </div>
       </div>
 
-      <div className="container" style={{ padding: '40px 32px 56px', display: 'grid', gridTemplateColumns: '1fr 280px', gap: 32, alignItems: 'start' }}>
+      <div className="container hastalik-content-grid" style={{ padding: '40px 32px 56px' }}>
 
         {/* Ana içerik */}
         <div>

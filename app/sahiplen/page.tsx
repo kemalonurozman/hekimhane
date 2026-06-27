@@ -142,7 +142,7 @@ export default async function SahiplenPage(
             </div>
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: '32px', gridTemplateColumns: '1fr 320px', alignItems: 'start' }}>
+          <div className="hastalik-content-grid">
 
             {/* Form */}
             <div style={{ background: 'white', borderRadius: '20px', border: '1px solid var(--border)', padding: '40px' }}>

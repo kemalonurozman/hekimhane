@@ -247,7 +247,7 @@ export default function BlogInteractive({ posts, hastaliklar }: { posts: Post[];
       {/* Featured post — sadece "Tümü" seçiliyken göster */}
       {aktifKat === 'Tümü' && featured && (
         <Link href={featured.slug !== '#' ? `/blog/${featured.slug}` : '#'} style={{ textDecoration: 'none', display: 'block', marginBottom: 36 }}>
-          <div style={{ background: 'white', borderRadius: 24, border: '1px solid var(--border)', overflow: 'hidden', display: 'grid', gridTemplateColumns: '1fr 420px', minHeight: 260 }}>
+          <div className="hastalik-content-grid" style={{ background: 'white', borderRadius: 24, border: '1px solid var(--border)', overflow: 'hidden', minHeight: 260 }}>
             <div style={{ padding: '36px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>

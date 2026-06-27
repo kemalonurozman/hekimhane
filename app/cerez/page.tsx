@@ -42,7 +42,7 @@ export default function CerezPage() {
         </div>
       </section>
 
-      <div className="container" style={{ padding: '48px 20px', display: 'grid', gridTemplateColumns: '1fr 280px', gap: 32, alignItems: 'start' }}>
+      <div className="container hastalik-content-grid" style={{ padding: '48px 20px' }}>
         {/* İçerik */}
         <article style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '40px 48px' }}>
 

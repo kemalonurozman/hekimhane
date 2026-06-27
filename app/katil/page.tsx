@@ -488,7 +488,7 @@ export default function KatilPage() {
 
         {/* ── ADIM: Başvuru Formu ─────────────────────────── */}
         {step === 'form' && seciliKat && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 28, alignItems: 'start' }}>
+          <div className="hastalik-content-grid">
 
             {/* Form */}
             <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '32px' }}>

@@ -112,7 +112,7 @@ Hekimhane; 6698 sayılı KVKK, 5651 sayılı İnternet Ortamında Yapılan Yayı
         </div>
       </div>
 
-      <div className="container" style={{ padding: '40px 32px 56px', display: 'grid', gridTemplateColumns: '1fr 280px', gap: 32, alignItems: 'start' }}>
+      <div className="container hastalik-content-grid" style={{ padding: '40px 32px 56px' }}>
 
         {/* Ana içerik */}
         <div>
@@ -144,7 +144,7 @@ Hekimhane; 6698 sayılı KVKK, 5651 sayılı İnternet Ortamında Yapılan Yayı
         </div>
 
         {/* Sağ panel */}
-        <div style={{ position: 'sticky', top: 84 }}>
+        <div className="hastalik-sidebar" style={{ position: 'sticky', top: 84 }}>
           <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '22px', marginBottom: 16 }}>
             <h4 style={{ fontWeight: 800, fontSize: 14, color: 'var(--navy)', marginBottom: 14 }}>İçindekiler</h4>
             {SECTIONS.map((s, i) => (

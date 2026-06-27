@@ -28,7 +28,7 @@ export default function IletisimPage() {
         </div>
       </div>
 
-      <div className="container" style={{ padding: '48px 32px', display: 'grid', gridTemplateColumns: '1fr 360px', gap: 32, alignItems: 'start' }}>
+      <div className="container hastalik-content-grid" style={{ padding: '48px 32px' }}>
 
         {/* Form */}
         <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '36px 40px', boxShadow: '0 2px 16px rgba(0,0,0,.04)' }}>
