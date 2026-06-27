@@ -87,7 +87,7 @@ function CekimTalepFormu({
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      <div className="cekm-form-grid" style={{ gap: 12 }}>
         <div style={{ gridColumn: '1 / -1' }}>
           <label style={lbl}>İşletme Adı *</label>
           <input value={form.isletme_adi} onChange={e => F('isletme_adi', e.target.value)}
@@ -269,6 +269,7 @@ export default function FotografCekimiPage() {
           .cekm-features-grid { grid-template-columns: 1fr; }
           .cekm-steps { grid-template-columns: 1fr; }
           .cekm-form-box { padding: 24px 16px; }
+          .cekm-form-grid { grid-template-columns: 1fr; }
         }
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>

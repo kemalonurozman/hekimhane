@@ -49,7 +49,7 @@ export default function HakkimizdaPage() {
 
       {/* Stats */}
       <div className="container" style={{ padding: '0 32px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginTop: -28, marginBottom: 56 }}>
+        <div className="hakk-grid-4" style={{ gap: 16, marginTop: -28, marginBottom: 56 }}>
           {STATS.map(s => (
             <div key={s.label} style={{ background: 'white', borderRadius: 18, border: '1px solid var(--border)', padding: '24px 20px', textAlign: 'center', boxShadow: '0 4px 24px rgba(27,58,105,.07)' }}>
               <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 34, fontWeight: 800, color: 'var(--navy)', lineHeight: 1 }}>{s.n}</div>
@@ -59,7 +59,7 @@ export default function HakkimizdaPage() {
         </div>
 
         {/* Misyon */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginBottom: 56, alignItems: 'center' }}>
+        <div className="hakk-grid-2" style={{ marginBottom: 56 }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.5, color: 'var(--gold)', marginBottom: 10 }}>MİSYONUMUZ</div>
             <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, color: 'var(--navy)', marginBottom: 16, lineHeight: 1.3 }}>
@@ -97,7 +97,7 @@ export default function HakkimizdaPage() {
             <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 28, fontWeight: 800, marginBottom: 8 }}>Değerlerimiz</h2>
             <p style={{ color: 'var(--muted)', fontSize: 14 }}>Her kararımızı yönlendiren ilkeler</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }}>
+          <div className="hakk-grid-4" style={{ gap: 20 }}>
             {DEGERLER.map(d => (
               <div key={d.title} style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '28px 22px' }}>
                 <div style={{ fontSize: 36, marginBottom: 14 }}>{d.icon}</div>
@@ -131,7 +131,7 @@ export default function HakkimizdaPage() {
           <p style={{ color: 'rgba(255,255,255,.7)', fontSize: 15, maxWidth: 480, margin: '0 auto 28px', lineHeight: 1.7 }}>
             Kliniğinizi, hastanenizi veya eczanenizi Hekimhane'ye ücretsiz ekleyin, binlerce hastaya ulaşın.
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
             <Link href="/katil" style={{ padding: '13px 28px', background: 'var(--gold)', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 7 }}>
               <i className="fa-solid fa-plus" />Ücretsiz Ekle
             </Link>

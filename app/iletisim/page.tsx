@@ -31,12 +31,12 @@ export default function IletisimPage() {
       <div className="container hastalik-content-grid" style={{ padding: '48px 32px' }}>
 
         {/* Form */}
-        <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '36px 40px', boxShadow: '0 2px 16px rgba(0,0,0,.04)' }}>
+        <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: 'clamp(20px, 5vw, 40px)', boxShadow: '0 2px 16px rgba(0,0,0,.04)' }}>
           <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Mesaj Gönderin</h2>
           <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 28 }}>En geç 24 saat içinde dönüş yapıyoruz.</p>
 
           <form style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="form-two-col">
               {[
                 { label: 'Adınız', placeholder: 'Adınızı girin', type: 'text', required: true },
                 { label: 'Soyadınız', placeholder: 'Soyadınızı girin', type: 'text', required: true },

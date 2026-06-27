@@ -393,3 +393,71 @@ button {
     position: static !important;
   }
 }
+
+/* ================================================================
+   PAYLAŞILAN RESPONSIVE YARDIMCI SINIFLAR
+   ================================================================ */
+
+/* Blog 3 sütunlu grid */
+.blog-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Form yan yana 2 alan (ad + soyad gibi) */
+.form-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Hakkımızda 4 sütun (stats, değerler) */
+.hakk-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+/* 360-fotograf form iki sütun */
+.cekm-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Hakkımızda 2 sütun (misyon) */
+.hakk-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .blog-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .hakk-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hakk-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .blog-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .form-two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .hakk-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

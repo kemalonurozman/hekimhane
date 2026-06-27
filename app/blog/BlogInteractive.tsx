@@ -248,7 +248,7 @@ export default function BlogInteractive({ posts, hastaliklar }: { posts: Post[];
       {aktifKat === 'Tümü' && featured && (
         <Link href={featured.slug !== '#' ? `/blog/${featured.slug}` : '#'} style={{ textDecoration: 'none', display: 'block', marginBottom: 36 }}>
           <div className="hastalik-content-grid" style={{ background: 'white', borderRadius: 24, border: '1px solid var(--border)', overflow: 'hidden', minHeight: 260 }}>
-            <div style={{ padding: '36px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div style={{ padding: 'clamp(20px, 5vw, 40px)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
                   {featured.category && (
@@ -297,13 +297,13 @@ export default function BlogInteractive({ posts, hastaliklar }: { posts: Post[];
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
+          <div className="blog-grid-3">
             {hastaliklar.map(h => <HastalıkCard key={h.slug} h={h} />)}
           </div>
         </>
       ) : grid.length > 0 ? (
         /* Blog yazıları grid */
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
+        <div className="blog-grid-3">
           {grid.map(post => <BlogCard key={post.id} post={post} />)}
         </div>
       ) : (
