@@ -34,8 +34,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!res) return { title: 'Klinik Bulunamadı' };
   const { k } = res;
   const title = `${k.name} — ${k.ilce||''}, ${k.il||''}`;
-  const desc  = `${k.name} iletişim, yorumlar ve randevu bilgileri. ${k.adres||''}`;
-  return { title, description: desc, openGraph: { title: `${title} | Hekimhane`, description: desc, images: k.cover ? [k.cover] : [] } };
+  const desc  = `${k.name} ${k.il||''} ${k.ilce||''} adres, iletişim, yorumlar ve randevu bilgileri. ${(k.specs||[]).slice(0,3).join(', ')}`;
+  const url = `https://hekimhane.com.tr/klinikler/${tr(k.il||'turkiye')}/${tr(k.ilce||'merkez')}/${k.slug}`;
+  return {
+    title,
+    description: desc.slice(0, 155),
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${title} | Hekimhane`,
+      description: desc.slice(0, 155),
+      url,
+      images: k.cover ? [{ url: k.cover, alt: k.name }] : [],
+    },
+  };
 }
 
 export default async function KlinikProfilPage({ params }: Props) {
@@ -43,12 +54,32 @@ export default async function KlinikProfilPage({ params }: Props) {
   if (!res) notFound();
   const { k, yorumlar } = res;
 
-  const tr = (s: string) => (s||'').toLowerCase()
+  const trFn = (s: string) => (s||'').toLowerCase()
     .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
     .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'MedicalClinic',
+    name: k.name,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: k.ilce || '',
+      addressRegion: k.il || '',
+      addressCountry: 'TR',
+      streetAddress: k.adres || '',
+    },
+    telephone: k.tel || undefined,
+    url: k.website || `https://hekimhane.com.tr/klinikler/${trFn(k.il||'turkiye')}/${trFn(k.ilce||'merkez')}/${k.slug}`,
+    ...(k.rat && k.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: k.rat, reviewCount: k.rev, bestRating: 5 } } : {}),
+    ...(k.lat && k.lng ? { geo: { '@type': 'GeoCoordinates', latitude: k.lat, longitude: k.lng } } : {}),
+    medicalSpecialty: (k.specs || []).join(', '),
+  };
+
   return (
-    <ProfilSayfasi
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <ProfilSayfasi
       entityType="klinik"
       id={k.id} name={k.name}
       il={k.il} ilce={k.ilce} adres={k.adres}
@@ -75,5 +106,6 @@ export default async function KlinikProfilPage({ params }: Props) {
         { label: k.name, href: '#' },
       ]}
     />
+    </>
   );
 }

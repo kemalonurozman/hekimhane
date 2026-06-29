@@ -19,9 +19,20 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const h = getHastalik(params.hastalik);
   if (!h) return {};
+  const title = `${h.ad} – Belirtiler, Nedenler ve Tedavi`;
+  const description = h.ozet.slice(0, 155);
+  const url = `https://hekimhane.com.tr/hastaliklar/${h.kategoriSlug}/${h.slug}`;
   return {
-    title: `${h.ad} – Belirtiler, Nedenler ve Tedavi | Hekimhane`,
-    description: h.ozet.slice(0, 155),
+    title,
+    description,
+    keywords: [h.ad, ...h.belirtiler.slice(0,3).map(b => b.baslik), h.uzmanlik, 'hastalık', 'belirtiler', 'tedavi'],
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${title} | Hekimhane`,
+      description,
+      url,
+      type: 'article',
+    },
   };
 }
 
@@ -46,8 +57,20 @@ export default function HastalıkDetayPage({ params }: Props) {
     { id: 'sss',        label: 'Sık Sorulanlar' },
   ];
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'MedicalCondition',
+    name: h.ad,
+    description: h.ozet,
+    signOrSymptom: h.belirtiler.map(b => ({ '@type': 'MedicalSymptom', name: b.baslik })),
+    possibleTreatment: h.tedaviSecenekleri.map(t => ({ '@type': 'MedicalTherapy', name: t.tip })),
+    relevantSpecialty: { '@type': 'MedicalSpecialty', name: h.uzmanlik },
+    url: `https://hekimhane.com.tr/hastaliklar/${h.kategoriSlug}/${h.slug}`,
+  };
+
   return (
     <main style={{ background: 'var(--ivory)', minHeight: '100vh', paddingTop: 64 }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Hero */}
       <section style={{

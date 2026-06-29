@@ -30,9 +30,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!res) return { title: 'Doktor Bulunamadı' };
   const { d } = res;
   const fullN  = `${d.unvan ? d.unvan + ' ' : ''}${d.ad} ${d.soyad}`.trim();
-  const title  = `${fullN} — ${d.spec||'Doktor'}`;
-  const desc   = `${fullN} iletişim, yorumlar ve randevu bilgileri. ${d.il||''}`;
-  return { title, description: desc, openGraph: { title: `${title} | Hekimhane`, description: desc } };
+  const title  = `${fullN} — ${d.spec||'Doktor'}, ${d.il||''}`;
+  const desc   = `${fullN} ${d.spec||'Doktor'} ${d.il||''} randevu, iletişim ve yorumlar. ${d.bio ? d.bio.slice(0,80) : ''}`.trim();
+  const url    = `https://hekimhane.com.tr/doktorlar/${d.slug}`;
+  return {
+    title,
+    description: desc.slice(0, 155),
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${title} | Hekimhane`,
+      description: desc.slice(0, 155),
+      url,
+      images: d.photo ? [{ url: d.photo, alt: fullN }] : [],
+    },
+  };
 }
 
 export default async function DoktorProfilPage({ params }: Props) {
@@ -43,8 +54,27 @@ export default async function DoktorProfilPage({ params }: Props) {
   const fullName = `${d.ad} ${d.soyad}`.trim();
   const displayLabel = d.unvan ? `${d.unvan} ${fullName}` : fullName;
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Physician',
+    name: displayLabel,
+    medicalSpecialty: d.spec || undefined,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: d.ilce || '',
+      addressRegion: d.il || '',
+      addressCountry: 'TR',
+    },
+    telephone: d.tel || undefined,
+    image: d.photo || undefined,
+    ...(d.rat && d.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: d.rat, reviewCount: d.rev, bestRating: 5 } } : {}),
+    url: `https://hekimhane.com.tr/doktorlar/${d.slug}`,
+  };
+
   return (
-    <ProfilSayfasi
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <ProfilSayfasi
       entityType="doktor"
       id={d.id}
       name={fullName}
@@ -80,5 +110,6 @@ export default async function DoktorProfilPage({ params }: Props) {
         { label: displayLabel, href: '#' },
       ]}
     />
+    </>
   );
 }

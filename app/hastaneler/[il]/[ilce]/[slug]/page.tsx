@@ -34,8 +34,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!res) return { title: 'Hastane Bulunamadı' };
   const { h } = res;
   const title = `${h.name} — ${h.ilce||''}, ${h.il||''}`;
-  const desc  = `${h.name} iletişim, yorumlar ve randevu bilgileri. ${h.adres||''}`;
-  return { title, description: desc, openGraph: { title: `${title} | Hekimhane`, description: desc, images: h.cover ? [h.cover] : [] } };
+  const desc  = `${h.name} ${h.il||''} ${h.ilce||''} adres, iletişim bilgileri ve yorumlar. ${h.type||'Hastane'}.`;
+  const url   = `https://hekimhane.com.tr/hastaneler/${tr(h.il||'turkiye')}/${tr(h.ilce||'merkez')}/${h.slug}`;
+  return {
+    title,
+    description: desc.slice(0, 155),
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${title} | Hekimhane`,
+      description: desc.slice(0, 155),
+      url,
+      images: h.cover ? [{ url: h.cover, alt: h.name }] : [],
+    },
+  };
 }
 
 export default async function HastaneProfilPage({ params }: Props) {
@@ -43,8 +54,28 @@ export default async function HastaneProfilPage({ params }: Props) {
   if (!res) notFound();
   const { h, yorumlar } = res;
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Hospital',
+    name: h.name,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: h.ilce || '',
+      addressRegion: h.il || '',
+      addressCountry: 'TR',
+      streetAddress: h.adres || '',
+    },
+    telephone: h.tel || undefined,
+    numberOfBeds: h.beds || undefined,
+    ...(h.rat && h.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: h.rat, reviewCount: h.rev, bestRating: 5 } } : {}),
+    ...(h.lat && h.lng ? { geo: { '@type': 'GeoCoordinates', latitude: h.lat, longitude: h.lng } } : {}),
+    url: `https://hekimhane.com.tr/hastaneler/${tr(h.il||'turkiye')}/${tr(h.ilce||'merkez')}/${h.slug}`,
+  };
+
   return (
-    <ProfilSayfasi
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <ProfilSayfasi
       entityType="hastane"
       id={h.id} name={h.name}
       il={h.il} ilce={h.ilce} adres={h.adres}
@@ -72,5 +103,6 @@ export default async function HastaneProfilPage({ params }: Props) {
         { label: h.name, href: '#' },
       ]}
     />
+    </>
   );
 }

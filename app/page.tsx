@@ -5,10 +5,19 @@ import KategoriKartlari from '@/components/KategoriKartlari';
 import HeroAnimated from '@/components/HeroAnimated';
 import HastalikRehberiSection from '@/components/HastalikRehberiSection';
 import HekimhaneAI from '@/components/HekimhaneAI';
+import SaglikBul from '@/components/SaglikBul';
 
 export const metadata: Metadata = {
-  title: 'Hekimhane — Türkiye Sağlık Rehberi',
-  description: 'Türkiye\'nin en kapsamlı sağlık rehberi. Klinik, hastane, doktor ve eczane bilgisi.',
+  title: 'Hekimhane — Türkiye Sağlık Rehberi | Doktor, Klinik, Hastane Ara',
+  description: 'Türkiye\'nin en kapsamlı sağlık rehberi. 1.044+ klinik, 1.825+ hastane, 1.552+ doktor ve 8.789+ eczane. İstanbul, Ankara, İzmir ve tüm Türkiye\'de sağlık hizmeti bulun.',
+  keywords: ['doktor ara', 'klinik bul', 'hastane ara', 'eczane', 'sağlık rehberi', 'randevu', 'türkiye sağlık'],
+  alternates: { canonical: 'https://hekimhane.com.tr' },
+  openGraph: {
+    title: 'Hekimhane — Türkiye Sağlık Rehberi',
+    description: 'Doktor, klinik, hastane ve eczane arama platformu. Türkiye genelinde 13.000+ sağlık kuruluşu.',
+    url: 'https://hekimhane.com.tr',
+    type: 'website',
+  },
 };
 
 async function getStats() {
@@ -87,6 +96,9 @@ export default async function HomePage() {
 
       {/* ── HERO — canvas partikül + mouse efekti ────────────────── */}
       <HeroAnimated stats={stats} />
+
+      {/* ── SAĞLIK SORUNU BUL ────────────────────────────────────── */}
+      <SaglikBul />
 
       {/* ── HEKİMHANE AI ────────────────────────────────────────────── */}
       <section style={{ padding: '40px 0 0', background: '#F5F5F7' }}>
