@@ -295,10 +295,8 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
         const res  = await fetch(`/api/search?q=${encodeURIComponent(val)}`);
         const data: SearchResults = await res.json();
         setSonuclar(data);
-        const toplam =
-          data.doktorlar.length + data.hastaneler.length +
-          data.klinikler.length + data.eczaneler.length;
-        setAcik(toplam > 0);
+        // Sonuç olsun olmasın dropdown'ı aç — sonuç yoksa "bulunamadı + ekleme talebi" gösterilir
+        setAcik(true);
       } catch { /* ignore */ } finally {
         setYukleniyor(false);
       }
@@ -329,7 +327,8 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
     .map(g => ({ ...g, items: sonuclar?.[g.key] ?? [] }))
     .filter(g => g.items.length > 0);
 
-  const dropdownAcik = acik && aktifGruplar.length > 0;
+  const sonucYok = sonuclar !== null && aktifGruplar.length === 0 && q.trim().length >= 2 && !yukleniyor;
+  const dropdownAcik = acik && (aktifGruplar.length > 0 || sonucYok);
 
   return (
     <div
@@ -337,6 +336,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
       className="hero-search-form"
       style={{
         position: 'relative',
+        zIndex: 50,
         opacity: mounted ? 1 : 0,
         transform: mounted ? 'translateY(0)' : 'translateY(14px)',
         transition: 'opacity .7s ease .3s, transform .7s ease .3s',
@@ -360,7 +360,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
           <input
             value={q}
             onChange={handleInput}
-            onFocus={() => sonuclar && aktifGruplar.length > 0 && setAcik(true)}
+            onFocus={() => sonuclar && setAcik(true)}
             placeholder="Klinik, hastane, doktor veya eczane…"
             autoComplete="off"
             spellCheck={false}
@@ -396,6 +396,61 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
               maxHeight: 400,
               overflowY: 'auto',
             }}>
+              {/* Sonuç bulunamadı — ekleme talebi */}
+              {sonucYok && (
+                <div style={{ padding: '24px 20px', textAlign: 'center' }}>
+                  <div style={{
+                    width: 42, height: 42, borderRadius: '50%',
+                    background: '#F5F5F7', margin: '0 auto 12px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#8E8E93',
+                  }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /><path d="M8 11h6" />
+                    </svg>
+                  </div>
+                  <div style={{ fontSize: 14.5, fontWeight: 600, color: '#1D1D1F', letterSpacing: '-.2px', marginBottom: 4 }}>
+                    &ldquo;{q.trim()}&rdquo; için sonuç bulunamadı
+                  </div>
+                  <p style={{ fontSize: 12.5, color: '#6E6E73', margin: '0 0 16px', lineHeight: 1.5 }}>
+                    Aradığınız doktor, klinik veya eczane henüz sistemimizde yok.
+                    Eklenmesini isterseniz bize bildirebilirsiniz.
+                  </p>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <button
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setAcik(false);
+                        router.push(`/katil?oneri=${encodeURIComponent(q.trim())}`);
+                      }}
+                      style={{
+                        padding: '9px 18px', borderRadius: 10,
+                        background: '#1B3A69', color: 'white',
+                        fontSize: 13, fontWeight: 600, border: 'none',
+                        cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '-.1px',
+                      }}
+                    >
+                      Ekleme Talebi Gönder
+                    </button>
+                    <button
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setAcik(false);
+                        router.push(`/doktorlar?q=${encodeURIComponent(q.trim())}`);
+                      }}
+                      style={{
+                        padding: '9px 18px', borderRadius: 10,
+                        background: '#F5F5F7', color: '#1B3A69',
+                        fontSize: 13, fontWeight: 600, border: 'none',
+                        cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '-.1px',
+                      }}
+                    >
+                      Detaylı Ara
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {aktifGruplar.map((grup, gi) => (
                 <div key={grup.key}>
                   {gi > 0 && (
@@ -463,6 +518,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
               ))}
 
               {/* Alt bar — tüm sonuçları gör */}
+              {aktifGruplar.length > 0 && (
               <div style={{
                 padding: '10px 16px 12px',
                 borderTop: '1px solid #F0F0F5',
@@ -490,6 +546,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
                   </svg>
                 </button>
               </div>
+              )}
             </div>
           )}
         </div>

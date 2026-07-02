@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 
@@ -289,6 +289,14 @@ export default function KatilPage() {
     email: '', il: '', ilce: '', adres: '', mesaj: '',
   });
   const [errors, setErrors] = useState<Partial<FormData>>({});
+
+  // Arama kutusundan "ekleme talebi" ile gelindiyse işletme adını önceden doldur
+  useEffect(() => {
+    const oneri = new URLSearchParams(window.location.search).get('oneri');
+    if (oneri) {
+      setForm(f => ({ ...f, isletme_adi: oneri, mesaj: `"${oneri}" araması sonucunda bulunamadı — ekleme talebi.` }));
+    }
+  }, []);
 
   /* ── Fotoğraflar, 360° ─────────── */
   const [photoSlots, setPhotoSlots]   = useState<(string | null)[]>(Array(6).fill(null));
