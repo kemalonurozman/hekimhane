@@ -545,51 +545,117 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
 }
 
 // ── Randevu Talep Modalı ─────────────────────────────────────────
-function RandevuModal({ name, open, onClose }: { name: string; open: boolean; onClose: () => void }) {
+function RandevuModal({ name, entityType, entityId, open, onClose }: {
+  name: string; entityType: string; entityId: string | number; open: boolean; onClose: () => void;
+}) {
+  const [adSoyad, setAdSoyad] = useState('');
+  const [tel, setTel]         = useState('');
   const [email, setEmail]     = useState('');
+  const [tercih, setTercih]   = useState('');
+  const [mesaj, setMesaj]     = useState('');
   const [consent, setConsent] = useState(false);
   const [done, setDone]       = useState(false);
   const [saving, setSaving]   = useState(false);
+  const [hata, setHata]       = useState('');
 
-  function submit() {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !re.test(email)) return;
-    if (!consent) return;
+  const telOk = tel.replace(/\D/g, '').length >= 10;
+  const formOk = adSoyad.trim().length >= 3 && telOk && consent;
+
+  async function submit() {
+    if (!formOk || saving) return;
     setSaving(true);
-    setTimeout(() => { setSaving(false); setDone(true); }, 800);
+    setHata('');
+    try {
+      const res = await fetch('/api/randevu-talebi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          entity_type: entityType, entity_id: entityId, entity_name: name,
+          ad_soyad: adSoyad, tel, email, tercih, mesaj,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setHata(data.error || 'Talep gönderilemedi.'); return; }
+      setDone(true);
+    } catch {
+      setHata('Bağlantı hatası. Lütfen tekrar deneyin.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   if (!open) return null;
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '12px 14px', border: '1.5px solid var(--border)', borderRadius: 12,
+    fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+  };
+  const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6 };
+
   return (
     <div onClick={e => { if (e.target === e.currentTarget) onClose(); }}
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-      <div style={{ background: 'white', borderRadius: 20, maxWidth: 480, width: '100%', padding: 32, position: 'relative', boxShadow: '0 24px 64px rgba(0,0,0,.18)' }}>
+      <div style={{ background: 'white', borderRadius: 20, maxWidth: 480, width: '100%', padding: 32, position: 'relative', boxShadow: '0 24px 64px rgba(0,0,0,.18)', maxHeight: '90vh', overflowY: 'auto' }}>
         <button onClick={onClose} style={{ position: 'absolute', top: 14, right: 14, width: 32, height: 32, borderRadius: '50%', background: '#F3F4F6', border: 'none', cursor: 'pointer', fontSize: 16, color: '#6B7280' }}>✕</button>
         {done ? (
           <div style={{ textAlign: 'center', padding: '16px 0' }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
-            <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Talebiniz Alındı!</h3>
-            <p style={{ color: 'var(--muted)', fontSize: 14 }}>Randevu takvimi aktive edildiğinde e-posta ile bilgilendirileceksiniz.</p>
+            <div style={{
+              width: 56, height: 56, borderRadius: '50%', background: '#ECFDF5',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px',
+            }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Randevu Talebiniz Alındı</h3>
+            <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6 }}>
+              {name} yetkilisi en kısa sürede <strong>{tel}</strong> numarasından sizinle iletişime geçecek.
+            </p>
             <button onClick={onClose} style={{ marginTop: 16, padding: '10px 24px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Kapat</button>
           </div>
         ) : (
           <>
-            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 800, marginBottom: 8, paddingRight: 28, lineHeight: 1.25 }}>
-              {name} için randevu takvimini açmasını isteyin
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 800, marginBottom: 6, paddingRight: 28, lineHeight: 1.25 }}>
+              Randevu Talebi
             </h2>
-            <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 18, paddingBottom: 18, borderBottom: '1px solid var(--border)' }}>
-              E-posta adresinizi bırakın, takvim aktive edilirse sizi bilgilendirelim.
+            <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 18, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
+              <strong>{name}</strong> için bilgilerinizi bırakın, sizi arayıp randevunuzu oluştursunlar.
             </p>
-            <label style={{ display: 'block', fontSize: 14, fontWeight: 700, marginBottom: 8 }}>E-posta Adresi <span style={{ color: '#EF4444' }}>*</span></label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="E-posta adresinizi yazınız"
-              style={{ width: '100%', padding: '13px 16px', border: '1.5px solid var(--border)', borderRadius: 12, fontSize: 14, fontFamily: 'inherit', outline: 'none', marginBottom: 14, boxSizing: 'border-box' }} />
-            <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 12, color: 'var(--muted)', marginBottom: 20, cursor: 'pointer', lineHeight: 1.6 }}>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label style={labelStyle}>Ad Soyad <span style={{ color: '#EF4444' }}>*</span></label>
+                <input type="text" value={adSoyad} onChange={e => setAdSoyad(e.target.value)} placeholder="Adınız Soyadınız" style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>Telefon <span style={{ color: '#EF4444' }}>*</span></label>
+                <input type="tel" value={tel} onChange={e => setTel(e.target.value)} placeholder="05xx xxx xx xx" style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>E-posta <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="ornek@email.com" style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>Tercih Ettiğiniz Tarih / Saat <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
+                <input type="text" value={tercih} onChange={e => setTercih(e.target.value)} placeholder="Örn: Hafta içi öğleden sonra" style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>Notunuz <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
+                <textarea value={mesaj} onChange={e => setMesaj(e.target.value)} rows={2} placeholder="Şikayetiniz veya eklemek istedikleriniz…"
+                  style={{ ...inputStyle, resize: 'none' }} />
+              </div>
+            </div>
+
+            <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 12, color: 'var(--muted)', margin: '16px 0 18px', cursor: 'pointer', lineHeight: 1.6 }}>
               <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} style={{ marginTop: 2, accentColor: '#059669', flexShrink: 0 }} />
-              <span><a href="/kosullar" style={{ color: '#059669', fontWeight: 600 }}>Kullanım Koşulları</a>'nı kabul ediyorum ve bildirim amacıyla verilerimin işlenmesine onay veriyorum.</span>
+              <span>Bilgilerimin randevu oluşturma amacıyla bu işletmeyle paylaşılmasına onay veriyorum. <a href="/kvkk" style={{ color: '#059669', fontWeight: 600 }}>KVKK Aydınlatma Metni</a></span>
             </label>
-            <button onClick={submit} disabled={!email || !consent || saving}
-              style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: (!email || !consent) ? 'not-allowed' : 'pointer', opacity: (!email || !consent) ? 0.6 : 1, transition: '.2s' }}>
-              {saving ? 'Gönderiliyor...' : 'Gönder'}
+
+            {hata && (
+              <p style={{ color: '#DC2626', fontSize: 13, margin: '0 0 12px' }}>{hata}</p>
+            )}
+
+            <button onClick={submit} disabled={!formOk || saving}
+              style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: !formOk ? 'not-allowed' : 'pointer', opacity: !formOk ? 0.6 : 1, transition: '.2s' }}>
+              {saving ? 'Gönderiliyor…' : 'Randevu Talebi Gönder'}
             </button>
           </>
         )}
@@ -1445,21 +1511,22 @@ export default function ProfilSayfasi(props: ProfilProps) {
           {activeTab === 'randevu' && (
             <div style={sc}>
               <div style={scHd}>
-                <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Online Randevu Takvimi</h3>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(156,163,175,.15)', border: '1px solid rgba(156,163,175,.25)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: '#6B7280' }}>
-                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#9CA3AF', display: 'inline-block' }} />
-                  Etkin Değil
+                <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Randevu Talebi</h3>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: '#065F46' }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#059669', display: 'inline-block' }} />
+                  Talep Alınıyor
                 </span>
               </div>
               <div style={{ ...scBody, textAlign: 'center', padding: '40px 24px' }}>
-                <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 48, color: '#D1D5DB', display: 'block', marginBottom: 16 }} />
-                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Online Randevu Takvimi Henüz Aktif Değil</div>
+                <i className="fa-regular fa-calendar-check" style={{ fontSize: 48, color: '#059669', display: 'block', marginBottom: 16 }} />
+                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Sizi Arayalım, Randevunuzu Oluşturalım</div>
                 <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 420, margin: '0 auto 24px' }}>
-                  Bu işletme için online randevu sistemi henüz aktive edilmemiş. E-posta adresinizi bırakın, aktive edildiğinde sizi bilgilendirelim.
+                  Ad, soyad ve telefon numaranızı bırakın; işletme yetkilisi sizi arayarak
+                  size uygun tarih ve saate randevunuzu oluştursun.
                 </p>
                 <button onClick={() => setRandevuModal(true)}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 24 }}>
-                  <i className="fa-solid fa-calendar-plus" /> Bir randevu talep et
+                  <i className="fa-solid fa-calendar-plus" /> Randevu Talebi Bırak
                 </button>
                 <div style={{ maxWidth: 500, margin: '0 auto', textAlign: 'left' }}>
                   <AboneWidget
@@ -1645,7 +1712,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
       </div>
 
       {/* Randevu modal */}
-      <RandevuModal name={name} open={randevuModal} onClose={() => setRandevuModal(false)} />
+      <RandevuModal name={name} entityType={entityType} entityId={id} open={randevuModal} onClose={() => setRandevuModal(false)} />
 
       {/* ── Lightbox ── */}
       {lightboxIdx !== null && (() => {

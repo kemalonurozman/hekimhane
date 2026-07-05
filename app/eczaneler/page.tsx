@@ -82,6 +82,30 @@ export default async function EczanelerPage(
     : 'Tüm Eczaneler';
 
   return (
+    <>
+    {/* Konum bazlı arama banner'ı — yükseklik 66px: ListingLayout'un kendi
+        paddingTop:66 boşluğunu marginBottom:-66 ile telafi ediyoruz */}
+    <div style={{
+      background: '#F5F3FF', borderBottom: '1px solid #EDE9FE',
+      marginTop: 64, marginBottom: -66, height: 66,
+      position: 'relative', zIndex: 5,
+      display: 'flex', alignItems: 'center', boxSizing: 'border-box',
+    }}>
+      <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 13.5, color: '#4C1D95', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
+          </svg>
+          Size en yakın eczaneyi mi arıyorsunuz?
+        </span>
+        <a href="/yakin-eczane" style={{
+          padding: '7px 18px', borderRadius: 10, background: '#6D28D9', color: 'white',
+          fontSize: 13, fontWeight: 600, textDecoration: 'none', letterSpacing: '-.1px',
+        }}>
+          Konumumla Bul
+        </a>
+      </div>
+    </div>
     <ListingLayout
       basePath="/eczaneler"
       entityLabel="eczane"
@@ -134,6 +158,7 @@ export default async function EczanelerPage(
         </div>
       )}
     </ListingLayout>
+    </>
   );
 }
 
