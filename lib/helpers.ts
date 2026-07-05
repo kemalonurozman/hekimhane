@@ -57,3 +57,15 @@ export function ilToPath(il: string): string {
 export function ilceToPath(ilce: string): string {
   return toSlug(ilce);
 }
+
+// Telefon numarasını okunur formata çevirir: "5052699815" → "0505 269 98 15"
+// Zaten formatlıysa (boşluk içeriyorsa) dokunmaz.
+export function formatTel(tel: string): string {
+  if (!tel) return '';
+  if (/\s/.test(tel.trim())) return tel;
+  const digits = tel.replace(/\D/g, '');
+  // 10 hane (5xx...): başına 0 ekle; 11 hane (05xx / 0212...): olduğu gibi
+  const d = digits.length === 10 ? '0' + digits : digits;
+  if (d.length !== 11) return tel;
+  return `${d.slice(0, 4)} ${d.slice(4, 7)} ${d.slice(7, 9)} ${d.slice(9, 11)}`;
+}

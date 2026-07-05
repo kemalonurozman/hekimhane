@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import type { Doktor } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
+import { formatTel } from '@/lib/helpers';
 
 function Stars({ rat }: { rat: number }) {
   return (
@@ -182,7 +183,7 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
               onClick={e => e.stopPropagation()}
               className="doktor-card__tel">
               <i className="fa-solid fa-phone" style={{ fontSize: '11px', color: 'var(--gold)' }} />
-              {d.tel}
+              {formatTel(d.tel)}
             </a>
           </div>
         )}

@@ -139,8 +139,8 @@ export default function KategoriKartlari({ stats }: { stats: { klinik: number; h
       label: 'Doktorlar',
       desc: 'Uzman ve aile hekimleri',
       count: stats.doktor,
-      accent: '#92400E',
-      bg: '#FFFBEB',
+      accent: '#0E7490',
+      bg: '#ECFEFF',
     },
     {
       href: '/eczaneler',
@@ -148,8 +148,8 @@ export default function KategoriKartlari({ stats }: { stats: { klinik: number; h
       label: 'Eczaneler',
       desc: 'Nöbetçi ve çevre eczaneler',
       count: stats.eczane,
-      accent: '#991B1B',
-      bg: '#FFF5F5',
+      accent: '#6D28D9',
+      bg: '#F5F3FF',
     },
   ];
 

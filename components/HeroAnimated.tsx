@@ -247,10 +247,10 @@ function IconSpinner() {
 
 // ── Canlı Arama Formu ─────────────────────────────────────────────────────────
 const GRUPLAR_CONFIG = [
-  { key: 'doktorlar'  as const, baslik: 'Doktor',   renk: '#1B3A69', bg: '#EEF2FF' },
-  { key: 'hastaneler' as const, baslik: 'Hastane',  renk: '#2D6A4F', bg: '#ECFDF5' },
-  { key: 'klinikler'  as const, baslik: 'Klinik',   renk: '#6B4C9A', bg: '#F5F3FF' },
-  { key: 'eczaneler'  as const, baslik: 'Eczane',   renk: '#B45309', bg: '#FFF7ED' },
+  { key: 'doktorlar'  as const, baslik: 'Doktor',   renk: '#0E7490', bg: '#ECFEFF' },
+  { key: 'hastaneler' as const, baslik: 'Hastane',  renk: '#065F46', bg: '#ECFDF5' },
+  { key: 'klinikler'  as const, baslik: 'Klinik',   renk: '#1B3A69', bg: '#EEF2FF' },
+  { key: 'eczaneler'  as const, baslik: 'Eczane',   renk: '#6D28D9', bg: '#F5F3FF' },
 ];
 
 function LiveSearchForm({ mounted }: { mounted: boolean }) {
@@ -591,7 +591,9 @@ export default function HeroAnimated({ stats }: Props) {
       padding: '100px 0 108px',
       /* overflow: hidden kaldırıldı — dropdown'ın section dışına çıkmasına izin ver */
     }}>
-      <style>{`
+      {/* dangerouslySetInnerHTML: children olarak verilen CSS'teki ">" sunucuda
+          escape edilip hydration hatasına yol açıyordu */}
+      <style dangerouslySetInnerHTML={{ __html: `
         .hero-section {
           padding: 100px 0 108px;
         }
@@ -613,7 +615,7 @@ export default function HeroAnimated({ stats }: Props) {
             align-self: auto !important;
           }
         }
-      `}</style>
+      ` }} />
 
       {/* Arka plan katmanları */}
       <ParticleCanvas />

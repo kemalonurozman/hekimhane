@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import type { Eczane } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
+import { formatTel } from '@/lib/helpers';
 
 function Stars({ rat }: { rat: number }) {
   return (
@@ -167,7 +168,7 @@ export default function EczaneCard({ eczane: e }: { eczane: Eczane }) {
               onClick={ev => ev.stopPropagation()}
               className="eczane-card__tel">
               <i className="fa-solid fa-phone" style={{ fontSize: '11px', color: 'var(--gold)' }} />
-              {e.tel}
+              {formatTel(e.tel)}
             </a>
           </div>
         )}

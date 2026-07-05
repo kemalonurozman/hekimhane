@@ -35,13 +35,11 @@ export const metadata: Metadata = {
     url: 'https://hekimhane.com.tr',
     title: 'Hekimhane — Türkiye Sağlık Rehberi',
     description: 'Türkiye\'nin en kapsamlı sağlık rehberi. 1.044+ klinik, 1.825+ hastane, 1.552+ doktor ve 8.789+ eczane.',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Hekimhane — Türkiye Sağlık Rehberi' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Hekimhane — Türkiye Sağlık Rehberi',
     description: 'Türkiye\'nin en kapsamlı sağlık rehberi.',
-    images: ['/og-image.png'],
   },
   robots: {
     index: true,

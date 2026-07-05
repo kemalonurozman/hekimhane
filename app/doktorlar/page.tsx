@@ -129,8 +129,8 @@ export default async function DoktorlarPage(
       basePath="/doktorlar"
       entityLabel="doktor"
       entityLabelPlural="doktor"
-      color="#92400E"
-      gradient="linear-gradient(135deg, #92400E 0%, #B45309 100%)"
+      color="#0E7490"
+      gradient="linear-gradient(135deg, #155E75 0%, #0E7490 100%)"
       icon={
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="7" r="4"/>
@@ -138,7 +138,7 @@ export default async function DoktorlarPage(
           <path d="M16 11h3M17.5 9.5v3"/>
         </svg>
       }
-      iconBg="linear-gradient(135deg,#92400E,#B45309)"
+      iconBg="linear-gradient(135deg,#155E75,#0E7490)"
       title={title}
       count={count}
       cityCount={illerWithCount.length}

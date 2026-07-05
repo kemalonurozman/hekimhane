@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import type { Klinik } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
+import { formatTel } from '@/lib/helpers';
 
 function Stars({ rat }: { rat: number }) {
   return (
@@ -176,7 +177,7 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
               onClick={e => e.stopPropagation()}
               className="klinik-card__tel">
               <i className="fa-solid fa-phone" style={{ fontSize: '11px', color: 'var(--gold)' }} />
-              {k.tel}
+              {formatTel(k.tel)}
             </a>
           </div>
         )}
