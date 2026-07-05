@@ -20,12 +20,15 @@ function mesafeKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+const ECZANE_COLS = 'id, name, slug, il, ilce, address, tel, lat, lng, nobetci, acik_24_saat';
+
 /**
- * Eczane koordinatları henüz geocode edilmediği için (tümü 0,0) mesafe
- * doğrudan hesaplanamıyor. Bunun yerine: koordinatı bilinen en yakın
- * hastaneden kullanıcının il/ilçesini tespit edip o bölgedeki eczaneleri
- * döndürüyoruz. Eczaneler geocode edildiğinde bu route mesafe bazlıya
- * çevrilebilir.
+ * Hibrit strateji:
+ * 1) Kullanıcının çevresinde (≈30 km) koordinatı bilinen eczane varsa →
+ *    mesafeye göre sıralı liste (koordinatlar geocode script'iyle dolduruluyor;
+ *    ilçe merkezi hassasiyetinde olabilir, o yüzden "yaklaşık" işaretli).
+ * 2) Yoksa → koordinatı bilinen en yakın hastaneden il/ilçe tespiti + bölgedeki
+ *    eczaneler (isim/adres üzerinden ilçe eşleşmesi).
  */
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
@@ -39,7 +42,24 @@ export async function GET(req: NextRequest) {
   try {
     const admin = adminClient();
 
-    // 1) Koordinatı bilinen hastanelerden en yakınını bul → il/ilçe tespiti
+    // ── 1) Mesafe bazlı: çevrede koordinatlı eczaneler ─────────────
+    const { data: koordinatli } = await (admin as any)
+      .from('eczaneler')
+      .select(ECZANE_COLS)
+      .gt('lat', 30)
+      .gte('lat', lat - 0.27).lte('lat', lat + 0.27)
+      .gte('lng', lng - 0.34).lte('lng', lng + 0.34)
+      .limit(500);
+
+    if (koordinatli && koordinatli.length >= 5) {
+      const sonuc = koordinatli
+        .map((e: any) => ({ ...e, mesafe: Math.round(mesafeKm(lat, lng, e.lat, e.lng) * 10) / 10 }))
+        .sort((a: any, b: any) => a.mesafe - b.mesafe)
+        .slice(0, 20);
+      return NextResponse.json({ eczaneler: sonuc, mod: 'mesafe', konum: null });
+    }
+
+    // ── 2) Bölge bazlı fallback ────────────────────────────────────
     const { data: hastaneler, error: hErr } = await (admin as any)
       .from('hastaneler')
       .select('il, ilce, lat, lng')
@@ -61,18 +81,16 @@ export async function GET(req: NextRequest) {
     }
 
     if (!il) {
-      return NextResponse.json({ eczaneler: [], konum: null });
+      return NextResponse.json({ eczaneler: [], mod: 'bolge', konum: null });
     }
 
-    // 2) Önce ilçedeki eczaneler; yetersizse il geneli.
-    // Not: eczanelerde ilce kolonu çoğunlukla boş; ilçe adı işletme adının
-    // içinde geçiyor ("Emin Eczanesi (Ankara Çubuk)") — o yüzden name üzerinde
-    // de arıyoruz.
+    // Eczanelerde ilce kolonu çoğunlukla boş; ilçe adı işletme adında geçiyor
+    // ("Emin Eczanesi (Ankara Çubuk)") — o yüzden name/address üzerinde arıyoruz.
     let eczaneler: any[] = [];
     if (ilce) {
       const { data } = await (admin as any)
         .from('eczaneler')
-        .select('id, name, slug, il, ilce, address, tel, nobetci, acik_24_saat')
+        .select(ECZANE_COLS)
         .eq('il', il)
         .or(`ilce.ilike.%${ilce}%,name.ilike.%${ilce}%,address.ilike.%${ilce}%`)
         .order('rat', { ascending: false })
@@ -82,7 +100,7 @@ export async function GET(req: NextRequest) {
     if (eczaneler.length < 5) {
       const { data } = await (admin as any)
         .from('eczaneler')
-        .select('id, name, slug, il, ilce, address, tel, nobetci, acik_24_saat')
+        .select(ECZANE_COLS)
         .eq('il', il)
         .order('rat', { ascending: false })
         .limit(20);
@@ -90,7 +108,7 @@ export async function GET(req: NextRequest) {
       eczaneler = [...eczaneler, ...(data || []).filter((e: any) => !mevcutIds.has(e.id))].slice(0, 20);
     }
 
-    return NextResponse.json({ eczaneler, konum: { il, ilce } });
+    return NextResponse.json({ eczaneler, mod: 'bolge', konum: { il, ilce } });
   } catch {
     return NextResponse.json({ error: 'Eczaneler yüklenemedi.' }, { status: 500 });
   }

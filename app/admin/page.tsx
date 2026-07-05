@@ -961,7 +961,17 @@ interface CekimTalebi {
   notlar: string | null;
   durum: string;
   created_at: string;
+  /** Kaydın geldiği tablo — durum güncellemesi doğru tabloya yazılır */
+  _source?: 'cekim' | 'randevu';
 }
+
+// randevu_talepleri.status ↔ cekim_talepleri.durum eşlemesi
+const RANDEVU_TO_DURUM: Record<string, string> = {
+  yeni: 'beklemede', arandi: 'iletisime_gecildi', tamamlandi: 'tamamlandi', iptal: 'iptal',
+};
+const DURUM_TO_RANDEVU: Record<string, string> = {
+  beklemede: 'yeni', iletisime_gecildi: 'arandi', tamamlandi: 'tamamlandi', iptal: 'iptal',
+};
 
 const DURUM_LABELS: Record<string, { label: string; color: string }> = {
   beklemede:        { label: 'Beklemede',         color: C.amber  },
@@ -983,7 +993,34 @@ function CekimTalepleriTab() {
     const { data } = await (sb as any).from('cekim_talepleri')
       .select('*')
       .order('created_at', { ascending: false });
-    setTalepler((data as CekimTalebi[]) || []);
+    const cekim: CekimTalebi[] = ((data as CekimTalebi[]) || []).map(t => ({ ...t, _source: 'cekim' as const }));
+
+    // Randevu talepleri (tablo henüz oluşturulmadıysa sessizce atla)
+    let randevu: CekimTalebi[] = [];
+    try {
+      const { data: rData, error: rErr } = await (sb as any).from('randevu_talepleri')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!rErr && rData) {
+        randevu = rData.map((r: any) => ({
+          id: r.id,
+          isletme_adi: r.entity_name,
+          isletme_turu: `randevu-${r.entity_type}`,
+          il: null, ilce: null,
+          ad_soyad: r.ad_soyad,
+          tel: r.tel,
+          email: r.email,
+          notlar: [r.tercih ? `Tercih: ${r.tercih}` : null, r.mesaj ? `Not: ${r.mesaj}` : null].filter(Boolean).join(' | ') || null,
+          durum: RANDEVU_TO_DURUM[r.status] || 'beklemede',
+          created_at: r.created_at,
+          _source: 'randevu' as const,
+        }));
+      }
+    } catch { /* tablo yok — fallback kayıtları zaten cekim_talepleri'nde */ }
+
+    const hepsi = [...cekim, ...randevu]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    setTalepler(hepsi);
     setLoading(false);
   }, [sb]);
 
@@ -991,7 +1028,13 @@ function CekimTalepleriTab() {
 
   const updateDurum = async (id: string, durum: string) => {
     setUpdating(id);
-    await (sb as any).from('cekim_talepleri').update({ durum }).eq('id', id);
+    const talep = talepler.find(t => t.id === id);
+    if (talep?._source === 'randevu') {
+      await (sb as any).from('randevu_talepleri')
+        .update({ status: DURUM_TO_RANDEVU[durum] || 'yeni' }).eq('id', id);
+    } else {
+      await (sb as any).from('cekim_talepleri').update({ durum }).eq('id', id);
+    }
     setTalepler(prev => prev.map(t => t.id === id ? { ...t, durum } : t));
     setUpdating(null);
   };

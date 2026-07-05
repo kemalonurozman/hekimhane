@@ -557,6 +557,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
   const [done, setDone]       = useState(false);
   const [saving, setSaving]   = useState(false);
   const [hata, setHata]       = useState('');
+  const [website, setWebsite] = useState(''); // honeypot — botlar doldurur, insanlar görmez
 
   const telOk = tel.replace(/\D/g, '').length >= 10;
   const formOk = adSoyad.trim().length >= 3 && telOk && consent;
@@ -571,7 +572,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           entity_type: entityType, entity_id: entityId, entity_name: name,
-          ad_soyad: adSoyad, tel, email, tercih, mesaj,
+          ad_soyad: adSoyad, tel, email, tercih, mesaj, website,
         }),
       });
       const data = await res.json();
@@ -619,6 +620,13 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
             <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 18, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
               <strong>{name}</strong> için bilgilerinizi bırakın, sizi arayıp randevunuzu oluştursunlar.
             </p>
+
+            {/* Honeypot — ekran dışında, botlara tuzak */}
+            <input
+              type="text" value={website} onChange={e => setWebsite(e.target.value)}
+              tabIndex={-1} autoComplete="off" aria-hidden="true"
+              style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }}
+            />
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>

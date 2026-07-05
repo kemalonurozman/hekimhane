@@ -11,6 +11,7 @@ interface Eczane {
   ilce: string | null;
   address: string | null;
   tel: string | null;
+  mesafe?: number; // km — yalnızca mesafe modunda gelir
 }
 
 type Durum = 'bekliyor' | 'araniyor' | 'hazir' | 'izin-yok' | 'hata';
@@ -41,6 +42,7 @@ export default function YakinEczaneClient() {
   const [durum, setDurum] = useState<Durum>('bekliyor');
   const [eczaneler, setEczaneler] = useState<Eczane[]>([]);
   const [konum, setKonum] = useState<{ il: string; ilce: string | null } | null>(null);
+  const [mod, setMod] = useState<'mesafe' | 'bolge'>('bolge');
 
   function konumBul() {
     if (!('geolocation' in navigator)) {
@@ -57,6 +59,7 @@ export default function YakinEczaneClient() {
           const data = await res.json();
           setEczaneler(data.eczaneler || []);
           setKonum(data.konum || null);
+          setMod(data.mod === 'mesafe' ? 'mesafe' : 'bolge');
           setDurum('hazir');
         } catch {
           setDurum('hata');
@@ -153,7 +156,9 @@ export default function YakinEczaneClient() {
         {durum === 'hazir' && eczaneler.length > 0 && (
           <>
             <p style={{ fontSize: 14, color: '#6E6E73', margin: '0 0 20px', textAlign: 'center' }}>
-              {konum ? (
+              {mod === 'mesafe' ? (
+                <>Size en yakın <strong style={{ color: '#1D1D1F' }}>{eczaneler.length} eczane</strong> — yakından uzağa sıralı</>
+              ) : konum ? (
                 <>Bölgeniz: <strong style={{ color: '#1D1D1F' }}>{[konum.ilce, konum.il].filter(Boolean).join(', ')}</strong> — {eczaneler.length} eczane bulundu</>
               ) : (
                 <><strong style={{ color: '#1D1D1F' }}>{eczaneler.length} eczane</strong> bulundu</>
@@ -172,16 +177,27 @@ export default function YakinEczaneClient() {
                   boxShadow: '0 1px 4px rgba(0,0,0,.05)',
                   display: 'flex', flexDirection: 'column', gap: 10,
                 }}>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{
-                      fontWeight: 700, fontSize: 15, color: '#1D1D1F',
-                      letterSpacing: '-.2px', lineHeight: 1.3,
-                    }}>
-                      {e.name}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{
+                        fontWeight: 700, fontSize: 15, color: '#1D1D1F',
+                        letterSpacing: '-.2px', lineHeight: 1.3,
+                      }}>
+                        {e.name}
+                      </div>
+                      <div style={{ fontSize: 12.5, color: '#8E8E93', marginTop: 3 }}>
+                        {[e.ilce, e.il].filter(Boolean).join(', ')}
+                      </div>
                     </div>
-                    <div style={{ fontSize: 12.5, color: '#8E8E93', marginTop: 3 }}>
-                      {[e.ilce, e.il].filter(Boolean).join(', ')}
-                    </div>
+                    {typeof e.mesafe === 'number' && (
+                      <span style={{
+                        flexShrink: 0, padding: '4px 11px', borderRadius: 20,
+                        background: '#F5F3FF', color: '#6D28D9',
+                        fontSize: 12.5, fontWeight: 700, letterSpacing: '-.1px',
+                      }}>
+                        ≈ {e.mesafe < 1 ? `${Math.round(e.mesafe * 1000)} m` : `${e.mesafe} km`}
+                      </span>
+                    )}
                   </div>
 
                   {e.address && (

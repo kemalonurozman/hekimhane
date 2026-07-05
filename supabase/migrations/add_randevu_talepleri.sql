@@ -20,6 +20,9 @@ CREATE INDEX IF NOT EXISTS idx_randevu_status ON randevu_talepleri(status);
 
 ALTER TABLE randevu_talepleri ENABLE ROW LEVEL SECURITY;
 
--- Yazma yalnızca service role üzerinden (API route) yapılır; anon erişimi yok.
+-- Insert yalnızca service role üzerinden (API route) yapılır.
+-- Admin paneli tarayıcı client'ıyla okur/günceller — cekim_talepleri ile aynı model.
+CREATE POLICY "Admin okuyabilir"     ON randevu_talepleri FOR SELECT USING (TRUE);
+CREATE POLICY "Admin güncelleyebilir" ON randevu_talepleri FOR UPDATE USING (TRUE);
 
 NOTIFY pgrst, 'reload schema';
