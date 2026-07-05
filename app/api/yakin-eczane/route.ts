@@ -1,11 +1,19 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// Konum sorgusu her istekte taze hesaplanmalı — GET route cache'ine takılmasın
+export const dynamic = 'force-dynamic';
+
 function adminClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
+    {
+      auth: { autoRefreshToken: false, persistSession: false },
+      // Next.js, route handler içindeki GET fetch'lerini URL bazında önbelleğe
+      // alıyor — koordinat verisi güncellendikçe bayat sonuç dönmesin
+      global: { fetch: (url: any, opts: any) => fetch(url, { ...opts, cache: 'no-store' }) },
+    }
   );
 }
 
@@ -43,13 +51,14 @@ export async function GET(req: NextRequest) {
     const admin = adminClient();
 
     // ── 1) Mesafe bazlı: çevrede koordinatlı eczaneler ─────────────
-    const { data: koordinatli } = await (admin as any)
+    const { data: koordinatli, error: kErr } = await (admin as any)
       .from('eczaneler')
       .select(ECZANE_COLS)
       .gt('lat', 30)
       .gte('lat', lat - 0.27).lte('lat', lat + 0.27)
       .gte('lng', lng - 0.34).lte('lng', lng + 0.34)
       .limit(500);
+    if (kErr) console.error('yakin-eczane koordinat sorgusu:', kErr.message);
 
     if (koordinatli && koordinatli.length >= 5) {
       const sonuc = koordinatli
