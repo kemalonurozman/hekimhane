@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import type { Klinik } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
+import CompareButton from '@/components/CompareButton';
 import { formatTel } from '@/lib/helpers';
 
 function Stars({ rat }: { rat: number }) {
@@ -27,6 +28,7 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
     <>
       <style>{`
         .klinik-card {
+          position: relative;
           background: white;
           border-radius: 16px;
           border: 1px solid var(--border);
@@ -116,6 +118,13 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
       `}</style>
 
       <div className="klinik-card" onClick={() => router.push(profileUrl)}>
+
+        <CompareButton item={{
+          type: 'klinik', id: k.id, name: k.name, url: profileUrl,
+          rat: k.rat, rev: k.rev, il: k.il, ilce: k.ilce, tel: k.tel, image: k.logo,
+          premium: k.premium, online: k.online, acil: k.acil, claimed: k.claimed,
+          typeLabel: k.type, specs: k.specs,
+        }} />
 
         <div className="klinik-card__body">
           {/* İkon / Logo */}

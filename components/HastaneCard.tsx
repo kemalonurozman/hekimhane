@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import type { Hastane } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
+import CompareButton from '@/components/CompareButton';
 
 function Stars({ rat }: { rat: number }) {
   return (
@@ -237,12 +238,15 @@ export default function HastaneCard({ hastane: h }: { hastane: Hastane }) {
           {/* İçerik */}
           <div className="hc__content">
 
-            {/* İsim + kalp */}
+            {/* İsim + karşılaştır */}
             <div className="hc__name-row">
               <div className="hc__name">{h.name}</div>
-              <button className="hc__fav" onClick={e => e.stopPropagation()} aria-label="Favorilere ekle">
-                <i className="fa-regular fa-heart" />
-              </button>
+              <CompareButton variant="inline" item={{
+                type: 'hastane', id: h.id, name: h.name, url: profileUrl,
+                rat: h.rat, rev: h.rev, il: h.il, ilce: h.ilce, tel: h.tel,
+                image: h.photos?.[0] || h.logo, premium: isPremium, claimed: h.claimed,
+                typeLabel: h.type, specs: h.specs, beds: h.beds, docs: h.docs,
+              }} />
             </div>
 
             {/* Rozetler — fotoğraf dışında */}

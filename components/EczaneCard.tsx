@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import type { Eczane } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
+import CompareButton from '@/components/CompareButton';
 import { formatTel } from '@/lib/helpers';
 
 function Stars({ rat }: { rat: number }) {
@@ -24,6 +25,7 @@ export default function EczaneCard({ eczane: e }: { eczane: Eczane }) {
     <>
       <style>{`
         .eczane-card {
+          position: relative;
           background: white;
           border-radius: 16px;
           border: 1px solid var(--border);
@@ -101,6 +103,13 @@ export default function EczaneCard({ eczane: e }: { eczane: Eczane }) {
       `}</style>
 
       <div className="eczane-card" onClick={() => router.push(profileUrl)}>
+
+        <CompareButton item={{
+          type: 'eczane', id: e.id, name: e.name, url: profileUrl,
+          rat: e.rat, rev: e.rev, il: e.il, ilce: e.ilce, tel: e.tel,
+          premium: e.premium, claimed: e.claimed,
+          pharmacist: e.pharmacist, nobetci: e.nobetci,
+        }} />
 
         <div className="eczane-card__body">
           {/* İkon */}

@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import type { Doktor } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
+import CompareButton from '@/components/CompareButton';
 import { formatTel } from '@/lib/helpers';
 
 function Stars({ rat }: { rat: number }) {
@@ -27,6 +28,7 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
     <>
       <style>{`
         .doktor-card {
+          position: relative;
           background: white;
           border-radius: 16px;
           border: 1px solid var(--border);
@@ -106,6 +108,13 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
       `}</style>
 
       <div className="doktor-card" onClick={() => router.push(profileUrl)}>
+
+        <CompareButton item={{
+          type: 'doktor', id: d.id, name: displayName, url: profileUrl,
+          rat: d.rat, rev: d.rev, il: d.il, ilce: d.ilce, tel: d.tel, image: d.photo,
+          premium: d.premium, online: d.online, verified: d.verified,
+          spec: d.spec, fee: d.fee, exp: d.exp, clinic_name: d.clinic_name,
+        }} />
 
         <div className="doktor-card__body">
           {/* Avatar */}
