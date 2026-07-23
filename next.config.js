@@ -20,6 +20,13 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      // Diş hekimleri klinikler tablosunda type='Diş Hekimi' olarak duruyor.
+      // Kendi temiz adresiyle sunulur (SEO + menüde doğru aktif vurgu).
+      { source: '/dis-hekimleri', destination: '/klinikler?tip=Di%C5%9F%20Hekimi' },
+    ];
+  },
   async redirects() {
     return [
       {

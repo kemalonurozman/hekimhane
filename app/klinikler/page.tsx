@@ -101,7 +101,15 @@ export default async function KliniklerPage(
 
   const totalPages = Math.ceil(count / PAGE_SIZE);
 
-  const title = filters.uzmanlik ? `${filters.uzmanlik} Klinikleri`
+  // tip='Diş Hekimi' → bireysel diş hekimleri listesi (menüdeki "Diş Hekimleri")
+  const tipEtiket = filters.tip === 'Diş Hekimi' ? 'Diş Hekimleri'
+    : filters.tip === 'Çocuk Diş Hekimi' ? 'Çocuk Diş Hekimleri'
+    : filters.tip ? `${filters.tip} Klinikleri`
+    : null;
+  const yer = filters.ilce || filters.il;
+
+  const title = tipEtiket ? (yer ? `${yer} ${tipEtiket}` : `Tüm ${tipEtiket}`)
+    : filters.uzmanlik ? `${filters.uzmanlik} Klinikleri`
     : filters.ilce ? `${filters.ilce} Diş Klinikleri`
     : filters.il   ? `${filters.il} Diş Klinikleri`
     : 'Tüm Diş Klinikleri';

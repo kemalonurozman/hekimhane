@@ -3,10 +3,18 @@ import Link from 'next/link';
 export default function Footer() {
   const PLATFORM = [
     ['🦷 Diş Klinikleri',        '/klinikler'],
-    ['🪥 Diş Hekimleri',         '/doktorlar?spec=Di%C5%9F%20Hekimi'],
+    ['🪥 Diş Hekimleri',         '/dis-hekimleri'],
     ['📖 Ağız & Diş Sağlığı',    '/hastaliklar/dis-sagligi'],
     ['📝 Blog',                  '/blog'],
     ['➕ Kliniğinizi Ekleyin',   '/katil'],
+  ];
+
+  // Diş dışı sağlık hizmetleri — ikincil, yalnızca footer'da
+  const DIGER_SAGLIK = [
+    ['Diğer Doktorlar', '/doktorlar'],
+    ['Hastaneler',      '/hastaneler'],
+    ['Eczaneler',       '/eczaneler'],
+    ['Yakın Eczane',    '/yakin-eczane'],
   ];
 
   const SIRKET = [
@@ -32,9 +40,15 @@ export default function Footer() {
       <style>{`
         .footer-grid {
           display: grid;
-          grid-template-columns: 1.6fr 1fr 1fr 1fr;
-          gap: 40px;
+          grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr;
+          gap: 36px;
           margin-bottom: 48px;
+        }
+        @media (max-width: 1024px) {
+          .footer-grid {
+            grid-template-columns: 1.4fr 1fr 1fr;
+            gap: 32px;
+          }
         }
         @media (max-width: 768px) {
           .footer-grid {
@@ -116,6 +130,21 @@ export default function Footer() {
               Platform
             </h4>
             {PLATFORM.map(([label, href]) => (
+              <Link key={href} href={href} style={{
+                display: 'block', fontSize: '13px', marginBottom: '9px',
+                color: 'rgba(255,255,255,0.6)', textDecoration: 'none',
+              }}>
+                {label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Diğer sağlık — diş dışı branşlar */}
+          <div>
+            <h4 style={{ color: 'white', fontWeight: 700, marginBottom: '16px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+              Diğer Sağlık
+            </h4>
+            {DIGER_SAGLIK.map(([label, href]) => (
               <Link key={href} href={href} style={{
                 display: 'block', fontSize: '13px', marginBottom: '9px',
                 color: 'rgba(255,255,255,0.6)', textDecoration: 'none',

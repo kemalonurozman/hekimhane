@@ -6,11 +6,16 @@ import { useState, useEffect, useRef } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import type { User } from '@supabase/supabase-js';
 
+// Diş hekimleri "klinikler" tablosunda type='Diş Hekimi' olarak tutuluyor;
+// doktorlar tablosundaki diş kayıtları bunların kopyası olduğu için oraya gidilmez.
 const NAV_LINKS = [
-  { href: '/klinikler',                  base: '/klinikler',  label: 'Diş Klinikleri' },
-  { href: '/doktorlar?spec=Di%C5%9F%20Hekimi', base: '/doktorlar', label: 'Diş Hekimleri' },
-  { href: '/hastaliklar/dis-sagligi',    base: '/hastaliklar', label: 'Ağız & Diş Sağlığı' },
-  { href: '/blog',                       base: '/blog',       label: 'Blog' },
+  { href: '/klinikler',                        base: '/klinikler',   label: 'Diş Klinikleri' },
+  // /dis-hekimleri → next.config.js'te /klinikler?tip=Diş Hekimi'ye rewrite edilir
+  { href: '/dis-hekimleri',                    base: '/dis-hekimleri', label: 'Diş Hekimleri' },
+  { href: '/hastaliklar/dis-sagligi',          base: '/hastaliklar', label: 'Ağız & Diş Sağlığı' },
+  { href: '/blog',                             base: '/blog',        label: 'Blog' },
+  // Diş dışı branşlar — menünün sonunda, ikincil
+  { href: '/doktorlar',                        base: '/doktorlar',   label: 'Diğer Doktorlar' },
 ];
 
 // Logo mark — diş sembolü, SVG
@@ -107,6 +112,8 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen]   = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
 
+  const isActive = (link: { base: string }) => pathname.startsWith(link.base);
+
   useEffect(() => {
     const supabase = createSupabaseBrowser();
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -188,7 +195,7 @@ export default function Navbar() {
           {/* ── Desktop nav ──────────────────────────────────────────── */}
           <div style={{ display: 'flex', gap: 2, alignItems: 'center' }} className="nav-links-desktop">
             {NAV_LINKS.map(link => {
-              const active = pathname.startsWith(link.base);
+              const active = isActive(link);
               return (
                 <Link key={link.href} href={link.href} style={{
                   padding: '6px 13px',
@@ -421,7 +428,7 @@ export default function Navbar() {
         {/* ── Nav links ── */}
         <nav style={{ flex: 1, overflowY: 'auto', padding: '12px 16px' }}>
           {NAV_LINKS.map(link => {
-            const active = pathname.startsWith(link.base);
+            const active = isActive(link);
             return (
               <Link
                 key={link.href}

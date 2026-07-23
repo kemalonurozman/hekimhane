@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import type { Doktor } from '@/lib/types';
 import DoktorCard from '@/components/DoktorCard';
@@ -98,6 +99,16 @@ export default async function DoktorlarPage(
     page:   searchParams.page   ? parseInt(searchParams.page) : 1,
   };
 
+  // Diş hekimleri bu listede tutulmuyor (klinikler tablosunda yer alıyorlar).
+  // Eski bağlantılar boş sayfa göstermesin diye gerçek diş hekimi listesine yönlendir.
+  if (filters.spec && DIS_HEKIMI_SPECS.includes(filters.spec)) {
+    const qs = new URLSearchParams();
+    if (filters.il)   qs.set('il', filters.il);
+    if (filters.ilce) qs.set('ilce', filters.ilce);
+    const ek = qs.toString();
+    redirect(ek ? `/dis-hekimleri?${ek}` : '/dis-hekimleri');
+  }
+
   const [{ data: doktorlar, count }, illerWithCount, uzmanliklarWithCount, konumlar] = await Promise.all([
     getDoktorlar(filters),
     getIller(filters.spec),
@@ -108,23 +119,13 @@ export default async function DoktorlarPage(
   const totalPages = Math.ceil(count / PAGE_SIZE);
   const toplamDoktor = illerWithCount.reduce((s, i) => s + i.count, 0);
 
-  // Diş hekimi spec'i ile gelinmişse kliniklere yönlendir
-  const isDisHekimi = filters.spec && DIS_HEKIMI_SPECS.includes(filters.spec);
-
-  const title = filters.spec && !isDisHekimi ? `${filters.spec} Doktorları`
+  // Not: diş hekimi spec'i yukarıda /klinikler'e yönlendirildiği için burada
+  // yalnızca diş dışı branşlar listelenir.
+  const title = filters.spec ? `${filters.spec} Doktorları`
     : filters.il ? `${filters.il} Doktorları`
-    : 'Tüm Doktorlar';
+    : 'Diğer Branş Doktorları';
 
   return (
-    <>
-      {isDisHekimi && (
-        <div style={{ background: '#FEF9EC', border: '1px solid #F59E0B', borderRadius: 12, padding: '14px 20px', margin: '72px 32px 0', display: 'flex', alignItems: 'center', gap: 12, fontSize: 14 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-          <span>
-            <strong>Diş hekimleri</strong> artık <a href="/klinikler" style={{ color: '#1B3A69', fontWeight: 700 }}>Klinikler</a> bölümünde listelenmiştir.
-          </span>
-        </div>
-      )}
     <ListingLayout
       basePath="/doktorlar"
       entityLabel="doktor"
@@ -174,7 +175,6 @@ export default async function DoktorlarPage(
         </div>
       )}
     </ListingLayout>
-    </>
   );
 }
 
