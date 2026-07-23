@@ -124,26 +124,31 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
     if (hasErr) return;
     setSaving(true); setError('');
 
-    const supabase = createSupabaseBrowser();
-    const name     = user!.user_metadata?.full_name || user!.user_metadata?.name || '';
-    const { error: dbError } = await (supabase as any).from('claim_requests').insert({
-      entity_id:     entityId,
-      entity_type:   entityType,
-      entity_name:   entityName,
-      claimant_name: name,
-      phone:         loggedForm.tel.trim(),
-      email:         user!.email,
-      role:          [loggedForm.unvan.trim(), loggedForm.mesaj.trim()].filter(Boolean).join(' — ') || null,
-      status:        isClaimed ? 'dispute' : 'pending',
-    });
-
-    setSaving(false);
-    if (dbError) { setError(`Hata: ${dbError.message}`); }
-    else {
-      // Abone listesine ekle (fire-and-forget)
-      if (user!.email) saveToAboneList(user!.email, name || undefined);
-      setSubmitted(true);
+    const name = user!.user_metadata?.full_name || user!.user_metadata?.name || '';
+    try {
+      const r = await fetch('/api/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          entity_id:     entityId,
+          entity_type:   entityType,
+          entity_name:   entityName,
+          claimant_name: name,
+          phone:         loggedForm.tel.trim(),
+          email:         user!.email,
+          role:          [loggedForm.unvan.trim(), loggedForm.mesaj.trim()].filter(Boolean).join(' — ') || null,
+          status:        isClaimed ? 'dispute' : 'pending',
+        }),
+      });
+      const res = await r.json();
+      setSaving(false);
+      if (!r.ok) { setError(`Hata: ${res.error || 'Talep gönderilemedi.'}`); return; }
+    } catch {
+      setSaving(false); setError('Bağlantı hatası, tekrar deneyin.'); return;
     }
+    // Abone listesine ekle (fire-and-forget)
+    if (user!.email) saveToAboneList(user!.email, name || undefined);
+    setSubmitted(true);
   }
 
   /* ── Giriş yapılmamış: gönder ── */
@@ -157,25 +162,30 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
     if (Object.keys(errs).length) return;
 
     setSaving(true); setError('');
-    const supabase = createSupabaseBrowser();
-    const { error: dbError } = await (supabase as any).from('claim_requests').insert({
-      entity_id:     entityId,
-      entity_type:   entityType,
-      entity_name:   entityName,
-      claimant_name: guestForm.ad_soyad.trim(),
-      phone:         guestForm.tel.trim(),
-      email:         guestForm.email.trim(),
-      role:          [guestForm.unvan.trim(), guestForm.mesaj.trim()].filter(Boolean).join(' — ') || null,
-      status:        isClaimed ? 'dispute' : 'pending',
-    });
-
-    setSaving(false);
-    if (dbError) { setError(`Hata: ${dbError.message}`); }
-    else {
-      // Abone listesine ekle (fire-and-forget)
-      if (guestForm.email.trim()) saveToAboneList(guestForm.email.trim(), guestForm.ad_soyad.trim() || undefined);
-      setSubmitted(true);
+    try {
+      const r = await fetch('/api/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          entity_id:     entityId,
+          entity_type:   entityType,
+          entity_name:   entityName,
+          claimant_name: guestForm.ad_soyad.trim(),
+          phone:         guestForm.tel.trim(),
+          email:         guestForm.email.trim(),
+          role:          [guestForm.unvan.trim(), guestForm.mesaj.trim()].filter(Boolean).join(' — ') || null,
+          status:        isClaimed ? 'dispute' : 'pending',
+        }),
+      });
+      const res = await r.json();
+      setSaving(false);
+      if (!r.ok) { setError(`Hata: ${res.error || 'Talep gönderilemedi.'}`); return; }
+    } catch {
+      setSaving(false); setError('Bağlantı hatası, tekrar deneyin.'); return;
     }
+    // Abone listesine ekle (fire-and-forget)
+    if (guestForm.email.trim()) saveToAboneList(guestForm.email.trim(), guestForm.ad_soyad.trim() || undefined);
+    setSubmitted(true);
   }
 
   /* ── Ortak stiller ── */
