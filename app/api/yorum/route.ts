@@ -141,5 +141,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true, id: data.id });
+  return NextResponse.json({ ok: true, id: data.id, yorum: data });
 }

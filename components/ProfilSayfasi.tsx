@@ -448,16 +448,25 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
     if (!email || !emailRe.test(email)) { showToast('Geçerli bir e-posta girin.'); return; }
     setSaving(true);
     const author = (ad + ' ' + (soyad ? soyad[0] + '.' : '')).trim() || 'Anonim';
-    const supabase = createSupabaseBrowser();
-    const { data, error } = await (supabase as any).from('yorumlar').insert({
-      entity_type: entityType, entity_id: entityId,
-      author, rating: star, text: txt,
-      date: buildDateStr(),
-      helpful: 0, verified: false,
-    }).select().single();
+    let data: YorumItem | null = null;
+    try {
+      const r = await fetch('/api/yorum', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          entity_id: entityId, entity_type: entityType,
+          name: author, rating: star, text: txt,
+          date: buildDateStr(),
+        }),
+      });
+      const res = await r.json();
+      if (!r.ok) { setSaving(false); showToast(res.error || 'Hata oluştu, tekrar deneyin.'); return; }
+      data = (res.yorum as YorumItem) || null;
+    } catch {
+      setSaving(false); showToast('Bağlantı hatası, tekrar deneyin.'); return;
+    }
     setSaving(false);
-    if (error) { showToast('Hata oluştu, tekrar deneyin.'); return; }
-    if (data) onSubmit(data as YorumItem);
+    if (data) onSubmit(data);
     setOpen(false); setStar(0); setTxt(''); setAd(''); setSoyad(''); setEmail('');
     setVisitMonth(''); setVisitYear('');
     showToast('Yorumunuz eklendi, teşekkürler! ✅');
