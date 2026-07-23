@@ -91,12 +91,6 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
     });
   }, []);
 
-  async function handleGoogleGiris() {
-    const supabase  = createSupabaseBrowser();
-    const returnUrl = `${window.location.origin}/api/auth/callback?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
-    await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: returnUrl } });
-  }
-
   /* ── Giriş yapılmış: gönder ── */
   async function saveToAboneList(email: string, isim?: string) {
     try {
@@ -569,24 +563,6 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
   return (
     <form onSubmit={handleGuestSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
       {entityCard}
-
-      {/* Google ile giriş önerisi */}
-      <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 14, padding: '18px 20px' }}>
-        <p style={{ fontSize: 13, color: '#92400E', marginBottom: 12, lineHeight: 1.6 }}>
-          Google hesabınızla giriş yaparsanız ad ve e-posta otomatik doldurulur, form daha hızlı tamamlanır.
-        </p>
-        <button type="button" onClick={handleGoogleGiris}
-          style={{ width: '100%', padding: '11px', borderRadius: 11, border: '1.5px solid #E2E8F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 14, fontWeight: 600, color: '#1A2744' }}>
-          <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
-            <path d="M47.5 24.5c0-1.6-.1-3.2-.4-4.7H24v8.9h13.2c-.6 3-2.3 5.5-4.9 7.2v6h7.9c4.6-4.3 7.3-10.6 7.3-17.4z" fill="#4285F4"/>
-            <path d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.9-6c-2.1 1.4-4.9 2.3-8 2.3-6.1 0-11.3-4.1-13.2-9.7H2.7v6.2C6.6 42.5 14.7 48 24 48z" fill="#34A853"/>
-            <path d="M10.8 28.8c-.5-1.4-.7-2.8-.7-4.3s.3-2.9.7-4.3v-6.2H2.7C1 17.2 0 20.5 0 24s1 6.8 2.7 9.9l8.1-5.1z" fill="#FBBC04"/>
-            <path d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.9 2.5 30.5 0 24 0 14.7 0 6.6 5.5 2.7 14.1l8.1 6.2C12.7 14.6 17.9 9.5 24 9.5z" fill="#EA4335"/>
-          </svg>
-          Google ile Giriş Yap
-        </button>
-        <p style={{ fontSize: 11, color: '#B45309', textAlign: 'center', marginTop: 8 }}>veya aşağıdan bilgilerinizi girin</p>
-      </div>
 
       {/* Ad Soyad + Ünvan */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
