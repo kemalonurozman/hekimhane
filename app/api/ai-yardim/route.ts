@@ -80,17 +80,19 @@ async function gercekListeleriCek(sorgu: string, il?: string): Promise<string> {
       break;
     }
   }
+  // Hekimhane diş odaklı — uzmanlık tespit edilemezse diş hekimliğine varsay
+  if (!uzmanlik) uzmanlik = 'diş';
 
   const sonuclar: string[] = [];
 
   try {
-    // Doktorlar — tel dahil
+    // Diş hekimleri — spec 'diş' + varsa il (tel dahil)
     let doktorQuery = supabase
       .from('doktorlar')
       .select('ad, soyad, spec, il, ilce, fee, slug, tel')
+      .ilike('spec', '%diş%')
       .limit(4);
 
-    if (uzmanlik) doktorQuery = doktorQuery.ilike('spec', `%${uzmanlik}%`);
     if (il) doktorQuery = doktorQuery.ilike('il', `%${il}%`);
 
     const { data: doktorlar } = await doktorQuery;
@@ -104,18 +106,16 @@ async function gercekListeleriCek(sorgu: string, il?: string): Promise<string> {
           ? `  • [Dr. ${d.ad} ${d.soyad}](${link}) — ${d.spec}${sehir}${ucret}${tel}`
           : `  • Dr. ${d.ad} ${d.soyad} — ${d.spec}${sehir}${ucret}${tel}`;
       }).join('\n');
-      sonuclar.push(`Hekimhane\'de bu doktorlar mevcut:\n${liste}`);
+      sonuclar.push(`Hekimhane\'de bu diş hekimleri mevcut:\n${liste}`);
     }
 
-    // Klinikler — tel dahil
+    // Diş klinikleri — varsa il (tüm klinikler diş; specs bir text[] dizisi
+    // olduğu için .ilike ile aranmaz, il'e göre filtrelenir) (tel dahil)
     let klinikQuery = supabase
       .from('klinikler')
       .select('name, il, ilce, slug, tel')
       .limit(4);
 
-    if (uzmanlik) {
-      klinikQuery = klinikQuery.or(`name.ilike.%${uzmanlik}%,specs.ilike.%${uzmanlik}%`);
-    }
     if (il) klinikQuery = klinikQuery.ilike('il', `%${il}%`);
 
     const { data: klinikler } = await klinikQuery;
@@ -130,30 +130,7 @@ async function gercekListeleriCek(sorgu: string, il?: string): Promise<string> {
           ? `  • [${k.name}](${link})${konum ? `, ${konum}` : ''}${tel}`
           : `  • ${k.name}${konum ? `, ${konum}` : ''}${tel}`;
       }).join('\n');
-      sonuclar.push(`Hekimhane\'de bu klinikler mevcut:\n${liste}`);
-    }
-
-    // Hastaneler — tel dahil
-    if (il) {
-      const { data: hastaneler } = await supabase
-        .from('hastaneler')
-        .select('name, type, il, ilce, slug, tel')
-        .ilike('il', `%${il}%`)
-        .limit(3);
-
-      if (hastaneler && hastaneler.length > 0) {
-        const liste = hastaneler.map((h: { name: string; type?: string; il?: string; ilce?: string; slug?: string; tel?: string }) => {
-          const link = (h.slug && h.il && h.ilce)
-            ? `/hastaneler/${encodeURIComponent((h.il ?? '').toLowerCase())}/${encodeURIComponent((h.ilce ?? '').toLowerCase())}/${h.slug}`
-            : null;
-          const tip = h.type ? ` (${h.type})` : '';
-          const tel = h.tel ? ` 📞 ${h.tel}` : '';
-          return link
-            ? `  • [${h.name}](${link})${tip}${tel}`
-            : `  • ${h.name}${tip}${tel}`;
-        }).join('\n');
-        sonuclar.push(`Hekimhane\'de bu hastaneler mevcut:\n${liste}`);
-      }
+      sonuclar.push(`Hekimhane\'de bu diş klinikleri mevcut:\n${liste}`);
     }
   } catch {
     // Supabase hatası sessizce geç
@@ -246,28 +223,32 @@ Beklerken:
       gercekListeleriCek(mesaj, il),
     ]);
 
-    // Kategori listesi (kısa)
-    const kategoriOzet = KATEGORILER.map(k => `${k.ad} (${k.slug})`).join(', ');
+    // Diş konuları listesi (kısa) — ağız & diş sağlığı alt başlıkları
+    const disKategori = KATEGORILER.find(k => k.slug === 'dis-sagligi');
+    const kategoriOzet = disKategori
+      ? disKategori.altKategoriler.map(a => `${a.ad}`).join(', ')
+      : 'Diş Hastalıkları, Diş Eti Hastalıkları, Çene ve Oklüzyon, Genel Ağız Sağlığı';
 
-    // System prompt — Hekimhane'ye özgü
-    const systemPrompt = `Sen Hekimhane'nin yapay zeka sağlık asistanısın. Hekimhane, Türkiye'nin kapsamlı sağlık rehberidir: klinik, hastane, doktor ve eczane listelemeleri ile hastalık bilgi bankası içerir.
+    // System prompt — Hekimhane diş sağlığı asistanı
+    const systemPrompt = `Sen Hekimhane'nin yapay zeka diş sağlığı asistanısın. Hekimhane, Türkiye'nin diş hekimi ve diş kliniği rehberidir: diş klinikleri ve muayenehaneler, uzman diş hekimleri ve ağız & diş sağlığı bilgi bankası içerir.
 
 GÖREVLER:
-1. Hasta belirtilerini dinle, olası hastalıkları ve hangi uzmanın gerektiğini açıkla
-2. Sistemdeki gerçek doktor/klinik/hastane önerilerini yanıta entegre et
-3. Hastalık bilgi bankasındaki verileri kullanarak doğru, kapsamlı bilgi ver
-4. Randevu öncesi hazırlık, tedavi süreci, ilaç kullanımı hakkında yol göster
+1. Kullanıcının ağız ve diş şikayetlerini dinle, olası nedenleri ve hangi diş tedavisinin (endodonti, periodontoloji, implantoloji, ortodonti, restoratif tedavi, çene cerrahisi vb.) gerekebileceğini açıkla
+2. Sistemdeki gerçek diş hekimi ve diş kliniği önerilerini yanıta entegre et
+3. Ağız & diş sağlığı bilgi bankasındaki verileri kullanarak doğru, kapsamlı bilgi ver
+4. Randevu öncesi hazırlık, diş tedavi süreci, ağız bakımı hakkında yol göster
 
 KURAL:
 - Her zaman Türkçe yanıt ver
+- Odağın diş ve ağız sağlığı; konu dışı tıbbi sorularda kibarca bir diş hekimine/ilgili hekime yönlendir
 - Tıbbi teşhis koyma — "bu hastalıktır" deme; "bu belirtiler X'e işaret edebilir" de
-- Yanıtın sonunda her zaman doktor görüşmesi öner
+- Yanıtın sonunda her zaman bir diş hekimine muayene öner
 - Kısa ve net ol, aşırı teknik terim kullanma
-- Gerçek listeleme varsa doğrudan listele; [Dr. Ad Soyad](/doktorlar/slug) formatındaki linkleri ve 📞 telefon numaralarını AYNEN koru, değiştirme veya çevirme
+- Gerçek listeleme varsa doğrudan listele; [Dr. Ad Soyad](/doktorlar/slug) ve [Klinik Adı](/klinikler/...) formatındaki linkleri ve 📞 telefon numaralarını AYNEN koru, değiştirme veya çevirme
 - Telefon numarası olan listeleme satırında 📞 numarasını mutlaka bırak; kullanıcı tıklayarak arayabilsin
-- Sistematik ol: önce belirti analizi → uzman önerisi → Hekimhane listesi → öneri
+- Sistematik ol: önce şikayet analizi → tedavi önerisi → Hekimhane diş hekimi/klinik listesi → öneri
 
-HEKİMHANE KATEGORİLERİ: ${kategoriOzet}
+HEKİMHANE AĞIZ & DİŞ KONULARI: ${kategoriOzet}
 
 ${hastalikBilgisi ? `İLGİLİ HASTALIK VERİTABANI BİLGİSİ:\n${hastalikBilgisi}` : ''}
 ${gercekListeler}`;
@@ -279,26 +260,33 @@ ${gercekListeler}`;
       { role: 'user', content: mesaj },
     ];
 
-    // Claude streaming
-    const stream = await anthropic.messages.stream({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: mesajlar,
-    });
-
-    // ReadableStream olarak döndür
+    // ReadableStream olarak döndür — Claude çağrısı akış içinde başlatılır ki
+    // hata (ör. kredi yetersiz) 200 başlıktan sonra 500'e düşmesin, nazik
+    // bir mesaja dönüşsün.
     const readable = new ReadableStream({
       async start(controller) {
-        for await (const chunk of stream) {
-          if (
-            chunk.type === 'content_block_delta' &&
-            chunk.delta.type === 'text_delta'
-          ) {
-            controller.enqueue(new TextEncoder().encode(chunk.delta.text));
+        try {
+          const stream = await anthropic.messages.stream({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 1024,
+            system: systemPrompt,
+            messages: mesajlar,
+          });
+          for await (const chunk of stream) {
+            if (
+              chunk.type === 'content_block_delta' &&
+              chunk.delta.type === 'text_delta'
+            ) {
+              controller.enqueue(new TextEncoder().encode(chunk.delta.text));
+            }
           }
+        } catch (streamErr) {
+          console.error('[AI Yardım] Akış hatası:', streamErr);
+          const fallback = 'Yapay zeka asistanı şu an geçici olarak yanıt veremiyor. Lütfen biraz sonra tekrar deneyin.\n\nBu arada size en yakın [diş kliniklerine](/klinikler) ve [diş hekimlerine](/doktorlar?spec=Diş Hekimi) göz atabilirsiniz.';
+          controller.enqueue(new TextEncoder().encode(fallback));
+        } finally {
+          controller.close();
         }
-        controller.close();
       },
     });
 

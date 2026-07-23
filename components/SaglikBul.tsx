@@ -87,7 +87,14 @@ export default function SaglikBul() {
       }
       setAdim('sonuc');
     } catch {
-      setHata('Öneri alınamadı. Lütfen tekrar deneyin.');
+      // AI kullanılamıyorsa yine de şehirdeki diş kliniklerine yönlendir —
+      // "Hangi şehirdesiniz?" adımı her durumda faydalı bir sonuç üretsin.
+      setOneriler([{
+        uzmanlik: 'Diş Klinikleri',
+        aciklama: `${sehir} bölgesindeki diş kliniklerini ve muayenehanelerini görüntüleyin.`,
+        link: `/klinikler?il=${encodeURIComponent(sehir)}`,
+      }]);
+      setAdim('sonuc');
     } finally {
       setYukleniyor(false);
     }
