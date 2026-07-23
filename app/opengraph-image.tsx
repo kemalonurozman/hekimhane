@@ -29,22 +29,13 @@ export default function OgImage() {
             marginBottom: 36,
           }}
         >
-          <div
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: 18,
-              background: '#D4A843',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#1B3A69',
-              fontSize: 52,
-              fontWeight: 800,
-            }}
-          >
-            +
-          </div>
+          <svg width="76" height="76" viewBox="0 0 40 40" fill="none">
+            <rect width="40" height="40" rx="11" fill="#D4A843" />
+            <path
+              d="M20 8.2c-2.9 0-4.3-1.5-6.9-1.5-2.4 0-4.2 1.9-4.2 4.9 0 2.3.9 4.3 1.5 6.4.5 1.9.7 3.6.9 5.6.2 2 .5 4.1 1.1 5.8.5 1.4 1.2 2.4 2.2 2.4 1.1 0 1.6-1.2 1.9-2.9.3-1.7.5-3.6 1.1-5.1.2-.6.6-1.1 1.3-1.1s1.1.5 1.3 1.1c.6 1.5.8 3.4 1.1 5.1.3 1.7.8 2.9 1.9 2.9 1 0 1.7-1 2.2-2.4.6-1.7.9-3.8 1.1-5.8.2-2 .4-3.7.9-5.6.6-2.1 1.5-4.1 1.5-6.4 0-3-1.8-4.9-4.2-4.9C24.3 6.7 22.9 8.2 20 8.2Z"
+              fill="#16305A"
+            />
+          </svg>
           <div style={{ color: 'white', fontSize: 56, fontWeight: 800, letterSpacing: -2 }}>
             Hekimhane
           </div>
@@ -59,10 +50,10 @@ export default function OgImage() {
             marginBottom: 16,
           }}
         >
-          Türkiye Sağlık Rehberi
+          Türkiye Diş Hekimi & Klinik Rehberi
         </div>
         <div style={{ color: 'rgba(255,255,255,.65)', fontSize: 26 }}>
-          1.000+ klinik · 1.800+ hastane · 1.500+ doktor · 8.700+ eczane
+          Size en yakın diş kliniğini ve uzman diş hekimini bulun
         </div>
 
         <div

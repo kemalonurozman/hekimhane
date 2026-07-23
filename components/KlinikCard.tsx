@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import type { Klinik } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
+import { ToothGlyph } from '@/components/Logo';
 import { formatTel } from '@/lib/helpers';
 
 function Stars({ rat }: { rat: number }) {
@@ -133,9 +134,7 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
               style={{ background: k.logo ? 'transparent' : 'linear-gradient(135deg, var(--navy), var(--navy2))' }}>
               {k.logo
                 ? <img src={k.logo} alt={k.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                : <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.5" strokeLinecap="round">
-                    <circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>
-                  </svg>
+                : <ToothGlyph size={34} fill="rgba(255,255,255,0.9)" />
               }
             </div>
             {k.premium && <PremiumBadge />}

@@ -1,12 +1,13 @@
 import Link from 'next/link';
+import { Logo } from '@/components/Logo';
 
 export default function Footer() {
   const PLATFORM = [
-    ['🦷 Diş Klinikleri',        '/klinikler'],
-    ['🪥 Diş Hekimleri',         '/dis-hekimleri'],
-    ['📖 Ağız & Diş Sağlığı',    '/hastaliklar/dis-sagligi'],
-    ['📝 Blog',                  '/blog'],
-    ['➕ Kliniğinizi Ekleyin',   '/katil'],
+    ['Diş Klinikleri',       '/klinikler'],
+    ['Diş Hekimleri',        '/dis-hekimleri'],
+    ['Ağız & Diş Sağlığı',   '/hastaliklar/dis-sagligi'],
+    ['Blog',                 '/blog'],
+    ['Kliniğinizi Ekleyin',  '/katil'],
   ];
 
   // Diş dışı sağlık hizmetleri — ikincil, yalnızca footer'da
@@ -74,18 +75,8 @@ export default function Footer() {
 
           {/* Marka + bülten */}
           <div className="footer-brand-col">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-              <div style={{
-                width: '38px', height: '38px',
-                background: 'rgba(212,168,67,0.2)',
-                borderRadius: '11px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '20px',
-              }}>🦷</div>
-              <span style={{
-                fontFamily: 'var(--font-serif, serif)',
-                fontSize: '22px', fontWeight: 800, color: 'white',
-              }}>Hekimhane</span>
+            <div style={{ marginBottom: '14px' }}>
+              <Logo size={38} dark />
             </div>
             <p style={{ fontSize: '13px', lineHeight: 1.7, marginBottom: 20, maxWidth: 240 }}>
               Türkiye'nin diş sağlığı rehberi. Size en yakın diş kliniğini ve uzman diş hekimini tek platformda bulun.
@@ -200,7 +191,7 @@ export default function Footer() {
             © {new Date().getFullYear()} Hekimhane — hekimhane.com.tr — Tüm hakları saklıdır.
           </span>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '11px', color: 'rgba(255,255,255,.3)' }}>
-            <span>🇹🇷 Türkiye</span>
+            <span>Türkiye</span>
             <span>•</span>
             <span>Diş Sağlığında Güvenilir Rehber</span>
           </div>

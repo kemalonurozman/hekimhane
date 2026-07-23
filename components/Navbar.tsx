@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
+import { Logo } from '@/components/Logo';
 import type { User } from '@supabase/supabase-js';
 
 // Diş hekimleri "klinikler" tablosunda type='Diş Hekimi' olarak tutuluyor;
@@ -17,16 +18,6 @@ const NAV_LINKS = [
   // Diş dışı branşlar — menünün sonunda, ikincil
   { href: '/doktorlar',                        base: '/doktorlar',   label: 'Diğer Doktorlar' },
 ];
-
-// Logo mark — diş sembolü, SVG
-function LogoMark() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-      <rect width="32" height="32" rx="9" fill="#1B3A69" />
-      <path d="M10 8.5c-1.6 0-2.7 1.4-2.7 3.2 0 1 .3 2 .6 3 .4 1.4.5 3.4.3 5-.2 1.6 0 2.4.9 2.4.7 0 1-.9 1.3-2l.4-1.5c.2-.7.6-.7.8 0l.4 1.5c.3 1.1.6 2 1.3 2 .9 0 1.1-.8.9-2.4-.2-1.6-.1-3.6.3-5 .3-1 .6-2 .6-3 0-1.8-1.1-3.2-2.7-3.2-.9 0-1.5.5-2 .9-.5-.4-1.1-.9-2-.9Z" fill="#D4A843" transform="translate(4.5 0)" />
-    </svg>
-  );
-}
 
 function ChevronDown({ size = 10 }: { size?: number }) {
   return (
@@ -180,16 +171,8 @@ export default function Navbar() {
         }}>
 
           {/* ── Logo ─────────────────────────────────────────────────── */}
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <LogoMark />
-            <span style={{
-              fontSize: 18, fontWeight: 700,
-              color: '#1B3A69',
-              letterSpacing: '-0.5px',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
-            }}>
-              Hekimhane
-            </span>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <Logo size={34} />
           </Link>
 
           {/* ── Desktop nav ──────────────────────────────────────────── */}
@@ -396,15 +379,9 @@ export default function Navbar() {
           <Link
             href="/"
             onClick={() => setMobileOpen(false)}
-            style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}
+            style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
           >
-            <LogoMark />
-            <span style={{
-              fontSize: 18, fontWeight: 700, color: '#1B3A69', letterSpacing: '-0.5px',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
-            }}>
-              Hekimhane
-            </span>
+            <Logo size={34} />
           </Link>
 
           {/* Close button */}
