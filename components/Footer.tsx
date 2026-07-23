@@ -2,12 +2,11 @@ import Link from 'next/link';
 
 export default function Footer() {
   const PLATFORM = [
-    ['🔍 Doktor Ara',        '/doktorlar'],
-    ['🦷 Diş Klinikleri',    '/klinikler'],
-    ['🏥 Hastaneler',        '/hastaneler'],
-    ['💊 Eczaneler',         '/eczaneler'],
-    ['🩺 Hastalık Rehberi',  '/hastaliklar'],
-    ['➕ İşletme Ekleyin',   '/katil'],
+    ['🦷 Diş Klinikleri',        '/klinikler'],
+    ['🪥 Diş Hekimleri',         '/doktorlar?spec=Di%C5%9F%20Hekimi'],
+    ['📖 Ağız & Diş Sağlığı',    '/hastaliklar/dis-sagligi'],
+    ['📝 Blog',                  '/blog'],
+    ['➕ Kliniğinizi Ekleyin',   '/katil'],
   ];
 
   const SIRKET = [
@@ -75,7 +74,7 @@ export default function Footer() {
               }}>Hekimhane</span>
             </div>
             <p style={{ fontSize: '13px', lineHeight: 1.7, marginBottom: 20, maxWidth: 240 }}>
-              Türkiye'nin en kapsamlı sağlık rehberi. Doktor, klinik ve eczane bilgilerini tek platformda bulun.
+              Türkiye'nin diş sağlığı rehberi. Size en yakın diş kliniğini ve uzman diş hekimini tek platformda bulun.
             </p>
             {/* Bülten */}
             <div style={{ display: 'flex', gap: 8 }}>
@@ -174,7 +173,7 @@ export default function Footer() {
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '11px', color: 'rgba(255,255,255,.3)' }}>
             <span>🇹🇷 Türkiye</span>
             <span>•</span>
-            <span>Sağlıkta Güvenilir Rehber</span>
+            <span>Diş Sağlığında Güvenilir Rehber</span>
           </div>
         </div>
       </div>

@@ -8,13 +8,13 @@ import HekimhaneAI from '@/components/HekimhaneAI';
 import SaglikBul from '@/components/SaglikBul';
 
 export const metadata: Metadata = {
-  title: 'Hekimhane — Türkiye Sağlık Rehberi | Doktor, Klinik, Hastane Ara',
-  description: 'Türkiye\'nin en kapsamlı sağlık rehberi. 1.044+ klinik, 1.825+ hastane, 1.552+ doktor ve 8.789+ eczane. İstanbul, Ankara, İzmir ve tüm Türkiye\'de sağlık hizmeti bulun.',
-  keywords: ['doktor ara', 'klinik bul', 'hastane ara', 'eczane', 'sağlık rehberi', 'randevu', 'türkiye sağlık'],
+  title: 'Hekimhane — Türkiye Diş Hekimi & Klinik Rehberi',
+  description: 'Türkiye\'nin diş sağlığı rehberi. 1.044+ diş kliniği ve muayenehane, uzman diş hekimleri. İstanbul, Ankara, İzmir ve tüm Türkiye\'de size en yakın diş hekimini ve kliniğini bulun.',
+  keywords: ['diş hekimi', 'diş kliniği', 'diş hekimi ara', 'ağız ve diş sağlığı', 'implant', 'ortodonti', 'diş muayenehanesi', 'randevu'],
   alternates: { canonical: 'https://hekimhane.com.tr' },
   openGraph: {
-    title: 'Hekimhane — Türkiye Sağlık Rehberi',
-    description: 'Doktor, klinik, hastane ve eczane arama platformu. Türkiye genelinde 13.000+ sağlık kuruluşu.',
+    title: 'Hekimhane — Türkiye Diş Hekimi & Klinik Rehberi',
+    description: 'Diş kliniği ve diş hekimi arama platformu. Türkiye genelinde 1.000+ diş kliniği ve muayenehane.',
     url: 'https://hekimhane.com.tr',
     type: 'website',
   },
@@ -22,20 +22,16 @@ export const metadata: Metadata = {
 
 async function getStats() {
   try {
-    const [klinik, hastane, doktor, eczane] = await Promise.all([
+    const [klinik, disHekimi] = await Promise.all([
       supabase.from('klinikler').select('id', { count: 'exact', head: true }),
-      supabase.from('hastaneler').select('id', { count: 'exact', head: true }),
-      supabase.from('doktorlar').select('id', { count: 'exact', head: true }),
-      supabase.from('eczaneler').select('id', { count: 'exact', head: true }),
+      supabase.from('doktorlar').select('id', { count: 'exact', head: true }).ilike('spec', '%diş%'),
     ]);
     return {
       klinik: klinik.count || 0,
-      hastane: hastane.count || 0,
-      doktor: doktor.count || 0,
-      eczane: eczane.count || 0,
+      disHekimi: disHekimi.count || 0,
     };
   } catch {
-    return { klinik: 0, hastane: 0, doktor: 0, eczane: 0 };
+    return { klinik: 0, disHekimi: 0 };
   }
 }
 
@@ -115,10 +111,10 @@ export default async function HomePage() {
               fontSize: 30, fontWeight: 700, letterSpacing: '-0.8px',
               color: '#1D1D1F', margin: '0 0 10px',
             }}>
-              Ne Arıyorsunuz?
+              Diş Sağlığında Ne Arıyorsunuz?
             </h2>
             <p style={{ color: '#6E6E73', fontSize: 15, margin: 0 }}>
-              Türkiye genelinde arama yapın, size en yakını bulun.
+              Türkiye genelinde arama yapın, size en yakın diş hekimini bulun.
             </p>
           </div>
           {/* Client component — hover etkileşimi burada */}
@@ -137,7 +133,7 @@ export default async function HomePage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
             <span style={{ color: '#6E6E73', display: 'flex' }}><IconMapPin /></span>
             <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1D1D1F', letterSpacing: '-.4px', margin: 0 }}>
-              Şehre Göre Ara
+              Şehre Göre Diş Kliniği Ara
             </h2>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -171,16 +167,16 @@ export default async function HomePage() {
                 fontSize: 11, fontWeight: 600, letterSpacing: '1.2px',
                 textTransform: 'uppercase', color: '#D4A843', margin: '0 0 12px',
               }}>
-                İşletme Sahipleri İçin
+                Diş Hekimleri İçin
               </p>
               <h2 style={{
                 fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700,
                 letterSpacing: '-0.8px', color: 'white', margin: '0 0 12px',
               }}>
-                İşletmenizi Listeleyin
+                Kliniğinizi Listeleyin
               </h2>
               <p style={{ color: 'rgba(255,255,255,.58)', fontSize: 15, margin: 0, lineHeight: 1.65 }}>
-                Kliniğinizi veya hastanenizi platforma ekleyin, binlerce potansiyel hastaya ulaşın.
+                Muayenehanenizi veya diş kliniğinizi platforma ekleyin, binlerce potansiyel hastaya ulaşın.
               </p>
             </div>
             <Link href="/katil" style={{

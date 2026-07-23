@@ -38,30 +38,51 @@ export async function GET(req: NextRequest) {
   const LIMIT = 5;
   const like = `%${q}%`;
 
+  // scope=dental → sadece diş klinikleri ve diş hekimleri (ana sayfa diş odaklı arama)
+  const dental = req.nextUrl.searchParams.get('scope') === 'dental';
+
+  // Diş hekimi sorgusu: dental modda spec 'diş' ile sınırlanır
+  const doktorQuery = dental
+    ? supabase
+        .from('doktorlar')
+        .select('ad, soyad, spec, il, ilce, slug')
+        .ilike('spec', '%diş%')
+        .or(`ad.ilike.${like},soyad.ilike.${like},il.ilike.${like}`)
+        .limit(LIMIT)
+    : supabase
+        .from('doktorlar')
+        .select('ad, soyad, spec, il, ilce, slug')
+        .or(`ad.ilike.${like},soyad.ilike.${like},spec.ilike.${like},il.ilike.${like}`)
+        .limit(LIMIT);
+
   const [doktorRes, hastaneRes, klinikRes, eczaneRes] = await Promise.allSettled([
-    supabase
-      .from('doktorlar')
-      .select('ad, soyad, spec, il, ilce, slug')
-      .or(`ad.ilike.${like},soyad.ilike.${like},spec.ilike.${like},il.ilike.${like}`)
-      .limit(LIMIT),
+    doktorQuery,
 
-    supabase
-      .from('hastaneler')
-      .select('name, type, il, ilce, slug')
-      .or(`name.ilike.${like},il.ilike.${like},type.ilike.${like}`)
-      .limit(LIMIT),
+    // Dental modda hastane araması yapılmaz
+    dental
+      ? Promise.resolve({ data: [] as never[] })
+      : supabase
+          .from('hastaneler')
+          .select('name, type, il, ilce, slug')
+          .or(`name.ilike.${like},il.ilike.${like},type.ilike.${like}`)
+          .limit(LIMIT),
 
+    // NOT: specs bir text[] dizisi — .ilike tüm .or() sorgusunu çökertiyordu
+    // (operator does not exist: text[] ~~*). Ada ve ile göre ara.
     supabase
       .from('klinikler')
       .select('name, il, ilce, slug')
-      .or(`name.ilike.${like},il.ilike.${like},specs.ilike.${like}`)
-      .limit(LIMIT),
-
-    supabase
-      .from('eczaneler')
-      .select('name, il, ilce, slug')
       .or(`name.ilike.${like},il.ilike.${like}`)
       .limit(LIMIT),
+
+    // Dental modda eczane araması yapılmaz
+    dental
+      ? Promise.resolve({ data: [] as never[] })
+      : supabase
+          .from('eczaneler')
+          .select('name, il, ilce, slug')
+          .or(`name.ilike.${like},il.ilike.${like}`)
+          .limit(LIMIT),
   ]);
 
   // ── Doktorlar ─────────────────────────────────────────────────────────────

@@ -7,20 +7,18 @@ import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import type { User } from '@supabase/supabase-js';
 
 const NAV_LINKS = [
-  { href: '/doktorlar',  label: 'Doktorlar' },
-  { href: '/hastaneler', label: 'Hastaneler' },
-  { href: '/klinikler',  label: 'Diş Hekimleri' },
-  { href: '/eczaneler',  label: 'Eczaneler' },
-  { href: '/blog',       label: 'Blog' },
+  { href: '/klinikler',                  base: '/klinikler',  label: 'Diş Klinikleri' },
+  { href: '/doktorlar?spec=Di%C5%9F%20Hekimi', base: '/doktorlar', label: 'Diş Hekimleri' },
+  { href: '/hastaliklar/dis-sagligi',    base: '/hastaliklar', label: 'Ağız & Diş Sağlığı' },
+  { href: '/blog',                       base: '/blog',       label: 'Blog' },
 ];
 
-// Logo mark — sağlık artı sembolü, SVG
+// Logo mark — diş sembolü, SVG
 function LogoMark() {
   return (
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
       <rect width="32" height="32" rx="9" fill="#1B3A69" />
-      <rect x="14" y="7" width="4" height="18" rx="2" fill="white" />
-      <rect x="7" y="14" width="18" height="4" rx="2" fill="#D4A843" />
+      <path d="M10 8.5c-1.6 0-2.7 1.4-2.7 3.2 0 1 .3 2 .6 3 .4 1.4.5 3.4.3 5-.2 1.6 0 2.4.9 2.4.7 0 1-.9 1.3-2l.4-1.5c.2-.7.6-.7.8 0l.4 1.5c.3 1.1.6 2 1.3 2 .9 0 1.1-.8.9-2.4-.2-1.6-.1-3.6.3-5 .3-1 .6-2 .6-3 0-1.8-1.1-3.2-2.7-3.2-.9 0-1.5.5-2 .9-.5-.4-1.1-.9-2-.9Z" fill="#D4A843" transform="translate(4.5 0)" />
     </svg>
   );
 }
@@ -190,7 +188,7 @@ export default function Navbar() {
           {/* ── Desktop nav ──────────────────────────────────────────── */}
           <div style={{ display: 'flex', gap: 2, alignItems: 'center' }} className="nav-links-desktop">
             {NAV_LINKS.map(link => {
-              const active = pathname.startsWith(link.href);
+              const active = pathname.startsWith(link.base);
               return (
                 <Link key={link.href} href={link.href} style={{
                   padding: '6px 13px',
@@ -423,7 +421,7 @@ export default function Navbar() {
         {/* ── Nav links ── */}
         <nav style={{ flex: 1, overflowY: 'auto', padding: '12px 16px' }}>
           {NAV_LINKS.map(link => {
-            const active = pathname.startsWith(link.href);
+            const active = pathname.startsWith(link.base);
             return (
               <Link
                 key={link.href}

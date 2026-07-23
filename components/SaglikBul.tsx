@@ -11,8 +11,8 @@ const ILLER = [
 ];
 
 const HIZLI_BELIRTILER = [
-  'Baş ağrısı', 'Sırt ağrısı', 'Yorgunluk', 'Tansiyon',
-  'Diş ağrısı', 'Göz sorunu', 'Cilt problemi', 'Mide ağrısı',
+  'Diş ağrısı', 'Diş eti kanaması', 'Diş çürüğü', 'Diş hassasiyeti',
+  'İmplant', 'Ortodonti (diş teli)', 'Diş beyazlatma', '20\'lik diş ağrısı',
 ];
 
 type Adim = 'belirti' | 'sehir' | 'sonuc';
@@ -47,7 +47,7 @@ export default function SaglikBul() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          mesaj: `Şikayetim: ${belirti}. Hangi uzman doktora gitmeliyim? Kısa yanıt ver: sadece 2-3 uzmanlık alanı öner, her biri için tek satır açıklama. Format: UZMANLİK: açıklama`,
+          mesaj: `Diş/ağız şikayetim: ${belirti}. Bu şikayet için hangi diş tedavisi veya diş hekimliği alanına başvurmalıyım? Kısa yanıt ver: sadece 2-3 ilgili diş tedavisi/alan öner (örn. Endodonti, Periodontoloji, İmplantoloji, Ortodonti, Restoratif diş tedavisi), her biri için tek satır açıklama. Format: ALAN: açıklama`,
         }),
       });
 
@@ -71,16 +71,16 @@ export default function SaglikBul() {
         const [uzm, ...rest] = line.split(':');
         const uzmanlik = uzm.replace(/^\*+/, '').replace(/\*+$/, '').trim();
         const aciklama = rest.join(':').trim();
-        const link = `/doktorlar?il=${encodeURIComponent(sehir)}&uzmanlik=${encodeURIComponent(uzmanlik)}`;
+        const link = `/klinikler?il=${encodeURIComponent(sehir)}`;
         return { uzmanlik, aciklama, link };
       }).filter(o => o.uzmanlik.length > 0 && o.uzmanlik.length < 60);
 
       if (parsed.length === 0) {
-        // Fallback: genel doktor önerisi
+        // Fallback: genel diş kliniği önerisi
         setOneriler([{
-          uzmanlik: 'Uzman Doktor',
+          uzmanlik: 'Diş Hekimi',
           aciklama: fullText.slice(0, 200),
-          link: `/doktorlar?il=${encodeURIComponent(sehir)}`,
+          link: `/klinikler?il=${encodeURIComponent(sehir)}`,
         }]);
       } else {
         setOneriler(parsed);
@@ -117,7 +117,7 @@ export default function SaglikBul() {
               fontSize: 11, fontWeight: 700, letterSpacing: '1.4px',
               textTransform: 'uppercase', color: '#D4A843', margin: '0 0 16px',
             }}>
-              AI Destekli Doktor Eşleştirme
+              AI Destekli Diş Hekimi Eşleştirme
             </p>
             <h2 style={{
               fontSize: 'clamp(26px, 3.5vw, 38px)', fontWeight: 700,
@@ -125,20 +125,20 @@ export default function SaglikBul() {
               margin: '0 0 16px',
             }}>
               Şikayetinizi Anlatın,<br />
-              <span style={{ color: '#1B3A69' }}>Doktorunuzu Bulun</span>
+              <span style={{ color: '#1B3A69' }}>Diş Hekiminizi Bulun</span>
             </h2>
             <p style={{
               color: '#6E6E73', fontSize: 16, lineHeight: 1.65,
               margin: '0 0 28px', letterSpacing: '.05px',
             }}>
-              Hangi belirtilere sahip olduğunuzu yazın. Yapay zeka size en uygun
-              uzmanlık alanını ve yakınızda bulunan doktorları önerir.
+              Ağız ve diş şikayetinizi yazın. Yapay zeka size en uygun diş
+              tedavisini ve yakınınızdaki diş kliniklerini önerir.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
-                { baslik: 'Belirtilerinizi Yazın', aciklama: 'Şikayetlerinizi kısaca anlatın' },
-                { baslik: 'Şehrinizi Seçin', aciklama: 'Size en yakın doktorları bulalım' },
-                { baslik: 'Uzmanı Bulun', aciklama: 'AI destekli öneri ile doğru doktora gidin' },
+                { baslik: 'Şikayetinizi Yazın', aciklama: 'Ağız ve diş şikayetinizi kısaca anlatın' },
+                { baslik: 'Şehrinizi Seçin', aciklama: 'Size en yakın diş kliniklerini bulalım' },
+                { baslik: 'Diş Hekimini Bulun', aciklama: 'AI destekli öneri ile doğru tedaviye ulaşın' },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
                   <div style={{
@@ -170,10 +170,10 @@ export default function SaglikBul() {
             {adim === 'belirti' && (
               <div>
                 <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1D1D1F', margin: '0 0 6px', letterSpacing: '-.3px' }}>
-                  Şikayetiniz nedir?
+                  Diş/ağız şikayetiniz nedir?
                 </h3>
                 <p style={{ fontSize: 13, color: '#8E8E93', margin: '0 0 20px' }}>
-                  Belirtilerinizi kısaca açıklayın veya aşağıdan seçin.
+                  Şikayetinizi kısaca açıklayın veya aşağıdan seçin.
                 </p>
 
                 {/* Hızlı seçimler */}
@@ -199,7 +199,7 @@ export default function SaglikBul() {
                 <textarea
                   value={belirti}
                   onChange={e => setBelirti(e.target.value)}
-                  placeholder="Örn: 3 gündür devam eden şiddetli baş ağrısı ve bulantı var..."
+                  placeholder="Örn: 3 gündür azı dişimde zonklayan bir ağrı ve sıcak-soğuk hassasiyeti var..."
                   rows={3}
                   style={{
                     width: '100%', padding: '12px 14px',
@@ -239,7 +239,7 @@ export default function SaglikBul() {
                   Hangi şehirdesiniz?
                 </h3>
                 <p style={{ fontSize: 13, color: '#8E8E93', margin: '0 0 20px' }}>
-                  Size en yakın doktorları gösterelim.
+                  Size en yakın diş kliniklerini gösterelim.
                 </p>
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16, maxHeight: 200, overflow: 'auto' }}>
@@ -298,7 +298,7 @@ export default function SaglikBul() {
                         </svg>
                         Analiz ediliyor...
                       </>
-                    ) : 'Doktor Bul'}
+                    ) : 'Diş Kliniği Bul'}
                   </button>
                 </div>
                 <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -310,7 +310,7 @@ export default function SaglikBul() {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
                   <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1D1D1F', margin: 0, letterSpacing: '-.3px' }}>
-                    Size önerilen uzmanlar
+                    Size önerilen diş tedavileri
                   </h3>
                   <button
                     onClick={sifirla}
@@ -361,7 +361,7 @@ export default function SaglikBul() {
                 </div>
 
                 <a
-                  href={`/doktorlar?il=${encodeURIComponent(sehir)}`}
+                  href={`/klinikler?il=${encodeURIComponent(sehir)}`}
                   style={{
                     display: 'block', textAlign: 'center',
                     padding: '11px 0', borderRadius: 12,
@@ -370,11 +370,11 @@ export default function SaglikBul() {
                     letterSpacing: '-.1px',
                   }}
                 >
-                  {sehir} Tüm Doktorları Gör
+                  {sehir} Tüm Diş Kliniklerini Gör
                 </a>
 
                 <p style={{ fontSize: 11.5, color: '#AEAEB2', margin: '12px 0 0', textAlign: 'center', lineHeight: 1.5 }}>
-                  Bu öneriler bilgi amaçlıdır. Tanı için mutlaka bir doktora başvurun.
+                  Bu öneriler bilgi amaçlıdır. Tanı için mutlaka bir diş hekimine başvurun.
                 </p>
               </div>
             )}

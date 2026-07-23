@@ -10,15 +10,6 @@ function IconTooth() {
     </svg>
   );
 }
-function IconHospital() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <path d="M9 12h6M12 9v6" />
-      <path d="M3 9h18" />
-    </svg>
-  );
-}
 function IconDoctor() {
   return (
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -26,14 +17,6 @@ function IconDoctor() {
       <path d="M6 21v-2a6 6 0 0 1 12 0v2" />
       <path d="M17 14h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-1" />
       <path d="M17 19v-4" />
-    </svg>
-  );
-}
-function IconPill() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
-      <path d="m8.5 8.5 7 7" />
     </svg>
   );
 }
@@ -113,43 +96,34 @@ function KategoriKart({ k }: { k: Kategori }) {
   );
 }
 
-export default function KategoriKartlari({ stats }: { stats: { klinik: number; hastane: number; doktor: number; eczane: number } }) {
+export default function KategoriKartlari({ stats }: { stats: { klinik: number; disHekimi: number } }) {
   const KATEGORILER: Kategori[] = [
     {
       href: '/klinikler',
       icon: <IconTooth />,
-      label: 'Klinikler',
-      desc: 'Diş klinikleri ve özel muayenehane',
+      label: 'Diş Klinikleri',
+      desc: 'Diş klinikleri ve özel muayenehaneler',
       count: stats.klinik,
-      accent: '#4338CA',
-      bg: '#F0F0FF',
+      accent: '#1B3A69',
+      bg: '#EEF2FF',
     },
     {
-      href: '/hastaneler',
-      icon: <IconHospital />,
-      label: 'Hastaneler',
-      desc: 'Devlet, özel ve üniversite hastaneleri',
-      count: stats.hastane,
-      accent: '#065F46',
-      bg: '#EFFAF5',
-    },
-    {
-      href: '/doktorlar',
+      href: '/doktorlar?spec=Di%C5%9F%20Hekimi',
       icon: <IconDoctor />,
-      label: 'Doktorlar',
-      desc: 'Uzman ve aile hekimleri',
-      count: stats.doktor,
+      label: 'Diş Hekimleri',
+      desc: 'Uzman diş hekimleri ve hekim profilleri',
+      count: stats.disHekimi,
       accent: '#0E7490',
       bg: '#ECFEFF',
     },
     {
-      href: '/eczaneler',
-      icon: <IconPill />,
-      label: 'Eczaneler',
-      desc: 'Nöbetçi ve çevre eczaneler',
-      count: stats.eczane,
-      accent: '#6D28D9',
-      bg: '#F5F3FF',
+      href: '/hastaliklar/dis-sagligi',
+      icon: <IconTooth />,
+      label: 'Ağız & Diş Sağlığı',
+      desc: 'Diş hastalıkları ve tedavi rehberi',
+      count: 0,
+      accent: '#4338CA',
+      bg: '#F0F0FF',
     },
   ];
 

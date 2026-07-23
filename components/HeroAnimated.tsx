@@ -247,10 +247,8 @@ function IconSpinner() {
 
 // ── Canlı Arama Formu ─────────────────────────────────────────────────────────
 const GRUPLAR_CONFIG = [
-  { key: 'doktorlar'  as const, baslik: 'Doktor',   renk: '#0E7490', bg: '#ECFEFF' },
-  { key: 'hastaneler' as const, baslik: 'Hastane',  renk: '#065F46', bg: '#ECFDF5' },
-  { key: 'klinikler'  as const, baslik: 'Klinik',   renk: '#1B3A69', bg: '#EEF2FF' },
-  { key: 'eczaneler'  as const, baslik: 'Eczane',   renk: '#6D28D9', bg: '#F5F3FF' },
+  { key: 'klinikler'  as const, baslik: 'Diş Kliniği',  renk: '#1B3A69', bg: '#EEF2FF' },
+  { key: 'doktorlar'  as const, baslik: 'Diş Hekimi',   renk: '#0E7490', bg: '#ECFEFF' },
 ];
 
 function LiveSearchForm({ mounted }: { mounted: boolean }) {
@@ -292,7 +290,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
     debounceRef.current = setTimeout(async () => {
       setYukleniyor(true);
       try {
-        const res  = await fetch(`/api/search?q=${encodeURIComponent(val)}`);
+        const res  = await fetch(`/api/search?q=${encodeURIComponent(val)}&scope=dental`);
         const data: SearchResults = await res.json();
         setSonuclar(data);
         // Sonuç olsun olmasın dropdown'ı aç — sonuç yoksa "bulunamadı + ekleme talebi" gösterilir
@@ -314,7 +312,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
     setAcik(false);
     const term = q.trim();
     if (!term) return;
-    // Arama sayfası yoksa klinikler listesine yönlendir
+    // Diş klinikleri listesine yönlendir
     router.push(`/klinikler?q=${encodeURIComponent(term)}`);
   }
 
@@ -361,7 +359,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
             value={q}
             onChange={handleInput}
             onFocus={() => sonuclar && setAcik(true)}
-            placeholder="Klinik, hastane, doktor veya eczane…"
+            placeholder="Diş kliniği, diş hekimi veya ilçe ara…"
             autoComplete="off"
             spellCheck={false}
             style={{
@@ -413,7 +411,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
                     &ldquo;{q.trim()}&rdquo; için sonuç bulunamadı
                   </div>
                   <p style={{ fontSize: 12.5, color: '#6E6E73', margin: '0 0 16px', lineHeight: 1.5 }}>
-                    Aradığınız doktor, klinik veya eczane henüz sistemimizde yok.
+                    Aradığınız diş kliniği veya diş hekimi henüz sistemimizde yok.
                     Eklenmesini isterseniz bize bildirebilirsiniz.
                   </p>
                   <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -436,7 +434,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
                       onMouseDown={(e) => {
                         e.preventDefault();
                         setAcik(false);
-                        router.push(`/doktorlar?q=${encodeURIComponent(q.trim())}`);
+                        router.push(`/klinikler?q=${encodeURIComponent(q.trim())}`);
                       }}
                       style={{
                         padding: '9px 18px', borderRadius: 10,
@@ -570,7 +568,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
 
 // ── Ana bileşen ───────────────────────────────────────────────────────────────
 interface Props {
-  stats: { klinik: number; hastane: number; doktor: number; eczane: number };
+  stats: { klinik: number; disHekimi: number };
 }
 
 export default function HeroAnimated({ stats }: Props) {
@@ -578,10 +576,9 @@ export default function HeroAnimated({ stats }: Props) {
   useEffect(() => { setTimeout(() => setMounted(true), 60); }, []);
 
   const statItems = [
-    { label: 'Klinik',   val: stats.klinik  },
-    { label: 'Hastane',  val: stats.hastane },
-    { label: 'Doktor',   val: stats.doktor  },
-    { label: 'Eczane',   val: stats.eczane  },
+    { label: 'Diş Kliniği', val: stats.klinik,    suffix: '+' },
+    { label: 'Diş Hekimi',  val: stats.disHekimi, suffix: '+' },
+    { label: 'İl',          val: 81,              suffix: ''  },
   ];
 
   return (
@@ -644,7 +641,7 @@ export default function HeroAnimated({ stats }: Props) {
           transform: mounted ? 'translateY(0)' : 'translateY(12px)',
           transition: 'opacity .6s ease, transform .6s ease',
         }}>
-          Türkiye Sağlık Rehberi
+          Türkiye Diş Sağlığı Rehberi
         </div>
 
         {/* Başlık */}
@@ -659,12 +656,12 @@ export default function HeroAnimated({ stats }: Props) {
           transform: mounted ? 'translateY(0)' : 'translateY(20px)',
           transition: 'opacity .7s ease .1s, transform .7s ease .1s',
         }}>
-          Doğru Sağlık Kurumuna<br />
+          Size En Yakın Diş Hekimini<br />
           <span style={{
             color: '#D4A843',
             textShadow: '0 0 60px rgba(212,168,67,.35)',
           }}>
-            Hızlıca Ulaşın
+            Hızlıca Bulun
           </span>
         </h1>
 
@@ -677,10 +674,8 @@ export default function HeroAnimated({ stats }: Props) {
           transform: mounted ? 'translateY(0)' : 'translateY(16px)',
           transition: 'opacity .7s ease .2s, transform .7s ease .2s',
         }}>
-          {stats.klinik.toLocaleString('tr')}+ klinik,&nbsp;
-          {stats.hastane.toLocaleString('tr')}+ hastane,&nbsp;
-          {stats.doktor.toLocaleString('tr')}+ doktor ve&nbsp;
-          {stats.eczane.toLocaleString('tr')}+ eczane
+          {stats.klinik.toLocaleString('tr')}+ diş kliniği ve muayenehane,&nbsp;
+          {stats.disHekimi.toLocaleString('tr')}+ uzman diş hekimi
         </p>
 
         {/* ── Canlı Arama ─────────────────────────────────────────── */}
@@ -707,7 +702,7 @@ export default function HeroAnimated({ stats }: Props) {
                 fontWeight: 800, color: 'white',
                 letterSpacing: '-1.5px', lineHeight: 1,
               }}>
-                <AnimatedCount target={s.val} />
+                <AnimatedCount target={s.val} suffix={s.suffix} />
               </div>
               <div style={{
                 fontSize: 12, color: 'rgba(255,255,255,.45)',

@@ -6,18 +6,22 @@
 import Link from 'next/link';
 import { KATEGORILER, HASTALIKLAR } from '@/lib/hastaliklar-data';
 
-/* Kategori başına hastalık sayısı */
-function countPerKategori() {
+/* Alt kategori (diş konusu) başına hastalık sayısı */
+function countPerAltKategori() {
   const map: Record<string, number> = {};
   for (const h of HASTALIKLAR) {
-    map[h.kategoriSlug] = (map[h.kategoriSlug] || 0) + 1;
+    if (h.kategoriSlug === 'dis-sagligi') {
+      map[h.altKategoriSlug] = (map[h.altKategoriSlug] || 0) + 1;
+    }
   }
   return map;
 }
 
 export default function HastalikRehberiSection() {
-  const sayiMap = countPerKategori();
-  const toplamHastalik = HASTALIKLAR.length;
+  const sayiMap = countPerAltKategori();
+  const disKategori = KATEGORILER.find(k => k.slug === 'dis-sagligi');
+  const disHastalikSayisi = HASTALIKLAR.filter(h => h.kategoriSlug === 'dis-sagligi').length;
+  if (!disKategori) return null;
 
   return (
     <section style={{
@@ -127,20 +131,20 @@ export default function HastalikRehberiSection() {
               textTransform: 'uppercase', color: '#1B3A69',
               margin: '0 0 8px',
             }}>
-              Sağlık Bilgi Merkezi
+              Diş Sağlığı Bilgi Merkezi
             </p>
             <h2 style={{
               fontSize: 28, fontWeight: 700, letterSpacing: '-0.8px',
               color: '#1D1D1F', margin: '0 0 8px',
             }}>
-              Hastalık Rehberi
+              Ağız & Diş Sağlığı Rehberi
             </h2>
             <p style={{ color: '#6E6E73', fontSize: 14.5, margin: 0 }}>
-              {toplamHastalik}+ hastalık, belirtilerden tedaviye kapsamlı bilgi.
+              {disHastalikSayisi}+ diş ve ağız hastalığı, belirtilerden tedaviye kapsamlı bilgi.
             </p>
           </div>
 
-          <Link href="/hastaliklar" style={{
+          <Link href="/hastaliklar/dis-sagligi" style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
             padding: '9px 20px', borderRadius: 10,
             border: '1.5px solid #1B3A69', color: '#1B3A69',
@@ -154,28 +158,28 @@ export default function HastalikRehberiSection() {
           </Link>
         </div>
 
-        {/* ── Kategori grid ── */}
+        {/* ── Diş konuları grid ── */}
         <div className="hastalik-grid">
-          {KATEGORILER.map(kat => {
-            const sayi = sayiMap[kat.slug] || 0;
+          {disKategori.altKategoriler.map(alt => {
+            const sayi = sayiMap[alt.slug] || 0;
             if (sayi === 0) return null;
             return (
               <Link
-                key={kat.slug}
-                href={`/hastaliklar/${kat.slug}`}
+                key={alt.slug}
+                href={`/hastaliklar/dis-sagligi`}
                 className="hastalik-kart"
               >
                 {/* Üst satır: emoji + sayı chip */}
                 <div className="hastalik-kart-top">
                   <div
                     className="hastalik-emoji-wrap"
-                    style={{ background: kat.bg }}
+                    style={{ background: disKategori.bg }}
                   >
-                    {kat.icon}
+                    {disKategori.icon}
                   </div>
                   <span
                     className="hastalik-sayi-chip"
-                    style={{ background: kat.bg, color: kat.renk }}
+                    style={{ background: disKategori.bg, color: disKategori.renk }}
                   >
                     {sayi} hastalık
                   </span>
@@ -183,12 +187,12 @@ export default function HastalikRehberiSection() {
 
                 {/* Ad + açıklama */}
                 <div>
-                  <p className="hastalik-kart-ad">{kat.ad}</p>
-                  <p className="hastalik-kart-aciklama">{kat.aciklama}</p>
+                  <p className="hastalik-kart-ad">{alt.ad}</p>
+                  <p className="hastalik-kart-aciklama">{alt.aciklama}</p>
                 </div>
 
                 {/* Link satırı */}
-                <span className="hastalik-kart-link" style={{ color: kat.renk }}>
+                <span className="hastalik-kart-link" style={{ color: disKategori.renk }}>
                   İncele
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7" />

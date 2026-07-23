@@ -15,12 +15,12 @@ interface Mesaj {
 }
 
 const ORNEK_SORULAR = [
-  'Hangi doktora gitmeliyim?',
-  '3 haftadır ses kısıklığım var',
-  'İstanbul\'da kardiyolog arıyorum',
-  'Diyabet belirtileri neler?',
-  'Randevu öncesi ne yapmalıyım?',
-  'Göğüs ağrısı ne zaman tehlikeli?',
+  'Diş ağrım var, ne yapmalıyım?',
+  'İmplant tedavisi nasıl yapılır?',
+  'İstanbul\'da diş hekimi arıyorum',
+  'Diş eti kanaması neden olur?',
+  '20\'lik diş çekimi ağrılı mı?',
+  'Ortodonti tedavisi ne kadar sürer?',
 ];
 
 function TypingDots() {
@@ -380,7 +380,7 @@ export default function HekimhaneAI() {
                 </span>
               </div>
               <p style={{ color: 'rgba(255,255,255,.65)', fontSize: 13.5, margin: 0 }}>
-                Belirtilerinizi yazın — uzman önerin, gerçek klinik ve doktor bilgisi
+                Diş şikayetinizi yazın — tedavi önerisi, gerçek diş kliniği ve hekim bilgisi
               </p>
             </div>
           </div>
@@ -461,7 +461,7 @@ export default function HekimhaneAI() {
                   }} />
                 </div>
                 <span style={{ color: 'rgba(255,255,255,.55)', fontSize: 11.5 }}>
-                  Türkiye sağlık rehberi asistanı
+                  Diş sağlığı asistanı
                 </span>
               </div>
             </div>
@@ -532,8 +532,8 @@ export default function HekimhaneAI() {
                   Hekimhane AI&apos;a Hoş Geldiniz
                 </h3>
                 <p style={{ color: '#6E6E73', fontSize: 13.5, margin: '0 0 24px', lineHeight: 1.6 }}>
-                  Belirtilerinizi yazın, hangi doktora gitmeniz gerektiğini ve<br />
-                  yakınınızdaki uzmanları birlikte bulalım.
+                  Diş şikayetinizi yazın, hangi tedaviye ihtiyacınız olduğunu ve<br />
+                  yakınınızdaki diş kliniklerini birlikte bulalım.
                 </p>
                 {/* Örnek sorular */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
@@ -645,7 +645,7 @@ export default function HekimhaneAI() {
               value={girdi}
               onChange={e => setGirdi(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Belirtilerinizi veya sorunuzu yazın..."
+              placeholder="Diş şikayetinizi veya sorunuzu yazın..."
               disabled={yukleniyor}
               rows={1}
               style={{
@@ -684,10 +684,9 @@ export default function HekimhaneAI() {
             borderTop: '1px solid #F2F2F7',
           }}>
             {[
-              { href: '/doktorlar', label: 'Doktor Bul' },
-              { href: '/klinikler', label: 'Klinik Bul' },
-              { href: '/hastaliklar', label: 'Hastalık Rehberi' },
-              { href: '/eczaneler', label: 'Eczane Bul' },
+              { href: '/klinikler', label: 'Diş Kliniği Bul' },
+              { href: '/doktorlar?spec=Di%C5%9F%20Hekimi', label: 'Diş Hekimi Bul' },
+              { href: '/hastaliklar/dis-sagligi', label: 'Ağız & Diş Sağlığı' },
             ].map(link => (
               <Link key={link.href} href={link.href} style={{
                 fontSize: 12, color: '#1B3A69', fontWeight: 600,
