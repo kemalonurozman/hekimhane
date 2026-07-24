@@ -2672,10 +2672,20 @@ function HekimKartTab({ approvedClaims, profileUrls, user }: {
       <h2 style={{ fontSize:22, fontWeight:800, color:T.navy, marginBottom:4, letterSpacing:'-0.4px' }}>HekimKart</h2>
       <p style={{ color:T.muted, fontSize:13.5, marginBottom:22 }}>Her profiliniz için ayrı dijital kartvizit oluşturun</p>
 
+      <style>{`
+        @media (max-width: 720px) {
+          .hk-profiles { flex: 1 1 100% !important; min-width: 0 !important; }
+          .hk-right { flex: 1 1 100% !important; min-width: 0 !important; }
+          .hk-preview-col { flex: 1 1 100% !important; min-width: 0 !important; }
+          .hk-tabbar { width: 100% !important; }
+          .hk-tabbar button { flex: 1 !important; }
+        }
+      `}</style>
+
       <div style={{ display:'flex', gap:16, flexWrap:'wrap', alignItems:'flex-start' }}>
 
         {/* ── Sol: Profil listesi ── */}
-        <div style={{ flex:'0 0 240px', minWidth:220, display:'flex', flexDirection:'column', gap:8 }}>
+        <div className="hk-profiles" style={{ flex:'0 0 240px', minWidth:220, display:'flex', flexDirection:'column', gap:8 }}>
           <p style={{ fontSize:11, fontWeight:700, color:T.muted, letterSpacing:'1px', textTransform:'uppercase', marginBottom:4 }}>Profillerim</p>
 
           {approvedClaims.length === 0 ? (
@@ -2715,7 +2725,7 @@ function HekimKartTab({ approvedClaims, profileUrls, user }: {
         </div>
 
         {/* ── Sağ: Form / Önizleme ── */}
-        <div style={{ flex:'1 1 400px', minWidth:320 }}>
+        <div className="hk-right" style={{ flex:'1 1 400px', minWidth:320 }}>
           {!activeClaim ? (
             <div style={{ background:'white', borderRadius:20, border:`1px solid ${T.border}`, padding:'48px 32px', textAlign:'center' }}>
               <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke={T.border} strokeWidth="1.5" strokeLinecap="round" style={{ display:'block', margin:'0 auto 16px' }}>
@@ -2734,7 +2744,7 @@ function HekimKartTab({ approvedClaims, profileUrls, user }: {
           ) : (
             <>
               {/* Tab bar */}
-              <div style={{ display:'flex', gap:2, background:T.bg, borderRadius:14, padding:4, marginBottom:16, width:'fit-content' }}>
+              <div className="hk-tabbar" style={{ display:'flex', gap:2, background:T.bg, borderRadius:14, padding:4, marginBottom:16, width:'fit-content' }}>
                 {(['form','preview'] as const).map(t => (
                   <button key={t} onClick={() => setView(t)}
                     style={{ padding:'8px 20px', borderRadius:11, border:'none', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:700,
@@ -2836,7 +2846,7 @@ function HekimKartTab({ approvedClaims, profileUrls, user }: {
               {view === 'preview' && (
                 <div style={{ display:'flex', gap:14, flexWrap:'wrap' }}>
                   {/* Kart önizleme */}
-                  <div style={{ flex:'1 1 220px', minWidth:200 }}>
+                  <div className="hk-preview-col" style={{ flex:'1 1 220px', minWidth:200 }}>
                     <div style={{ background:'linear-gradient(160deg,#0F2A55,#1B3A69)', borderRadius:'20px 20px 0 0', padding:'20px 18px 18px', display:'flex', flexDirection:'column', alignItems:'center', gap:10 }}>
                       {form.photo_url
                         ? <img src={form.photo_url} alt="" style={{ width:72, height:72, borderRadius:'50%', border:'3px solid #D4A843', objectFit:'cover' }} />
@@ -2862,7 +2872,7 @@ function HekimKartTab({ approvedClaims, profileUrls, user }: {
 
                   {/* Paylaşım araçları */}
                   {kartUrl ? (
-                    <div style={{ flex:'1 1 200px', display:'flex', flexDirection:'column', gap:12 }}>
+                    <div className="hk-preview-col" style={{ flex:'1 1 200px', display:'flex', flexDirection:'column', gap:12 }}>
                       <div style={{ background:'white', borderRadius:16, border:`1px solid ${T.border}`, padding:'16px 16px 14px' }}>
                         <p style={{ fontSize:10.5, fontWeight:700, color:T.muted, letterSpacing:'.5px', textTransform:'uppercase', marginBottom:8 }}>Kart Linkiniz</p>
                         <div style={{ background:T.bg, borderRadius:9, padding:'8px 11px', marginBottom:10, fontSize:12, color:T.navy, fontWeight:600, wordBreak:'break-all' }}>{kartUrl}</div>
@@ -2897,7 +2907,7 @@ function HekimKartTab({ approvedClaims, profileUrls, user }: {
                       </button>
                     </div>
                   ) : (
-                    <div style={{ flex:'1 1 200px', background:'white', borderRadius:16, border:`1px solid ${T.border}`, padding:'28px 20px', textAlign:'center' }}>
+                    <div className="hk-preview-col" style={{ flex:'1 1 200px', background:'white', borderRadius:16, border:`1px solid ${T.border}`, padding:'28px 20px', textAlign:'center' }}>
                       <p style={{ color:T.muted, fontSize:13, lineHeight:1.6 }}>Önce kartı kaydedin.</p>
                       <button onClick={() => setView('form')} style={{ marginTop:12, padding:'9px 18px', borderRadius:9, background:T.navy, border:'none', color:'white', fontSize:12.5, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>Düzenlemeye Git</button>
                     </div>
