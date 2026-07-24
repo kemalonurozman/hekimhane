@@ -205,7 +205,7 @@ function DashboardTab({ stats, onTabChange }: { stats: Stats | null; onTabChange
 
       {/* Entity istatistikleri */}
       <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 12 }}>İşletmeler</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
+      <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
         {statCards.map(s => (
           <button key={s.label} onClick={() => onTabChange(s.tab)} style={{ background: C.card, borderRadius: 14, padding: '20px 20px 16px', border: `1px solid ${C.border}`, cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'border-color .15s' }}
             onMouseEnter={e => (e.currentTarget.style.borderColor = s.color + '55')}
@@ -222,7 +222,7 @@ function DashboardTab({ stats, onTabChange }: { stats: Stats | null; onTabChange
 
       {/* Talep istatistikleri */}
       <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 12 }}>Sahiplenme Talepleri</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
+      <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
         {claimCards.map(s => (
           <div key={s.label} style={{ background: C.card, borderRadius: 14, padding: '20px', border: `1px solid ${C.border}` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -1060,7 +1060,7 @@ function CekimTalepleriTab() {
       </div>
 
       {/* Özet kartlar */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+      <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
         {(['all', 'beklemede', 'iletisime_gecildi', 'tamamlandi'] as const).map(k => {
           const count = k === 'all' ? talepler.length : talepler.filter(t => t.durum === k).length;
           const info  = k === 'all' ? { label: 'Toplam', color: C.text } : DURUM_LABELS[k] || { label: k, color: C.muted };

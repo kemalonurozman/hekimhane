@@ -481,7 +481,7 @@ export default function KatilPage() {
                   Neden Hekimhane?
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
+              <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
                 {AVANTAJLAR.map(a => (
                   <div key={a.title} style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '20px 16px', textAlign: 'center' }}>
                     <div style={{ fontSize: 26, marginBottom: 8 }}>{a.icon}</div>

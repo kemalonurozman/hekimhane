@@ -203,7 +203,7 @@ export default function Navbar() {
               <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#F2F2F7' }} />
             ) : user ? (
               /* Giriş yapılmış */
-              <div ref={dropRef} style={{ position: 'relative' }}>
+              <div ref={dropRef} className="nav-user-desktop" style={{ position: 'relative' }}>
                 <button
                   onClick={() => setDropOpen(o => !o)}
                   style={{
@@ -547,6 +547,7 @@ export default function Navbar() {
         @media (max-width: 768px) {
           .nav-links-desktop { display: none !important; }
           .nav-cta-desktop   { display: none !important; }
+          .nav-user-desktop  { display: none !important; }
           .hamburger-btn     { display: flex !important; }
         }
         /* Ensure hamburger is hidden on desktop */

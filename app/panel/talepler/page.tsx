@@ -139,7 +139,7 @@ export default function TaleplerPage() {
 
         {/* Özet kartlar */}
         {!loading && claims.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 28 }}>
+          <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 28 }}>
             {[
               { label: 'Onaylı', count: approved.length, bg: '#F0FDF4', color: '#166534', border: '#86EFAC' },
               { label: 'İncelemede', count: pending.length,  bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },

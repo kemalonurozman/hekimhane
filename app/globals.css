@@ -461,3 +461,12 @@ button {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ── Responsive grid yardımcıları (mobilde sütun sayısını azaltır) ── */
+@media (max-width: 640px) {
+  .m-grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
+  .m-grid-1 { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 400px) {
+  .m-grid-2-to-1 { grid-template-columns: 1fr !important; }
+}

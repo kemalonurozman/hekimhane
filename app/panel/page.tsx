@@ -348,7 +348,17 @@ export default function PanelPage() {
         </nav>
       )}
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } } * { box-sizing: border-box; } @media (max-width: 767px) { .panel-grid-2 { flex-direction: column !important; } }`}</style>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        * { box-sizing: border-box; }
+        @media (max-width: 767px) {
+          .panel-grid-2 { flex-direction: column !important; }
+          .panel-stat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+          .panel-2col { grid-template-columns: 1fr !important; }
+          .panel-form-grid { grid-template-columns: 1fr !important; }
+          .panel-approved-row { flex-direction: column !important; align-items: stretch !important; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -365,7 +375,7 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
         <p style={{ fontSize: 13, color: T.muted, marginTop: 4 }}>İşletme başvurularınızı ve hesap durumunuzu buradan takip edebilirsiniz.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
+      <div className="panel-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
         <StatCard label="Toplam Başvuru"   value={claimsLoading ? '—' : claims.length}         iconKey="list"     color={T.navy} />
         <StatCard label="Onaylı İşletme"  value={claimsLoading ? '—' : approvedClaims.length} iconKey="check"    color={T.green} />
         <StatCard label="İncelemede"       value={claimsLoading ? '—' : pendingClaims.length}  iconKey="clock"    color={T.amber} />
@@ -380,12 +390,12 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
           </div>
           <div style={{ padding: '16px 22px' }}>
             {approvedClaims.map(c => (
-              <div key={c.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', background: '#F0FDF4', borderRadius: 12, marginBottom: 10, border: '1px solid #86EFAC' }}>
-                <div>
+              <div key={c.id} className="panel-approved-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '14px 18px', background: '#F0FDF4', borderRadius: 12, marginBottom: 10, border: '1px solid #86EFAC' }}>
+                <div style={{ minWidth: 0 }}>
                   <div style={{ fontWeight: 700, fontSize: 15, color: T.text, marginBottom: 3 }}>{c.entity_name}</div>
                   <EntityTypeLabel type={c.entity_type} />
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div className="panel-approved-actions" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                   <Badge status="approved" />
                   {profileUrls[c.id] && (
                     <a href={profileUrls[c.id]} target="_blank" rel="noopener"
@@ -539,7 +549,7 @@ function ProfileTab({ user }: { user: User | null }) {
         <p style={{ fontSize: 13, color: T.muted, marginTop: 3 }}>Hesap bilgilerinizi görüntüleyin.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 20 }}>
+      <div className="panel-2col" style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 20 }}>
         <div style={{ background: T.white, borderRadius: 16, border: `1px solid ${T.border}`, padding: '28px', textAlign: 'center' }}>
           {meta.avatar_url ? (
             <img src={meta.avatar_url} alt="" style={{ width: 80, height: 80, borderRadius: '50%', border: `3px solid ${T.border}`, margin: '0 auto 14px', display: 'block' }} />
@@ -759,7 +769,7 @@ function NewClaimTab({ user, onSuccess }: { user: User | null; onSuccess: () => 
           <div style={{ padding: '16px 24px', borderBottom: `1px solid ${T.border}` }}>
             <span style={{ fontSize: 13, fontWeight: 800, color: T.text }}>İşletme Türünü Seçin</span>
           </div>
-          <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          <div className="panel-form-grid" style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
             {TYPES.map(t => (
               <button key={t.key} onClick={() => { setTypeVal(t.key); setStep('form'); }}
                 style={{ padding: '20px', borderRadius: 14, border: `2px solid ${T.border}`, background: T.white, cursor: 'pointer', textAlign: 'left', transition: 'all .15s', fontFamily: 'inherit' }}
@@ -786,7 +796,7 @@ function NewClaimTab({ user, onSuccess }: { user: User | null; onSuccess: () => 
           </div>
           <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: T.navy, textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: 14, paddingBottom: 8, borderBottom: '2px solid #E8F0FE' }}>İşletme Bilgileri</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div className="panel-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
               <div style={{ gridColumn: '1/-1' }} ref={suggRef}>
                 <label style={lbl}>İşletme / Klinik Adı <span style={{ color: T.red }}>*</span></label>
 
@@ -888,7 +898,7 @@ function NewClaimTab({ user, onSuccess }: { user: User | null; onSuccess: () => 
             </div>
 
             <div style={{ fontSize: 11, fontWeight: 700, color: T.navy, textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: 14, marginTop: 8, paddingBottom: 8, borderBottom: '2px solid #E8F0FE' }}>Yetkili Bilgileri</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div className="panel-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
               <div>
                 <label style={lbl}>Ad Soyad <span style={{ color: T.red }}>*</span></label>
                 <input type="text" value={form.ad_soyad} placeholder="Adınız Soyadınız" style={inp('ad_soyad')} onChange={e => setForm(f => ({ ...f, ad_soyad: e.target.value }))} onFocus={fFocus} onBlur={fBlur('ad_soyad')} />
@@ -1911,25 +1921,27 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
     <div>
       {/* Üst bar — sticky */}
       <div style={{ position:'sticky', top: isMobile ? 112 : 64, zIndex:50, background:'rgba(251,248,242,0.95)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', borderBottom:`1px solid ${T.border}`, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 0', marginBottom:20, marginTop: isMobile ? -28 : -32, marginLeft: isMobile ? -16 : -36, marginRight: isMobile ? -16 : -36, paddingLeft: isMobile ? 16 : 36, paddingRight: isMobile ? 16 : 36 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10, flex:1, minWidth:0 }}>
           <button onClick={()=>{onSelectClaim(null);setED(null);setSaveMsg(null);}}
-            style={{ background:'none', border:'none', cursor:'pointer', color:T.muted, fontSize:13, fontFamily:'inherit', padding:'6px 0', display:'flex', alignItems:'center', gap:5 }}>
+            style={{ background:'none', border:'none', cursor:'pointer', color:T.muted, fontSize:13, fontFamily:'inherit', padding:'6px 0', display:'flex', alignItems:'center', gap:5, flexShrink:0 }}>
             <Ic d="M19 12H5 M12 5l-7 7 7 7" size={14}/> Geri
           </button>
-          <span style={{ color:T.border }}>|</span>
-          <span style={{ fontSize:15, fontWeight:800, color:T.text }}>{selectedClaim.entity_name}</span>
-          <EntityTypeLabel type={et}/>
+          <span style={{ color:T.border, flexShrink:0 }}>|</span>
+          <span style={{ fontSize:15, fontWeight:800, color:T.text, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', minWidth:0 }}>{selectedClaim.entity_name}</span>
+          {!isMobile && <EntityTypeLabel type={et}/>}
         </div>
-        <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+        <div style={{ display:'flex', gap:10, alignItems:'center', flexShrink:0 }}>
           {saveMsg && (
-            <span style={{ fontSize:12, fontWeight:600, color:saveMsg.ok?T.green:T.red, display:'flex', alignItems:'center', gap:4 }}>
-              <Ic d={saveMsg.ok?icons.check:icons.info} size={13}/>{saveMsg.text}
+            <span style={{ fontSize:12, fontWeight:600, color:saveMsg.ok?T.green:T.red, display:'flex', alignItems:'center', gap:4, flexShrink:0 }}>
+              <Ic d={saveMsg.ok?icons.check:icons.info} size={13}/>{!isMobile && saveMsg.text}
             </span>
           )}
+          {!isMobile && (
           <button onClick={()=>{setFormData(entityData||{});setSaveMsg(null);}}
             style={{ padding:'9px 18px', borderRadius:10, border:`1.5px solid ${T.border}`, background:'white', color:T.muted, fontSize:13, fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>
             Sıfırla
           </button>
+          )}
           <button onClick={handleSave} disabled={saving}
             style={{ padding:'9px 22px', borderRadius:10, border:'none', background:saving?'#9CA3AF':T.navy, color:'white', fontSize:13, fontWeight:700, cursor:saving?'not-allowed':'pointer', display:'flex', alignItems:'center', gap:7, fontFamily:'inherit' }}>
             {saving
@@ -1965,7 +1977,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
 
               {et==='doktor' ? (
                 <div><label style={LBL}>Ad — Soyad</label>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                  <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                     <input value={String(formData.ad||'')} placeholder="Ad" style={INP} onChange={e=>F('ad',e.target.value)} onFocus={onF} onBlur={offF}/>
                     <input value={String(formData.soyad||'')} placeholder="Soyad" style={INP} onChange={e=>F('soyad',e.target.value)} onFocus={onF} onBlur={offF}/>
                   </div>
@@ -1985,7 +1997,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
               </div>
 
               {et !== 'eczane' && (
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                   <div><label style={LBL}>{et==='doktor'?'Uzmanlık':'Tür'}</label>
                     <input value={String(et==='doktor'?(formData.spec||''):(formData.type||''))} placeholder={et==='doktor'?'Kardiyoloji':'Özel, Devlet...'} style={INP}
                       onChange={e=>F(et==='doktor'?'spec':'type',e.target.value)} onFocus={onF} onBlur={offF}/>
@@ -1995,7 +2007,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                 </div>
               )}
 
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+              <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                 {et==='doktor'&&<div><label style={LBL}>İl</label><input value={String(formData.il||'')} placeholder="İstanbul" style={INP} onChange={e=>F('il',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
                 <div><label style={LBL}>İlçe</label><input value={String(formData.ilce||'')} placeholder="Kadıköy" style={INP} onChange={e=>F('ilce',e.target.value)} onFocus={onF} onBlur={offF}/></div>
                 {et==='eczane'&&<div><label style={LBL}>İl</label><input value={String(formData.il||'')} placeholder="İstanbul" style={INP} onChange={e=>F('il',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
@@ -2006,7 +2018,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                   onChange={e=>F(et==='eczane'?'address':'adres',e.target.value)} onFocus={onF} onBlur={offF}/>
               </div>
 
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+              <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                 <div><label style={LBL}>Telefon</label><input type="tel" value={String(formData.tel||'')} placeholder="05xx xxx xx xx" style={INP} onChange={e=>F('tel',e.target.value)} onFocus={onF} onBlur={offF}/></div>
                 {et!=='eczane'&&et!=='doktor'&&<div><label style={LBL}>Website</label><input type="url" value={String(formData.website||'')} placeholder="https://" style={INP} onChange={e=>F('website',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
                 {et==='doktor'&&<div><label style={LBL}>Muayene Ücreti (₺)</label><input type="number" value={formData.fee??''} placeholder="500" style={INP} onChange={e=>F('fee',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>}
@@ -2127,7 +2139,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
             {sec==='details' && (<>
               <div style={{ fontSize:12, fontWeight:700, color:T.navy, textTransform:'uppercase', letterSpacing:'0.6px', paddingBottom:10, borderBottom:`2px solid #E8F0FE` }}>Detaylar & Özellikler</div>
 
-              {et==='hastane'&&<div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+              {et==='hastane'&&<div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                 <div><label style={LBL}>Doktor Sayısı</label><input type="number" value={formData.docs??''} placeholder="50" style={INP} onChange={e=>F('docs',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>
                 <div><label style={LBL}>Yatak Sayısı</label><input type="number" value={formData.beds??''} placeholder="200" style={INP} onChange={e=>F('beds',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>
                 <div style={{ gridColumn:'1/-1' }}><label style={LBL}>Kuruluş Yılı</label><input type="number" value={formData.founded??''} placeholder="1990" style={INP} onChange={e=>F('founded',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>
