@@ -114,8 +114,35 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
+export interface KartYorum {
+  id: string;
+  author: string | null;
+  rating: number;
+  text: string | null;
+  created_at: string;
+  reply_text?: string | null;
+}
+
+async function getReviews(entity_type?: string | null, entity_id?: string | null): Promise<KartYorum[]> {
+  if (!entity_type || !entity_id) return [];
+  try {
+    const { data } = await (supabase as any)
+      .from('yorumlar')
+      .select('id,author,rating,text,created_at,reply_text')
+      .eq('entity_type', entity_type)
+      .eq('entity_id', String(entity_id))
+      .not('text', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(30);
+    return (data || []).filter((r: any) => (r.text || '').trim().length > 0) as KartYorum[];
+  } catch {
+    return [];
+  }
+}
+
 export default async function HekimKartPage({ params }: { params: { slug: string } }) {
   const d = await getKart(params.slug);
   if (!d) notFound();
-  return <KartClient kart={d} />;
+  const reviews = await getReviews(d.entity_type, d.entity_id);
+  return <KartClient kart={d} reviews={reviews} />;
 }

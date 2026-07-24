@@ -1,7 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { KartData } from './page';
+import type { KartData, KartYorum } from './page';
+
+/* ── Yorum tarihi biçimlendir (YYYY-MM veya ISO) ── */
+function fmtRevDate(raw?: string | null): string {
+  if (!raw) return '';
+  const AYLAR = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  const m = String(raw).match(/^(\d{4})-(\d{2})/);
+  if (m) {
+    const ay = parseInt(m[2], 10);
+    return `${AYLAR[ay - 1] || ''} ${m[1]}`.trim();
+  }
+  return String(raw).slice(0, 4);
+}
 
 /* ── İkon ─────────────────────────────────────── */
 function Ic({ d, size = 20, color = 'currentColor' }: { d: string; size?: number; color?: string }) {
@@ -89,7 +101,7 @@ function StarRating({ value, onChange }: { value: number; onChange: (n: number) 
 /* ─────────────────────────────────────────────────
    ANA COMPONENT
 ───────────────────────────────────────────────── */
-export default function KartClient({ kart: d }: { kart: KartData }) {
+export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; reviews?: KartYorum[] }) {
   const [copied,      setCopied]      = useState(false);
   const [ibanCopied,  setIbanCopied]  = useState(false);
   const [pageUrl,     setPageUrl]     = useState('');
@@ -220,10 +232,6 @@ export default function KartClient({ kart: d }: { kart: KartData }) {
     }
   };
 
-  const siteBase = typeof window !== 'undefined'
-    ? `${window.location.protocol}//${window.location.host}`
-    : 'https://hekimhane.com';
-
   // Baskı/QR için sabit production URL (SSR↔client tutarlı; QR asla localhost'a bakmaz)
   const cardUrl = `https://hekimhane.com.tr/kart/${d.slug}`;
   const cardUrlShort = `hekimhane.com.tr/kart/${d.slug}`;
@@ -237,6 +245,15 @@ export default function KartClient({ kart: d }: { kart: KartData }) {
 
   // IBAN görüntüle: boşluk grupla
   const ibanDisplay = d.iban ? d.iban.replace(/(.{4})/g, '$1 ').trim() : '';
+
+  // 5★ yorumlarda Google'a yönlendirme için hedef URL:
+  // maps_url varsa onu kullan (işletmenin Google Haritalar konumu),
+  // yoksa isim + şehir ile Google Haritalar araması oluştur.
+  const googleTarget = (d.maps_url && d.maps_url.trim())
+    ? d.maps_url.trim()
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        [displayName, d.clinic_name, d.ilce, d.il].filter(Boolean).join(' ')
+      )}`;
 
   return (
     <>
@@ -318,6 +335,20 @@ export default function KartClient({ kart: d }: { kart: KartData }) {
         .rev-submit:disabled { opacity:.5; cursor:not-allowed; }
 
         /* QR Bölümü — her zaman görünür */
+        .kp-reviews { border-top:1px solid #F0F2F8; padding:16px 18px 4px; }
+        .kp-reviews-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; }
+        .kp-reviews-title { font-size:14px; font-weight:800; color:#1B3A69; letter-spacing:-.2px; }
+        .kp-reviews-count { font-size:11.5px; font-weight:600; color:#9BA8C0; }
+        .kp-reviews-list { display:flex; flex-direction:column; gap:12px; }
+        .kp-review { background:#FAFBFF; border:1px solid #EEF1F7; border-radius:14px; padding:12px 13px; }
+        .kp-review-top { display:flex; align-items:center; gap:10px; }
+        .kp-review-av { width:34px; height:34px; border-radius:50%; background:#1B3A69; color:white; font-size:14px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .kp-review-name { font-size:13px; font-weight:700; color:#243B5E; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .kp-review-stars { display:flex; gap:1px; margin-top:2px; }
+        .kp-review-date { font-size:10.5px; font-weight:600; color:#A0AABA; flex-shrink:0; white-space:nowrap; }
+        .kp-review-text { font-size:12.8px; color:#4A5468; line-height:1.55; margin-top:9px; word-break:break-word; }
+        .kp-review-reply { font-size:12px; color:#475569; line-height:1.5; margin-top:10px; padding:9px 11px; background:#F1F5F9; border-radius:10px; border-left:3px solid #1B3A69; }
+        .kp-review-reply-lbl { display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:#1B3A69; margin-right:6px; }
         .kp-qr-section { border-top:1px solid #F0F2F8; padding:18px 18px 16px; display:flex; flex-direction:column; align-items:center; gap:10px; background:#FAFBFF; }
         .kp-qr-label { font-size:10px; font-weight:700; letter-spacing:.9px; text-transform:uppercase; color:#9BA8C0; }
         .kp-qr-wrap { border:1.5px solid #E2E8F0; border-radius:14px; padding:10px; background:white; display:inline-flex; }
@@ -545,6 +576,44 @@ export default function KartClient({ kart: d }: { kart: KartData }) {
             </div>
           )}
 
+          {/* Yorumlar — mevcut değerlendirmeler varsa göster */}
+          {reviews.length > 0 && (
+            <div className="kp-reviews">
+              <div className="kp-reviews-head">
+                <span className="kp-reviews-title">Değerlendirmeler</span>
+                <span className="kp-reviews-count">{reviews.length} yorum</span>
+              </div>
+              <div className="kp-reviews-list">
+                {reviews.map((rv) => (
+                  <div key={rv.id} className="kp-review">
+                    <div className="kp-review-top">
+                      <div className="kp-review-av">{(rv.author || 'A').trim().charAt(0).toUpperCase()}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div className="kp-review-name">{rv.author?.trim() || 'Anonim'}</div>
+                        <div className="kp-review-stars">
+                          {[1,2,3,4,5].map(n => (
+                            <svg key={n} width="13" height="13" viewBox="0 0 24 24"
+                              fill={n <= (rv.rating || 0) ? '#F5A623' : '#E2E8F0'}>
+                              <path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z"/>
+                            </svg>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="kp-review-date">{fmtRevDate(rv.created_at)}</div>
+                    </div>
+                    {rv.text && <div className="kp-review-text">{rv.text}</div>}
+                    {rv.reply_text && (
+                      <div className="kp-review-reply">
+                        <span className="kp-review-reply-lbl">Yanıt</span>
+                        {rv.reply_text}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* QR Bölümü — her zaman kartın içinde görünür */}
           <div className="kp-qr-section">
             <div className="kp-qr-label">Bu kartı paylaşmak için QR kodu okutun</div>
@@ -672,7 +741,7 @@ export default function KartClient({ kart: d }: { kart: KartData }) {
                 : <div style={{ width: 210, height: 210, background: '#F0F4FF', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7A99', fontSize: 12 }}>Yükleniyor…</div>
               }
             </div>
-            <div className="qr-url">{pageUrl || `hekimhane.com/kart/${d.slug}`}</div>
+            <div className="qr-url">{pageUrl || `hekimhane.com.tr/kart/${d.slug}`}</div>
             <button className="qr-close" onClick={() => setShowQr(false)}>Kapat</button>
           </div>
         </div>
@@ -701,10 +770,34 @@ export default function KartClient({ kart: d }: { kart: KartData }) {
                   Değerlendirmeniz için teşekkürler.<br />
                   Yorumunuz incelendikten sonra yayınlanacak.
                 </p>
-                <button onClick={() => setShowReview(false)}
-                  style={{ marginTop: 22, padding: '12px 32px', borderRadius: 12, background: '#1B3A69', border: 'none', color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-                  Kapat
-                </button>
+
+                {revRating === 5 ? (
+                  /* 5 yıldız — hem HekimKart'a hem Google'a yönlendir */
+                  <>
+                    <div style={{ marginTop: 18, padding: '14px 16px', borderRadius: 14, background: '#FFFBEB', border: '1px solid #FDE68A' }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 700, color: '#B45309', marginBottom: 4 }}>
+                        Deneyiminiz mükemmeldi! ⭐️
+                      </div>
+                      <div style={{ fontSize: 12.5, color: '#92400E', lineHeight: 1.55 }}>
+                        Bu değerlendirmenizi Google&apos;da da paylaşarak daha fazla kişiye ulaşmamıza yardımcı olabilirsiniz.
+                      </div>
+                    </div>
+                    <a href={googleTarget} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 14, padding: '13px 24px', borderRadius: 12, background: '#fff', border: '1.5px solid #E2E8F0', color: '#1B3A69', fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none' }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1Z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84Z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38Z"/></svg>
+                      Google&apos;da Değerlendir
+                    </a>
+                    <button onClick={() => setShowReview(false)}
+                      style={{ marginTop: 10, padding: '10px 24px', borderRadius: 12, background: 'transparent', border: 'none', color: '#6B7A99', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      Şimdilik geç
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={() => setShowReview(false)}
+                    style={{ marginTop: 22, padding: '12px 32px', borderRadius: 12, background: '#1B3A69', border: 'none', color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    Kapat
+                  </button>
+                )}
               </div>
             ) : (
               /* Yorum formu */
@@ -712,14 +805,12 @@ export default function KartClient({ kart: d }: { kart: KartData }) {
                 <h3>Değerlendirme Yap</h3>
                 <div className="rev-sub">{displayName} için puan ve yorum bırakın</div>
 
-                {/* Yıldız puanlama */}
+                {/* Yıldız puanlama — etiket alanı sabit yükseklikte (kayma olmaz) */}
                 <div style={{ marginBottom: 18 }}>
                   <StarRating value={revRating} onChange={setRevRating} />
-                  {revRating > 0 && (
-                    <div style={{ textAlign: 'center', marginTop: 6, fontSize: 12.5, color: '#D4A843', fontWeight: 700 }}>
-                      {['', 'Çok Kötü', 'Kötü', 'Orta', 'İyi', 'Mükemmel'][revRating]}
-                    </div>
-                  )}
+                  <div style={{ textAlign: 'center', marginTop: 6, fontSize: 12.5, color: '#D4A843', fontWeight: 700, minHeight: 18, lineHeight: '18px' }}>
+                    {revRating > 0 ? ['', 'Çok Kötü', 'Kötü', 'Orta', 'İyi', 'Mükemmel'][revRating] : ''}
+                  </div>
                 </div>
 
                 {/* Ad (opsiyonel) */}
