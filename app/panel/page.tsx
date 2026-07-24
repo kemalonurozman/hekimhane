@@ -180,9 +180,12 @@ export default function PanelPage() {
     if (!email) return;
     setClaimsLoading(true);
     const supabase = createSupabaseBrowser();
-    const { data } = await (supabase as any).from('claim_requests')
-      .select('*').eq('email', email).order('created_at', { ascending: false });
-    const list: ClaimRequest[] = data || [];
+    // Talepler service-role API üzerinden okunur (claim_requests RLS'ine takılmadan)
+    let list: ClaimRequest[] = [];
+    try {
+      const res = await fetch('/api/panel/my-claims');
+      if (res.ok) { const d = await res.json(); list = d.claims || []; }
+    } catch { /* boş liste */ }
     setClaims(list);
     setClaimsLoading(false);
 
