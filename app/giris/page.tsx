@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
+import { LogoMark } from '@/components/Logo';
 
 /* ── SVG ikonlar ─────────────────────────────────────────── */
 function IcMail() {
@@ -60,17 +61,6 @@ function EyeIcon({ open }: { open: boolean }) {
   );
 }
 
-/* ── Logo ────────────────────────────────────────────────── */
-function LogoMark() {
-  return (
-    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-      <rect width="34" height="34" rx="10" fill="#1B3A69"/>
-      <path d="M10 17h14M17 10v14" stroke="white" strokeWidth="2.8" strokeLinecap="round"/>
-      <rect x="7" y="20" width="20" height="4" rx="2" fill="#D4A843"/>
-    </svg>
-  );
-}
-
 /* ── Google SVG ──────────────────────────────────────────── */
 function GoogleIcon() {
   return (
@@ -90,8 +80,8 @@ function GirisContent() {
   const redirect     = searchParams.get('redirect') || '/panel';
   const urlError     = searchParams.get('error');
 
-  // Mod: 'magic' | 'password' | 'signup'
-  const [mod,        setMod]        = useState<'magic' | 'password' | 'signup'>('magic');
+  // Mod: 'password' | 'signup' (magic link kaldırıldı — SMTP gerektirir)
+  const [mod,        setMod]        = useState<'magic' | 'password' | 'signup'>('password');
   const [kullaniciTip, setKullaniciTip] = useState<'hasta' | 'isletme'>('hasta');
   const [email,      setEmail]      = useState('');
   const [password,   setPassword]   = useState('');
@@ -252,8 +242,8 @@ function GirisContent() {
 
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 24 }}>
-          <LogoMark />
-          <span style={{ fontWeight: 800, fontSize: 20, color: 'var(--navy)', letterSpacing: '-0.3px' }}>Hekimhane</span>
+          <LogoMark size={34} />
+          <span style={{ fontWeight: 800, fontSize: 20, color: 'var(--navy)', letterSpacing: '-0.3px' }}>Hekim<span style={{ color: '#D4A843' }}>hane</span></span>
         </div>
 
         {/* --- Hesap oluşturma başarılı --- */}
@@ -325,27 +315,11 @@ function GirisContent() {
               </div>
             )}
 
-            {/* Google ile giriş */}
-            <button onClick={handleGoogleGiris} style={btn}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#CBD5E0'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px rgba(0,0,0,.10)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 8px rgba(0,0,0,.06)'; }}
-            >
-              <GoogleIcon />
-              Google ile Devam Et
-            </button>
-
-            {/* Ayraç */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
-              <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
-              <span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 500 }}>veya e-posta ile</span>
-              <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
-            </div>
-
             {/* Kullanıcı tipi seçici */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
               {([
-                { key: 'hasta',    emoji: '👤', label: 'Hasta / Ziyaretçi' },
-                { key: 'isletme',  emoji: '🏥', label: 'Doktor / İşletme' },
+                { key: 'hasta',    label: 'Hasta / Ziyaretçi', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg> },
+                { key: 'isletme',  label: 'Doktor / İşletme', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M6 21V7l6-4 6 4v14M10 9h.01M14 9h.01M10 13h.01M14 13h.01M10 17h4"/></svg> },
               ] as const).map(t => (
                 <button key={t.key} type="button"
                   onClick={() => setKullaniciTip(t.key)}
@@ -357,15 +331,14 @@ function GirisContent() {
                     fontSize: 12, fontWeight: 700, transition: 'all .15s',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                   }}>
-                  <span>{t.emoji}</span>{t.label}
+                  {t.icon}{t.label}
                 </button>
               ))}
             </div>
 
-            {/* Mod seçici: Magic Link / Şifre / Hesap Oluştur */}
+            {/* Mod seçici: Giriş Yap / Kayıt Ol */}
             <div style={{ display: 'flex', background: '#F3F4F6', borderRadius: 10, padding: 3, marginBottom: 18 }}>
               {([
-                { key: 'magic',    label: 'Bağlantı' },
                 { key: 'password', label: 'Giriş Yap' },
                 { key: 'signup',   label: 'Kayıt Ol' },
               ] as const).map(m => (
