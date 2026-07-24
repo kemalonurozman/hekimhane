@@ -175,44 +175,46 @@ export default function KartClient({ kart: d }: { kart: KartData }) {
   const handleDownload = async (type: 'jpg' | 'pdf') => {
     setDownloading(type);
     try {
-      const el = document.getElementById('kp-card-main');
-      if (!el) return;
-
-      // İndirilecek görüntüde gizlenecek elemanlar
-      const hideEls = el.querySelectorAll<HTMLElement>('.kp-dl, .kp-footer');
-      hideEls.forEach(e => { e.style.display = 'none'; });
-
-      const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(el, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-      });
-
-      // Elemanları geri göster
-      hideEls.forEach(e => { e.style.display = ''; });
       const fileName = `${displayName.replace(/\s+/g, '-')}-HekimKart`;
+      const html2canvas = (await import('html2canvas')).default;
+
       if (type === 'jpg') {
+        // JPG — ekrandaki Linktree kartının görüntüsü
+        const el = document.getElementById('kp-card-main');
+        if (!el) return;
+        const hideEls = el.querySelectorAll<HTMLElement>('.kp-dl, .kp-footer');
+        hideEls.forEach(e => { e.style.display = 'none'; });
+        const canvas = await html2canvas(el, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', logging: false });
+        hideEls.forEach(e => { e.style.display = ''; });
         const link = document.createElement('a');
         link.download = `${fileName}.jpg`;
         link.href = canvas.toDataURL('image/jpeg', 0.95);
         link.click();
       } else {
+        // PDF — baskıya hazır A5 dikey poster
+        const sheet = document.getElementById('kp-a5-sheet');
+        if (!sheet) return;
+        sheet.style.display = 'flex';
+        // QR görselinin yüklenmesini bekle (baskıda boş çıkmasın)
+        const qrImg = sheet.querySelector('img');
+        if (qrImg && !(qrImg as HTMLImageElement).complete) {
+          await new Promise(res => { (qrImg as HTMLImageElement).onload = res; (qrImg as HTMLImageElement).onerror = res; setTimeout(res, 3000); });
+        }
+        const canvas = await html2canvas(sheet, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#0F2A55', logging: false });
+        sheet.style.display = 'none';
         const { jsPDF } = await import('jspdf');
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const pxW = canvas.width / 2;
-        const pxH = canvas.height / 2;
-        const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [pxW, pxH] });
-        pdf.addImage(imgData, 'JPEG', 0, 0, pxW, pxH);
-        pdf.save(`${fileName}.pdf`);
+        // A5 dikey: 148 × 210 mm
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
+        pdf.addImage(imgData, 'JPEG', 0, 0, 148, 210);
+        pdf.save(`${fileName}-A5.pdf`);
       }
     } catch (e) {
       console.error('Download error:', e);
-      // Hata olsa bile elemanları geri göster
       const el = document.getElementById('kp-card-main');
       if (el) el.querySelectorAll<HTMLElement>('.kp-dl, .kp-footer').forEach(e => { e.style.display = ''; });
+      const sheet = document.getElementById('kp-a5-sheet');
+      if (sheet) sheet.style.display = 'none';
     } finally {
       setDownloading(null);
     }
@@ -222,7 +224,11 @@ export default function KartClient({ kart: d }: { kart: KartData }) {
     ? `${window.location.protocol}//${window.location.host}`
     : 'https://hekimhane.com';
 
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(pageUrl || `${siteBase}/kart/${d.slug}`)}&color=1B3A69&bgcolor=FFFFFF&margin=14&format=png`;
+  // Baskı/QR için sabit production URL (SSR↔client tutarlı; QR asla localhost'a bakmaz)
+  const cardUrl = `https://hekimhane.com.tr/kart/${d.slug}`;
+  const cardUrlShort = `hekimhane.com.tr/kart/${d.slug}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(cardUrl)}&color=1B3A69&bgcolor=FFFFFF&margin=14&format=png`;
+  const qrUrlLarge = `https://api.qrserver.com/v1/create-qr-code/?size=520x520&data=${encodeURIComponent(cardUrl)}&color=1B3A69&bgcolor=FFFFFF&margin=12&format=png`;
 
   // Instagram handle
   const igHandle = d.instagram_url
@@ -567,7 +573,7 @@ export default function KartClient({ kart: d }: { kart: KartData }) {
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
                   <path d="M9 15v-4h2a2 2 0 0 1 0 4H9"/><path d="M14 15v-4"/><path d="M19 11v4"/><path d="M17 11h2"/>
                 </svg>
-                PDF İndir
+                A5 PDF (Baskı)
               </>}
             </button>
           </div>
@@ -592,6 +598,65 @@ export default function KartClient({ kart: d }: { kart: KartData }) {
             <path d="M3 21h18M9 21V7l6-4v18M9 11H3v10M15 11h6v10M9 7h6M12 11v4"/>
           </svg>
           Hekimhane ile oluşturuldu
+        </div>
+      </div>
+
+      {/* ── A5 DİKEY BASKI POSTERİ (gizli; yalnızca PDF'e aktarılır) ── */}
+      <div id="kp-a5-sheet" style={{
+        display: 'none', position: 'absolute', left: -9999, top: 0,
+        width: 520, height: 738, boxSizing: 'border-box',
+        background: 'linear-gradient(165deg,#0F2A55 0%,#1B3A69 55%,#163D6E 100%)',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
+        color: 'white', overflow: 'hidden',
+        flexDirection: 'column', alignItems: 'center',
+        padding: '38px 34px 30px', textAlign: 'center',
+      }}>
+        {/* Marka */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 22 }}>
+          <span style={{ display: 'inline-flex' }}>
+            <svg width="30" height="30" viewBox="0 0 40 40"><rect width="40" height="40" rx="11" fill="#fff" /><path d="M20 8.2c-2.9 0-4.3-1.5-6.9-1.5-2.4 0-4.2 1.9-4.2 4.9 0 2.3.9 4.3 1.5 6.4.5 1.9.7 3.6.9 5.6.2 2 .5 4.1 1.1 5.8.5 1.4 1.2 2.4 2.2 2.4 1.1 0 1.6-1.2 1.9-2.9.3-1.7.5-3.6 1.1-5.1.2-.6.6-1.1 1.3-1.1s1.1.5 1.3 1.1c.6 1.5.8 3.4 1.1 5.1.3 1.7.8 2.9 1.9 2.9 1 0 1.7-1 2.2-2.4.6-1.7.9-3.8 1.1-5.8.2-2 .4-3.7.9-5.6.6-2.1 1.5-4.1 1.5-6.4 0-3-1.8-4.9-4.2-4.9C24.3 6.7 22.9 8.2 20 8.2Z" fill="#1B3A69" /></svg>
+          </span>
+          <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.8px' }}>hekimhane<span style={{ color: '#E7BE5C' }}>.com.tr</span></span>
+        </div>
+
+        {/* Fotoğraf / baş harf */}
+        <div style={{
+          width: 116, height: 116, borderRadius: '50%', overflow: 'hidden',
+          border: '4px solid rgba(255,255,255,.9)', boxShadow: '0 8px 30px rgba(0,0,0,.3)',
+          background: '#25457c', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 44, fontWeight: 800, color: 'rgba(255,255,255,.9)', marginBottom: 16, flexShrink: 0,
+        }}>
+          {photo ? <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (d.ad?.[0]?.toUpperCase() || 'H')}
+        </div>
+
+        {/* İsim + uzmanlık */}
+        <div style={{ fontSize: 25, fontWeight: 800, letterSpacing: '-0.6px', lineHeight: 1.2 }}>{displayName}</div>
+        {d.spec && <div style={{ fontSize: 15, fontWeight: 600, color: '#E7BE5C', marginTop: 6 }}>{d.spec}</div>}
+        {d.clinic_name && <div style={{ fontSize: 13.5, color: 'rgba(255,255,255,.75)', marginTop: 4 }}>{d.clinic_name}</div>}
+        {(d.il || d.ilce) && <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.6)', marginTop: 4 }}>{[d.ilce, d.il].filter(Boolean).join(', ')}</div>}
+
+        {/* QR kartı */}
+        <div style={{ background: 'white', borderRadius: 22, padding: '20px 20px 16px', marginTop: 22, marginBottom: 14, boxShadow: '0 10px 40px rgba(0,0,0,.25)' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={qrUrlLarge} alt="QR" style={{ width: 210, height: 210, display: 'block' }} />
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: '#1B3A69', marginTop: 12, letterSpacing: '.2px' }}>Karekodu okutun</div>
+          <div style={{ fontSize: 10.5, color: '#6B7A99', marginTop: 3 }}>Randevu · İletişim · Değerlendirme</div>
+        </div>
+
+        {/* Kısa URL */}
+        <div style={{ fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,.9)', letterSpacing: '.2px' }}>{cardUrlShort}</div>
+
+        <div style={{ flex: 1 }} />
+
+        {/* Alt CTA şeridi */}
+        <div style={{
+          width: '100%', background: 'rgba(255,255,255,.10)', border: '1px solid rgba(255,255,255,.15)',
+          borderRadius: 14, padding: '11px 14px', fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,.92)',
+        }}>
+          Deneyiminizi değerlendirin — kodu okutup yorum bırakın
+        </div>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,.5)', marginTop: 10, letterSpacing: '.4px' }}>
+          Türkiye Diş Hekimi &amp; Klinik Rehberi
         </div>
       </div>
 
