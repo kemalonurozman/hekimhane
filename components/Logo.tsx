@@ -36,19 +36,33 @@ export function LogoMark({ size = 34 }: { size?: number }) {
   );
 }
 
-/** İşaret + kelime — navbar & footer için hazır kombinasyon. */
-export function Logo({ size = 34, dark = false }: { size?: number; dark?: boolean }) {
+/** İşaret + kelime — navbar & footer için hazır kombinasyon.
+ *  Modern, birleşik wordmark: "hekimhane" tek renk (hekim/hane ayrımı yok) +
+ *  altın ".com.tr" vurgusu. Küçük harf → domain ile uyumlu, yumuşak, güncel. */
+export function Logo({ size = 34, dark = false, tld = true }: { size?: number; dark?: boolean; tld?: boolean }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}>
       <LogoMark size={size} />
       <span style={{
-        display: 'inline-flex', alignItems: 'baseline', gap: 1,
-        fontSize: size * 0.6, fontWeight: 800,
-        letterSpacing: '-0.6px',
-        color: dark ? '#FFFFFF' : '#16305A',
+        display: 'inline-flex', alignItems: 'baseline',
+        letterSpacing: '-0.9px',
         fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
       }}>
-        Hekim<span style={{ color: '#D4A843' }}>hane</span>
+        <span style={{
+          fontSize: size * 0.56, fontWeight: 700,
+          color: dark ? '#FFFFFF' : '#1B3A69',
+        }}>
+          hekimhane
+        </span>
+        {tld && (
+          <span style={{
+            fontSize: size * 0.36, fontWeight: 600,
+            letterSpacing: '-0.2px', marginLeft: 1,
+            color: '#D4A843',
+          }}>
+            .com.tr
+          </span>
+        )}
       </span>
     </span>
   );

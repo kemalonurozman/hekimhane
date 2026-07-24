@@ -36,8 +36,9 @@ export default function OgImage() {
               fill="#16305A"
             />
           </svg>
-          <div style={{ color: 'white', fontSize: 56, fontWeight: 800, letterSpacing: -2 }}>
-            Hekimhane
+          <div style={{ display: 'flex', alignItems: 'baseline', letterSpacing: -2 }}>
+            <span style={{ color: 'white', fontSize: 56, fontWeight: 700 }}>hekimhane</span>
+            <span style={{ color: '#D4A843', fontSize: 34, fontWeight: 600, marginLeft: 3 }}>.com.tr</span>
           </div>
         </div>
 
