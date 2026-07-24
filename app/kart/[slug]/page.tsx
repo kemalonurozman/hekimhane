@@ -20,6 +20,7 @@ export interface KartData {
   photo?: string | null;       // doktorlar (fallback)
   il?: string | null;
   ilce?: string | null;
+  adres?: string | null;
   clinic_name?: string | null;
   bio?: string | null;
   iban?: string | null;
@@ -43,28 +44,42 @@ function toUrlSegment(s: string) {
     .replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 }
 
-/** entity_id + entity_type → Hekimhane profil URL'si */
-async function resolveHekimhaneUrl(
+interface EntityInfo {
+  url: string | null;
+  adres?: string | null;
+  rat?: number | null;
+  rev?: number | null;
+  verified?: boolean | null;
+}
+
+/** entity_id + entity_type → Hekimhane profil URL'si + adres/puan/onay bilgisi */
+async function resolveEntity(
   entity_id: string | null | undefined,
   entity_type: string | null | undefined,
-): Promise<string | null> {
-  if (!entity_id || !entity_type) return null;
+): Promise<EntityInfo> {
+  if (!entity_id || !entity_type) return { url: null };
   try {
     if (entity_type === 'klinik') {
-      const { data } = await (supabase as any).from('klinikler').select('il,ilce,slug').eq('id', entity_id).single();
-      if (data?.slug) return `/klinikler/${toUrlSegment(data.il || 'turkiye')}/${toUrlSegment(data.ilce || 'merkez')}/${data.slug}`;
+      const { data } = await (supabase as any).from('klinikler').select('il,ilce,slug,adres,rat,rev,verified').eq('id', entity_id).single();
+      if (data) return {
+        url: data.slug ? `/klinikler/${toUrlSegment(data.il || 'turkiye')}/${toUrlSegment(data.ilce || 'merkez')}/${data.slug}` : null,
+        adres: data.adres, rat: data.rat, rev: data.rev, verified: data.verified,
+      };
     } else if (entity_type === 'hastane') {
-      const { data } = await (supabase as any).from('hastaneler').select('il,ilce,slug').eq('id', entity_id).single();
-      if (data?.slug) return `/hastaneler/${toUrlSegment(data.il || 'turkiye')}/${toUrlSegment(data.ilce || 'merkez')}/${data.slug}`;
+      const { data } = await (supabase as any).from('hastaneler').select('il,ilce,slug,adres,rat,rev').eq('id', entity_id).single();
+      if (data) return {
+        url: data.slug ? `/hastaneler/${toUrlSegment(data.il || 'turkiye')}/${toUrlSegment(data.ilce || 'merkez')}/${data.slug}` : null,
+        adres: data.adres, rat: data.rat, rev: data.rev,
+      };
     } else if (entity_type === 'doktor') {
-      const { data } = await (supabase as any).from('doktorlar').select('slug').eq('id', entity_id).single();
-      if (data?.slug) return `/doktorlar/${data.slug}`;
+      const { data } = await (supabase as any).from('doktorlar').select('slug,address,rat,rev,verified').eq('id', entity_id).single();
+      if (data) return { url: data.slug ? `/doktorlar/${data.slug}` : null, adres: data.address, rat: data.rat, rev: data.rev, verified: data.verified };
     } else if (entity_type === 'eczane') {
-      const { data } = await (supabase as any).from('eczaneler').select('slug').eq('id', entity_id).single();
-      if (data?.slug) return `/eczaneler/${data.slug}`;
+      const { data } = await (supabase as any).from('eczaneler').select('slug,adres').eq('id', entity_id).single();
+      if (data) return { url: data.slug ? `/eczaneler/${data.slug}` : null, adres: data.adres };
     }
   } catch { /* entity bulunamazsa sessizce geç */ }
-  return null;
+  return { url: null };
 }
 
 async function getKart(slug: string): Promise<KartData | null> {
@@ -76,10 +91,19 @@ async function getKart(slug: string): Promise<KartData | null> {
     .eq('slug', slug)
     .single();
   if (kart) {
+    // Entity'den adres/puan/onay bilgisini çek (poster + banner için)
+    const ent = await resolveEntity(kart.entity_id, kart.entity_type);
     // hekimhane_url: kaydedilmişse kullan, yoksa entity'den otomatik türet
     const savedUrl = kart.hekimhane_url?.trim() || null;
-    const autoUrl  = savedUrl || await resolveHekimhaneUrl(kart.entity_id, kart.entity_type);
-    return { ...kart, hekimhane_url: autoUrl } as KartData;
+    return {
+      ...kart,
+      hekimhane_url: savedUrl || ent.url,
+      // kartta yoksa entity değerini kullan (fallback)
+      adres:    kart.adres    ?? ent.adres    ?? null,
+      rat:      kart.rat      ?? ent.rat      ?? undefined,
+      rev:      kart.rev      ?? ent.rev      ?? undefined,
+      verified: kart.verified ?? ent.verified ?? undefined,
+    } as KartData;
   }
 
   // 2. Fallback: doktorlar tablosu (eski sistem kartları)

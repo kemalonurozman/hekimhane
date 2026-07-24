@@ -681,7 +681,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         padding: '38px 34px 30px', textAlign: 'center',
       }}>
         {/* Marka */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 22 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
           <span style={{ display: 'inline-flex' }}>
             <svg width="30" height="30" viewBox="0 0 40 40"><rect width="40" height="40" rx="11" fill="#fff" /><path d="M20 8.2c-2.9 0-4.3-1.5-6.9-1.5-2.4 0-4.2 1.9-4.2 4.9 0 2.3.9 4.3 1.5 6.4.5 1.9.7 3.6.9 5.6.2 2 .5 4.1 1.1 5.8.5 1.4 1.2 2.4 2.2 2.4 1.1 0 1.6-1.2 1.9-2.9.3-1.7.5-3.6 1.1-5.1.2-.6.6-1.1 1.3-1.1s1.1.5 1.3 1.1c.6 1.5.8 3.4 1.1 5.1.3 1.7.8 2.9 1.9 2.9 1 0 1.7-1 2.2-2.4.6-1.7.9-3.8 1.1-5.8.2-2 .4-3.7.9-5.6.6-2.1 1.5-4.1 1.5-6.4 0-3-1.8-4.9-4.2-4.9C24.3 6.7 22.9 8.2 20 8.2Z" fill="#1B3A69" /></svg>
           </span>
@@ -693,7 +693,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
           width: 116, height: 116, borderRadius: '50%', overflow: 'hidden',
           border: '4px solid rgba(255,255,255,.9)', boxShadow: '0 8px 30px rgba(0,0,0,.3)',
           background: '#25457c', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 44, fontWeight: 800, color: 'rgba(255,255,255,.9)', marginBottom: 16, flexShrink: 0,
+          fontSize: 44, fontWeight: 800, color: 'rgba(255,255,255,.9)', marginBottom: 12, flexShrink: 0,
         }}>
           {photo ? <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (d.ad?.[0]?.toUpperCase() || 'H')}
         </div>
@@ -702,30 +702,67 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         <div style={{ fontSize: 25, fontWeight: 800, letterSpacing: '-0.6px', lineHeight: 1.2 }}>{displayName}</div>
         {d.spec && <div style={{ fontSize: 15, fontWeight: 600, color: '#E7BE5C', marginTop: 6 }}>{d.spec}</div>}
         {d.clinic_name && <div style={{ fontSize: 13.5, color: 'rgba(255,255,255,.75)', marginTop: 4 }}>{d.clinic_name}</div>}
-        {(d.il || d.ilce) && <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.6)', marginTop: 4 }}>{[d.ilce, d.il].filter(Boolean).join(', ')}</div>}
+
+        {/* Güven satırı — onay rozeti (her zaman) + puan (varsa) */}
+        {(
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11.5, fontWeight: 700, color: '#6EE7B7', background: 'rgba(16,185,129,.15)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 20, padding: '4px 11px' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6EE7B7" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+              Onaylı Hekim
+            </span>
+            {d.rat && d.rat > 0 && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 700, color: '#E7BE5C', background: 'rgba(231,190,92,.12)', border: '1px solid rgba(231,190,92,.3)', borderRadius: 20, padding: '4px 11px' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#E7BE5C"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z" /></svg>
+                {d.rat.toFixed(1)}{d.rev && d.rev > 0 ? ` · ${d.rev} değerlendirme` : ''}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Adres (tam) veya il/ilçe */}
+        {(d.adres || d.il || d.ilce) && (
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: 5, marginTop: 10, maxWidth: 400, fontSize: 12, color: 'rgba(255,255,255,.62)', lineHeight: 1.45 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+            <span>{d.adres?.trim() || [d.ilce, d.il].filter(Boolean).join(', ')}</span>
+          </div>
+        )}
 
         {/* QR kartı */}
-        <div style={{ background: 'white', borderRadius: 22, padding: '20px 20px 16px', marginTop: 22, marginBottom: 14, boxShadow: '0 10px 40px rgba(0,0,0,.25)' }}>
+        <div style={{ background: 'white', borderRadius: 22, padding: '18px 20px 14px', marginTop: 18, boxShadow: '0 10px 40px rgba(0,0,0,.25)' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={qrUrlLarge} alt="QR" style={{ width: 210, height: 210, display: 'block' }} />
-          <div style={{ fontSize: 12.5, fontWeight: 700, color: '#1B3A69', marginTop: 12, letterSpacing: '.2px' }}>Karekodu okutun</div>
+          <img src={qrUrlLarge} alt="QR" style={{ width: 200, height: 200, display: 'block' }} />
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: '#1B3A69', marginTop: 11, letterSpacing: '.2px' }}>Karekodu okutun</div>
           <div style={{ fontSize: 10.5, color: '#6B7A99', marginTop: 3 }}>Randevu · İletişim · Değerlendirme</div>
         </div>
 
-        {/* Kısa URL */}
-        <div style={{ fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,.9)', letterSpacing: '.2px' }}>{cardUrlShort}</div>
+        {/* Telefon — doğrudan iletişim */}
+        {d.tel && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 14, fontSize: 17, fontWeight: 800, letterSpacing: '.4px', color: '#fff' }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#E7BE5C" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z" /></svg>
+            {d.tel}
+          </div>
+        )}
 
-        <div style={{ flex: 1 }} />
+        {/* Esnek boşluk — alt grubu poster tabanına yaslar */}
+        <div style={{ flex: 1, minHeight: 14 }} />
 
-        {/* Alt CTA şeridi */}
-        <div style={{
-          width: '100%', background: 'rgba(255,255,255,.10)', border: '1px solid rgba(255,255,255,.15)',
-          borderRadius: 14, padding: '11px 14px', fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,.92)',
-        }}>
-          Deneyiminizi değerlendirin — kodu okutup yorum bırakın
-        </div>
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,.5)', marginTop: 10, letterSpacing: '.4px' }}>
-          Türkiye Diş Hekimi &amp; Klinik Rehberi
+        {/* Alt grup: URL · CTA · footer — standart aralıklarla */}
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+          {/* Kısa URL */}
+          <div style={{ fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,.9)', letterSpacing: '.2px' }}>{cardUrlShort}</div>
+
+          {/* Alt CTA şeridi */}
+          <div style={{
+            width: '100%', background: 'rgba(255,255,255,.10)', border: '1px solid rgba(255,255,255,.15)',
+            borderRadius: 14, padding: '12px 14px', fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,.92)',
+          }}>
+            Deneyiminizi değerlendirin — kodu okutup yorum bırakın
+          </div>
+
+          {/* Footer */}
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,.5)', letterSpacing: '.4px' }}>
+            Türkiye Diş Hekimi &amp; Klinik Rehberi
+          </div>
         </div>
       </div>
 
