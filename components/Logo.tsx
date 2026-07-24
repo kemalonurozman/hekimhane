@@ -13,25 +13,12 @@ export function ToothGlyph({ size = 24, fill = 'currentColor' }: { size?: number
   );
 }
 
-/** Marka işareti — gradyanlı yuvarlak kare zemin + iki tonlu diş + ışıltı. */
+/** Marka işareti — sade: düz lacivert yuvarlak kare + beyaz diş. */
 export function LogoMark({ size = 34 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" aria-hidden>
-      <defs>
-        <linearGradient id="hh-bg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#2A4E88" />
-          <stop offset="1" stopColor="#152F58" />
-        </linearGradient>
-        <linearGradient id="hh-tooth" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#F2D07A" />
-          <stop offset="1" stopColor="#D4A843" />
-        </linearGradient>
-      </defs>
-      <rect width="40" height="40" rx="11" fill="url(#hh-bg)" />
-      <rect x="0.8" y="0.8" width="38.4" height="38.4" rx="10.2" fill="none" stroke="rgba(255,255,255,.10)" strokeWidth="1.4" />
-      <path d={TOOTH} fill="url(#hh-tooth)" />
-      {/* Işıltı — sol üst tümsekte hafif parlaklık */}
-      <ellipse cx="15.3" cy="12.6" rx="2" ry="2.9" fill="rgba(255,255,255,.30)" transform="rotate(-20 15.3 12.6)" />
+      <rect width="40" height="40" rx="11" fill="#1B3A69" />
+      <path d={TOOTH} fill="#FFFFFF" />
     </svg>
   );
 }
