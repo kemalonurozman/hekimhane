@@ -1676,8 +1676,8 @@ function KonumPicker({ lat, lng, adres, il, ilce, name, onLatLng, T, LBL }: {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={T.navy} strokeWidth="2" strokeLinecap="round" style={{ flexShrink:0, marginTop:1 }}>
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
         </svg>
-        <div style={{ flex:1 }}>
-          <p style={{ fontSize:12, color:T.navy, fontWeight:600, margin:'0 0 2px' }}>
+        <div style={{ flex:1, minWidth:0 }}>
+          <p style={{ fontSize:12, color:T.navy, fontWeight:600, margin:'0 0 2px', overflowWrap:'anywhere' }}>
             {[adres, ilce, il].filter(Boolean).join(' · ') || 'Adres bilgisi yok'}
           </p>
           <p style={{ fontSize:11, color:'#6B7A99', margin:0 }}>
@@ -1968,8 +1968,8 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
             ))}
           </div>
 
-          {/* Form bölümü */}
-          <div style={{ background:T.white, borderRadius:14, border:`1px solid ${T.border}`, padding:'20px 18px', display:'flex', flexDirection:'column', gap:14 }}>
+          {/* Form bölümü — minHeight ile sekme geçişinde yükseklik zıplaması önlenir */}
+          <div style={{ background:T.white, borderRadius:14, border:`1px solid ${T.border}`, padding:'20px 18px', display:'flex', flexDirection:'column', gap:14, minHeight:460, maxWidth:'100%', overflowX:'hidden' }}>
 
             {/* ── PROFİL BİLGİLERİ ── */}
             {sec==='info' && (<>
@@ -2243,7 +2243,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
               {/* Galeri */}
               <div>
                 <label style={LBL}>Galeri Fotoğrafları ({gall.length}/8)</label>
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:8 }}>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(4, minmax(0, 1fr))', gap:8 }}>
                   {Array.from({length:8}).map((_,i)=>{
                     const url      = gall[i]||'';
                     const slotKey  = String(i);
