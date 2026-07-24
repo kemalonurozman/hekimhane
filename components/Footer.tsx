@@ -31,6 +31,14 @@ export default function Footer() {
     ['Çerez Politikası',    '/cerez'],
   ];
 
+  // Sosyal hesaplar — href boşken ilgili ikon gizlenir. Hesap açıldıkça doldurun.
+  const SOCIAL = [
+    { icon: 'fa-instagram',   href: '', label: 'Instagram' },
+    { icon: 'fa-x-twitter',   href: '', label: 'X (Twitter)' },
+    { icon: 'fa-linkedin-in', href: '', label: 'LinkedIn' },
+    { icon: 'fa-youtube',     href: '', label: 'YouTube' },
+  ];
+
   return (
     <footer style={{
       background: 'var(--navy)',
@@ -99,20 +107,18 @@ export default function Footer() {
                 Abone Ol
               </button>
             </div>
-            {/* Sosyal medya */}
-            <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
-              {[
-                { icon: 'fa-instagram',   href: '#' },
-                { icon: 'fa-twitter',     href: '#' },
-                { icon: 'fa-linkedin-in', href: '#' },
-                { icon: 'fa-youtube',     href: '#' },
-              ].map(s => (
-                <a key={s.icon} href={s.href}
-                  style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,.7)', textDecoration: 'none' }}>
-                  <i className={`fab ${s.icon}`} style={{ fontSize: 14 }} />
-                </a>
-              ))}
-            </div>
+            {/* Sosyal medya — yalnızca gerçek hesap linki girildiğinde görünür.
+                Hesaplar açıldıkça href'leri doldurun (ör. 'https://instagram.com/hekimhane'). */}
+            {SOCIAL.some(s => s.href) && (
+              <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
+                {SOCIAL.filter(s => s.href).map(s => (
+                  <a key={s.icon} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
+                    style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,.7)', textDecoration: 'none' }}>
+                    <i className={`fab ${s.icon}`} style={{ fontSize: 14 }} />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Platform */}

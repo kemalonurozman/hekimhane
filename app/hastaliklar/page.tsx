@@ -7,13 +7,14 @@ export const metadata: Metadata = {
   description: 'Sık görülen hastalıklar, belirtileri ve tedavi yöntemleri hakkında güvenilir sağlık bilgisi.',
 };
 
+// Diş odaklı öne çıkan konular — blog yazılarına yönlendirir
 const sağlıkKonuları = [
-  { başlık: 'Antibiyotik Kullanımı', özet: 'Doğru antibiyotik kullanımı ve direnç hakkında bilmeniz gerekenler', renk: '#DC2626' },
-  { başlık: 'Kan Tahlili Sonuçları', özet: 'Kan değerlerini nasıl yorumlarsınız? Normal değerler ve anlamları', renk: '#2563EB' },
-  { başlık: 'Stres ve Sağlık', özet: 'Kronik stresin sağlık üzerindeki etkileri ve başa çıkma yöntemleri', renk: '#7C3AED' },
-  { başlık: 'Beslenme Önerileri', özet: 'Sağlıklı beslenme rehberi ve kronik hastalıklarda diyet', renk: '#065F46' },
-  { başlık: 'Egzersiz ve Hareket', özet: 'Günlük hareketin önemi ve hastalıklardan korunma', renk: '#D97706' },
-  { başlık: 'Uyku Bozuklukları', özet: 'Uyku kalitesini etkileyen faktörler ve çözüm yolları', renk: '#1B3A69' },
+  { başlık: 'Diş Eti Kanaması', özet: 'Fırçalarken diş etiniz kanıyorsa nedenleri ve ne zaman doktora gidilmeli?', renk: '#DC2626', href: '/blog/dis-eti-kanamasi-nedenleri' },
+  { başlık: 'İmplant Tedavisi', özet: 'İmplant nedir, kimlere uygulanır, ne kadar sürer ve dayanır?', renk: '#1B3A69', href: '/blog/implant-tedavisi-hakkinda-merak-edilenler' },
+  { başlık: 'Diş Beyazlatma', özet: 'Klinikte beyazlatma, evde jel, macun... Hangisi güvenli ve kalıcı?', renk: '#0E7490', href: '/blog/dis-beyazlatma-yontemleri-guvenli-mi' },
+  { başlık: 'Ağız Kokusu (Halitozis)', özet: 'Ağız kokusunun kaynakları ve kalıcı çözüm için yapılması gerekenler', renk: '#065F46', href: '/blog/agiz-kokusu-halitozis-neden-olur' },
+  { başlık: 'Çocuklarda İlk Ziyaret', özet: 'Çocuğunuzun ilk diş hekimi ziyareti ne zaman olmalı?', renk: '#7C3AED', href: '/blog/cocuklarda-ilk-dis-hekimi-ziyareti' },
+  { başlık: 'Diş Hekimi Seçimi', özet: 'Doğru diş hekimini bulurken dikkat edilmesi gereken 7 kriter', renk: '#D97706', href: '/blog/dis-hekimi-secerken-dikkat-edilmesi-gerekenler' },
 ];
 
 // SVG ikonlar — inline, emoji yok
@@ -282,9 +283,9 @@ export default function HastalıklarPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
             {sağlıkKonuları.map(konu => (
-              <a
+              <Link
                 key={konu.başlık}
-                href="#"
+                href={konu.href}
                 style={{
                   background: 'white', borderRadius: 16,
                   border: '1px solid #E5E5EA',
@@ -310,7 +311,7 @@ export default function HastalıklarPage() {
                 }}>
                   Devamını oku <IconArrow />
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </section>

@@ -3,23 +3,29 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { HastalıkOzet } from './page';
-
-const KATEGORILER = [
-  'Tümü', 'Hasta Rehberi', 'Sağlıklı Yaşam', 'Hastalıklar', 'Beslenme', 'Çocuk Sağlığı', 'Kadın Sağlığı', 'Ruh Sağlığı',
-];
+import { ToothGlyph } from '@/components/Logo';
 
 const categoryColors: Record<string, { bg: string; color: string }> = {
-  'Hasta Rehberi':   { bg: '#EEF2FF', color: '#3730A3' },
-  'Sağlıklı Yaşam': { bg: '#ECFDF5', color: '#065F46' },
-  'Hastalıklar':    { bg: '#FEF2F2', color: '#991B1B' },
-  'Beslenme':       { bg: '#FEF3C7', color: '#92400E' },
-  'Çocuk Sağlığı':  { bg: '#EFF6FF', color: '#1D4ED8' },
-  'Kadın Sağlığı':  { bg: '#FDF4FF', color: '#7E22CE' },
-  'Ruh Sağlığı':    { bg: '#F0FDF4', color: '#166534' },
+  'Diş Sağlığı':       { bg: '#ECFEFF', color: '#0E7490' },
+  'Tedaviler':         { bg: '#EEF2FF', color: '#3730A3' },
+  'Hasta Rehberi':     { bg: '#F5F3FF', color: '#6D28D9' },
+  'Estetik':           { bg: '#FDF2F8', color: '#BE185D' },
+  'Çocuk Diş Sağlığı': { bg: '#EFF6FF', color: '#1D4ED8' },
+  'Hastalıklar':       { bg: '#FEF2F2', color: '#991B1B' },
 };
 
 function catStyle(cat: string | null) {
   return categoryColors[cat || ''] || { bg: '#F3F4F6', color: '#374151' };
+}
+
+// Markaya uygun kapak — görsel yoksa gradyanlı diş glifi
+function KapakGorseli({ src, alt, iconSize = 48 }: { src: string | null; alt: string; iconSize?: number }) {
+  if (src) return <img src={src} alt={alt} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />;
+  return (
+    <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <ToothGlyph size={iconSize} fill="rgba(255,255,255,0.28)" />
+    </div>
+  );
 }
 
 function formatDate(d: string) {
@@ -53,11 +59,8 @@ function BlogCard({ post }: { post: Post }) {
           transform: hovered ? 'translateY(-2px)' : 'none',
         }}>
         {/* Görsel alanı */}
-        <div style={{ height: 140, background: 'linear-gradient(135deg, #F0F4FF, #E8EDF8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48 }}>
-          {post.cover_image
-            /* eslint-disable-next-line @next/next/no-img-element */
-            ? <img src={post.cover_image} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            : '📄'}
+        <div style={{ height: 140 }}>
+          <KapakGorseli src={post.cover_image} alt={post.title} iconSize={52} />
         </div>
         <div style={{ padding: '20px 22px', flex: 1, display: 'flex', flexDirection: 'column' }}>
           {post.category && (
@@ -216,6 +219,9 @@ function NewsletterSection() {
 export default function BlogInteractive({ posts, hastaliklar }: { posts: Post[]; hastaliklar: HastalıkOzet[] }) {
   const [aktifKat, setAktifKat] = useState('Tümü');
 
+  // Kategoriler yazılardan türetilir; "Hastalıklar" diş rehberine köprüdür
+  const kategoriler = ['Tümü', ...Array.from(new Set(posts.map(p => p.category).filter(Boolean))) as string[], 'Hastalıklar'];
+
   const showHastaliklar = aktifKat === 'Hastalıklar';
 
   const filtrelenmis = aktifKat === 'Tümü'
@@ -229,7 +235,7 @@ export default function BlogInteractive({ posts, hastaliklar }: { posts: Post[];
     <>
       {/* Kategoriler */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 36 }}>
-        {KATEGORILER.map(k => (
+        {kategoriler.map(k => (
           <button key={k} onClick={() => setAktifKat(k)}
             style={{
               padding: '7px 16px', borderRadius: 20, fontSize: 13, fontWeight: 600,
@@ -256,8 +262,9 @@ export default function BlogInteractive({ posts, hastaliklar }: { posts: Post[];
                       {featured.category}
                     </span>
                   )}
-                  <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(212,168,67,.15)', color: 'var(--gold)' }}>
-                    ⭐ Öne Çıkan
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(212,168,67,.15)', color: 'var(--gold2)' }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.8 5.9 20.4l1.5-6.8L2.2 9l6.9-.7z"/></svg>
+                    Öne Çıkan
                   </span>
                 </div>
                 <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 26, fontWeight: 800, color: 'var(--navy)', marginBottom: 12, lineHeight: 1.3 }}>
@@ -271,11 +278,8 @@ export default function BlogInteractive({ posts, hastaliklar }: { posts: Post[];
                 <span>{(featured.views || 0).toLocaleString('tr')} görüntülenme</span>
               </div>
             </div>
-            <div style={{ background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 80 }}>
-              {featured.cover_image
-                /* eslint-disable-next-line @next/next/no-img-element */
-                ? <img src={featured.cover_image} alt={featured.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                : '🏥'}
+            <div style={{ minHeight: 200 }}>
+              <KapakGorseli src={featured.cover_image} alt={featured.title} iconSize={90} />
             </div>
           </div>
         </Link>

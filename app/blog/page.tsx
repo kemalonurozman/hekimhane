@@ -3,51 +3,19 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import BlogInteractive from './BlogInteractive';
 import { HASTALIKLAR, KATEGORILER } from '@/lib/hastaliklar-data';
+import { BLOG_YAZILARI } from '@/lib/blog-data';
 
 export const metadata: Metadata = {
-  title: 'Blog | Hekimhane',
-  description: 'Sağlık haberleri, uzman yazıları ve hasta rehberleri. Hekimhane Blog.',
+  title: 'Blog | Hekimhane — Diş Sağlığı Yazıları',
+  description: 'Diş sağlığı, tedaviler ve hasta rehberleri. Uzman gözünden ağız ve diş sağlığı içerikleri.',
 };
 
-// Fallback placeholder yazılar (veritabanı boşsa gösterilir)
-const PLACEHOLDER_POSTS = [
-  {
-    id: '1', slug: '#', title: 'Doktor Seçerken Dikkat Edilmesi Gereken 7 Önemli Kriter',
-    summary: 'Doğru doktoru bulmak, sağlığınızı korumanın ilk adımıdır. Uzman seçiminde göz önünde bulundurmanız gereken kriterleri derledik.',
-    category: 'Hasta Rehberi', author: 'Hekimhane Editör',
-    created_at: '2024-11-15', cover_image: null, views: 1240,
-  },
-  {
-    id: '2', slug: '#', title: 'SGK ile Özel Hastaneye Nasıl Gidilir?',
-    summary: 'SGK katkısıyla özel hastanelerden yararlanma süreci, gerekli belgeler ve bilmeniz gereken tüm detaylar bu yazıda.',
-    category: 'Hasta Rehberi', author: 'Hekimhane Editör',
-    created_at: '2024-11-10', cover_image: null, views: 3180,
-  },
-  {
-    id: '3', slug: '#', title: 'Randevu Almadan Önce Yapmanız Gerekenler',
-    summary: 'Muayene sürecinizi kolaylaştırmak için randevu öncesi hazırlık listesi.',
-    category: 'Hasta Rehberi', author: 'Hekimhane Editör',
-    created_at: '2024-11-05', cover_image: null, views: 870,
-  },
-  {
-    id: '4', slug: '#', title: 'Kış Aylarında Bağışıklık Sistemini Güçlendirmenin 10 Yolu',
-    summary: 'Mevsim geçişlerinde hastalıklara karşı korunmak için beslenme, uyku ve egzersiz önerileri.',
-    category: 'Sağlıklı Yaşam', author: 'Hekimhane Editör',
-    created_at: '2024-10-28', cover_image: null, views: 2100,
-  },
-  {
-    id: '5', slug: '#', title: 'Çocuklarda Aşı Takvimi: Hangi Aşı Ne Zaman Yapılır?',
-    summary: 'Türkiye\'de uygulanan zorunlu ve isteğe bağlı aşılar, takvim ve sık sorulan sorular.',
-    category: 'Çocuk Sağlığı', author: 'Hekimhane Editör',
-    created_at: '2024-10-20', cover_image: null, views: 4230,
-  },
-  {
-    id: '6', slug: '#', title: 'Stres ve Anksiyete ile Başa Çıkma Yöntemleri',
-    summary: 'Günlük hayatta stres yönetimi için uzmanların önerdiği pratik teknikler ve farkındalık egzersizleri.',
-    category: 'Ruh Sağlığı', author: 'Hekimhane Editör',
-    created_at: '2024-10-12', cover_image: null, views: 1560,
-  },
-];
+// Statik diş odaklı yazılar (blog_posts boşsa gösterilir)
+const STATIK_POSTS = BLOG_YAZILARI.map((y, i) => ({
+  id: String(i + 1), slug: y.slug, title: y.title, summary: y.summary,
+  category: y.category, author: y.author, created_at: y.created_at,
+  cover_image: y.cover_image, views: y.views,
+}));
 
 async function getPosts() {
   try {
@@ -57,9 +25,9 @@ async function getPosts() {
       .eq('published', true)
       .order('created_at', { ascending: false })
       .limit(30);
-    return (data && data.length > 0) ? data : PLACEHOLDER_POSTS;
+    return (data && data.length > 0) ? data : STATIK_POSTS;
   } catch {
-    return PLACEHOLDER_POSTS;
+    return STATIK_POSTS;
   }
 }
 
@@ -109,7 +77,7 @@ export default async function BlogPage() {
             Hekimhane Blog
           </h1>
           <p style={{ color: 'rgba(255,255,255,.7)', fontSize: 15, maxWidth: 500 }}>
-            Sağlık haberleri, uzman yazıları ve hasta rehberleri.
+            Diş sağlığı, tedaviler ve hasta rehberleri.
           </p>
         </div>
       </div>

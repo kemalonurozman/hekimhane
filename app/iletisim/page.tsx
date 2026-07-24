@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import IletisimForm from './IletisimForm';
 
 export const metadata: Metadata = {
   title: 'İletişim | Hekimhane',
@@ -30,62 +31,8 @@ export default function IletisimPage() {
 
       <div className="container hastalik-content-grid" style={{ padding: '48px 32px' }}>
 
-        {/* Form */}
-        <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: 'clamp(20px, 5vw, 40px)', boxShadow: '0 2px 16px rgba(0,0,0,.04)' }}>
-          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Mesaj Gönderin</h2>
-          <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 28 }}>En geç 24 saat içinde dönüş yapıyoruz.</p>
-
-          <form style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-            <div className="form-two-col">
-              {[
-                { label: 'Adınız', placeholder: 'Adınızı girin', type: 'text', required: true },
-                { label: 'Soyadınız', placeholder: 'Soyadınızı girin', type: 'text', required: true },
-              ].map(f => (
-                <div key={f.label}>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--text)' }}>
-                    {f.label} {f.required && <span style={{ color: '#EF4444' }}>*</span>}
-                  </label>
-                  <input type={f.type} placeholder={f.placeholder} required={f.required}
-                    style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1.5px solid var(--border)', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
-                E-posta <span style={{ color: '#EF4444' }}>*</span>
-              </label>
-              <input type="email" placeholder="ornek@mail.com" required
-                style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1.5px solid var(--border)', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Konu</label>
-              <select style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1.5px solid var(--border)', fontSize: 14, fontFamily: 'inherit', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
-                <option value="">Konu seçin</option>
-                <option value="isletme">İşletme Ekleme / Güncelleme</option>
-                <option value="hata">Hata Bildirimi</option>
-                <option value="sikayet">Yorum / İçerik Şikayeti</option>
-                <option value="reklam">Reklam / İş Birliği</option>
-                <option value="diger">Diğer</option>
-              </select>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
-                Mesajınız <span style={{ color: '#EF4444' }}>*</span>
-              </label>
-              <textarea placeholder="Mesajınızı buraya yazın..." rows={5} required
-                style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1.5px solid var(--border)', fontSize: 14, fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
-            </div>
-
-            <button type="submit"
-              style={{ padding: '13px 28px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <i className="fa-solid fa-paper-plane" />
-              Mesajı Gönder
-            </button>
-          </form>
-        </div>
+        {/* Form — client bileşen, /api/iletisim'e gönderir */}
+        <IletisimForm />
 
         {/* Sağ panel */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
 import { KATEGORILER, HASTALIKLAR } from '@/lib/hastaliklar-data';
+import { BLOG_YAZILARI } from '@/lib/blog-data';
 
 const BASE = 'https://hekimhane.com.tr';
 
@@ -18,6 +19,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/yakin-eczane`, lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
     { url: `${BASE}/hastaliklar`, lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
     { url: `${BASE}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    ...BLOG_YAZILARI.map(y => ({
+      url: `${BASE}/blog/${y.slug}`,
+      lastModified: new Date(y.created_at),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    })),
     { url: `${BASE}/katil`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE}/hakkimizda`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${BASE}/iletisim`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
