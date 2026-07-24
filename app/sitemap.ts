@@ -33,21 +33,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/kullanim`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
   ];
 
-  // Hastalık kategorileri
-  const kategoriPages: MetadataRoute.Sitemap = KATEGORILER.map(k => ({
-    url: `${BASE}/hastaliklar/${k.slug}`,
-    lastModified: now,
-    changeFrequency: 'weekly',
-    priority: 0.75,
-  }));
+  // Hastalık kategorileri — şimdilik yalnızca diş/ağız (diğerleri gizli)
+  const kategoriPages: MetadataRoute.Sitemap = KATEGORILER
+    .filter(k => k.slug === 'dis-sagligi')
+    .map(k => ({
+      url: `${BASE}/hastaliklar/${k.slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.75,
+    }));
 
-  // Hastalık detay sayfaları
-  const hastalikPages: MetadataRoute.Sitemap = HASTALIKLAR.map(h => ({
-    url: `${BASE}/hastaliklar/${h.kategoriSlug}/${h.slug}`,
-    lastModified: now,
-    changeFrequency: 'weekly',
-    priority: 0.7,
-  }));
+  // Hastalık detay sayfaları — yalnızca diş/ağız
+  const hastalikPages: MetadataRoute.Sitemap = HASTALIKLAR
+    .filter(h => h.kategoriSlug === 'dis-sagligi')
+    .map(h => ({
+      url: `${BASE}/hastaliklar/${h.kategoriSlug}/${h.slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    }));
 
   // Klinik sayfaları
   const tr = (s: string) => (s || '').toLowerCase()

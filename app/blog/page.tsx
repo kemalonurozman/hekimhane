@@ -45,7 +45,8 @@ export type HastalıkOzet = {
 
 function getHastalikOzetler(): HastalıkOzet[] {
   const katMap = Object.fromEntries(KATEGORILER.map(k => [k.slug, k.ad]));
-  return HASTALIKLAR.map(h => ({
+  // Şimdilik yalnızca diş/ağız hastalıkları gösterilir; diğerleri gizli
+  return HASTALIKLAR.filter(h => h.kategoriSlug === 'dis-sagligi').map(h => ({
     slug: h.slug,
     ad: h.ad,
     kategoriSlug: h.kategoriSlug,

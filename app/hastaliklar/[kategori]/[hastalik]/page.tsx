@@ -22,11 +22,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `${h.ad} – Belirtiler, Nedenler ve Tedavi`;
   const description = h.ozet.slice(0, 155);
   const url = `https://hekimhane.com.tr/hastaliklar/${h.kategoriSlug}/${h.slug}`;
+  // Diş dışı hastalıklar şimdilik gizli — arama motorlarından çıkar
+  const gizli = h.kategoriSlug !== 'dis-sagligi';
   return {
     title,
     description,
     keywords: [h.ad, ...h.belirtiler.slice(0,3).map(b => b.baslik), h.uzmanlik, 'hastalık', 'belirtiler', 'tedavi'],
     alternates: { canonical: url },
+    ...(gizli ? { robots: { index: false, follow: false } } : {}),
     openGraph: {
       title: `${title} | Hekimhane`,
       description,

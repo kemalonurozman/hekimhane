@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { KATEGORILER, HASTALIKLAR } from '@/lib/hastaliklar-data';
 
 export const metadata: Metadata = {
-  title: 'Hastalık Rehberi | Hekimhane',
-  description: 'Sık görülen hastalıklar, belirtileri ve tedavi yöntemleri hakkında güvenilir sağlık bilgisi.',
+  title: 'Ağız & Diş Sağlığı Rehberi | Hekimhane',
+  description: 'Diş ve ağız hastalıkları, belirtileri ve tedavi yöntemleri hakkında güvenilir bilgi.',
 };
 
 // Diş odaklı öne çıkan konular — blog yazılarına yönlendirir
@@ -69,10 +69,13 @@ function IconRefresh() {
 }
 
 export default function HastalıklarPage() {
-  const kategorilerWithHastaliklar = KATEGORILER.map(kat => ({
-    ...kat,
-    hastaliklar: HASTALIKLAR.filter(h => h.kategoriSlug === kat.slug).slice(0, 4),
-  }));
+  // Şimdilik yalnızca diş/ağız sağlığı gösterilir; diğer branşlar gizli
+  const kategorilerWithHastaliklar = KATEGORILER
+    .filter(kat => kat.slug === 'dis-sagligi')
+    .map(kat => ({
+      ...kat,
+      hastaliklar: HASTALIKLAR.filter(h => h.kategoriSlug === kat.slug).slice(0, 8),
+    }));
 
   return (
     <main style={{ background: '#F5F5F7', minHeight: '100vh', paddingTop: 64, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
@@ -89,7 +92,7 @@ export default function HastalıklarPage() {
           <nav style={{ fontSize: 12, color: 'rgba(255,255,255,.45)', marginBottom: 36, display: 'flex', gap: 6, alignItems: 'center', letterSpacing: '.3px' }}>
             <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>Ana Sayfa</Link>
             <span style={{ opacity: .5 }}>›</span>
-            <span style={{ color: 'rgba(255,255,255,.75)' }}>Hastalık Rehberi</span>
+            <span style={{ color: 'rgba(255,255,255,.75)' }}>Ağız & Diş Sağlığı</span>
           </nav>
 
           {/* Başlık + açıklama */}
@@ -104,14 +107,14 @@ export default function HastalıklarPage() {
               fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 700,
               letterSpacing: '-1.5px', lineHeight: 1.08, margin: '0 0 20px',
             }}>
-              Hastalık Rehberi
+              Ağız & Diş Sağlığı Rehberi
             </h1>
             <p style={{
               color: 'rgba(255,255,255,.65)', fontSize: 17, margin: 0,
               lineHeight: 1.65, fontWeight: 400, letterSpacing: '.1px',
             }}>
-              Sık görülen hastalıklar, belirtileri ve tedavi yöntemleri hakkında
-              uzman doktorların derlediği güvenilir içeriklere ulaşın.
+              Sık görülen diş ve ağız hastalıkları, belirtileri ve tedavi
+              yöntemleri hakkında güvenilir içeriklere ulaşın.
             </p>
           </div>
 
@@ -144,8 +147,8 @@ export default function HastalıklarPage() {
           {/* İstatistik rozetleri */}
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             {[
-              { icon: <IconBook />, text: `${HASTALIKLAR.length}+ hastalık bilgisi` },
-              { icon: <IconUsers />, text: 'Uzman doktor içerikleri' },
+              { icon: <IconBook />, text: `${HASTALIKLAR.filter(h => h.kategoriSlug === 'dis-sagligi').length} diş hastalığı` },
+              { icon: <IconUsers />, text: 'Uzman diş hekimi içerikleri' },
               { icon: <IconRefresh />, text: 'Düzenli güncelleme' },
             ].map(item => (
               <div key={item.text} style={{

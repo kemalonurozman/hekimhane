@@ -19,9 +19,12 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const kat = getKategori(params.kategori);
   if (!kat) return {};
+  // Diş dışı branşlar şimdilik gizli — arama motorlarından da çıkar
+  const gizli = kat.slug !== 'dis-sagligi';
   return {
-    title: `${kat.ad} Hastalıkları | Hastalık Rehberi | Hekimhane`,
+    title: `${kat.ad} Hastalıkları | Hekimhane`,
     description: `${kat.ad} alanındaki hastalıklar hakkında detaylı bilgi: belirtiler, nedenler ve tedavi seçenekleri.`,
+    ...(gizli ? { robots: { index: false, follow: false } } : {}),
   };
 }
 
@@ -37,8 +40,8 @@ export default function KategoriPage({ params }: Props) {
     hastaliklar: hastaliklar.filter(h => h.altKategoriSlug === alt.slug),
   }));
 
-  // Tüm diğer kategoriler (sidebar için)
-  const digerKategoriler = KATEGORILER.filter(k => k.slug !== params.kategori);
+  // Diğer kategoriler (sidebar) — şimdilik yalnızca diş/ağız görünür
+  const digerKategoriler = KATEGORILER.filter(k => k.slug !== params.kategori && k.slug === 'dis-sagligi');
 
   return (
     <main style={{ background: 'var(--ivory)', minHeight: '100vh', paddingTop: 64 }}>
