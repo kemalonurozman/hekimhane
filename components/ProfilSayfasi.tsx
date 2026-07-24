@@ -6,6 +6,7 @@ import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import { specToHref } from '@/lib/uzmanlik-data';
 import AboneWidget from '@/components/AboneWidget';
 import PremiumBadge from '@/components/PremiumBadge';
+import { ToothGlyph } from '@/components/Logo';
 
 // ── Türkiye İl Merkez Koordinatları ──────────────────────────────
 const IL_MERKEZ: Record<string, [number, number]> = {
@@ -719,17 +720,25 @@ export default function ProfilSayfasi(props: ProfilProps) {
   const counts  = [0,0,0,0,0];
   yorumlar.forEach(r => { if (r.rating >= 1 && r.rating <= 5) counts[r.rating - 1]++; });
 
-  // İkon / logo — doktor için SVG, diğerleri emoji
-  const entityIconEmoji: Record<string, string> = { klinik: '🦷', hastane: '🏥', eczane: '💊' };
-  const entityIconSvg = entityType === 'doktor' ? (
-    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-      <circle cx="12" cy="7" r="4"/>
-      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
-    </svg>
-  ) : null;
-  const entityIcon = entityIconSvg ?? entityIconEmoji[entityType] ?? '🏥';
+  // İkon / logo fallback — tümü inline SVG (emoji yok), beyaz
+  const entityIconSvg =
+    entityType === 'doktor' ? (
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
+      </svg>
+    ) : entityType === 'hastane' ? (
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 21h18M9 21V7l6-4v18M9 11H3v10M15 11h6v10M12 6v4"/>
+      </svg>
+    ) : entityType === 'eczane' ? (
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z"/><path d="m8.5 8.5 7 7"/>
+      </svg>
+    ) : (
+      <ToothGlyph size={50} fill="rgba(255,255,255,0.92)" />
+    );
+  const entityIcon = entityIconSvg;
 
   const displayName = (entityType === 'doktor' && unvan)
     ? `${unvan} ${name}`
@@ -756,7 +765,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
         { l: 'Şehir', v: il || '—' },
         { l: 'İlçe', v: ilce || '—' },
         { l: 'Telefon', v: tel || '—' },
-        { l: 'Nöbetçi', v: nobetci ? 'Evet 🌙' : 'Hayır' },
+        { l: 'Nöbetçi', v: nobetci ? 'Evet' : 'Hayır' },
       ]
     : entityType === 'hastane'
     ? [
@@ -829,9 +838,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {/* Badges */}
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
                 <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'var(--gold-light)', color: 'var(--gold2)', border: '1px solid rgba(212,168,67,.3)' }}>{typeLabel}</span>
-                {acil   && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>🚨 Acil</span>}
-                {online && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0' }}>📅 Online Randevu</span>}
-                {nobetci && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#EDE9FE', color: '#6D28D9', border: '1px solid #DDD6FE' }}>🌙 Nöbetçi</span>}
+                {acil   && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>Acil</span>}
+                {online && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0' }}>Online Randevu</span>}
+                {nobetci && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#EDE9FE', color: '#6D28D9', border: '1px solid #DDD6FE' }}>Nöbetçi</span>}
                 {premium && (
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: 'linear-gradient(135deg,#FEF3C7,#FDE68A)', color: '#92400E', border: '1px solid #F59E0B' }}>
                     ⭐ Premium
