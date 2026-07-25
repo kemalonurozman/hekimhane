@@ -83,6 +83,17 @@ async function getUzmanliklar(il?: string) {
     .map(([uzmanlik, count]) => ({ value: uzmanlik, label: uzmanlik, count }));
 }
 
+// İlçe sayıları — yalnızca bir il seçiliyken doldurulur
+async function getIlceler(il?: string) {
+  if (!il) return [];
+  const { data } = await supabase.from('klinikler').select('ilce').eq('il', il).not('ilce', 'is', null).limit(100000);
+  const map: Record<string, number> = {};
+  (data || []).forEach((r: { ilce: string | null }) => { if (r.ilce) map[r.ilce] = (map[r.ilce] || 0) + 1; });
+  return Object.entries(map)
+    .sort((a, b) => a[0].localeCompare(b[0], 'tr'))
+    .map(([ilce, count]) => ({ value: ilce, label: ilce, count }));
+}
+
 async function getKonumlar(filters: KlinikFilters) {
   // Yalnızca gerçek koordinatı olan klinikler — null ve 0 değerleri hariç
   let query = supabase.from('klinikler')
@@ -111,9 +122,10 @@ export default async function KliniklerPage(
     page:     searchParams.page     ? parseInt(searchParams.page) : 1,
   };
 
-  const [{ data: klinikler, count }, illerWithCount, uzmanliklarWithCount, konumlar] = await Promise.all([
+  const [{ data: klinikler, count }, illerWithCount, ilcelerWithCount, uzmanliklarWithCount, konumlar] = await Promise.all([
     getKlinikler(filters),
     getIller(filters.uzmanlik),
+    getIlceler(filters.il),
     getUzmanliklar(filters.il),
     getKonumlar(filters),
   ]);
@@ -181,6 +193,9 @@ export default async function KliniklerPage(
       filterSections={[
         { key: 'q',        label: 'Arama',    type: 'search',   placeholder: 'Klinik ara...' },
         { key: 'il',       label: 'Şehir',    type: 'radio',    options: illerWithCount },
+        ...(filters.il && ilcelerWithCount.length > 1
+          ? [{ key: 'ilce', label: 'İlçe', type: 'radio' as const, options: ilcelerWithCount }]
+          : []),
         { key: 'uzmanlik', label: 'Uzmanlık', type: 'checkbox', options: uzmanliklarWithCount },
       ]}
       activeFilters={{ il: filters.il, ilce: filters.ilce, uzmanlik: filters.uzmanlik, tip: filters.tip, q: filters.q }}
