@@ -811,15 +811,13 @@ export default function ProfilSayfasi(props: ProfilProps) {
       <div style={{
         background: cover
           ? `linear-gradient(180deg, rgba(10,22,40,.40) 0%, rgba(12,31,60,.72) 52%, rgba(8,18,34,.95) 100%), url(${cover}) center/cover`
-          : 'var(--cream)',
+          : 'linear-gradient(150deg,#0F2A55 0%,#1B3A69 55%,#163D6E 100%)',
         backgroundColor: 'var(--navy)',
         borderBottom: '1px solid var(--border)',
         position: 'relative', overflow: 'hidden',
       }}>
-        {/* Mesh gradient (sadece cover yoksa) */}
-        {!cover && (
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 120% at 100% 0%,rgba(212,168,67,.07),transparent 55%),radial-gradient(ellipse 40% 80% at 0% 100%,rgba(27,58,105,.05),transparent 60%)', pointerEvents: 'none' }} />
-        )}
+        {/* Derinlik için ince ışıltı — hem fotolu hem fotosuz hero'da */}
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 120% at 100% 0%,rgba(212,168,67,.10),transparent 55%),radial-gradient(ellipse 45% 80% at 0% 100%,rgba(255,255,255,.05),transparent 60%)', pointerEvents: 'none' }} />
 
         <div className="container" style={{ padding: '28px 16px 0', position: 'relative', zIndex: 1 }}>
           <div className="profil-hero-header">
@@ -861,24 +859,24 @@ export default function ProfilSayfasi(props: ProfilProps) {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
-                <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, color: cover ? 'white' : 'var(--text)', lineHeight: 1.2, margin: 0 }}>
+                <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, color: 'white', lineHeight: 1.2, margin: 0 }}>
                   {displayName}
                 </h1>
                 {premium && <PremiumBadge size="lg" variant="inline" />}
                 {isOwner && (
                   <a href={ownerEditUrl}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(27,58,105,.1)', border: '1px solid rgba(27,58,105,.25)', color: 'var(--navy)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(255,255,255,.15)', border: '1px solid rgba(255,255,255,.3)', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     Düzenle
                   </a>
                 )}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: cover ? 'rgba(255,255,255,.85)' : 'var(--navy2)', fontSize: 14, fontWeight: 500, marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,.85)', fontSize: 14, fontWeight: 500, marginBottom: 10 }}>
                 <i className="fa-solid fa-location-dot" style={{ color: 'var(--gold)' }} />
                 {[adres, ilce, il].filter(Boolean).join(', ') || '—'}
               </div>
-              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: cover ? 'rgba(255,255,255,.8)' : 'var(--muted)' }}>
-                <span><Stars rat={avg} /> <strong style={{ color: cover ? 'white' : 'var(--text)', fontSize: 16 }}>{avg}</strong></span>
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: 'rgba(255,255,255,.8)' }}>
+                <span><Stars rat={avg} /> <strong style={{ color: 'white', fontSize: 16 }}>{avg}</strong></span>
                 {yorumlar.length > 0 && <span>{yorumlar.length} yorum</span>}
                 {tel && <span>📞 {tel}</span>}
                 {entityType === 'doktor' && fee ? <span>💰 {fee.toLocaleString('tr')} ₺</span> : null}
@@ -914,14 +912,14 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
           {/* Tab bar */}
 
-          <div className="profil-tab-bar" style={cover ? { borderTop: '1px solid rgba(255,255,255,.14)', marginTop: 6 } : undefined}>
+          <div className="profil-tab-bar" style={{ borderTop: '1px solid rgba(255,255,255,.14)', marginTop: 6 }}>
             {TABS.map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)}
-                style={{ padding: '14px 20px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', border: 'none', background: 'transparent', borderBottom: `3px solid ${activeTab === tab ? 'var(--gold)' : 'transparent'}`, color: activeTab === tab ? (cover ? '#fff' : 'var(--navy)') : (cover ? 'rgba(255,255,255,.72)' : 'var(--muted)'), transition: '.2s', display: 'flex', alignItems: 'center', gap: 7, whiteSpace: 'nowrap' }}>
+                style={{ padding: '14px 20px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', border: 'none', background: 'transparent', borderBottom: `3px solid ${activeTab === tab ? 'var(--gold)' : 'transparent'}`, color: activeTab === tab ? '#fff' : 'rgba(255,255,255,.72)', transition: '.2s', display: 'flex', alignItems: 'center', gap: 7, whiteSpace: 'nowrap' }}>
                 <i className={`fa-solid ${TAB_LABELS[tab].icon}`} />
                 {TAB_LABELS[tab].label}
                 {tab === 'yorumlar' && (
-                  <span style={{ background: cover ? 'rgba(255,255,255,.2)' : 'rgba(27,58,105,.12)', color: cover ? '#fff' : 'inherit', padding: '2px 7px', borderRadius: 10, fontSize: 11, marginLeft: 2 }}>{yorumlar.length}</span>
+                  <span style={{ background: 'rgba(255,255,255,.2)', color: '#fff', padding: '2px 7px', borderRadius: 10, fontSize: 11, marginLeft: 2 }}>{yorumlar.length}</span>
                 )}
                 {tab === 'tur' && (
                   <span style={{ background: 'rgba(212,168,67,.2)', color: 'var(--gold)', padding: '2px 7px', borderRadius: 10, fontSize: 10, fontWeight: 700, marginLeft: 2 }}>YENİ</span>
