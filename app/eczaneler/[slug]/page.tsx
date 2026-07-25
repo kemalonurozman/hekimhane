@@ -57,6 +57,7 @@ export default async function EczaneProfilPage({ params }: Props) {
       calisma_saatleri={e.calisma_saatleri}
       acik_24_saat={e.acik_24_saat}
       yorumlar={yorumlar}
+      kartSlug={e.slug}
       listHref="/eczaneler"
       breadcrumb={[
         { label: 'Ana Sayfa', href: '/' },

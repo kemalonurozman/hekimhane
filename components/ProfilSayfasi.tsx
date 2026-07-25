@@ -109,6 +109,7 @@ export interface ProfilProps {
   yorumlar: YorumItem[];
   breadcrumb: Array<{ label: string; href: string }>;
   listHref: string; // geri dön linki
+  kartSlug?: string | null; // /kart/<slug> — HekimKart dijital kartvizit
 }
 
 // ── Yardımcı ─────────────────────────────────────────────────────
@@ -684,7 +685,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
 
 // ── Ana Bileşen ───────────────────────────────────────────────────
 export default function ProfilSayfasi(props: ProfilProps) {
-  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, listHref, breadcrumb } = props;
+  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, listHref, breadcrumb, kartSlug } = props;
 
   const [activeTab, setActiveTab] = useState<Tab>('genel');
   const [yorumlar, setYorumlar]   = useState<YorumItem[]>(props.yorumlar);
@@ -905,6 +906,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
                       </a>
                     )}
                   </div>
+                  {kartSlug && (
+                    <a href={`/kart/${kartSlug}`} target="_blank" rel="noopener"
+                      style={{ padding: '11px', borderRadius: 11, fontSize: 12.5, fontWeight: 700, background: 'rgba(255,255,255,.12)', color: '#fff', border: '1.5px solid rgba(255,255,255,.3)', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
+                      <i className="fa-solid fa-id-card" style={{ color: 'var(--gold)' }} /> Dijital Kartvizit (HekimKart)
+                    </a>
+                  )}
                 </>
               )}
             </div>

@@ -112,14 +112,58 @@ async function getKart(slug: string): Promise<KartData | null> {
     .select('id,ad,soyad,spec,unvan,il,ilce,tel,photo,slug,rat,rev,bio,instagram_url,facebook_url,clinic_name,verified')
     .eq('slug', slug)
     .single();
-  if (!dok) return null;
-  return {
-    ...(dok as any),
-    photo_url: (dok as any).photo,
-    hekimhane_url: `/doktorlar/${slug}`,
-    entity_id: (dok as any).id,
-    entity_type: 'doktor',
-  } as KartData;
+  if (dok) {
+    return {
+      ...(dok as any),
+      photo_url: (dok as any).photo,
+      hekimhane_url: `/doktorlar/${slug}`,
+      entity_id: (dok as any).id,
+      entity_type: 'doktor',
+    } as KartData;
+  }
+
+  // 3. Fallback: klinik / hastane (slug ile) → otomatik HekimKart
+  for (const t of [
+    { table: 'klinikler',  type: 'klinik'  as const, base: (r: any) => `/klinikler/${toUrlSegment(r.il||'turkiye')}/${toUrlSegment(r.ilce||'merkez')}/${r.slug}` },
+    { table: 'hastaneler', type: 'hastane' as const, base: (r: any) => `/hastaneler/${toUrlSegment(r.il||'turkiye')}/${toUrlSegment(r.ilce||'merkez')}/${r.slug}` },
+  ]) {
+    const { data: e } = await (supabase as any).from(t.table).select('*').eq('slug', slug).single();
+    if (e) {
+      return {
+        ad: e.name || '', soyad: '',
+        unvan: null,
+        spec: (Array.isArray(e.specs) && e.specs[0]) || e.type || null,
+        tel: e.tel || null,
+        instagram_url: e.instagram_url || null,
+        facebook_url: e.facebook_url || null,
+        website_url: e.website || null,
+        maps_url: e.maps_url || null,
+        photo_url: e.logo || e.cover || null,
+        il: e.il || null, ilce: e.ilce || null, adres: e.adres || null,
+        clinic_name: null,
+        bio: e.bio || null,
+        rat: e.rat, rev: e.rev, verified: e.verified,
+        slug: e.slug,
+        entity_id: e.id, entity_type: t.type,
+        hekimhane_url: t.base(e),
+      } as KartData;
+    }
+  }
+
+  // 4. Fallback: eczane
+  const { data: ecz } = await (supabase as any).from('eczaneler').select('*').eq('slug', slug).single();
+  if (ecz) {
+    return {
+      ad: ecz.name || '', soyad: '', spec: 'Eczane',
+      tel: ecz.tel || null, il: ecz.il || null, ilce: ecz.ilce || null,
+      adres: ecz.address || ecz.adres || null, clinic_name: null,
+      photo_url: ecz.logo || null,
+      slug: ecz.slug, entity_id: ecz.id, entity_type: 'eczane',
+      hekimhane_url: `/eczaneler/${ecz.slug}`,
+    } as KartData;
+  }
+
+  return null;
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {

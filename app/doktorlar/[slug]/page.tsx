@@ -102,6 +102,7 @@ export default async function DoktorProfilPage({ params }: Props) {
       calisma_saatleri={d.calisma_saatleri}
       acik_24_saat={d.acik_24_saat}
       yorumlar={yorumlar}
+      kartSlug={d.slug}
       listHref="/doktorlar"
       breadcrumb={[
         { label: 'Ana Sayfa', href: '/' },

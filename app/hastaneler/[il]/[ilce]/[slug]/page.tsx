@@ -94,6 +94,7 @@ export default async function HastaneProfilPage({ params }: Props) {
       calisma_saatleri={h.calisma_saatleri}
       acik_24_saat={h.acik_24_saat}
       yorumlar={yorumlar}
+      kartSlug={h.slug}
       listHref="/hastaneler"
       breadcrumb={[
         { label: 'Ana Sayfa', href: '/' },

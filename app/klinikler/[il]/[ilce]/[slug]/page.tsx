@@ -131,6 +131,7 @@ export default async function KlinikProfilPage({ params }: Props) {
       calisma_saatleri={k.calisma_saatleri}
       acik_24_saat={k.acik_24_saat}
       yorumlar={yorumlar}
+      kartSlug={k.slug}
       listHref="/klinikler"
       breadcrumb={[
         { label: 'Ana Sayfa', href: '/' },
