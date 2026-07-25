@@ -20,7 +20,13 @@ const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
 
 const TR = { 'ç':'c','Ç':'c','ğ':'g','Ğ':'g','ı':'i','İ':'i','ö':'o','Ö':'o','ş':'s','Ş':'s','ü':'u','Ü':'u' };
 const slug = (t = '') => t.split('').map(c => TR[c] || c).join('').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-const cleanName = (t = '') => t.replace(/\s*,\s*/g, ', ').replace(/\s+/g, ' ').trim();
+function cleanName(t = '') {
+  let s = t.replace(/\s+/g, ' ').trim();
+  if (s.includes('|')) s = s.split('|')[0].trim();              // "İsim | Eskişehir implant | ..." → "İsim"
+  const dash = s.split(/\s+-\s+/);                              // "Frig Dent - Gülüş - İmplant - ..." (≥2 tire = doldurma)
+  if (dash.length >= 3 && dash[0].length >= 4) s = dash[0].trim();
+  return s.replace(/\s*,\s*/g, ', ').replace(/\s+/g, ' ').trim();
+}
 const titleTr = (s = '') => s ? s.charAt(0).toLocaleUpperCase('tr') + s.slice(1).toLocaleLowerCase('tr') : s;
 
 function ilFrom(r)  { return titleTr((r.state || r.city || 'Türkiye').split('/').pop().trim()); }
