@@ -25,6 +25,7 @@ function cleanName(t = '') {
   if (s.includes('|')) s = s.split('|')[0].trim();              // "İsim | Eskişehir implant | ..." → "İsim"
   const dash = s.split(/\s+-\s+/);                              // "Frig Dent - Gülüş - İmplant - ..." (≥2 tire = doldurma)
   if (dash.length >= 3 && dash[0].length >= 4) s = dash[0].trim();
+  if (s.includes('(') && !s.includes(')')) s = s.split('(')[0].trim();  // sarkan "( İmplant" (kesilmiş parantez) temizle
   return s.replace(/\s*,\s*/g, ', ').replace(/\s+/g, ' ').trim();
 }
 const titleTr = (s = '') => s ? s.charAt(0).toLocaleUpperCase('tr') + s.slice(1).toLocaleLowerCase('tr') : s;
@@ -102,17 +103,26 @@ function revDate(rv) {
     // rev/rat = fiilen eklenen (Hekimhane'deki gerçek) yorumlardan — kart ve profil aynı sayıyı gösterir
     const rat = revs.length ? +(revs.reduce((a, x) => a + (x.stars || 0), 0) / revs.length).toFixed(1) : 0;
 
+    // Alan adları export'a göre değişebilir (camelCase / snake_case) — ikisini de destekle
+    const lat = r.location?.lat ?? r.latitude ?? 0;
+    const lng = r.location?.lng ?? r.longitude ?? 0;
+    const tel = r.phone || r.phoneUnformatted || r.phone_unformatted || null;
+    const img = r.imageUrl || (Array.isArray(r.imageUrls) && r.imageUrls[0]) || null;
+    const placeId = r.placeId || r.place_id || null;
+    const maps_url = r.url || (r.cid ? `https://www.google.com/maps?cid=${r.cid}`
+      : placeId ? `https://www.google.com/maps/place/?q=place_id:${placeId}` : null);
+
     klinikler.push({
       id, name, type: 'Diş Hekimi', il, ilce,
       adres: r.address || null,
-      lat: r.location?.lat || 0, lng: r.location?.lng || 0,
-      tel: r.phone ? String(r.phone).trim() : (r.phoneUnformatted || null),
+      lat: lat || 0, lng: lng || 0,
+      tel: tel ? String(tel).trim() : null,
       website: r.website || null,
-      maps_url: r.url || (r.cid ? `https://www.google.com/maps?cid=${r.cid}` : null),
+      maps_url,
       specs: specsFrom(name),
       rat, rev: revs.length,
       online: false, acil: false, claimed: false,
-      slug: s, logo: r.imageUrl || null, cover: r.imageUrl || null,
+      slug: s, logo: img, cover: img,
     });
 
     for (const rv of revs) {
