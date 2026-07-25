@@ -32,6 +32,7 @@ export interface KartData {
   rat?: number;
   rev?: number;
   verified?: boolean;
+  premium?: boolean;
   /** Profil sayfası için Hekimhane URL'si — entity_id/entity_type'dan otomatik türetilir */
   hekimhane_url?: string | null;
 }
@@ -50,6 +51,7 @@ interface EntityInfo {
   rat?: number | null;
   rev?: number | null;
   verified?: boolean | null;
+  premium?: boolean | null;
 }
 
 /** entity_id + entity_type → Hekimhane profil URL'si + adres/puan/onay bilgisi */
@@ -60,23 +62,23 @@ async function resolveEntity(
   if (!entity_id || !entity_type) return { url: null };
   try {
     if (entity_type === 'klinik') {
-      const { data } = await (supabase as any).from('klinikler').select('il,ilce,slug,adres,rat,rev,verified').eq('id', entity_id).single();
+      const { data } = await (supabase as any).from('klinikler').select('il,ilce,slug,adres,rat,rev,verified,premium').eq('id', entity_id).single();
       if (data) return {
         url: data.slug ? `/klinikler/${toUrlSegment(data.il || 'turkiye')}/${toUrlSegment(data.ilce || 'merkez')}/${data.slug}` : null,
-        adres: data.adres, rat: data.rat, rev: data.rev, verified: data.verified,
+        adres: data.adres, rat: data.rat, rev: data.rev, verified: data.verified, premium: data.premium,
       };
     } else if (entity_type === 'hastane') {
-      const { data } = await (supabase as any).from('hastaneler').select('il,ilce,slug,adres,rat,rev').eq('id', entity_id).single();
+      const { data } = await (supabase as any).from('hastaneler').select('il,ilce,slug,adres,rat,rev,premium').eq('id', entity_id).single();
       if (data) return {
         url: data.slug ? `/hastaneler/${toUrlSegment(data.il || 'turkiye')}/${toUrlSegment(data.ilce || 'merkez')}/${data.slug}` : null,
-        adres: data.adres, rat: data.rat, rev: data.rev,
+        adres: data.adres, rat: data.rat, rev: data.rev, premium: data.premium,
       };
     } else if (entity_type === 'doktor') {
-      const { data } = await (supabase as any).from('doktorlar').select('slug,address,rat,rev,verified').eq('id', entity_id).single();
-      if (data) return { url: data.slug ? `/doktorlar/${data.slug}` : null, adres: data.address, rat: data.rat, rev: data.rev, verified: data.verified };
+      const { data } = await (supabase as any).from('doktorlar').select('slug,address,rat,rev,verified,premium').eq('id', entity_id).single();
+      if (data) return { url: data.slug ? `/doktorlar/${data.slug}` : null, adres: data.address, rat: data.rat, rev: data.rev, verified: data.verified, premium: data.premium };
     } else if (entity_type === 'eczane') {
-      const { data } = await (supabase as any).from('eczaneler').select('slug,adres').eq('id', entity_id).single();
-      if (data) return { url: data.slug ? `/eczaneler/${data.slug}` : null, adres: data.adres };
+      const { data } = await (supabase as any).from('eczaneler').select('slug,adres,premium').eq('id', entity_id).single();
+      if (data) return { url: data.slug ? `/eczaneler/${data.slug}` : null, adres: data.adres, premium: data.premium };
     }
   } catch { /* entity bulunamazsa sessizce geç */ }
   return { url: null };
@@ -103,13 +105,14 @@ async function getKart(slug: string): Promise<KartData | null> {
       rat:      kart.rat      ?? ent.rat      ?? undefined,
       rev:      kart.rev      ?? ent.rev      ?? undefined,
       verified: kart.verified ?? ent.verified ?? undefined,
+      premium:  kart.premium  ?? ent.premium  ?? undefined,
     } as KartData;
   }
 
   // 2. Fallback: doktorlar tablosu (eski sistem kartları)
   const { data: dok } = await supabase
     .from('doktorlar')
-    .select('id,ad,soyad,spec,unvan,il,ilce,tel,photo,slug,rat,rev,bio,instagram_url,facebook_url,clinic_name,verified')
+    .select('id,ad,soyad,spec,unvan,il,ilce,tel,photo,slug,rat,rev,bio,instagram_url,facebook_url,clinic_name,verified,premium')
     .eq('slug', slug)
     .single();
   if (dok) {
@@ -142,7 +145,7 @@ async function getKart(slug: string): Promise<KartData | null> {
         il: e.il || null, ilce: e.ilce || null, adres: e.adres || null,
         clinic_name: null,
         bio: e.bio || null,
-        rat: e.rat, rev: e.rev, verified: e.verified,
+        rat: e.rat, rev: e.rev, verified: e.verified, premium: e.premium,
         slug: e.slug,
         entity_id: e.id, entity_type: t.type,
         hekimhane_url: t.base(e),
@@ -158,6 +161,7 @@ async function getKart(slug: string): Promise<KartData | null> {
       tel: ecz.tel || null, il: ecz.il || null, ilce: ecz.ilce || null,
       adres: ecz.address || ecz.adres || null, clinic_name: null,
       photo_url: ecz.logo || null,
+      premium: ecz.premium,
       slug: ecz.slug, entity_id: ecz.id, entity_type: 'eczane',
       hekimhane_url: `/eczaneler/${ecz.slug}`,
     } as KartData;

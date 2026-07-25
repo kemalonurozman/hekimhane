@@ -411,9 +411,11 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
             {d.bio && <div className="kp-bio">{d.bio}</div>}
 
             <div className="kp-badges">
-              <span className="kp-b-verified">
-                <Ic d={ICONS.check} size={10} color="white" /> Onaylı Hekim
-              </span>
+              {d.premium && (
+                <span className="kp-b-verified">
+                  <Ic d={ICONS.check} size={10} color="white" /> Onaylı Hekim
+                </span>
+              )}
               {(d.il || d.ilce) && (
                 <span className="kp-b-loc">
                   <Ic d={ICONS.map} size={10} color="rgba(255,255,255,.8)" />
@@ -703,13 +705,15 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         {d.spec && <div style={{ fontSize: 15, fontWeight: 600, color: '#E7BE5C', marginTop: 6 }}>{d.spec}</div>}
         {d.clinic_name && <div style={{ fontSize: 13.5, color: 'rgba(255,255,255,.75)', marginTop: 4 }}>{d.clinic_name}</div>}
 
-        {/* Güven satırı — onay rozeti (her zaman) + puan (varsa) */}
-        {(
+        {/* Güven satırı — onay rozeti (yalnızca Pro/premium hesap) + puan (varsa) */}
+        {(d.premium || (d.rat && d.rat > 0)) && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11.5, fontWeight: 700, color: '#6EE7B7', background: 'rgba(16,185,129,.15)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 20, padding: '4px 11px' }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6EE7B7" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
-              Onaylı Hekim
-            </span>
+            {d.premium && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11.5, fontWeight: 700, color: '#6EE7B7', background: 'rgba(16,185,129,.15)', border: '1px solid rgba(16,185,129,.35)', borderRadius: 20, padding: '4px 11px' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6EE7B7" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+                Onaylı Hekim
+              </span>
+            )}
             {d.rat && d.rat > 0 && (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 700, color: '#E7BE5C', background: 'rgba(231,190,92,.12)', border: '1px solid rgba(231,190,92,.3)', borderRadius: 20, padding: '4px 11px' }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="#E7BE5C"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z" /></svg>
