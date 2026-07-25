@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     canonical: 'https://hekimhane.com.tr',
   },
   verification: {
-    google: '',
+    google: 'KQGBOe-frsX4hxu3VWssHlNWwPoF6dNhgHnVZ8Jnl4o',
   },
 };
 
