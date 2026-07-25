@@ -112,7 +112,7 @@ export default function KategoriKartlari({ stats }: { stats: { klinik: number; d
       icon: <IconDoctor />,
       label: 'Diş Hekimleri',
       desc: 'Uzman diş hekimleri ve hekim profilleri',
-      count: stats.disHekimi,
+      count: 0,
       accent: '#0E7490',
       bg: '#ECFEFF',
     },

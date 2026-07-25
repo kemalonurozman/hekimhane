@@ -577,7 +577,6 @@ export default function HeroAnimated({ stats }: Props) {
 
   const statItems = [
     { label: 'Diş Kliniği', val: stats.klinik,    suffix: '+' },
-    { label: 'Diş Hekimi',  val: stats.disHekimi, suffix: '+' },
     { label: 'İl',          val: 81,              suffix: ''  },
   ];
 
@@ -674,8 +673,7 @@ export default function HeroAnimated({ stats }: Props) {
           transform: mounted ? 'translateY(0)' : 'translateY(16px)',
           transition: 'opacity .7s ease .2s, transform .7s ease .2s',
         }}>
-          {stats.klinik.toLocaleString('tr')}+ diş kliniği ve muayenehane,&nbsp;
-          {stats.disHekimi.toLocaleString('tr')}+ uzman diş hekimi
+          {stats.klinik.toLocaleString('tr')}+ diş kliniği ve muayenehane
         </p>
 
         {/* ── Canlı Arama ─────────────────────────────────────────── */}
