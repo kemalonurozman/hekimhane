@@ -117,11 +117,11 @@ interface FormData {
   mesaj:       string;
 }
 
-const KATEGORILER: { type: BusinessType; label: string; desc: string; renk: string; bg: string; icon: React.ReactNode }[] = [
+const KATEGORILER: { type: BusinessType; label: string; desc: string; renk: string; bg: string; icon: React.ReactNode; soon?: boolean }[] = [
   { type: 'klinik',  label: 'Diş Kliniği', desc: 'Diş hekimi, ortodontist, implant',     renk: '#1B3A69', bg: '#EEF2FF', icon: <IcTooth /> },
-  { type: 'hastane', label: 'Hastane',      desc: 'Özel, devlet veya dal hastanesi',       renk: '#065F46', bg: '#ECFDF5', icon: <IcHospital /> },
-  { type: 'doktor',  label: 'Doktor',       desc: 'Her uzmanlık dalından bireysel hekim', renk: '#92400E', bg: '#FEF3C7', icon: <IcDoctor /> },
-  { type: 'eczane',  label: 'Eczane',       desc: 'Eczane ve nöbetçi eczane bilgisi',     renk: '#6D28D9', bg: '#F5F3FF', icon: <IcPill /> },
+  { type: 'hastane', label: 'Hastane',      desc: 'Özel, devlet veya dal hastanesi',       renk: '#065F46', bg: '#ECFDF5', icon: <IcHospital />, soon: true },
+  { type: 'doktor',  label: 'Doktor',       desc: 'Her uzmanlık dalından bireysel hekim', renk: '#92400E', bg: '#FEF3C7', icon: <IcDoctor />,   soon: true },
+  { type: 'eczane',  label: 'Eczane',       desc: 'Eczane ve nöbetçi eczane bilgisi',     renk: '#6D28D9', bg: '#F5F3FF', icon: <IcPill />,     soon: true },
 ];
 
 const ILLER = [
@@ -449,24 +449,38 @@ export default function KatilPage() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 18, maxWidth: 720, margin: '0 auto 56px' }}>
               {KATEGORILER.map(k => (
-                <button key={k.type} onClick={() => handleTypeSelect(k.type)}
+                <button key={k.type} onClick={() => { if (!k.soon) handleTypeSelect(k.type); }}
+                  disabled={k.soon}
+                  aria-disabled={k.soon}
                   style={{
+                    position: 'relative',
                     background: 'white', borderRadius: 22, border: `2px solid ${k.renk}20`,
                     padding: '30px 26px', display: 'flex', alignItems: 'flex-start', gap: 18,
-                    cursor: 'pointer', textAlign: 'left', transition: 'all .18s',
+                    cursor: k.soon ? 'not-allowed' : 'pointer', textAlign: 'left', transition: 'all .18s',
                     boxShadow: '0 2px 12px rgba(0,0,0,.05)',
+                    opacity: k.soon ? 0.55 : 1,
                   }}
-                  onMouseEnter={e => { const el = e.currentTarget; el.style.borderColor = k.renk; el.style.boxShadow = `0 10px 36px ${k.renk}22`; el.style.transform = 'translateY(-3px)'; }}
-                  onMouseLeave={e => { const el = e.currentTarget; el.style.borderColor = `${k.renk}20`; el.style.boxShadow = '0 2px 12px rgba(0,0,0,.05)'; el.style.transform = 'none'; }}
+                  onMouseEnter={e => { if (k.soon) return; const el = e.currentTarget; el.style.borderColor = k.renk; el.style.boxShadow = `0 10px 36px ${k.renk}22`; el.style.transform = 'translateY(-3px)'; }}
+                  onMouseLeave={e => { if (k.soon) return; const el = e.currentTarget; el.style.borderColor = `${k.renk}20`; el.style.boxShadow = '0 2px 12px rgba(0,0,0,.05)'; el.style.transform = 'none'; }}
                 >
+                  {k.soon && (
+                    <span style={{
+                      position: 'absolute', top: 14, right: 14,
+                      fontSize: 10.5, fontWeight: 800, letterSpacing: '.6px', textTransform: 'uppercase',
+                      color: '#92400E', background: '#FEF3C7', border: '1px solid #FDE68A',
+                      borderRadius: 20, padding: '3px 10px',
+                    }}>
+                      Yakında
+                    </span>
+                  )}
                   <div style={{ width: 62, height: 62, borderRadius: 18, background: k.bg, color: k.renk, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 4px 14px ${k.renk}18` }}>
                     {k.icon}
                   </div>
                   <div style={{ flex: 1 }}>
                     <h3 style={{ fontWeight: 800, fontSize: 18, color: k.renk, marginBottom: 5 }}>{k.label}</h3>
                     <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 14 }}>{k.desc}</p>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 700, color: k.renk }}>
-                      Başla <IcArrow />
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 700, color: k.soon ? 'var(--muted)' : k.renk }}>
+                      {k.soon ? 'Çok yakında' : <>Başla <IcArrow /></>}
                     </span>
                   </div>
                 </button>
