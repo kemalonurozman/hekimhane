@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 import type { Metadata } from 'next';
+import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import type { KlinikFilters, Klinik } from '@/lib/types';
 import KlinikCard from '@/components/KlinikCard';
@@ -43,6 +45,7 @@ export async function generateMetadata(
 }
 
 async function getKlinikler(filters: KlinikFilters) {
+  noStore();
   const from = ((filters.page || 1) - 1) * PAGE_SIZE;
   let query = supabase.from('klinikler').select('*', { count: 'exact' })
     .order('rat', { ascending: false }).range(from, from + PAGE_SIZE - 1);
@@ -60,6 +63,7 @@ async function getKlinikler(filters: KlinikFilters) {
 // Şehir sayıları — aktif uzmanlik filtresi dikkate alınır
 // Supabase tek sorguda en fazla 1000 satır döndürür; tüm satırları sayfalayarak topla.
 async function fetchAllRows<T = any>(build: () => any, maxRows = 20000): Promise<T[]> {
+  noStore();
   const PAGE = 1000; const out: T[] = [];
   for (let from = 0; from < maxRows; from += PAGE) {
     const { data, error } = await build().range(from, from + PAGE - 1);
