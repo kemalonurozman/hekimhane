@@ -19,9 +19,9 @@ export async function generateMetadata(
   const tipEtiket = tip === 'Diş Hekimi' ? 'Diş Hekimleri' : tip ? `${tip}` : 'Diş Klinikleri';
 
   let title: string;
-  if (uzmanlik) title = yer ? `${yer} ${uzmanlik} — Diş Klinikleri` : `${uzmanlik} — Diş Klinikleri`;
-  else if (yer)  title = `${yer} ${tipEtiket} ve Diş Hekimleri`;
-  else           title = `Türkiye ${tipEtiket} — İl İl Diş Hekimi Rehberi`;
+  if (uzmanlik)  title = yer ? `${yer} ${uzmanlik} — Diş Klinikleri` : `${uzmanlik} — Diş Klinikleri`;
+  else if (yer)  title = tip ? `${yer} ${tipEtiket}` : `${yer} Diş Klinikleri ve Diş Hekimleri`;
+  else           title = tip ? `Türkiye ${tipEtiket} — İl İl Rehber` : `Türkiye Diş Klinikleri ve Diş Hekimleri — İl İl Rehber`;
 
   const konum = yer || 'Türkiye';
   const desc = `${konum} bölgesindeki ${uzmanlik ? uzmanlik + ' ' : ''}diş klinikleri ve diş hekimleri: hasta yorumları, puanlar, adres, telefon ve online randevu. Hekimhane'de karşılaştırın, size en yakın diş hekimini bulun.`;
