@@ -58,12 +58,26 @@ async function getKlinikler(filters: KlinikFilters) {
 }
 
 // Şehir sayıları — aktif uzmanlik filtresi dikkate alınır
+// Supabase tek sorguda en fazla 1000 satır döndürür; tüm satırları sayfalayarak topla.
+async function fetchAllRows<T = any>(build: () => any, maxRows = 20000): Promise<T[]> {
+  const PAGE = 1000; const out: T[] = [];
+  for (let from = 0; from < maxRows; from += PAGE) {
+    const { data, error } = await build().range(from, from + PAGE - 1);
+    if (error || !data || !data.length) break;
+    out.push(...data);
+    if (data.length < PAGE) break;
+  }
+  return out;
+}
+
 async function getIller(uzmanlik?: string) {
-  let query = supabase.from('klinikler').select('il').not('il', 'is', null).limit(100000);
-  if (uzmanlik) query = (query as any).contains('specs', [uzmanlik]);
-  const { data } = await query;
+  const rows = await fetchAllRows<{ il: string | null }>(() => {
+    let q = supabase.from('klinikler').select('il').not('il', 'is', null);
+    if (uzmanlik) q = (q as any).contains('specs', [uzmanlik]);
+    return q;
+  });
   const map: Record<string, number> = {};
-  (data || []).forEach((r: { il: string | null }) => { if (r.il) map[r.il] = (map[r.il] || 0) + 1; });
+  rows.forEach(r => { if (r.il) map[r.il] = (map[r.il] || 0) + 1; });
   return Object.entries(map)
     .sort((a, b) => a[0].localeCompare(b[0], 'tr'))
     .map(([il, count]) => ({ value: il, label: il, count }));
@@ -71,13 +85,13 @@ async function getIller(uzmanlik?: string) {
 
 // Uzmanlık sayıları — aktif il filtresi dikkate alınır
 async function getUzmanliklar(il?: string) {
-  let query = supabase.from('klinikler').select('specs').not('specs', 'is', null).limit(100000);
-  if (il) query = query.eq('il', il);
-  const { data } = await query;
-  const map: Record<string, number> = {};
-  (data || []).forEach((r: { specs: string[] | null }) => {
-    (r.specs || []).forEach(s => { if (s) map[s] = (map[s] || 0) + 1; });
+  const rows = await fetchAllRows<{ specs: string[] | null }>(() => {
+    let q = supabase.from('klinikler').select('specs').not('specs', 'is', null);
+    if (il) q = q.eq('il', il);
+    return q;
   });
+  const map: Record<string, number> = {};
+  rows.forEach(r => (r.specs || []).forEach(s => { if (s) map[s] = (map[s] || 0) + 1; }));
   return Object.entries(map)
     .sort((a, b) => b[1] - a[1])
     .map(([uzmanlik, count]) => ({ value: uzmanlik, label: uzmanlik, count }));
@@ -86,9 +100,10 @@ async function getUzmanliklar(il?: string) {
 // İlçe sayıları — yalnızca bir il seçiliyken doldurulur
 async function getIlceler(il?: string) {
   if (!il) return [];
-  const { data } = await supabase.from('klinikler').select('ilce').eq('il', il).not('ilce', 'is', null).limit(100000);
+  const rows = await fetchAllRows<{ ilce: string | null }>(() =>
+    supabase.from('klinikler').select('ilce').eq('il', il).not('ilce', 'is', null));
   const map: Record<string, number> = {};
-  (data || []).forEach((r: { ilce: string | null }) => { if (r.ilce) map[r.ilce] = (map[r.ilce] || 0) + 1; });
+  rows.forEach(r => { if (r.ilce) map[r.ilce] = (map[r.ilce] || 0) + 1; });
   return Object.entries(map)
     .sort((a, b) => a[0].localeCompare(b[0], 'tr'))
     .map(([ilce, count]) => ({ value: ilce, label: ilce, count }));
@@ -96,17 +111,18 @@ async function getIlceler(il?: string) {
 
 async function getKonumlar(filters: KlinikFilters) {
   // Yalnızca gerçek koordinatı olan klinikler — null ve 0 değerleri hariç
-  let query = supabase.from('klinikler')
-    .select('id,name,lat,lng,tel,type,il,ilce,slug')
-    .not('lat', 'is', null).not('lng', 'is', null)
-    .neq('lat', 0).neq('lng', 0);
-  if (filters.il)       query = query.eq('il', filters.il);
-  if (filters.ilce)     query = query.eq('ilce', filters.ilce);
-  if (filters.tip)      query = query.eq('type', filters.tip);
-  if (filters.uzmanlik) query = (query as any).contains('specs', [filters.uzmanlik]);
-  if (filters.q)        query = query.ilike('name', `%${filters.q}%`);
-  const { data } = await query.limit(5000);
-  return data || [];
+  return fetchAllRows(() => {
+    let q = supabase.from('klinikler')
+      .select('id,name,lat,lng,tel,type,il,ilce,slug')
+      .not('lat', 'is', null).not('lng', 'is', null)
+      .neq('lat', 0).neq('lng', 0);
+    if (filters.il)       q = q.eq('il', filters.il);
+    if (filters.ilce)     q = q.eq('ilce', filters.ilce);
+    if (filters.tip)      q = q.eq('type', filters.tip);
+    if (filters.uzmanlik) q = (q as any).contains('specs', [filters.uzmanlik]);
+    if (filters.q)        q = q.ilike('name', `%${filters.q}%`);
+    return q;
+  }, 6000);
 }
 
 export default async function KliniklerPage(
