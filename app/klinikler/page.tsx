@@ -14,13 +14,32 @@ const TR = (s: string) => (s||'').toLowerCase()
 export async function generateMetadata(
   { searchParams }: { searchParams: Record<string, string> }
 ): Promise<Metadata> {
-  const il = searchParams.il || ''; const ilce = searchParams.ilce || ''; const uzmanlik = searchParams.uzmanlik || ''; const tip = searchParams.tip || '';
-  let title = 'Diş Klinikleri';
-  const parts: string[] = [];
-  if (uzmanlik) parts.push(uzmanlik); if (tip) parts.push(tip); if (ilce) parts.push(ilce); else if (il) parts.push(il);
-  if (parts.length) title = parts.join(', ') + ' — Diş Klinikleri';
-  const desc = `${parts.join(', ')} bölgesindeki diş klinikleri, yorumlar ve iletişim bilgileri. Hekimhane'de hızlıca karşılaştırın.`;
-  return { title, description: desc, openGraph: { title: `${title} | Hekimhane`, description: desc } };
+  const il = searchParams.il || ''; const ilce = searchParams.ilce || ''; const uzmanlik = searchParams.uzmanlik || ''; const tip = searchParams.tip || ''; const q = searchParams.q || '';
+  const yer = ilce ? `${ilce}, ${il}` : il;
+  const tipEtiket = tip === 'Diş Hekimi' ? 'Diş Hekimleri' : tip ? `${tip}` : 'Diş Klinikleri';
+
+  let title: string;
+  if (uzmanlik) title = yer ? `${yer} ${uzmanlik} — Diş Klinikleri` : `${uzmanlik} — Diş Klinikleri`;
+  else if (yer)  title = `${yer} ${tipEtiket} ve Diş Hekimleri`;
+  else           title = `Türkiye ${tipEtiket} — İl İl Diş Hekimi Rehberi`;
+
+  const konum = yer || 'Türkiye';
+  const desc = `${konum} bölgesindeki ${uzmanlik ? uzmanlik + ' ' : ''}diş klinikleri ve diş hekimleri: hasta yorumları, puanlar, adres, telefon ve online randevu. Hekimhane'de karşılaştırın, size en yakın diş hekimini bulun.`;
+
+  // Kanonik: yalnızca anlamlı filtreler (arama/sayfa hariç) → duplike içerik önlenir
+  const qs = new URLSearchParams();
+  if (il) qs.set('il', il); if (ilce) qs.set('ilce', ilce); if (tip) qs.set('tip', tip); if (uzmanlik) qs.set('uzmanlik', uzmanlik);
+  const canonical = `https://hekimhane.com.tr/klinikler${qs.toString() ? `?${qs.toString()}` : ''}`;
+
+  return {
+    title,
+    description: desc,
+    keywords: [konum + ' diş kliniği', konum + ' diş hekimi', 'diş hekimi ara', 'diş kliniği', uzmanlik].filter(Boolean),
+    alternates: { canonical },
+    // İç arama sonuçlarını indeksleme (thin/duplicate)
+    ...(q ? { robots: { index: false, follow: true } } : {}),
+    openGraph: { title: `${title} | Hekimhane`, description: desc, url: canonical, type: 'website' },
+  };
 }
 
 async function getKlinikler(filters: KlinikFilters) {
@@ -114,6 +133,29 @@ export default async function KliniklerPage(
     : filters.il   ? `${filters.il} Diş Klinikleri`
     : 'Tüm Diş Klinikleri';
 
+  // ── SEO: BreadcrumbList + ItemList (listelenen klinikler) ──
+  const bcItems = [
+    { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://hekimhane.com.tr' },
+    { '@type': 'ListItem', position: 2, name: 'Diş Klinikleri', item: 'https://hekimhane.com.tr/klinikler' },
+  ];
+  if (filters.il)   bcItems.push({ '@type': 'ListItem', position: 3, name: filters.il, item: `https://hekimhane.com.tr/klinikler?il=${encodeURIComponent(filters.il)}` });
+  if (filters.ilce) bcItems.push({ '@type': 'ListItem', position: 4, name: filters.ilce, item: `https://hekimhane.com.tr/klinikler?il=${encodeURIComponent(filters.il||'')}&ilce=${encodeURIComponent(filters.ilce)}` });
+
+  const listItems = (klinikler || []).slice(0, 20).map((k, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: k.name,
+    url: k.slug ? `https://hekimhane.com.tr/klinikler/${TR(k.il||'turkiye')}/${TR(k.ilce||'merkez')}/${k.slug}` : undefined,
+  }));
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'BreadcrumbList', itemListElement: bcItems },
+      { '@type': 'ItemList', name: title, numberOfItems: count, itemListElement: listItems },
+    ],
+  };
+
   return (
     <ListingLayout
       basePath="/klinikler"
@@ -152,6 +194,7 @@ export default async function KliniklerPage(
       currentPage={filters.page || 1}
       searchParams={searchParams}
     >
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {klinikler.length === 0 ? (
         <EmptyState href="/klinikler" />
       ) : (
