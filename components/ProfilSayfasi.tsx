@@ -809,7 +809,10 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
       {/* HERO ─────────────────────────────────────────────── */}
       <div style={{
-        background: cover ? `linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.4)),url(${cover}) center/cover` : 'var(--cream)',
+        background: cover
+          ? `linear-gradient(180deg, rgba(10,22,40,.40) 0%, rgba(12,31,60,.72) 52%, rgba(8,18,34,.95) 100%), url(${cover}) center/cover`
+          : 'var(--cream)',
+        backgroundColor: 'var(--navy)',
         borderBottom: '1px solid var(--border)',
         position: 'relative', overflow: 'hidden',
       }}>
@@ -911,14 +914,14 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
           {/* Tab bar */}
 
-          <div className="profil-tab-bar">
+          <div className="profil-tab-bar" style={cover ? { borderTop: '1px solid rgba(255,255,255,.14)', marginTop: 6 } : undefined}>
             {TABS.map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)}
-                style={{ padding: '14px 20px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', border: 'none', background: 'transparent', borderBottom: `3px solid ${activeTab === tab ? 'var(--gold)' : 'transparent'}`, color: activeTab === tab ? 'var(--navy)' : 'var(--muted)', transition: '.2s', display: 'flex', alignItems: 'center', gap: 7, whiteSpace: 'nowrap' }}>
+                style={{ padding: '14px 20px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', border: 'none', background: 'transparent', borderBottom: `3px solid ${activeTab === tab ? 'var(--gold)' : 'transparent'}`, color: activeTab === tab ? (cover ? '#fff' : 'var(--navy)') : (cover ? 'rgba(255,255,255,.72)' : 'var(--muted)'), transition: '.2s', display: 'flex', alignItems: 'center', gap: 7, whiteSpace: 'nowrap' }}>
                 <i className={`fa-solid ${TAB_LABELS[tab].icon}`} />
                 {TAB_LABELS[tab].label}
                 {tab === 'yorumlar' && (
-                  <span style={{ background: 'rgba(27,58,105,.12)', padding: '2px 7px', borderRadius: 10, fontSize: 11, marginLeft: 2 }}>{yorumlar.length}</span>
+                  <span style={{ background: cover ? 'rgba(255,255,255,.2)' : 'rgba(27,58,105,.12)', color: cover ? '#fff' : 'inherit', padding: '2px 7px', borderRadius: 10, fontSize: 11, marginLeft: 2 }}>{yorumlar.length}</span>
                 )}
                 {tab === 'tur' && (
                   <span style={{ background: 'rgba(212,168,67,.2)', color: 'var(--gold)', padding: '2px 7px', borderRadius: 10, fontSize: 10, fontWeight: 700, marginLeft: 2 }}>YENİ</span>
