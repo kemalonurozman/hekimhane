@@ -93,8 +93,8 @@ function revDate(rv) {
     const id = `k${n}`;
     const s = uslug(base);
     const revs = (r.reviews || []).filter(rv => (rv.text || rv.textTranslated || '').trim());
-    const rat = typeof r.totalScore === 'number' ? r.totalScore
-      : (revs.length ? +(revs.reduce((a, x) => a + (x.stars || 0), 0) / revs.length).toFixed(1) : 0);
+    // rev/rat = fiilen eklenen (Hekimhane'deki gerçek) yorumlardan — kart ve profil aynı sayıyı gösterir
+    const rat = revs.length ? +(revs.reduce((a, x) => a + (x.stars || 0), 0) / revs.length).toFixed(1) : 0;
 
     klinikler.push({
       id, name, type: 'Diş Hekimi', il, ilce,
@@ -104,7 +104,7 @@ function revDate(rv) {
       website: r.website || null,
       maps_url: r.url || (r.cid ? `https://www.google.com/maps?cid=${r.cid}` : null),
       specs: specsFrom(name),
-      rat, rev: r.reviewsCount || revs.length || 0,
+      rat, rev: revs.length,
       online: false, acil: false, claimed: false,
       slug: s, logo: r.imageUrl || null, cover: r.imageUrl || null,
     });
