@@ -6,6 +6,8 @@ export default function Footer() {
     ['Diş Klinikleri',       '/klinikler'],
     ['Diş Hekimleri',        '/dis-hekimleri'],
     ['Ağız & Diş Sağlığı',   '/hastaliklar/dis-sagligi'],
+    ['HekimKart',            '/hekimkart'],
+    ['Karşılaştır',          '/karsilastir'],
     ['Blog',                 '/blog'],
     ['Kliniğinizi Ekleyin',  '/katil'],
   ];
@@ -203,9 +205,9 @@ export default function Footer() {
                 {label}
               </Link>
             ))}
-            <a href="/sitemap.xml" style={{ display: 'block', fontSize: '13px', marginBottom: '9px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
+            <Link href="/site-haritasi" style={{ display: 'block', fontSize: '13px', marginBottom: '9px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
               Site Haritası
-            </a>
+            </Link>
             <a href="/rss.xml" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '13px', marginBottom: '9px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
               <i className="fa-solid fa-rss" style={{ fontSize: 11, color: 'var(--gold)' }} /> RSS
             </a>
