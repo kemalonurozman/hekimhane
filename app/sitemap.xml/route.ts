@@ -1,14 +1,9 @@
-import { SITEMAP_SECTIONS, renderSitemapIndex } from '@/lib/sitemap-data';
+import { renderSitemapIndex, SITEMAP_SECTIONS } from '@/lib/sitemap-data';
 
-export const revalidate = 43200; // 12 saat
+export const revalidate = 3600;
 
-// Kök sitemap index — arama motorları buradan bölüm alt-haritalarına ulaşır (ağaç kökü)
 export async function GET() {
-  const xml = renderSitemapIndex(SITEMAP_SECTIONS);
-  return new Response(xml, {
-    headers: {
-      'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=0, s-maxage=43200, stale-while-revalidate=86400',
-    },
+  return new Response(renderSitemapIndex(SITEMAP_SECTIONS), {
+    headers: { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'public, max-age=3600, s-maxage=3600' },
   });
 }
