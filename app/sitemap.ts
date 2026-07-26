@@ -2,8 +2,22 @@ import type { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
 import { KATEGORILER, HASTALIKLAR } from '@/lib/hastaliklar-data';
 import { BLOG_YAZILARI } from '@/lib/blog-data';
+import { toSlug } from '@/lib/helpers';
+import { canonicalDentalSpec } from '@/lib/uzmanlik-data';
 
 const BASE = 'https://hekimhane.com.tr';
+
+// Supabase tek sorguda max 1000 satır döndürür — tüm kayıtları sayfalayarak topla
+async function fetchAll<T = any>(build: () => any, max = 30000): Promise<T[]> {
+  const PAGE = 1000; const out: T[] = [];
+  for (let f = 0; f < max; f += PAGE) {
+    const { data, error } = await build().range(f, f + PAGE - 1);
+    if (error || !data || !data.length) break;
+    out.push(...data);
+    if (data.length < PAGE) break;
+  }
+  return out;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -59,23 +73,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .replace(/[üÜ]/g, 'u').replace(/[öÖ]/g, 'o').replace(/[çÇ]/g, 'c').replace(/\s+/g, '-');
 
   let klinikPages: MetadataRoute.Sitemap = [];
+  let comboPages: MetadataRoute.Sitemap = [];
   let hastanePages: MetadataRoute.Sitemap = [];
   let doktorPages: MetadataRoute.Sitemap = [];
   let eczanePages: MetadataRoute.Sitemap = [];
 
   try {
-    const { data: klinikler } = await supabase.from('klinikler').select('il,ilce,slug').not('slug', 'is', null);
-    klinikPages = (klinikler || []).map((k: { il: string; ilce: string; slug: string }) => ({
+    const klinikler = await fetchAll<{ il: string; ilce: string; slug: string; specs: string[] | null }>(
+      () => supabase.from('klinikler').select('il,ilce,slug,specs').not('slug', 'is', null));
+    klinikPages = klinikler.map(k => ({
       url: `${BASE}/klinikler/${tr(k.il || 'turkiye')}/${tr(k.ilce || 'merkez')}/${k.slug}`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.65,
     }));
+
+    // İl + uzmanlık combo landing sayfaları (yalnızca sonucu olanlar)
+    const ilSpecs: Record<string, Set<string>> = {};
+    klinikler.forEach(k => {
+      if (!k.il) return;
+      (k.specs || []).forEach(s => {
+        const c = canonicalDentalSpec(s);
+        if (c) (ilSpecs[k.il] ||= new Set()).add(c);
+      });
+    });
+    for (const [il, set] of Object.entries(ilSpecs)) {
+      for (const spec of Array.from(set)) {
+        comboPages.push({
+          url: `${BASE}/dis-tedavileri/${toSlug(il)}/${toSlug(spec)}`,
+          lastModified: now, changeFrequency: 'weekly', priority: 0.7,
+        });
+      }
+    }
   } catch {}
 
   try {
-    const { data: hastaneler } = await supabase.from('hastaneler').select('il,ilce,slug').not('slug', 'is', null);
-    hastanePages = (hastaneler || []).map((h: { il: string; ilce: string; slug: string }) => ({
+    const hastaneler = await fetchAll<{ il: string; ilce: string; slug: string }>(
+      () => supabase.from('hastaneler').select('il,ilce,slug').not('slug', 'is', null));
+    hastanePages = hastaneler.map((h: { il: string; ilce: string; slug: string }) => ({
       url: `${BASE}/hastaneler/${tr(h.il || 'turkiye')}/${tr(h.ilce || 'merkez')}/${h.slug}`,
       lastModified: now,
       changeFrequency: 'monthly',
@@ -84,8 +119,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch {}
 
   try {
-    const { data: doktorlar } = await supabase.from('doktorlar').select('slug').not('slug', 'is', null);
-    doktorPages = (doktorlar || []).map((d: { slug: string }) => ({
+    const doktorlar = await fetchAll<{ slug: string }>(() => supabase.from('doktorlar').select('slug').not('slug', 'is', null));
+    doktorPages = doktorlar.map((d: { slug: string }) => ({
       url: `${BASE}/doktorlar/${d.slug}`,
       lastModified: now,
       changeFrequency: 'monthly',
@@ -94,8 +129,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch {}
 
   try {
-    const { data: eczaneler } = await supabase.from('eczaneler').select('slug').not('slug', 'is', null);
-    eczanePages = (eczaneler || []).map((e: { slug: string }) => ({
+    const eczaneler = await fetchAll<{ slug: string }>(() => supabase.from('eczaneler').select('slug').not('slug', 'is', null));
+    eczanePages = eczaneler.map((e: { slug: string }) => ({
       url: `${BASE}/eczaneler/${e.slug}`,
       lastModified: now,
       changeFrequency: 'monthly',
@@ -108,6 +143,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...kategoriPages,
     ...hastalikPages,
     ...klinikPages,
+    ...comboPages,
     ...hastanePages,
     ...doktorPages,
     ...eczanePages,

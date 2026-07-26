@@ -31,6 +31,24 @@ export default function Footer() {
     ['Çerez Politikası',    '/cerez'],
   ];
 
+  // SEO iç-linkleme: popüler şehirler + diş tedavileri
+  const POPULER_SEHIRLER = ['İstanbul', 'Ankara', 'İzmir', 'Antalya', 'Muğla', 'Bursa', 'Adana', 'Konya', 'Zonguldak', 'Trabzon', 'Eskişehir', 'Kayseri', 'Bartın', 'Karabük'];
+  const POPULER_TEDAVILER: [string, string][] = [
+    ['İmplant Tedavisi', 'İmplantoloji (İmplant)'],
+    ['Ortodonti (Diş Teli)', 'Ortodonti (Diş Teli)'],
+    ['Çocuk Diş Hekimliği', 'Pedodonti (Çocuk Diş Hekimliği)'],
+    ['Ağız Diş ve Çene Cerrahisi', 'Ağız Diş ve Çene Cerrahisi'],
+    ['Estetik Diş Hekimliği', 'Estetik Diş Hekimliği'],
+    ['Kanal Tedavisi', 'Endodonti (Kanal Tedavisi)'],
+    ['Diş Dolgusu', 'Restoratif Diş Tedavisi (Dolgu)'],
+    ['Genel Diş Hekimliği', 'Genel Diş Hekimliği'],
+  ];
+  const chip = {
+    fontSize: '12px', color: 'rgba(255,255,255,.6)', textDecoration: 'none',
+    padding: '5px 12px', borderRadius: 20, background: 'rgba(255,255,255,.06)',
+    border: '1px solid rgba(255,255,255,.1)', whiteSpace: 'nowrap' as const,
+  };
+
   // Sosyal hesaplar — href boşken ilgili ikon gizlenir. Hesap açıldıkça doldurun.
   const SOCIAL = [
     { icon: 'fa-instagram',   href: '', label: 'Instagram' },
@@ -79,6 +97,27 @@ export default function Footer() {
         }
       `}</style>
       <div className="container">
+
+        {/* SEO iç-linkleme bandı: popüler şehirler + diş tedavileri */}
+        <div style={{ marginBottom: 40, paddingBottom: 36, borderBottom: '1px solid rgba(255,255,255,.1)' }}>
+          <h4 style={{ color: 'white', fontWeight: 700, marginBottom: 14, fontSize: 13, textTransform: 'uppercase', letterSpacing: '.8px' }}>
+            Şehre Göre Diş Klinikleri
+          </h4>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
+            {POPULER_SEHIRLER.map(c => (
+              <Link key={c} href={`/klinikler?il=${encodeURIComponent(c)}`} style={chip}>{c} Diş Klinikleri</Link>
+            ))}
+          </div>
+          <h4 style={{ color: 'white', fontWeight: 700, marginBottom: 14, fontSize: 13, textTransform: 'uppercase', letterSpacing: '.8px' }}>
+            Diş Tedavileri
+          </h4>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {POPULER_TEDAVILER.map(([label, spec]) => (
+              <Link key={spec} href={`/klinikler?uzmanlik=${encodeURIComponent(spec)}`} style={chip}>{label}</Link>
+            ))}
+          </div>
+        </div>
+
         <div className="footer-grid">
 
           {/* Marka + bülten */}

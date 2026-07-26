@@ -3,6 +3,8 @@
 // Panel'deki SpecPicker ve profil sayfasındaki chip linkleri için.
 // ─────────────────────────────────────────────────────────────
 
+import { toSlug } from './helpers';
+
 export interface SpecGrubu {
   /** Kategori başlığı (ör. "Kadın Hastalıkları ve Doğum") */
   ad: string;
@@ -349,4 +351,41 @@ export function specToHref(spec: string): string {
     }
   }
   return `/doktorlar?spec=${encodeURIComponent(spec)}`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// İl + Uzmanlık combo landing sayfaları (/dis-tedavileri/[il]/[uzmanlik])
+// ─────────────────────────────────────────────────────────────
+
+/** "Diş Hekimliği" grubundaki kanonik uzmanlıklar — combo sayfaları bunlarla oluşur */
+export const DENTAL_SPECIALTIES: string[] = SPEC_GRUPLARI.find(g => g.ad === 'Diş Hekimliği')?.items || [];
+
+/** Veri kaynaklarındaki farklı yazımlar → kanonik uzmanlık (overlaps sorgusu için) */
+export const DENTAL_SYNONYMS: Record<string, string[]> = {
+  'Genel Diş Hekimliği':             ['Genel Diş Hekimliği', 'Genel Diş Hekimi', 'Diş Sağlığı', 'Diş Kliniği'],
+  'Ortodonti (Diş Teli)':            ['Ortodonti (Diş Teli)', 'Ortodonti'],
+  'Pedodonti (Çocuk Diş Hekimliği)': ['Pedodonti (Çocuk Diş Hekimliği)', 'Çocuk Diş Hekimliği'],
+  'Endodonti (Kanal Tedavisi)':      ['Endodonti (Kanal Tedavisi)', 'Endodonti'],
+  'Ağız Diş ve Çene Cerrahisi':      ['Ağız Diş ve Çene Cerrahisi', 'Ağız Diş Çene Cerrahisi'],
+  'Restoratif Diş Tedavisi (Dolgu)': ['Restoratif Diş Tedavisi (Dolgu)', 'Restoratif Diş Tedavisi'],
+  'Protez (Diş Protezi)':            ['Protez (Diş Protezi)', 'Protetik Diş Tedavisi', 'Protez'],
+};
+
+/** Bir uzmanlık için veri eşleşme varyantları */
+export function synonymsForSpec(spec: string): string[] {
+  return DENTAL_SYNONYMS[spec] || [spec];
+}
+
+/** Herhangi bir spec etiketini kanonik diş uzmanlığına eşler (diş uzmanlığı değilse null) */
+export function canonicalDentalSpec(spec: string): string | null {
+  if (DENTAL_SPECIALTIES.includes(spec)) return spec;
+  for (const [canon, syns] of Object.entries(DENTAL_SYNONYMS)) if (syns.includes(spec)) return canon;
+  return null;
+}
+
+/** il + spec → /dis-tedavileri/<il>/<uzmanlik> (spec diş uzmanlığı değilse null) */
+export function dentalComboHref(il: string | null | undefined, spec: string): string | null {
+  const c = canonicalDentalSpec(spec);
+  if (!c || !il) return null;
+  return `/dis-tedavileri/${toSlug(il)}/${toSlug(c)}`;
 }

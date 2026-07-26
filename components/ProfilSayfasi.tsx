@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
-import { specToHref } from '@/lib/uzmanlik-data';
+import { specToHref, dentalComboHref } from '@/lib/uzmanlik-data';
 import AboneWidget from '@/components/AboneWidget';
 import PremiumBadge from '@/components/PremiumBadge';
 import { ToothGlyph } from '@/components/Logo';
@@ -972,7 +972,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                       {specs.map(s => (
                         <Link
                           key={s}
-                          href={specToHref(s)}
+                          href={(entityType === 'klinik' && (dentalComboHref(il, s))) || specToHref(s)}
                           style={{
                             display: 'inline-block',
                             padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
