@@ -49,6 +49,9 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: 'https://hekimhane.com.tr',
+    types: {
+      'application/rss+xml': [{ url: 'https://hekimhane.com.tr/rss.xml', title: 'Hekimhane Blog — Ağız ve Diş Sağlığı' }],
+    },
   },
   verification: {
     google: 'KQGBOe-frsX4hxu3VWssHlNWwPoF6dNhgHnVZ8Jnl4o',

@@ -203,6 +203,12 @@ export default function Footer() {
                 {label}
               </Link>
             ))}
+            <a href="/sitemap.xml" style={{ display: 'block', fontSize: '13px', marginBottom: '9px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
+              Site Haritası
+            </a>
+            <a href="/rss.xml" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '13px', marginBottom: '9px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
+              <i className="fa-solid fa-rss" style={{ fontSize: 11, color: 'var(--gold)' }} /> RSS
+            </a>
           </div>
 
           {/* Yasal */}
