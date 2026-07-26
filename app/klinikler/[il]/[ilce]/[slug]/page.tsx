@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const puan = (k.rat && k.rev) ? `${k.rat.toFixed(1)} ★ (${k.rev} değerlendirme). ` : '';
   const uzm = (k.specs || []).slice(0, 3).join(', ');
   const desc = `${k.name}, ${yer} bölgesinde ${tur.toLowerCase()}. ${puan}Adres, telefon, hasta yorumları ve online randevu bilgileri.${uzm ? ' Uzmanlık: ' + uzm + '.' : ''}`;
-  const url = `https://hekimhane.com.tr/klinikler/${tr(k.il||'turkiye')}/${tr(k.ilce||'merkez')}/${k.slug}`;
+  const url = `https://www.hekimhane.com.tr/klinikler/${tr(k.il||'turkiye')}/${tr(k.ilce||'merkez')}/${k.slug}`;
   return {
     title,
     description: desc.slice(0, 158),
@@ -64,7 +64,7 @@ export default async function KlinikProfilPage({ params }: Props) {
     .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
     .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
 
-  const canonical = `https://hekimhane.com.tr/klinikler/${trFn(k.il||'turkiye')}/${trFn(k.ilce||'merkez')}/${k.slug}`;
+  const canonical = `https://www.hekimhane.com.tr/klinikler/${trFn(k.il||'turkiye')}/${trFn(k.ilce||'merkez')}/${k.slug}`;
   const sameAs = [k.website, k.instagram_url, k.facebook_url, k.linkedin_url].filter(Boolean) as string[];
 
   const business = {
@@ -100,10 +100,10 @@ export default async function KlinikProfilPage({ params }: Props) {
   const breadcrumb = {
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://hekimhane.com.tr' },
-      { '@type': 'ListItem', position: 2, name: 'Diş Klinikleri', item: 'https://hekimhane.com.tr/klinikler' },
-      ...(k.il   ? [{ '@type': 'ListItem', position: 3, name: k.il,   item: `https://hekimhane.com.tr/klinikler?il=${encodeURIComponent(k.il)}` }] : []),
-      ...(k.ilce ? [{ '@type': 'ListItem', position: 4, name: k.ilce, item: `https://hekimhane.com.tr/klinikler/${trFn(k.il||'turkiye')}/${trFn(k.ilce)}` }] : []),
+      { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://www.hekimhane.com.tr' },
+      { '@type': 'ListItem', position: 2, name: 'Diş Klinikleri', item: 'https://www.hekimhane.com.tr/klinikler' },
+      ...(k.il   ? [{ '@type': 'ListItem', position: 3, name: k.il,   item: `https://www.hekimhane.com.tr/klinikler?il=${encodeURIComponent(k.il)}` }] : []),
+      ...(k.ilce ? [{ '@type': 'ListItem', position: 4, name: k.ilce, item: `https://www.hekimhane.com.tr/klinikler/${trFn(k.il||'turkiye')}/${trFn(k.ilce)}` }] : []),
       { '@type': 'ListItem', position: (k.ilce ? 5 : k.il ? 4 : 3), name: k.name, item: canonical },
     ],
   };

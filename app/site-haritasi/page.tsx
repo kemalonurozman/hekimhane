@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: 'Site Haritası',
   description:
     'Hekimhane site haritası — diş klinikleri, diş hekimleri, hastaneler, eczaneler, diş tedavileri, hastalık rehberi ve tüm sayfalara ağaç yapısında erişim.',
-  alternates: { canonical: 'https://hekimhane.com.tr/site-haritasi' },
+  alternates: { canonical: 'https://www.hekimhane.com.tr/site-haritasi' },
 };
 
 interface Branch { title: string; href?: string; links: { label: string; href: string }[]; }

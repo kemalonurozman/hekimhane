@@ -7,7 +7,7 @@ import { canonicalDentalSpec, TREATMENTS } from './uzmanlik-data';
 import { KATEGORILER, HASTALIKLAR } from './hastaliklar-data';
 import { BLOG_YAZILARI } from './blog-data';
 
-export const BASE = 'https://hekimhane.com.tr';
+export const BASE = 'https://www.hekimhane.com.tr';
 
 export const SITEMAP_SECTIONS = ['genel', 'klinikler', 'dis-tedavileri', 'hastaneler', 'doktorlar', 'eczaneler'] as const;
 export type SitemapSection = typeof SITEMAP_SECTIONS[number];

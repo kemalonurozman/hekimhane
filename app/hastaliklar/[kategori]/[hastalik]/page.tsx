@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!h) return {};
   const title = `${h.ad} – Belirtiler, Nedenler ve Tedavi`;
   const description = h.ozet.slice(0, 155);
-  const url = `https://hekimhane.com.tr/hastaliklar/${h.kategoriSlug}/${h.slug}`;
+  const url = `https://www.hekimhane.com.tr/hastaliklar/${h.kategoriSlug}/${h.slug}`;
   // Diş dışı hastalıklar şimdilik gizli — arama motorlarından çıkar
   const gizli = h.kategoriSlug !== 'dis-sagligi';
   return {
@@ -68,7 +68,7 @@ export default function HastalıkDetayPage({ params }: Props) {
     signOrSymptom: h.belirtiler.map(b => ({ '@type': 'MedicalSymptom', name: b.baslik })),
     possibleTreatment: h.tedaviSecenekleri.map(t => ({ '@type': 'MedicalTherapy', name: t.tip })),
     relevantSpecialty: { '@type': 'MedicalSpecialty', name: h.uzmanlik },
-    url: `https://hekimhane.com.tr/hastaliklar/${h.kategoriSlug}/${h.slug}`,
+    url: `https://www.hekimhane.com.tr/hastaliklar/${h.kategoriSlug}/${h.slug}`,
   };
 
   return (

@@ -1,6 +1,6 @@
 import { BLOG_YAZILARI } from '@/lib/blog-data';
 
-const BASE = 'https://hekimhane.com.tr';
+const BASE = 'https://www.hekimhane.com.tr';
 
 function esc(s = '') {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');

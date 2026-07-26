@@ -4,7 +4,7 @@ import KarsilastirClient from './KarsilastirClient';
 export const metadata: Metadata = {
   title: 'Karşılaştır — Doktor, Klinik ve Hastane Kıyaslama',
   description: 'Seçtiğiniz doktor, klinik, hastane veya eczaneleri puan, ücret, konum ve uzmanlık açısından yan yana karşılaştırın.',
-  alternates: { canonical: 'https://hekimhane.com.tr/karsilastir' },
+  alternates: { canonical: 'https://www.hekimhane.com.tr/karsilastir' },
   robots: { index: false, follow: true },
 };
 

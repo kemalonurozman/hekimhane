@@ -12,7 +12,7 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: Props): Metadata {
   const y = getBlogYazi(params.slug);
   if (!y) return { title: 'Yazı Bulunamadı | Hekimhane' };
-  const url = `https://hekimhane.com.tr/blog/${y.slug}`;
+  const url = `https://www.hekimhane.com.tr/blog/${y.slug}`;
   return {
     title: `${y.title} | Hekimhane Blog`,
     description: y.summary,
@@ -38,7 +38,7 @@ export default function BlogDetayPage({ params }: Props) {
     author: { '@type': 'Organization', name: y.author },
     datePublished: y.created_at,
     publisher: { '@type': 'Organization', name: 'Hekimhane' },
-    mainEntityOfPage: `https://hekimhane.com.tr/blog/${y.slug}`,
+    mainEntityOfPage: `https://www.hekimhane.com.tr/blog/${y.slug}`,
   };
 
   return (

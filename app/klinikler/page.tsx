@@ -31,7 +31,7 @@ export async function generateMetadata(
   // Kanonik: yalnızca anlamlı filtreler (arama/sayfa hariç) → duplike içerik önlenir
   const qs = new URLSearchParams();
   if (il) qs.set('il', il); if (ilce) qs.set('ilce', ilce); if (tip) qs.set('tip', tip); if (uzmanlik) qs.set('uzmanlik', uzmanlik);
-  const canonical = `https://hekimhane.com.tr/klinikler${qs.toString() ? `?${qs.toString()}` : ''}`;
+  const canonical = `https://www.hekimhane.com.tr/klinikler${qs.toString() ? `?${qs.toString()}` : ''}`;
 
   return {
     title,
@@ -167,17 +167,17 @@ export default async function KliniklerPage(
 
   // ── SEO: BreadcrumbList + ItemList (listelenen klinikler) ──
   const bcItems = [
-    { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://hekimhane.com.tr' },
-    { '@type': 'ListItem', position: 2, name: 'Diş Klinikleri', item: 'https://hekimhane.com.tr/klinikler' },
+    { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://www.hekimhane.com.tr' },
+    { '@type': 'ListItem', position: 2, name: 'Diş Klinikleri', item: 'https://www.hekimhane.com.tr/klinikler' },
   ];
-  if (filters.il)   bcItems.push({ '@type': 'ListItem', position: 3, name: filters.il, item: `https://hekimhane.com.tr/klinikler?il=${encodeURIComponent(filters.il)}` });
-  if (filters.ilce) bcItems.push({ '@type': 'ListItem', position: 4, name: filters.ilce, item: `https://hekimhane.com.tr/klinikler?il=${encodeURIComponent(filters.il||'')}&ilce=${encodeURIComponent(filters.ilce)}` });
+  if (filters.il)   bcItems.push({ '@type': 'ListItem', position: 3, name: filters.il, item: `https://www.hekimhane.com.tr/klinikler?il=${encodeURIComponent(filters.il)}` });
+  if (filters.ilce) bcItems.push({ '@type': 'ListItem', position: 4, name: filters.ilce, item: `https://www.hekimhane.com.tr/klinikler?il=${encodeURIComponent(filters.il||'')}&ilce=${encodeURIComponent(filters.ilce)}` });
 
   const listItems = (klinikler || []).slice(0, 20).map((k, i) => ({
     '@type': 'ListItem',
     position: i + 1,
     name: k.name,
-    url: k.slug ? `https://hekimhane.com.tr/klinikler/${TR(k.il||'turkiye')}/${TR(k.ilce||'merkez')}/${k.slug}` : undefined,
+    url: k.slug ? `https://www.hekimhane.com.tr/klinikler/${TR(k.il||'turkiye')}/${TR(k.ilce||'merkez')}/${k.slug}` : undefined,
   }));
 
   const jsonLd = {

@@ -86,7 +86,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const yerBaslik = d.ilce ? `${d.ilce} ${d.il}` : d.il;
   const title = `${yerBaslik} ${d.label} — Diş Hekimleri`;
   const desc = `${yer} bölgesinde ${d.label} hizmeti veren ${d.klinikler.length} diş hekimi ve klinik. Puanlar, hasta yorumları, adres, telefon ve online randevu bilgileri Hekimhane'de.`;
-  const canonical = `https://hekimhane.com.tr/dis-tedavileri/${params.il}/${params.seg.join('/')}`;
+  const canonical = `https://www.hekimhane.com.tr/dis-tedavileri/${params.il}/${params.seg.join('/')}`;
   return {
     title,
     description: desc,
@@ -116,11 +116,11 @@ export default async function DisTedaviPage({ params }: Props) {
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://hekimhane.com.tr' },
-          { '@type': 'ListItem', position: 2, name: 'Diş Klinikleri', item: 'https://hekimhane.com.tr/klinikler' },
-          { '@type': 'ListItem', position: 3, name: il, item: `https://hekimhane.com.tr/klinikler?il=${encodeURIComponent(il)}` },
-          ...(ilce ? [{ '@type': 'ListItem', position: 4, name: ilce, item: `https://hekimhane.com.tr/klinikler?il=${encodeURIComponent(il)}&ilce=${encodeURIComponent(ilce)}` }] : []),
-          { '@type': 'ListItem', position: ilce ? 5 : 4, name: `${yerBaslik} ${label}`, item: `https://hekimhane.com.tr/dis-tedavileri/${params.il}/${params.seg.join('/')}` },
+          { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://www.hekimhane.com.tr' },
+          { '@type': 'ListItem', position: 2, name: 'Diş Klinikleri', item: 'https://www.hekimhane.com.tr/klinikler' },
+          { '@type': 'ListItem', position: 3, name: il, item: `https://www.hekimhane.com.tr/klinikler?il=${encodeURIComponent(il)}` },
+          ...(ilce ? [{ '@type': 'ListItem', position: 4, name: ilce, item: `https://www.hekimhane.com.tr/klinikler?il=${encodeURIComponent(il)}&ilce=${encodeURIComponent(ilce)}` }] : []),
+          { '@type': 'ListItem', position: ilce ? 5 : 4, name: `${yerBaslik} ${label}`, item: `https://www.hekimhane.com.tr/dis-tedavileri/${params.il}/${params.seg.join('/')}` },
         ],
       },
       {
@@ -129,7 +129,7 @@ export default async function DisTedaviPage({ params }: Props) {
         numberOfItems: sorted.length,
         itemListElement: sorted.slice(0, 20).map((k, i) => ({
           '@type': 'ListItem', position: i + 1, name: k.name,
-          url: k.slug ? `https://hekimhane.com.tr/klinikler/${toSlug(k.il || 'turkiye')}/${toSlug(k.ilce || 'merkez')}/${k.slug}` : undefined,
+          url: k.slug ? `https://www.hekimhane.com.tr/klinikler/${toSlug(k.il || 'turkiye')}/${toSlug(k.ilce || 'merkez')}/${k.slug}` : undefined,
         })),
       },
       {

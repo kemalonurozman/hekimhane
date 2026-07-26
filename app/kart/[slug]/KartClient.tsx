@@ -290,7 +290,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
   };
 
   // Baskı/QR için sabit production URL (SSR↔client tutarlı; QR asla localhost'a bakmaz)
-  const cardUrl = `https://hekimhane.com.tr/kart/${d.slug}`;
+  const cardUrl = `https://www.hekimhane.com.tr/kart/${d.slug}`;
   const cardUrlShort = `hekimhane.com.tr/kart/${d.slug}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(cardUrl)}&color=1B3A69&bgcolor=FFFFFF&margin=14&format=png`;
   const qrUrlLarge = `https://api.qrserver.com/v1/create-qr-code/?size=520x520&data=${encodeURIComponent(cardUrl)}&color=1B3A69&bgcolor=FFFFFF&margin=12&format=png`;

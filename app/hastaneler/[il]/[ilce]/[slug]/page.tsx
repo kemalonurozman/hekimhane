@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { h } = res;
   const title = `${h.name} — ${h.ilce||''}, ${h.il||''}`;
   const desc  = `${h.name} ${h.il||''} ${h.ilce||''} adres, iletişim bilgileri ve yorumlar. ${h.type||'Hastane'}.`;
-  const url   = `https://hekimhane.com.tr/hastaneler/${tr(h.il||'turkiye')}/${tr(h.ilce||'merkez')}/${h.slug}`;
+  const url   = `https://www.hekimhane.com.tr/hastaneler/${tr(h.il||'turkiye')}/${tr(h.ilce||'merkez')}/${h.slug}`;
   return {
     title,
     description: desc.slice(0, 155),
@@ -69,7 +69,7 @@ export default async function HastaneProfilPage({ params }: Props) {
     numberOfBeds: h.beds || undefined,
     ...(h.rat && h.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: h.rat, reviewCount: h.rev, bestRating: 5 } } : {}),
     ...(h.lat && h.lng ? { geo: { '@type': 'GeoCoordinates', latitude: h.lat, longitude: h.lng } } : {}),
-    url: `https://hekimhane.com.tr/hastaneler/${tr(h.il||'turkiye')}/${tr(h.ilce||'merkez')}/${h.slug}`,
+    url: `https://www.hekimhane.com.tr/hastaneler/${tr(h.il||'turkiye')}/${tr(h.ilce||'merkez')}/${h.slug}`,
   };
 
   return (

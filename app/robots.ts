@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/panel/', '/admin/', '/api/'],
       },
     ],
-    sitemap: 'https://hekimhane.com.tr/sitemap.xml',
-    host: 'https://hekimhane.com.tr',
+    sitemap: 'https://www.hekimhane.com.tr/sitemap.xml',
+    host: 'https://www.hekimhane.com.tr',
   };
 }

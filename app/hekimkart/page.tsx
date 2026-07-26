@@ -5,11 +5,11 @@ export const metadata: Metadata = {
   title: 'HekimKart — Dijital Kartvizit',
   description:
     'HekimKart, diş hekimleri için ücretsiz dijital kartvizit. Online randevu, telefon, Instagram, LinkedIn, Facebook, web sitesi ve konum — hepsi tek linkte ve QR kodda. Her özelliğin ne işe yaradığını keşfedin.',
-  alternates: { canonical: 'https://hekimhane.com.tr/hekimkart' },
+  alternates: { canonical: 'https://www.hekimhane.com.tr/hekimkart' },
   openGraph: {
     title: 'HekimKart — Dijital Kartvizit',
     description: 'Tüm iletişim kanalların tek linkte. Neden özel bir kart olduğunu keşfet.',
-    url: 'https://hekimhane.com.tr/hekimkart',
+    url: 'https://www.hekimhane.com.tr/hekimkart',
     type: 'website',
   },
 };

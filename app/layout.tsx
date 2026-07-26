@@ -19,21 +19,21 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://hekimhane.com.tr'),
+  metadataBase: new URL('https://www.hekimhane.com.tr'),
   title: {
     default: 'Hekimhane — Türkiye Sağlık Rehberi',
     template: '%s | Hekimhane',
   },
   description: 'Türkiye\'nin en kapsamlı sağlık rehberi. Klinik, hastane, doktor ve eczane bilgileri. İstanbul, Ankara, İzmir ve tüm Türkiye\'de doktor ara.',
   keywords: ['doktor ara', 'klinik bul', 'hastane', 'eczane', 'sağlık rehberi', 'türkiye doktor', 'randevu'],
-  authors: [{ name: 'Hekimhane', url: 'https://hekimhane.com.tr' }],
+  authors: [{ name: 'Hekimhane', url: 'https://www.hekimhane.com.tr' }],
   creator: 'Hekimhane',
   publisher: 'Hekimhane',
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
     siteName: 'Hekimhane',
-    url: 'https://hekimhane.com.tr',
+    url: 'https://www.hekimhane.com.tr',
     title: 'Hekimhane — Türkiye Sağlık Rehberi',
     description: 'Türkiye\'nin en kapsamlı sağlık rehberi. 1.044+ klinik, 1.825+ hastane, 1.552+ doktor ve 8.789+ eczane.',
   },
@@ -48,9 +48,9 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
   alternates: {
-    canonical: 'https://hekimhane.com.tr',
+    canonical: 'https://www.hekimhane.com.tr',
     types: {
-      'application/rss+xml': [{ url: 'https://hekimhane.com.tr/rss.xml', title: 'Hekimhane Blog — Ağız ve Diş Sağlığı' }],
+      'application/rss+xml': [{ url: 'https://www.hekimhane.com.tr/rss.xml', title: 'Hekimhane Blog — Ağız ve Diş Sağlığı' }],
     },
   },
   verification: {

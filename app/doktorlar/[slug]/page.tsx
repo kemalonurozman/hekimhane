@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const fullN  = `${d.unvan ? d.unvan + ' ' : ''}${d.ad} ${d.soyad}`.trim();
   const title  = `${fullN} — ${d.spec||'Doktor'}, ${d.il||''}`;
   const desc   = `${fullN} ${d.spec||'Doktor'} ${d.il||''} randevu, iletişim ve yorumlar. ${d.bio ? d.bio.slice(0,80) : ''}`.trim();
-  const url    = `https://hekimhane.com.tr/doktorlar/${d.slug}`;
+  const url    = `https://www.hekimhane.com.tr/doktorlar/${d.slug}`;
   return {
     title,
     description: desc.slice(0, 155),
@@ -68,7 +68,7 @@ export default async function DoktorProfilPage({ params }: Props) {
     telephone: d.tel || undefined,
     image: d.photo || undefined,
     ...(d.rat && d.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: d.rat, reviewCount: d.rev, bestRating: 5 } } : {}),
-    url: `https://hekimhane.com.tr/doktorlar/${d.slug}`,
+    url: `https://www.hekimhane.com.tr/doktorlar/${d.slug}`,
   };
 
   return (

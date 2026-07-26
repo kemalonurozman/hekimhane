@@ -11,11 +11,11 @@ export const metadata: Metadata = {
   title: 'Hekimhane — Türkiye Diş Hekimi & Klinik Rehberi',
   description: 'Türkiye\'nin diş sağlığı rehberi. 1.044+ diş kliniği ve muayenehane, uzman diş hekimleri. İstanbul, Ankara, İzmir ve tüm Türkiye\'de size en yakın diş hekimini ve kliniğini bulun.',
   keywords: ['diş hekimi', 'diş kliniği', 'diş hekimi ara', 'ağız ve diş sağlığı', 'implant', 'ortodonti', 'diş muayenehanesi', 'randevu'],
-  alternates: { canonical: 'https://hekimhane.com.tr' },
+  alternates: { canonical: 'https://www.hekimhane.com.tr' },
   openGraph: {
     title: 'Hekimhane — Türkiye Diş Hekimi & Klinik Rehberi',
     description: 'Diş kliniği ve diş hekimi arama platformu. Türkiye genelinde 1.000+ diş kliniği ve muayenehane.',
-    url: 'https://hekimhane.com.tr',
+    url: 'https://www.hekimhane.com.tr',
     type: 'website',
   },
 };

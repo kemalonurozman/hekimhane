@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!d) return { title: 'Sayfa Bulunamadı' };
   const title = `${d.ilce} ${d.il} Diş Klinikleri ve Diş Hekimleri`;
   const desc = `${d.ilce}, ${d.il} bölgesindeki ${d.klinikler.length} diş kliniği ve diş hekimi. Puanlar, hasta yorumları, adres, telefon ve online randevu bilgileriyle karşılaştırın.`;
-  const canonical = `https://hekimhane.com.tr/klinikler/${params.il}/${params.ilce}`;
+  const canonical = `https://www.hekimhane.com.tr/klinikler/${params.il}/${params.ilce}`;
   return {
     title,
     description: desc,
@@ -78,17 +78,17 @@ export default async function IlceKlinikPage({ params }: Props) {
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://hekimhane.com.tr' },
-          { '@type': 'ListItem', position: 2, name: 'Diş Klinikleri', item: 'https://hekimhane.com.tr/klinikler' },
-          { '@type': 'ListItem', position: 3, name: il, item: `https://hekimhane.com.tr/klinikler?il=${encodeURIComponent(il)}` },
-          { '@type': 'ListItem', position: 4, name: ilce, item: `https://hekimhane.com.tr/klinikler/${ilPath}/${ilcePath}` },
+          { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://www.hekimhane.com.tr' },
+          { '@type': 'ListItem', position: 2, name: 'Diş Klinikleri', item: 'https://www.hekimhane.com.tr/klinikler' },
+          { '@type': 'ListItem', position: 3, name: il, item: `https://www.hekimhane.com.tr/klinikler?il=${encodeURIComponent(il)}` },
+          { '@type': 'ListItem', position: 4, name: ilce, item: `https://www.hekimhane.com.tr/klinikler/${ilPath}/${ilcePath}` },
         ],
       },
       {
         '@type': 'ItemList', name: `${ilce} ${il} Diş Klinikleri`, numberOfItems: sorted.length,
         itemListElement: sorted.slice(0, 20).map((k, i) => ({
           '@type': 'ListItem', position: i + 1, name: k.name,
-          url: k.slug ? `https://hekimhane.com.tr/klinikler/${toSlug(k.il || 'turkiye')}/${toSlug(k.ilce || 'merkez')}/${k.slug}` : undefined,
+          url: k.slug ? `https://www.hekimhane.com.tr/klinikler/${toSlug(k.il || 'turkiye')}/${toSlug(k.ilce || 'merkez')}/${k.slug}` : undefined,
         })),
       },
       { '@type': 'FAQPage', mainEntity: faq.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },

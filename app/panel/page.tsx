@@ -2809,7 +2809,7 @@ function HekimKartTab({ approvedClaims, profileUrls, user }: {
                   <p style={{ fontSize:10.5, fontWeight:700, color:T.muted, letterSpacing:'1px', textTransform:'uppercase', marginBottom:12 }}>Linkler (opsiyonel)</p>
                   <div style={{ display:'flex', flexWrap:'wrap', gap:10, marginBottom:16 }}>
                     <KartField label="Rezervasyon / Randevu" value={form.rezervasyon_url} onChange={v=>setForm(p=>({...p,rezervasyon_url:v}))} placeholder="https://randevu.example.com" />
-                    <KartField label="Web Sitesi" value={form.website_url} onChange={v=>setForm(p=>({...p,website_url:v}))} placeholder="https://hekimhane.com.tr" />
+                    <KartField label="Web Sitesi" value={form.website_url} onChange={v=>setForm(p=>({...p,website_url:v}))} placeholder="https://www.hekimhane.com.tr" />
                     <KartField label="Google Maps Konumu" value={form.maps_url} onChange={v=>setForm(p=>({...p,maps_url:v}))} placeholder="https://maps.google.com/…" />
                   </div>
 
