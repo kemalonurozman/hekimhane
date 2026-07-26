@@ -389,3 +389,45 @@ export function dentalComboHref(il: string | null | undefined, spec: string): st
   if (!c || !il) return null;
   return `/dis-tedavileri/${toSlug(il)}/${toSlug(c)}`;
 }
+
+// ─────────────────────────────────────────────────────────────
+// Ticari-niyetli TEDAVİ sayfaları (uzmanlık değil, tedavi adıyla arama)
+// Her tedavi, listeleme için bir kanonik uzmanlığa eşlenir.
+// ─────────────────────────────────────────────────────────────
+export interface Treatment { slug: string; name: string; spec: string; ozet: string; }
+
+export const TREATMENTS: Treatment[] = [
+  { slug: 'dis-implanti',      name: 'Diş İmplantı',            spec: 'İmplantoloji (İmplant)',        ozet: 'Eksik dişlerin yerine çene kemiğine yerleştirilen, üzerine kalıcı diş takılan titanyum vida tedavisi.' },
+  { slug: 'zirkonyum-kaplama', name: 'Zirkonyum Kaplama',       spec: 'Estetik Diş Hekimliği',         ozet: 'Metal desteksiz, ışık geçirgenliğiyle doğal görünen dayanıklı estetik diş kaplaması.' },
+  { slug: 'dis-beyazlatma',    name: 'Diş Beyazlatma',          spec: 'Estetik Diş Hekimliği',         ozet: 'Dişlerin renk tonunu birkaç ton açan, ofis tipi veya ev tipi estetik uygulama.' },
+  { slug: 'seffaf-plak',       name: 'Şeffaf Plak (Invisalign)',spec: 'Ortodonti (Diş Teli)',          ozet: 'Telsiz, çıkarılabilir şeffaf plaklarla estetik diş düzeltme tedavisi.' },
+  { slug: 'gulus-tasarimi',    name: 'Gülüş Tasarımı',          spec: 'Estetik Diş Hekimliği',         ozet: 'Yüz hatlarına uygun, kişiye özel estetik gülüş planlaması.' },
+  { slug: 'lamina-veneer',     name: 'Lamina (Yaprak Porselen)',spec: 'Estetik Diş Hekimliği',         ozet: 'Dişin ön yüzeyine yapıştırılan ince porselen yaprak ile estetik düzeltme.' },
+  { slug: 'kanal-tedavisi',    name: 'Kanal Tedavisi',          spec: 'Endodonti (Kanal Tedavisi)',    ozet: 'İltihaplanan diş sinirinin temizlenip kanalın doldurulmasıyla dişin kurtarılması.' },
+  { slug: 'dis-teli',          name: 'Diş Teli (Ortodonti)',    spec: 'Ortodonti (Diş Teli)',          ozet: 'Çapraşık diş ve çene bozukluklarını düzelten braket (tel) tedavisi.' },
+  { slug: '20-yas-disi-cekimi',name: '20 Yaş Dişi Çekimi',      spec: 'Ağız Diş ve Çene Cerrahisi',    ozet: 'Gömülü veya ağrı yapan 20 yaş dişlerinin cerrahi olarak çekilmesi.' },
+  { slug: 'cocuk-dis-hekimi',  name: 'Çocuk Diş Hekimi',        spec: 'Pedodonti (Çocuk Diş Hekimliği)', ozet: 'Bebek ve çocuklarda ağız-diş sağlığı, koruyucu uygulamalar ve tedaviler.' },
+];
+
+export function treatmentBySlug(s: string): Treatment | null {
+  return TREATMENTS.find(t => t.slug === s) || null;
+}
+
+/** Uzmanlık veya tedavi slug'ını çöz → { label, spec (kanonik), treatment? } (yoksa null) */
+export function resolveSpecOrTreatment(uzmSlug: string): { label: string; spec: string; treatment: Treatment | null } | null {
+  const t = treatmentBySlug(uzmSlug);
+  if (t) return { label: t.name, spec: t.spec, treatment: t };
+  for (const item of DENTAL_SPECIALTIES) if (toSlug(item) === uzmSlug) return { label: item, spec: item, treatment: null };
+  return null;
+}
+
+/** Şehre/uzmanlığa özel SSS — hem içerik zenginliği hem FAQPage schema için */
+export function buildDentalFaq(opts: { il: string; ilce?: string | null; label: string; count: number }): { q: string; a: string }[] {
+  const yer = opts.ilce ? `${opts.ilce}, ${opts.il}` : opts.il;
+  return [
+    { q: `${yer} bölgesinde kaç ${opts.label} hekimi bulunuyor?`, a: `Hekimhane'de ${yer} için ${opts.count} adet ${opts.label} hizmeti veren diş hekimi ve klinik listeleniyor. Hepsini puan ve hasta yorumlarıyla karşılaştırabilirsiniz.` },
+    { q: `${yer}'da ${opts.label} için nasıl randevu alınır?`, a: `İlgili hekimin profil sayfasından telefonla doğrudan arayabilir veya "Randevu Al" butonuyla talep gönderebilirsiniz; çoğu klinik aynı gün geri dönüş yapar.` },
+    { q: `${opts.il}'da ${opts.label} ücretleri ne kadar?`, a: `Ücretler hekime, vakanın zorluğuna ve kullanılan malzemeye göre değişir. Net fiyat için ön muayene önerilir; birçok klinik ilk muayeneyi ücretsiz sunar.` },
+    { q: `${yer}'da en iyi ${opts.label} hekimi nasıl seçilir?`, a: `Hasta yorumlarını, puan ortalamasını, deneyimi ve klinik konumunu değerlendirin. Hekimhane bu bilgilerin tümünü tek sayfada karşılaştırmalı gösterir.` },
+  ];
+}

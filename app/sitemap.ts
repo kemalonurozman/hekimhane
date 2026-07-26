@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { KATEGORILER, HASTALIKLAR } from '@/lib/hastaliklar-data';
 import { BLOG_YAZILARI } from '@/lib/blog-data';
 import { toSlug } from '@/lib/helpers';
-import { canonicalDentalSpec } from '@/lib/uzmanlik-data';
+import { canonicalDentalSpec, TREATMENTS } from '@/lib/uzmanlik-data';
 
 const BASE = 'https://hekimhane.com.tr';
 
@@ -74,6 +74,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let klinikPages: MetadataRoute.Sitemap = [];
   let comboPages: MetadataRoute.Sitemap = [];
+  let ilceLandingPages: MetadataRoute.Sitemap = [];
   let hastanePages: MetadataRoute.Sitemap = [];
   let doktorPages: MetadataRoute.Sitemap = [];
   let eczanePages: MetadataRoute.Sitemap = [];
@@ -88,22 +89,46 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.65,
     }));
 
-    // İl + uzmanlık combo landing sayfaları (yalnızca sonucu olanlar)
+    // Kanonik uzmanlık kümeleri: il ve il+ilçe bazında
     const ilSpecs: Record<string, Set<string>> = {};
+    const ilceSpecs: Record<string, Set<string>> = {};       // key: "il|ilce"
+    const ilceSet = new Set<string>();                         // "il|ilce"
     klinikler.forEach(k => {
       if (!k.il) return;
+      const ilce = k.ilce || 'Merkez';
+      const key = `${k.il}|${ilce}`;
+      ilceSet.add(key);
       (k.specs || []).forEach(s => {
         const c = canonicalDentalSpec(s);
-        if (c) (ilSpecs[k.il] ||= new Set()).add(c);
+        if (!c) return;
+        (ilSpecs[k.il] ||= new Set()).add(c);
+        (ilceSpecs[key] ||= new Set()).add(c);
       });
     });
+
+    const treatmentsForSpecs = (specSet: Set<string>) =>
+      TREATMENTS.filter(t => { const c = canonicalDentalSpec(t.spec); return c && specSet.has(c); });
+
+    // İl + uzmanlık ve il + tedavi
     for (const [il, set] of Object.entries(ilSpecs)) {
-      for (const spec of Array.from(set)) {
-        comboPages.push({
-          url: `${BASE}/dis-tedavileri/${toSlug(il)}/${toSlug(spec)}`,
-          lastModified: now, changeFrequency: 'weekly', priority: 0.7,
-        });
-      }
+      const ilP = toSlug(il);
+      for (const spec of Array.from(set))
+        comboPages.push({ url: `${BASE}/dis-tedavileri/${ilP}/${toSlug(spec)}`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 });
+      for (const t of treatmentsForSpecs(set))
+        comboPages.push({ url: `${BASE}/dis-tedavileri/${ilP}/${t.slug}`, lastModified: now, changeFrequency: 'weekly', priority: 0.72 });
+    }
+
+    // İlçe landing + ilçe + uzmanlık/tedavi
+    for (const key of Array.from(ilceSet)) {
+      const [il, ilce] = key.split('|');
+      const ilP = toSlug(il); const ilceP = toSlug(ilce);
+      ilceLandingPages.push({ url: `${BASE}/klinikler/${ilP}/${ilceP}`, lastModified: now, changeFrequency: 'weekly', priority: 0.68 });
+      const set = ilceSpecs[key];
+      if (!set) continue;
+      for (const spec of Array.from(set))
+        comboPages.push({ url: `${BASE}/dis-tedavileri/${ilP}/${ilceP}/${toSlug(spec)}`, lastModified: now, changeFrequency: 'weekly', priority: 0.66 });
+      for (const t of treatmentsForSpecs(set))
+        comboPages.push({ url: `${BASE}/dis-tedavileri/${ilP}/${ilceP}/${t.slug}`, lastModified: now, changeFrequency: 'weekly', priority: 0.66 });
     }
   } catch {}
 
@@ -143,6 +168,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...kategoriPages,
     ...hastalikPages,
     ...klinikPages,
+    ...ilceLandingPages,
     ...comboPages,
     ...hastanePages,
     ...doktorPages,

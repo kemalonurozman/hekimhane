@@ -103,7 +103,7 @@ export default async function KlinikProfilPage({ params }: Props) {
       { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://hekimhane.com.tr' },
       { '@type': 'ListItem', position: 2, name: 'Diş Klinikleri', item: 'https://hekimhane.com.tr/klinikler' },
       ...(k.il   ? [{ '@type': 'ListItem', position: 3, name: k.il,   item: `https://hekimhane.com.tr/klinikler?il=${encodeURIComponent(k.il)}` }] : []),
-      ...(k.ilce ? [{ '@type': 'ListItem', position: 4, name: k.ilce, item: `https://hekimhane.com.tr/klinikler?il=${encodeURIComponent(k.il||'')}&ilce=${encodeURIComponent(k.ilce)}` }] : []),
+      ...(k.ilce ? [{ '@type': 'ListItem', position: 4, name: k.ilce, item: `https://hekimhane.com.tr/klinikler/${trFn(k.il||'turkiye')}/${trFn(k.ilce)}` }] : []),
       { '@type': 'ListItem', position: (k.ilce ? 5 : k.il ? 4 : 3), name: k.name, item: canonical },
     ],
   };
@@ -137,7 +137,7 @@ export default async function KlinikProfilPage({ params }: Props) {
         { label: 'Ana Sayfa', href: '/' },
         { label: 'Klinikler', href: '/klinikler' },
         ...(k.il ? [{ label: k.il, href: `/klinikler?il=${encodeURIComponent(k.il)}` }] : []),
-        ...(k.ilce ? [{ label: k.ilce, href: `/klinikler?il=${encodeURIComponent(k.il||'')}&ilce=${encodeURIComponent(k.ilce||'')}` }] : []),
+        ...(k.ilce ? [{ label: k.ilce, href: `/klinikler/${trFn(k.il||'turkiye')}/${trFn(k.ilce||'')}` }] : []),
         { label: k.name, href: '#' },
       ]}
     />
