@@ -40,6 +40,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const uzm = (k.specs || []).slice(0, 3).join(', ');
   const desc = `${k.name}, ${yer} bölgesinde ${tur.toLowerCase()}. ${puan}Adres, telefon, hasta yorumları ve online randevu bilgileri.${uzm ? ' Uzmanlık: ' + uzm + '.' : ''}`;
   const url = `https://www.hekimhane.com.tr/klinikler/${tr(k.il||'turkiye')}/${tr(k.ilce||'merkez')}/${k.slug}`;
+  // cover "preset:..." ise gerçek foto değil → og image olarak logo kullan
+  const coverImg = (k.cover && !k.cover.startsWith('preset:')) ? k.cover : null;
+  const ogImg = coverImg || k.logo || null;
   return {
     title,
     description: desc.slice(0, 158),
@@ -50,7 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: desc.slice(0, 158),
       url,
       type: 'website',
-      images: (k.cover || k.logo) ? [{ url: (k.cover || k.logo)!, alt: k.name }] : [],
+      images: ogImg ? [{ url: ogImg, alt: k.name }] : [],
     },
   };
 }
@@ -81,7 +84,7 @@ export default async function KlinikProfilPage({ params }: Props) {
     telephone: k.tel || undefined,
     url: canonical,
     ...(sameAs.length ? { sameAs } : {}),
-    ...((k.cover || k.logo) ? { image: k.cover || k.logo } : {}),
+    ...(((k.cover && !k.cover.startsWith('preset:') ? k.cover : null) || k.logo) ? { image: (k.cover && !k.cover.startsWith('preset:') ? k.cover : null) || k.logo } : {}),
     ...(k.il ? { areaServed: { '@type': 'City', name: k.il } } : {}),
     ...(k.rat && k.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: k.rat, reviewCount: k.rev, bestRating: 5, worstRating: 1 } } : {}),
     ...(k.lat && k.lng ? { geo: { '@type': 'GeoCoordinates', latitude: k.lat, longitude: k.lng } } : {}),

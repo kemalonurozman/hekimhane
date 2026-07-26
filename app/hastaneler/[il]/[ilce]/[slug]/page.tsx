@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${title} | Hekimhane`,
       description: desc.slice(0, 155),
       url,
-      images: h.cover ? [{ url: h.cover, alt: h.name }] : [],
+      images: (h.cover && !h.cover.startsWith('preset:')) ? [{ url: h.cover, alt: h.name }] : [],
     },
   };
 }

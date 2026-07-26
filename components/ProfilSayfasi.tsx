@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import { specToHref, dentalComboHref } from '@/lib/uzmanlik-data';
+import { heroBgByKey, coverPresetKey, HERO_BG_CSS } from '@/lib/hero-backgrounds';
 import AboneWidget from '@/components/AboneWidget';
 import PremiumBadge from '@/components/PremiumBadge';
 import { ToothGlyph } from '@/components/Logo';
@@ -687,6 +688,9 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
 export default function ProfilSayfasi(props: ProfilProps) {
   const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, listHref, breadcrumb, kartSlug } = props;
 
+  // Premium animasyonlu arka plan (cover = "preset:<key>" ve premium ise)
+  const heroBg = premium ? heroBgByKey(coverPresetKey(cover)) : null;
+
   const [activeTab, setActiveTab] = useState<Tab>('genel');
   const [yorumlar, setYorumlar]   = useState<YorumItem[]>(props.yorumlar);
   const [randevuModal, setRandevuModal] = useState(false);
@@ -808,17 +812,32 @@ export default function ProfilSayfasi(props: ProfilProps) {
         </div>
       </div>
 
+      {heroBg && <style dangerouslySetInnerHTML={{ __html: HERO_BG_CSS }} />}
+
       {/* HERO ─────────────────────────────────────────────── */}
       <div style={{
-        background: cover
+        background: heroBg
+          ? undefined
+          : (cover && !coverPresetKey(cover))
           ? `linear-gradient(180deg, rgba(10,22,40,.40) 0%, rgba(12,31,60,.72) 52%, rgba(8,18,34,.95) 100%), url(${cover}) center/cover`
           : 'linear-gradient(150deg,#0F2A55 0%,#1B3A69 55%,#163D6E 100%)',
         backgroundColor: 'var(--navy)',
         borderBottom: '1px solid var(--border)',
         position: 'relative', overflow: 'hidden',
       }}>
-        {/* Derinlik için ince ışıltı — hem fotolu hem fotosuz hero'da */}
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 120% at 100% 0%,rgba(212,168,67,.10),transparent 55%),radial-gradient(ellipse 45% 80% at 0% 100%,rgba(255,255,255,.05),transparent 60%)', pointerEvents: 'none' }} />
+        {heroBg ? (
+          /* Premium animasyonlu Apple-tarzı arka plan */
+          <div className={`hb hb--${heroBg.key}`} aria-hidden>
+            <div className="hb__base" />
+            <span className="hb__blob hb__b1" />
+            <span className="hb__blob hb__b2" />
+            <span className="hb__blob hb__b3" />
+            <div className="hb__scrim" />
+          </div>
+        ) : (
+          /* Derinlik için ince ışıltı — fotolu/fotosuz hero'da */
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 120% at 100% 0%,rgba(212,168,67,.10),transparent 55%),radial-gradient(ellipse 45% 80% at 0% 100%,rgba(255,255,255,.05),transparent 60%)', pointerEvents: 'none' }} />
+        )}
 
         <div className="container" style={{ padding: '28px 16px 0', position: 'relative', zIndex: 1 }}>
           <div className="profil-hero-header">
