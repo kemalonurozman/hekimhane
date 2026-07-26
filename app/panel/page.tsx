@@ -2304,48 +2304,36 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                 </p>
               </div>
 
-              {/* ── Premium Profil Arka Planı ── */}
+              {/* ── Profil Arka Planı (tüm hesaplar) ── */}
               {(et==='klinik' || et==='hastane') && (
                 <div style={{ marginTop:24, paddingTop:20, borderTop:`1px solid ${T.border}` }}>
                   <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
                     <label style={{ ...LBL, margin:0 }}>Profil Arka Planı</label>
-                    <span style={{ fontSize:10, fontWeight:800, color:'#92400E', background:'linear-gradient(135deg,#FEF3C7,#FDE68A)', border:'1px solid #F59E0B', borderRadius:20, padding:'2px 9px' }}>PREMIUM</span>
                   </div>
                   <p style={{ fontSize:11.5, color:T.muted, marginBottom:12, lineHeight:1.6 }}>
-                    Apple tarzı, hafif hareketli premium arka planlardan birini seçin. Profil sayfanızın üst kısmında görünür; yazılar okunur kalır.
+                    Apple tarzı, hafif hareketli arka planlardan birini seçin. Profil sayfanızın üst kısmında görünür; yazılar okunur kalır.
                   </p>
-                  {formData.premium ? (
-                    <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(140px, 1fr))', gap:10 }}>
-                      {/* Varsayılan (preset yok) */}
-                      <button type="button" onClick={()=>F('cover','')}
-                        style={{ height:64, borderRadius:12, cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:700,
-                          background:'linear-gradient(150deg,#0F2A55,#1B3A69,#163D6E)',
-                          border:`3px solid ${!coverPresetKey(String(formData.cover||'')) ? T.gold : 'transparent'}`,
-                          display:'flex', alignItems:'flex-end', justifyContent:'center', padding:6 }}>
-                        <span style={{ color:'white', textShadow:'0 1px 3px rgba(0,0,0,.5)' }}>Varsayılan</span>
-                      </button>
-                      {HERO_BACKGROUNDS.map(b=>{
-                        const sel = coverPresetKey(String(formData.cover||'')) === b.key;
-                        return (
-                          <button key={b.key} type="button" onClick={()=>F('cover',`preset:${b.key}`)}
-                            style={{ height:64, borderRadius:12, cursor:'pointer', fontFamily:'inherit', fontSize:11.5, fontWeight:700,
-                              background:b.swatch, border:`3px solid ${sel ? T.gold : 'transparent'}`, boxShadow: sel ? '0 4px 14px rgba(212,168,67,.35)' : '0 1px 4px rgba(0,0,0,.1)',
-                              display:'flex', alignItems:'flex-end', justifyContent:'center', padding:6 }}>
-                            <span style={{ color:'white', textShadow:'0 1px 3px rgba(0,0,0,.55)' }}>{b.name.split(' (')[0]}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div style={{ display:'flex', alignItems:'center', gap:12, background:T.bg, border:`1px dashed ${T.border}`, borderRadius:12, padding:'16px 18px' }}>
-                      <div style={{ display:'flex', gap:6 }}>
-                        {HERO_BACKGROUNDS.map(b=>(<div key={b.key} style={{ width:28, height:28, borderRadius:8, background:b.swatch, opacity:.5 }}/>))}
-                      </div>
-                      <div style={{ fontSize:12.5, color:T.muted, lineHeight:1.5 }}>
-                        Premium arka planlar yalnızca <strong style={{ color:T.navy }}>Premium üyelere</strong> özeldir. Yükseltmek için bizimle iletişime geçin.
-                      </div>
-                    </div>
-                  )}
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(140px, 1fr))', gap:10 }}>
+                    {/* Varsayılan (preset yok) */}
+                    <button type="button" onClick={()=>F('cover','')}
+                      style={{ height:64, borderRadius:12, cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:700,
+                        background:'linear-gradient(150deg,#0F2A55,#1B3A69,#163D6E)',
+                        border:`3px solid ${!coverPresetKey(String(formData.cover||'')) ? T.gold : 'transparent'}`,
+                        display:'flex', alignItems:'flex-end', justifyContent:'center', padding:6 }}>
+                      <span style={{ color:'white', textShadow:'0 1px 3px rgba(0,0,0,.5)' }}>Varsayılan</span>
+                    </button>
+                    {HERO_BACKGROUNDS.map(b=>{
+                      const sel = coverPresetKey(String(formData.cover||'')) === b.key;
+                      return (
+                        <button key={b.key} type="button" onClick={()=>F('cover',`preset:${b.key}`)}
+                          style={{ height:64, borderRadius:12, cursor:'pointer', fontFamily:'inherit', fontSize:11.5, fontWeight:700,
+                            background:b.swatch, border:`3px solid ${sel ? T.gold : 'transparent'}`, boxShadow: sel ? '0 4px 14px rgba(212,168,67,.35)' : '0 1px 4px rgba(0,0,0,.1)',
+                            display:'flex', alignItems:'flex-end', justifyContent:'center', padding:6 }}>
+                          <span style={{ color:'white', textShadow:'0 1px 3px rgba(0,0,0,.55)' }}>{b.name.split(' (')[0]}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </>)}

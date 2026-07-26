@@ -688,8 +688,8 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
 export default function ProfilSayfasi(props: ProfilProps) {
   const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, listHref, breadcrumb, kartSlug } = props;
 
-  // Premium animasyonlu arka plan (cover = "preset:<key>" ve premium ise)
-  const heroBg = premium ? heroBgByKey(coverPresetKey(cover)) : null;
+  // Animasyonlu arka plan (cover = "preset:<key>" ise) — tüm hesaplarda görünür
+  const heroBg = heroBgByKey(coverPresetKey(cover));
 
   const [activeTab, setActiveTab] = useState<Tab>('genel');
   const [yorumlar, setYorumlar]   = useState<YorumItem[]>(props.yorumlar);
