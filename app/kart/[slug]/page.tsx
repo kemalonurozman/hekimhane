@@ -16,6 +16,7 @@ export interface KartData {
   tel?: string | null;
   instagram_url?: string | null;
   facebook_url?: string | null;
+  linkedin_url?: string | null;
   photo_url?: string | null;   // hekimkartlar
   photo?: string | null;       // doktorlar (fallback)
   il?: string | null;
@@ -112,7 +113,7 @@ async function getKart(slug: string): Promise<KartData | null> {
   // 2. Fallback: doktorlar tablosu (eski sistem kartları)
   const { data: dok } = await supabase
     .from('doktorlar')
-    .select('id,ad,soyad,spec,unvan,il,ilce,tel,photo,slug,rat,rev,bio,instagram_url,facebook_url,clinic_name,verified,premium')
+    .select('id,ad,soyad,spec,unvan,il,ilce,tel,photo,slug,rat,rev,bio,instagram_url,facebook_url,linkedin_url,clinic_name,verified,premium')
     .eq('slug', slug)
     .single();
   if (dok) {
@@ -139,6 +140,7 @@ async function getKart(slug: string): Promise<KartData | null> {
         tel: e.tel || null,
         instagram_url: e.instagram_url || null,
         facebook_url: e.facebook_url || null,
+        linkedin_url: e.linkedin_url || null,
         website_url: e.website || null,
         maps_url: e.maps_url || null,
         photo_url: e.logo || e.cover || null,

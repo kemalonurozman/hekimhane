@@ -61,6 +61,17 @@ function FbIcon({ size = 20 }: { size?: number }) {
   );
 }
 
+function LinkedInIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+      <rect x="2" y="9" width="4" height="12" />
+      <circle cx="4" cy="4" r="2" />
+    </svg>
+  );
+}
+
 function HekimhaneLogo() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -106,8 +117,10 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
   const [ibanCopied,  setIbanCopied]  = useState(false);
   const [pageUrl,     setPageUrl]     = useState('');
   const [showQr,      setShowQr]      = useState(false);
+  const [qrMode,      setQrMode]      = useState<'card'|'review'>('card');
   const [showReview,  setShowReview]  = useState(false);
   const [downloading, setDownloading] = useState<'pdf'|'jpg'|null>(null);
+  const [posterDl,    setPosterDl]    = useState<'a5'|'a6'|null>(null);
 
   // Yorum formu state
   const [revName,     setRevName]     = useState('');
@@ -119,7 +132,14 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
   const [revDone,     setRevDone]     = useState(false);
   const [revErr,      setRevErr]      = useState('');
 
-  useEffect(() => { setPageUrl(window.location.href); }, []);
+  useEffect(() => {
+    setPageUrl(window.location.href);
+    // QR ile doğrudan yorum: ?yorum=1 veya #yorum → yorum formunu aç
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      if (sp.get('yorum') === '1' || window.location.hash === '#yorum') setShowReview(true);
+    } catch { /* noop */ }
+  }, []);
 
   const fullName    = `${d.ad} ${d.soyad}`.trim();
   const displayName = d.unvan ? `${d.unvan} ${fullName}` : fullName;
@@ -207,6 +227,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         const sheet = document.getElementById('kp-a5-sheet');
         if (!sheet) return;
         sheet.style.display = 'flex';
+        sheet.style.height = 'auto';   // içerik tam sığsın; sabit yükseklik alt kısmı kırpıyordu
         // QR görselinin yüklenmesini bekle (baskıda boş çıkmasın)
         const qrImg = sheet.querySelector('img');
         if (qrImg && !(qrImg as HTMLImageElement).complete) {
@@ -214,11 +235,17 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         }
         const canvas = await html2canvas(sheet, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#0F2A55', logging: false });
         sheet.style.display = 'none';
+        sheet.style.height = '738px';  // eski haline döndür
         const { jsPDF } = await import('jspdf');
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        // A5 dikey: 148 × 210 mm
+        // A5 dikey: 148 × 210 mm — görseli sayfaya oranını koruyarak sığdır (kırpma/taşma yok)
         const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
-        pdf.addImage(imgData, 'JPEG', 0, 0, 148, 210);
+        const pw = 148, ph = 210, ar = canvas.width / canvas.height;
+        let w = pw, h = pw / ar;
+        if (h > ph) { h = ph; w = ph * ar; }
+        pdf.setFillColor(15, 42, 85);
+        pdf.rect(0, 0, pw, ph, 'F');
+        pdf.addImage(imgData, 'JPEG', (pw - w) / 2, (ph - h) / 2, w, h);
         pdf.save(`${fileName}-A5.pdf`);
       }
     } catch (e) {
@@ -232,11 +259,47 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
     }
   };
 
+  // Ofis için A5/A6 "Değerlendirme" posteri (yorum QR'lı) → PDF
+  const handleReviewPoster = async (fmt: 'a5' | 'a6') => {
+    if (posterDl) return;
+    setPosterDl(fmt);
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const sheet = document.getElementById('kp-review-sheet');
+      if (!sheet) return;
+      sheet.style.display = 'flex';   // sabit 520×738 (A5 oranı) — içerik tam oturur
+      const qrImg = sheet.querySelector('img');
+      if (qrImg && !(qrImg as HTMLImageElement).complete) {
+        await new Promise(res => { (qrImg as HTMLImageElement).onload = res; (qrImg as HTMLImageElement).onerror = res; setTimeout(res, 3000); });
+      }
+      const canvas = await html2canvas(sheet, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#065F46', logging: false });
+      sheet.style.display = 'none';
+      const { jsPDF } = await import('jspdf');
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const [pw, ph] = fmt === 'a5' ? [148, 210] : [105, 148]; // mm — A5/A6 aynı oran
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: fmt });
+      pdf.addImage(imgData, 'JPEG', 0, 0, pw, ph);
+      pdf.save(`${displayName.replace(/\s+/g, '-')}-Degerlendirme-${fmt.toUpperCase()}.pdf`);
+    } catch (e) {
+      console.error('Review poster error:', e);
+      const sheet = document.getElementById('kp-review-sheet');
+      if (sheet) sheet.style.display = 'none';
+    } finally {
+      setPosterDl(null);
+    }
+  };
+
   // Baskı/QR için sabit production URL (SSR↔client tutarlı; QR asla localhost'a bakmaz)
   const cardUrl = `https://hekimhane.com.tr/kart/${d.slug}`;
   const cardUrlShort = `hekimhane.com.tr/kart/${d.slug}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(cardUrl)}&color=1B3A69&bgcolor=FFFFFF&margin=14&format=png`;
   const qrUrlLarge = `https://api.qrserver.com/v1/create-qr-code/?size=520x520&data=${encodeURIComponent(cardUrl)}&color=1B3A69&bgcolor=FFFFFF&margin=12&format=png`;
+
+  // Doğrudan yorum: ?yorum=1 ile açılan kart yorum formunu otomatik gösterir
+  const reviewUrl = `${cardUrl}?yorum=1`;
+  const reviewUrlShort = `${cardUrlShort}?yorum=1`;
+  const qrReview = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(reviewUrl)}&color=047857&bgcolor=FFFFFF&margin=14&format=png`;
+  const qrReviewLarge = `https://api.qrserver.com/v1/create-qr-code/?size=560x560&data=${encodeURIComponent(reviewUrl)}&color=065F46&bgcolor=FFFFFF&margin=12&format=png`;
 
   // Instagram handle
   const igHandle = d.instagram_url
@@ -294,6 +357,8 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         .kp-btn--phone   { background:linear-gradient(135deg,#1B3A69,#2d5496); color:white; box-shadow:0 4px 16px rgba(27,58,105,.3); }
         .kp-btn--ig      { background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045); color:white; box-shadow:0 4px 16px rgba(131,58,180,.25); }
         .kp-btn--fb      { background:linear-gradient(135deg,#1877F2,#0D5EC7); color:white; box-shadow:0 4px 16px rgba(24,119,242,.25); }
+        .kp-btn--linkedin { background:linear-gradient(135deg,#0A66C2,#004182); color:white; box-shadow:0 4px 16px rgba(10,102,194,.25); }
+        .kp-btn--linkedin:hover { transform:translateY(-1px); box-shadow:0 6px 22px rgba(0,0,0,.2); }
         .kp-btn--iban     { background:#F0FDF4; color:#065F46; border:1.5px solid #6EE7B7; }
         .kp-btn--review   { background:#FFFBEB; color:#92400E; border:1.5px solid #FDE68A; }
         .kp-btn--rezerv   { background:linear-gradient(135deg,#059669,#0D9488); color:white; box-shadow:0 4px 16px rgba(5,150,105,.25); }
@@ -310,6 +375,20 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         /* Alt araçlar */
         .kp-footer { padding:10px 18px 18px; display:flex; gap:9px; }
         .kp-tool { flex:1; display:flex; align-items:center; justify-content:center; gap:7px; padding:11px; border-radius:13px; background:#F5F7FF; border:1px solid #E2E8F0; color:#1B3A69; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; transition:background .15s; }
+
+        /* Ofis değerlendirme posteri */
+        .kp-review-poster { margin:12px 18px 0; padding:14px; border-radius:16px; background:#ECFDF5; border:1px solid #A7F3D0; }
+        .kp-rp-head { display:flex; flex-direction:column; gap:3px; margin-bottom:11px; }
+        .kp-rp-badge { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:800; color:#047857; }
+        .kp-rp-sub { font-size:11px; color:#5f8a75; line-height:1.45; }
+        .kp-rp-btns { display:flex; gap:9px; }
+        .kp-rp-btn { flex:1; padding:11px; border-radius:12px; background:linear-gradient(135deg,#047857,#059669); border:none; color:#fff; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 3px 12px rgba(5,150,105,.25); transition:transform .15s; }
+        .kp-rp-btn:hover { transform:translateY(-1px); }
+        .kp-rp-btn:disabled { opacity:.6; cursor:default; }
+        /* QR modal mod seçici */
+        .qr-tabs { display:flex; gap:6px; margin-bottom:14px; background:#F1F5F9; padding:4px; border-radius:12px; }
+        .qr-tab { flex:1; padding:8px; border-radius:9px; border:none; background:transparent; color:#64748B; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; }
+        .qr-tab--on { background:#fff; color:#1B3A69; box-shadow:0 1px 4px rgba(0,0,0,.08); }
         .kp-tool:hover { background:#EEF2FF; }
         .kp-tool--ok  { background:#F0FDF4; border-color:#86EFAC; color:#166534; }
 
@@ -460,6 +539,16 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
                 <span className="kp-lbl">
                   <span className="kp-lbl-sub">Facebook</span>
                   <span>Sayfamı Ziyaret Et</span>
+                </span>
+              </a>
+            )}
+
+            {d.linkedin_url && (
+              <a href={d.linkedin_url} target="_blank" rel="noopener noreferrer" className="kp-btn kp-btn--linkedin">
+                <span className="kp-icon"><LinkedInIcon size={17} /></span>
+                <span className="kp-lbl">
+                  <span className="kp-lbl-sub">LinkedIn</span>
+                  <span>Profilime Bağlan</span>
                 </span>
               </a>
             )}
@@ -649,6 +738,25 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
             </button>
           </div>
 
+          {/* Ofis için — Değerlendirme (yorum) posteri: QR okutan hasta doğrudan yorum formuna gider */}
+          <div className="kp-review-poster">
+            <div className="kp-rp-head">
+              <span className="kp-rp-badge">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#059669"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z"/></svg>
+                Ofis için değerlendirme posteri
+              </span>
+              <span className="kp-rp-sub">Masaüstü/duvar için yazdır — QR okutan hasta doğrudan yorum bırakır</span>
+            </div>
+            <div className="kp-rp-btns">
+              <button className="kp-rp-btn" onClick={() => handleReviewPoster('a5')} disabled={posterDl !== null}>
+                {posterDl === 'a5' ? '…' : 'A5 İndir (PDF)'}
+              </button>
+              <button className="kp-rp-btn" onClick={() => handleReviewPoster('a6')} disabled={posterDl !== null}>
+                {posterDl === 'a6' ? '…' : 'A6 İndir (PDF)'}
+              </button>
+            </div>
+          </div>
+
           {/* Linki Kopyala — footer */}
           <div className="kp-footer">
             <button className={`kp-tool${copied ? ' kp-tool--ok' : ''}`} onClick={handleCopy}>
@@ -680,10 +788,10 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
         color: 'white', overflow: 'hidden',
         flexDirection: 'column', alignItems: 'center',
-        padding: '38px 34px 30px', textAlign: 'center',
+        padding: '30px 34px 26px', textAlign: 'center',
       }}>
         {/* Marka */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
           <span style={{ display: 'inline-flex' }}>
             <svg width="30" height="30" viewBox="0 0 40 40"><rect width="40" height="40" rx="11" fill="#fff" /><path d="M20 8.2c-2.9 0-4.3-1.5-6.9-1.5-2.4 0-4.2 1.9-4.2 4.9 0 2.3.9 4.3 1.5 6.4.5 1.9.7 3.6.9 5.6.2 2 .5 4.1 1.1 5.8.5 1.4 1.2 2.4 2.2 2.4 1.1 0 1.6-1.2 1.9-2.9.3-1.7.5-3.6 1.1-5.1.2-.6.6-1.1 1.3-1.1s1.1.5 1.3 1.1c.6 1.5.8 3.4 1.1 5.1.3 1.7.8 2.9 1.9 2.9 1 0 1.7-1 2.2-2.4.6-1.7.9-3.8 1.1-5.8.2-2 .4-3.7.9-5.6.6-2.1 1.5-4.1 1.5-6.4 0-3-1.8-4.9-4.2-4.9C24.3 6.7 22.9 8.2 20 8.2Z" fill="#1B3A69" /></svg>
           </span>
@@ -692,10 +800,10 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
 
         {/* Fotoğraf / baş harf */}
         <div style={{
-          width: 116, height: 116, borderRadius: '50%', overflow: 'hidden',
+          width: 104, height: 104, borderRadius: '50%', overflow: 'hidden',
           border: '4px solid rgba(255,255,255,.9)', boxShadow: '0 8px 30px rgba(0,0,0,.3)',
           background: '#25457c', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 44, fontWeight: 800, color: 'rgba(255,255,255,.9)', marginBottom: 12, flexShrink: 0,
+          fontSize: 40, fontWeight: 800, color: 'rgba(255,255,255,.9)', marginBottom: 10, flexShrink: 0,
         }}>
           {photo ? <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (d.ad?.[0]?.toUpperCase() || 'H')}
         </div>
@@ -732,9 +840,9 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         )}
 
         {/* QR kartı */}
-        <div style={{ background: 'white', borderRadius: 22, padding: '18px 20px 14px', marginTop: 18, boxShadow: '0 10px 40px rgba(0,0,0,.25)' }}>
+        <div style={{ background: 'white', borderRadius: 20, padding: '14px 18px 11px', marginTop: 14, boxShadow: '0 10px 40px rgba(0,0,0,.25)' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={qrUrlLarge} alt="QR" style={{ width: 200, height: 200, display: 'block' }} />
+          <img src={qrUrlLarge} alt="QR" style={{ width: 176, height: 176, display: 'block' }} />
           <div style={{ fontSize: 12.5, fontWeight: 700, color: '#1B3A69', marginTop: 11, letterSpacing: '.2px' }}>Karekodu okutun</div>
           <div style={{ fontSize: 10.5, color: '#6B7A99', marginTop: 3 }}>Randevu · İletişim · Değerlendirme</div>
         </div>
@@ -770,19 +878,69 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         </div>
       </div>
 
+      {/* ── OFİS DEĞERLENDİRME POSTERİ (gizli; A5/A6 PDF'e aktarılır) ── */}
+      <div id="kp-review-sheet" style={{
+        display: 'none', position: 'absolute', left: -9999, top: 0,
+        width: 520, height: 738, boxSizing: 'border-box',
+        background: 'linear-gradient(165deg,#065F46 0%,#047857 55%,#0E7C5A 100%)',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
+        color: 'white', overflow: 'hidden', flexDirection: 'column', alignItems: 'center',
+        padding: '44px 38px 32px', textAlign: 'center',
+      }}>
+        {/* Marka */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+          <svg width="28" height="28" viewBox="0 0 40 40"><rect width="40" height="40" rx="11" fill="#fff" /><path d="M20 8.2c-2.9 0-4.3-1.5-6.9-1.5-2.4 0-4.2 1.9-4.2 4.9 0 2.3.9 4.3 1.5 6.4.5 1.9.7 3.6.9 5.6.2 2 .5 4.1 1.1 5.8.5 1.4 1.2 2.4 2.2 2.4 1.1 0 1.6-1.2 1.9-2.9.3-1.7.5-3.6 1.1-5.1.2-.6.6-1.1 1.3-1.1s1.1.5 1.3 1.1c.6 1.5.8 3.4 1.1 5.1.3 1.7.8 2.9 1.9 2.9 1 0 1.7-1 2.2-2.4.6-1.7.9-3.8 1.1-5.8.2-2 .4-3.7.9-5.6.6-2.1 1.5-4.1 1.5-6.4 0-3-1.8-4.9-4.2-4.9C24.3 6.7 22.9 8.2 20 8.2Z" fill="#047857" /></svg>
+          <span style={{ fontSize: 19, fontWeight: 700, letterSpacing: '-0.6px' }}>hekimhane<span style={{ color: '#FCD34D' }}>.com.tr</span></span>
+        </div>
+
+        {/* 5 yıldız */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+          {[1,2,3,4,5].map(n => (
+            <svg key={n} width="30" height="30" viewBox="0 0 24 24" fill="#FCD34D"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z" /></svg>
+          ))}
+        </div>
+
+        <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.8px', lineHeight: 1.15 }}>Deneyiminizi<br />Değerlendirin</div>
+        <div style={{ fontSize: 14.5, color: 'rgba(255,255,255,.85)', marginTop: 12, maxWidth: 380, lineHeight: 1.5 }}>
+          Karekodu telefonunuzla okutun, memnuniyetinizi<br />birkaç saniyede paylaşın.
+        </div>
+
+        {/* Hekim/klinik */}
+        <div style={{ marginTop: 14, fontSize: 16, fontWeight: 700 }}>{displayName}</div>
+        {d.clinic_name && <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.72)', marginTop: 2 }}>{d.clinic_name}</div>}
+
+        {/* QR — yorum */}
+        <div style={{ background: 'white', borderRadius: 24, padding: '20px 22px 16px', marginTop: 20, boxShadow: '0 12px 44px rgba(0,0,0,.28)' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={qrReviewLarge} alt="Yorum QR" style={{ width: 210, height: 210, display: 'block' }} />
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#047857', marginTop: 12 }}>Karekodu Okutun</div>
+          <div style={{ fontSize: 10.5, color: '#6B7A99', marginTop: 3 }}>Doğrudan yorum ekranı açılır</div>
+        </div>
+
+        <div style={{ flex: 1, minHeight: 12 }} />
+
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+          <div style={{ fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,.9)', letterSpacing: '.2px' }}>{reviewUrlShort}</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,.55)', letterSpacing: '.4px' }}>Türkiye Diş Hekimi &amp; Klinik Rehberi</div>
+        </div>
+      </div>
+
       {/* QR Modal */}
       {showQr && (
         <div className="qr-bd" onClick={() => setShowQr(false)}>
           <div className="qr-box" onClick={e => e.stopPropagation()}>
-            <h3>QR Kod</h3>
-            <p>{displayName} dijital kartvizitine<br />telefon kameranızla ulaşın</p>
-            <div className="qr-img">
-              {pageUrl
-                ? <img src={qrUrl} alt="QR Kod" width={210} height={210} style={{ borderRadius: 8, display: 'block' }} />
-                : <div style={{ width: 210, height: 210, background: '#F0F4FF', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7A99', fontSize: 12 }}>Yükleniyor…</div>
-              }
+            <div className="qr-tabs">
+              <button className={`qr-tab${qrMode === 'card' ? ' qr-tab--on' : ''}`} onClick={() => setQrMode('card')}>Kartvizit</button>
+              <button className={`qr-tab${qrMode === 'review' ? ' qr-tab--on' : ''}`} onClick={() => setQrMode('review')}>Yorum</button>
             </div>
-            <div className="qr-url">{pageUrl || `hekimhane.com.tr/kart/${d.slug}`}</div>
+            <h3>{qrMode === 'card' ? 'Kartvizit QR' : 'Değerlendirme QR'}</h3>
+            <p>{qrMode === 'card'
+              ? <>{displayName} dijital kartvizitine<br />telefon kameranızla ulaşın</>
+              : <>Karekodu okutan hasta doğrudan<br />yorum bırakma ekranına gider</>}</p>
+            <div className="qr-img">
+              <img src={qrMode === 'card' ? qrUrl : qrReview} alt="QR Kod" width={210} height={210} style={{ borderRadius: 8, display: 'block' }} />
+            </div>
+            <div className="qr-url">{qrMode === 'card' ? cardUrlShort : reviewUrlShort}</div>
             <button className="qr-close" onClick={() => setShowQr(false)}>Kapat</button>
           </div>
         </div>
