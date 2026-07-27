@@ -1293,7 +1293,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               </div>
 
               {/* ── Sıkça Sorulan Sorular (SSS) ── */}
-              {entityType === 'klinik' && faq && faq.length > 0 && (
+              {(entityType === 'klinik' || entityType === 'doktor') && faq && faq.length > 0 && (
                 <div style={sc} className="profil-faq">
                   <div style={scHd}>
                     <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Sıkça Sorulan Sorular</h3>

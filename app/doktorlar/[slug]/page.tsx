@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import type { Doktor, Yorum } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
+import { buildDoktorFaq } from '@/lib/faq';
 
 export const dynamic = 'force-dynamic';
 
@@ -96,7 +97,23 @@ export default async function DoktorProfilPage({ params }: Props) {
     ],
   };
 
-  const jsonLd = { '@context': 'https://schema.org', '@graph': [physician, breadcrumb] };
+  const faq = buildDoktorFaq({
+    ad: d.ad, soyad: d.soyad, unvan: d.unvan, spec: d.spec,
+    il: d.il, ilce: d.ilce, clinic_name: d.clinic_name, tel: d.tel,
+    fee: d.fee, exp: d.exp, rat: d.rat, rev: d.rev, online: d.online,
+    calisma_saatleri: d.calisma_saatleri,
+  });
+  const faqPage = faq.length ? {
+    '@type': 'FAQPage',
+    '@id': `${canonical}#faq`,
+    mainEntity: faq.map(f => ({
+      '@type': 'Question',
+      name: f.soru,
+      acceptedAnswer: { '@type': 'Answer', text: f.cevap },
+    })),
+  } : null;
+
+  const jsonLd = { '@context': 'https://schema.org', '@graph': [physician, breadcrumb, ...(faqPage ? [faqPage] : [])] };
 
   return (
     <>
@@ -128,6 +145,7 @@ export default async function DoktorProfilPage({ params }: Props) {
       linkedin_url={d.linkedin_url}
       calisma_saatleri={d.calisma_saatleri}
       acik_24_saat={d.acik_24_saat}
+      faq={faq}
       yorumlar={yorumlar}
       kartSlug={d.slug}
       listHref="/doktorlar"

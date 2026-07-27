@@ -121,3 +121,97 @@ export function buildKlinikFaq(input: FaqInput): FaqItem[] {
 
   return candidates.filter((x): x is FaqItem => x !== null).slice(0, 5);
 }
+
+// ─────────────────────────────────────────────────────────────────
+//  Doktor (uzman / aile hekimi) SSS — ad/soyad temiz olduğu için isim
+//  çıkarımı gerekmez. Branşa (spec) özel soru + muayene ücreti/deneyim.
+// ─────────────────────────────────────────────────────────────────
+
+export interface DoktorFaqInput {
+  ad: string;
+  soyad: string;
+  unvan?: string | null;
+  spec?: string | null;
+  il?: string | null;
+  ilce?: string | null;
+  clinic_name?: string | null;
+  tel?: string | null;
+  fee?: number | null;
+  exp?: number | null;
+  rat?: number | null;
+  rev?: number | null;
+  online?: boolean | null;
+  calisma_saatleri?: string | null;
+}
+
+export function buildDoktorFaq(input: DoktorFaqInput): FaqItem[] {
+  const { ad, soyad, unvan, spec, il, ilce, clinic_name, tel, fee, exp, rat, rev, online, calisma_saatleri } = input;
+
+  const rawName = `${ad || ''} ${soyad || ''}`.trim();
+  // ad/soyad bazı kayıtlarda bozuk işletme adı olabilir ("ZE DENT ... AŞ").
+  // Temiz kişi ismi çıkarsa "Dr./ünvan Ad Soyad", çıkmazsa ham adı olduğu
+  // gibi kullan (yanlış "Dr. ZE DENT AŞ" üretmemek için).
+  const clean = extractDentistName(rawName);
+  const label = clean
+    ? (unvan ? `${unvan} ${clean}` : `Dr. ${clean}`)
+    : (unvan ? `${unvan} ${rawName}` : rawName);
+  const yer = [ilce, il].filter(Boolean).join(', ') || 'Türkiye';
+  const yerCumle = clinic_name ? `${clinic_name}${yer ? ' (' + yer + ')' : ''}` : yer;
+
+  const candidates: (FaqItem | null)[] = [
+    // 1) Konum / muayene adresi
+    {
+      soru: `${label} nerede, muayene adresi neresi?`,
+      cevap: `${label}, ${yerCumle} bölgesinde hasta kabul etmektedir. Konum, yol tarifi ve iletişim bilgileri için Hekimhane profil sayfasını kullanabilirsiniz.`,
+    },
+    // 2) Randevu
+    {
+      soru: `${label} için nasıl randevu alabilirim?`,
+      cevap: tel
+        ? `Randevu almak için ${tel} numaralı telefondan doğrudan iletişime geçebilir ya da Hekimhane profil sayfası üzerinden randevu ve iletişim bilgilerini görüntüleyebilirsiniz.`
+        : `Randevu ve iletişim bilgilerine Hekimhane profil sayfası üzerinden ulaşabilir, uygun saatler için doğrudan iletişime geçebilirsiniz.`,
+    },
+    // 3) Branşa özel soru (yalnızca spec varsa)
+    spec ? {
+      soru: `${label} hangi alanda uzman ve hangi şikâyetlere bakar?`,
+      cevap: `${label}, ${spec} alanında hizmet vermektedir. ${spec} ile ilgili şikâyet ve sağlık durumlarınız için randevu alarak muayene olabilirsiniz. Teşhis ve tedavi süreci muayene sonucunda hekiminiz tarafından belirlenir.`,
+    } : null,
+    // 4) Muayene ücreti (yalnızca kayıtlı ücret varsa)
+    (fee && fee > 0) ? {
+      soru: `${label} muayene ücreti ne kadar?`,
+      cevap: `Muayene ücreti ${fee} TL'den başlamaktadır. Güncel ücret, ödeme ve anlaşmalı kurum bilgileri için Hekimhane profil sayfasını inceleyebilir ya da doğrudan iletişime geçebilirsiniz.`,
+    } : null,
+    // 5) Telefon (yalnızca kayıtlı numara varsa)
+    tel ? {
+      soru: `${label} telefon numarası nedir?`,
+      cevap: `${label} iletişim telefonu: ${tel}. Güncel iletişim bilgileri Hekimhane profil sayfasında yer almaktadır.`,
+    } : null,
+    // 6) Puan / yorum (yalnızca gerçek yorum varsa)
+    (rev && rev > 0 && rat) ? {
+      soru: `${label} hakkında hasta yorumları ve puanı nasıl?`,
+      cevap: `${label}, ${rev} hasta değerlendirmesi sonucunda 5 üzerinden ${rat.toFixed(1)} puana sahiptir. Tüm hasta yorumlarını Hekimhane profil sayfasında okuyabilirsiniz.`,
+    } : null,
+    // 7) Deneyim (yalnızca kayıtlıysa)
+    (exp && exp > 0) ? {
+      soru: `${label} kaç yıllık deneyime sahip?`,
+      cevap: `${label}, ${spec ? spec + ' alanında ' : ''}${exp} yılı aşkın klinik deneyime sahiptir.`,
+    } : null,
+    // 8) Online görüşme (varsa)
+    online ? {
+      soru: `${label} online (uzaktan) muayene / görüşme yapıyor mu?`,
+      cevap: `${label} online görüşme hizmeti sunmaktadır. Uygun saatler ve randevu için Hekimhane profil sayfasını kullanabilirsiniz.`,
+    } : null,
+    // 9) Çalışma saatleri (dolgu)
+    calisma_saatleri ? {
+      soru: `${label} çalışma saatleri nedir?`,
+      cevap: `Çalışma saatleri: ${calisma_saatleri}. Güncel saatler için profil sayfasını kontrol etmenizi öneririz.`,
+    } : null,
+    // 10) Bölge (son dolgu)
+    {
+      soru: `${label} hangi il ve ilçede hizmet veriyor?`,
+      cevap: `${label}, ${yer} bölgesinde hasta kabul etmektedir.`,
+    },
+  ];
+
+  return candidates.filter((x): x is FaqItem => x !== null).slice(0, 5);
+}
