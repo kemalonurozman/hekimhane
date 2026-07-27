@@ -1799,6 +1799,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   const profKey = et === 'doktor' ? 'photo' : 'logo';
   const profUrl = String(formData[profKey] || '');
   const gall: string[] = Array.isArray(formData.photos) ? (formData.photos as string[]).filter(Boolean) : [];
+  const previewBg = HERO_BACKGROUNDS.find(b => b.key === coverPresetKey(String(formData.cover || ''))) || null;
 
   function openPE(slot: 'profile' | number) { setPE({ slot: slot === 'profile' ? 'cover' : slot }); setPhotoUrl(slot === 'profile' ? profUrl : (gall[slot as number] || '')); }
   function confirmPE() {
@@ -2428,20 +2429,22 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
             {/* Profil içeriği */}
             <div style={{ background:'#F9FAFB' }}>
 
-              {/* Header */}
-              <div style={{ background:'white', padding:'18px 22px', display:'flex', gap:14, alignItems:'flex-start', borderBottom:`1px solid ${T.border}` }}>
-                <div style={{ width:60, height:60, borderRadius:15, background:'#E8F0FE', border:`1px solid #BFDBFE`, flexShrink:0, overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center', color:T.navy }}>
+              {/* Header — premium arka plan seçiliyse gradient + okunur beyaz yazı */}
+              <div style={{ position:'relative', padding:'18px 22px', display:'flex', gap:14, alignItems:'flex-start', borderBottom:`1px solid ${T.border}`,
+                background: previewBg ? previewBg.swatch : 'white' }}>
+                {previewBg && <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,rgba(8,18,34,.25),rgba(8,18,34,.5))', pointerEvents:'none' }} />}
+                <div style={{ position:'relative', width:60, height:60, borderRadius:15, background: previewBg ? 'rgba(255,255,255,.9)' : '#E8F0FE', border:`1px solid ${previewBg ? 'rgba(255,255,255,.7)' : '#BFDBFE'}`, flexShrink:0, overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center', color:T.navy }}>
                   {profUrl ? <img src={profUrl} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/> /* eslint-disable-line @next/next/no-img-element */
                            : <Ic d={icons.building} size={22}/>}
                 </div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:16, fontWeight:800, color:'#1A2744', lineHeight:1.2, marginBottom:5 }}>{entityDisplayName||'İşletme Adı'}</div>
+                <div style={{ position:'relative', flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:16, fontWeight:800, color: previewBg ? '#fff' : '#1A2744', textShadow: previewBg ? '0 1px 4px rgba(0,0,0,.4)' : 'none', lineHeight:1.2, marginBottom:5 }}>{entityDisplayName||'İşletme Adı'}</div>
                   <div style={{ display:'flex', flexWrap:'wrap', gap:5, alignItems:'center' }}>
                     {(formData.type||formData.spec)&&<span style={{ fontSize:10, fontWeight:600, background:'#F0F4FF', color:'#1B3A69', padding:'2px 8px', borderRadius:20, border:'1px solid #C7D7F8' }}>{formData.type||formData.spec}</span>}
-                    {formData.il&&<span style={{ fontSize:10, color:'#6B7A99', display:'flex', alignItems:'center', gap:3 }}><Ic d={icons.map} size={9}/>{formData.il}{formData.ilce?`, ${formData.ilce}`:''}</span>}
+                    {formData.il&&<span style={{ fontSize:10, color: previewBg ? 'rgba(255,255,255,.9)' : '#6B7A99', textShadow: previewBg ? '0 1px 3px rgba(0,0,0,.4)' : 'none', display:'flex', alignItems:'center', gap:3 }}><Ic d={icons.map} size={9}/>{formData.il}{formData.ilce?`, ${formData.ilce}`:''}</span>}
                     {formData.online&&<span style={{ fontSize:10, background:'#F0FDF4', color:'#166534', padding:'2px 7px', borderRadius:10, fontWeight:600 }}>Online</span>}
                   </div>
-                  {specs.length>0&&<div style={{ display:'flex', flexWrap:'wrap', gap:4, marginTop:5 }}>{specs.slice(0,5).map((s:string)=><span key={s} style={{ fontSize:9, background:'#EFF6FF', color:'#1D4ED8', padding:'2px 7px', borderRadius:8 }}>{s}</span>)}{specs.length>5&&<span style={{ fontSize:9, color:T.muted }}>+{specs.length-5}</span>}</div>}
+                  {specs.length>0&&<div style={{ display:'flex', flexWrap:'wrap', gap:4, marginTop:5 }}>{specs.slice(0,5).map((s:string)=><span key={s} style={{ fontSize:9, background:'#EFF6FF', color:'#1D4ED8', padding:'2px 7px', borderRadius:8 }}>{s}</span>)}{specs.length>5&&<span style={{ fontSize:9, color: previewBg ? 'rgba(255,255,255,.85)' : T.muted }}>+{specs.length-5}</span>}</div>}
                 </div>
               </div>
 
