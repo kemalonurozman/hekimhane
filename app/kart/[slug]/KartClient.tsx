@@ -370,6 +370,18 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         .kp-btn--website:hover { background:#EDE9FE; }
         .kp-btn--maps:hover    { background:#FFF0E6; }
 
+        /* Web + Konum — yan yana pro tile */
+        .kp-duo { display:flex; gap:9px; }
+        .kp-tile { flex:1; min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:11px; padding:15px 15px 14px; border-radius:16px; text-decoration:none; transition:transform .15s, box-shadow .15s; }
+        .kp-tile:hover { transform:translateY(-2px); box-shadow:0 10px 26px rgba(27,58,105,.13); }
+        .kp-tile:active { transform:scale(.98); }
+        .kp-tile-ic { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.06); }
+        .kp-tile-lbl { display:flex; flex-direction:column; gap:2px; min-width:0; max-width:100%; }
+        .kp-tile-sub { font-size:10px; font-weight:800; letter-spacing:.7px; text-transform:uppercase; }
+        .kp-tile-main { font-size:13.5px; font-weight:800; letter-spacing:-.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+        .kp-tile--web { background:linear-gradient(150deg,#FBFAFF,#F1EDFE); border:1px solid #DED7FB; }
+        .kp-tile--map { background:linear-gradient(150deg,#FFFBF6,#FFF0E0); border:1px solid #FCD9B4; }
+
         .kp-divider { height:1px; background:#F0F2F8; margin:4px 18px; }
 
         /* Alt araçlar */
@@ -564,32 +576,34 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
               </a>
             )}
 
-            {/* Web Sitesi */}
-            {d.website_url && (
-              <a href={d.website_url} target="_blank" rel="noopener noreferrer" className="kp-btn kp-btn--website">
-                <span className="kp-icon" style={{ background: '#EDE9FE' }}>
-                  <Ic d={ICONS.globe} size={17} color="#5B21B6" />
-                </span>
-                <span className="kp-lbl">
-                  <span className="kp-lbl-sub" style={{ color: '#6D28D9' }}>Web Sitesi</span>
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>
-                    {d.website_url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                  </span>
-                </span>
-              </a>
-            )}
-
-            {/* Google Maps */}
-            {d.maps_url && (
-              <a href={d.maps_url} target="_blank" rel="noopener noreferrer" className="kp-btn kp-btn--maps">
-                <span className="kp-icon" style={{ background: '#FFF0E6' }}>
-                  <Ic d={ICONS.mappin} size={17} color="#EA4335" />
-                </span>
-                <span className="kp-lbl">
-                  <span className="kp-lbl-sub" style={{ color: '#C2410C' }}>Konum</span>
-                  <span>Harita'da Görüntüle</span>
-                </span>
-              </a>
+            {/* Web Sitesi + Konum — yan yana pro tile */}
+            {(d.website_url || d.maps_url) && (
+              <div className="kp-duo">
+                {d.website_url && (
+                  <a href={d.website_url} target="_blank" rel="noopener noreferrer" className="kp-tile kp-tile--web">
+                    <span className="kp-tile-ic" style={{ background: '#EDE9FE' }}>
+                      <Ic d={ICONS.globe} size={18} color="#6D28D9" />
+                    </span>
+                    <span className="kp-tile-lbl">
+                      <span className="kp-tile-sub" style={{ color: '#6D28D9' }}>Web Sitesi</span>
+                      <span className="kp-tile-main" style={{ color: '#3A2E5C' }}>
+                        {d.website_url.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '')}
+                      </span>
+                    </span>
+                  </a>
+                )}
+                {d.maps_url && (
+                  <a href={d.maps_url} target="_blank" rel="noopener noreferrer" className="kp-tile kp-tile--map">
+                    <span className="kp-tile-ic" style={{ background: '#FFE8D6' }}>
+                      <Ic d={ICONS.mappin} size={18} color="#EA4335" />
+                    </span>
+                    <span className="kp-tile-lbl">
+                      <span className="kp-tile-sub" style={{ color: '#C2410C' }}>Konum</span>
+                      <span className="kp-tile-main" style={{ color: '#7C3A12' }}>Yol Tarifi</span>
+                    </span>
+                  </a>
+                )}
+              </div>
             )}
 
             {/* IBAN butonu — sadece IBAN dolu ise göster */}
