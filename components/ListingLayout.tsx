@@ -261,7 +261,13 @@ export default function ListingLayout(props: ListingLayoutProps) {
         }
         .listing-sidebar {
           display: block;
+          scrollbar-width: thin;
+          scrollbar-color: #D1D5DB transparent;
         }
+        .listing-sidebar::-webkit-scrollbar { width: 6px; }
+        .listing-sidebar::-webkit-scrollbar-track { background: transparent; }
+        .listing-sidebar::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
+        .listing-sidebar::-webkit-scrollbar-thumb:hover { background: #B0B0B8; }
         .listing-mobile-filter-bar {
           display: none;
         }
@@ -493,8 +499,10 @@ export default function ListingLayout(props: ListingLayoutProps) {
         {/* ── SOL: Filtre paneli (masaüstü) ─────────────── */}
         <aside className="listing-sidebar" style={{
           background: 'white', borderRadius: 20,
-          border: '1px solid var(--border)', overflow: 'hidden',
+          border: '1px solid var(--border)',
           position: 'sticky', top: 82,
+          maxHeight: 'calc(100vh - 98px)',
+          overflowY: 'auto', overflowX: 'hidden',
           boxShadow: '0 2px 16px rgba(0,0,0,.04)',
         }}>
           {filterAsideContent}
