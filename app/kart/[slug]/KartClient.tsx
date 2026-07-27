@@ -214,7 +214,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         // JPG — ekrandaki Linktree kartının görüntüsü
         const el = document.getElementById('kp-card-main');
         if (!el) return;
-        const hideEls = el.querySelectorAll<HTMLElement>('.kp-dl, .kp-footer');
+        const hideEls = el.querySelectorAll<HTMLElement>('.kp-dl, .kp-footer, .kp-reviews, .kp-review-poster');
         hideEls.forEach(e => { e.style.display = 'none'; });
         const canvas = await html2canvas(el, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', logging: false });
         hideEls.forEach(e => { e.style.display = ''; });
@@ -251,7 +251,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
     } catch (e) {
       console.error('Download error:', e);
       const el = document.getElementById('kp-card-main');
-      if (el) el.querySelectorAll<HTMLElement>('.kp-dl, .kp-footer').forEach(e => { e.style.display = ''; });
+      if (el) el.querySelectorAll<HTMLElement>('.kp-dl, .kp-footer, .kp-reviews, .kp-review-poster').forEach(e => { e.style.display = ''; });
       const sheet = document.getElementById('kp-a5-sheet');
       if (sheet) sheet.style.display = 'none';
     } finally {
