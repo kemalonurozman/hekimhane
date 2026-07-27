@@ -39,7 +39,53 @@ export default async function EczaneProfilPage({ params }: Props) {
   if (!res) notFound();
   const { e, yorumlar } = res;
 
+  const canonical = `https://www.hekimhane.com.tr/eczaneler/${e.slug}`;
+  const sameAs = [e.instagram_url, e.facebook_url, e.linkedin_url].filter(Boolean) as string[];
+
+  const pharmacy = {
+    '@type': 'Pharmacy',
+    '@id': `${canonical}#pharmacy`,
+    name: e.name,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: e.ilce || '',
+      addressRegion: e.il || '',
+      addressCountry: 'TR',
+      streetAddress: e.address || '',
+    },
+    telephone: e.tel || undefined,
+    url: canonical,
+    ...(sameAs.length ? { sameAs } : {}),
+    ...(e.acik_24_saat ? { openingHours: 'Mo-Su 00:00-23:59' } : {}),
+    ...(e.il ? { areaServed: { '@type': 'City', name: e.il } } : {}),
+    ...(e.lat && e.lng ? { geo: { '@type': 'GeoCoordinates', latitude: e.lat, longitude: e.lng } } : {}),
+    ...(e.rat && e.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: e.rat, reviewCount: e.rev, bestRating: 5, worstRating: 1 } } : {}),
+    ...(yorumlar.filter(y => (y.text || '').trim()).length ? {
+      review: yorumlar.filter(y => (y.text || '').trim()).slice(0, 5).map(y => ({
+        '@type': 'Review',
+        author: { '@type': 'Person', name: y.author || 'Anonim' },
+        reviewRating: { '@type': 'Rating', ratingValue: y.rating, bestRating: 5, worstRating: 1 },
+        reviewBody: y.text,
+        ...(y.date ? { datePublished: y.date } : {}),
+      })),
+    } : {}),
+  };
+
+  const breadcrumb = {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://www.hekimhane.com.tr' },
+      { '@type': 'ListItem', position: 2, name: 'Eczaneler', item: 'https://www.hekimhane.com.tr/eczaneler' },
+      ...(e.il ? [{ '@type': 'ListItem', position: 3, name: e.il, item: `https://www.hekimhane.com.tr/eczaneler?il=${encodeURIComponent(e.il)}` }] : []),
+      { '@type': 'ListItem', position: e.il ? 4 : 3, name: e.name, item: canonical },
+    ],
+  };
+
+  const jsonLd = { '@context': 'https://schema.org', '@graph': [pharmacy, breadcrumb] };
+
   return (
+    <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     <ProfilSayfasi
       entityType="eczane"
       id={e.id} name={e.name}
@@ -66,5 +112,6 @@ export default async function EczaneProfilPage({ params }: Props) {
         { label: e.name, href: '#' },
       ]}
     />
+    </>
   );
 }

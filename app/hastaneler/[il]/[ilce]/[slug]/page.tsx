@@ -54,9 +54,12 @@ export default async function HastaneProfilPage({ params }: Props) {
   if (!res) notFound();
   const { h, yorumlar } = res;
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
+  const canonical = `https://www.hekimhane.com.tr/hastaneler/${tr(h.il||'turkiye')}/${tr(h.ilce||'merkez')}/${h.slug}`;
+  const sameAs = [h.website, h.instagram_url, h.facebook_url, h.linkedin_url].filter(Boolean) as string[];
+
+  const hospital = {
     '@type': 'Hospital',
+    '@id': `${canonical}#hospital`,
     name: h.name,
     address: {
       '@type': 'PostalAddress',
@@ -67,10 +70,35 @@ export default async function HastaneProfilPage({ params }: Props) {
     },
     telephone: h.tel || undefined,
     numberOfBeds: h.beds || undefined,
-    ...(h.rat && h.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: h.rat, reviewCount: h.rev, bestRating: 5 } } : {}),
+    url: canonical,
+    ...(sameAs.length ? { sameAs } : {}),
+    ...((h.cover && !h.cover.startsWith('preset:') ? h.cover : h.logo) ? { image: (h.cover && !h.cover.startsWith('preset:') ? h.cover : h.logo) } : {}),
+    ...(h.il ? { areaServed: { '@type': 'City', name: h.il } } : {}),
+    ...(h.rat && h.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: h.rat, reviewCount: h.rev, bestRating: 5, worstRating: 1 } } : {}),
     ...(h.lat && h.lng ? { geo: { '@type': 'GeoCoordinates', latitude: h.lat, longitude: h.lng } } : {}),
-    url: `https://www.hekimhane.com.tr/hastaneler/${tr(h.il||'turkiye')}/${tr(h.ilce||'merkez')}/${h.slug}`,
+    ...(yorumlar.filter(y => (y.text || '').trim()).length ? {
+      review: yorumlar.filter(y => (y.text || '').trim()).slice(0, 5).map(y => ({
+        '@type': 'Review',
+        author: { '@type': 'Person', name: y.author || 'Anonim' },
+        reviewRating: { '@type': 'Rating', ratingValue: y.rating, bestRating: 5, worstRating: 1 },
+        reviewBody: y.text,
+        ...(y.date ? { datePublished: y.date } : {}),
+      })),
+    } : {}),
   };
+
+  const breadcrumb = {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://www.hekimhane.com.tr' },
+      { '@type': 'ListItem', position: 2, name: 'Hastaneler', item: 'https://www.hekimhane.com.tr/hastaneler' },
+      ...(h.il   ? [{ '@type': 'ListItem', position: 3, name: h.il,   item: `https://www.hekimhane.com.tr/hastaneler?il=${encodeURIComponent(h.il)}` }] : []),
+      ...(h.ilce ? [{ '@type': 'ListItem', position: 4, name: h.ilce, item: `https://www.hekimhane.com.tr/hastaneler?il=${encodeURIComponent(h.il||'')}&ilce=${encodeURIComponent(h.ilce||'')}` }] : []),
+      { '@type': 'ListItem', position: (h.ilce ? 5 : h.il ? 4 : 3), name: h.name, item: canonical },
+    ],
+  };
+
+  const jsonLd = { '@context': 'https://schema.org', '@graph': [hospital, breadcrumb] };
 
   return (
     <>

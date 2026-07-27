@@ -53,12 +53,14 @@ export default async function DoktorProfilPage({ params }: Props) {
 
   const fullName = `${d.ad} ${d.soyad}`.trim();
   const displayLabel = d.unvan ? `${d.unvan} ${fullName}` : fullName;
+  const canonical = `https://www.hekimhane.com.tr/doktorlar/${d.slug}`;
+  const sameAs = [d.instagram_url, d.facebook_url, d.linkedin_url].filter(Boolean) as string[];
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
+  const physician = {
     '@type': 'Physician',
+    '@id': `${canonical}#physician`,
     name: displayLabel,
-    medicalSpecialty: d.spec || undefined,
+    ...(d.spec ? { medicalSpecialty: d.spec } : {}),
     address: {
       '@type': 'PostalAddress',
       addressLocality: d.ilce || '',
@@ -66,10 +68,35 @@ export default async function DoktorProfilPage({ params }: Props) {
       addressCountry: 'TR',
     },
     telephone: d.tel || undefined,
-    image: d.photo || undefined,
-    ...(d.rat && d.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: d.rat, reviewCount: d.rev, bestRating: 5 } } : {}),
-    url: `https://www.hekimhane.com.tr/doktorlar/${d.slug}`,
+    url: canonical,
+    ...(d.photo ? { image: d.photo } : {}),
+    ...(sameAs.length ? { sameAs } : {}),
+    ...(d.clinic_name ? { worksFor: { '@type': 'MedicalClinic', name: d.clinic_name } } : {}),
+    ...(d.il ? { areaServed: { '@type': 'City', name: d.il } } : {}),
+    ...(d.lat && d.lng ? { geo: { '@type': 'GeoCoordinates', latitude: d.lat, longitude: d.lng } } : {}),
+    ...(d.rat && d.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: d.rat, reviewCount: d.rev, bestRating: 5, worstRating: 1 } } : {}),
+    ...(yorumlar.filter(y => (y.text || '').trim()).length ? {
+      review: yorumlar.filter(y => (y.text || '').trim()).slice(0, 5).map(y => ({
+        '@type': 'Review',
+        author: { '@type': 'Person', name: y.author || 'Anonim' },
+        reviewRating: { '@type': 'Rating', ratingValue: y.rating, bestRating: 5, worstRating: 1 },
+        reviewBody: y.text,
+        ...(y.date ? { datePublished: y.date } : {}),
+      })),
+    } : {}),
   };
+
+  const breadcrumb = {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://www.hekimhane.com.tr' },
+      { '@type': 'ListItem', position: 2, name: 'Doktorlar', item: 'https://www.hekimhane.com.tr/doktorlar' },
+      ...(d.spec ? [{ '@type': 'ListItem', position: 3, name: d.spec, item: `https://www.hekimhane.com.tr/doktorlar?spec=${encodeURIComponent(d.spec)}` }] : []),
+      { '@type': 'ListItem', position: d.spec ? 4 : 3, name: displayLabel, item: canonical },
+    ],
+  };
+
+  const jsonLd = { '@context': 'https://schema.org', '@graph': [physician, breadcrumb] };
 
   return (
     <>
