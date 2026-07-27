@@ -697,6 +697,20 @@ export default function ProfilSayfasi(props: ProfilProps) {
   const [yorumlar, setYorumlar]   = useState<YorumItem[]>(props.yorumlar);
   const [randevuModal, setRandevuModal] = useState(false);
   const [lightboxIdx, setLightboxIdx]   = useState<number | null>(null);
+  const lightboxOpen = lightboxIdx !== null;
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const total = (photos || []).filter(Boolean).length;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxIdx(null);
+      else if (e.key === 'ArrowLeft' && total > 1) setLightboxIdx(i => i !== null ? (i - 1 + total) % total : null);
+      else if (e.key === 'ArrowRight' && total > 1) setLightboxIdx(i => i !== null ? (i + 1) % total : null);
+    };
+    window.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = prevOverflow; };
+  }, [lightboxOpen, photos]);
   const [isOwner,  setIsOwner]  = useState(false);
   const [ownerEditUrl, setOwnerEditUrl] = useState('/panel');
 
@@ -1827,8 +1841,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
             <img
               src={galleryPhotos[lightboxIdx]}
               alt={`${name} - ${lightboxIdx + 1}`}
-              onClick={e => e.stopPropagation()}
-              style={{ maxWidth: '90vw', maxHeight: '88vh', objectFit: 'contain', borderRadius: 10, boxShadow: '0 8px 48px rgba(0,0,0,.6)', userSelect: 'none' }}
+              onClick={e => { e.stopPropagation(); if (total > 1) next(); }}
+              style={{ maxWidth: '90vw', maxHeight: '88vh', objectFit: 'contain', borderRadius: 10, boxShadow: '0 8px 48px rgba(0,0,0,.6)', userSelect: 'none', cursor: total > 1 ? 'pointer' : 'default' }}
             />
             {/* Sayaç */}
             {total > 1 && (
