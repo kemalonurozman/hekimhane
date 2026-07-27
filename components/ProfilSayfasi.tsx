@@ -107,6 +107,7 @@ export interface ProfilProps {
   photo360?: string | null;
   photos?: string[] | null;
   video_url?: string | null;
+  faq?: Array<{ soru: string; cevap: string }>; // SSS (SEO + görünür bölüm)
   yorumlar: YorumItem[];
   breadcrumb: Array<{ label: string; href: string }>;
   listHref: string; // geri dön linki
@@ -686,7 +687,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
 
 // ── Ana Bileşen ───────────────────────────────────────────────────
 export default function ProfilSayfasi(props: ProfilProps) {
-  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, listHref, breadcrumb, kartSlug } = props;
+  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
 
   // Animasyonlu arka plan: seçili preset varsa o, yoksa TÜM işletmelerde varsayılan "Okyanus"
   // (dağınık işletme foto arka planları hero'da kullanılmaz)
@@ -1290,6 +1291,26 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   )}
                 </div>
               </div>
+
+              {/* ── Sıkça Sorulan Sorular (SSS) ── */}
+              {entityType === 'klinik' && faq && faq.length > 0 && (
+                <div style={sc} className="profil-faq">
+                  <div style={scHd}>
+                    <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Sıkça Sorulan Sorular</h3>
+                  </div>
+                  <div style={{ ...scBody, paddingTop: 4, paddingBottom: 4 }}>
+                    {faq.map((f, i) => (
+                      <details key={i} style={{ borderBottom: i < faq.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                        <summary style={{ listStyle: 'none', cursor: 'pointer', padding: '16px 0', fontSize: 14.5, fontWeight: 600, color: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14 }}>
+                          <span>{f.soru}</span>
+                          <i className="fa-solid fa-chevron-down faq-chevron" style={{ fontSize: 12, color: 'var(--muted)', flexShrink: 0, transition: 'transform .2s' }} />
+                        </summary>
+                        <p style={{ margin: 0, padding: '0 0 16px', fontSize: 14, color: 'var(--text)', lineHeight: 1.75 }}>{f.cevap}</p>
+                      </details>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           )}
 

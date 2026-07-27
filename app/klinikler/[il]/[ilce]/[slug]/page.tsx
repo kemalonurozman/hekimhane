@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import type { Klinik, Yorum } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
+import { buildKlinikFaq } from '@/lib/faq';
 
 export const dynamic = 'force-dynamic';
 
@@ -111,7 +112,21 @@ export default async function KlinikProfilPage({ params }: Props) {
     ],
   };
 
-  const jsonLd = { '@context': 'https://schema.org', '@graph': [business, breadcrumb] };
+  const faq = buildKlinikFaq({
+    name: k.name, il: k.il, ilce: k.ilce, adres: k.adres, tel: k.tel,
+    rat: k.rat, rev: k.rev, specs: k.specs, calisma_saatleri: k.calisma_saatleri,
+  });
+  const faqPage = faq.length ? {
+    '@type': 'FAQPage',
+    '@id': `${canonical}#faq`,
+    mainEntity: faq.map(f => ({
+      '@type': 'Question',
+      name: f.soru,
+      acceptedAnswer: { '@type': 'Answer', text: f.cevap },
+    })),
+  } : null;
+
+  const jsonLd = { '@context': 'https://schema.org', '@graph': [business, breadcrumb, ...(faqPage ? [faqPage] : [])] };
 
   return (
     <>
@@ -133,6 +148,7 @@ export default async function KlinikProfilPage({ params }: Props) {
       linkedin_url={k.linkedin_url}
       calisma_saatleri={k.calisma_saatleri}
       acik_24_saat={k.acik_24_saat}
+      faq={faq}
       yorumlar={yorumlar}
       kartSlug={k.slug}
       listHref="/klinikler"

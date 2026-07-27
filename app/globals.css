@@ -470,3 +470,7 @@ button {
 @media (max-width: 400px) {
   .m-grid-2-to-1 { grid-template-columns: 1fr !important; }
 }
+
+/* SSS (Sıkça Sorulan Sorular) akordeonu */
+.profil-faq summary::-webkit-details-marker { display: none; }
+.profil-faq details[open] > summary .faq-chevron { transform: rotate(180deg); }
