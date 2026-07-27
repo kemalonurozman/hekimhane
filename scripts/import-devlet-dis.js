@@ -17,7 +17,10 @@ const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
 
 const TR = { 'ç':'c','Ç':'c','ğ':'g','Ğ':'g','ı':'i','İ':'i','ö':'o','Ö':'o','ş':'s','Ş':'s','ü':'u','Ü':'u' };
 const slug = (t = '') => t.split('').map(c => TR[c] || c).join('').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-const titleWord = w => w ? w.charAt(0).toLocaleUpperCase('tr') + w.slice(1).toLocaleLowerCase('tr') : w;
+// Türkçe-duyarlı büyük/küçük — toLocaleLowerCase('tr') İ'de combining-dot ürettiği için elle map
+const trDown = s => s.replace(/İ/g, 'i').replace(/I/g, 'ı').replace(/Ğ/g, 'ğ').replace(/Ü/g, 'ü').replace(/Ş/g, 'ş').replace(/Ö/g, 'ö').replace(/Ç/g, 'ç').toLowerCase();
+const trUp1 = c => c === 'i' ? 'İ' : c === 'ı' ? 'I' : c.toUpperCase();
+const titleWord = w => w ? trUp1(trDown(w).charAt(0)) + trDown(w).slice(1) : w;
 const titleName = s => (s || '').trim().replace(/\s+/g, ' ').split(' ').map(titleWord).join(' ');
 
 // Basit CSV parse (tırnak içi virgülleri korur)
@@ -75,6 +78,26 @@ const HOSP = {
   'Balıkesir Ağız ve Diş Sağlığı Hastanesi':                   { q: 'Balıkesir Ağız ve Diş', il: 'Balıkesir', ilce: 'Altıeylül' },
   'Ankara Ağız ve Diş Sağlığı Merkezi':                        { q: 'Ankara Ağız ve Diş Sağlığı Merkezi', il: 'Ankara', ilce: 'Altındağ', create: true },
   'Bartın Şehit Cem Kanbur Ağız ve Diş Sağlığı Merkezi':        { q: 'Cem Kanbur', il: 'Bartın', ilce: 'Merkez', create: true },
+  // ── Bolu'dan itibaren (v30 CSV) — hastaneler zaten mevcut (h745–h753), q ile eşleşir ──
+  'Bolu İzzet Baysal Ağız ve Diş Sağlığı Hastanesi':                                    { q: 'Bolu İzzet Baysal Ağız ve Diş', il: 'Bolu', ilce: 'Merkez' },
+  'İnegöl Ağız ve Diş Sağlığı Hastanesi':                                               { q: 'İnegöl Ağız ve Diş', il: 'Bursa', ilce: 'İnegöl' },
+  'Bursa Nilüfer Ağız ve Diş Sağlığı Hastanesi':                                        { q: 'Nilüfer Ağız ve Diş', il: 'Bursa', ilce: 'Nilüfer' },
+  'Çorum Şehit Ömer Emiroğlu Ağız ve Diş Sağlığı Hastanesi':                            { q: 'Şehit Ömer Emiroğlu', il: 'Çorum', ilce: 'Merkez' },
+  'Denizli Ağız ve Diş Sağlığı Hastanesi':                                              { q: 'Denizli Ağız ve Diş', il: 'Denizli', ilce: 'Merkezefendi' },
+  // Diyarbakır — 4 birim, tek mevcut kayda (h750) bağlanır; VARDİYA dedup ile elenir
+  'Diyarbakır Ağız ve Diş Sağlığı Hastanesi (DAĞKAPI DİŞ TEDAVİ VE PROTEZ MERKEZİ)':    { q: 'Diyarbakır Ağız ve Diş', il: 'Diyarbakır', ilce: 'Kayapınar' },
+  'Diyarbakır Ağız ve Diş Sağlığı Hastanesi (DİCLEKENT DİŞ TEDAVİ VE PROTEZ MERKEZİ)':  { q: 'Diyarbakır Ağız ve Diş', il: 'Diyarbakır', ilce: 'Kayapınar' },
+  'Diyarbakır Ağız ve Diş Sağlığı Hastanesi (BAĞLAR DİŞ TEDAVİ VE PROTEZ MERKEZİ)':     { q: 'Diyarbakır Ağız ve Diş', il: 'Diyarbakır', ilce: 'Kayapınar' },
+  'Diyarbakır Ağız ve Diş Sağlığı Hastanesi (VARDİYA)':                                 { q: 'Diyarbakır Ağız ve Diş', il: 'Diyarbakır', ilce: 'Kayapınar' },
+  // Düzce — ana + 5 semt kliniği, tek mevcut kayda (h751) bağlanır
+  'Düzce Ağız ve Diş Sağlığı Hastanesi':                                                { q: 'Düzce Ağız ve Diş', il: 'Düzce', ilce: 'Merkez' },
+  'Düzce Ağız ve Diş Sağlığı Hastanesi (Bahçeşehir Kliniği)':                           { q: 'Düzce Ağız ve Diş', il: 'Düzce', ilce: 'Merkez' },
+  'Düzce Ağız ve Diş Sağlığı Hastanesi (Çilimli Kliniği)':                              { q: 'Düzce Ağız ve Diş', il: 'Düzce', ilce: 'Merkez' },
+  'Düzce Ağız ve Diş Sağlığı Hastanesi (Gümüşova Kliniği)':                             { q: 'Düzce Ağız ve Diş', il: 'Düzce', ilce: 'Merkez' },
+  'Düzce Ağız ve Diş Sağlığı Hastanesi (Kaynaşlı Kliniği)':                             { q: 'Düzce Ağız ve Diş', il: 'Düzce', ilce: 'Merkez' },
+  'Düzce Ağız ve Diş Sağlığı Hastanesi (Yığılca Kliniği)':                              { q: 'Düzce Ağız ve Diş', il: 'Düzce', ilce: 'Merkez' },
+  'Elazığ Ağız ve Diş Sağlığı Hastanesi':                                               { q: 'Elazığ Ağız ve Diş', il: 'Elazığ', ilce: 'Merkez' },
+  'Eskişehir Ağız ve Diş Sağlığı Hastanesi':                                            { q: 'Eskişehir Ağız ve Diş', il: 'Eskişehir', ilce: 'Odunpazarı' },
 };
 
 (async () => {
