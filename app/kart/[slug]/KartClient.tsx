@@ -372,13 +372,13 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
 
         /* Web + Konum — yan yana pro tile */
         .kp-duo { display:flex; gap:9px; }
-        .kp-tile { flex:1; min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:11px; padding:15px 15px 14px; border-radius:16px; text-decoration:none; transition:transform .15s, box-shadow .15s; }
+        .kp-tile { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; padding:17px 14px 15px; border-radius:16px; text-decoration:none; transition:transform .15s, box-shadow .15s; }
         .kp-tile:hover { transform:translateY(-2px); box-shadow:0 10px 26px rgba(27,58,105,.13); }
         .kp-tile:active { transform:scale(.98); }
-        .kp-tile-ic { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.06); }
-        .kp-tile-lbl { display:flex; flex-direction:column; gap:2px; min-width:0; max-width:100%; }
-        .kp-tile-sub { font-size:10px; font-weight:800; letter-spacing:.7px; text-transform:uppercase; }
-        .kp-tile-main { font-size:13.5px; font-weight:800; letter-spacing:-.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+        .kp-tile-ic { width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 8px rgba(0,0,0,.08); }
+        .kp-tile-lbl { display:flex; flex-direction:column; align-items:center; gap:2px; min-width:0; max-width:100%; }
+        .kp-tile-sub { font-size:10px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; }
+        .kp-tile-main { font-size:13px; font-weight:800; letter-spacing:-.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
         .kp-tile--web { background:linear-gradient(150deg,#FBFAFF,#F1EDFE); border:1px solid #DED7FB; }
         .kp-tile--map { background:linear-gradient(150deg,#FFFBF6,#FFF0E0); border:1px solid #FCD9B4; }
 
@@ -581,8 +581,12 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
               <div className="kp-duo">
                 {d.website_url && (
                   <a href={d.website_url} target="_blank" rel="noopener noreferrer" className="kp-tile kp-tile--web">
-                    <span className="kp-tile-ic" style={{ background: '#EDE9FE' }}>
-                      <Ic d={ICONS.globe} size={18} color="#6D28D9" />
+                    <span className="kp-tile-ic" style={{ background: 'linear-gradient(135deg,#8B5CF6,#6D28D9)' }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="9.2" />
+                        <ellipse cx="12" cy="12" rx="4" ry="9.2" />
+                        <path d="M2.9 12h18.2M4.4 7.2h15.2M4.4 16.8h15.2" />
+                      </svg>
                     </span>
                     <span className="kp-tile-lbl">
                       <span className="kp-tile-sub" style={{ color: '#6D28D9' }}>Web Sitesi</span>
@@ -594,8 +598,10 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
                 )}
                 {d.maps_url && (
                   <a href={d.maps_url} target="_blank" rel="noopener noreferrer" className="kp-tile kp-tile--map">
-                    <span className="kp-tile-ic" style={{ background: '#FFE8D6' }}>
-                      <Ic d={ICONS.mappin} size={18} color="#EA4335" />
+                    <span className="kp-tile-ic" style={{ background: 'linear-gradient(135deg,#FB7185,#E11D48)' }}>
+                      <svg width="21" height="21" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="1.4" strokeLinejoin="round">
+                        <path d="M21.43 2.57a1 1 0 0 0-1.3-1.3L2.9 8.2c-1 .38-.95 1.83.08 2.14l7.05 2.13a1 1 0 0 1 .66.66l2.13 7.05c.31 1.03 1.76 1.08 2.14.08L21.43 2.57Z" />
+                      </svg>
                     </span>
                     <span className="kp-tile-lbl">
                       <span className="kp-tile-sub" style={{ color: '#C2410C' }}>Konum</span>
