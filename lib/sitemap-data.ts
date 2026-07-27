@@ -6,6 +6,7 @@ import { toSlug } from './helpers';
 import { canonicalDentalSpec, TREATMENTS } from './uzmanlik-data';
 import { KATEGORILER, HASTALIKLAR } from './hastaliklar-data';
 import { BLOG_YAZILARI } from './blog-data';
+import { getDevletHospitals } from './devlet-dis';
 
 export const BASE = 'https://www.hekimhane.com.tr';
 
@@ -55,7 +56,13 @@ export async function buildSection(section: string): Promise<SmUrl[]> {
     const hastalik = HASTALIKLAR.filter(h => h.kategoriSlug === 'dis-sagligi')
       .map(h => ({ loc: `${BASE}/hastaliklar/${h.kategoriSlug}/${h.slug}`, changefreq: 'weekly', priority: 0.7 }));
     const blog = BLOG_YAZILARI.map(b => ({ loc: `${BASE}/blog/${b.slug}`, changefreq: 'monthly', priority: 0.6, lastmod: new Date(b.created_at).toISOString() }));
-    return [...statics, ...kategori, ...hastalik, ...blog];
+    // Devlet diş hastaneleri kategorisi + hastane sayfaları
+    let devlet: SmUrl[] = [{ loc: `${BASE}/devlet-dis-hastaneleri`, changefreq: 'weekly', priority: 0.85 }];
+    try {
+      const hosp = await getDevletHospitals();
+      devlet.push(...hosp.map(h => ({ loc: `${BASE}/devlet-dis-hastaneleri/${h.ilSlug}/${h.slug}`, changefreq: 'weekly' as const, priority: 0.7, lastmod })));
+    } catch {}
+    return [...statics, ...kategori, ...hastalik, ...blog, ...devlet];
   }
 
   // ── KLİNİKLER: tüm klinik detay + ilçe landing ──
