@@ -13,6 +13,11 @@ const TR = (s: string) => (s||'').toLowerCase()
   .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
   .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
 
+// Türkçe-duyarlı normalize (arama eşleştirme için): İ/I/ı→i, ş→s, ğ→g, ü→u, ö→o, ç→c
+// Not: JS toLowerCase('İ') = 'i̇' (birleşik nokta) sorununu önlemek için önce harf haritası uygulanır.
+const TRMAP: Record<string, string> = { 'İ':'i','I':'i','ı':'i','Ş':'s','ş':'s','Ğ':'g','ğ':'g','Ü':'u','ü':'u','Ö':'o','ö':'o','Ç':'c','ç':'c' };
+const norm = (s = '') => s.split('').map(c => TRMAP[c] ?? c).join('').toLowerCase().replace(/̇/g, '').trim();
+
 export async function generateMetadata(
   { searchParams }: { searchParams: Record<string, string> }
 ): Promise<Metadata> {
@@ -54,7 +59,25 @@ async function getKlinikler(filters: KlinikFilters) {
   if (filters.tip)      query = query.eq('type', filters.tip);
   if (filters.uzmanlik) query = query.contains('specs', [filters.uzmanlik]);
   if (filters.minRat)   query = query.gte('rat', filters.minRat);
-  if (filters.q)        query = query.ilike('name', `%${filters.q}%`);
+  if (filters.q) {
+    const nq = norm(filters.q);
+    // Önce il/ilçe adı olarak çöz (Türkçe-normalleştirilmiş): "izmir" → il=İzmir
+    const geo = await fetchAllRows<{ il: string | null; ilce: string | null }>(
+      () => supabase.from('klinikler').select('il,ilce').not('il', 'is', null));
+    const ilByNorm = new Map<string, string>();
+    const ilceByNorm = new Map<string, string>();
+    for (const r of geo) {
+      if (r.il && !ilByNorm.has(norm(r.il))) ilByNorm.set(norm(r.il), r.il);
+      if (r.ilce && !ilceByNorm.has(norm(r.ilce))) ilceByNorm.set(norm(r.ilce), r.ilce);
+    }
+    const match = (m: Map<string, string>) =>
+      m.get(nq) || (nq.length >= 3 ? Array.from(m.entries()).find(([n]) => n.startsWith(nq))?.[1] : undefined);
+    const mIl = match(ilByNorm);
+    const mIlce = mIl ? undefined : match(ilceByNorm);
+    if (mIl)        query = query.eq('il', mIl);
+    else if (mIlce) query = query.eq('ilce', mIlce);
+    else            query = query.or(`name.ilike.%${filters.q}%,adres.ilike.%${filters.q}%`);
+  }
   const { data, count, error } = await query;
   if (error) console.error(error);
   return { data: data || [], count: count || 0 };
