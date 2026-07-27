@@ -690,7 +690,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
   // Animasyonlu arka plan: seçili preset varsa o, yoksa TÜM işletmelerde varsayılan "Okyanus"
   // (dağınık işletme foto arka planları hero'da kullanılmaz)
-  const heroBg = heroBgByKey(coverPresetKey(cover)) || heroBgByKey('okyanus');
+  const heroBg = heroBgByKey(coverPresetKey(cover)) || heroBgByKey('ocean');
 
   const [activeTab, setActiveTab] = useState<Tab>('genel');
   const [yorumlar, setYorumlar]   = useState<YorumItem[]>(props.yorumlar);
