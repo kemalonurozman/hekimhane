@@ -751,6 +751,10 @@ export default function ProfilSayfasi(props: ProfilProps) {
     ? `${unvan} ${name}`
     : name;
 
+  // İç etiketleri (ör. devlet-dis-hastanesi) uzmanlık listesinden gizle
+  const INTERNAL_SPEC_TAGS = new Set(['devlet-dis-hastanesi']);
+  const visibleSpecs = (specs || []).filter(s => s && !INTERNAL_SPEC_TAGS.has(s));
+
   const typeLabel = entityType === 'klinik'  ? (type || 'Diş Kliniği')
     : entityType === 'hastane' ? (type || 'Hastane')
     : entityType === 'eczane'  ? 'Eczane'
@@ -790,7 +794,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
         { l: 'İlçe', v: ilce || '—' },
         { l: 'Telefon', v: tel || '—' },
         { l: 'Puan', v: `${avg} / 5` },
-        { l: 'Uzmanlık', v: specs?.join(', ') || '—' },
+        { l: 'Uzmanlık', v: visibleSpecs.join(', ') || '—' },
       ];
 
   const sc: React.CSSProperties = { background: 'white', borderRadius: 20, marginBottom: 24, border: '1px solid var(--border)', overflow: 'hidden' };
@@ -985,12 +989,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
               </div>
 
               {/* Uzmanlık alanları */}
-              {specs && specs.length > 0 && (
+              {visibleSpecs.length > 0 && (
                 <div style={sc}>
                   <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Uzmanlık Alanları</h3></div>
                   <div style={scBody}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {specs.map(s => (
+                      {visibleSpecs.map(s => (
                         <Link
                           key={s}
                           href={(entityType === 'klinik' && (dentalComboHref(il, s))) || specToHref(s)}

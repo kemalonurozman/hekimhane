@@ -63,7 +63,7 @@ const normUnvan = u => {
   if (t.includes('uzm') && t.includes('dr')) return 'Uzm. Dr. Dt.';
   if (t.includes('uzm')) return 'Uzm. Dt.';
   if (t.includes('dr') && t.includes('dt')) return 'Dr. Dt.';
-  if (t.includes('tabib')) return 'Diş Tabibi';
+  if (t.includes('tabib')) return 'Diş Doktoru';
   return 'Dt.';
 };
 
