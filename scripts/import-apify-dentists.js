@@ -30,15 +30,38 @@ function cleanName(t = '') {
 }
 const titleTr = (s = '') => s ? s.charAt(0).toLocaleUpperCase('tr') + s.slice(1).toLocaleLowerCase('tr') : s;
 
-function ilFrom(r)  { return titleTr((r.state || r.city || 'Türkiye').split('/').pop().trim()); }
+// Google adresi genelde "... PostaKodu İlçe/İl, Türkiye" ile biter → {il, ilce} çıkar
+function fromAddress(addr = '') {
+  const m = /([^,/]+)\/([^,/]+),\s*T[üu]rkiye\s*$/i.exec(addr.trim());
+  if (!m) return null;
+  const il = m[2].trim();
+  const ilceRaw = m[1].trim();
+  // ilçe: "52200 Altınordu" → "Altınordu" (posta kodu/sayıları at)
+  const ilce = ilceRaw.replace(/\d{4,6}/g, '').trim().split(/\s+/).pop() || 'Merkez';
+  return { il, ilce };
+}
+
+function ilFrom(r) {
+  const st = (r.state || r.city || '').split('/').pop().trim();
+  if (st) return titleTr(st);
+  const fa = fromAddress(r.address || '');
+  return titleTr(fa?.il || 'Türkiye');
+}
 
 function ilceFrom(r) {
   let c = (r.city || '').trim();
   const state = (r.state || '').trim();
+  if (!c && !state) { const fa = fromAddress(r.address || ''); if (fa) return titleTr(fa.ilce.replace(/^(il|state)$/i, '') || 'Merkez'); }
   if (c.includes('/')) c = c.split('/').pop().trim();               // "Filyos/Çaycuma" → "Çaycuma"
   if (state && c.toLowerCase().startsWith(state.toLowerCase())) c = c.slice(state.length).trim(); // "Zonguldak Merkez" → "Merkez"
   if (!c || /merkez/i.test(c)) return 'Merkez';
   return titleTr(c);
+}
+
+// Gerçek isim mi? ("-", boş, çok kısa/sayısal → çöp)
+function validName(t = '') {
+  const s = (t || '').replace(/[^a-zA-ZÇĞİÖŞÜçğıöşü0-9]/g, '');
+  return s.length >= 3;
 }
 
 function specsFrom(title = '') {
@@ -88,6 +111,7 @@ function revDate(rv) {
   let n = maxId;
 
   for (const r of data) {
+    if (!validName(r.title)) { atlanan.push(`(geçersiz isim: ${r.title || '-'})`); continue; }
     const name = cleanName(r.title || 'Diş Hekimi');
     const il = ilFrom(r); const ilce = ilceFrom(r);
     const key = nameKey(name, il);
