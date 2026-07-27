@@ -1145,6 +1145,7 @@ function SpecPicker({
 const ENTITY_FIELDS: Record<string, FieldDef[]> = {
   klinik: [
     { key: 'name',     label: 'Klinik Adı',                        type: 'text',     placeholder: 'Özel Xyz Kliniği',     fullWidth: true },
+    { key: 'sorumlu_hekim', label: 'Sorumlu Hekim (Ad Soyad)',    type: 'text',     placeholder: 'Dr. Ahmet Yılmaz — işletme adından farklı', fullWidth: true },
     { key: 'type',     label: 'Klinik Türü',                       type: 'text',     placeholder: 'Diş Kliniği, Poliklinik...' },
     { key: 'il',       label: 'İl',                                 type: 'text',     placeholder: 'İstanbul' },
     { key: 'ilce',     label: 'İlçe',                               type: 'text',     placeholder: 'Kadıköy' },
@@ -1163,6 +1164,7 @@ const ENTITY_FIELDS: Record<string, FieldDef[]> = {
   ],
   hastane: [
     { key: 'name',     label: 'Hastane Adı',                        type: 'text',     placeholder: 'Özel Xyz Hastanesi',   fullWidth: true },
+    { key: 'sorumlu_hekim', label: 'Sorumlu Hekim / Başhekim (Ad Soyad)', type: 'text', placeholder: 'Dr. Ahmet Yılmaz — işletme adından farklı', fullWidth: true },
     { key: 'type',     label: 'Hastane Türü',                       type: 'text',     placeholder: 'Özel, Devlet, Üniversite' },
     { key: 'il',       label: 'İl',                                  type: 'text',     placeholder: 'İstanbul' },
     { key: 'ilce',     label: 'İlçe',                                type: 'text',     placeholder: 'Kadıköy' },
