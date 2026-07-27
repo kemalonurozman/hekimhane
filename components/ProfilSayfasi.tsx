@@ -777,12 +777,10 @@ export default function ProfilSayfasi(props: ProfilProps) {
   // Info grid satırları
   const infoRows = entityType === 'doktor'
     ? [
-        { l: 'Uzmanlık', v: spec || '—' },
         { l: 'Şehir', v: il || '—' },
         { l: 'İlçe', v: ilce || '—' },
         { l: 'Deneyim', v: exp ? `${exp} yıl` : '—' },
         { l: 'Seans Ücreti', v: fee ? `${fee.toLocaleString('tr')} ₺` : '—' },
-        { l: 'Puan', v: `${avg} / 5` },
       ]
     : entityType === 'eczane'
     ? [
