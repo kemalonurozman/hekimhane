@@ -807,8 +807,6 @@ export default function ProfilSayfasi(props: ProfilProps) {
         { l: 'Şehir', v: il || '—' },
         { l: 'İlçe', v: ilce || '—' },
         { l: 'Telefon', v: tel || '—' },
-        { l: 'Puan', v: `${avg} / 5` },
-        { l: 'Uzmanlık', v: visibleSpecs.join(', ') || '—' },
       ];
 
   const sc: React.CSSProperties = { background: 'white', borderRadius: 20, marginBottom: 24, border: '1px solid var(--border)', overflow: 'hidden' };
