@@ -2705,7 +2705,7 @@ function HekimKartTab({ approvedClaims, profileUrls, user }: {
   );
 
   return (
-    <div style={{ maxWidth:800, margin:'0 auto' }}>
+    <div style={{ maxWidth:1080, margin:0 }}>
       <h2 style={{ fontSize:22, fontWeight:800, color:T.navy, marginBottom:4, letterSpacing:'-0.4px' }}>HekimKart</h2>
       <p style={{ color:T.muted, fontSize:13.5, marginBottom:22 }}>Her profiliniz için ayrı dijital kartvizit oluşturun</p>
 
