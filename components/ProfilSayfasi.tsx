@@ -697,6 +697,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
   const [yorumlar, setYorumlar]   = useState<YorumItem[]>(props.yorumlar);
   const [randevuModal, setRandevuModal] = useState(false);
   const [lightboxIdx, setLightboxIdx]   = useState<number | null>(null);
+  const [photoOpen, setPhotoOpen]       = useState(false); // fotoğraf yoksa bölüm kapalı, tıklayınca açılır
   const lightboxOpen = lightboxIdx !== null;
   useEffect(() => {
     if (!lightboxOpen) return;
@@ -1063,14 +1064,22 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 const galleryPhotos = (photos || []).filter(Boolean) as string[];
                 const SLOTS = 6;
                 const placeholders = Math.max(0, SLOTS - galleryPhotos.length);
+                // Fotoğraf yoksa bölüm kapalı gelir, başlığa tıklayınca açılır
+                const collapsible = galleryPhotos.length === 0;
+                const bodyVisible = !collapsible || photoOpen;
                 return (
                   <div style={sc}>
-                    <div style={scHd}>
+                    <div style={{ ...scHd, cursor: collapsible ? 'pointer' : 'default', userSelect: 'none' }}
+                      onClick={collapsible ? () => setPhotoOpen(o => !o) : undefined}>
                       <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Fotoğraflar</h3>
-                      <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+                      <span style={{ fontSize: 12, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 8 }}>
                         {galleryPhotos.length > 0 ? `${galleryPhotos.length} fotoğraf` : 'Henüz fotoğraf eklenmemiş'}
+                        {collapsible && (
+                          <i className={`fa-solid fa-chevron-${photoOpen ? 'up' : 'down'}`} style={{ fontSize: 11, transition: 'transform .2s' }} />
+                        )}
                       </span>
                     </div>
+                    {bodyVisible && (
                     <div style={scBody}>
                       <div className="profil-photo-grid">
                         {/* Gerçek fotoğraflar */}
@@ -1100,6 +1109,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         </p>
                       )}
                     </div>
+                    )}
                   </div>
                 );
               })()}
