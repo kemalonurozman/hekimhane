@@ -1256,22 +1256,24 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 </div>
                 <div style={scBody}>
                   {/* Rating summary */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 20 }}>
-                    <div style={{ textAlign: 'center', flexShrink: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginBottom: 22, flexWrap: 'wrap' }}>
+                    <div style={{ textAlign: 'center', flexShrink: 0, minWidth: 100 }}>
                       <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 52, fontWeight: 800, color: 'var(--navy)', lineHeight: 1 }}>{avg}</div>
-                      <Stars rat={avg} size={18} />
-                      <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{yorumlar.length} değerlendirme</div>
+                      <div style={{ margin: '6px 0 4px' }}><Stars rat={avg} size={18} /></div>
+                      <div style={{ fontSize: 12, color: 'var(--muted)' }}>{yorumlar.length} değerlendirme</div>
                     </div>
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, minWidth: 200, display: 'flex', flexDirection: 'column', gap: 9 }}>
                       {[5,4,3,2,1].map(star => {
-                        const pct = yorumlar.length ? Math.round(counts[star-1] / yorumlar.length * 100) : 0;
+                        const cnt = counts[star-1] || 0;
+                        const pct = yorumlar.length ? Math.round(cnt / yorumlar.length * 100) : 0;
                         return (
-                          <div key={star} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5 }}>
-                            <div style={{ fontSize: 12, fontWeight: 600, width: 14, textAlign: 'right', color: 'var(--muted)' }}>{star}</div>
-                            <div style={{ flex: 1, height: 7, background: '#E5E7EB', borderRadius: 4, overflow: 'hidden' }}>
-                              <div style={{ width: `${pct}%`, height: '100%', background: '#D4A843', borderRadius: 4, transition: 'width .4s' }} />
+                          <div key={star} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <div style={{ fontSize: 12.5, fontWeight: 700, width: 10, textAlign: 'right', color: 'var(--muted)' }}>{star}</div>
+                            <i className="fa-solid fa-star" style={{ fontSize: 10, color: '#D4A843' }} />
+                            <div style={{ flex: 1, height: 8, background: '#EEF0F3', borderRadius: 999, overflow: 'hidden' }}>
+                              <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg,#E0B84E,#D4A843)', borderRadius: 999, transition: 'width .5s cubic-bezier(.2,.7,.2,1)' }} />
                             </div>
-                            <div style={{ fontSize: 11, color: 'var(--muted)', width: 28 }}>{pct}%</div>
+                            <div style={{ fontSize: 11.5, color: cnt ? 'var(--navy)' : 'var(--muted)', fontWeight: cnt ? 700 : 500, width: 20, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{cnt}</div>
                           </div>
                         );
                       })}
