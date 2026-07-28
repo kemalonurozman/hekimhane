@@ -1,5 +1,63 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { sendEmail, mailShell, satir } from '@/lib/email';
+
+const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
+
+// Randevu talebi bildirimleri — asla ana akışı bloklamaz (hepsi try/catch içinde).
+// RESEND_API_KEY yoksa sendEmail sessizce atlar.
+async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, kayit: {
+  entity_type: string; entity_id: string; entity_name: string;
+  ad_soyad: string; tel: string; email: string | null;
+  tercih: string | null; mesaj: string | null;
+}) {
+  try {
+    const detay =
+      satir('İşletme', kayit.entity_name) +
+      satir('Ad Soyad', kayit.ad_soyad) +
+      satir('Telefon', kayit.tel) +
+      satir('E-posta', kayit.email) +
+      satir('Tercih', kayit.tercih) +
+      satir('Mesaj', kayit.mesaj);
+    const bildirimHtml = mailShell('Yeni Randevu Talebi', detay +
+      `<p style="margin-top:14px;font-size:12px;color:#6E6E73;">Admin panelindeki Talepler sekmesinden yönetebilirsiniz.</p>`);
+
+    // 1) Admin bildirimi (her zaman)
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `Yeni randevu talebi — ${kayit.entity_name}`,
+      html: bildirimHtml,
+      replyTo: kayit.email || undefined,
+    });
+
+    // 2) İşletme onaylı (claimed) ise sahibine de bildir
+    try {
+      const { data: claim } = await (admin as any).from('claim_requests')
+        .select('email').eq('entity_id', kayit.entity_id).eq('status', 'approved')
+        .not('email', 'is', null).limit(1).maybeSingle();
+      if (claim?.email && claim.email !== ADMIN_EMAIL) {
+        await sendEmail({
+          to: claim.email,
+          subject: `Yeni randevu talebiniz var — ${kayit.entity_name}`,
+          html: bildirimHtml,
+          replyTo: kayit.email || undefined,
+        });
+      }
+    } catch { /* sahip bulunamadı — sorun değil */ }
+
+    // 3) Hastaya onay (e-posta verdiyse)
+    if (kayit.email) {
+      await sendEmail({
+        to: kayit.email,
+        subject: `Randevu talebiniz alındı — ${kayit.entity_name}`,
+        html: mailShell('Randevu Talebiniz Alındı',
+          `<p style="font-size:14px;color:#1c1c1e;">Merhaba <strong>${kayit.ad_soyad}</strong>,</p>` +
+          `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${kayit.entity_name}</strong> için randevu talebiniz başarıyla alındı. İşletme en kısa sürede <strong>${kayit.tel}</strong> numaranızdan sizinle iletişime geçecektir.</p>` +
+          (kayit.tercih ? satir('Tercihiniz', kayit.tercih) : '')),
+      });
+    }
+  } catch { /* bildirim hatası ana akışı etkilemez */ }
+}
 
 function adminClient() {
   return createClient(
@@ -74,7 +132,10 @@ export async function POST(req: NextRequest) {
     // Önce özel tabloya yaz
     const { error } = await (admin as any).from('randevu_talepleri').insert(kayit);
 
-    if (!error) return NextResponse.json({ ok: true });
+    if (!error) {
+      await sendRandevuBildirimleri(admin, kayit);
+      return NextResponse.json({ ok: true });
+    }
 
     // Tablo henüz oluşturulmadıysa cekim_talepleri'ne düş — talep kaybolmasın.
     // Admin panelindeki "Çekim Talepleri" sekmesinde RANDEVU rozetiyle görünür.
@@ -96,7 +157,10 @@ export async function POST(req: NextRequest) {
         notlar,
         durum: 'beklemede',
       });
-      if (!fbErr) return NextResponse.json({ ok: true });
+      if (!fbErr) {
+        await sendRandevuBildirimleri(admin, kayit);
+        return NextResponse.json({ ok: true });
+      }
       console.error('randevu-talebi fallback error:', fbErr.message);
     } else {
       console.error('randevu-talebi insert error:', error.message);
