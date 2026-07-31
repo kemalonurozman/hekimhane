@@ -573,10 +573,13 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
   const [website, setWebsite] = useState(''); // honeypot — botlar doldurur, insanlar görmez
 
   const telOk = tel.replace(/\D/g, '').length >= 10;
-  const formOk = adSoyad.trim().length >= 3 && telOk && consent;
 
   async function submit() {
-    if (!formOk || saving) return;
+    if (saving) return;
+    // Eksik alanları sessizce geçme — kullanıcıya neyin eksik olduğunu söyle.
+    if (adSoyad.trim().length < 3) { setHata('Lütfen ad ve soyadınızı girin.'); return; }
+    if (!telOk) { setHata('Lütfen geçerli bir telefon numarası girin (en az 10 haneli).'); return; }
+    if (!consent) { setHata('Göndermek için KVKK onay kutusunu işaretlemeniz gerekir.'); return; }
     setSaving(true);
     setHata('');
     try {
@@ -674,8 +677,8 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
               <p style={{ color: '#DC2626', fontSize: 13, margin: '0 0 12px' }}>{hata}</p>
             )}
 
-            <button onClick={submit} disabled={!formOk || saving}
-              style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: !formOk ? 'not-allowed' : 'pointer', opacity: !formOk ? 0.6 : 1, transition: '.2s' }}>
+            <button onClick={submit} disabled={saving}
+              style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1, transition: '.2s' }}>
               {saving ? 'Gönderiliyor…' : 'Randevu Talebi Gönder'}
             </button>
           </>
