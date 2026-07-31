@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import type { Eczane, Yorum } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
+import { buildEczaneFaq } from '@/lib/faq';
 
 export const dynamic = 'force-dynamic';
 
@@ -81,7 +82,22 @@ export default async function EczaneProfilPage({ params }: Props) {
     ],
   };
 
-  const jsonLd = { '@context': 'https://schema.org', '@graph': [pharmacy, breadcrumb] };
+  const faq = buildEczaneFaq({
+    name: e.name, il: e.il, ilce: e.ilce, adres: e.address, tel: e.tel,
+    pharmacist: e.pharmacist, nobetci: e.nobetci, acik_24_saat: e.acik_24_saat,
+    rat: e.rat, rev: e.rev, calisma_saatleri: e.calisma_saatleri,
+  });
+  const faqPage = faq.length ? {
+    '@type': 'FAQPage',
+    '@id': `${canonical}#faq`,
+    mainEntity: faq.map(f => ({
+      '@type': 'Question',
+      name: f.soru,
+      acceptedAnswer: { '@type': 'Answer', text: f.cevap },
+    })),
+  } : null;
+
+  const jsonLd = { '@context': 'https://schema.org', '@graph': [pharmacy, breadcrumb, ...(faqPage ? [faqPage] : [])] };
 
   return (
     <>
@@ -102,6 +118,7 @@ export default async function EczaneProfilPage({ params }: Props) {
       linkedin_url={e.linkedin_url}
       calisma_saatleri={e.calisma_saatleri}
       acik_24_saat={e.acik_24_saat}
+      faq={faq}
       yorumlar={yorumlar}
       kartSlug={e.slug}
       listHref="/eczaneler"

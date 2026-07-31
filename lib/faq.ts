@@ -123,6 +123,80 @@ export function buildKlinikFaq(input: FaqInput): FaqItem[] {
 }
 
 // ─────────────────────────────────────────────────────────────────
+//  Eczane SSS — nöbetçilik, 24 saat, eczacı, adres, iletişim.
+//  Cevaplar gerçek veriden üretilir; eksik alanların sorusu atlanır.
+// ─────────────────────────────────────────────────────────────────
+
+export interface EczaneFaqInput {
+  name: string;
+  il?: string | null;
+  ilce?: string | null;
+  adres?: string | null;
+  tel?: string | null;
+  pharmacist?: string | null;
+  nobetci?: boolean | null;
+  acik_24_saat?: boolean | null;
+  rat?: number | null;
+  rev?: number | null;
+  calisma_saatleri?: string | null;
+}
+
+export function buildEczaneFaq(input: EczaneFaqInput): FaqItem[] {
+  const { name, il, ilce, adres, tel, pharmacist, nobetci, acik_24_saat, rat, rev, calisma_saatleri } = input;
+  const label = name;
+  const yer = [ilce, il].filter(Boolean).join(', ') || 'Türkiye';
+
+  const candidates: (FaqItem | null)[] = [
+    // 1) Adres / konum
+    {
+      soru: `${label} nerede, adresi neresi?`,
+      cevap: adres
+        ? `${label}, ${yer} bölgesinde hizmet vermektedir. Adres: ${adres}. Konum ve yol tarifi için Hekimhane profil sayfasındaki haritayı kullanabilirsiniz.`
+        : `${label}, ${yer} bölgesinde hizmet vermektedir. Konum ve yol tarifi bilgisine Hekimhane profil sayfasındaki haritadan ulaşabilirsiniz.`,
+    },
+    // 2) Nöbetçi mi? (kayıtlı nöbet durumuna göre)
+    {
+      soru: `${label} nöbetçi mi?`,
+      cevap: nobetci
+        ? `${label} şu anda nöbetçi eczane olarak hizmet vermektedir. Nöbet günleri değişebildiğinden, gitmeden önce güncel durumu Hekimhane profil sayfasından veya telefonla teyit etmenizi öneririz.`
+        : `Nöbetçi eczane listeleri günlük olarak değişir. ${label} için güncel nöbet durumunu Hekimhane profil sayfasından kontrol edebilir, bölgenizdeki nöbetçi eczaneleri Eczaneler sayfasından görüntüleyebilirsiniz.`,
+    },
+    // 3) 24 saat açık mı? (yalnızca kayıtlıysa)
+    acik_24_saat ? {
+      soru: `${label} 24 saat açık mı?`,
+      cevap: `${label} 24 saat (kesintisiz) hizmet vermektedir. Yine de gece saatlerinde gitmeden önce telefonla teyit etmeniz faydalı olur.`,
+    } : null,
+    // 4) Telefon (yalnızca kayıtlı numara varsa)
+    tel ? {
+      soru: `${label} telefon numarası nedir?`,
+      cevap: `${label} iletişim telefonu: ${tel}. İlaç stoğu ve nöbet durumu gibi bilgileri arayarak öğrenebilirsiniz.`,
+    } : null,
+    // 5) Eczacı / sorumlu (yalnızca kayıtlıysa)
+    pharmacist ? {
+      soru: `${label} sorumlu eczacısı kimdir?`,
+      cevap: `${label} sorumlu eczacısı ${pharmacist}'dır. İlaç danışmanlığı ve reçete işlemleri için eczaneye başvurabilirsiniz.`,
+    } : null,
+    // 6) Çalışma saatleri (yalnızca kayıtlıysa)
+    calisma_saatleri ? {
+      soru: `${label} çalışma saatleri nedir?`,
+      cevap: `Çalışma saatleri: ${calisma_saatleri}. Güncel saatler ve nöbet günleri için profil sayfasını kontrol etmenizi öneririz.`,
+    } : null,
+    // 7) Puan / yorum (yalnızca gerçek yorum varsa)
+    (rev && rev > 0 && rat) ? {
+      soru: `${label} hakkında müşteri yorumları ve puanı nasıl?`,
+      cevap: `${label}, ${rev} değerlendirme sonucunda 5 üzerinden ${rat.toFixed(1)} puana sahiptir. Tüm yorumları Hekimhane profil sayfasında okuyabilirsiniz.`,
+    } : null,
+    // 8) Bölge (dolgu — her zaman geçerli)
+    {
+      soru: `${label} hangi il ve ilçede bulunuyor?`,
+      cevap: `${label}, ${yer} bölgesinde hizmet vermektedir. Aynı bölgedeki diğer eczaneleri ve nöbetçi eczaneleri Hekimhane Eczaneler sayfasından görüntüleyebilirsiniz.`,
+    },
+  ];
+
+  return candidates.filter((x): x is FaqItem => x !== null).slice(0, 5);
+}
+
+// ─────────────────────────────────────────────────────────────────
 //  Doktor (uzman / aile hekimi) SSS — ad/soyad temiz olduğu için isim
 //  çıkarımı gerekmez. Branşa (spec) özel soru + muayene ücreti/deneyim.
 // ─────────────────────────────────────────────────────────────────
