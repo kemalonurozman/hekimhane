@@ -150,6 +150,9 @@ export default function PanelPage() {
   const [claims, setClaims] = useState<ClaimRequest[]>([]);
   const [claimsLoading, setClaimsLoading] = useState(false);
   const [profileUrls, setProfileUrls] = useState<Record<string, string>>({});
+  const [premiumMap, setPremiumMap] = useState<Record<string, boolean>>({});
+  const [premiumMsg, setPremiumMsg] = useState<'success' | 'cancel' | null>(null);
+  const [upgradingId, setUpgradingId] = useState<string | null>(null);
   const [selectedEditClaim, setSelectedEditClaim] = useState<ClaimRequest | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -198,6 +201,32 @@ export default function PanelPage() {
       if (url) urls[c.id] = url;
     }));
     setProfileUrls(urls);
+
+    // Premium durumlarını çek (rozet / yükseltme butonu için)
+    const TBL: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
+    const pmap: Record<string, boolean> = {};
+    await Promise.all(approved.map(async c => {
+      const t = TBL[c.entity_type]; if (!t || !c.entity_id) return;
+      try {
+        const { data } = await supabase.from(t).select('premium').eq('id', c.entity_id).maybeSingle();
+        pmap[c.id] = !!(data as any)?.premium;
+      } catch { /* geç */ }
+    }));
+    setPremiumMap(pmap);
+  }
+
+  async function handleUpgrade(claimId: string, entity_type: string, entity_id: string) {
+    setUpgradingId(claimId);
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entity_type, entity_id }),
+      });
+      const j = await res.json();
+      if (j.url) { window.location.href = j.url; return; }
+      alert(j.error || 'Ödeme başlatılamadı.');
+    } catch { alert('Ödeme başlatılamadı.'); }
+    setUpgradingId(null);
   }
 
   async function handleLogout() {
@@ -205,6 +234,18 @@ export default function PanelPage() {
     await supabase.auth.signOut();
     router.replace('/giris');
   }
+
+  // Stripe checkout dönüşü: ?premium=success | cancel
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(window.location.search).get('premium');
+      if (p === 'success' || p === 'cancel') {
+        setPremiumMsg(p);
+        window.history.replaceState(null, '', '/panel');
+        if (p === 'success') setTimeout(() => setPremiumMsg(null), 8000);
+      }
+    } catch { /* noop */ }
+  }, []);
 
   if (loading) {
     return (
@@ -318,7 +359,18 @@ export default function PanelPage() {
 
       {/* ── MAIN ── */}
       <main style={{ marginLeft: isMobile ? 0 : 240, flex: 1, padding: isMobile ? '124px 16px 80px' : '96px 36px 32px', background: T.bg, minHeight: '100vh' }}>
-        {tab === 'dashboard' && <DashboardTab user={user} claims={claims} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { setSelectedEditClaim(c); setTab('edit'); }} />}
+        {premiumMsg && (
+          <div style={{ marginBottom: 18, padding: '14px 18px', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10,
+            background: premiumMsg === 'success' ? '#F0FDF4' : '#FFF7ED',
+            border: `1px solid ${premiumMsg === 'success' ? '#86EFAC' : '#FED7AA'}`,
+            color: premiumMsg === 'success' ? '#166534' : '#9A3412', fontSize: 13.5, fontWeight: 600 }}>
+            {premiumMsg === 'success'
+              ? '👑 Ödemeniz alındı! Premium üyeliğiniz birkaç saniye içinde aktifleşir (aktifleşmezse sayfayı yenileyin).'
+              : 'Ödeme iptal edildi. Dilediğinizde tekrar deneyebilirsiniz.'}
+            <button onClick={() => setPremiumMsg(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'inherit', fontFamily: 'inherit' }}>×</button>
+          </div>
+        )}
+        {tab === 'dashboard' && <DashboardTab user={user} claims={claims} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { setSelectedEditClaim(c); setTab('edit'); }} premiumMap={premiumMap} onUpgrade={handleUpgrade} upgradingId={upgradingId} />}
         {tab === 'claims'    && <ClaimsTab claims={claims} loading={claimsLoading} onNewClaim={() => setTab('new')} profileUrls={profileUrls} />}
         {tab === 'profile'   && <ProfileTab user={user} />}
         {tab === 'new'       && <NewClaimTab user={user} onSuccess={() => { loadClaims(user?.email || ''); setTab('claims'); }} />}
@@ -369,7 +421,7 @@ export default function PanelPage() {
 /* ═══════════════════════════════════════════════
    DASHBOARD
 ═══════════════════════════════════════════════ */
-function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoading, onTabChange, profileUrls, onEditClaim }: { user: User | null; claims: ClaimRequest[]; approvedClaims: ClaimRequest[]; pendingClaims: ClaimRequest[]; claimsLoading: boolean; onTabChange: (t: any) => void; profileUrls: Record<string, string>; onEditClaim: (c: ClaimRequest) => void }) {
+function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoading, onTabChange, profileUrls, onEditClaim, premiumMap, onUpgrade, upgradingId }: { user: User | null; claims: ClaimRequest[]; approvedClaims: ClaimRequest[]; pendingClaims: ClaimRequest[]; claimsLoading: boolean; onTabChange: (t: any) => void; profileUrls: Record<string, string>; onEditClaim: (c: ClaimRequest) => void; premiumMap: Record<string, boolean>; onUpgrade: (claimId: string, entityType: string, entityId: string) => void; upgradingId: string | null }) {
   const name = user?.user_metadata?.full_name || user?.user_metadata?.name || 'Kullanıcı';
   return (
     <div>
@@ -414,6 +466,18 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                       style={{ padding: '7px 14px', background: T.gold, color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
                       <Ic d={icons.edit} size={13} /> Düzenle
                     </button>
+                  )}
+                  {c.entity_id && c.entity_id !== 'new' && (
+                    premiumMap[c.id] ? (
+                      <span style={{ padding: '7px 12px', background: 'linear-gradient(135deg,#FEF3C7,#FDE68A)', color: '#92400E', border: '1px solid #F59E0B', borderRadius: 9, fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 5 }}>
+                        👑 Premium Aktif
+                      </span>
+                    ) : (
+                      <button onClick={() => onUpgrade(c.id, c.entity_type, c.entity_id!)} disabled={upgradingId === c.id}
+                        style={{ padding: '7px 14px', background: 'linear-gradient(135deg,#1B3A69,#0F2A55)', color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, border: 'none', cursor: upgradingId === c.id ? 'default' : 'pointer', opacity: upgradingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
+                        {upgradingId === c.id ? '…' : <>👑 Premium&apos;a Yükselt</>}
+                      </button>
+                    )
                   )}
                 </div>
               </div>

@@ -162,6 +162,7 @@ const SIDEBAR_ITEMS = [
   { key: 'dashboard',   label: 'Genel Bakış',      icon: IC.dash    },
   { key: 'claims',      label: 'Talepler',         icon: IC.claims  },
   { key: 'cekim',       label: 'Randevu & Çekim',  icon: IC.klinik  },
+  { key: 'premium',     label: 'Premium Üyeler',   icon: IC.shield  },
   { key: 'klinikler',   label: 'Klinikler',        icon: IC.klinik  },
   { key: 'hastaneler',  label: 'Hastaneler',       icon: IC.hastane },
   { key: 'doktorlar',   label: 'Doktorlar',        icon: IC.doktor  },
@@ -173,7 +174,7 @@ const SIDEBAR_ITEMS = [
   { key: 'geocode',     label: 'Harita Koordinat', icon: IC.dash    },
 ];
 
-type TabKey = 'dashboard' | 'claims' | 'cekim' | 'emailler' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
+type TabKey = 'dashboard' | 'claims' | 'cekim' | 'emailler' | 'premium' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
 
 /* ═══════════════════════════════════════════════
    DASHBOARD SEKMESİ
@@ -1824,6 +1825,107 @@ function UsersTab() {
 /* ═══════════════════════════════════════════════
    ANA BİLEŞEN
 ═══════════════════════════════════════════════ */
+// ── Premium Üyeler ──────────────────────────────────────────────
+interface PremiumItem { type: string; id: string; name: string; il: string; ilce: string; slug: string | null; spec: string | null; rat: number; rev: number; claimed: boolean; tel: string | null; sub: any | null; }
+const TYPE_META: Record<string, { label: string; color: string }> = {
+  klinik:  { label: 'Klinik',  color: C.cyan },
+  hastane: { label: 'Hastane', color: C.purple },
+  doktor:  { label: 'Doktor',  color: C.green },
+  eczane:  { label: 'Eczane',  color: C.orange },
+};
+
+function PremiumTab() {
+  const [items, setItems]   = useState<PremiumItem[]>([]);
+  const [counts, setCounts] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<string>('all');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/admin/premium');
+        const j = await res.json();
+        setItems(j.items || []); setCounts(j.counts || null);
+      } catch { /* noop */ }
+      setLoading(false);
+    })();
+  }, []);
+
+  const shown = filter === 'all' ? items : items.filter(i => i.type === filter);
+  const profilHref = (it: PremiumItem) => {
+    if (!it.slug) return null;
+    if (it.type === 'klinik')  return `/klinikler/${it.slug}`;
+    if (it.type === 'hastane') return `/hastaneler/${it.slug}`;
+    if (it.type === 'doktor')  return `/doktorlar/${it.slug}`;
+    if (it.type === 'eczane')  return `/eczaneler/${it.slug}`;
+    return null;
+  };
+
+  return (
+    <div>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: '-0.4px', margin: '0 0 4px' }}>Premium Üyeler</h1>
+        <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Premium (👑) işletmeler ve varsa Stripe abonelik durumları.</p>
+      </div>
+
+      {/* Sayılar + filtre */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+        {[
+          { k: 'all',     label: 'Tümü',    n: counts?.toplam },
+          { k: 'klinik',  label: 'Klinik',  n: counts?.klinik },
+          { k: 'hastane', label: 'Hastane', n: counts?.hastane },
+          { k: 'doktor',  label: 'Doktor',  n: counts?.doktor },
+          { k: 'eczane',  label: 'Eczane',  n: counts?.eczane },
+        ].map(t => {
+          const active = filter === t.k;
+          return (
+            <button key={t.k} onClick={() => setFilter(t.k)}
+              style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 10, border: `1px solid ${active ? C.gold : C.border}`, background: active ? 'rgba(212,168,67,.12)' : C.card, color: active ? C.gold : C.muted, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              {t.label}
+              <span style={{ background: active ? C.gold : C.border, color: active ? '#1B1B1F' : C.muted, borderRadius: 8, padding: '1px 7px', fontSize: 11, fontWeight: 800 }}>{t.n ?? '·'}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {loading ? (
+        <div style={{ padding: 40, textAlign: 'center', color: C.muted, fontSize: 13 }}>Yükleniyor…</div>
+      ) : shown.length === 0 ? (
+        <div style={{ padding: 40, textAlign: 'center', color: C.muted, fontSize: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
+          Henüz premium üye yok. İşletme sekmelerinden bir kaydın “👑 Premium Hesap” alanını true yaparak veya self-servis abonelikle premium açılır.
+        </div>
+      ) : (
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: 'hidden' }}>
+          {shown.map((it, i) => {
+            const m = TYPE_META[it.type] || { label: it.type, color: C.muted };
+            const href = profilHref(it);
+            return (
+              <div key={`${it.type}:${it.id}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', borderBottom: i < shown.length - 1 ? `1px solid ${C.border}` : 'none' }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: m.color, background: `${m.color}22`, border: `1px solid ${m.color}44`, borderRadius: 20, padding: '3px 9px', flexShrink: 0, minWidth: 58, textAlign: 'center' }}>{m.label}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.name || '—'}</div>
+                  <div style={{ fontSize: 11.5, color: C.muted }}>
+                    {[it.ilce, it.il].filter(Boolean).join(', ')}{it.spec ? ` · ${it.spec}` : ''}{it.rat > 0 ? ` · ★ ${it.rat.toFixed(1)} (${it.rev})` : ''}
+                  </div>
+                </div>
+                {it.sub ? (
+                  <span style={{ fontSize: 10.5, fontWeight: 700, color: it.sub.status === 'active' ? C.green : C.amber, background: it.sub.status === 'active' ? 'rgba(16,185,129,.12)' : 'rgba(245,158,11,.12)', borderRadius: 8, padding: '3px 9px', flexShrink: 0 }}>
+                    Stripe: {it.sub.status}
+                  </span>
+                ) : (
+                  <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, background: C.border, borderRadius: 8, padding: '3px 9px', flexShrink: 0 }}>Elle</span>
+                )}
+                <span style={{ fontSize: 10.5, fontWeight: 700, color: it.claimed ? C.green : C.muted, flexShrink: 0 }}>{it.claimed ? '✓ Sahipli' : 'Sahipsiz'}</span>
+                {href && <a href={href} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, fontWeight: 700, color: C.gold, textDecoration: 'none', flexShrink: 0 }}>Profil →</a>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [user,    setUser]    = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -2021,6 +2123,7 @@ export default function AdminPage() {
         {tab === 'claims'     && <ClaimsTab claims={claims} loading={claimsLoading} onAction={handleClaimAction} actionId={actionId} />}
         {tab === 'cekim'      && <CekimTalepleriTab />}
         {tab === 'emailler'   && <EmailListesiTab />}
+        {tab === 'premium'    && <PremiumTab />}
         {tab === 'klinikler'  && <EntityTab entityType="klinikler" />}
         {tab === 'hastaneler' && <EntityTab entityType="hastaneler" />}
         {tab === 'doktorlar'  && <EntityTab entityType="doktorlar" />}
