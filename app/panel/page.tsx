@@ -146,7 +146,7 @@ export default function PanelPage() {
   const router = useRouter();
   const [user,   setUser]   = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart'>('dashboard');
+  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart' | 'randevu'>('dashboard');
   const [claims, setClaims] = useState<ClaimRequest[]>([]);
   const [claimsLoading, setClaimsLoading] = useState(false);
   const [profileUrls, setProfileUrls] = useState<Record<string, string>>({});
@@ -228,6 +228,7 @@ export default function PanelPage() {
   const navItems = [
     { key: 'dashboard'  as const, label: 'Genel Bakış',       icon: 'dashboard' },
     { key: 'claims'     as const, label: 'Başvurularım',      icon: 'list' },
+    { key: 'randevu'    as const, label: 'Randevu Talepleri', icon: 'bell' },
     { key: 'edit'       as const, label: 'Profilimi Düzenle', icon: 'edit' },
     { key: 'hekimkart'  as const, label: 'HekimKart',         icon: 'bell' },
     { key: 'yorumlar'   as const, label: 'Yorumlar',          icon: 'star' },
@@ -324,6 +325,7 @@ export default function PanelPage() {
         {tab === 'edit'      && <EditProfileTab approvedClaims={approvedClaims} selectedClaim={selectedEditClaim} onSelectClaim={setSelectedEditClaim} isMobile={isMobile} />}
         {tab === 'hekimkart' && <HekimKartTab approvedClaims={approvedClaims} profileUrls={profileUrls} user={user} />}
         {tab === 'yorumlar'  && <YorumlarTab approvedClaims={approvedClaims} />}
+        {tab === 'randevu'   && <RandevuTalepleriTab approvedClaims={approvedClaims} />}
       </main>
 
       {/* ── MOBİL ALT NAVİGASYON ── */}
@@ -333,7 +335,7 @@ export default function PanelPage() {
           background: 'white', borderTop: `1px solid ${T.border}`,
           display: 'flex', alignItems: 'stretch'
         }}>
-          {navItems.filter(n => ['dashboard','edit','hekimkart','yorumlar','profile'].includes(n.key)).map(item => (
+          {navItems.filter(n => ['dashboard','randevu','edit','yorumlar','profile'].includes(n.key)).map(item => (
             <button key={item.key} onClick={() => { setTab(item.key); setMobileMenuOpen(false); }}
               style={{
                 flex: 1, background: 'none', border: 'none', cursor: 'pointer',
@@ -1229,6 +1231,162 @@ function arrayToTags(val: unknown): string {
    YORUMLAR TAB
 ═══════════════════════════════════════════════ */
 interface Yorum { id: string; entity_id: string; entity_type: string; author: string; rating: number; text: string; created_at: string; reply_text?: string | null; reply_at?: string | null; }
+
+// ── Randevu Talepleri (işletme sahibi görünümü) ──────────────────
+interface RandevuTalep {
+  id: string;
+  entity_type: string;
+  entity_id: string;
+  entity_name: string;
+  ad_soyad: string;
+  tel: string;
+  email: string | null;
+  tercih: string | null;
+  mesaj: string | null;
+  status: string;
+  created_at: string;
+}
+const RANDEVU_DURUM: Record<string, { label: string; bg: string; color: string; border: string }> = {
+  yeni:       { label: 'Yeni',        bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
+  arandi:     { label: 'Arandı',      bg: '#EFF6FF', color: '#1D4ED8', border: '#BFDBFE' },
+  tamamlandi: { label: 'Tamamlandı',  bg: '#F0FDF4', color: '#166534', border: '#86EFAC' },
+  iptal:      { label: 'İptal',       bg: '#FEF2F2', color: '#991B1B', border: '#FCA5A5' },
+};
+
+function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
+  const [talepler, setTalepler] = useState<RandevuTalep[]>([]);
+  const [loading,  setLoading]  = useState(true);
+  const [updating, setUpdating] = useState<string | null>(null);
+  const [selectedEntity, setSelectedEntity] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  const hasEntities = approvedClaims.some(c => c.entity_id && c.entity_id !== 'new');
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/panel/randevu-talepleri');
+        const d = res.ok ? await res.json() : { talepler: [] };
+        setTalepler(d.talepler || []);
+      } catch { setTalepler([]); }
+      setLoading(false);
+    })();
+  }, []);
+
+  async function setStatus(id: string, status: string) {
+    setUpdating(id);
+    try {
+      const res = await fetch('/api/panel/randevu-talepleri', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status }),
+      });
+      if (res.ok) setTalepler(prev => prev.map(t => t.id === id ? { ...t, status } : t));
+    } catch { /* yoksay */ }
+    setUpdating(null);
+  }
+
+  const entityNames = Array.from(new Set(talepler.map(t => t.entity_name)));
+  const shown = talepler
+    .filter(t => selectedEntity === 'all' || t.entity_name === selectedEntity)
+    .filter(t => statusFilter === 'all' || t.status === statusFilter);
+  const yeniCount = talepler.filter(t => t.status === 'yeni').length;
+
+  const fmtDate = (s: string) => { try { return new Date(s).toLocaleString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return s; } };
+
+  return (
+    <div>
+      <div style={{ marginBottom: 22 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: T.text, margin: 0, letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: 10 }}>
+          Randevu Talepleri
+          {yeniCount > 0 && (
+            <span style={{ fontSize: 12, fontWeight: 800, color: '#065F46', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 20, padding: '3px 11px' }}>{yeniCount} yeni</span>
+          )}
+        </h1>
+        <p style={{ fontSize: 13, color: T.muted, marginTop: 4 }}>İşletmenize gelen randevu taleplerini buradan görüp yönetebilirsiniz.</p>
+      </div>
+
+      {!hasEntities ? (
+        <div style={{ background: T.white, borderRadius: 16, border: `1px solid ${T.border}`, padding: '40px 24px', textAlign: 'center', color: T.muted }}>
+          Randevu taleplerini görebilmek için önce bir işletmenizin sahipliğini onaylatmanız gerekir.
+        </div>
+      ) : loading ? (
+        <div style={{ padding: 40, textAlign: 'center', color: T.muted }}>Yükleniyor…</div>
+      ) : (
+        <>
+          {/* Filtreler */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+            {(['all', 'yeni', 'arandi', 'tamamlandi'] as const).map(f => {
+              const n = f === 'all' ? talepler.length : talepler.filter(t => t.status === f).length;
+              const lbl = f === 'all' ? 'Tümü' : (RANDEVU_DURUM[f]?.label || f);
+              return (
+                <button key={f} onClick={() => setStatusFilter(f)}
+                  style={{ padding: '7px 14px', borderRadius: 9, fontSize: 13, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
+                    background: statusFilter === f ? T.navy : T.white, color: statusFilter === f ? '#fff' : T.muted,
+                    border: `1px solid ${statusFilter === f ? T.navy : T.border}` }}>
+                  {lbl} ({n})
+                </button>
+              );
+            })}
+            {entityNames.length > 1 && (
+              <select value={selectedEntity} onChange={e => setSelectedEntity(e.target.value)}
+                style={{ marginLeft: 'auto', padding: '7px 12px', borderRadius: 9, fontSize: 13, fontFamily: 'inherit', border: `1px solid ${T.border}`, background: T.white, color: T.text }}>
+                <option value="all">Tüm işletmeler</option>
+                {entityNames.map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            )}
+          </div>
+
+          {shown.length === 0 ? (
+            <div style={{ background: T.white, borderRadius: 16, border: `1px solid ${T.border}`, padding: '40px 24px', textAlign: 'center', color: T.muted }}>
+              {talepler.length === 0 ? 'Henüz randevu talebi yok. Talepler geldiğinde burada görünecek.' : 'Bu filtrede talep yok.'}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {shown.map(t => {
+                const d = RANDEVU_DURUM[t.status] || RANDEVU_DURUM.yeni;
+                return (
+                  <div key={t.id} style={{ background: T.white, borderRadius: 14, border: `1px solid ${T.border}`, borderLeft: `4px solid ${t.status === 'yeni' ? T.green : T.border}`, padding: '16px 18px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: T.text }}>{t.ad_soyad}</div>
+                      <span style={{ fontSize: 11, fontWeight: 700, background: d.bg, color: d.color, border: `1px solid ${d.border}`, borderRadius: 20, padding: '3px 10px' }}>{d.label}</span>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 16px', fontSize: 13, color: T.muted, marginBottom: 10 }}>
+                      <a href={`tel:${t.tel}`} style={{ color: T.navy, fontWeight: 700, textDecoration: 'none' }}>📞 {t.tel}</a>
+                      {t.email && <span>✉️ {t.email}</span>}
+                      {entityNames.length > 1 && <span>🏥 {t.entity_name}</span>}
+                      <span>🕐 {fmtDate(t.created_at)}</span>
+                    </div>
+                    {(t.tercih || t.mesaj) && (
+                      <div style={{ fontSize: 13, color: T.text, background: T.bg, borderRadius: 8, padding: '8px 12px', marginBottom: 10, lineHeight: 1.5 }}>
+                        {t.tercih && <div><strong style={{ color: T.muted }}>Tercih:</strong> {t.tercih}</div>}
+                        {t.mesaj && <div><strong style={{ color: T.muted }}>Not:</strong> {t.mesaj}</div>}
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      {t.status !== 'arandi' && (
+                        <button onClick={() => setStatus(t.id, 'arandi')} disabled={updating === t.id}
+                          style={{ padding: '7px 14px', borderRadius: 9, fontSize: 12.5, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE' }}>Arandı olarak işaretle</button>
+                      )}
+                      {t.status !== 'tamamlandi' && (
+                        <button onClick={() => setStatus(t.id, 'tamamlandi')} disabled={updating === t.id}
+                          style={{ padding: '7px 14px', borderRadius: 9, fontSize: 12.5, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', background: '#F0FDF4', color: '#166534', border: '1px solid #86EFAC' }}>Tamamlandı</button>
+                      )}
+                      {t.status !== 'yeni' && (
+                        <button onClick={() => setStatus(t.id, 'yeni')} disabled={updating === t.id}
+                          style={{ padding: '7px 14px', borderRadius: 9, fontSize: 12.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', background: T.white, color: T.muted, border: `1px solid ${T.border}` }}>Yeni'ye al</button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
 
 function YorumlarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   const [yorumlar,       setYorumlar]       = useState<Yorum[]>([]);
