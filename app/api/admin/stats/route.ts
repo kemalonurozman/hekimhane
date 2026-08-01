@@ -61,6 +61,14 @@ export async function GET(request: NextRequest) {
         .order('created_at', { ascending: false }).limit(5),
     ]);
 
+    // Bekleyen (yeni) randevu talebi sayısı — tablo yoksa 0
+    let randevuPending = 0;
+    try {
+      const { count } = await admin.from('randevu_talepleri')
+        .select('*', { count: 'exact', head: true }).eq('status', 'yeni');
+      randevuPending = count ?? 0;
+    } catch { /* tablo yok */ }
+
     return NextResponse.json({
       entities: {
         klinik:  klinikCount  ?? 0,
@@ -77,6 +85,7 @@ export async function GET(request: NextRequest) {
         total: (pendingCount ?? 0) + (approvedCount ?? 0) + (rejectedCount ?? 0),
       },
       recentClaims: recentClaims ?? [],
+      randevuPending,
     });
   } catch (err) {
     console.error('admin/stats error:', err);

@@ -67,6 +67,7 @@ interface Stats {
   entities: { klinik: number; hastane: number; doktor: number; eczane: number; klinikClaimed: number; hastaneClaimed: number };
   claims: { pending: number; approved: number; rejected: number; total: number };
   recentClaims: Claim[];
+  randevuPending?: number;
 }
 
 interface Claim {
@@ -1211,7 +1212,7 @@ function EmailListesiTab() {
 
   const KAYNAK_LABEL: Record<string, string> = {
     giris: 'Giriş', kayit: 'Kayıt', sahiplenme: 'Sahiplenme',
-    profil: 'Profil', form: 'Form',
+    profil: 'Profil', form: 'Form', randevu: 'Randevu',
   };
 
   useEffect(() => {
@@ -1835,6 +1836,7 @@ export default function AdminPage() {
   const [actionId,     setActionId]     = useState<string | null>(null);
   const [toast,        setToast]        = useState('');
   const [pendingCount, setPendingCount] = useState(0);
+  const [randevuPending, setRandevuPending] = useState(0);
 
   useEffect(() => {
     const supabase = createSupabaseBrowser();
@@ -1861,6 +1863,7 @@ export default function AdminPage() {
         const data: Stats = await res.json();
         setStats(data);
         setPendingCount(data.claims.pending);
+        setRandevuPending(data.randevuPending ?? 0);
       }
     } catch {}
   }
@@ -1981,6 +1984,9 @@ export default function AdminPage() {
                 style={{ display: 'flex', alignItems: 'center', gap: 9, width: '100%', padding: '10px 10px', marginBottom: 2, borderRadius: 10, background: active ? 'rgba(255,255,255,.08)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', color: active ? C.text : C.muted, fontSize: 13, fontWeight: active ? 700 : 500, fontFamily: 'inherit', transition: 'all .12s', borderLeft: active ? `3px solid ${C.gold}` : '3px solid transparent' }}>
                 <span style={{ flexShrink: 0 }}><Ic d={item.icon} size={15} /></span>
                 {item.label}
+                {item.key === 'cekim' && randevuPending > 0 && (
+                  <span style={{ marginLeft: 'auto', background: '#059669', color: 'white', borderRadius: 10, padding: '1px 7px', fontSize: 10, fontWeight: 800 }}>{randevuPending}</span>
+                )}
                 {item.key === 'claims' && pendingCount > 0 && (
                   <span style={{ marginLeft: 'auto', background: C.amber, color: 'white', borderRadius: 10, padding: '1px 7px', fontSize: 10, fontWeight: 800 }}>{pendingCount}</span>
                 )}

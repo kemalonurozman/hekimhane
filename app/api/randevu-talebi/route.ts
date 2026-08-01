@@ -64,6 +64,34 @@ async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, ka
   } catch { /* bildirim hatası ana akışı etkilemez */ }
 }
 
+// Müşteri e-posta bıraktıysa e-posta listesine (email_aboneleri) 'randevu'
+// kaynağıyla ekle. Ana akışı asla bloklamaz.
+async function addToEmailList(admin: ReturnType<typeof adminClient>, kayit: {
+  email: string | null; ad_soyad: string; entity_id: string; entity_type: string; entity_name: string;
+}) {
+  if (!kayit.email || !kayit.email.includes('@')) return;
+  const emailN = kayit.email.trim().toLowerCase();
+  try {
+    // email_aboneleri'nde 'email,tip,entity_id' için unique constraint yok →
+    // upsert onConflict çalışmaz. Elle kontrol edip yoksa ekliyoruz.
+    let q = (admin as any).from('email_aboneleri').select('id')
+      .eq('email', emailN).eq('tip', 'hasta');
+    q = kayit.entity_id ? q.eq('entity_id', kayit.entity_id) : q.is('entity_id', null);
+    const { data: existing } = await q.limit(1);
+    if (existing && existing.length) return; // zaten kayıtlı
+    await (admin as any).from('email_aboneleri').insert({
+      email: emailN,
+      isim: kayit.ad_soyad || null,
+      tip: 'hasta',
+      kaynak: 'randevu',
+      entity_id: kayit.entity_id || null,
+      entity_type: kayit.entity_type || null,
+      entity_name: kayit.entity_name || null,
+      aktif: true,
+    });
+  } catch { /* liste kaydı ana akışı etkilemez */ }
+}
+
 function adminClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -138,6 +166,7 @@ export async function POST(req: NextRequest) {
     const { error } = await (admin as any).from('randevu_talepleri').insert(kayit);
 
     if (!error) {
+      await addToEmailList(admin, kayit);
       await sendRandevuBildirimleri(admin, kayit);
       return NextResponse.json({ ok: true });
     }
@@ -163,6 +192,7 @@ export async function POST(req: NextRequest) {
         durum: 'beklemede',
       });
       if (!fbErr) {
+        await addToEmailList(admin, kayit);
         await sendRandevuBildirimleri(admin, kayit);
         return NextResponse.json({ ok: true });
       }
