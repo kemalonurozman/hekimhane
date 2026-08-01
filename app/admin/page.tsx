@@ -1867,9 +1867,15 @@ export default function AdminPage() {
 
   const loadClaims = useCallback(async () => {
     setClaimsLoading(true);
-    const sb = createSupabaseBrowser();
-    const { data } = await (sb as any).from('claim_requests').select('*').order('created_at', { ascending: false });
-    setClaims(data || []);
+    try {
+      // Service-role API — claim_requests RLS (profiles özyinelemesi) tarayıcı
+      // client'ında sorguyu bozduğu için doğrudan Supabase yerine API kullanılır.
+      const res = await fetch('/api/admin/claims');
+      const data = res.ok ? await res.json() : { claims: [] };
+      setClaims(data.claims || []);
+    } catch {
+      setClaims([]);
+    }
     setClaimsLoading(false);
   }, []);
 
