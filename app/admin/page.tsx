@@ -160,7 +160,7 @@ function getProfileUrl(type: string, entity: Entity): string | null {
 const SIDEBAR_ITEMS = [
   { key: 'dashboard',   label: 'Genel Bakış',      icon: IC.dash    },
   { key: 'claims',      label: 'Talepler',         icon: IC.claims  },
-  { key: 'cekim',       label: '360° Çekim Talep', icon: IC.klinik  },
+  { key: 'cekim',       label: 'Randevu & Çekim',  icon: IC.klinik  },
   { key: 'klinikler',   label: 'Klinikler',        icon: IC.klinik  },
   { key: 'hastaneler',  label: 'Hastaneler',       icon: IC.hastane },
   { key: 'doktorlar',   label: 'Doktorlar',        icon: IC.doktor  },
@@ -984,6 +984,7 @@ function CekimTalepleriTab() {
   const [talepler, setTalepler]   = useState<CekimTalebi[]>([]);
   const [loading,  setLoading]    = useState(true);
   const [filter,   setFilter]     = useState<string>('all');
+  const [srcFilter, setSrcFilter] = useState<'all' | 'randevu' | 'cekim'>('all');
   const [updating, setUpdating]   = useState<string | null>(null);
 
   const sb = createSupabaseBrowser();
@@ -1039,17 +1040,26 @@ function CekimTalepleriTab() {
     setUpdating(null);
   };
 
-  const shown = filter === 'all' ? talepler : talepler.filter(t => t.durum === filter);
+  const bySrc = srcFilter === 'all' ? talepler : talepler.filter(t => t._source === srcFilter);
+  const shown = filter === 'all' ? bySrc : bySrc.filter(t => t.durum === filter);
+  const randevuCount = talepler.filter(t => t._source === 'randevu').length;
+  const cekimCount   = talepler.filter(t => t._source === 'cekim').length;
+  const randevuBekleyen = talepler.filter(t => t._source === 'randevu' && t.durum === 'beklemede').length;
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: 0, letterSpacing: '-0.4px' }}>
-            360° Çekim Talepleri
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: 0, letterSpacing: '-0.4px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            Randevu &amp; Çekim Talepleri
+            {randevuBekleyen > 0 && (
+              <span style={{ fontSize: 12, fontWeight: 800, color: '#065F46', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 20, padding: '3px 11px' }}>
+                {randevuBekleyen} yeni randevu
+              </span>
+            )}
           </h2>
           <p style={{ fontSize: 13, color: C.muted, margin: '4px 0 0' }}>
-            İşletmelerden gelen profesyonel fotoğraf çekim talepleri
+            Ziyaretçilerden gelen randevu talepleri ve işletmelerden gelen 360° çekim talepleri
           </p>
         </div>
         <a href="/360-fotograf" target="_blank" rel="noopener"
@@ -1057,6 +1067,23 @@ function CekimTalepleriTab() {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           Çekim Sayfasını Görüntüle
         </a>
+      </div>
+
+      {/* Kaynak filtresi: Randevu / Çekim */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        {([
+          { k: 'all' as const,     label: `Tümü (${talepler.length})`,    color: C.text },
+          { k: 'randevu' as const, label: `Randevu (${randevuCount})`,     color: '#059669' },
+          { k: 'cekim' as const,   label: `360° Çekim (${cekimCount})`,    color: C.gold },
+        ]).map(s => (
+          <button key={s.k} onClick={() => setSrcFilter(s.k)}
+            style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
+              background: srcFilter === s.k ? s.color : C.panel,
+              color: srcFilter === s.k ? '#fff' : C.muted,
+              border: `1px solid ${srcFilter === s.k ? s.color : C.border}`, transition: 'all .15s' }}>
+            {s.label}
+          </button>
+        ))}
       </div>
 
       {/* Özet kartlar */}
@@ -1080,21 +1107,24 @@ function CekimTalepleriTab() {
       ) : shown.length === 0 ? (
         <div style={{ background: C.card, borderRadius: 16, border: `1px solid ${C.border}`, padding: '48px 24px', textAlign: 'center', color: C.muted }}>
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="1.5" strokeLinecap="round" style={{ display: 'block', margin: '0 auto 12px' }}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          Henüz çekim talebi yok.
+          {srcFilter === 'randevu' ? 'Henüz randevu talebi yok.' : srcFilter === 'cekim' ? 'Henüz çekim talebi yok.' : 'Henüz talep yok.'}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {shown.map(t => {
             const durum = DURUM_LABELS[t.durum] || { label: t.durum, color: C.muted };
             return (
-              <div key={t.id} style={{ background: C.card, borderRadius: 16, border: `1px solid ${C.border}`, padding: '20px 24px' }}>
+              <div key={t.id} style={{ background: C.card, borderRadius: 16, border: `1px solid ${C.border}`, borderLeft: t._source === 'randevu' ? '4px solid #059669' : `1px solid ${C.border}`, padding: '20px 24px' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
                   {/* Sol: bilgiler */}
                   <div style={{ flex: 1, minWidth: 240 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
+                      {t._source === 'randevu' && (
+                        <span style={{ fontSize: 10, fontWeight: 800, color: '#fff', background: '#059669', borderRadius: 6, padding: '2px 8px', textTransform: 'uppercase', letterSpacing: '.5px' }}>Randevu</span>
+                      )}
                       <span style={{ fontSize: 16, fontWeight: 800, color: C.text }}>{t.isletme_adi}</span>
                       {t.isletme_turu && (
-                        <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, background: 'rgba(212,168,67,.12)', border: '1px solid rgba(212,168,67,.25)', borderRadius: 6, padding: '2px 8px', textTransform: 'uppercase' }}>{t.isletme_turu}</span>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, background: 'rgba(212,168,67,.12)', border: '1px solid rgba(212,168,67,.25)', borderRadius: 6, padding: '2px 8px', textTransform: 'uppercase' }}>{t._source === 'randevu' ? t.isletme_turu.replace('randevu-', '') : t.isletme_turu}</span>
                       )}
                       <span style={{ fontSize: 10, fontWeight: 700, color: durum.color, background: `${durum.color}18`, border: `1px solid ${durum.color}40`, borderRadius: 6, padding: '2px 8px' }}>
                         {durum.label}
