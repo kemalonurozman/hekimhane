@@ -69,6 +69,12 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
           line-height: 1.3;
           margin-bottom: 5px;
         }
+        /* Sağ üstteki Karşılaştır butonuna yer aç — metin altına girmesin */
+        .klinik-card__name-shim {
+          float: right;
+          width: 92px;
+          height: 26px;
+        }
         .klinik-card__rating-row {
           display: flex;
           align-items: center;
@@ -141,7 +147,7 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
           </div>
 
           <div className="klinik-card__info">
-            <div className="klinik-card__name">{k.name}</div>
+            <div className="klinik-card__name"><span className="klinik-card__name-shim" aria-hidden="true" />{k.name}</div>
 
             {k.rat > 0 && (
               <div className="klinik-card__rating-row">

@@ -68,6 +68,11 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
           line-height: 1.3;
           margin-bottom: 5px;
         }
+        .doktor-card__name-shim {
+          float: right;
+          width: 92px;
+          height: 26px;
+        }
         .doktor-card__rating-row {
           display: flex;
           align-items: center;
@@ -133,7 +138,7 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
           </div>
 
           <div className="doktor-card__info">
-            <div className="doktor-card__name">{displayName}</div>
+            <div className="doktor-card__name"><span className="doktor-card__name-shim" aria-hidden="true" />{displayName}</div>
 
             {/* Yıldız + puan + ücret aynı satırda */}
             <div className="doktor-card__rating-row">

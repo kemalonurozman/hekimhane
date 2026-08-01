@@ -65,6 +65,11 @@ export default function EczaneCard({ eczane: e }: { eczane: Eczane }) {
           line-height: 1.3;
           margin-bottom: 5px;
         }
+        .eczane-card__name-shim {
+          float: right;
+          width: 92px;
+          height: 26px;
+        }
         .eczane-card__rating-row {
           display: flex;
           align-items: center;
@@ -128,7 +133,7 @@ export default function EczaneCard({ eczane: e }: { eczane: Eczane }) {
           </div>
 
           <div className="eczane-card__info">
-            <div className="eczane-card__name">{e.name}</div>
+            <div className="eczane-card__name"><span className="eczane-card__name-shim" aria-hidden="true" />{e.name}</div>
 
             {/* Puan */}
             {e.rat != null && e.rat > 0 && (
