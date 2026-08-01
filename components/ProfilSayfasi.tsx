@@ -558,6 +558,34 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
 }
 
 // ── Randevu Talep Modalı ─────────────────────────────────────────
+// NOT: <style> blok metnine tırnak (' ") koyma → hydration uyumsuzluğu.
+const RANDEVU_MODAL_CSS = `
+.randevu-modal-card input, .randevu-modal-card select, .randevu-modal-card textarea {
+  transition: border-color .15s, box-shadow .15s;
+}
+.randevu-modal-card input:focus, .randevu-modal-card select:focus, .randevu-modal-card textarea:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(27,58,105,.14);
+}
+.randevu-modal-card input[type=date] {
+  -webkit-appearance: none; appearance: none; min-height: 48px;
+}
+.randevu-modal-card input[type=date]::-webkit-calendar-picker-indicator {
+  cursor: pointer; opacity: .55; font-size: 17px;
+}
+.randevu-modal-card select {
+  -webkit-appearance: none; appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 20px, calc(100% - 13px) 20px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 38px;
+}
+@media (max-width: 480px) {
+  .randevu-modal-overlay { padding: 10px; }
+  .randevu-modal-card { padding: 20px 16px; border-radius: 16px; }
+}
+`;
 function RandevuModal({ name, entityType, entityId, open, onClose }: {
   name: string; entityType: string; entityId: string | number; open: boolean; onClose: () => void;
 }) {
@@ -611,14 +639,17 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '12px 14px', border: '1.5px solid var(--border)', borderRadius: 12,
-    fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+    fontSize: 16, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+    background: '#fff', color: 'var(--text)',
   };
   const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6 };
 
   return (
     <div onClick={e => { if (e.target === e.currentTarget) onClose(); }}
-      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-      <div style={{ background: 'white', borderRadius: 20, maxWidth: 480, width: '100%', padding: 32, position: 'relative', boxShadow: '0 24px 64px rgba(0,0,0,.18)', maxHeight: '90vh', overflowY: 'auto' }}>
+      className="randevu-modal-overlay"
+      style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.55)', backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <style dangerouslySetInnerHTML={{ __html: RANDEVU_MODAL_CSS }} />
+      <div className="randevu-modal-card" style={{ background: 'white', borderRadius: 20, maxWidth: 460, width: '100%', padding: 28, position: 'relative', boxShadow: '0 24px 64px rgba(0,0,0,.28)', maxHeight: '92vh', overflowY: 'auto', boxSizing: 'border-box' }}>
         <button onClick={onClose} style={{ position: 'absolute', top: 14, right: 14, width: 32, height: 32, borderRadius: '50%', background: '#F3F4F6', border: 'none', cursor: 'pointer', fontSize: 16, color: '#6B7280' }}>✕</button>
         {done ? (
           <div style={{ textAlign: 'center', padding: '16px 0' }}>
@@ -943,7 +974,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
             <div className="profil-action-col">
               {(
                 <>
-                  <button onClick={() => setActiveTab('randevu')}
+                  <button onClick={() => setRandevuModal(true)}
                     style={{ padding: '11px 20px', borderRadius: 11, fontSize: 13.5, fontWeight: 700, background: 'var(--gold)', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 4px 16px rgba(212,168,67,.3)' }}>
                     <i className="fa-solid fa-calendar-check" /> Randevu Al
                   </button>
