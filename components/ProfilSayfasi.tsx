@@ -564,7 +564,8 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
   const [adSoyad, setAdSoyad] = useState('');
   const [tel, setTel]         = useState('');
   const [email, setEmail]     = useState('');
-  const [tercih, setTercih]   = useState('');
+  const [tarih, setTarih]     = useState('');   // YYYY-MM-DD (tarih seçici)
+  const [saat, setSaat]       = useState('');   // gün içi tercih
   const [mesaj, setMesaj]     = useState('');
   const [consent, setConsent] = useState(false);
   const [done, setDone]       = useState(false);
@@ -582,6 +583,11 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
     if (!consent) { setHata('Göndermek için KVKK onay kutusunu işaretlemeniz gerekir.'); return; }
     setSaving(true);
     setHata('');
+    // Tarih + gün içi tercihi tek metne birleştir
+    const tarihStr = tarih
+      ? new Date(tarih + 'T00:00:00').toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' })
+      : '';
+    const tercih = [tarihStr, saat].filter(Boolean).join(' · ');
     try {
       const res = await fetch('/api/randevu-talebi', {
         method: 'POST',
@@ -658,8 +664,18 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="ornek@email.com" style={inputStyle} />
               </div>
               <div>
-                <label style={labelStyle}>Tercih Ettiğiniz Tarih / Saat <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
-                <input type="text" value={tercih} onChange={e => setTercih(e.target.value)} placeholder="Örn: Hafta içi öğleden sonra" style={inputStyle} />
+                <label style={labelStyle}>Tercih Ettiğiniz Tarih <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
+                <input type="date" value={tarih} onChange={e => setTarih(e.target.value)}
+                  min={new Date().toISOString().slice(0, 10)} style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>Tercih Ettiğiniz Saat Dilimi <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
+                <select value={saat} onChange={e => setSaat(e.target.value)} style={inputStyle}>
+                  <option value="">Fark etmez</option>
+                  <option value="Sabah (09:00-12:00)">Sabah (09:00-12:00)</option>
+                  <option value="Öğleden sonra (12:00-17:00)">Öğleden sonra (12:00-17:00)</option>
+                  <option value="Akşam (17:00-20:00)">Akşam (17:00-20:00)</option>
+                </select>
               </div>
               <div>
                 <label style={labelStyle}>Notunuz <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
