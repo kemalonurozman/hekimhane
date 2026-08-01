@@ -30,16 +30,21 @@ async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, ka
       replyTo: kayit.email || undefined,
     });
 
-    // 2) İşletme onaylı (claimed) ise sahibine de bildir
+    // 2) İşletme onaylı (claimed) ise sahibine de bildir — her işletme kendi
+    //    onaylı claim e-postasına eşlenir (service-role, RLS'ten etkilenmez).
     try {
       const { data: claim } = await (admin as any).from('claim_requests')
         .select('email').eq('entity_id', kayit.entity_id).eq('status', 'approved')
         .not('email', 'is', null).limit(1).maybeSingle();
       if (claim?.email && claim.email !== ADMIN_EMAIL) {
+        const sahipHtml = mailShell('Yeni Randevu Talebiniz Var',
+          `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${kayit.entity_name}</strong> işletmeniz için yeni bir randevu talebi geldi. Talep sahibiyle en kısa sürede iletişime geçebilirsiniz:</p>` +
+          detay +
+          `<p style="margin-top:14px;font-size:12px;color:#6E6E73;">Bu bildirim Hekimhane üzerinden gönderilmiştir.</p>`);
         await sendEmail({
           to: claim.email,
           subject: `Yeni randevu talebiniz var — ${kayit.entity_name}`,
-          html: bildirimHtml,
+          html: sahipHtml,
           replyTo: kayit.email || undefined,
         });
       }
