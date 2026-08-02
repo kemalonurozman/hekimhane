@@ -1984,19 +1984,33 @@ export default function AdminPage() {
     setClaimsLoading(false);
   }, []);
 
+  // Talepler sekmesi her açıldığında taze çek (yeni gelen talepler görünsün)
+  useEffect(() => {
+    if (tab === 'claims' && allowed) { loadClaims(); loadStats(); }
+  }, [tab, allowed, loadClaims]);
+
   async function handleClaimAction(id: string, action: 'approve' | 'reject') {
+    // Kullanıcıya mail gönderilsin mi? (onayda hesap + giriş bilgisi maili,
+    // redde bilgilendirme). Tamam = mail gönder, İptal = sadece işlem yap.
+    const notify = action === 'approve'
+      ? window.confirm('Talep ONAYLANACAK.\n\nKullanıcıya bilgilendirme + panel giriş bilgileri (e-posta ve geçici şifre) maili gönderilsin mi?\n\nTamam = Onayla ve mail gönder\nİptal = Sadece onayla (mail gönderme)')
+      : window.confirm('Talep REDDEDİLECEK.\n\nKullanıcıya bilgilendirme maili gönderilsin mi?\n\nTamam = Reddet ve mail gönder\nİptal = Sadece reddet');
     setActionId(id);
     try {
       const res = await fetch('/api/admin/claim-action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ claimId: id, action }),
+        body: JSON.stringify({ claimId: id, action, notify }),
       });
       if (res.ok) {
+        const data = await res.json().catch(() => ({}));
         const newStatus = action === 'approve' ? 'approved' : 'rejected';
         setClaims(prev => prev.map(c => c.id === id ? { ...c, status: newStatus as any } : c));
-        setPendingCount(prev => action === 'approve' || action === 'reject' ? Math.max(0, prev - 1) : prev);
-        showToast(action === 'approve' ? 'Talep onaylandı' : 'Talep reddedildi');
+        setPendingCount(prev => Math.max(0, prev - 1));
+        const mailNote = data?.mail?.sent
+          ? (data.mail.accountCreated ? ' · kullanıcıya hesap + mail gönderildi' : ' · kullanıcıya mail gönderildi')
+          : '';
+        showToast((action === 'approve' ? 'Talep onaylandı' : 'Talep reddedildi') + mailNote);
         await loadStats();
       } else {
         showToast('Hata oluştu, tekrar deneyin');
