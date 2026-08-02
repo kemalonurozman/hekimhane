@@ -6,6 +6,7 @@ export default function Footer() {
     ['Diş Klinikleri',       '/klinikler'],
     ['Diş Hekimleri',        '/dis-hekimleri'],
     ['Ağız & Diş Sağlığı',   '/hastaliklar/dis-sagligi'],
+    ['2026 Tedavi Ücretleri', '/tedavi-ucretleri'],
     ['HekimKart',            '/hekimkart'],
     ['Karşılaştır',          '/karsilastir'],
     ['Blog',                 '/blog'],

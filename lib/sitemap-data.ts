@@ -43,6 +43,7 @@ export async function buildSection(section: string): Promise<SmUrl[]> {
       { loc: `${BASE}/eczaneler`, changefreq: 'daily', priority: 0.9 },
       { loc: `${BASE}/yakin-eczane`, changefreq: 'weekly', priority: 0.85 },
       { loc: `${BASE}/hastaliklar`, changefreq: 'weekly', priority: 0.85 },
+      { loc: `${BASE}/tedavi-ucretleri`, changefreq: 'monthly', priority: 0.85 },
       { loc: `${BASE}/blog`, changefreq: 'weekly', priority: 0.7 },
       { loc: `${BASE}/katil`, changefreq: 'monthly', priority: 0.6 },
       { loc: `${BASE}/hakkimizda`, changefreq: 'monthly', priority: 0.5 },
