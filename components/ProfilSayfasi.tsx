@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import { specToHref, dentalComboHref } from '@/lib/uzmanlik-data';
-import { heroBgByKey, coverPresetKey, HERO_BG_CSS } from '@/lib/hero-backgrounds';
+import { heroBgByKey, coverPresetKey, HERO_BG_CSS, HERO_WAVE_PATHS } from '@/lib/hero-backgrounds';
 import AboneWidget from '@/components/AboneWidget';
 import PremiumBadge from '@/components/PremiumBadge';
 import { ToothGlyph } from '@/components/Logo';
@@ -763,9 +763,16 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
 export default function ProfilSayfasi(props: ProfilProps) {
   const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
 
-  // Animasyonlu arka plan: seçili preset varsa o, yoksa TÜM işletmelerde varsayılan "Okyanus"
-  // (dağınık işletme foto arka planları hero'da kullanılmaz)
-  const heroBg = heroBgByKey(coverPresetKey(cover)) || heroBgByKey('ocean');
+  // Animasyonlu dalga arka planı: seçili preset varsa o, yoksa varsayılan "Navy Premium".
+  // Premium hesapta dalgalar hareketli (is-anim); normal hesapta statik (daha sade).
+  const heroBg = heroBgByKey(coverPresetKey(cover)) || heroBgByKey('navy');
+  const heroLight = !!heroBg?.light; // pearl → açık tema, hero metni koyu
+  // Hero metin renkleri (açık/koyu temaya göre)
+  const hName    = heroLight ? '#132B52' : '#ffffff';
+  const hSub     = heroLight ? 'rgba(19,43,82,.82)' : 'rgba(255,255,255,.85)';
+  const hSubSoft = heroLight ? 'rgba(19,43,82,.68)' : 'rgba(255,255,255,.8)';
+  const hTabIdle = heroLight ? 'rgba(19,43,82,.6)'  : 'rgba(255,255,255,.72)';
+  const hDivider = heroLight ? 'rgba(19,43,82,.14)' : 'rgba(255,255,255,.14)';
 
   const [activeTab, setActiveTab] = useState<Tab>('genel');
   const [yorumlar, setYorumlar]   = useState<YorumItem[]>(props.yorumlar);
@@ -954,13 +961,19 @@ export default function ProfilSayfasi(props: ProfilProps) {
         position: 'relative', overflow: 'hidden',
       }}>
         {heroBg ? (
-          /* Premium animasyonlu Apple-tarzı arka plan */
-          <div className={`hb hb--${heroBg.key}`} aria-hidden>
-            <div className="hb__base" />
-            <span className="hb__blob hb__b1" />
-            <span className="hb__blob hb__b2" />
-            <span className="hb__blob hb__b3" />
-            <div className="hb__scrim" />
+          /* Apple-tarzı arka plan — premium'da akışkan hareketli dalgalar, normalde sade düz zemin */
+          <div className={`hbw hbw--${heroBg.key} ${heroLight ? 'hbw--light' : 'hbw--dark'}${premium ? ' is-anim' : ''}`} aria-hidden>
+            <div className="hbw__base" />
+            {premium && (
+              <svg className="hbw__svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMin slice">
+                <path className="hbw__w hbw__w1" d={HERO_WAVE_PATHS.w1} />
+                <path className="hbw__w hbw__w2" d={HERO_WAVE_PATHS.w2} />
+                <path className="hbw__w hbw__w3" d={HERO_WAVE_PATHS.w3} />
+                <path className="hbw__l hbw__l1" d={HERO_WAVE_PATHS.line1} />
+                <path className="hbw__l hbw__l2" d={HERO_WAVE_PATHS.line2} />
+              </svg>
+            )}
+            <div className="hbw__scrim" />
           </div>
         ) : (
           /* Derinlik için ince ışıltı — fotolu/fotosuz hero'da */
@@ -1018,23 +1031,23 @@ export default function ProfilSayfasi(props: ProfilProps) {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
-                <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, color: 'white', lineHeight: 1.2, margin: 0 }}>
+                <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, color: hName, lineHeight: 1.2, margin: 0 }}>
                   {displayName}
                 </h1>
                 {isOwner && (
                   <a href={ownerEditUrl}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(255,255,255,.15)', border: '1px solid rgba(255,255,255,.3)', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: heroLight ? 'rgba(19,43,82,.08)' : 'rgba(255,255,255,.15)', border: `1px solid ${heroLight ? 'rgba(19,43,82,.22)' : 'rgba(255,255,255,.3)'}`, color: hName, textDecoration: 'none', whiteSpace: 'nowrap' }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     Düzenle
                   </a>
                 )}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,.85)', fontSize: 14, fontWeight: 500, marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: hSub, fontSize: 14, fontWeight: 500, marginBottom: 10 }}>
                 <i className="fa-solid fa-location-dot" style={{ color: 'var(--gold)' }} />
                 {[adres, ilce, il].filter(Boolean).join(', ') || '—'}
               </div>
-              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: 'rgba(255,255,255,.8)' }}>
-                <span><Stars rat={avg} /> <strong style={{ color: 'white', fontSize: 16 }}>{avg}</strong></span>
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: hSubSoft }}>
+                <span><Stars rat={avg} /> <strong style={{ color: hName, fontSize: 16 }}>{avg}</strong></span>
                 {yorumlar.length > 0 && <span>{yorumlar.length} yorum</span>}
                 {tel && <span>📞 {tel}</span>}
                 {entityType === 'doktor' && fee ? <span>💰 {fee.toLocaleString('tr')} ₺</span> : null}
@@ -1076,7 +1089,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {/* HekimKart dijital kartvizit */}
               {kartSlug && (
                 <a href={`/kart/${kartSlug}`} target="_blank" rel="noopener"
-                  style={{ padding: '11px', borderRadius: 12, fontSize: 12.5, fontWeight: 700, background: 'rgba(255,255,255,.12)', color: '#fff', border: '1.5px solid rgba(255,255,255,.3)', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
+                  style={{ padding: '11px', borderRadius: 12, fontSize: 12.5, fontWeight: 700, background: heroLight ? 'rgba(19,43,82,.06)' : 'rgba(255,255,255,.12)', color: hName, border: `1.5px solid ${heroLight ? 'rgba(19,43,82,.18)' : 'rgba(255,255,255,.3)'}`, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
                   <i className="fa-solid fa-id-card" style={{ color: 'var(--gold)' }} /> Dijital Kartvizit (HekimKart)
                 </a>
               )}
@@ -1085,14 +1098,14 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
           {/* Tab bar */}
 
-          <div className="profil-tab-bar" style={{ borderTop: '1px solid rgba(255,255,255,.14)', marginTop: 6 }}>
+          <div className="profil-tab-bar" style={{ borderTop: `1px solid ${hDivider}`, marginTop: 6 }}>
             {TABS.map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)}
-                style={{ padding: '14px 20px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', border: 'none', background: 'transparent', borderBottom: `3px solid ${activeTab === tab ? 'var(--gold)' : 'transparent'}`, color: activeTab === tab ? '#fff' : 'rgba(255,255,255,.72)', transition: '.2s', display: 'flex', alignItems: 'center', gap: 7, whiteSpace: 'nowrap' }}>
+                style={{ padding: '14px 20px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', border: 'none', background: 'transparent', borderBottom: `3px solid ${activeTab === tab ? 'var(--gold)' : 'transparent'}`, color: activeTab === tab ? hName : hTabIdle, transition: '.2s', display: 'flex', alignItems: 'center', gap: 7, whiteSpace: 'nowrap' }}>
                 <i className={`fa-solid ${TAB_LABELS[tab].icon}`} />
                 {TAB_LABELS[tab].label}
                 {tab === 'yorumlar' && (
-                  <span style={{ background: 'rgba(255,255,255,.2)', color: '#fff', padding: '2px 7px', borderRadius: 10, fontSize: 11, marginLeft: 2 }}>{yorumlar.length}</span>
+                  <span style={{ background: heroLight ? 'rgba(19,43,82,.12)' : 'rgba(255,255,255,.2)', color: hName, padding: '2px 7px', borderRadius: 10, fontSize: 11, marginLeft: 2 }}>{yorumlar.length}</span>
                 )}
                 {tab === 'tur' && (
                   <span style={{ background: 'rgba(212,168,67,.2)', color: 'var(--gold)', padding: '2px 7px', borderRadius: 10, fontSize: 10, fontWeight: 700, marginLeft: 2 }}>YENİ</span>
