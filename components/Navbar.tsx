@@ -11,9 +11,9 @@ import type { User } from '@supabase/supabase-js';
 // doktorlar tablosundaki diş kayıtları bunların kopyası olduğu için oraya gidilmez.
 // Üst menü yalnızca diş odaklı. Blog ve "Diğer Doktorlar" footer'da yer alır.
 const NAV_LINKS = [
-  { href: '/klinikler',                        base: '/klinikler',   label: 'Diş Klinikleri' },
-  // /dis-hekimleri → next.config.js'te /klinikler?tip=Diş Hekimi'ye rewrite edilir
-  { href: '/dis-hekimleri',                    base: '/dis-hekimleri', label: 'Diş Hekimleri' },
+  // Diş klinikleri + diş hekimleri tek listede (/klinikler ikisini birlikte gösterir).
+  // Eski /dis-hekimleri linki next.config.js'te /klinikler?tip=Diş Hekimi'ye rewrite edilir (SEO/geri uyum).
+  { href: '/klinikler',                        base: '/klinikler',   label: 'Diş Hekimleri & Klinikler' },
   { href: '/hastaliklar/dis-sagligi',          base: '/hastaliklar', label: 'Ağız & Diş Sağlığı' },
 ];
 

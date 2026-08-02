@@ -385,7 +385,7 @@ export default async function KliniklerPage(
           { value: 'devlet',     label: 'Devlet',     count: kurumCounts.devlet },
           { value: 'universite', label: 'Üniversite', count: kurumCounts.universite },
           { value: 'hepsi',      label: 'Hepsi',      count: kurumCounts.hepsi },
-        ] },
+        ].filter(o => o.count > 0 || o.value === kurumSel) },
         { key: 'il',       label: 'Şehir',    type: 'radio',    options: illerWithCount },
         ...(filters.il && ilcelerWithCount.length > 1
           ? [{ key: 'ilce', label: 'İlçe', type: 'radio' as const, options: ilcelerWithCount }]
