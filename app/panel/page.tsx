@@ -358,7 +358,7 @@ export default function PanelPage() {
       </aside>
 
       {/* ── MAIN ── */}
-      <main style={{ marginLeft: isMobile ? 0 : 240, flex: 1, padding: isMobile ? '124px 16px 80px' : '96px 36px 32px', background: T.bg, minHeight: '100vh' }}>
+      <main style={{ marginLeft: isMobile ? 0 : 240, flex: 1, minWidth: 0, padding: isMobile ? '124px 16px 80px' : '96px 36px 32px', background: T.bg, minHeight: '100vh' }}>
         {premiumMsg && (
           <div style={{ marginBottom: 18, padding: '14px 18px', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10,
             background: premiumMsg === 'success' ? '#F0FDF4' : '#FFF7ED',
@@ -2638,24 +2638,26 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
 
           </div>{/* /form card */}
 
-          {/* Alt kaydet butonu */}
-          <div style={{ display:'flex', gap:10, justifyContent:'flex-end', paddingTop:4 }}>
+          {/* Alt kaydet butonu — mobilde mesaj üste, butonlar tam genişlik satır */}
+          <div style={{ display:'flex', flexDirection: isMobile ? 'column' : 'row', gap:10, justifyContent:'flex-end', alignItems: isMobile ? 'stretch' : 'center', paddingTop:4 }}>
             {saveMsg && (
-              <span style={{ fontSize:12, fontWeight:600, color:saveMsg.ok?T.green:T.red, display:'flex', alignItems:'center', gap:4, alignSelf:'center' }}>
-                <Ic d={saveMsg.ok?icons.check:icons.info} size={13}/>{saveMsg.text}
+              <span style={{ fontSize:12.5, fontWeight:600, color:saveMsg.ok?T.green:T.red, display:'flex', alignItems:'center', gap:5, alignSelf: isMobile ? 'flex-start' : 'center' }}>
+                <Ic d={saveMsg.ok?icons.check:icons.info} size={14}/>{saveMsg.text}
               </span>
             )}
-            <button onClick={()=>{setFormData(entityData||{});setSaveMsg(null);}}
-              style={{ padding:'10px 20px', borderRadius:10, border:`1.5px solid ${T.border}`, background:'white', color:T.muted, fontSize:13, fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>
-              Sıfırla
-            </button>
-            <button onClick={handleSave} disabled={saving}
-              style={{ padding:'10px 26px', borderRadius:10, border:'none', background:saving?'#9CA3AF':T.navy, color:'white', fontSize:13, fontWeight:700, cursor:saving?'not-allowed':'pointer', display:'flex', alignItems:'center', gap:7, fontFamily:'inherit' }}>
-              {saving
-                ? <><svg width="13" height="13" viewBox="0 0 18 18" fill="none" style={{ animation:'spin .9s linear infinite' }}><circle cx="9" cy="9" r="7" stroke="rgba(255,255,255,.3)" strokeWidth="2"/><path d="M9 2a7 7 0 0 1 7 7" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>Kaydediliyor</>
-                : <><Ic d={icons.check} size={14}/>Değişiklikleri Kaydet</>
-              }
-            </button>
+            <div style={{ display:'flex', gap:10, width: isMobile ? '100%' : undefined }}>
+              <button onClick={()=>{setFormData(entityData||{});setSaveMsg(null);}}
+                style={{ padding:'12px 20px', borderRadius:11, border:`1.5px solid ${T.border}`, background:'white', color:T.muted, fontSize:13.5, fontWeight:600, cursor:'pointer', fontFamily:'inherit', flex: isMobile ? '1 1 0' : undefined, whiteSpace:'nowrap' }}>
+                Sıfırla
+              </button>
+              <button onClick={handleSave} disabled={saving}
+                style={{ padding:'12px 24px', borderRadius:11, border:'none', background:saving?'#9CA3AF':T.navy, color:'white', fontSize:13.5, fontWeight:700, cursor:saving?'not-allowed':'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:7, fontFamily:'inherit', flex: isMobile ? '2 1 0' : undefined, whiteSpace:'nowrap' }}>
+                {saving
+                  ? <><svg width="13" height="13" viewBox="0 0 18 18" fill="none" style={{ animation:'spin .9s linear infinite' }}><circle cx="9" cy="9" r="7" stroke="rgba(255,255,255,.3)" strokeWidth="2"/><path d="M9 2a7 7 0 0 1 7 7" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>Kaydediliyor</>
+                  : <><Ic d={icons.check} size={14}/>Değişiklikleri Kaydet</>
+                }
+              </button>
+            </div>
           </div>
 
         </div>{/* /sol */}
