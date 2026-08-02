@@ -98,6 +98,29 @@ const HOSP = {
   'Düzce Ağız ve Diş Sağlığı Hastanesi (Yığılca Kliniği)':                              { q: 'Düzce Ağız ve Diş', il: 'Düzce', ilce: 'Merkez' },
   'Elazığ Ağız ve Diş Sağlığı Hastanesi':                                               { q: 'Elazığ Ağız ve Diş', il: 'Elazığ', ilce: 'Merkez' },
   'Eskişehir Ağız ve Diş Sağlığı Hastanesi':                                            { q: 'Eskişehir Ağız ve Diş', il: 'Eskişehir', ilce: 'Odunpazarı' },
+
+  // v52 — mevcut hastaneler tablosunda (h754+) zaten var, q ile eşleşir
+  'Kayseri Nimet Bayraktar Ağız ve Diş Sağlığı Hastanesi':                              { q: 'Nimet Bayraktar', il: 'Kayseri', ilce: 'Kocasinan' },
+  'Samsun Ağız ve Diş Sağlığı Hastanesi':                                               { q: 'Samsun Ağız ve Diş', il: 'Samsun', ilce: 'İlkadım' },
+  'Samsun Bafra Ağız ve Diş Sağlığı Hastanesi':                                         { q: 'Bafra Ağız ve Diş', il: 'Samsun', ilce: 'Bafra' },
+  'İzmir Eğitim Diş Hastanesi (Merkez)':                                                { q: 'İzmir Eğitim Diş', il: 'İzmir', ilce: 'Konak' },
+  'İzmir Eğitim Diş Hastanesi (Gaziemir Semt Polikliniği)':                             { q: 'İzmir Eğitim Diş', il: 'İzmir', ilce: 'Konak' },
+  'İzmir Eğitim Diş Hastanesi (Menderes Semt Polikliniği)':                             { q: 'İzmir Eğitim Diş', il: 'İzmir', ilce: 'Konak' },
+  'Konya Ağız ve Diş Sağlığı Hastanesi':                                                { q: 'Konya Ağız ve Diş Sağlığı Hastanesi', il: 'Konya', ilce: 'Selçuklu' },
+  'Okmeydanı Ağız ve Diş Sağlığı Hastanesi':                                            { q: 'Okmeydanı Ağız', il: 'İstanbul', ilce: 'Kağıthane' },
+  'Gaziantep Şahinbey Ağız ve Diş Sağlığı Hastanesi':                                   { q: 'Şahinbey Ağız ve Diş', il: 'Gaziantep', ilce: 'Şahinbey' },
+  'Gaziantep Şahinbey Ağız ve Diş Sağlığı Hastanesi (Perilikaya Semt Polikliniği)':     { q: 'Şahinbey Ağız ve Diş', il: 'Gaziantep', ilce: 'Şahinbey' },
+  'Sakarya Ağız ve Diş Sağlığı Hastanesi':                                              { q: 'Sakarya Ağız ve Diş', il: 'Sakarya', ilce: 'Serdivan' },
+  'Kahramanmaraş Ağız ve Diş Sağlığı Hastanesi':                                        { q: 'Kahramanmaraş Ağız ve Diş', il: 'Kahramanmaraş', ilce: 'Dulkadiroğlu' },
+  'Malatya Şehit Mehmet Kılınç Ağız ve Diş Sağlığı Hastanesi':                          { q: 'Mehmet Kılınç', il: 'Malatya', ilce: 'Yeşilyurt' },
+  'Kütahya Ağız ve Diş Sağlığı Hastanesi':                                              { q: 'Kütahya Ağız ve Diş', il: 'Kütahya', ilce: 'Merkez' },
+  'İstanbul Ataşehir Ağız ve Diş Sağlığı Hastanesi':                                    { q: 'İstanbul Ataşehir Ağız ve Diş', il: 'İstanbul', ilce: 'Ataşehir' },
+  'Küçükçekmece Ağız ve Diş Sağlığı Hastanesi':                                         { q: 'Küçükçekmece Ağız ve Diş', il: 'İstanbul', ilce: 'Küçükçekmece' },
+  'Sultangazi Ağız ve Diş Sağlığı Hastanesi':                                           { q: 'Sultangazi Ağız ve Diş', il: 'İstanbul', ilce: 'Sultangazi' },
+  'Bağcılar Ağız ve Diş Sağlığı Hastanesi':                                             { q: 'Bağcılar Ağız ve Diş', il: 'İstanbul', ilce: 'Bağcılar' },
+  // v52 — tabloda yok, oluşturulacak
+  'Konya Ağız ve Diş Sağlığı Merkezi (Meram)':                                          { q: 'Konya Ağız ve Diş Sağlığı Merkezi', il: 'Konya', ilce: 'Meram', create: true },
+  'Mersin Ağız ve Diş Sağlığı Merkezi':                                                 { q: 'Mersin Ağız ve Diş Sağlığı Merkezi', il: 'Mersin', ilce: 'Yenişehir', create: true },
 };
 
 (async () => {
