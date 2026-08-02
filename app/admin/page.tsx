@@ -58,6 +58,7 @@ const IC = {
   star:    'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z',
   edit:    'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7 M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z',
   toggle:  'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
+  flag:    'M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z M4 22v-7',
 };
 
 /* ═══════════════════════════════════════════════
@@ -158,23 +159,35 @@ function getProfileUrl(type: string, entity: Entity): string | null {
 /* ═══════════════════════════════════════════════
    SIDEBAR
 ═══════════════════════════════════════════════ */
-const SIDEBAR_ITEMS = [
-  { key: 'dashboard',   label: 'Genel Bakış',      icon: IC.dash    },
-  { key: 'claims',      label: 'Talepler',         icon: IC.claims  },
-  { key: 'cekim',       label: 'Randevu & Çekim',  icon: IC.klinik  },
-  { key: 'premium',     label: 'Premium Üyeler',   icon: IC.shield  },
-  { key: 'klinikler',   label: 'Klinikler',        icon: IC.klinik  },
-  { key: 'hastaneler',  label: 'Hastaneler',       icon: IC.hastane },
-  { key: 'doktorlar',   label: 'Doktorlar',        icon: IC.doktor  },
-  { key: 'eczaneler',   label: 'Eczaneler',        icon: IC.eczane  },
-  { key: 'emailler',    label: 'E-posta Listeleri', icon: IC.users   },
-  { key: 'blog',        label: 'Blog',             icon: IC.blog    },
-  { key: 'kullanici',   label: 'Kullanıcılar',     icon: IC.users   },
-  { key: 'sistem',      label: 'Sistem & DB',      icon: IC.shield  },
-  { key: 'geocode',     label: 'Harita Koordinat', icon: IC.dash    },
+// Sidebar — benzer sekmeler gruplandı (bölüm başlıklarıyla)
+const SIDEBAR_GROUPS: { title: string | null; items: { key: string; label: string; icon: string }[] }[] = [
+  { title: null, items: [
+    { key: 'dashboard',   label: 'Genel Bakış',       icon: IC.dash    },
+  ]},
+  { title: 'Talepler & Üyelik', items: [
+    { key: 'claims',      label: 'Sahiplenme',        icon: IC.claims  },
+    { key: 'cekim',       label: 'Randevu & Çekim',   icon: IC.klinik  },
+    { key: 'sikayetler',  label: 'Şikayetler',        icon: IC.flag    },
+    { key: 'premium',     label: 'Premium Üyeler',    icon: IC.shield  },
+  ]},
+  { title: 'Kayıtlar', items: [
+    { key: 'klinikler',   label: 'Klinikler',         icon: IC.klinik  },
+    { key: 'hastaneler',  label: 'Hastaneler',        icon: IC.hastane },
+    { key: 'doktorlar',   label: 'Doktorlar',         icon: IC.doktor  },
+    { key: 'eczaneler',   label: 'Eczaneler',         icon: IC.eczane  },
+  ]},
+  { title: 'İçerik', items: [
+    { key: 'emailler',    label: 'E-posta Listeleri', icon: IC.users   },
+    { key: 'blog',        label: 'Blog',              icon: IC.blog    },
+    { key: 'kullanici',   label: 'Kullanıcılar',      icon: IC.users   },
+  ]},
+  { title: 'Sistem', items: [
+    { key: 'sistem',      label: 'Sistem & DB',       icon: IC.shield  },
+    { key: 'geocode',     label: 'Harita Koordinat',  icon: IC.dash    },
+  ]},
 ];
 
-type TabKey = 'dashboard' | 'claims' | 'cekim' | 'emailler' | 'premium' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
+type TabKey = 'dashboard' | 'claims' | 'cekim' | 'sikayetler' | 'emailler' | 'premium' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
 
 /* ═══════════════════════════════════════════════
    DASHBOARD SEKMESİ
@@ -1926,6 +1939,202 @@ function PremiumTab() {
   );
 }
 
+/* ═══════════════════════════════════════════════
+   ŞİKAYETLER SEKMESİ — istenmeyen yorum moderasyonu
+═══════════════════════════════════════════════ */
+interface ReportedReview {
+  id: string;
+  entity_type: string;
+  entity_id: string;
+  author: string;
+  rating: number;
+  text: string | null;
+  date: string | null;
+  hidden: boolean | null;
+  report_status: string | null;
+  report_reason: string | null;
+  reported_by: string | null;
+  reported_at: string | null;
+  admin_note: string | null;
+}
+
+function ReportStars({ n }: { n: number }) {
+  return (
+    <span style={{ display: 'inline-flex', gap: 2 }}>
+      {Array.from({ length: 5 }, (_, i) => (
+        <svg key={i} width="13" height="13" viewBox="0 0 24 24" fill={i < n ? C.gold : 'none'} stroke={i < n ? C.gold : C.dim} strokeWidth="2">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      ))}
+    </span>
+  );
+}
+
+function SikayetlerTab({ onChanged }: { onChanged: () => void }) {
+  const [reviews, setReviews] = useState<ReportedReview[]>([]);
+  const [names,   setNames]   = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [needsMigration, setNeedsMigration] = useState(false);
+  const [actionId, setActionId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/reported-yorumlar', { cache: 'no-store' });
+      const data = res.ok ? await res.json() : { reviews: [], names: {} };
+      setReviews(data.reviews || []);
+      setNames(data.names || {});
+      setNeedsMigration(data.error === 'migration');
+    } catch {
+      setReviews([]); setNames({});
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function act(id: string, action: 'hide' | 'delete' | 'dismiss' | 'unhide') {
+    if (action === 'delete' && !window.confirm('Bu yorum KALICI olarak silinecek. Bu işlem geri alınamaz. Devam edilsin mi?')) return;
+    setActionId(id);
+    try {
+      const res = await fetch('/api/admin/yorum-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ yorumId: id, action }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || 'İşlem başarısız'); setActionId(null); return; }
+      await load();
+      onChanged();
+    } catch {
+      alert('İşlem başarısız. Bağlantıyı kontrol edin.');
+    }
+    setActionId(null);
+  }
+
+  const pending = reviews.filter(r => r.report_status === 'pending');
+  const resolved = reviews.filter(r => r.report_status !== 'pending');
+
+  const card = (r: ReportedReview) => {
+    const meta = ENTITY_META[r.entity_type] || { label: r.entity_type, color: C.muted, icon: IC.hastane };
+    const name = names[`${r.entity_type}:${r.entity_id}`] || r.entity_id;
+    const busy = actionId === r.id;
+    return (
+      <div key={r.id} style={{ background: C.card, borderRadius: 14, border: `1px solid ${r.report_status === 'pending' ? 'rgba(245,158,11,.28)' : C.border}`, overflow: 'hidden', marginBottom: 12 }}>
+        {/* Üst — işletme + durum */}
+        <div style={{ padding: '14px 18px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <TypeBadge type={r.entity_type} />
+              <span style={{ fontSize: 13.5, fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</span>
+            </div>
+            <div style={{ fontSize: 11.5, color: C.muted }}>
+              Şikayet eden: {r.reported_by || '—'}
+              {r.reported_at && ` · ${new Date(r.reported_at).toLocaleDateString('tr')}`}
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+            <ReportStars n={r.rating} />
+            {r.report_status === 'pending'
+              ? <span style={{ fontSize: 10.5, fontWeight: 800, color: C.amber, background: 'rgba(245,158,11,.12)', borderRadius: 8, padding: '3px 9px' }}>BEKLİYOR</span>
+              : r.hidden
+                ? <span style={{ fontSize: 10.5, fontWeight: 800, color: C.green, background: 'rgba(16,185,129,.12)', borderRadius: 8, padding: '3px 9px' }}>GİZLENDİ</span>
+                : <span style={{ fontSize: 10.5, fontWeight: 800, color: C.muted, background: 'rgba(255,255,255,.06)', borderRadius: 8, padding: '3px 9px' }}>REDDEDİLDİ</span>}
+          </div>
+        </div>
+
+        {/* Yorum metni */}
+        <div style={{ padding: '14px 18px' }}>
+          <div style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>Yorum sahibi: <strong style={{ color: C.text }}>{r.author}</strong></div>
+          {r.text && <p style={{ fontSize: 13.5, color: C.text, lineHeight: 1.6, margin: '0 0 12px' }}>“{r.text}”</p>}
+
+          {/* Şikayet gerekçesi */}
+          {r.report_reason && (
+            <div style={{ background: 'rgba(239,68,68,.06)', border: '1px solid rgba(239,68,68,.18)', borderRadius: 10, padding: '10px 12px', marginBottom: 12 }}>
+              <div style={{ fontSize: 10.5, fontWeight: 700, color: C.red, letterSpacing: '0.4px', marginBottom: 3 }}>ŞİKAYET GEREKÇESİ</div>
+              <p style={{ fontSize: 13, color: C.text, margin: 0, lineHeight: 1.5 }}>{r.report_reason}</p>
+            </div>
+          )}
+
+          {/* Aksiyonlar */}
+          {r.report_status === 'pending' ? (
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button disabled={busy} onClick={() => act(r.id, 'hide')}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 700, padding: '8px 14px', borderRadius: 9, border: 'none', background: C.amber, color: '#1c1c1e', cursor: 'pointer', opacity: busy ? 0.6 : 1 }}>
+                <Ic d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24 M1 1l22 22" size={13} /> Yorumu Gizle
+              </button>
+              <button disabled={busy} onClick={() => act(r.id, 'delete')}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 700, padding: '8px 14px', borderRadius: 9, border: 'none', background: C.red, color: 'white', cursor: 'pointer', opacity: busy ? 0.6 : 1 }}>
+                <Ic d="M3 6h18 M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" size={13} /> Kalıcı Sil
+              </button>
+              <button disabled={busy} onClick={() => act(r.id, 'dismiss')}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 700, padding: '8px 14px', borderRadius: 9, border: `1px solid ${C.border}`, background: 'transparent', color: C.text, cursor: 'pointer', opacity: busy ? 0.6 : 1 }}>
+                <Ic d={IC.x} size={13} /> Reddet (görünür kalsın)
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {r.hidden && (
+                <button disabled={busy} onClick={() => act(r.id, 'unhide')}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, padding: '7px 13px', borderRadius: 9, border: `1px solid ${C.border}`, background: 'transparent', color: C.text, cursor: 'pointer', opacity: busy ? 0.6 : 1 }}>
+                  <Ic d={IC.eye} size={13} /> Tekrar Görünür Yap
+                </button>
+              )}
+              <button disabled={busy} onClick={() => act(r.id, 'delete')}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, padding: '7px 13px', borderRadius: 9, border: '1px solid rgba(239,68,68,.3)', background: 'transparent', color: C.red, cursor: 'pointer', opacity: busy ? 0.6 : 1 }}>
+                <Ic d="M3 6h18 M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" size={13} /> Kalıcı Sil
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: 0 }}>Yorum Şikayetleri</h1>
+          <p style={{ fontSize: 13, color: C.muted, margin: '4px 0 0' }}>İşletme sahiplerinin şikayet ettiği yorumları inceleyip son kararı verin.</p>
+        </div>
+        <button onClick={load} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, padding: '8px 14px', borderRadius: 9, border: `1px solid ${C.border}`, background: 'transparent', color: C.muted, cursor: 'pointer' }}>
+          <Ic d={IC.refresh} size={13} /> Yenile
+        </button>
+      </div>
+
+      {needsMigration && (
+        <div style={{ background: 'rgba(245,158,11,.1)', border: '1px solid rgba(245,158,11,.3)', borderRadius: 12, padding: '14px 16px', marginBottom: 16, color: C.amber, fontSize: 13 }}>
+          Veritabanı şikayet kolonları bulunamadı. <strong>supabase/migrations/add_yorum_moderation.sql</strong> dosyasını Supabase SQL Editor&apos;da çalıştırın.
+        </div>
+      )}
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: 60, color: C.muted, fontSize: 14 }}>Yükleniyor…</div>
+      ) : reviews.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: 60, color: C.muted, fontSize: 14, background: C.card, borderRadius: 14, border: `1px solid ${C.border}` }}>
+          Henüz şikayet edilen yorum yok.
+        </div>
+      ) : (
+        <>
+          {pending.length > 0 && (
+            <div style={{ marginBottom: 28 }}>
+              <h2 style={{ fontSize: 13, fontWeight: 700, color: C.amber, margin: '0 0 12px', letterSpacing: '0.3px' }}>BEKLEYEN ({pending.length})</h2>
+              {pending.map(card)}
+            </div>
+          )}
+          {resolved.length > 0 && (
+            <div>
+              <h2 style={{ fontSize: 13, fontWeight: 700, color: C.muted, margin: '0 0 12px', letterSpacing: '0.3px' }}>SONUÇLANAN ({resolved.length})</h2>
+              {resolved.map(card)}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [user,    setUser]    = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -1939,6 +2148,16 @@ export default function AdminPage() {
   const [toast,        setToast]        = useState('');
   const [pendingCount, setPendingCount] = useState(0);
   const [randevuPending, setRandevuPending] = useState(0);
+  const [reportPending, setReportPending] = useState(0);
+
+  const loadReportCount = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/reported-yorumlar', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setReportPending((data.reviews || []).filter((r: any) => r.report_status === 'pending').length);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     const supabase = createSupabaseBrowser();
@@ -1954,6 +2173,7 @@ export default function AdminPage() {
       if (isAdmin) {
         loadStats();
         loadClaims();
+        loadReportCount();
       }
     });
   }, []);
@@ -2091,24 +2311,36 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Nav */}
-        <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
-          {SIDEBAR_ITEMS.map(item => {
-            const active = tab === item.key;
-            return (
-              <button key={item.key} onClick={() => setTab(item.key as TabKey)}
-                style={{ display: 'flex', alignItems: 'center', gap: 9, width: '100%', padding: '10px 10px', marginBottom: 2, borderRadius: 10, background: active ? 'rgba(255,255,255,.08)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', color: active ? C.text : C.muted, fontSize: 13, fontWeight: active ? 700 : 500, fontFamily: 'inherit', transition: 'all .12s', borderLeft: active ? `3px solid ${C.gold}` : '3px solid transparent' }}>
-                <span style={{ flexShrink: 0 }}><Ic d={item.icon} size={15} /></span>
-                {item.label}
-                {item.key === 'cekim' && randevuPending > 0 && (
-                  <span style={{ marginLeft: 'auto', background: '#059669', color: 'white', borderRadius: 10, padding: '1px 7px', fontSize: 10, fontWeight: 800 }}>{randevuPending}</span>
-                )}
-                {item.key === 'claims' && pendingCount > 0 && (
-                  <span style={{ marginLeft: 'auto', background: C.amber, color: 'white', borderRadius: 10, padding: '1px 7px', fontSize: 10, fontWeight: 800 }}>{pendingCount}</span>
-                )}
-              </button>
-            );
-          })}
+        {/* Nav — gruplu */}
+        <nav style={{ flex: 1, padding: '10px 10px 16px', overflowY: 'auto' }}>
+          {SIDEBAR_GROUPS.map((group, gi) => (
+            <div key={gi} style={{ marginBottom: gi < SIDEBAR_GROUPS.length - 1 ? 12 : 0 }}>
+              {group.title && (
+                <div style={{ padding: '10px 12px 6px', fontSize: 10, fontWeight: 700, letterSpacing: '0.7px', textTransform: 'uppercase', color: 'rgba(255,255,255,.32)' }}>
+                  {group.title}
+                </div>
+              )}
+              {group.items.map(item => {
+                const active = tab === item.key;
+                const badge = item.key === 'cekim' ? randevuPending
+                  : item.key === 'claims' ? pendingCount
+                  : item.key === 'sikayetler' ? reportPending : 0;
+                const badgeColor = item.key === 'cekim' ? '#059669' : item.key === 'sikayetler' ? C.red : C.amber;
+                return (
+                  <button key={item.key} onClick={() => setTab(item.key as TabKey)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 11px', marginBottom: 1, borderRadius: 9, background: active ? 'rgba(212,168,67,.12)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', color: active ? C.text : C.muted, fontSize: 13, fontWeight: active ? 700 : 500, fontFamily: 'inherit', transition: 'background .12s, color .12s' }}
+                    onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,.04)'; }}
+                    onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}>
+                    <span style={{ flexShrink: 0, color: active ? C.gold : C.muted, display: 'flex' }}><Ic d={item.icon} size={16} /></span>
+                    <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+                    {badge > 0 && (
+                      <span style={{ flexShrink: 0, background: badgeColor, color: 'white', borderRadius: 20, minWidth: 18, height: 18, padding: '0 6px', fontSize: 10, fontWeight: 800, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{badge}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         {/* Profil + Çıkış */}
@@ -2136,6 +2368,7 @@ export default function AdminPage() {
         {tab === 'dashboard'  && <DashboardTab stats={stats} onTabChange={setTab} />}
         {tab === 'claims'     && <ClaimsTab claims={claims} loading={claimsLoading} onAction={handleClaimAction} actionId={actionId} />}
         {tab === 'cekim'      && <CekimTalepleriTab />}
+        {tab === 'sikayetler' && <SikayetlerTab onChanged={loadReportCount} />}
         {tab === 'emailler'   && <EmailListesiTab />}
         {tab === 'premium'    && <PremiumTab />}
         {tab === 'klinikler'  && <EntityTab entityType="klinikler" />}
