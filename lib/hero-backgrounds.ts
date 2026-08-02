@@ -91,6 +91,8 @@ export const HERO_BG_CSS = `
 @keyframes hbwB{from{transform:translate(0,0)}to{transform:translate(4.5%,-2%)}}
 @keyframes hbwC{from{transform:translate(0,0)}to{transform:translate(-3.5%,2.6%)}}
 @media (prefers-reduced-motion: reduce){.hbw__w,.hbw__l{animation:none!important;}}
+/* Normal hesap — hareketsiz, daha sade (ince çizgiler bir tık soluk) */
+.hbw.is-lite .hbw__l{opacity:.6;}
 
 /* ── Navy Premium ── */
 .hbw--navy .hbw__base{background:linear-gradient(155deg,#091B36 0%,#12315E 52%,#0A1F3E 100%);}

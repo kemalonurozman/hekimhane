@@ -812,9 +812,10 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
 export default function ProfilSayfasi(props: ProfilProps) {
   const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
 
-  // Animasyonlu dalga arka planı: seçili preset varsa o, yoksa varsayılan "Navy Premium".
-  // Premium hesapta dalgalar hareketli (is-anim); normal hesapta statik (daha sade).
-  const heroBg = heroBgByKey(coverPresetKey(cover)) || heroBgByKey('navy');
+  // Arka plan: PREMIUM → seçili tema (yoksa Pearl), dalgalar hareketli.
+  // NORMAL → her zaman "Pearl-lite": açık, temiz, hareketsiz sade zemin (koyu değil).
+  const selectedBg = heroBgByKey(coverPresetKey(cover));
+  const heroBg = premium ? (selectedBg || heroBgByKey('pearl')) : heroBgByKey('pearl');
   const heroLight = !!heroBg?.light; // pearl → açık tema, hero metni koyu
   // Hero metin renkleri (açık/koyu temaya göre)
   const hName    = heroLight ? '#132B52' : '#ffffff';
@@ -1010,18 +1011,18 @@ export default function ProfilSayfasi(props: ProfilProps) {
         position: 'relative', overflow: 'hidden',
       }}>
         {heroBg ? (
-          /* Apple-tarzı arka plan — premium'da akışkan hareketli dalgalar, normalde sade düz zemin */
-          <div className={`hbw hbw--${heroBg.key} ${heroLight ? 'hbw--light' : 'hbw--dark'}${premium ? ' is-anim' : ''}`} aria-hidden>
+          /* Apple-tarzı arka plan — premium'da akışkan hareketli dalgalar; normalde açık, sade, hareketsiz pearl */
+          <div className={`hbw hbw--${heroBg.key} ${heroLight ? 'hbw--light' : 'hbw--dark'}${premium ? ' is-anim' : ' is-lite'}`} aria-hidden>
             <div className="hbw__base" />
-            {premium && (
-              <svg className="hbw__svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMin slice">
+            <svg className="hbw__svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMin slice">
+              {premium && <>
                 <path className="hbw__w hbw__w1" d={HERO_WAVE_PATHS.w1} />
                 <path className="hbw__w hbw__w2" d={HERO_WAVE_PATHS.w2} />
                 <path className="hbw__w hbw__w3" d={HERO_WAVE_PATHS.w3} />
-                <path className="hbw__l hbw__l1" d={HERO_WAVE_PATHS.line1} />
-                <path className="hbw__l hbw__l2" d={HERO_WAVE_PATHS.line2} />
-              </svg>
-            )}
+              </>}
+              <path className="hbw__l hbw__l1" d={HERO_WAVE_PATHS.line1} />
+              <path className="hbw__l hbw__l2" d={HERO_WAVE_PATHS.line2} />
+            </svg>
             <div className="hbw__scrim" />
           </div>
         ) : (
