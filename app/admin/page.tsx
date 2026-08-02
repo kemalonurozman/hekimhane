@@ -1843,7 +1843,7 @@ function PremiumTab() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('/api/admin/premium');
+        const res = await fetch('/api/admin/premium', { cache: 'no-store' });
         const j = await res.json();
         setItems(j.items || []); setCounts(j.counts || null);
       } catch { /* noop */ }
@@ -1960,7 +1960,7 @@ export default function AdminPage() {
 
   async function loadStats() {
     try {
-      const res = await fetch('/api/admin/stats');
+      const res = await fetch('/api/admin/stats', { cache: 'no-store' });
       if (res.ok) {
         const data: Stats = await res.json();
         setStats(data);
@@ -1975,7 +1975,7 @@ export default function AdminPage() {
     try {
       // Service-role API — claim_requests RLS (profiles özyinelemesi) tarayıcı
       // client'ında sorguyu bozduğu için doğrudan Supabase yerine API kullanılır.
-      const res = await fetch('/api/admin/claims');
+      const res = await fetch('/api/admin/claims', { cache: 'no-store' });
       const data = res.ok ? await res.json() : { claims: [] };
       setClaims(data.claims || []);
     } catch {

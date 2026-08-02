@@ -2,6 +2,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 
+// Her istekte taze veri — talep listesi asla cache'lenmesin (yeni başvurular anında görünsün)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
 function adminClient() {
