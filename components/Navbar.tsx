@@ -14,7 +14,7 @@ const NAV_LINKS = [
   // Diş klinikleri + diş hekimleri tek listede (/klinikler ikisini birlikte gösterir).
   // Eski /dis-hekimleri linki next.config.js'te /klinikler?tip=Diş Hekimi'ye rewrite edilir (SEO/geri uyum).
   { href: '/klinikler',                        base: '/klinikler',   label: 'Diş Hekimleri & Klinikler' },
-  { href: '/hastaliklar/dis-sagligi',          base: '/hastaliklar', label: 'Ağız & Diş Sağlığı' },
+  { href: '/blog',                             base: '/blog',        label: 'Blog' },
 ];
 
 function ChevronDown({ size = 10 }: { size?: number }) {
