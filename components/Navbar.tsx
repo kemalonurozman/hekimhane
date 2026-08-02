@@ -97,9 +97,11 @@ export default function Navbar() {
   const router    = useRouter();
   const [user, setUser]               = useState<User | null>(null);
   const [dropOpen, setDropOpen]       = useState(false);
+  const [regOpen, setRegOpen]         = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [mobileOpen, setMobileOpen]   = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
+  const regRef = useRef<HTMLDivElement>(null);
 
   const isActive = (link: { base: string }) => pathname.startsWith(link.base);
 
@@ -119,6 +121,9 @@ export default function Navbar() {
     function handleClick(e: MouseEvent) {
       if (dropRef.current && !dropRef.current.contains(e.target as Node)) {
         setDropOpen(false);
+      }
+      if (regRef.current && !regRef.current.contains(e.target as Node)) {
+        setRegOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClick);
@@ -294,17 +299,56 @@ export default function Navbar() {
             ) : (
               /* Giriş yapılmamış */
               <>
+                {/* Kayıt Ol — dropdown */}
+                <div ref={regRef} className="nav-user-desktop" style={{ position: 'relative' }}>
+                  <button onClick={() => setRegOpen(o => !o)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#3A3A3C', fontFamily: 'inherit', letterSpacing: '-.1px' }}>
+                    Kayıt Ol {regOpen ? <ChevronUp /> : <ChevronDown />}
+                  </button>
+                  {regOpen && (
+                    <div style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: 300, background: '#fff', borderRadius: 16, boxShadow: '0 16px 44px rgba(20,30,50,.16)', border: '1px solid #ECECEC', overflow: 'hidden', zIndex: 300 }}>
+                      <Link href="/katil" onClick={() => setRegOpen(false)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '15px 17px', textDecoration: 'none', transition: 'background .12s' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
+                        onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
+                        <span style={{ width: 40, height: 40, borderRadius: 11, background: 'linear-gradient(150deg,#1B3A69,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18" /><path d="M5 21V7l7-4 7 4v14" /><path d="M9 21v-6h6v6" /></svg>
+                        </span>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#1A2744' }}>İşletme / Doktor Kaydı</div>
+                          <div style={{ fontSize: 12, color: '#6B7A99', marginTop: 2, lineHeight: 1.4 }}>Klinik, muayene veya eczanenizi ekleyin</div>
+                        </div>
+                      </Link>
+                      <div style={{ height: 1, background: '#F0F0F0' }} />
+                      <Link href="/klinikler" onClick={() => setRegOpen(false)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '15px 17px', textDecoration: 'none', transition: 'background .12s' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
+                        onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
+                        <span style={{ width: 40, height: 40, borderRadius: 11, background: 'var(--gold-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22V4a1 1 0 0 1 1-1h9l-1.5 4L14 11H5" /><path d="M4 22h4" /></svg>
+                        </span>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#1A2744' }}>İşletmeni Sahiplen</div>
+                          <div style={{ fontSize: 12, color: '#6B7A99', marginTop: 2, lineHeight: 1.4 }}>Listedeyseniz profilinizi bulup talep edin</div>
+                        </div>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
+                {/* Giriş Yap */}
                 <Link href="/giris" style={{
                   display: 'flex', alignItems: 'center', gap: 7,
                   padding: '7px 15px', borderRadius: 9,
-                  border: '1px solid rgba(0,0,0,.1)',
-                  background: 'white',
+                  border: '1px solid rgba(0,0,0,.1)', background: 'white',
                   fontSize: 13, fontWeight: 600, color: '#3A3A3C',
                   textDecoration: 'none', letterSpacing: '-.1px',
                   boxShadow: '0 1px 3px rgba(0,0,0,.05)',
                 }}>
-                  Giriş
+                  Giriş Yap
                 </Link>
+
+                {/* Prominent CTA */}
                 <Link href="/katil" className="nav-cta-desktop" style={{
                   display: 'flex', alignItems: 'center',
                   padding: '7px 16px', borderRadius: 9,
