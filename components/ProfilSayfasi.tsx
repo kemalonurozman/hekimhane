@@ -1011,20 +1011,31 @@ export default function ProfilSayfasi(props: ProfilProps) {
         position: 'relative', overflow: 'hidden',
       }}>
         {heroBg ? (
-          /* Apple-tarzı arka plan — premium'da akışkan hareketli dalgalar; normalde açık, sade, hareketsiz pearl */
-          <div className={`hbw hbw--${heroBg.key} ${heroLight ? 'hbw--light' : 'hbw--dark'}${premium ? ' is-anim' : ' is-lite'}`} aria-hidden>
-            <div className="hbw__base" />
-            <svg className="hbw__svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMin slice">
-              {premium && <>
-                <path className="hbw__w hbw__w1" d={HERO_WAVE_PATHS.w1} />
-                <path className="hbw__w hbw__w2" d={HERO_WAVE_PATHS.w2} />
-                <path className="hbw__w hbw__w3" d={HERO_WAVE_PATHS.w3} />
-              </>}
-              <path className="hbw__l hbw__l1" d={HERO_WAVE_PATHS.line1} />
-              <path className="hbw__l hbw__l2" d={HERO_WAVE_PATHS.line2} />
-            </svg>
-            <div className="hbw__scrim" />
-          </div>
+          heroBg.style === 'blob' ? (
+            /* Klasik Apple-tarzı hareketli lekeler (premium blob teması) */
+            <div className={`hb hb--${heroBg.key}`} aria-hidden>
+              <div className="hb__base" />
+              <span className="hb__blob hb__b1" />
+              <span className="hb__blob hb__b2" />
+              <span className="hb__blob hb__b3" />
+              <div className="hb__scrim" />
+            </div>
+          ) : (
+            /* Apple-tarzı akışkan dalgalar — premium'da hareketli; normalde açık, sade, hareketsiz pearl */
+            <div className={`hbw hbw--${heroBg.key} ${heroLight ? 'hbw--light' : 'hbw--dark'}${premium ? ' is-anim' : ' is-lite'}`} aria-hidden>
+              <div className="hbw__base" />
+              <svg className="hbw__svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMin slice">
+                {premium && <>
+                  <path className="hbw__w hbw__w1" d={HERO_WAVE_PATHS.w1} />
+                  <path className="hbw__w hbw__w2" d={HERO_WAVE_PATHS.w2} />
+                  <path className="hbw__w hbw__w3" d={HERO_WAVE_PATHS.w3} />
+                </>}
+                <path className="hbw__l hbw__l1" d={HERO_WAVE_PATHS.line1} />
+                <path className="hbw__l hbw__l2" d={HERO_WAVE_PATHS.line2} />
+              </svg>
+              <div className="hbw__scrim" />
+            </div>
+          )
         ) : (
           /* Derinlik için ince ışıltı — fotolu/fotosuz hero'da */
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 120% at 100% 0%,rgba(212,168,67,.10),transparent 55%),radial-gradient(ellipse 45% 80% at 0% 100%,rgba(255,255,255,.05),transparent 60%)', pointerEvents: 'none' }} />
