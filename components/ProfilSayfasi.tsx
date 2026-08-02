@@ -816,6 +816,34 @@ export default function ProfilSayfasi(props: ProfilProps) {
     ? `${unvan} ${name}`
     : name;
 
+  // ── Aksiyon buton linkleri (Ara / WhatsApp / Yol Tarifi / Web Sitesi) ──
+  const telClean = (tel || '').replace(/[^\d]/g, '');
+  // WhatsApp: TR numarasını uluslararası biçime çevir (0xxx → 90xxx, 10 hane → 90…)
+  const waNumber = telClean
+    ? telClean.startsWith('90') ? telClean
+      : telClean.startsWith('0') ? '90' + telClean.slice(1)
+      : telClean.length === 10 ? '90' + telClean
+      : telClean
+    : '';
+  const waUrl = waNumber ? `https://wa.me/${waNumber}` : '';
+  // Yol Tarifi: önce maps_url, yoksa koordinat, yoksa adresten Google Maps yön linki
+  const yolTarifiUrl = maps_url
+    ? maps_url
+    : (lat != null && lng != null)
+      ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
+      : (adres || il)
+        ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent([name, adres, ilce, il, 'Türkiye'].filter(Boolean).join(', '))}`
+        : '';
+  // Web sitesi: http yoksa ekle
+  const webUrl = website ? (/^https?:\/\//i.test(website) ? website : `https://${website}`) : '';
+  // İkincil aksiyon butonu ortak stili (Ara / WhatsApp / Yol Tarifi / Web Sitesi)
+  const secBtnStyle: React.CSSProperties = {
+    padding: '11px 8px', borderRadius: 12, fontSize: 12.5, fontWeight: 700,
+    background: '#fff', color: 'var(--navy)', border: '1.5px solid var(--border)',
+    textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    gap: 7, boxShadow: '0 2px 8px rgba(27,58,105,.08)', whiteSpace: 'nowrap',
+  };
+
   // İç etiketleri (ör. devlet-dis-hastanesi) uzmanlık listesinden gizle
   const INTERNAL_SPEC_TAGS = new Set(['devlet-dis-hastanesi']);
   const visibleSpecs = (specs || []).filter(s => s && !INTERNAL_SPEC_TAGS.has(s));
@@ -977,35 +1005,44 @@ export default function ProfilSayfasi(props: ProfilProps) {
               </div>
             </div>
 
-            {/* Aksiyon butonları — sahip veya ziyaretçi aynı butonları görür */}
+            {/* Aksiyon butonları — Randevu Al öne çıkan; Ara / WhatsApp / Yol Tarifi / Web Sitesi */}
             <div className="profil-action-col">
-              {(
-                <>
-                  <button onClick={() => setRandevuModal(true)}
-                    style={{ padding: '11px 20px', borderRadius: 11, fontSize: 13.5, fontWeight: 700, background: 'var(--gold)', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 4px 16px rgba(212,168,67,.3)' }}>
-                    <i className="fa-solid fa-calendar-check" /> Randevu Al
-                  </button>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                    {tel && (
-                      <a href={`tel:${tel.replace(/\s/g,'')}`}
-                        style={{ padding: '10px', borderRadius: 11, fontSize: 12.5, fontWeight: 700, background: 'white', color: 'var(--navy)', border: '1.5px solid var(--border)', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                        <i className="fa-solid fa-phone" /> Ara
-                      </a>
-                    )}
-                    {maps_url && (
-                      <a href={maps_url} target="_blank" rel="noopener"
-                        style={{ padding: '10px', borderRadius: 11, fontSize: 12.5, fontWeight: 700, background: '#DCFCE7', color: '#15803D', border: '1.5px solid #BBF7D0', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                        <i className="fa-brands fa-google" /> Harita
-                      </a>
-                    )}
-                  </div>
-                  {kartSlug && (
-                    <a href={`/kart/${kartSlug}`} target="_blank" rel="noopener"
-                      style={{ padding: '11px', borderRadius: 11, fontSize: 12.5, fontWeight: 700, background: 'rgba(255,255,255,.12)', color: '#fff', border: '1.5px solid rgba(255,255,255,.3)', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
-                      <i className="fa-solid fa-id-card" style={{ color: 'var(--gold)' }} /> Dijital Kartvizit (HekimKart)
-                    </a>
-                  )}
-                </>
+              {/* Randevu Al — birincil */}
+              <button onClick={() => setRandevuModal(true)}
+                style={{ padding: '13px 20px', borderRadius: 12, fontSize: 14, fontWeight: 800, background: 'var(--gold)', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 6px 18px rgba(212,168,67,.35)' }}>
+                <i className="fa-solid fa-calendar-check" /> Randevu Al
+              </button>
+
+              {/* İkincil aksiyonlar — mevcut veriye göre otomatik dizilir */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(92px, 1fr))', gap: 8 }}>
+                {tel && (
+                  <a href={`tel:${tel.replace(/\s/g, '')}`} style={secBtnStyle}>
+                    <i className="fa-solid fa-phone" style={{ color: 'var(--navy)' }} /> Ara
+                  </a>
+                )}
+                {premium && waUrl && (
+                  <a href={waUrl} target="_blank" rel="noopener" style={secBtnStyle}>
+                    <i className="fa-brands fa-whatsapp" style={{ color: '#25D366', fontSize: 15 }} /> WhatsApp
+                  </a>
+                )}
+                {yolTarifiUrl && (
+                  <a href={yolTarifiUrl} target="_blank" rel="noopener" style={secBtnStyle}>
+                    <i className="fa-solid fa-location-arrow" style={{ color: 'var(--navy)' }} /> Yol Tarifi
+                  </a>
+                )}
+                {premium && webUrl && (
+                  <a href={webUrl} target="_blank" rel="noopener" style={secBtnStyle}>
+                    <i className="fa-solid fa-globe" style={{ color: 'var(--navy)' }} /> Web Sitesi
+                  </a>
+                )}
+              </div>
+
+              {/* HekimKart dijital kartvizit */}
+              {kartSlug && (
+                <a href={`/kart/${kartSlug}`} target="_blank" rel="noopener"
+                  style={{ padding: '11px', borderRadius: 12, fontSize: 12.5, fontWeight: 700, background: 'rgba(255,255,255,.12)', color: '#fff', border: '1.5px solid rgba(255,255,255,.3)', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
+                  <i className="fa-solid fa-id-card" style={{ color: 'var(--gold)' }} /> Dijital Kartvizit (HekimKart)
+                </a>
               )}
             </div>
           </div>
