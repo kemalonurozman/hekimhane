@@ -3,12 +3,17 @@ export const revalidate = 0;
 import type { Metadata } from 'next';
 import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
-import type { KlinikFilters, Klinik } from '@/lib/types';
+import type { KlinikFilters, Klinik, Doktor } from '@/lib/types';
 import KlinikCard from '@/components/KlinikCard';
+import DoktorCard from '@/components/DoktorCard';
 import ListingLayout from '@/components/ListingLayout';
-import { resolveKonum } from '@/lib/il-koordinatlari';
+import { resolveKonum, IL_KONUM } from '@/lib/il-koordinatlari';
 
 const PAGE_SIZE = 20;
+// Kurum türü — özel=klinikler tablosu; devlet/üniversite=doktorlar tablosu (etiketle)
+const DEVLET_TAG = 'devlet-dis-hastanesi';
+const UNI_TAG = 'universite-dis-hastanesi';
+const KURUM_VALS = ['ozel', 'devlet', 'universite', 'hepsi'] as const;
 const TR = (s: string) => (s||'').toLowerCase()
   .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
   .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
@@ -152,25 +157,157 @@ async function getKonumlar(filters: KlinikFilters) {
   }, 6000);
 }
 
+// ── Devlet/Üniversite kovası — doktorlar tablosundan (etiketli) ──
+async function getDoktorBucket(filters: KlinikFilters, tag: string) {
+  noStore();
+  const from = ((filters.page || 1) - 1) * PAGE_SIZE;
+  let q = supabase.from('doktorlar').select('*', { count: 'exact' })
+    .contains('tags', [tag])
+    .order('rat', { ascending: false }).range(from, from + PAGE_SIZE - 1);
+  if (filters.il)       q = q.eq('il', filters.il);
+  if (filters.ilce)     q = q.eq('ilce', filters.ilce);
+  if (filters.uzmanlik) q = q.eq('spec', filters.uzmanlik);
+  if (filters.q)        q = (q as any).or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%,spec.ilike.%${filters.q}%`);
+  const { data, count, error } = await q;
+  if (error) console.error(error);
+  return { data: (data || []) as Doktor[], count: count || 0 };
+}
+
+// Kurum seçeneği sayıları (filtre etiketleri için)
+async function getKurumCounts() {
+  noStore();
+  const [k, dev, uni] = await Promise.all([
+    supabase.from('klinikler').select('id', { count: 'exact', head: true }),
+    supabase.from('doktorlar').select('id', { count: 'exact', head: true }).contains('tags', [DEVLET_TAG]),
+    supabase.from('doktorlar').select('id', { count: 'exact', head: true }).contains('tags', [UNI_TAG]),
+  ]);
+  const ozel = k.count || 0, devlet = dev.count || 0, universite = uni.count || 0;
+  return { ozel, devlet, universite, hepsi: ozel + devlet + universite };
+}
+
+// Doktor kovası için il/uzmanlık facet sayıları
+async function getDoktorIller(tag: string, uzmanlik?: string) {
+  const rows = await fetchAllRows<{ il: string | null }>(() => {
+    let q = (supabase.from('doktorlar').select('il').contains('tags', [tag]).not('il', 'is', null) as any);
+    if (uzmanlik) q = q.eq('spec', uzmanlik);
+    return q;
+  });
+  const map: Record<string, number> = {};
+  rows.forEach(r => { if (r.il) map[r.il] = (map[r.il] || 0) + 1; });
+  return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0], 'tr')).map(([il, count]) => ({ value: il, label: il, count }));
+}
+async function getDoktorUzmanliklar(tag: string, il?: string) {
+  const rows = await fetchAllRows<{ spec: string | null }>(() => {
+    let q = (supabase.from('doktorlar').select('spec').contains('tags', [tag]).not('spec', 'is', null) as any);
+    if (il) q = q.eq('il', il);
+    return q;
+  });
+  const map: Record<string, number> = {};
+  rows.forEach(r => { if (r.spec) map[r.spec] = (map[r.spec] || 0) + 1; });
+  return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([spec, count]) => ({ value: spec, label: spec, count }));
+}
+// Doktor kovası harita işaretleri (koordinatsızlara il merkezi)
+async function getDoktorKonumlar(tag: string, filters: KlinikFilters) {
+  const rows = await fetchAllRows<any>(() => {
+    let q = (supabase.from('doktorlar').select('id,ad,soyad,lat,lng,tel,spec,il,ilce,slug').contains('tags', [tag]).not('il', 'is', null) as any);
+    if (filters.il)   q = q.eq('il', filters.il);
+    if (filters.ilce) q = q.eq('ilce', filters.ilce);
+    if (filters.uzmanlik) q = q.eq('spec', filters.uzmanlik);
+    return q;
+  }, 6000);
+  return rows.map((d: any) => {
+    if (d.lat && d.lng && d.lat !== 0 && d.lng !== 0) return d;
+    const center = d.il ? IL_KONUM[d.il] : null;
+    if (!center) return null;
+    return { ...d, lat: center.lat, lng: center.lng };
+  }).filter(Boolean);
+}
+
+async function getDoktorIlceler(tag: string, il?: string) {
+  if (!il) return [];
+  const rows = await fetchAllRows<{ ilce: string | null }>(() =>
+    supabase.from('doktorlar').select('ilce').contains('tags', [tag]).eq('il', il).not('ilce', 'is', null));
+  const map: Record<string, number> = {};
+  rows.forEach(r => { if (r.ilce) map[r.ilce] = (map[r.ilce] || 0) + 1; });
+  return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0], 'tr')).map(([ilce, count]) => ({ value: ilce, label: ilce, count }));
+}
+
+// "Hepsi" — klinik + devlet + üniversite tek listede (rat'a göre pencere sayfalama)
+async function getHepsi(filters: KlinikFilters) {
+  noStore();
+  const need = (filters.page || 1) * PAGE_SIZE;
+  const applyK = (q: any) => {
+    if (filters.il) q = q.eq('il', filters.il);
+    if (filters.ilce) q = q.eq('ilce', filters.ilce);
+    if (filters.uzmanlik) q = q.contains('specs', [filters.uzmanlik]);
+    if (filters.q) q = q.or(`name.ilike.%${filters.q}%,adres.ilike.%${filters.q}%`);
+    return q;
+  };
+  const applyD = (q: any) => {
+    if (filters.il) q = q.eq('il', filters.il);
+    if (filters.ilce) q = q.eq('ilce', filters.ilce);
+    if (filters.uzmanlik) q = q.eq('spec', filters.uzmanlik);
+    if (filters.q) q = q.or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%,spec.ilike.%${filters.q}%`);
+    return q;
+  };
+  const [kl, dv, uni, kc, dc, uc] = await Promise.all([
+    applyK(supabase.from('klinikler').select('*').order('rat', { ascending: false }).range(0, need - 1)),
+    applyD(supabase.from('doktorlar').select('*').contains('tags', [DEVLET_TAG]).order('rat', { ascending: false }).range(0, need - 1)),
+    applyD(supabase.from('doktorlar').select('*').contains('tags', [UNI_TAG]).order('rat', { ascending: false }).range(0, need - 1)),
+    applyK(supabase.from('klinikler').select('id', { count: 'exact', head: true })),
+    applyD(supabase.from('doktorlar').select('id', { count: 'exact', head: true }).contains('tags', [DEVLET_TAG])),
+    applyD(supabase.from('doktorlar').select('id', { count: 'exact', head: true }).contains('tags', [UNI_TAG])),
+  ]);
+  const merged = [
+    ...((kl.data || []) as Klinik[]).map(k => ({ kind: 'klinik' as const, rat: k.rat || 0, data: k })),
+    ...((dv.data || []) as Doktor[]).map(d => ({ kind: 'doktor' as const, rat: d.rat || 0, data: d })),
+    ...((uni.data || []) as Doktor[]).map(d => ({ kind: 'doktor' as const, rat: d.rat || 0, data: d })),
+  ].sort((a, b) => b.rat - a.rat);
+  const start = ((filters.page || 1) - 1) * PAGE_SIZE;
+  return { items: merged.slice(start, start + PAGE_SIZE), count: (kc.count || 0) + (dc.count || 0) + (uc.count || 0) };
+}
+
 export default async function KliniklerPage(
   { searchParams }: { searchParams: Record<string, string> }
 ) {
+  const kurumSel = (KURUM_VALS as readonly string[]).includes(searchParams.kurum) ? searchParams.kurum : 'ozel';
   const filters: KlinikFilters = {
     il:       searchParams.il       || undefined,
     ilce:     searchParams.ilce     || undefined,
     uzmanlik: searchParams.uzmanlik || undefined,
     tip:      searchParams.tip      || undefined,
+    kurum:    kurumSel,
     minRat:   searchParams.minpuan  ? parseFloat(searchParams.minpuan) : undefined,
     q:        searchParams.q        || undefined,
     page:     searchParams.page     ? parseInt(searchParams.page) : 1,
   };
 
-  const [{ data: klinikler, count }, illerWithCount, ilcelerWithCount, uzmanliklarWithCount, konumlar] = await Promise.all([
-    getKlinikler(filters),
-    getIller(filters.uzmanlik),
-    getIlceler(filters.il),
-    getUzmanliklar(filters.il),
-    getKonumlar(filters),
+  // Kurum moduna göre veri kaynağı: özel=klinikler, devlet/üniversite=doktorlar, hepsi=birleşik
+  const isDoc = kurumSel === 'devlet' || kurumSel === 'universite';
+  const docTag = kurumSel === 'universite' ? UNI_TAG : DEVLET_TAG;
+
+  let items: { kind: 'klinik' | 'doktor'; data: any }[] = [];
+  let count = 0;
+  if (kurumSel === 'ozel') {
+    const r = await getKlinikler(filters);
+    items = (r.data as Klinik[]).map(k => ({ kind: 'klinik' as const, data: k }));
+    count = r.count;
+  } else if (isDoc) {
+    const r = await getDoktorBucket(filters, docTag);
+    items = r.data.map(d => ({ kind: 'doktor' as const, data: d }));
+    count = r.count;
+  } else {
+    const r = await getHepsi(filters);
+    items = r.items.map(it => ({ kind: it.kind, data: it.data }));
+    count = r.count;
+  }
+
+  const [illerWithCount, ilcelerWithCount, uzmanliklarWithCount, konumlar, kurumCounts] = await Promise.all([
+    isDoc ? getDoktorIller(docTag, filters.uzmanlik) : getIller(filters.uzmanlik),
+    isDoc ? getDoktorIlceler(docTag, filters.il) : getIlceler(filters.il),
+    isDoc ? getDoktorUzmanliklar(docTag, filters.il) : getUzmanliklar(filters.il),
+    isDoc ? getDoktorKonumlar(docTag, filters) : getKonumlar(filters),
+    getKurumCounts(),
   ]);
 
   const totalPages = Math.ceil(count / PAGE_SIZE);
@@ -182,7 +319,13 @@ export default async function KliniklerPage(
     : null;
   const yer = filters.ilce || filters.il;
 
-  const title = tipEtiket ? (yer ? `${yer} ${tipEtiket}` : `Tüm ${tipEtiket}`)
+  const kurumEtiket = kurumSel === 'devlet' ? 'Devlet Diş Hekimleri'
+    : kurumSel === 'universite' ? 'Üniversite Diş Hekimleri'
+    : kurumSel === 'hepsi' ? 'Tüm Diş Klinikleri & Hekimleri'
+    : null;
+
+  const title = kurumEtiket ? (yer ? `${yer} ${kurumEtiket}` : kurumEtiket)
+    : tipEtiket ? (yer ? `${yer} ${tipEtiket}` : `Tüm ${tipEtiket}`)
     : filters.uzmanlik ? `${filters.uzmanlik} Klinikleri`
     : filters.ilce ? `${filters.ilce} Diş Klinikleri`
     : filters.il   ? `${filters.il} Diş Klinikleri`
@@ -196,12 +339,14 @@ export default async function KliniklerPage(
   if (filters.il)   bcItems.push({ '@type': 'ListItem', position: 3, name: filters.il, item: `https://www.hekimhane.com.tr/klinikler?il=${encodeURIComponent(filters.il)}` });
   if (filters.ilce) bcItems.push({ '@type': 'ListItem', position: 4, name: filters.ilce, item: `https://www.hekimhane.com.tr/klinikler?il=${encodeURIComponent(filters.il||'')}&ilce=${encodeURIComponent(filters.ilce)}` });
 
-  const listItems = (klinikler || []).slice(0, 20).map((k, i) => ({
-    '@type': 'ListItem',
-    position: i + 1,
-    name: k.name,
-    url: k.slug ? `https://www.hekimhane.com.tr/klinikler/${TR(k.il||'turkiye')}/${TR(k.ilce||'merkez')}/${k.slug}` : undefined,
-  }));
+  const listItems = items.slice(0, 20).map((it, i) => {
+    const d = it.data;
+    const name = it.kind === 'klinik' ? d.name : `${d.ad || ''} ${d.soyad || ''}`.trim();
+    const url = it.kind === 'klinik'
+      ? (d.slug ? `https://www.hekimhane.com.tr/klinikler/${TR(d.il||'turkiye')}/${TR(d.ilce||'merkez')}/${d.slug}` : undefined)
+      : (d.slug ? `https://www.hekimhane.com.tr/doktorlar/${d.slug}` : undefined);
+    return { '@type': 'ListItem', position: i + 1, name, url };
+  });
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -234,30 +379,41 @@ export default async function KliniklerPage(
         ...(filters.ilce ? [{ label: filters.ilce, href: `/klinikler?il=${filters.il}&ilce=${filters.ilce}` }] : []),
       ]}
       filterSections={[
-        { key: 'q',        label: 'Arama',    type: 'search',   placeholder: 'Klinik ara...' },
+        { key: 'q',        label: 'Arama',    type: 'search',   placeholder: 'Klinik veya hekim ara...' },
+        { key: 'kurum',    label: 'Kurum',    type: 'radio',    hideAll: true, options: [
+          { value: 'ozel',       label: 'Özel',       count: kurumCounts.ozel },
+          { value: 'devlet',     label: 'Devlet',     count: kurumCounts.devlet },
+          { value: 'universite', label: 'Üniversite', count: kurumCounts.universite },
+          { value: 'hepsi',      label: 'Hepsi',      count: kurumCounts.hepsi },
+        ] },
         { key: 'il',       label: 'Şehir',    type: 'radio',    options: illerWithCount },
         ...(filters.il && ilcelerWithCount.length > 1
           ? [{ key: 'ilce', label: 'İlçe', type: 'radio' as const, options: ilcelerWithCount }]
           : []),
         { key: 'uzmanlik', label: 'Uzmanlık', type: 'checkbox', options: uzmanliklarWithCount },
       ]}
-      activeFilters={{ il: filters.il, ilce: filters.ilce, uzmanlik: filters.uzmanlik, tip: filters.tip, q: filters.q }}
-      hasActiveFilters={!!(filters.il || filters.ilce || filters.uzmanlik || filters.tip || filters.q)}
-      markers={konumlar.map(k => ({
-        id: k.id, name: k.name, lat: k.lat, lng: k.lng, tel: k.tel, type: k.type,
-        il: k.il, ilce: k.ilce,
-        href: k.slug ? `/klinikler/${TR(k.il||'turkiye')}/${TR(k.ilce||'merkez')}/${k.slug}` : `/klinikler/${k.id}`,
-      }))}
+      activeFilters={{ kurum: kurumSel, il: filters.il, ilce: filters.ilce, uzmanlik: filters.uzmanlik, tip: filters.tip, q: filters.q }}
+      hasActiveFilters={!!(filters.il || filters.ilce || filters.uzmanlik || filters.tip || filters.q || kurumSel !== 'ozel')}
+      markers={konumlar.map((k: any) => {
+        const isKlinik = !isDoc;
+        const nm = isKlinik ? k.name : `${k.ad || ''} ${k.soyad || ''}`.trim();
+        const href = isKlinik
+          ? (k.slug ? `/klinikler/${TR(k.il||'turkiye')}/${TR(k.ilce||'merkez')}/${k.slug}` : `/klinikler/${k.id}`)
+          : (k.slug ? `/doktorlar/${k.slug}` : `/doktorlar/${k.id}`);
+        return { id: k.id, name: nm, lat: k.lat, lng: k.lng, tel: k.tel, type: isKlinik ? k.type : k.spec, il: k.il, ilce: k.ilce, href };
+      })}
       totalPages={totalPages}
       currentPage={filters.page || 1}
       searchParams={searchParams}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      {klinikler.length === 0 ? (
+      {items.length === 0 ? (
         <EmptyState href="/klinikler" />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {klinikler.map(k => <KlinikCard key={k.id} klinik={k as Klinik} />)}
+          {items.map(it => it.kind === 'klinik'
+            ? <KlinikCard key={`k-${it.data.id}`} klinik={it.data as Klinik} />
+            : <DoktorCard key={`d-${it.data.id}`} doktor={it.data as Doktor} />)}
         </div>
       )}
     </ListingLayout>

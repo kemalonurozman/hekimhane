@@ -17,6 +17,7 @@ export interface FilterSection {
   type: 'radio' | 'checkbox' | 'search';
   options?: FilterOption[];
   placeholder?: string;
+  hideAll?: boolean; // "Tümü" seçeneğini gizle (ör. kurum: varsayılan Özel seçili)
 }
 
 export interface MapMarker {
@@ -708,7 +709,7 @@ function FilterSectionBlock({
           {(section.type === 'radio' || section.type === 'checkbox') && section.options && (
             <div style={{ maxHeight: 260, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2, scrollbarWidth: 'thin', paddingRight: 2 }}>
               {/* Tümü */}
-              {(() => {
+              {!section.hideAll && (() => {
                 const toplam = section.options.reduce((s, o) => s + (o.count || 0), 0);
                 return (
                   <button onClick={() => onUpdate(null)}

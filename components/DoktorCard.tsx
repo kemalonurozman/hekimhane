@@ -180,14 +180,19 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
               )}
             </div>
 
-            {d.tags && d.tags.length > 0 && (
-              <div className="doktor-card__tags">
-                {d.tags.slice(0, 3).map(t => (
-                  <span key={t} className="badge badge-navy" style={{ fontSize: '10px', padding: '2px 8px' }}>{t}</span>
-                ))}
-                {d.tags.length > 3 && <span style={{ fontSize: '11px', color: 'var(--muted)' }}>+{d.tags.length - 3}</span>}
-              </div>
-            )}
+            {(() => {
+              // İç etiketleri (devlet-dis-hastanesi vb.) ziyaretçiye gösterme
+              const INTERNAL = new Set(['devlet-dis-hastanesi', 'universite-dis-hastanesi']);
+              const visTags = (d.tags || []).filter(t => t && !INTERNAL.has(t));
+              return visTags.length > 0 && (
+                <div className="doktor-card__tags">
+                  {visTags.slice(0, 3).map(t => (
+                    <span key={t} className="badge badge-navy" style={{ fontSize: '10px', padding: '2px 8px' }}>{t}</span>
+                  ))}
+                  {visTags.length > 3 && <span style={{ fontSize: '11px', color: 'var(--muted)' }}>+{visTags.length - 3}</span>}
+                </div>
+              );
+            })()}
           </div>
         </div>
 

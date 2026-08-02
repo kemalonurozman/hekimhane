@@ -21,6 +21,7 @@ export interface Klinik {
   id: string;
   name: string;
   type: string | null;
+  kurum: string | null; // 'ozel' | 'devlet' | 'universite'
   il: string | null;
   ilce: string | null;
   adres: string | null;
@@ -200,6 +201,7 @@ export interface KlinikFilters {
   ilce?: string;
   uzmanlik?: string;
   tip?: string;
+  kurum?: string;
   minRat?: number;
   q?: string;
   page?: number;
