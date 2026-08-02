@@ -2,6 +2,10 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// Her istekte taze — silinen/eklenen başvurular anında yansısın (cache bayat kalmasın)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // Service role — RLS'yi bypass eder (yalnızca server-side)
 function adminClient() {
   return createClient(

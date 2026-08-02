@@ -188,7 +188,7 @@ export default function PanelPage() {
     // Talepler service-role API üzerinden okunur (claim_requests RLS'ine takılmadan)
     let list: ClaimRequest[] = [];
     try {
-      const res = await fetch('/api/panel/my-claims');
+      const res = await fetch('/api/panel/my-claims', { cache: 'no-store' });
       if (res.ok) { const d = await res.json(); list = d.claims || []; }
     } catch { /* boş liste */ }
     setClaims(list);
@@ -484,17 +484,11 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                       <Ic d={icons.edit} size={13} /> Düzenle
                     </button>
                   )}
-                  {c.entity_id && c.entity_id !== 'new' && (
-                    premiumMap[c.id] ? (
-                      <span style={{ padding: '7px 12px', background: 'linear-gradient(135deg,#FEF3C7,#FDE68A)', color: '#92400E', border: '1px solid #F59E0B', borderRadius: 9, fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 5 }}>
-                        👑 Premium Aktif
-                      </span>
-                    ) : (
-                      <button onClick={() => onUpgrade(c.id, c.entity_type, c.entity_id!)} disabled={upgradingId === c.id}
-                        style={{ padding: '7px 14px', background: 'linear-gradient(135deg,#1B3A69,#0F2A55)', color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, border: 'none', cursor: upgradingId === c.id ? 'default' : 'pointer', opacity: upgradingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
-                        {upgradingId === c.id ? '…' : <>👑 Premium&apos;a Yükselt</>}
-                      </button>
-                    )
+                  {c.entity_id && c.entity_id !== 'new' && !premiumMap[c.id] && (
+                    <button onClick={() => onUpgrade(c.id, c.entity_type, c.entity_id!)} disabled={upgradingId === c.id}
+                      style={{ padding: '7px 14px', background: 'linear-gradient(135deg,#1B3A69,#0F2A55)', color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, border: 'none', cursor: upgradingId === c.id ? 'default' : 'pointer', opacity: upgradingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
+                      {upgradingId === c.id ? '…' : <>👑 Premium&apos;a Yükselt</>}
+                    </button>
                   )}
                 </div>
               </div>
