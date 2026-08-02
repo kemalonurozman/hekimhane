@@ -587,8 +587,9 @@ const RANDEVU_MODAL_CSS = `
   .randevu-modal-card { padding: 20px 16px; border-radius: 16px; }
 }
 `;
-function RandevuModal({ name, entityType, entityId, open, onClose }: {
+function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospital, hospitalTel }: {
   name: string; entityType: string; entityId: string | number; open: boolean; onClose: () => void;
+  devlet?: boolean; hospital?: string | null; hospitalTel?: string | null;
 }) {
   const [adSoyad, setAdSoyad] = useState('');
   const [tel, setTel]         = useState('');
@@ -652,7 +653,29 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
       <style dangerouslySetInnerHTML={{ __html: RANDEVU_MODAL_CSS }} />
       <div className="randevu-modal-card" style={{ background: 'white', borderRadius: 20, maxWidth: 460, width: '100%', padding: 28, position: 'relative', boxShadow: '0 24px 64px rgba(0,0,0,.28)', maxHeight: '92vh', overflowY: 'auto', boxSizing: 'border-box' }}>
         <button onClick={onClose} style={{ position: 'absolute', top: 14, right: 14, width: 32, height: 32, borderRadius: '50%', background: '#F3F4F6', border: 'none', cursor: 'pointer', fontSize: 16, color: '#6B7280' }}>✕</button>
-        {done ? (
+        {devlet ? (
+          <div style={{ textAlign: 'center', padding: '8px 0' }}>
+            <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B45309" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            </div>
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 800, marginBottom: 10, paddingRight: 28, lineHeight: 1.25 }}>
+              Randevu Sistemi Kapalı
+            </h2>
+            <p style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.75, margin: 0 }}>
+              <strong style={{ color: 'var(--text)' }}>{name}</strong> hekimi
+              {hospital ? <> <strong style={{ color: 'var(--text)' }}>{hospital}</strong></> : ''} bünyesinde bir <strong>devlet hastanesine</strong> kayıtlıdır.
+              Randevu almak için lütfen hastaneyi <strong>doğrudan arayın</strong>. Mail / online randevu sistemleri şu an için kapalıdır.
+            </p>
+            {hospitalTel ? (
+              <a href={`tel:${String(hospitalTel).replace(/\s/g, '')}`}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 18, padding: '12px 26px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+                <i className="fa-solid fa-phone" /> Hastaneyi Ara · {hospitalTel}
+              </a>
+            ) : (
+              <button onClick={onClose} style={{ marginTop: 18, padding: '11px 26px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Anladım</button>
+            )}
+          </div>
+        ) : done ? (
           <div style={{ textAlign: 'center', padding: '16px 0' }}>
             <div style={{
               width: 56, height: 56, borderRadius: '50%', background: '#ECFDF5',
@@ -831,10 +854,11 @@ export default function ProfilSayfasi(props: ProfilProps) {
       : waSource
     : '';
   const waUrl = waNumber ? `https://wa.me/${waNumber}` : '';
-  // Yol Tarifi: önce maps_url, yoksa koordinat, yoksa adresten Google Maps yön linki
+  // Yol Tarifi: önce maps_url, yoksa geçerli koordinat (0,0 hariç), yoksa adresten Google Maps yön linki
+  const hasCoords = lat != null && lng != null && !(Number(lat) === 0 && Number(lng) === 0);
   const yolTarifiUrl = maps_url
     ? maps_url
-    : (lat != null && lng != null)
+    : hasCoords
       ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
       : (adres || il)
         ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent([name, adres, ilce, il, 'Türkiye'].filter(Boolean).join(', '))}`
@@ -852,6 +876,10 @@ export default function ProfilSayfasi(props: ProfilProps) {
   // İç etiketleri (ör. devlet-dis-hastanesi) uzmanlık listesinden gizle
   const INTERNAL_SPEC_TAGS = new Set(['devlet-dis-hastanesi']);
   const visibleSpecs = (specs || []).filter(s => s && !INTERNAL_SPEC_TAGS.has(s));
+
+  // Devlet hastanesine bağlı hekim → randevu formu yerine "hastaneyi arayın" uyarısı
+  const isDevletDoktor = entityType === 'doktor' && (specs || []).includes('devlet-dis-hastanesi');
+  const devletHospital = isDevletDoktor ? (adres || '') : '';
 
   const typeLabel = entityType === 'klinik'  ? (type || 'Diş Kliniği')
     : entityType === 'hastane' ? (type || 'Hastane')
@@ -1715,22 +1743,45 @@ export default function ProfilSayfasi(props: ProfilProps) {
             <div style={sc}>
               <div style={scHd}>
                 <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Randevu Talebi</h3>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: '#065F46' }}>
-                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#059669', display: 'inline-block' }} />
-                  Talep Alınıyor
-                </span>
+                {isDevletDoktor ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: '#92400E' }}>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#B45309', display: 'inline-block' }} />
+                    Randevu Kapalı
+                  </span>
+                ) : (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: '#065F46' }}>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#059669', display: 'inline-block' }} />
+                    Talep Alınıyor
+                  </span>
+                )}
               </div>
               <div style={{ ...scBody, textAlign: 'center', padding: '40px 24px' }}>
-                <i className="fa-regular fa-calendar-check" style={{ fontSize: 48, color: '#059669', display: 'block', marginBottom: 16 }} />
-                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Sizi Arayalım, Randevunuzu Oluşturalım</div>
-                <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 420, margin: '0 auto 24px' }}>
-                  Ad, soyad ve telefon numaranızı bırakın; işletme yetkilisi sizi arayarak
-                  size uygun tarih ve saate randevunuzu oluştursun.
-                </p>
-                <button onClick={() => setRandevuModal(true)}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 24 }}>
-                  <i className="fa-solid fa-calendar-plus" /> Randevu Talebi Bırak
-                </button>
+                {isDevletDoktor ? (<>
+                  <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 48, color: '#B45309', display: 'block', marginBottom: 16 }} />
+                  <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Randevu Sistemi Kapalı</div>
+                  <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 460, margin: '0 auto 20px' }}>
+                    <strong style={{ color: 'var(--text)' }}>{name}</strong> hekimi
+                    {devletHospital ? <> <strong style={{ color: 'var(--text)' }}>{devletHospital}</strong></> : ''} bünyesinde bir <strong>devlet hastanesine</strong> kayıtlıdır.
+                    Randevu almak için lütfen hastaneyi <strong>doğrudan arayın</strong>. Mail / online randevu sistemleri şu an için kapalıdır.
+                  </p>
+                  {tel && (
+                    <a href={`tel:${tel.replace(/\s/g, '')}`}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none', marginBottom: 24 }}>
+                      <i className="fa-solid fa-phone" /> Hastaneyi Ara · {tel}
+                    </a>
+                  )}
+                </>) : (<>
+                  <i className="fa-regular fa-calendar-check" style={{ fontSize: 48, color: '#059669', display: 'block', marginBottom: 16 }} />
+                  <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Sizi Arayalım, Randevunuzu Oluşturalım</div>
+                  <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 420, margin: '0 auto 24px' }}>
+                    Ad, soyad ve telefon numaranızı bırakın; işletme yetkilisi sizi arayarak
+                    size uygun tarih ve saate randevunuzu oluştursun.
+                  </p>
+                  <button onClick={() => setRandevuModal(true)}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 24 }}>
+                    <i className="fa-solid fa-calendar-plus" /> Randevu Talebi Bırak
+                  </button>
+                </>)}
                 <div style={{ maxWidth: 500, margin: '0 auto', textAlign: 'left' }}>
                   <AboneWidget
                     tip="hasta"
@@ -1915,7 +1966,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
       </div>
 
       {/* Randevu modal */}
-      <RandevuModal name={name} entityType={entityType} entityId={id} open={randevuModal} onClose={() => setRandevuModal(false)} />
+      <RandevuModal name={name} entityType={entityType} entityId={id} open={randevuModal} onClose={() => setRandevuModal(false)}
+        devlet={isDevletDoktor} hospital={devletHospital} hospitalTel={tel} />
 
       {/* ── Lightbox ── */}
       {lightboxIdx !== null && (() => {

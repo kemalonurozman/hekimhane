@@ -173,7 +173,7 @@ const HOSP = {
     doktorlar.push({
       id, ad, soyad, unvan: normUnvan(r[IDX.unvan]), spec,
       il: hosp.il, ilce: hosp.ilce, clinic_name: hosp.name,
-      tel, tags: [TAG, spec], verified: true, rat: 0, rev: 0, fee: 0,
+      tel, tags: [TAG, spec], verified: false, rat: 0, rev: 0, fee: 0,
       slug: s,
     });
   }
