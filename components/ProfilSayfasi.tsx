@@ -566,8 +566,29 @@ const RANDEVU_MODAL_CSS = `
 }
 .randevu-modal-card input:focus, .randevu-modal-card select:focus, .randevu-modal-card textarea:focus {
   border-color: var(--navy);
+  background: #fff;
   box-shadow: 0 0 0 3px rgba(27,58,105,.14);
 }
+/* Apple-tarzı gün seçici — yatay kaydırılabilir */
+.rnd-days{display:flex;gap:8px;overflow-x:auto;padding:1px 1px 7px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;}
+.rnd-days::-webkit-scrollbar{display:none;}
+.rnd-day{flex:0 0 auto;scroll-snap-align:start;min-width:52px;padding:9px 6px;border-radius:14px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-family:inherit;text-align:center;transition:transform .12s,border-color .15s,background .15s;}
+.rnd-day:active{transform:scale(.95);}
+.rnd-day .d-dow{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.rnd-day .d-num{font-size:19px;font-weight:800;color:var(--text);line-height:1.15;}
+.rnd-day .d-mon{font-size:10px;color:var(--muted);}
+.rnd-day.sel{background:var(--navy);border-color:var(--navy);box-shadow:0 6px 16px rgba(27,58,105,.28);}
+.rnd-day.sel .d-dow,.rnd-day.sel .d-num,.rnd-day.sel .d-mon{color:#fff;}
+.rnd-day.any{min-width:76px;display:flex;flex-direction:column;justify-content:center;}
+.rnd-day.any .d-num{font-size:13px;font-weight:700;}
+/* Saat segmentleri */
+.rnd-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.rnd-slot{padding:10px 4px;border-radius:13px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-family:inherit;text-align:center;transition:transform .12s,border-color .15s,background .15s;}
+.rnd-slot:active{transform:scale(.95);}
+.rnd-slot .s-l{font-size:12.5px;font-weight:700;color:var(--text);}
+.rnd-slot .s-s{font-size:10px;color:var(--muted);margin-top:1px;}
+.rnd-slot.sel{background:var(--navy);border-color:var(--navy);box-shadow:0 6px 16px rgba(27,58,105,.28);}
+.rnd-slot.sel .s-l,.rnd-slot.sel .s-s{color:#fff;}
 .randevu-modal-card input[type=date] {
   -webkit-appearance: none; appearance: none; min-height: 48px;
 }
@@ -640,11 +661,27 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
   if (!open) return null;
 
   const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '12px 14px', border: '1.5px solid var(--border)', borderRadius: 12,
+    width: '100%', padding: '13px 15px', border: '1.5px solid transparent', borderRadius: 13,
     fontSize: 16, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
-    background: '#fff', color: 'var(--text)',
+    background: '#F3F3F6', color: 'var(--text)',
   };
-  const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6 };
+  const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12.5, fontWeight: 600, marginBottom: 7, color: 'var(--text)' };
+
+  // Apple-tarzı tarih seçici — önümüzdeki 14 gün (client-only; modal açıkken render edilir)
+  const DOW = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+  const MON = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+  const today0 = new Date(); today0.setHours(0, 0, 0, 0);
+  const dayList = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date(today0); d.setDate(today0.getDate() + i);
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return { iso, dow: DOW[d.getDay()], day: d.getDate(), mon: MON[d.getMonth()], isToday: i === 0 };
+  });
+  const timeSlots = [
+    { v: '', label: 'Fark etmez', sub: '' },
+    { v: 'Sabah (09:00-12:00)', label: 'Sabah', sub: '09–12' },
+    { v: 'Öğleden sonra (12:00-17:00)', label: 'Öğle', sub: '12–17' },
+    { v: 'Akşam (17:00-20:00)', label: 'Akşam', sub: '17–20' },
+  ];
 
   return (
     <div onClick={e => { if (e.target === e.currentTarget) onClose(); }}
@@ -720,17 +757,29 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
               </div>
               <div>
                 <label style={labelStyle}>Tercih Ettiğiniz Tarih <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
-                <input type="date" value={tarih} onChange={e => setTarih(e.target.value)}
-                  min={new Date().toISOString().slice(0, 10)} style={inputStyle} />
+                <div className="rnd-days">
+                  <button type="button" onClick={() => setTarih('')} className={`rnd-day any${tarih === '' ? ' sel' : ''}`}>
+                    <span className="d-num">Fark<br />etmez</span>
+                  </button>
+                  {dayList.map(d => (
+                    <button type="button" key={d.iso} onClick={() => setTarih(d.iso)} className={`rnd-day${tarih === d.iso ? ' sel' : ''}`}>
+                      <div className="d-dow">{d.isToday ? 'Bugün' : d.dow}</div>
+                      <div className="d-num">{d.day}</div>
+                      <div className="d-mon">{d.mon}</div>
+                    </button>
+                  ))}
+                </div>
               </div>
               <div>
                 <label style={labelStyle}>Tercih Ettiğiniz Saat Dilimi <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
-                <select value={saat} onChange={e => setSaat(e.target.value)} style={inputStyle}>
-                  <option value="">Fark etmez</option>
-                  <option value="Sabah (09:00-12:00)">Sabah (09:00-12:00)</option>
-                  <option value="Öğleden sonra (12:00-17:00)">Öğleden sonra (12:00-17:00)</option>
-                  <option value="Akşam (17:00-20:00)">Akşam (17:00-20:00)</option>
-                </select>
+                <div className="rnd-slots">
+                  {timeSlots.map(s => (
+                    <button type="button" key={s.v || 'any'} onClick={() => setSaat(s.v)} className={`rnd-slot${saat === s.v ? ' sel' : ''}`}>
+                      <div className="s-l">{s.label}</div>
+                      {s.sub && <div className="s-s">{s.sub}</div>}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div>
                 <label style={labelStyle}>Notunuz <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
@@ -991,14 +1040,23 @@ export default function ProfilSayfasi(props: ProfilProps) {
                     ? <img src={logo || photo!} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     : entityIcon}
                 </div>
-                {/* Doğrulanmış rozeti — premium (onaylı) tam altın; değilse soluk gri */}
+                {/* Doğrulanmış mührü — tırtıklı seal (aynı rozet); premium tam altın, değilse soluk gri */}
                 <span aria-label={premium ? 'Doğrulanmış Hekim' : 'Doğrulanmamış'}
                   title={premium ? 'Hekimhane tarafından doğrulandı' : 'Henüz doğrulanmadı'}
-                  style={{ position: 'absolute', right: 2, bottom: 2, width: 36, height: 36, borderRadius: '50%',
-                    background: premium ? 'linear-gradient(135deg,#EFC65E,#C6902B)' : 'linear-gradient(135deg,#CBD0D9,#9AA1AE)',
-                    border: '3px solid #fff', boxShadow: '0 3px 9px rgba(0,0,0,.28)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: premium ? 1 : 0.5 }}>
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                  style={{ position: 'absolute', right: -2, bottom: 0, width: 44, height: 44,
+                    filter: premium ? 'drop-shadow(0 3px 8px rgba(198,144,43,.55))' : 'drop-shadow(0 2px 6px rgba(0,0,0,.28))',
+                    opacity: premium ? 1 : 0.5, display: 'block', lineHeight: 0 }}>
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
+                    <defs>
+                      <linearGradient id="hkseal" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stopColor={premium ? '#F4D479' : '#D7DBE2'} />
+                        <stop offset="1" stopColor={premium ? '#C6902B' : '#98A0AD'} />
+                      </linearGradient>
+                    </defs>
+                    <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.68.88-3.34 2.19c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91c-1.31.66-2.19 1.91-2.19 3.34s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.66 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.66 2.19-1.91 2.19-3.34z"
+                      fill="url(#hkseal)" stroke="#fff" strokeWidth="1.1" />
+                    <path d="M8.7 12.3 L11 14.6 L15.5 9.5" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </span>
               </div>
             </div>
