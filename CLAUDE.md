@@ -372,6 +372,64 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 
 ---
 
+## Yeni Özellikler — Ağustos 2026
+
+### E-posta Sistemi (Resend)
+- `lib/email.ts` — `sendEmail()` (Resend), `mailShell(baslik, govde)` markalı HTML şablonu, `satir(etiket, değer)`.
+  - **Graceful:** `RESEND_API_KEY` yoksa sessizce atlar (akış bozulmaz). Domain doğrulandı → gönderen `bildirim@hekimhane.com.tr`.
+  - Şablon header + footer'daki "hekimhane.com.tr" tıklanır link (`https://www.hekimhane.com.tr`).
+- **Env:** `RESEND_API_KEY` **Vercel'de tanımlı olmalı** (Production). Yoksa hiçbir mail gitmez. Opsiyonel `RESEND_FROM`.
+- **Tuzak:** `<style>` **blok metnine** tırnak koyma → hydration uyumsuzluğu. E-posta HTML'inde (string) tırnak sorun değil.
+
+### Randevu Talebi Sistemi
+- **API:** `app/api/randevu-talebi/route.ts` → `randevu_talepleri` tablosuna yazar; yoksa `cekim_talepleri`'ne düşer. Honeypot + IP rate-limit.
+- **Form:** `ProfilSayfasi.tsx` içindeki `RandevuModal` — "Randevu Al" **doğrudan popup açar**. Tarih seçici (`<input type=date>`, min bugün) + saat dilimi `<select>`; `tercih` metni bunlardan üretilir. Buton pasif kalmaz; eksik alanda uyarı verir. CSS `RANDEVU_MODAL_CSS` (tırnaksız `<style>`).
+- **Mailler:** admin (`kemalonurozman@gmail.com`) + işletme sahibi (onaylı claim e-postası varsa) + hasta (e-posta bıraktıysa onay).
+- **E-posta listesi yakalama:** hasta e-posta bıraktıysa `email_aboneleri`'ne `kaynak='randevu'` ile eklenir.
+- **Admin görünüm:** panel "Randevu & Çekim" sekmesi (kaynak filtresi Randevu/Çekim, yeşil RANDEVU rozeti, sidebar bekleyen-randevu sayacı).
+- **İşletme sahibi görünüm:** panel "Randevu Talepleri" sekmesi (`/api/panel/randevu-talepleri`, sahiplik onaylı claim entity_id eşleşmesiyle; durum: yeni/arandı/tamamlandı).
+
+### Sahiplenme (Claim) Akışı — uçtan uca
+- **Gönderim:** 3 yol (**/sahiplen, panel NewClaimTab, katil sayfası**) artık hepsi **`/api/claim`** (service-role) üzerinden yazar — `claim_requests` RLS özyinelemesini aşar. Gönderince admin + talep sahibine mail ("24 saat içinde değerlendirilir").
+- **Onay:** admin panel → `/api/admin/claim-action` (`notify` sorulur: "kullanıcıya mail?"). Onayda: `claimed=true` + auth kullanıcısı garanti edilir + **`account_activations`** tablosuna tek-kullanımlık token yazılır + kullanıcıya **aktivasyon linki** maili.
+- **Aktivasyon:** `/hesap-aktivasyon?token=...` (`app/api/hesap/aktivasyon/route.ts`) — e-posta **ön-dolu (readOnly)**, kullanıcı **şifresini 2 kez** girer → şifre set + auto giriş → panelde işletmesini yönetir (e-posta eşleşmesiyle sahiplik).
+- **KRİTİK migration:** `supabase/migrations/add_account_activations.sql` **çalıştırılmış olmalı**; yoksa token yazılamaz, aktivasyon linki çalışmaz.
+
+### Admin Güvenlik
+- **Coğrafi kısıt (middleware.ts):** `/admin` ve `/api/admin/*` yalnızca **TR + CZ** (`x-vercel-ip-country`). Diğer ülkelerden 403. Ülke boşsa (localhost) engellenmez. `ALLOWED = ['TR','CZ']`.
+- **`app/admin/layout.tsx`** `force-dynamic` — admin sayfaları cache'lenmesin ki middleware her istekte çalışsın.
+- **Giriş uyarısı:** başarılı admin girişinde `/api/admin/login-alert` (access_token doğrulamalı) → admin adresine zaman+IP+cihaz maili.
+- **Admin listeleri service-role API'den:** `claim_requests` tarayıcıda RLS özyinelemesi ("infinite recursion in profiles") verdiği için `/api/admin/claims` (+ stats) service-role ile okur. Talepler sekmesi her açılışta taze çeker.
+- **Admin girişi:** `kemalonurozman@gmail.com` (Supabase Auth, şifre `app/api/admin/setup/route.ts`'te seed). Yalnızca bu e-posta admin panelini görür.
+
+### Devlet Ağız ve Diş Sağlığı Hastaneleri (ayrı kategori)
+- Mevcut `hastaneler` (type='Devlet') + `doktorlar` (`tags=['devlet-dis-hastanesi', spec]`, `clinic_name`=hastane adı). DDL yok.
+- **Gizleme:** `/doktorlar`'ın 4 sorgusunda `.not('tags','cs','{devlet-dis-hastanesi}')` → standart doktor aramasında görünmezler.
+- **Sayfalar:** `/devlet-dis-hastaneleri` (il il) + `/[il]/[slug]` (bölüm bölüm). Veri: `lib/devlet-dis.ts`.
+- **Import:** `node scripts/import-devlet-dis.js <csv> --commit` (elle `HOSP` map: csvName→{q,il,ilce}; q ile mevcut hastaneyi bulur ya da oluşturur). Durum: ~35 hastane / ~2653 hekim.
+- **Tuzak:** `toLocaleLowerCase('tr')` İ'de combining-dot üretir → ilçe casing'i elle temizle.
+
+### SEO + Marka
+- **Favicon:** H monogramı (lacivert kare + beyaz H + altın orta bar). `app/icon.svg` + `favicon.ico` (16/32/48) + `apple-icon.png` + `app/manifest.ts`. Google güncellemesi haftalar sürebilir (`s2/favicons` ile teşhis edilebilir).
+- **Kombinasyon SEO sayfaları:** `/dis-tedavileri/[il]/[...seg]` (il+uzmanlık, ilçe+uzmanlık, tedavi), `/klinikler/[il]/[ilce]` landing, FAQPage JSON-LD (`lib/faq.ts`: buildKlinikFaq/buildDoktorFaq/buildEczaneFaq).
+- **Sitemap ağacı:** `app/sitemap.xml` (index) + `sitemap-{genel,klinikler,dis-tedavileri,hastaneler,doktorlar,eczaneler}.xml`. `lib/sitemap-data.ts`. RSS: `app/rss.xml`.
+- **Karşılaştırma:** `components/CompareButton.tsx` (corner variant absolute) + `CompareBar.tsx`. Kart isimlerinde float `-shim span` ile buton çakışması önlendi.
+
+### Bekleyen migration'lar (kullanıcı Supabase SQL Editor'da çalıştırmalı)
+- `supabase/migrations/add_account_activations.sql` — **çalıştırıldı** (aktivasyon akışı için şart).
+- `supabase/migrations/add_whatsapp.sql` — `whatsapp text` kolonu (4 tablo). WhatsApp butonu bu alan doluysa görünür (telefonu körü körüne WhatsApp saymaz).
+
+### DB Tabloları (Ağustos eki)
+| Tablo | Açıklama |
+|-------|----------|
+| `randevu_talepleri` | Randevu talepleri (entity_type/id, ad_soyad, tel, email, tercih, mesaj, status: yeni/arandi/tamamlandi/iptal) |
+| `claim_requests` | Sahiplenme/itiraz talepleri (status: pending/approved/rejected; email eşleşmesi = sahiplik) |
+| `cekim_talepleri` | 360° çekim + randevu fallback |
+| `email_aboneleri` | E-posta listesi (email, isim, tip, **kaynak**, entity...). **Unique constraint YOK** → upsert onConflict çalışmaz, **check-then-insert** kullan. |
+| `account_activations` | Tek-kullanımlık şifre-belirleme token'ları (yalnızca service-role) |
+
+---
+
 ## Sık Yapılan Geliştirici Hataları (Common Gotchas)
 
 1. **Yanlış Supabase client:** Client component'te `supabase` (service role) yerine
