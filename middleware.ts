@@ -26,6 +26,24 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // ── Admin coğrafi güvenlik: yalnızca Türkiye + Çekya ──
+  // Admin paneli ve admin API'lerine sadece TR/CZ'den erişilebilir.
+  // Ülke bilgisi Vercel edge'inden gelir; localhost/dev'de boştur → engellenmez.
+  const isAdminArea = pathname.startsWith('/admin') || pathname.startsWith('/api/admin');
+  if (isAdminArea) {
+    const country =
+      request.headers.get('x-vercel-ip-country') ||
+      (request as unknown as { geo?: { country?: string } }).geo?.country ||
+      '';
+    const ALLOWED = ['TR', 'CZ'];
+    if (country && !ALLOWED.includes(country.toUpperCase())) {
+      return new NextResponse(
+        'Erişim reddedildi. Yönetim paneline yalnızca Türkiye ve Çekya\'dan erişilebilir.',
+        { status: 403, headers: { 'content-type': 'text/plain; charset=utf-8' } },
+      );
+    }
+  }
+
   // Session'ı yenile ve al
   const { data: { session } } = await supabase.auth.getSession();
 
