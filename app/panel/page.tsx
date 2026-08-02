@@ -2227,10 +2227,25 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
 
               {et !== 'eczane' && (
                 <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                  <div><label style={LBL}>{et==='doktor'?'Uzmanlık':'Tür'}</label>
-                    <input value={String(et==='doktor'?(formData.spec||''):(formData.type||''))} placeholder={et==='doktor'?'Kardiyoloji':'Özel, Devlet...'} style={INP}
-                      onChange={e=>F(et==='doktor'?'spec':'type',e.target.value)} onFocus={onF} onBlur={offF}/>
-                  </div>
+                  {et==='doktor' ? (
+                    <div><label style={LBL}>Uzmanlık</label>
+                      <input value={String(formData.spec||'')} placeholder="Kardiyoloji" style={INP}
+                        onChange={e=>F('spec',e.target.value)} onFocus={onF} onBlur={offF}/>
+                    </div>
+                  ) : (
+                    <div><label style={LBL}>Tür</label>
+                      <select value={String(formData.type||'')} style={INP}
+                        onChange={e=>F('type',e.target.value)} onFocus={onF} onBlur={offF}>
+                        <option value="">Seçiniz…</option>
+                        <option value="Özel">Özel</option>
+                        <option value="Devlet">Devlet</option>
+                        <option value="Üniversite">Üniversite</option>
+                        {formData.type && !['Özel','Devlet','Üniversite'].includes(String(formData.type)) && (
+                          <option value={String(formData.type)}>{String(formData.type)}</option>
+                        )}
+                      </select>
+                    </div>
+                  )}
                   {et==='doktor' && <div><label style={LBL}>Ünvan</label><input value={String(formData.unvan||'')} placeholder="Uzm. Dr." style={INP} onChange={e=>F('unvan',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
                   {et!=='doktor' && <div><label style={LBL}>İl</label><input value={String(formData.il||'')} placeholder="İstanbul" style={INP} onChange={e=>F('il',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
                 </div>
