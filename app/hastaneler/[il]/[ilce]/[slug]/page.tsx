@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import type { Hastane, Yorum } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
@@ -13,6 +14,7 @@ const tr = (s: string) => (s||'').toLowerCase()
   .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
 
 async function getData(slug: string) {
+  noStore(); // Supabase sonucu bayat kalmasın (premium/edit anında yansısın)
   const { data: raw } = await supabase.from('hastaneler').select('*').eq('slug', slug).single();
   const h = raw as Hastane | null;
   if (!h) return null;

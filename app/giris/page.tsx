@@ -83,7 +83,7 @@ function GirisContent() {
   // Mod: 'password' | 'signup' (magic link kaldırıldı — SMTP gerektirir)
   const [mod,        setMod]        = useState<'magic' | 'password' | 'signup'>('password');
   const [kullaniciTip, setKullaniciTip] = useState<'hasta' | 'isletme'>('hasta');
-  const [email,      setEmail]      = useState('');
+  const [email,      setEmail]      = useState(searchParams.get('email') || '');
   const [password,   setPassword]   = useState('');
   const [password2,  setPassword2]  = useState('');
   const [showPw,     setShowPw]     = useState(false);

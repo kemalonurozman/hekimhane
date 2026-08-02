@@ -912,12 +912,20 @@ export default function ProfilSayfasi(props: ProfilProps) {
             {/* Logo */}
             <div className="profil-logo-wrap">
               <div style={{ position: 'relative', display: 'inline-block' }}>
-                <div style={{ width: 112, height: 112, borderRadius: 22, background: (logo || photo) ? 'transparent' : 'var(--navy)', border: `4px solid white`, boxShadow: `0 0 0 3px ${premium ? '#D4A843' : 'var(--gold)'},0 8px 32px rgba(27,58,105,.2)`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: entityIconSvg ? 0 : 48 }}>
+                <div style={{ width: 116, height: 116, borderRadius: '50%', background: (logo || photo) ? 'transparent' : 'var(--navy)', border: `4px solid white`, boxShadow: `0 0 0 3px ${premium ? '#D4A843' : 'rgba(212,168,67,.5)'},0 10px 34px rgba(27,58,105,.25)`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: entityIconSvg ? 0 : 48 }}>
                   {(logo || photo)
                     ? <img src={logo || photo!} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     : entityIcon}
                 </div>
-                {premium && <PremiumBadge size="lg" />}
+                {/* Doğrulanmış rozeti — premium (onaylı) tam altın; değilse soluk gri */}
+                <span aria-label={premium ? 'Doğrulanmış Hekim' : 'Doğrulanmamış'}
+                  title={premium ? 'Hekimhane tarafından doğrulandı' : 'Henüz doğrulanmadı'}
+                  style={{ position: 'absolute', right: 2, bottom: 2, width: 36, height: 36, borderRadius: '50%',
+                    background: premium ? 'linear-gradient(135deg,#EFC65E,#C6902B)' : 'linear-gradient(135deg,#CBD0D9,#9AA1AE)',
+                    border: '3px solid #fff', boxShadow: '0 3px 9px rgba(0,0,0,.28)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: premium ? 1 : 0.5 }}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                </span>
               </div>
             </div>
 
@@ -949,7 +957,6 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, color: 'white', lineHeight: 1.2, margin: 0 }}>
                   {displayName}
                 </h1>
-                {premium && <PremiumBadge size="lg" variant="inline" />}
                 {isOwner && (
                   <a href={ownerEditUrl}
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(255,255,255,.15)', border: '1px solid rgba(255,255,255,.3)', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}>

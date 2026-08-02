@@ -95,34 +95,38 @@ export async function POST(request: NextRequest) {
     if (notify && email && email.includes('@')) {
       try {
         if (action === 'approve') {
-          // Hesap oluşturmayı dene (varsa "already registered" döner)
-          const password = genPassword();
-          const { error: createErr } = await admin.auth.admin.createUser({
-            email, password, email_confirm: true,
+          // 1) Auth kullanıcısını garanti et + user_id al (yeni ya da mevcut)
+          let userId: string | null = null;
+          const { data: created, error: createErr } = await admin.auth.admin.createUser({
+            email, password: genPassword(), email_confirm: true,
             user_metadata: { source: 'claim_approval', entity_name: claim.entity_name },
           });
-          const alreadyExists = !!createErr && /already|registered|exists/i.test(createErr.message || '');
-          const accountCreated = !createErr;
+          if (created?.user) userId = created.user.id;
+          if (!userId) {
+            // Zaten var → user_id'yi generateLink ile al (mail göndermez, sadece user döner)
+            try {
+              const { data: gl } = await admin.auth.admin.generateLink({ type: 'recovery', email } as any);
+              userId = (gl as any)?.user?.id ?? null;
+            } catch { /* geç */ }
+          }
 
-          const girisUrl = 'https://www.hekimhane.com.tr/giris';
-          const ortak =
+          // 2) Hesaba özel aktivasyon token'ı üret + sakla
+          const token = crypto.randomUUID();
+          await (admin as any).from('account_activations').insert({
+            token, email, user_id: userId, entity_name: claim.entity_name,
+          });
+
+          // 3) Aktivasyon linkli (e-posta gömülü, şifre belirleme) markalı mail
+          const aktivUrl = `https://www.hekimhane.com.tr/hesap-aktivasyon?token=${token}`;
+          const html = mailShell('İşletmeniz Onaylandı',
             `<p style="font-size:14px;color:#1c1c1e;">Merhaba <strong>${claim.claimant_name || ''}</strong>,</p>` +
-            `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${claim.entity_name}</strong> için sahiplenme talebiniz <strong style="color:#059669;">onaylandı</strong> 🎉 Artık profilinizi panelden yönetebilirsiniz.</p>`;
-
-          const html = accountCreated
-            ? mailShell('İşletmeniz Onaylandı', ortak +
-                `<p style="font-size:14px;color:#1c1c1e;margin-top:12px;">Panel giriş bilgileriniz:</p>` +
-                satir('E-posta', email) + satir('Geçici Şifre', password) +
-                `<p style="margin:16px 0;"><a href="${girisUrl}" style="display:inline-block;background:#1B3A69;color:#fff;text-decoration:none;padding:11px 22px;border-radius:10px;font-weight:700;font-size:14px;">Panele Giriş Yap</a></p>` +
-                `<p style="font-size:12px;color:#6E6E73;line-height:1.6;">Güvenliğiniz için ilk girişten sonra şifrenizi değiştirmenizi öneririz.</p>`)
-            : mailShell('İşletmeniz Onaylandı', ortak +
-                `<p style="font-size:14px;color:#1c1c1e;margin-top:12px;">Bu e-posta (<strong>${email}</strong>) ile zaten bir hesabınız var. Mevcut şifrenizle giriş yapabilirsiniz.</p>` +
-                `<p style="margin:16px 0;"><a href="${girisUrl}" style="display:inline-block;background:#1B3A69;color:#fff;text-decoration:none;padding:11px 22px;border-radius:10px;font-weight:700;font-size:14px;">Panele Giriş Yap</a></p>` +
-                `<p style="font-size:12px;color:#6E6E73;">Şifrenizi hatırlamıyorsanız giriş sayfasından sıfırlayabilirsiniz.</p>`);
+            `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${claim.entity_name}</strong> için sahiplenme talebiniz <strong style="color:#059669;">onaylandı</strong> 🎉</p>` +
+            `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;">Hesabınızı etkinleştirip <strong>şifrenizi belirlemek</strong> için butona tıklayın. E-postanız (<strong>${email}</strong>) otomatik dolu gelir; yeni şifrenizi <strong>iki kez</strong> girip doğrudan panele giriş yaparsınız.</p>` +
+            `<p style="margin:18px 0;"><a href="${aktivUrl}" style="display:inline-block;background:#1B3A69;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Hesabımı Etkinleştir &amp; Şifre Belirle</a></p>` +
+            `<p style="font-size:12px;color:#6E6E73;line-height:1.6;">Bu bağlantı yalnızca size özeldir ve 7 gün geçerlidir. Buton çalışmazsa şu adresi tarayıcıya yapıştırın:<br><span style="color:#1B3A69;word-break:break-all;">${aktivUrl}</span></p>`);
 
           await sendEmail({ to: email, subject: `İşletmeniz onaylandı — ${claim.entity_name}`, html });
-          mail = { sent: true, accountCreated, ...(accountCreated ? { tempPassword: password } : {}) };
-          if (alreadyExists) { /* hesap zaten vardı — sorun değil */ }
+          mail = { sent: true, accountCreated: !!created?.user };
         } else {
           // Reddedildi bilgisi
           await sendEmail({

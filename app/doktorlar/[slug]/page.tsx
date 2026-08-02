@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import type { Doktor, Yorum } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
@@ -10,6 +11,7 @@ export const dynamic = 'force-dynamic';
 interface Props { params: { slug: string } }
 
 async function getData(slug: string) {
+  noStore(); // Supabase sonucu bayat kalmasın (premium/edit anında yansısın)
   const { data: raw } = await supabase.from('doktorlar').select('*').eq('slug', slug).single();
   const d = raw as Doktor | null;
   if (!d) return null;
