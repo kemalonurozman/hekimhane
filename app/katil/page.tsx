@@ -2,7 +2,6 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
-import { createSupabaseBrowser } from '@/lib/supabase-browser';
 
 /* ── SVG ikonlar ─────────────────────────────────────────── */
 function IcTooth() {
@@ -339,8 +338,6 @@ export default function KatilPage() {
     setSaving(true);
     setSaveError('');
 
-    const supabase = createSupabaseBrowser();
-
     /* Ek bilgileri role alanına ekle */
     const photoCount  = photoFiles.filter(Boolean).length;
     const extraNotes  = [
@@ -353,23 +350,33 @@ export default function KatilPage() {
       'YENİ İŞLETME BAŞVURUSU',
     ].filter(Boolean).join(' | ');
 
-    const { error } = await (supabase as any).from('claim_requests').insert({
-      entity_id:     'new',
-      entity_type:   seciliType,
-      entity_name:   form.isletme_adi.trim(),
-      claimant_name: form.ad_soyad.trim(),
-      phone:         form.tel.trim(),
-      email:         form.email.trim(),
-      role:          extraNotes,
-      status: 'pending',
-    });
-
-    setSaving(false);
-    if (error) {
-      setSaveError('Bir hata oluştu, lütfen tekrar deneyin.');
-    } else {
-      setStep('tamam');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    // /api/claim (service-role) — anon insert RLS'e takıldığı için + admin ve
+    // talep sahibine bildirim maili göndermek için API üzerinden.
+    try {
+      const res = await fetch('/api/claim', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          entity_id:     'new',
+          entity_type:   seciliType,
+          entity_name:   form.isletme_adi.trim(),
+          claimant_name: form.ad_soyad.trim(),
+          phone:         form.tel.trim(),
+          email:         form.email.trim(),
+          role:          extraNotes,
+          status: 'pending',
+        }),
+      });
+      const data = await res.json();
+      setSaving(false);
+      if (!res.ok) {
+        setSaveError(data.error || 'Bir hata oluştu, lütfen tekrar deneyin.');
+      } else {
+        setStep('tamam');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } catch {
+      setSaving(false);
+      setSaveError('Bağlantı hatası. Lütfen tekrar deneyin.');
     }
   }
 

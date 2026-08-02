@@ -781,40 +781,39 @@ function NewClaimTab({ user, onSuccess }: { user: User | null; onSuccess: () => 
     if (Object.keys(e).length > 0) return;
 
     setSaving(true); setSaveErr('');
-    const supabase = createSupabaseBrowser();
 
-    if (selectedEntity) {
-      /* ── Mevcut işletme: doğrudan sahiplenme talebi ── */
-      const roleStr = [form.unvan.trim() || null, form.mesaj || null,
-        selectedEntity.claimed ? 'SAHİPLENME İTİRAZI' : 'SAHİPLENME TALEBİ',
-      ].filter(Boolean).join(' | ');
-      const { error } = await (supabase as any).from('claim_requests').insert({
-        entity_id:     selectedEntity.id,
-        entity_type:   typeVal,
-        entity_name:   selectedEntity.name,
-        claimant_name: form.ad_soyad.trim(),
-        phone:         form.tel.trim(),
-        email:         form.email.trim(),
-        role:          roleStr || null,
-        status:        selectedEntity.claimed ? 'dispute' : 'pending',
-      });
+    // Not: claim_requests'e tarayıcıdan (anon) insert RLS özyinelemesine
+    // takılıyor → /api/claim (service-role) üzerinden yazılır; bu route
+    // admin + talep sahibine bildirim maili de gönderir.
+    const payload = selectedEntity
+      ? {
+          entity_id:     selectedEntity.id,
+          entity_type:   typeVal,
+          entity_name:   selectedEntity.name,
+          claimant_name: form.ad_soyad.trim(),
+          phone:         form.tel.trim(),
+          email:         form.email.trim(),
+          role:          [form.unvan.trim() || null, form.mesaj || null, selectedEntity.claimed ? 'SAHİPLENME İTİRAZI' : 'SAHİPLENME TALEBİ'].filter(Boolean).join(' | ') || null,
+          status:        selectedEntity.claimed ? 'dispute' : 'pending',
+        }
+      : {
+          entity_id:     'new',
+          entity_type:   typeVal,
+          entity_name:   form.isletme_adi.trim(),
+          claimant_name: form.ad_soyad.trim(),
+          phone:         form.tel.trim(),
+          email:         form.email.trim(),
+          role:          [form.unvan.trim() || null, form.il ? (form.ilce ? `${form.il} / ${form.ilce}` : form.il) : null, form.adres ? `Adres: ${form.adres}` : null, form.mesaj || null, 'YENİ İŞLETME BAŞVURUSU'].filter(Boolean).join(' | ') || null,
+          status:        'pending',
+        };
+    try {
+      const res = await fetch('/api/claim', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const data = await res.json();
       setSaving(false);
-      if (error) { setSaveErr(`Hata: ${error.message}`); } else { setStep('done'); onSuccess(); }
-    } else {
-      /* ── Yeni işletme başvurusu ── */
-      const roleStr = [form.unvan.trim() || null, form.il ? (form.ilce ? `${form.il} / ${form.ilce}` : form.il) : null, form.adres ? `Adres: ${form.adres}` : null, form.mesaj || null, 'YENİ İŞLETME BAŞVURUSU'].filter(Boolean).join(' | ');
-      const { error } = await (supabase as any).from('claim_requests').insert({
-        entity_id:     'new',
-        entity_type:   typeVal,
-        entity_name:   form.isletme_adi.trim(),
-        claimant_name: form.ad_soyad.trim(),
-        phone:         form.tel.trim(),
-        email:         form.email.trim(),
-        role:          roleStr || null,
-        status:        'pending',
-      });
+      if (!res.ok) { setSaveErr(`Hata: ${data.error || 'Talep gönderilemedi.'}`); } else { setStep('done'); onSuccess(); }
+    } catch {
       setSaving(false);
-      if (error) { setSaveErr(`Hata: ${error.message}`); } else { setStep('done'); onSuccess(); }
+      setSaveErr('Bağlantı hatası. Lütfen tekrar deneyin.');
     }
   }
 
