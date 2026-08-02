@@ -387,7 +387,7 @@ export default function PanelPage() {
           </div>
         )}
         {tab === 'dashboard' && <DashboardTab user={user} claims={claims} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { setSelectedEditClaim(c); setTab('edit'); }} premiumMap={premiumMap} onUpgrade={handleUpgrade} upgradingId={upgradingId} />}
-        {tab === 'claims'    && <ClaimsTab claims={claims} loading={claimsLoading} onNewClaim={() => setTab('new')} profileUrls={profileUrls} />}
+        {tab === 'claims'    && <ClaimsTab claims={claims} loading={claimsLoading} onNewClaim={() => setTab('new')} profileUrls={profileUrls} onDeleted={() => loadClaims(user?.email || '')} />}
         {tab === 'profile'   && <ProfileTab user={user} />}
         {tab === 'new'       && <NewClaimTab user={user} onSuccess={() => { loadClaims(user?.email || ''); setTab('claims'); }} />}
         {tab === 'edit'      && <EditProfileTab approvedClaims={approvedClaims} selectedClaim={selectedEditClaim} onSelectClaim={setSelectedEditClaim} isMobile={isMobile} />}
@@ -556,7 +556,29 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
 /* ═══════════════════════════════════════════════
    BAŞVURULARIM
 ═══════════════════════════════════════════════ */
-function ClaimsTab({ claims, loading, onNewClaim, profileUrls }: { claims: ClaimRequest[]; loading: boolean; onNewClaim: () => void; profileUrls: Record<string, string> }) {
+function ClaimsTab({ claims, loading, onNewClaim, profileUrls, onDeleted }: { claims: ClaimRequest[]; loading: boolean; onNewClaim: () => void; profileUrls: Record<string, string>; onDeleted: () => void }) {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  async function handleDelete(c: ClaimRequest) {
+    const onay = c.status === 'approved'
+      ? `"${c.entity_name}" için ONAYLI sahipliğinizi kaldırıp başvuruyu silmek istediğinize emin misiniz? İşletme yeniden sahiplenilebilir hale gelir.`
+      : `"${c.entity_name || 'Bu başvuru'}" başvurunuzu iptal edip silmek istediğinize emin misiniz?`;
+    if (!window.confirm(onay)) return;
+    setDeletingId(c.id);
+    try {
+      const res = await fetch('/api/panel/delete-claim', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ claimId: c.id }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j.success) { alert(j.error || 'Başvuru silinemedi.'); setDeletingId(null); return; }
+      onDeleted();
+    } catch {
+      alert('Bağlantı hatası, tekrar deneyin.');
+    }
+    setDeletingId(null);
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
@@ -603,6 +625,11 @@ function ClaimsTab({ claims, loading, onNewClaim, profileUrls }: { claims: Claim
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                   </a>
                 )}
+                <button onClick={() => handleDelete(c)} disabled={deletingId === c.id}
+                  style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', cursor: deletingId === c.id ? 'default' : 'pointer', color: T.red, fontSize: 12, fontWeight: 600, fontFamily: 'inherit', padding: 0, opacity: deletingId === c.id ? 0.6 : 1 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                  {deletingId === c.id ? 'Siliniyor…' : (c.status === 'approved' ? 'Sahipliği Kaldır' : 'İptal Et & Sil')}
+                </button>
               </div>
             </div>
           ))}
