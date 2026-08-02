@@ -81,6 +81,11 @@ function AdminGirisContent() {
       return;
     }
     if (data?.session) {
+      // Admin girişini e-posta ile bildir (fire-and-forget; akışı bloklamaz)
+      fetch('/api/admin/login-alert', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${data.session.access_token}` },
+      }).catch(() => {});
       router.replace(redirect);
     }
   }
