@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
+import { ILCELER } from '@/lib/tr-il-ilce';
 
 /* ── SVG ikonlar ─────────────────────────────────────────── */
 function IcTooth() {
@@ -610,7 +611,7 @@ export default function KatilPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                   <div>
                     <label style={lbl}>Şehir <span style={{ color: '#EF4444' }}>*</span></label>
-                    <select value={form.il} onChange={e => setForm(f => ({ ...f, il: e.target.value }))}
+                    <select value={form.il} onChange={e => setForm(f => ({ ...f, il: e.target.value, ilce: '' }))}
                       onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
                       onBlur={e => (e.currentTarget.style.borderColor = errors.il ? '#FCA5A5' : '#E5E7EB')}
                       style={{ ...inp('il'), background: 'white', cursor: 'pointer' }}>
@@ -621,11 +622,15 @@ export default function KatilPage() {
                   </div>
                   <div>
                     <label style={lbl}>İlçe</label>
-                    <input type="text" value={form.ilce} placeholder="İlçe (isteğe bağlı)"
+                    <select value={form.ilce} disabled={!form.il}
                       onChange={e => setForm(f => ({ ...f, ilce: e.target.value }))}
                       onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
                       onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
-                      style={inp('ilce')} />
+                      style={{ ...inp('ilce'), background: 'white', cursor: form.il ? 'pointer' : 'not-allowed', opacity: form.il ? 1 : 0.6 }}>
+                      <option value="">{form.il ? 'İlçe seçin (isteğe bağlı)' : 'Önce şehir seçin'}</option>
+                      {form.ilce && !ILCELER(form.il).includes(form.ilce) && <option value={form.ilce}>{form.ilce}</option>}
+                      {ILCELER(form.il).map(ic => <option key={ic} value={ic}>{ic}</option>)}
+                    </select>
                   </div>
                 </div>
 

@@ -6,6 +6,7 @@ import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import type { User } from '@supabase/supabase-js';
 import { SPEC_GRUPLARI } from '@/lib/uzmanlik-data';
 import { HERO_BACKGROUNDS, coverPresetKey } from '@/lib/hero-backgrounds';
+import { IL_LISTE, ILCELER } from '@/lib/tr-il-ilce';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
@@ -2124,6 +2125,30 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   const onF  = (e: React.FocusEvent<any>) => { e.currentTarget.style.borderColor=T.navy; e.currentTarget.style.boxShadow='0 0 0 3px rgba(27,58,105,.08)'; };
   const offF = (e: React.FocusEvent<any>) => { e.currentTarget.style.borderColor=T.border; e.currentTarget.style.boxShadow='none'; };
 
+  // İl/İlçe seçici kutuları — il seçilince ilçe otomatik dolar. Mevcut (listede olmayan) değer korunur.
+  const curIl = String(formData.il || '');
+  const curIlce = String(formData.ilce || '');
+  const ilBox = (
+    <div><label style={LBL}>İl</label>
+      <select value={curIl} style={{ ...INP, cursor:'pointer' }}
+        onChange={e=>{ F('il', e.target.value); F('ilce',''); }} onFocus={onF} onBlur={offF}>
+        <option value="">İl seçin…</option>
+        {curIl && !IL_LISTE.includes(curIl) && <option value={curIl}>{curIl}</option>}
+        {IL_LISTE.map(il => <option key={il} value={il}>{il}</option>)}
+      </select>
+    </div>
+  );
+  const ilceBox = (
+    <div><label style={LBL}>İlçe</label>
+      <select value={curIlce} disabled={!curIl} style={{ ...INP, cursor: curIl ? 'pointer' : 'not-allowed', opacity: curIl ? 1 : 0.6 }}
+        onChange={e=>F('ilce', e.target.value)} onFocus={onF} onBlur={offF}>
+        <option value="">{curIl ? 'İlçe seçin…' : 'Önce il seçin'}</option>
+        {curIlce && !ILCELER(curIl).includes(curIlce) && <option value={curIlce}>{curIlce}</option>}
+        {ILCELER(curIl).map(ic => <option key={ic} value={ic}>{ic}</option>)}
+      </select>
+    </div>
+  );
+
   const specs: string[] = Array.isArray(formData.specs) ? formData.specs as string[]
     : (typeof formData.specs==='string' && formData.specs ? (formData.specs as string).split(',').map((s:string)=>s.trim()) : []);
 
@@ -2290,14 +2315,14 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                     </div>
                   )}
                   {et==='doktor' && <div><label style={LBL}>Ünvan</label><input value={String(formData.unvan||'')} placeholder="Uzm. Dr." style={INP} onChange={e=>F('unvan',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
-                  {et!=='doktor' && <div><label style={LBL}>İl</label><input value={String(formData.il||'')} placeholder="İstanbul" style={INP} onChange={e=>F('il',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
+                  {et!=='doktor' && ilBox}
                 </div>
               )}
 
               <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                {et==='doktor'&&<div><label style={LBL}>İl</label><input value={String(formData.il||'')} placeholder="İstanbul" style={INP} onChange={e=>F('il',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
-                <div><label style={LBL}>İlçe</label><input value={String(formData.ilce||'')} placeholder="Kadıköy" style={INP} onChange={e=>F('ilce',e.target.value)} onFocus={onF} onBlur={offF}/></div>
-                {et==='eczane'&&<div><label style={LBL}>İl</label><input value={String(formData.il||'')} placeholder="İstanbul" style={INP} onChange={e=>F('il',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
+                {et==='doktor' && ilBox}
+                {ilceBox}
+                {et==='eczane' && ilBox}
               </div>
 
               <div><label style={LBL}>Adres</label>
