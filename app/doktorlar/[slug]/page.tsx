@@ -18,7 +18,7 @@ async function getData(slug: string) {
   const { data: rawYorumlar } = await supabase.from('yorumlar').select('*')
     .eq('entity_type', 'doktor').eq('entity_id', d.id)
     .order('created_at', { ascending: false }).limit(50);
-  const yorumlar = (rawYorumlar || []) as Yorum[];
+  const yorumlar = ((rawYorumlar || []) as Yorum[]).filter((y: any) => !y.hidden);
   return { d, yorumlar };
 }
 

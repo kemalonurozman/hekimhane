@@ -202,13 +202,13 @@ async function getReviews(entity_type?: string | null, entity_id?: string | null
   try {
     const { data } = await (supabase as any)
       .from('yorumlar')
-      .select('id,author,rating,text,created_at,reply_text')
+      .select('*')
       .eq('entity_type', entity_type)
       .eq('entity_id', String(entity_id))
       .not('text', 'is', null)
       .order('created_at', { ascending: false })
       .limit(30);
-    return (data || []).filter((r: any) => (r.text || '').trim().length > 0) as KartYorum[];
+    return (data || []).filter((r: any) => !r.hidden && (r.text || '').trim().length > 0) as KartYorum[];
   } catch {
     return [];
   }

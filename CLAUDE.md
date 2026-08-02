@@ -415,9 +415,17 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Sitemap ağacı:** `app/sitemap.xml` (index) + `sitemap-{genel,klinikler,dis-tedavileri,hastaneler,doktorlar,eczaneler}.xml`. `lib/sitemap-data.ts`. RSS: `app/rss.xml`.
 - **Karşılaştırma:** `components/CompareButton.tsx` (corner variant absolute) + `CompareBar.tsx`. Kart isimlerinde float `-shim span` ile buton çakışması önlendi.
 
+### Yorum Şikayet / Moderasyon Akışı
+- **Amaç:** İşletme sahibi istenmeyen yorumu şikayet eder; **son kararı yalnızca admin verir** (gizle / kalıcı sil / reddet).
+- **Migration (ŞART):** `supabase/migrations/add_yorum_moderation.sql` — `yorumlar` tablosuna `hidden bool`, `report_status text` (null|pending|resolved|dismissed), `report_reason`, `reported_by`, `reported_at`, `admin_note`.
+- **Sahip tarafı:** panel **Yorum Inbox** (`app/panel/yorumlar`) — her yorum kartında `YorumSikayet.tsx` ile "Bu yorumu şikayet et" + gerekçe. Gönderim `/api/panel/report-yorum` (session + onaylı claim e-posta eşleşmesi doğrulanır, reply-yorum ile aynı desen). Şikayet edince admin'e mail. Sonuç rozetle görünür (inceleniyor/kaldırıldı/reddedildi).
+- **Admin tarafı:** admin panel **Şikayetler** sekmesi (`SikayetlerTab`). Liste `/api/admin/reported-yorumlar` (service-role, entity isim çözümlemesi), aksiyonlar `/api/admin/yorum-action` (`hide`/`delete`/`dismiss`/`unhide`). Sidebar'da bekleyen şikayet sayacı (kırmızı rozet, `reportPending`).
+- **Gizleme herkese yansır:** 4 detay sayfası + kart sayfası `yorumlar`'ı **JS'te `.filter(y => !y.hidden)`** ile eler (kolon yoksa `undefined` → gösterilir; migration'dan önce sayfa bozulmaz — graceful). Not: `hidden` işlemi entity'nin `rat`/`rev` sayılarını değiştirmez, yalnız yorum metnini gizler.
+
 ### Bekleyen migration'lar (kullanıcı Supabase SQL Editor'da çalıştırmalı)
 - `supabase/migrations/add_account_activations.sql` — **çalıştırıldı** (aktivasyon akışı için şart).
 - `supabase/migrations/add_whatsapp.sql` — `whatsapp text` kolonu (4 tablo). WhatsApp butonu bu alan doluysa görünür (telefonu körü körüne WhatsApp saymaz).
+- `supabase/migrations/add_yorum_moderation.sql` — yorum şikayet/moderasyon kolonları (yukarıdaki akış için **şart**; çalıştırılmadan şikayet/gizleme çalışmaz).
 
 ### DB Tabloları (Ağustos eki)
 | Tablo | Açıklama |

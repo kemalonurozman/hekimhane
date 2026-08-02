@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createSupabaseServer, getProfile } from '@/lib/supabase-server';
 import YorumYanitla from './YorumYanitla';
+import YorumSikayet from './YorumSikayet';
 
 export const dynamic = 'force-dynamic';
 
@@ -119,6 +120,9 @@ export default async function YorumlarPage() {
 
                       {/* Yanıt formu */}
                       <YorumYanitla reviewId={r.id} />
+
+                      {/* Şikayet et */}
+                      <YorumSikayet reviewId={r.id} reportStatus={r.report_status} reportReason={r.report_reason} />
                     </div>
                   ))}
                 </div>
@@ -143,6 +147,9 @@ export default async function YorumlarPage() {
                       <div style={{ background: '#F0FDF4', borderRadius: '10px', padding: '10px 14px', borderLeft: '3px solid #86EFAC' }}>
                         <div style={{ fontSize: '11px', color: '#166534', fontWeight: 600, marginBottom: '4px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Yanıtınız</div>
                         <p style={{ fontSize: '13px', color: '#15803D', margin: 0, lineHeight: 1.6 }}>{r.reply_text}</p>
+                      </div>
+                      <div style={{ marginTop: '12px', marginLeft: '-20px', marginRight: '-20px', marginBottom: '-16px' }}>
+                        <YorumSikayet reviewId={r.id} reportStatus={r.report_status} reportReason={r.report_reason} />
                       </div>
                     </div>
                   ))}
