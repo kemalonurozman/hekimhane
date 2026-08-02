@@ -138,7 +138,7 @@ export default async function KlinikProfilPage({ params }: Props) {
       id={k.id} name={k.name}
       il={k.il} ilce={k.ilce} adres={k.adres}
       lat={k.lat} lng={k.lng} maps_url={k.maps_url}
-      tel={k.tel} website={k.website}
+      tel={k.tel} whatsapp={k.whatsapp} website={k.website}
       logo={k.logo} cover={k.cover} photos={k.photos} photo360={k.photo360}
       rat={k.rat} rev={k.rev}
       specs={k.specs} type={k.type}

@@ -1977,6 +1977,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   const [photoUrl,   setPhotoUrl] = useState('');
   const [uploading,  setUploading] = useState<Record<string, boolean>>({}); // slot → yükleniyor
   const [dragOver,   setDragOver]  = useState<string | null>(null);         // slot → drag aktif
+  const [waMode,     setWaMode]    = useState<'off'|'same'|'custom'>('off'); // WhatsApp: yok / telefonla aynı / farklı numara
 
   const et = selectedClaim?.entity_type || '';
 
@@ -1992,6 +1993,8 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
     const sb = createSupabaseBrowser();
     const { data } = await sb.from(table).select('*').eq('id', claim.entity_id!).single();
     const d = (data || {}) as Record<string,any>;
+    const w = String(d.whatsapp || '');
+    setWaMode(!w ? 'off' : w === 'same' ? 'same' : 'custom');
     setED(d); setFormData(d); setLoading(false);
   }
 
@@ -2248,6 +2251,34 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                 {et!=='eczane'&&et!=='doktor'&&<div><label style={LBL}>Website</label><input type="url" value={String(formData.website||'')} placeholder="https://" style={INP} onChange={e=>F('website',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
                 {et==='doktor'&&<div><label style={LBL}>Muayene Ücreti (₺)</label><input type="number" value={formData.fee??''} placeholder="500" style={INP} onChange={e=>F('fee',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>}
                 {et==='eczane'&&<div><label style={LBL}>Eczacı Adı</label><input value={String(formData.pharmacist||'')} placeholder="Ad Soyad" style={INP} onChange={e=>F('pharmacist',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
+              </div>
+
+              {/* WhatsApp — işletmeye aktif mi diye sorulur; premium üyelikte profilde görünür */}
+              <div>
+                <label style={LBL}>WhatsApp <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600, color:T.muted }}>· Premium üyelikte profilde görünür</span></label>
+                <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                  {([['off','Yok'],['same','Telefonla aynı'],['custom','Farklı numara']] as const).map(([m,lbl])=>(
+                    <button key={m} type="button"
+                      onClick={()=>{
+                        setWaMode(m);
+                        if (m==='off')      F('whatsapp','');
+                        else if (m==='same') F('whatsapp','same');
+                        else                 F('whatsapp', String(formData.whatsapp||'')==='same' ? '' : String(formData.whatsapp||''));
+                      }}
+                      style={{ flex:'1 1 100px', padding:'9px 10px', borderRadius:9, fontSize:12.5, fontWeight:700, cursor:'pointer', fontFamily:'inherit',
+                        border:`1.5px solid ${waMode===m?T.navy:T.border}`, background: waMode===m?'rgba(27,58,105,.06)':'white', color: waMode===m?T.navy:T.muted, transition:'.15s' }}>
+                      {lbl}
+                    </button>
+                  ))}
+                </div>
+                {waMode==='custom' && (
+                  <input type="tel" value={String(formData.whatsapp||'')==='same'?'':String(formData.whatsapp||'')}
+                    placeholder="WhatsApp numarası — 05xx xxx xx xx" style={{...INP, marginTop:8}}
+                    onChange={e=>F('whatsapp', e.target.value)} onFocus={onF} onBlur={offF}/>
+                )}
+                <p style={{ fontSize:11, color:T.muted, marginTop:5, lineHeight:1.6 }}>
+                  &quot;Telefonla aynı&quot; seçilirse üstteki telefon numaranız WhatsApp butonunda kullanılır. &quot;Yok&quot; ise WhatsApp butonu gösterilmez.
+                </p>
               </div>
 
               {et!=='doktor'&&<div><label style={LBL}>Google Maps Bağlantısı</label><input type="url" value={String(formData.maps_url||'')} placeholder="https://maps.google.com/..." style={INP} onChange={e=>F('maps_url',e.target.value)} onFocus={onF} onBlur={offF}/></div>}

@@ -27,6 +27,7 @@ export interface Klinik {
   lat: number;
   lng: number;
   tel: string | null;
+  whatsapp: string | null;
   website: string | null;
   maps_url: string | null;
   specs: string[] | null;
@@ -62,6 +63,7 @@ export interface Hastane {
   lat: number;
   lng: number;
   tel: string | null;
+  whatsapp: string | null;
   website: string | null;
   maps_url: string | null;
   specs: string[] | null;
@@ -103,6 +105,7 @@ export interface Doktor {
   online: boolean;
   verified: boolean;
   tel: string | null;
+  whatsapp: string | null;
   tags: string[] | null;
   exp: number;
   lat: number;
@@ -135,6 +138,7 @@ export interface Eczane {
   ilce: string | null;
   address: string | null;
   tel: string | null;
+  whatsapp: string | null;
   nobetci: boolean;
   nobetci_bilgi: string | null;
   chamber: string | null;

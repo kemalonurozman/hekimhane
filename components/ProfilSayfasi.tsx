@@ -66,6 +66,7 @@ export interface ProfilProps {
   lng?: number;
   maps_url?: string | null;
   tel?: string | null;
+  whatsapp?: string | null;
   website?: string | null;
   logo?: string | null;
   cover?: string | null;
@@ -737,7 +738,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose }: {
 
 // ── Ana Bileşen ───────────────────────────────────────────────────
 export default function ProfilSayfasi(props: ProfilProps) {
-  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
+  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
 
   // Animasyonlu arka plan: seçili preset varsa o, yoksa TÜM işletmelerde varsayılan "Okyanus"
   // (dağınık işletme foto arka planları hero'da kullanılmaz)
@@ -818,12 +819,16 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
   // ── Aksiyon buton linkleri (Ara / WhatsApp / Yol Tarifi / Web Sitesi) ──
   const telClean = (tel || '').replace(/[^\d]/g, '');
-  // WhatsApp: TR numarasını uluslararası biçime çevir (0xxx → 90xxx, 10 hane → 90…)
-  const waNumber = telClean
-    ? telClean.startsWith('90') ? telClean
-      : telClean.startsWith('0') ? '90' + telClean.slice(1)
-      : telClean.length === 10 ? '90' + telClean
-      : telClean
+  // WhatsApp kaynağı: işletme "whatsapp" alanını doldurmuşsa onu kullan.
+  //   'same' → telefonla aynı numara;  boş → WhatsApp gösterme (telefon körü körüne WhatsApp sayılmaz)
+  const waRaw = (whatsapp || '').trim();
+  const waSource = waRaw === 'same' ? telClean : waRaw.replace(/[^\d]/g, '');
+  // TR numarasını uluslararası biçime çevir (0xxx → 90xxx, 10 hane → 90…)
+  const waNumber = waSource
+    ? waSource.startsWith('90') ? waSource
+      : waSource.startsWith('0') ? '90' + waSource.slice(1)
+      : waSource.length === 10 ? '90' + waSource
+      : waSource
     : '';
   const waUrl = waNumber ? `https://wa.me/${waNumber}` : '';
   // Yol Tarifi: önce maps_url, yoksa koordinat, yoksa adresten Google Maps yön linki
@@ -972,11 +977,14 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 )}
                 {claimed
                   ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: 'linear-gradient(135deg,var(--navy),var(--navy2))', color: 'white' }}>✓ Sahiplenildi</span>
-                  : <Link href={`/sahiplen?id=${id}&type=${entityType}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 0, borderRadius: 20, fontSize: 11, fontWeight: 700, overflow: 'hidden', border: '1.5px solid #D4A843', textDecoration: 'none' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', background: '#D4A843', color: '#1B3A69', fontWeight: 900, letterSpacing: '0.3px' }}>
-                        <i className="fa-solid fa-flag" style={{ fontSize: 8 }} />ÜCRETSİZ
+                  : <Link href={`/sahiplen?id=${id}&type=${entityType}`}
+                      style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 0, borderRadius: 999, fontSize: 11, fontWeight: 700, overflow: 'hidden', textDecoration: 'none', border: '1px solid rgba(212,168,67,.65)', boxShadow: '0 4px 14px rgba(212,168,67,.4)' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px', background: 'linear-gradient(135deg,#EBC65D,#D4A843)', color: '#1B3A69', fontWeight: 900, letterSpacing: '0.4px' }}>
+                        <i className="fa-solid fa-flag" style={{ fontSize: 9 }} />ÜCRETSİZ
                       </span>
-                      <span style={{ padding: '3px 9px', background: 'white', color: '#1B3A69', fontWeight: 700 }}>Sahiplenin</span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 13px', background: 'white', color: '#1B3A69', fontWeight: 800 }}>
+                        Sahiplenin <i className="fa-solid fa-arrow-right" style={{ fontSize: 9, color: '#D4A843' }} />
+                      </span>
                     </Link>
                 }
               </div>

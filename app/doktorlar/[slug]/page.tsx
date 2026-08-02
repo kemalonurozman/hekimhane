@@ -127,7 +127,7 @@ export default async function DoktorProfilPage({ params }: Props) {
       il={d.il} ilce={d.ilce}
       adres={d.clinic_name}
       lat={d.lat} lng={d.lng}
-      tel={d.tel}
+      tel={d.tel} whatsapp={d.whatsapp}
       photo={d.photo} photos={d.photos} photo360={d.photo360}
       rat={d.rat} rev={d.rev}
       spec={d.spec}

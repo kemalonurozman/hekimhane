@@ -110,7 +110,7 @@ export default async function HastaneProfilPage({ params }: Props) {
       id={h.id} name={h.name}
       il={h.il} ilce={h.ilce} adres={h.adres}
       lat={h.lat} lng={h.lng} maps_url={h.maps_url}
-      tel={h.tel} website={h.website}
+      tel={h.tel} whatsapp={h.whatsapp} website={h.website}
       logo={h.logo} photos={h.photos} photo360={h.photo360}
       rat={h.rat} rev={h.rev}
       specs={h.specs} type={h.type}

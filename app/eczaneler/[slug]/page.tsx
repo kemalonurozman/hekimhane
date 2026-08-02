@@ -109,7 +109,7 @@ export default async function EczaneProfilPage({ params }: Props) {
       id={e.id} name={e.name}
       il={e.il} ilce={e.ilce} adres={e.address}
       lat={e.lat} lng={e.lng}
-      tel={e.tel}
+      tel={e.tel} whatsapp={e.whatsapp}
       rat={e.rat} rev={e.rev}
       nobetci={e.nobetci}
       pharmacist={e.pharmacist}
