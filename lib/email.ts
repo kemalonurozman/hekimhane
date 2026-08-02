@@ -39,14 +39,14 @@ export function mailShell(baslik: string, govde: string): string {
   return `<!doctype html><html><body style="margin:0;background:#FBF8F2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <div style="max-width:520px;margin:0 auto;padding:24px 16px;">
     <div style="text-align:center;margin-bottom:20px;">
-      <span style="font-size:20px;font-weight:800;color:#1B3A69;">hekimhane<span style="color:#D4A843;">.com.tr</span></span>
+      <a href="https://www.hekimhane.com.tr" style="text-decoration:none;font-size:20px;font-weight:800;color:#1B3A69;">hekimhane<span style="color:#D4A843;">.com.tr</span></a>
     </div>
     <div style="background:#fff;border:1px solid #E5E5EA;border-radius:16px;padding:24px;">
       <h1 style="font-size:18px;color:#1B3A69;margin:0 0 14px;">${baslik}</h1>
       ${govde}
     </div>
     <p style="text-align:center;font-size:11px;color:#9CA3AF;margin-top:18px;">
-      Bu e-posta Hekimhane üzerinden gönderildi. hekimhane.com.tr
+      Bu e-posta Hekimhane üzerinden gönderildi. <a href="https://www.hekimhane.com.tr" style="color:#9CA3AF;text-decoration:underline;">hekimhane.com.tr</a>
     </p>
   </div></body></html>`;
 }
