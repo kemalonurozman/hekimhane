@@ -277,6 +277,14 @@ export default function PanelPage() {
     { key: 'new'        as const, label: 'Yeni Başvuru',      icon: 'plus' },
   ];
 
+  // Sidebar sekmeleri gruplandı (bölüm başlıklarıyla)
+  const navGroups: { title: string; keys: (typeof navItems)[number]['key'][] }[] = [
+    { title: 'Genel',     keys: ['dashboard'] },
+    { title: 'İşletmem',  keys: ['edit', 'hekimkart', 'yorumlar', 'randevu'] },
+    { title: 'Başvuru',   keys: ['claims', 'new'] },
+    { title: 'Hesap',     keys: ['profile'] },
+  ];
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
 
@@ -334,19 +342,27 @@ export default function PanelPage() {
           </div>
         </div>
 
-        <nav style={{ flex: 1, padding: '10px 0' }}>
-          <div style={{ padding: '6px 22px 4px', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,.28)', letterSpacing: '1px', textTransform: 'uppercase' }}>Yönetim</div>
-          {navItems.map(item => (
-            <button key={item.key} onClick={() => { setTab(item.key); setMobileMenuOpen(false); }}
-              style={{ display: 'flex', alignItems: 'center', gap: 9, width: '100%', padding: '11px 22px', background: tab === item.key ? 'rgba(255,255,255,.12)' : 'none', border: 'none', borderLeft: tab === item.key ? `3px solid ${T.gold}` : '3px solid transparent', cursor: 'pointer', textAlign: 'left', color: tab === item.key ? 'white' : 'rgba(255,255,255,.55)', fontSize: 13, fontWeight: tab === item.key ? 700 : 500, fontFamily: 'inherit', transition: 'all .15s' }}>
-              <span style={{ width: 16, flexShrink: 0 }}><Ic d={icons[item.icon as keyof typeof icons]} size={15} /></span>
-              {item.label}
-              {item.key === 'claims' && pendingClaims.length > 0 && (
-                <span style={{ marginLeft: 'auto', background: T.amber, color: 'white', borderRadius: '50%', width: 18, height: 18, fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {pendingClaims.length}
-                </span>
-              )}
-            </button>
+        <nav style={{ flex: 1, padding: '10px 12px 16px', overflowY: 'auto' }}>
+          {navGroups.map((g, gi) => (
+            <div key={g.title} style={{ marginBottom: gi < navGroups.length - 1 ? 12 : 0 }}>
+              <div style={{ padding: '10px 12px 6px', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,.32)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>{g.title}</div>
+              {g.keys.map(k => {
+                const item = navItems.find(n => n.key === k)!;
+                const active = tab === item.key;
+                return (
+                  <button key={item.key} onClick={() => { setTab(item.key); setMobileMenuOpen(false); }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 11px', marginBottom: 1, borderRadius: 9, background: active ? 'rgba(212,168,67,.16)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', color: active ? 'white' : 'rgba(255,255,255,.6)', fontSize: 13, fontWeight: active ? 700 : 500, fontFamily: 'inherit', transition: 'background .12s, color .12s' }}
+                    onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,.05)'; }}
+                    onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}>
+                    <span style={{ flexShrink: 0, color: active ? T.gold : 'rgba(255,255,255,.55)', display: 'flex' }}><Ic d={icons[item.icon as keyof typeof icons]} size={16} /></span>
+                    <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+                    {item.key === 'claims' && pendingClaims.length > 0 && (
+                      <span style={{ flexShrink: 0, background: T.amber, color: 'white', borderRadius: 20, minWidth: 18, height: 18, padding: '0 6px', fontSize: 10, fontWeight: 800, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{pendingClaims.length}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           ))}
         </nav>
 
