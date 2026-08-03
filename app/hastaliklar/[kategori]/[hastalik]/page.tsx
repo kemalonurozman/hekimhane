@@ -75,52 +75,50 @@ export default function HastalıkDetayPage({ params }: Props) {
     <main style={{ background: 'var(--ivory)', minHeight: '100vh', paddingTop: 64 }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* Hero */}
+      {/* Hero — belirgin, solid navy (silik değil) */}
       <section style={{
-        background: `linear-gradient(135deg, ${kat.renk}ee 0%, ${kat.renk}99 100%)`,
-        padding: '52px 0 44px',
+        background: 'linear-gradient(135deg, #12305C 0%, #1B3A69 55%, #17457E 100%)',
+        padding: '56px 0 52px',
         color: 'white',
+        position: 'relative',
+        overflow: 'hidden',
       }}>
-        <div className="container">
+        <span aria-hidden style={{ position: 'absolute', right: -90, top: -120, width: 360, height: 360, borderRadius: '50%', background: 'rgba(212,168,67,.10)', filter: 'blur(8px)', pointerEvents: 'none' }} />
+        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           {/* Breadcrumb */}
-          <nav style={{ fontSize: 13, color: 'rgba(255,255,255,.6)', marginBottom: 20, display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+          <nav style={{ fontSize: 13, color: 'rgba(255,255,255,.65)', marginBottom: 22, display: 'flex', gap: 7, alignItems: 'center', flexWrap: 'wrap' }}>
             <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>Ana Sayfa</Link>
-            <span>›</span>
+            <span style={{ opacity: .5 }}>›</span>
             <Link href="/hastaliklar" style={{ color: 'inherit', textDecoration: 'none' }}>Hastalık Rehberi</Link>
-            <span>›</span>
+            <span style={{ opacity: .5 }}>›</span>
             <Link href={`/hastaliklar/${kat.slug}`} style={{ color: 'inherit', textDecoration: 'none' }}>{kat.ad}</Link>
-            <span>›</span>
-            <span style={{ color: 'rgba(255,255,255,.9)' }}>{h.ad}</span>
+            <span style={{ opacity: .5 }}>›</span>
+            <span style={{ color: 'white', fontWeight: 600 }}>{h.ad}</span>
           </nav>
 
           <div className="hastalik-hero-grid">
             <div>
-              <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
-                <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, background: 'rgba(255,255,255,.2)', color: 'white' }}>
-                  {kat.icon} {kat.ad}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
+                <span style={{ padding: '5px 13px', borderRadius: 20, fontSize: 12.5, fontWeight: 700, background: 'rgba(255,255,255,.14)', border: '1px solid rgba(255,255,255,.18)', color: 'white' }}>
+                  {kat.ad}
                 </span>
-                <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, background: ciddiyetBg, color: ciddiyetRenk }}>
-                  {h.ciddiyeti === 'yüksek' ? '⚠️ Yüksek Ciddiyet' : h.ciddiyeti === 'orta' ? '⚡ Orta Ciddiyet' : '✅ Düşük Ciddiyet'}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '5px 13px', borderRadius: 20, fontSize: 12.5, fontWeight: 700, background: 'rgba(255,255,255,.14)', border: '1px solid rgba(255,255,255,.18)', color: 'white' }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: h.ciddiyeti === 'yüksek' ? '#FF6B6B' : h.ciddiyeti === 'orta' ? '#FFB443' : '#4ADE80' }} />
+                  {h.ciddiyeti === 'yüksek' ? 'Yüksek Ciddiyet' : h.ciddiyeti === 'orta' ? 'Orta Ciddiyet' : 'Düşük Ciddiyet'}
                 </span>
               </div>
-              <h1 style={{ fontSize: 'clamp(22px,4vw,36px)', fontWeight: 800, margin: '0 0 14px', lineHeight: 1.2 }}>{h.ad}</h1>
-              <p style={{ color: 'rgba(255,255,255,.85)', fontSize: 15, lineHeight: 1.7, maxWidth: 640, margin: 0 }}>{h.ozet}</p>
+              <h1 style={{ fontSize: 'clamp(30px,5vw,46px)', fontWeight: 800, margin: '0 0 16px', lineHeight: 1.1, letterSpacing: '-1px' }}>{h.ad}</h1>
+              <p style={{ color: 'rgba(255,255,255,.92)', fontSize: 'clamp(16px,1.9vw,18.5px)', lineHeight: 1.65, maxWidth: 640, margin: 0, fontWeight: 400 }}>{h.ozet}</p>
             </div>
 
-            {/* İstatistik kartı */}
-            <div style={{ background: 'rgba(255,255,255,.15)', backdropFilter: 'blur(8px)', borderRadius: 16, padding: '20px 24px', border: '1px solid rgba(255,255,255,.2)' }}>
-              <div style={{ marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid rgba(255,255,255,.2)' }}>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,.6)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>Görülme Oranı</div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: 'white' }}>{h.gorulmeOrani}</div>
-              </div>
-              <div style={{ marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid rgba(255,255,255,.2)' }}>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,.6)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>Yaş Grubu</div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: 'white' }}>{h.yasGrubu}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,.6)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>Uzman</div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: 'white' }}>{h.uzmanlik}</div>
-              </div>
+            {/* İstatistik kartı — belirgin panel */}
+            <div style={{ background: 'rgba(255,255,255,.09)', borderRadius: 18, padding: '22px 26px', border: '1px solid rgba(255,255,255,.16)' }}>
+              {([['Görülme Oranı', h.gorulmeOrani], ['Yaş Grubu', h.yasGrubu], ['Uzman', h.uzmanlik]] as const).map(([lbl, val], i) => (
+                <div key={lbl} style={{ marginBottom: i < 2 ? 14 : 0, paddingBottom: i < 2 ? 14 : 0, borderBottom: i < 2 ? '1px solid rgba(255,255,255,.14)' : 'none' }}>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,.6)', textTransform: 'uppercase', letterSpacing: '.6px', marginBottom: 5, fontWeight: 700 }}>{lbl}</div>
+                  <div style={{ fontWeight: 600, fontSize: 15.5, color: 'white', lineHeight: 1.4 }}>{val}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -156,8 +154,10 @@ export default function HastalıkDetayPage({ params }: Props) {
 
           {/* ─── BELİRTİLER ─── */}
           <section id="belirtiler" style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '32px', marginBottom: 24 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--navy)', margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ width: 36, height: 36, borderRadius: 10, background: kat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🩺</span>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--navy)', letterSpacing: '-0.4px', margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ width: 38, height: 38, borderRadius: 11, background: kat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={kat.renk} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M4.8 2.3A6 6 0 0 0 6 14a6 6 0 0 0 12 0v-3 M9 9h.01M15 9h.01M8 2v3M4 2v3" /><circle cx="20" cy="10" r="2" /></svg>
+              </span>
               Belirtiler ve Semptomlar
             </h2>
             <div style={{ display: 'grid', gap: 14 }}>
@@ -167,8 +167,8 @@ export default function HastalıkDetayPage({ params }: Props) {
                     {i + 1}
                   </div>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: 14, color: '#1F2937', marginBottom: 4 }}>{b.baslik}</div>
-                    <div style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.6 }}>{b.aciklama}</div>
+                    <div style={{ fontWeight: 700, fontSize: 15.5, color: '#1F2937', marginBottom: 4 }}>{b.baslik}</div>
+                    <div style={{ fontSize: 14.5, color: '#4B5563', lineHeight: 1.65 }}>{b.aciklama}</div>
                   </div>
                 </div>
               ))}
@@ -177,15 +177,15 @@ export default function HastalıkDetayPage({ params }: Props) {
 
           {/* ─── NEDENLER ─── */}
           <section id="nedenler" style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '32px', marginBottom: 24 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--navy)', margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--navy)', letterSpacing: '-0.4px', margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ width: 36, height: 36, borderRadius: 10, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🔍</span>
               Nedenler ve Etkenler
             </h2>
             <div style={{ display: 'grid', gap: 14 }}>
               {h.nedenler.map((n, i) => (
                 <div key={i} style={{ borderLeft: `4px solid ${kat.renk}`, padding: '14px 18px', background: '#F9FAFB', borderRadius: '0 12px 12px 0' }}>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: '#1F2937', marginBottom: 5 }}>{n.baslik}</div>
-                  <div style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.6 }}>{n.aciklama}</div>
+                  <div style={{ fontWeight: 700, fontSize: 15.5, color: '#1F2937', marginBottom: 5 }}>{n.baslik}</div>
+                  <div style={{ fontSize: 14.5, color: '#4B5563', lineHeight: 1.65 }}>{n.aciklama}</div>
                 </div>
               ))}
             </div>
@@ -193,7 +193,7 @@ export default function HastalıkDetayPage({ params }: Props) {
 
           {/* ─── TANI ─── */}
           <section id="tani" style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '32px', marginBottom: 24 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--navy)', margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--navy)', letterSpacing: '-0.4px', margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ width: 36, height: 36, borderRadius: 10, background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🔬</span>
               Tanı Yöntemleri
             </h2>
@@ -201,7 +201,7 @@ export default function HastalıkDetayPage({ params }: Props) {
               {h.taniYontemleri.map((t, i) => (
                 <div key={i} style={{ padding: '16px', background: '#F0F9FF', borderRadius: 12, border: '1px solid #BAE6FD' }}>
                   <div style={{ fontWeight: 700, fontSize: 14, color: '#1E40AF', marginBottom: 6 }}>{t.ad}</div>
-                  <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.6 }}>{t.aciklama}</div>
+                  <div style={{ fontSize: 14.5, color: '#374151', lineHeight: 1.6 }}>{t.aciklama}</div>
                 </div>
               ))}
             </div>
@@ -209,7 +209,7 @@ export default function HastalıkDetayPage({ params }: Props) {
 
           {/* ─── TEDAVİ ─── */}
           <section id="tedavi" style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '32px', marginBottom: 24 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--navy)', margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--navy)', letterSpacing: '-0.4px', margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ width: 36, height: 36, borderRadius: 10, background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>💊</span>
               Tedavi Seçenekleri
             </h2>
@@ -231,7 +231,7 @@ export default function HastalıkDetayPage({ params }: Props) {
 
           {/* ─── RİSK & KORUNMA ─── */}
           <section id="risk" style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '32px', marginBottom: 24 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--navy)', margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--navy)', letterSpacing: '-0.4px', margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ width: 36, height: 36, borderRadius: 10, background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>⚠️</span>
               Risk Faktörleri ve Korunma
             </h2>
@@ -242,7 +242,7 @@ export default function HastalıkDetayPage({ params }: Props) {
                 </h3>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {h.riskFaktorleri.map((r, i) => (
-                    <li key={i} style={{ display: 'flex', gap: 8, fontSize: 13, color: '#374151', alignItems: 'flex-start' }}>
+                    <li key={i} style={{ display: 'flex', gap: 8, fontSize: 14.5, color: '#374151', alignItems: 'flex-start' }}>
                       <span style={{ color: '#DC2626', marginTop: 2, flexShrink: 0 }}>✗</span>
                       <span>{r}</span>
                     </li>
@@ -255,7 +255,7 @@ export default function HastalıkDetayPage({ params }: Props) {
                 </h3>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {h.korunmaYollari.map((k, i) => (
-                    <li key={i} style={{ display: 'flex', gap: 8, fontSize: 13, color: '#374151', alignItems: 'flex-start' }}>
+                    <li key={i} style={{ display: 'flex', gap: 8, fontSize: 14.5, color: '#374151', alignItems: 'flex-start' }}>
                       <span style={{ color: '#059669', marginTop: 2, flexShrink: 0 }}>✓</span>
                       <span>{k}</span>
                     </li>
@@ -268,7 +268,7 @@ export default function HastalıkDetayPage({ params }: Props) {
           {/* ─── SSS ─── */}
           {h.sikSorilanSorular.length > 0 && (
             <section id="sss" style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '32px', marginBottom: 24 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--navy)', margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--navy)', letterSpacing: '-0.4px', margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ width: 36, height: 36, borderRadius: 10, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>❓</span>
                 Sık Sorulan Sorular
               </h2>
@@ -276,7 +276,7 @@ export default function HastalıkDetayPage({ params }: Props) {
                 {h.sikSorilanSorular.map((s, i) => (
                   <details key={i} style={{ border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden' }}>
                     <summary style={{
-                      padding: '14px 18px', fontWeight: 700, fontSize: 14, color: '#1F2937',
+                      padding: '14px 18px', fontWeight: 700, fontSize: 15.5, color: '#1F2937',
                       cursor: 'pointer', listStyle: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                       background: '#F9FAFB',
                     }}>
@@ -306,7 +306,7 @@ export default function HastalıkDetayPage({ params }: Props) {
                       style={{ textDecoration: 'none' }}
                     >
                       <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border)', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <span style={{ fontSize: 22 }}>{ihKat?.icon || '🩺'}</span>
+                        <span style={{ fontSize: 22 }}>{ihKat?.icon || ''}</span>
                         <div>
                           <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--navy)' }}>{ih.ad}</div>
                           <div style={{ fontSize: 11, color: '#9CA3AF' }}>{ihKat?.ad}</div>
@@ -412,7 +412,7 @@ export default function HastalıkDetayPage({ params }: Props) {
             <nav style={{ padding: '6px 0' }}>
               <Link
                 href={`/hastaliklar/${kat.slug}`}
-                style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 16px', textDecoration: 'none', fontSize: 13, color: '#374151' }}
+                style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 16px', textDecoration: 'none', fontSize: 14.5, color: '#374151' }}
               >
                 <span>← Tüm hastalıklar</span>
               </Link>
