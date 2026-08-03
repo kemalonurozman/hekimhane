@@ -467,6 +467,7 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Gizli iletişim gating:** `ProfilSayfasi` `contactHidden` prop'u ile tel+email+Randevu butonunu gizler, "İletişim gizli" notu gösterir (`tel` yeniden atanarak tüm `{tel && ...}` noktaları otomatik kapanır). `/bobath-terapistleri/[il]` kartlarında da aynı.
 - **Otomatik açılma:** `/api/admin/claim-action` onayında entity_type='doktor' ise `contact_hidden=false` (best-effort). **Admin elle toggle:** admin doktor listesinde e-postası olan satırlarda "Gizli/Açık" butonu → `/api/admin/toggle-contact`.
 - `supabase/migrations/add_makale_gonderim.sql` — `blog_posts` onay akışı kolonları (panelden makale gönderimi için **şart**).
+- `supabase/migrations/add_makale_placement.sql` — `blog_posts.show_homepage` kolonu (admin "Anasayfada öne çıkar" için **şart**; yoksa anasayfa öne çıkan bölümü boş kalır, graceful).
 
 ### DB Tabloları (Ağustos eki)
 | Tablo | Açıklama |
