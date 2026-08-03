@@ -70,8 +70,8 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
         }
         .doktor-card__name-shim {
           float: right;
-          width: 92px;
-          height: 26px;
+          width: 116px;
+          height: 30px;
         }
         .doktor-card__rating-row {
           display: flex;

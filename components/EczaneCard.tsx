@@ -67,8 +67,8 @@ export default function EczaneCard({ eczane: e }: { eczane: Eczane }) {
         }
         .eczane-card__name-shim {
           float: right;
-          width: 92px;
-          height: 26px;
+          width: 116px;
+          height: 30px;
         }
         .eczane-card__rating-row {
           display: flex;

@@ -72,8 +72,8 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
         /* Sağ üstteki Karşılaştır butonuna yer aç — metin altına girmesin */
         .klinik-card__name-shim {
           float: right;
-          width: 92px;
-          height: 26px;
+          width: 116px;
+          height: 30px;
         }
         .klinik-card__rating-row {
           display: flex;
