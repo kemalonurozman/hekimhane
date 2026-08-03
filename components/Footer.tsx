@@ -8,6 +8,7 @@ export default function Footer() {
     ['Ağız & Diş Sağlığı',   '/hastaliklar/dis-sagligi'],
     ['2026 Tedavi Ücretleri', '/tedavi-ucretleri'],
     ['HekimKart',            '/hekimkart'],
+    ['HekimAI',              '/hekim-ai'],
     ['Karşılaştır',          '/karsilastir'],
     ['Blog',                 '/blog'],
     ['Kliniğinizi Ekleyin',  '/katil'],
@@ -173,10 +174,15 @@ export default function Footer() {
             </h4>
             {PLATFORM.map(([label, href]) => (
               <Link key={href} href={href} style={{
-                display: 'block', fontSize: '13px', marginBottom: '9px',
+                display: 'flex', alignItems: 'center', gap: 7, fontSize: '13px', marginBottom: '9px',
                 color: 'rgba(255,255,255,0.6)', textDecoration: 'none',
               }}>
                 {label}
+                {href === '/hekim-ai' && (
+                  <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.5px', textTransform: 'uppercase', color: '#0F2A55', background: 'linear-gradient(135deg,#EBC65D,#D4A843)', borderRadius: 6, padding: '2px 6px', lineHeight: 1.3 }}>
+                    Çok Yakında
+                  </span>
+                )}
               </Link>
             ))}
           </div>
