@@ -1259,11 +1259,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 {acil   && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>Acil</span>}
                 {online && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0' }}>Online Randevu</span>}
                 {nobetci && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#EDE9FE', color: '#6D28D9', border: '1px solid #DDD6FE' }}>Nöbetçi</span>}
-                {premium && (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: 'linear-gradient(135deg,#FEF3C7,#FDE68A)', color: '#92400E', border: '1px solid #F59E0B' }}>
-                    ⭐ Premium
-                  </span>
-                )}
+                {/* Premium rozeti kaldırıldı — premium, logo + altın mühür ve sunulan özelliklerle belli oluyor */}
                 {claimed
                   ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: 'linear-gradient(135deg,var(--navy),var(--navy2))', color: 'white' }}>✓ Sahiplenildi</span>
                   : <Link href={`/sahiplen?id=${id}&type=${entityType}`}

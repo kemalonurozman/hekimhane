@@ -1532,7 +1532,25 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
 function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   const [idx, setIdx] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [notifyMode, setNotifyMode] = useState<'same' | 'custom'>('same');
+  const [notifyEmail, setNotifyEmail] = useState('');
+  const [notifySaving, setNotifySaving] = useState(false);
+  const [notifyMsg, setNotifyMsg] = useState('');
   const entities = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
+
+  // Seçili işletmenin bildirim e-postasını yükle
+  useEffect(() => {
+    const e = entities[idx] || entities[0];
+    if (!e) return;
+    const TM: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
+    const tbl = TM[e.entity_type]; if (!tbl) return;
+    const sb = createSupabaseBrowser();
+    sb.from(tbl).select('randevu_email').eq('id', e.entity_id!).maybeSingle().then(({ data }) => {
+      const v = String((data as any)?.randevu_email || '').trim();
+      if (v) { setNotifyMode('custom'); setNotifyEmail(v); } else { setNotifyMode('same'); setNotifyEmail(''); }
+      setNotifyMsg('');
+    });
+  }, [idx, approvedClaims.length]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   const A = { page: '#F5F5F7', card: '#FFFFFF', text: '#1D1D1F', muted: '#86868B', line: '#E5E5EA', accent: T.navy, green: '#34C759' };
 
@@ -1551,6 +1569,21 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
   const src = `https://www.hekimhane.com.tr/embed/randevu?type=${ent.entity_type}&id=${ent.entity_id}`;
   const kod = `<iframe src="${src}" width="100%" height="640" style="border:0;max-width:480px" loading="lazy" title="Randevu Al"></iframe>`;
   const kopyala = () => { try { navigator.clipboard.writeText(kod); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch {} };
+
+  async function saveNotify() {
+    const val = notifyMode === 'custom' ? notifyEmail.trim() : '';
+    if (notifyMode === 'custom' && !val.includes('@')) { setNotifyMsg('Geçerli bir e-posta girin.'); return; }
+    setNotifySaving(true); setNotifyMsg('');
+    try {
+      const res = await fetch('/api/panel/update-entity', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entityType: ent.entity_type, entityId: ent.entity_id, fields: { randevu_email: val || null } }),
+      });
+      const j = await res.json().catch(() => ({}));
+      setNotifyMsg(res.ok && j.success ? 'Kaydedildi' : (j.error || 'Kaydedilemedi'));
+    } catch { setNotifyMsg('Bağlantı hatası'); }
+    setNotifySaving(false);
+  }
 
   const IcS = ({ d, size = 15, color = A.muted, sw = 1.8 }: { d: string; size?: number; color?: string; sw?: number }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
@@ -1596,6 +1629,39 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
           <p style={{ fontSize: 12.5, color: A.muted, lineHeight: 1.55, margin: '14px 0 0' }}>
             Kodu WordPress, Wix veya kendi sitenize yapıştırın. Ziyaretçiler sitenizden randevu bıraksın; talepler size e-posta olarak da iletilir.
           </p>
+        </div>
+
+        {/* Bildirim e-postası ayarı */}
+        <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: 22, boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
+          <div style={{ fontSize: 15.5, fontWeight: 600, color: A.text, letterSpacing: '-0.2px' }}>Randevu bildirim e-postası</div>
+          <p style={{ fontSize: 13, color: A.muted, margin: '4px 0 14px', lineHeight: 1.5 }}>Yeni randevu talepleri hangi e-posta adresine gelsin?</p>
+          <div style={{ display: 'inline-flex', background: A.page, borderRadius: 11, padding: 3, gap: 2, marginBottom: 14 }}>
+            {([['same', 'Hesabımla aynı'], ['custom', 'Farklı adres']] as const).map(([m, lbl]) => {
+              const on = notifyMode === m;
+              return (
+                <button key={m} onClick={() => { setNotifyMode(m); setNotifyMsg(''); }}
+                  style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: on ? 700 : 500,
+                    background: on ? A.card : 'transparent', color: on ? A.text : A.muted, boxShadow: on ? '0 1px 3px rgba(0,0,0,.08)' : 'none', transition: 'all .15s' }}>
+                  {lbl}
+                </button>
+              );
+            })}
+          </div>
+          {notifyMode === 'custom' && (
+            <input type="email" value={notifyEmail} onChange={e => { setNotifyEmail(e.target.value); setNotifyMsg(''); }}
+              placeholder="ornek@mail.com" autoComplete="email"
+              style={{ width: '100%', boxSizing: 'border-box', padding: '12px 14px', borderRadius: 12, border: `1px solid ${A.line}`, fontSize: 14, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none', marginBottom: 12 }} />
+          )}
+          {notifyMode === 'same' && (
+            <p style={{ fontSize: 12.5, color: A.muted, margin: '0 0 12px', lineHeight: 1.5 }}>Bildirimler, işletmeyi sahiplendiğiniz hesabın e-posta adresine gönderilir.</p>
+          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button onClick={saveNotify} disabled={notifySaving}
+              style={{ padding: '10px 20px', borderRadius: 11, border: 'none', background: A.accent, color: '#fff', fontSize: 13.5, fontWeight: 600, cursor: notifySaving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: notifySaving ? .6 : 1 }}>
+              {notifySaving ? 'Kaydediliyor…' : 'Kaydet'}
+            </button>
+            {notifyMsg && <span style={{ fontSize: 13, fontWeight: 600, color: notifyMsg === 'Kaydedildi' ? '#1D7A3E' : '#C0392B' }}>{notifyMsg}</span>}
+          </div>
         </div>
 
         {/* Canlı önizleme */}

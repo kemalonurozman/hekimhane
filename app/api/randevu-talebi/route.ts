@@ -30,19 +30,34 @@ async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, ka
       replyTo: kayit.email || undefined,
     });
 
-    // 2) İşletme onaylı (claimed) ise sahibine de bildir — her işletme kendi
-    //    onaylı claim e-postasına eşlenir (service-role, RLS'ten etkilenmez).
+    // 2) İşletme sahibine bildir. Hedef e-posta:
+    //    (a) işletmenin seçtiği randevu_email (varsa) — "farklı adres",
+    //    (b) yoksa onaylı claim e-postası — "hesabımla aynı".
     try {
+      // İşletmenin ayarladığı bildirim adresi (kolon yoksa sessizce geç)
+      let randevuEmail: string | null = null;
+      try {
+        const TBL: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
+        const tbl = TBL[kayit.entity_type];
+        if (tbl) {
+          const { data: ent } = await (admin as any).from(tbl).select('randevu_email').eq('id', kayit.entity_id).maybeSingle();
+          const e = (ent?.randevu_email || '').trim();
+          if (e.includes('@')) randevuEmail = e;
+        }
+      } catch { /* randevu_email kolonu yoksa geç */ }
+
       const { data: claim } = await (admin as any).from('claim_requests')
         .select('email').eq('entity_id', kayit.entity_id).eq('status', 'approved')
         .not('email', 'is', null).limit(1).maybeSingle();
-      if (claim?.email && claim.email !== ADMIN_EMAIL) {
+
+      const hedef = randevuEmail || claim?.email || null;
+      if (hedef && hedef !== ADMIN_EMAIL) {
         const sahipHtml = mailShell('Yeni Randevu Talebiniz Var',
           `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${kayit.entity_name}</strong> işletmeniz için yeni bir randevu talebi geldi. Talep sahibiyle en kısa sürede iletişime geçebilirsiniz:</p>` +
           detay +
           `<p style="margin-top:14px;font-size:12px;color:#6E6E73;">Bu bildirim Hekimhane üzerinden gönderilmiştir.</p>`);
         await sendEmail({
-          to: claim.email,
+          to: hedef,
           subject: `Yeni randevu talebiniz var — ${kayit.entity_name}`,
           html: sahipHtml,
           replyTo: kayit.email || undefined,
