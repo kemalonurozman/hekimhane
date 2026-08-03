@@ -280,6 +280,34 @@ export default async function NedenHekimhanePage() {
         </div>
       </section>
 
+      {/* ── TEK PANEL / RANDEVU MODÜLÜ ───────────────────── */}
+      <section className="nh-wrap" style={{ padding: '20px 24px 40px' }}>
+        <div style={{ border: `1px solid ${BORDER}`, borderRadius: 26, padding: 'clamp(28px, 4vw, 44px)', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.05)', display: 'grid', gridTemplateColumns: '1fr', gap: 22, textAlign: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap', color: MUTED, fontSize: 14, fontWeight: 600 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#F5F5F7', border: `1px solid ${BORDER}`, borderRadius: 999, padding: '8px 14px' }}><Icon name="globe" size={15} /> Kendi siteniz</span>
+            <span style={{ color: GOLD, fontWeight: 800 }}>+</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#F5F5F7', border: `1px solid ${BORDER}`, borderRadius: 999, padding: '8px 14px' }}><Icon name="card" size={15} /> HekimKart</span>
+            <span style={{ color: GOLD, fontWeight: 800 }}>+</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#F5F5F7', border: `1px solid ${BORDER}`, borderRadius: 999, padding: '8px 14px' }}>Hekimhane</span>
+            <span style={{ color: GOLD, fontWeight: 800 }}>→</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'rgba(27,58,105,.08)', border: '1px solid rgba(27,58,105,.2)', color: NAVY, borderRadius: 999, padding: '8px 14px', fontWeight: 800 }}>Tek panel</span>
+          </div>
+          <h2 style={{ fontSize: 'clamp(23px, 3.3vw, 32px)', fontWeight: 800, letterSpacing: '-.9px', color: NAVY, margin: 0 }}>
+            Kendi sitenizden ve Hekimhane’den gelen randevular aynı sistemde
+          </h2>
+          <p style={{ fontSize: 15.5, color: MUTED, lineHeight: 1.7, maxWidth: 680, margin: '0 auto' }}>
+            Randevu modülünü tek satır kodla kendi web sitenize ekleyin; ister sitenizden, ister HekimKart’ınızdan,
+            ister Hekimhane profilinizden gelsin, tüm talepler panelinizde tek yerde toplanır ve size e-posta gider.
+          </p>
+          <div>
+            <Link href="/randevu-modulu" className="nh-cta nh-cta-gold" style={{ boxShadow: '0 10px 26px rgba(212,168,67,.3)' }}>
+              Randevu Modülünü Keşfedin
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ── KARŞILAŞTIRMA ────────────────────────────────── */}
       <section className="nh-wrap" style={{ padding: '20px 24px 64px' }}>
         <div className="nh-compare">

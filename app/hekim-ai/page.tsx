@@ -168,13 +168,17 @@ export default function HekimAIPage() {
             ÇOK YAKINDA
           </span>
           <h2 style={{ fontSize: 'clamp(24px, 3.6vw, 34px)', fontWeight: 800, letterSpacing: '-1px', color: NAVY, margin: '0 0 14px' }}>HekimAI yolda</h2>
-          <p style={{ fontSize: 16, color: MUTED, lineHeight: 1.65, maxWidth: 560, margin: '0 auto 28px' }}>
-            Şimdiden Hekimhane’de yerinizi alın; HekimAI hazır olduğunda panelinizde ilk siz kullanmaya başlayın.
+          <p style={{ fontSize: 16, color: MUTED, lineHeight: 1.65, maxWidth: 600, margin: '0 auto 28px' }}>
+            Şimdiden Hekimhane’de yerinizi alın; HekimAI hazır olana kadar, <strong style={{ color: NAVY }}>Randevu Modülü</strong> ile
+            kendi sitenizden ve Hekimhane’den gelen tüm randevuları bugün tek panelde toplayın.
           </p>
-          <Link href="/katil" className="ha-cta ha-cta-gold">
-            İşletmenizi Ekleyin
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-          </Link>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/katil" className="ha-cta ha-cta-gold">
+              İşletmenizi Ekleyin
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+            </Link>
+            <Link href="/randevu-modulu" className="ha-cta ha-cta-ghost" style={{ background: '#fff', border: `1.5px solid ${BORDER}`, color: NAVY }}>Randevu Modülü</Link>
+          </div>
         </div>
       </section>
     </div>

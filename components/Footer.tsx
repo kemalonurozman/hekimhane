@@ -8,6 +8,7 @@ export default function Footer() {
     ['Ağız & Diş Sağlığı',   '/hastaliklar/dis-sagligi'],
     ['2026 Tedavi Ücretleri', '/tedavi-ucretleri'],
     ['HekimKart',            '/hekimkart'],
+    ['Randevu Modülü',       '/randevu-modulu'],
     ['HekimAI',              '/hekim-ai'],
     ['Karşılaştır',          '/karsilastir'],
     ['Blog',                 '/blog'],
