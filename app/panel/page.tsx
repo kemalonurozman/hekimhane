@@ -43,6 +43,7 @@ const icons = {
   list:       'M9 6h11 M9 12h11 M9 18h11 M4 6h.01 M4 12h.01 M4 18h.01',
   info:       'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20z M12 8h.01 M12 12v4',
   link:       'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71 M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71',
+  code:       'M16 18l6-6-6-6 M8 6l-6 6 6 6',
 };
 
 const T = {
@@ -148,7 +149,7 @@ export default function PanelPage() {
   const router = useRouter();
   const [user,   setUser]   = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart' | 'randevu' | 'makaleler'>('dashboard');
+  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart' | 'randevu' | 'randevumodul' | 'makaleler'>('dashboard');
   const [claims, setClaims] = useState<ClaimRequest[]>([]);
   const [claimsLoading, setClaimsLoading] = useState(false);
   const [profileUrls, setProfileUrls] = useState<Record<string, string>>({});
@@ -272,6 +273,7 @@ export default function PanelPage() {
     { key: 'dashboard'  as const, label: 'Genel Bakış',       icon: 'dashboard' },
     { key: 'claims'     as const, label: 'Başvurularım',      icon: 'list' },
     { key: 'randevu'    as const, label: 'Randevu Talepleri', icon: 'bell' },
+    { key: 'randevumodul' as const, label: 'Randevu Modülü',  icon: 'code' },
     { key: 'edit'       as const, label: 'Profilimi Düzenle', icon: 'edit' },
     { key: 'hekimkart'  as const, label: 'HekimKart',         icon: 'bell' },
     { key: 'yorumlar'   as const, label: 'Yorumlar',          icon: 'star' },
@@ -283,7 +285,7 @@ export default function PanelPage() {
   // Sidebar sekmeleri gruplandı (bölüm başlıklarıyla)
   const navGroups: { title: string; keys: (typeof navItems)[number]['key'][] }[] = [
     { title: 'Genel',     keys: ['dashboard'] },
-    { title: 'İşletmem',  keys: ['edit', 'hekimkart', 'yorumlar', 'randevu'] },
+    { title: 'İşletmem',  keys: ['edit', 'hekimkart', 'yorumlar', 'randevu', 'randevumodul'] },
     { title: 'İçerik',    keys: ['makaleler'] },
     { title: 'Başvuru',   keys: ['claims', 'new'] },
     { title: 'Hesap',     keys: ['profile'] },
@@ -398,6 +400,7 @@ export default function PanelPage() {
         {tab === 'hekimkart' && <HekimKartTab approvedClaims={approvedClaims} profileUrls={profileUrls} user={user} />}
         {tab === 'yorumlar'  && <YorumlarTab approvedClaims={approvedClaims} />}
         {tab === 'randevu'   && <RandevuTalepleriTab approvedClaims={approvedClaims} />}
+        {tab === 'randevumodul' && <RandevuModulTab approvedClaims={approvedClaims} />}
         {tab === 'makaleler' && <MakalelerimTab hasEntity={approvedClaims.some(c => c.entity_id && c.entity_id !== 'new')} />}
       </main>
 
@@ -1364,12 +1367,8 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
   const [updating, setUpdating] = useState<string | null>(null);
   const [selectedEntity, setSelectedEntity] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [modulOpen, setModulOpen] = useState(false);
-  const [modulIdx, setModulIdx] = useState(0);
-  const [modulCopied, setModulCopied] = useState(false);
 
   const hasEntities = approvedClaims.some(c => c.entity_id && c.entity_id !== 'new');
-  const modulEntities = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
 
   useEffect(() => {
     (async () => {
@@ -1403,102 +1402,54 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
 
   const fmtDate = (s: string) => { try { return new Date(s).toLocaleString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return s; } };
 
+  // Apple tarzı sade palet (yalnızca bu sayfa)
+  const A = { page: '#F5F5F7', card: '#FFFFFF', text: '#1D1D1F', muted: '#86868B', line: '#E5E5EA', accent: T.navy, green: '#34C759' };
+  const seg = (['all', 'yeni', 'arandi', 'tamamlandi'] as const);
+
+  const IcS = ({ d, size = 15, color = A.muted, sw = 1.8 }: { d: string; size?: number; color?: string; sw?: number }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+      {d.split(' M').map((p, i) => <path key={i} d={i === 0 ? p : 'M' + p} />)}
+    </svg>
+  );
+
   return (
-    <div>
+    <div style={{ maxWidth: 760 }}>
       <div style={{ marginBottom: 22 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: T.text, margin: 0, letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          Randevu Talepleri
-          {yeniCount > 0 && (
-            <span style={{ fontSize: 12, fontWeight: 800, color: '#065F46', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 20, padding: '3px 11px' }}>{yeniCount} yeni</span>
-          )}
-        </h1>
-        <p style={{ fontSize: 13, color: T.muted, marginTop: 4 }}>İşletmenize gelen randevu taleplerini buradan görüp yönetebilirsiniz.</p>
+        <h1 style={{ fontSize: 26, fontWeight: 700, color: A.text, margin: 0, letterSpacing: '-0.6px' }}>Randevu Talepleri</h1>
+        <p style={{ fontSize: 14, color: A.muted, marginTop: 5, letterSpacing: '-0.1px' }}>İşletmenize gelen randevu taleplerini buradan görüp yönetin.</p>
       </div>
 
-      {/* ── Randevu modülünü sitene ekle ── */}
-      {hasEntities && (()=>{
-        const ent = modulEntities[modulIdx] || modulEntities[0];
-        const src = `https://www.hekimhane.com.tr/embed/randevu?type=${ent.entity_type}&id=${ent.entity_id}`;
-        const kod = `<iframe src="${src}" width="100%" height="640" style="border:0;max-width:480px" loading="lazy" title="Randevu Al"></iframe>`;
-        const kopyala = () => { try { navigator.clipboard.writeText(kod); setModulCopied(true); setTimeout(()=>setModulCopied(false), 2000); } catch {} };
-        return (
-          <div style={{ background:T.white, borderRadius:16, border:`1px solid ${T.border}`, marginBottom:18, overflow:'hidden' }}>
-            <button onClick={()=>setModulOpen(o=>!o)}
-              style={{ width:'100%', display:'flex', alignItems:'center', gap:12, padding:'14px 18px', background:'none', border:'none', cursor:'pointer', fontFamily:'inherit', textAlign:'left' }}>
-              <div style={{ width:38, height:38, borderRadius:11, background:'#E8F0FE', display:'flex', alignItems:'center', justifyContent:'center', color:T.navy, flexShrink:0 }}>
-                <Ic d="M16 18l6-6-6-6 M8 6l-6 6 6 6" size={18}/>
-              </div>
-              <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ fontSize:14.5, fontWeight:800, color:T.text }}>Randevu Modülünü Sitene Ekle</div>
-                <div style={{ fontSize:12.5, color:T.muted, marginTop:1 }}>Kendi web sitenizden de randevu alın; talepler buraya düşsün.</div>
-              </div>
-              <Ic d={modulOpen ? 'M18 15l-6-6-6 6' : 'M6 9l6 6 6-6'} size={16}/>
-            </button>
-
-            {modulOpen && (
-              <div style={{ padding:'0 18px 18px', display:'flex', flexDirection:'column', gap:12 }}>
-                {modulEntities.length > 1 && (
-                  <div>
-                    <label style={{ display:'block', fontSize:11, fontWeight:700, color:T.muted, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 }}>İşletme</label>
-                    <select value={modulIdx} onChange={e=>setModulIdx(Number(e.target.value))}
-                      style={{ width:'100%', padding:'10px 13px', borderRadius:10, border:`1.5px solid ${T.border}`, fontSize:13.5, fontFamily:'inherit', color:T.text, background:'white', outline:'none' }}>
-                      {modulEntities.map((c,i)=><option key={c.id} value={i}>{c.entity_name}</option>)}
-                    </select>
-                  </div>
-                )}
-                <div>
-                  <label style={{ display:'block', fontSize:11, fontWeight:700, color:T.muted, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 }}>HTML Kodu</label>
-                  <textarea readOnly value={kod} onFocus={e=>e.currentTarget.select()}
-                    style={{ width:'100%', boxSizing:'border-box', minHeight:80, padding:'11px 13px', borderRadius:10, border:`1.5px solid ${T.border}`, fontFamily:'ui-monospace,SFMono-Regular,Menlo,monospace', fontSize:12, lineHeight:1.5, color:T.text, background:'#F8FAFF', resize:'vertical', outline:'none' }} />
-                </div>
-                <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-                  <button onClick={kopyala}
-                    style={{ padding:'9px 16px', borderRadius:10, border:'none', background: modulCopied ? T.green : T.navy, color:'white', fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', display:'inline-flex', alignItems:'center', gap:7 }}>
-                    {modulCopied ? <><Ic d={icons.check} size={14}/>Kopyalandı</> : <><Ic d="M9 9h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V11a2 2 0 0 1 2-2z M5 15H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1" size={14}/>Kodu Kopyala</>}
-                  </button>
-                  <a href={src} target="_blank" rel="noopener noreferrer"
-                    style={{ padding:'9px 16px', borderRadius:10, border:`1.5px solid ${T.border}`, background:'white', color:T.navy, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', textDecoration:'none', display:'inline-flex', alignItems:'center', gap:7 }}>
-                    <Ic d="M15 3h6v6 M10 14 21 3 M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" size={13}/>Önizle
-                  </a>
-                  <a href="/randevu-modulu" target="_blank" rel="noopener noreferrer"
-                    style={{ padding:'9px 16px', borderRadius:10, border:'none', background:'#F5F5F7', color:T.muted, fontSize:13, fontWeight:600, cursor:'pointer', fontFamily:'inherit', textDecoration:'none', display:'inline-flex', alignItems:'center', gap:6 }}>
-                    Nasıl çalışır?
-                  </a>
-                </div>
-                <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.55 }}>
-                  Kodu WordPress, Wix veya kendi sitenize yapıştırın. Kendi sitenizden gelen randevu talepleri de bu sayfada görünür.
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      })()}
-
       {!hasEntities ? (
-        <div style={{ background: T.white, borderRadius: 16, border: `1px solid ${T.border}`, padding: '40px 24px', textAlign: 'center', color: T.muted }}>
-          Randevu taleplerini görebilmek için önce bir işletmenizin sahipliğini onaylatmanız gerekir.
+        <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '48px 24px', textAlign: 'center' }}>
+          <div style={{ width: 52, height: 52, borderRadius: '50%', background: A.page, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+            <IcS d={icons.bell} size={24} color={A.muted} />
+          </div>
+          <div style={{ fontSize: 15, color: A.text, fontWeight: 600 }}>Henüz işletmeniz yok</div>
+          <div style={{ fontSize: 13.5, color: A.muted, marginTop: 4 }}>Talepleri görebilmek için önce bir işletmenizin sahipliğini onaylatın.</div>
         </div>
       ) : loading ? (
-        <div style={{ padding: 40, textAlign: 'center', color: T.muted }}>Yükleniyor…</div>
+        <div style={{ padding: 48, textAlign: 'center', color: A.muted, fontSize: 14 }}>Yükleniyor…</div>
       ) : (
         <>
-          {/* Filtreler */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-            {(['all', 'yeni', 'arandi', 'tamamlandi'] as const).map(f => {
-              const n = f === 'all' ? talepler.length : talepler.filter(t => t.status === f).length;
-              const lbl = f === 'all' ? 'Tümü' : (RANDEVU_DURUM[f]?.label || f);
-              return (
-                <button key={f} onClick={() => setStatusFilter(f)}
-                  style={{ padding: '7px 14px', borderRadius: 9, fontSize: 13, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
-                    background: statusFilter === f ? T.navy : T.white, color: statusFilter === f ? '#fff' : T.muted,
-                    border: `1px solid ${statusFilter === f ? T.navy : T.border}` }}>
-                  {lbl} ({n})
-                </button>
-              );
-            })}
+          {/* Segmented filtre + işletme seçici */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18, flexWrap: 'wrap' }}>
+            <div style={{ display: 'inline-flex', background: A.page, borderRadius: 11, padding: 3, gap: 2 }}>
+              {seg.map(f => {
+                const n = f === 'all' ? talepler.length : talepler.filter(t => t.status === f).length;
+                const lbl = f === 'all' ? 'Tümü' : (RANDEVU_DURUM[f]?.label || f);
+                const on = statusFilter === f;
+                return (
+                  <button key={f} onClick={() => setStatusFilter(f)}
+                    style={{ padding: '7px 15px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 500, fontFamily: 'inherit', cursor: 'pointer', border: 'none',
+                      background: on ? A.card : 'transparent', color: on ? A.text : A.muted, boxShadow: on ? '0 1px 3px rgba(0,0,0,.08)' : 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}>
+                    {lbl} <span style={{ color: on ? A.muted : '#B0B0B5', fontWeight: 600 }}>{n}</span>
+                  </button>
+                );
+              })}
+            </div>
             {entityNames.length > 1 && (
               <select value={selectedEntity} onChange={e => setSelectedEntity(e.target.value)}
-                style={{ marginLeft: 'auto', padding: '7px 12px', borderRadius: 9, fontSize: 13, fontFamily: 'inherit', border: `1px solid ${T.border}`, background: T.white, color: T.text }}>
+                style={{ marginLeft: 'auto', padding: '9px 13px', borderRadius: 10, fontSize: 13, fontFamily: 'inherit', border: `1px solid ${A.line}`, background: A.card, color: A.text, outline: 'none' }}>
                 <option value="all">Tüm işletmeler</option>
                 {entityNames.map(n => <option key={n} value={n}>{n}</option>)}
               </select>
@@ -1506,43 +1457,62 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
           </div>
 
           {shown.length === 0 ? (
-            <div style={{ background: T.white, borderRadius: 16, border: `1px solid ${T.border}`, padding: '40px 24px', textAlign: 'center', color: T.muted }}>
-              {talepler.length === 0 ? 'Henüz randevu talebi yok. Talepler geldiğinde burada görünecek.' : 'Bu filtrede talep yok.'}
+            <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '48px 24px', textAlign: 'center' }}>
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: A.page, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                <IcS d="M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" size={23} color={A.muted} />
+              </div>
+              <div style={{ fontSize: 15, color: A.text, fontWeight: 600 }}>{talepler.length === 0 ? 'Henüz randevu talebi yok' : 'Bu filtrede talep yok'}</div>
+              <div style={{ fontSize: 13.5, color: A.muted, marginTop: 4 }}>{talepler.length === 0 ? 'Talepler geldiğinde burada görünecek.' : 'Başka bir filtre deneyin.'}</div>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {shown.map(t => {
                 const d = RANDEVU_DURUM[t.status] || RANDEVU_DURUM.yeni;
+                const isYeni = t.status === 'yeni';
                 return (
-                  <div key={t.id} style={{ background: T.white, borderRadius: 14, border: `1px solid ${T.border}`, borderLeft: `4px solid ${t.status === 'yeni' ? T.green : T.border}`, padding: '16px 18px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: T.text }}>{t.ad_soyad}</div>
-                      <span style={{ fontSize: 11, fontWeight: 700, background: d.bg, color: d.color, border: `1px solid ${d.border}`, borderRadius: 20, padding: '3px 10px' }}>{d.label}</span>
+                  <div key={t.id} style={{ background: A.card, borderRadius: 16, border: `1px solid ${A.line}`, padding: '18px 20px', boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 11, minWidth: 0 }}>
+                        <div style={{ width: 40, height: 40, borderRadius: '50%', background: A.page, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 15, fontWeight: 700, color: A.accent }}>
+                          {(t.ad_soyad || '?').trim().charAt(0).toLocaleUpperCase('tr')}
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: 15.5, fontWeight: 600, color: A.text, letterSpacing: '-0.2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.ad_soyad}</div>
+                          <div style={{ fontSize: 12, color: A.muted, marginTop: 1 }}>{fmtDate(t.created_at)}</div>
+                        </div>
+                      </div>
+                      <span style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: isYeni ? '#1D7A3E' : A.muted, background: isYeni ? 'rgba(52,199,89,.12)' : A.page, borderRadius: 20, padding: '4px 11px' }}>
+                        {isYeni && <span style={{ width: 6, height: 6, borderRadius: '50%', background: A.green }} />}{d.label}
+                      </span>
                     </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 16px', fontSize: 13, color: T.muted, marginBottom: 10 }}>
-                      <a href={`tel:${t.tel}`} style={{ color: T.navy, fontWeight: 700, textDecoration: 'none' }}>📞 {t.tel}</a>
-                      {t.email && <span>✉️ {t.email}</span>}
-                      {entityNames.length > 1 && <span>🏥 {t.entity_name}</span>}
-                      <span>🕐 {fmtDate(t.created_at)}</span>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 20px', fontSize: 13.5, color: A.text, marginBottom: (t.tercih || t.mesaj) ? 12 : 14 }}>
+                      <a href={`tel:${t.tel}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, color: A.accent, fontWeight: 600, textDecoration: 'none' }}>
+                        <IcS d={icons.phone} size={14} color={A.accent} />{t.tel}
+                      </a>
+                      {t.email && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, color: A.muted }}><IcS d={icons.mail} size={14} />{t.email}</span>}
+                      {entityNames.length > 1 && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, color: A.muted }}><IcS d={icons.building} size={14} />{t.entity_name}</span>}
                     </div>
+
                     {(t.tercih || t.mesaj) && (
-                      <div style={{ fontSize: 13, color: T.text, background: T.bg, borderRadius: 8, padding: '8px 12px', marginBottom: 10, lineHeight: 1.5 }}>
-                        {t.tercih && <div><strong style={{ color: T.muted }}>Tercih:</strong> {t.tercih}</div>}
-                        {t.mesaj && <div><strong style={{ color: T.muted }}>Not:</strong> {t.mesaj}</div>}
+                      <div style={{ fontSize: 13.5, color: A.text, background: A.page, borderRadius: 12, padding: '11px 14px', marginBottom: 14, lineHeight: 1.5 }}>
+                        {t.tercih && <div><span style={{ color: A.muted }}>Tercih · </span>{t.tercih}</div>}
+                        {t.mesaj && <div style={{ marginTop: t.tercih ? 3 : 0 }}><span style={{ color: A.muted }}>Not · </span>{t.mesaj}</div>}
                       </div>
                     )}
+
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                       {t.status !== 'arandi' && (
                         <button onClick={() => setStatus(t.id, 'arandi')} disabled={updating === t.id}
-                          style={{ padding: '7px 14px', borderRadius: 9, fontSize: 12.5, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE' }}>Arandı olarak işaretle</button>
+                          style={{ padding: '8px 15px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', background: A.page, color: A.accent, border: 'none' }}>Arandı</button>
                       )}
                       {t.status !== 'tamamlandi' && (
                         <button onClick={() => setStatus(t.id, 'tamamlandi')} disabled={updating === t.id}
-                          style={{ padding: '7px 14px', borderRadius: 9, fontSize: 12.5, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', background: '#F0FDF4', color: '#166534', border: '1px solid #86EFAC' }}>Tamamlandı</button>
+                          style={{ padding: '8px 15px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', background: A.accent, color: '#fff', border: 'none' }}>Tamamlandı</button>
                       )}
                       {t.status !== 'yeni' && (
                         <button onClick={() => setStatus(t.id, 'yeni')} disabled={updating === t.id}
-                          style={{ padding: '7px 14px', borderRadius: 9, fontSize: 12.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', background: T.white, color: T.muted, border: `1px solid ${T.border}` }}>Yeni'ye al</button>
+                          style={{ padding: '8px 15px', borderRadius: 10, fontSize: 13, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', background: 'transparent', color: A.muted, border: `1px solid ${A.line}` }}>Yeni&apos;ye al</button>
                       )}
                     </div>
                   </div>
@@ -1552,6 +1522,90 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
           )}
         </>
       )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   RANDEVU MODÜLÜ TAB — sitene ekle (Apple tarzı)
+═══════════════════════════════════════════════ */
+function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
+  const [idx, setIdx] = useState(0);
+  const [copied, setCopied] = useState(false);
+  const entities = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
+
+  const A = { page: '#F5F5F7', card: '#FFFFFF', text: '#1D1D1F', muted: '#86868B', line: '#E5E5EA', accent: T.navy, green: '#34C759' };
+
+  if (entities.length === 0) {
+    return (
+      <div style={{ maxWidth: 760 }}>
+        <h1 style={{ fontSize: 26, fontWeight: 700, color: A.text, margin: 0, letterSpacing: '-0.6px' }}>Randevu Modülü</h1>
+        <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '48px 24px', textAlign: 'center', marginTop: 22, color: A.muted, fontSize: 14 }}>
+          Randevu modülünü kullanmak için önce bir işletmenizin sahipliğini onaylatın.
+        </div>
+      </div>
+    );
+  }
+
+  const ent = entities[idx] || entities[0];
+  const src = `https://www.hekimhane.com.tr/embed/randevu?type=${ent.entity_type}&id=${ent.entity_id}`;
+  const kod = `<iframe src="${src}" width="100%" height="640" style="border:0;max-width:480px" loading="lazy" title="Randevu Al"></iframe>`;
+  const kopyala = () => { try { navigator.clipboard.writeText(kod); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch {} };
+
+  const IcS = ({ d, size = 15, color = A.muted, sw = 1.8 }: { d: string; size?: number; color?: string; sw?: number }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+      {d.split(' M').map((p, i) => <path key={i} d={i === 0 ? p : 'M' + p} />)}
+    </svg>
+  );
+
+  return (
+    <div style={{ maxWidth: 760 }}>
+      <div style={{ marginBottom: 22 }}>
+        <h1 style={{ fontSize: 26, fontWeight: 700, color: A.text, margin: 0, letterSpacing: '-0.6px' }}>Randevu Modülü</h1>
+        <p style={{ fontSize: 14, color: A.muted, marginTop: 5, letterSpacing: '-0.1px' }}>Kendi web sitenizden de randevu alın. Gelen talepler “Randevu Talepleri” sayfasında toplanır.</p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr)', gap: 16 }}>
+        {/* Kod kartı */}
+        <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: 22, boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
+          {entities.length > 1 && (
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: A.muted, marginBottom: 6 }}>İşletme</label>
+              <select value={idx} onChange={e => setIdx(Number(e.target.value))}
+                style={{ width: '100%', padding: '11px 13px', borderRadius: 11, border: `1px solid ${A.line}`, fontSize: 14, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none' }}>
+                {entities.map((c, i) => <option key={c.id} value={i}>{c.entity_name}</option>)}
+              </select>
+            </div>
+          )}
+
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: A.muted, marginBottom: 6 }}>Siteye ekleme kodu</label>
+          <textarea readOnly value={kod} onFocus={e => e.currentTarget.select()}
+            style={{ width: '100%', boxSizing: 'border-box', minHeight: 86, padding: '13px 15px', borderRadius: 12, border: `1px solid ${A.line}`, fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', fontSize: 12.5, lineHeight: 1.55, color: A.text, background: A.page, resize: 'vertical', outline: 'none' }} />
+
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
+            <button onClick={kopyala}
+              style={{ padding: '10px 18px', borderRadius: 11, border: 'none', background: copied ? A.green : A.accent, color: '#fff', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+              <IcS d={copied ? icons.check : 'M9 9h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V11a2 2 0 0 1 2-2z M5 15H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1'} size={15} color="#fff" />
+              {copied ? 'Kopyalandı' : 'Kodu Kopyala'}
+            </button>
+            <a href="/randevu-modulu" target="_blank" rel="noopener noreferrer"
+              style={{ padding: '10px 18px', borderRadius: 11, border: `1px solid ${A.line}`, background: A.card, color: A.text, fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+              Nasıl çalışır?
+            </a>
+          </div>
+          <p style={{ fontSize: 12.5, color: A.muted, lineHeight: 1.55, margin: '14px 0 0' }}>
+            Kodu WordPress, Wix veya kendi sitenize yapıştırın. Ziyaretçiler sitenizden randevu bıraksın; talepler size e-posta olarak da iletilir.
+          </p>
+        </div>
+
+        {/* Canlı önizleme */}
+        <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: 22, boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: A.muted, marginBottom: 12 }}>Önizleme</div>
+          <div style={{ borderRadius: 14, overflow: 'hidden', border: `1px solid ${A.line}`, background: A.page }}>
+            <iframe src={src} style={{ width: '100%', height: 560, border: 0, display: 'block' }} title="Randevu önizleme" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
