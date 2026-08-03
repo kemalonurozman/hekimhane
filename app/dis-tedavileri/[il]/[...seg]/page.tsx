@@ -8,8 +8,9 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import type { Klinik } from '@/lib/types';
 import { toSlug } from '@/lib/helpers';
+import { IL_KONUM } from '@/lib/il-koordinatlari';
 import {
-  DENTAL_SPECIALTIES, synonymsForSpec, resolveSpecOrTreatment, buildDentalFaq, TREATMENTS,
+  DENTAL_SPECIALTIES, synonymsForSpec, specFilterValues, resolveSpecOrTreatment, buildDentalFaq, TREATMENTS,
 } from '@/lib/uzmanlik-data';
 import KlinikCard from '@/components/KlinikCard';
 
@@ -41,6 +42,47 @@ async function resolveIlce(il: string, ilceSlug: string): Promise<string | null>
   return null;
 }
 
+interface YakinKlinik { klinik: Klinik; km: number; ayniIl: boolean }
+
+/** İki il merkezi arası kuş uçuşu mesafe (km) */
+function mesafeKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371, rad = (d: number) => (d * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return Math.round(2 * R * Math.asin(Math.sqrt(h)));
+}
+
+/**
+ * Bölgede bu hizmeti etiketlemiş klinik yokken, hizmeti FİİLEN veren en yakın
+ * klinikleri bulur: önce aynı ilin diğer ilçeleri, sonra il merkezleri arası
+ * mesafeye göre en yakın iller. Uydurma etiket yazmadan gerçek alternatif sunar.
+ */
+async function enYakinlar(il: string, ilce: string | null, syn: string[], limit = 6): Promise<YakinKlinik[]> {
+  const hepsi = await fetchAll<Klinik>(() =>
+    supabase.from('klinikler').select('*').overlaps('specs', specFilterValues(syn)));
+
+  const merkez = IL_KONUM[il];
+  const out: YakinKlinik[] = [];
+
+  for (const k of hepsi) {
+    if (!k.il) continue;
+    const ayniIl = k.il === il;
+    if (ayniIl && ilce && k.ilce === ilce) continue;   // zaten kapsam içinde, boştu
+    if (ayniIl && !ilce) continue;                     // il sayfasında olamaz (sorgu boş döndü)
+    const hedef = IL_KONUM[k.il];
+    const km = ayniIl ? 0 : (merkez && hedef ? mesafeKm(merkez, hedef) : 9999);
+    out.push({ klinik: k, km, ayniIl });
+  }
+
+  return out
+    .sort((a, b) =>
+      Number(b.ayniIl) - Number(a.ayniIl) ||
+      a.km - b.km ||
+      (b.klinik.rev || 0) - (a.klinik.rev || 0) ||
+      (b.klinik.rat || 0) - (a.klinik.rat || 0))
+    .slice(0, limit);
+}
+
 async function getData(ilSlug: string, seg: string[]) {
   if (!seg || seg.length < 1 || seg.length > 2) return null;
   const il = await resolveIl(ilSlug);
@@ -58,12 +100,34 @@ async function getData(ilSlug: string, seg: string[]) {
   }
 
   const syn = synonymsForSpec(st.spec);
-  const klinikler = await fetchAll<Klinik>(() => {
-    let q = supabase.from('klinikler').select('*').eq('il', il).overlaps('specs', syn);
+  let klinikler = await fetchAll<Klinik>(() => {
+    let q = supabase.from('klinikler').select('*').eq('il', il).overlaps('specs', specFilterValues(syn));
     if (ilce) q = q.eq('ilce', ilce);
     return q;
   });
-  if (klinikler.length === 0) return null; // ince/boş sayfa üretme
+
+  // O yerde bu hizmetle etiketli klinik yoksa 404 verme: bölgedeki diş
+  // kliniklerini DÜRÜST bir başlıkla listele (bkz. genelListe bayrağı).
+  // Kliniklerin veri kaydına dokunulmaz — doğrulanmamış hizmet iddiası yazmayız,
+  // sayfa "bu hizmet için başvurabileceğiniz klinikler" olarak sunulur.
+  let genelListe = false;
+  let yakin: YakinKlinik[] = [];
+  if (klinikler.length === 0) {
+    genelListe = true;
+
+    // (a) Bu hizmeti FİİLEN etiketlemiş en yakın klinikler — önce aynı ilin
+    //     diğer ilçeleri, sonra mesafeye göre komşu iller.
+    yakin = await enYakinlar(il, ilce, syn);
+
+    // (b) Kullanıcının bulunduğu yerdeki diş klinikleri (dürüst başlıkla)
+    klinikler = await fetchAll<Klinik>(() => {
+      let q = supabase.from('klinikler').select('*').eq('il', il);
+      if (ilce) q = q.eq('ilce', ilce);
+      return q;
+    });
+    // Ne yerel klinik ne de yakında etiketli klinik varsa sayfa gerçekten boş.
+    if (klinikler.length === 0 && yakin.length === 0) return null;
+  }
 
   // İç linkleme için bağlam
   const scopeRows = await fetchAll<{ specs: string[] | null }>(() => {
@@ -76,7 +140,7 @@ async function getData(ilSlug: string, seg: string[]) {
   const relatedSpecs = DENTAL_SPECIALTIES.filter(item =>
     item !== st.spec && synonymsForSpec(item).some(s => scopeSpecSet.has(s)));
 
-  return { il, ilce, ...st, klinikler, relatedSpecs };
+  return { il, ilce, ...st, klinikler, relatedSpecs, genelListe, yakin };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -84,8 +148,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!d) return { title: 'Sayfa Bulunamadı' };
   const yer = d.ilce ? `${d.ilce}, ${d.il}` : d.il;
   const yerBaslik = d.ilce ? `${d.ilce} ${d.il}` : d.il;
-  const title = `${yerBaslik} ${d.label} — Diş Hekimleri`;
-  const desc = `${yer} bölgesinde ${d.label} hizmeti veren ${d.klinikler.length} diş hekimi ve klinik. Puanlar, hasta yorumları, adres, telefon ve online randevu bilgileri Hekimhane'de.`;
+  const title = d.genelListe
+    ? `${yerBaslik} ${d.label} — Başvurabileceğiniz Diş Klinikleri`
+    : `${yerBaslik} ${d.label} — Diş Hekimleri`;
+  const desc = d.genelListe
+    ? `${yer} bölgesinde ${d.label} için başvurabileceğiniz ${d.klinikler.length} diş kliniği. Puanlar, hasta yorumları, adres ve telefon bilgileriyle karşılaştırın; işlemi klinikle teyit edin.`
+    : `${yer} bölgesinde ${d.label} hizmeti veren ${d.klinikler.length} diş hekimi ve klinik. Puanlar, hasta yorumları, adres, telefon ve online randevu bilgileri Hekimhane'de.`;
   const canonical = `https://www.hekimhane.com.tr/dis-tedavileri/${params.il}/${params.seg.join('/')}`;
   return {
     title,
@@ -101,14 +169,14 @@ const chip = { padding: '8px 14px', borderRadius: 20, background: 'white', borde
 export default async function DisTedaviPage({ params }: Props) {
   const d = await getData(params.il, params.seg);
   if (!d) notFound();
-  const { il, ilce, label, spec, treatment, klinikler, relatedSpecs } = d;
+  const { il, ilce, label, spec, treatment, klinikler, relatedSpecs, genelListe, yakin } = d;
 
   const ilPath = toSlug(il);
   const uzmPath = params.seg[params.seg.length - 1];
   const yer = ilce ? `${ilce}, ${il}` : il;
   const yerBaslik = ilce ? `${ilce} ${il}` : il;
   const sorted = [...klinikler].sort((a, b) => (b.rev || 0) - (a.rev || 0) || (b.rat || 0) - (a.rat || 0));
-  const faq = buildDentalFaq({ il, ilce, label, count: sorted.length });
+  const faq = buildDentalFaq({ il, ilce, label, count: sorted.length, genelListe });
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -155,11 +223,13 @@ export default async function DisTedaviPage({ params }: Props) {
           </nav>
 
           <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, letterSpacing: '-0.5px', margin: 0 }}>
-            {yerBaslik} {label}
+            {genelListe ? <>{yerBaslik}&apos;da {label} İçin Diş Klinikleri</> : <>{yerBaslik} {label}</>}
           </h1>
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,.85)', marginTop: 8, maxWidth: 760, lineHeight: 1.6 }}>
             {treatment ? <>{treatment.ozet} </> : null}
-            {yer}'da <strong>{label}</strong> hizmeti veren {sorted.length} diş hekimi ve klinik. Puanları, hasta yorumları ve iletişim bilgileriyle karşılaştırın, size en uygun uzmanı bulun.
+            {genelListe
+              ? <>{yer}&apos;da <strong>{label}</strong> için başvurabileceğiniz {sorted.length} diş kliniği. Puanları, hasta yorumları ve iletişim bilgileriyle karşılaştırın.</>
+              : <>{yer}&apos;da <strong>{label}</strong> hizmeti veren {sorted.length} diş hekimi ve klinik. Puanları, hasta yorumları ve iletişim bilgileriyle karşılaştırın, size en uygun uzmanı bulun.</>}
           </p>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 14, background: 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700 }}>
             <i className="fa-solid fa-tooth" style={{ color: 'var(--gold)' }} /> {sorted.length} sonuç
@@ -168,7 +238,59 @@ export default async function DisTedaviPage({ params }: Props) {
       </div>
 
       <div className="container" style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 16px 48px' }}>
+        {/* Şeffaflık notu — liste, hizmeti etiketli klinikler değil bölgedeki
+            diş klinikleri olduğunda kullanıcıya açıkça söylenir. */}
+        {genelListe && (
+          <div style={{ display: 'flex', gap: 12, background: 'white', border: '1px solid var(--border)', borderRadius: 16, padding: '16px 18px', marginBottom: 18 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" strokeWidth="1.8" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}>
+              <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
+            </svg>
+            <div style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.65 }}>
+              <strong style={{ color: 'var(--navy)' }}>Rehberimizde {yer} için <strong>{label}</strong> hizmetini ayrıca belirtmiş bir klinik kaydı henüz yok.</strong>{' '}
+              {yakin.length > 0
+                ? <>Aşağıda önce bu hizmeti veren <strong>en yakın klinikleri</strong>, ardından {yerBaslik}&apos;daki diş kliniklerini listeliyoruz. </>
+                : <>Bu sayfada {yerBaslik}&apos;daki diş kliniklerini listeliyoruz. </>}
+              Randevu öncesi bu işlemin yapılıp yapılmadığını klinikle teyit edin.
+              {' '}Kliniğinizi yönetiyorsanız <Link href="/panel" style={{ color: 'var(--navy)', fontWeight: 700 }}>panelden hizmetlerinizi ekleyebilirsiniz</Link>.
+            </div>
+          </div>
+        )}
+
+        {/* Bu hizmeti fiilen veren en yakın klinikler — yalnızca yerelde
+            etiketli kayıt yokken gösterilir. Bunlar gerçek etiketli kliniklerdir. */}
+        {genelListe && yakin.length > 0 && (
+          <section style={{ marginBottom: 28 }}>
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 800, color: 'var(--navy)', margin: '0 0 4px' }}>
+              {label} Hizmeti Veren En Yakın Klinikler
+            </h2>
+            <p style={{ fontSize: 13.5, color: 'var(--muted)', margin: '0 0 14px', lineHeight: 1.6 }}>
+              {yerBaslik}&apos;da bu hizmeti belirtmiş klinik bulunmadığı için, rehberimizde{' '}
+              <strong>{label}</strong> hizmetini veren en yakın klinikleri listeliyoruz.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {yakin.map(y => (
+                <div key={y.klinik.id}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 6, background: 'var(--gold-light,#FDF6E3)', border: '1px solid rgba(212,168,67,.35)', borderRadius: 20, padding: '3px 11px', fontSize: 12, fontWeight: 700, color: 'var(--navy)' }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+                    </svg>
+                    {y.ayniIl
+                      ? <>{y.klinik.ilce ? `${y.klinik.ilce}, ` : ''}{y.klinik.il} — aynı il</>
+                      : <>{y.klinik.il} — {yerBaslik}&apos;a yaklaşık {y.km} km</>}
+                  </div>
+                  <KlinikCard klinik={y.klinik} />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Sonuç listesi */}
+        {genelListe && yakin.length > 0 && sorted.length > 0 && (
+          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 800, color: 'var(--navy)', margin: '0 0 14px' }}>
+            {yerBaslik}&apos;daki Diş Klinikleri
+          </h2>
+        )}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {sorted.map(k => <KlinikCard key={k.id} klinik={k} />)}
         </div>

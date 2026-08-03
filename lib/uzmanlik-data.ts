@@ -360,20 +360,49 @@ export function specToHref(spec: string): string {
 /** "Diş Hekimliği" grubundaki kanonik uzmanlıklar — combo sayfaları bunlarla oluşur */
 export const DENTAL_SPECIALTIES: string[] = SPEC_GRUPLARI.find(g => g.ad === 'Diş Hekimliği')?.items || [];
 
-/** Veri kaynaklarındaki farklı yazımlar → kanonik uzmanlık (overlaps sorgusu için) */
+/** Veri kaynaklarındaki farklı yazımlar → kanonik uzmanlık (overlaps sorgusu için)
+ *
+ *  ÖNEMLİ: Sorgu `overlaps('specs', ...)` ile TAM STRING eşleşmesi yapar; bu yüzden
+ *  veritabanında fiilen bulunan her yazım varyantı burada listelenmeli. Ayrıca
+ *  tedavi adları (Zirkonyum Kaplama, Diş Taşı Temizliği…) ilgili uzmanlığın altına
+ *  yazılır — kliniğin kendi etiketi tedavi adıysa uzmanlık sayfasında görünsün diye.
+ *  (Örn. Bartın'da yalnızca "Zirkonyum Kaplama" etiketli klinik, düzeltmeden önce
+ *   /dis-tedavileri/bartin/zirkonyum-kaplama sayfasında 404 veriyordu.) */
 export const DENTAL_SYNONYMS: Record<string, string[]> = {
-  'Genel Diş Hekimliği':             ['Genel Diş Hekimliği', 'Genel Diş Hekimi', 'Diş Sağlığı', 'Diş Kliniği'],
-  'Ortodonti (Diş Teli)':            ['Ortodonti (Diş Teli)', 'Ortodonti'],
-  'Pedodonti (Çocuk Diş Hekimliği)': ['Pedodonti (Çocuk Diş Hekimliği)', 'Çocuk Diş Hekimliği'],
-  'Endodonti (Kanal Tedavisi)':      ['Endodonti (Kanal Tedavisi)', 'Endodonti'],
-  'Ağız Diş ve Çene Cerrahisi':      ['Ağız Diş ve Çene Cerrahisi', 'Ağız Diş Çene Cerrahisi'],
-  'Restoratif Diş Tedavisi (Dolgu)': ['Restoratif Diş Tedavisi (Dolgu)', 'Restoratif Diş Tedavisi'],
-  'Protez (Diş Protezi)':            ['Protez (Diş Protezi)', 'Protetik Diş Tedavisi', 'Protez'],
+  'Genel Diş Hekimliği':             ['Genel Diş Hekimliği', 'Genel Diş Hekimi', 'Diş Sağlığı', 'Diş Kliniği', 'Ağız ve Diş Sağlığı', 'Ağız ve Diş Sağlığı Merkezi', 'Diş Hastanesi', 'Acil Diş', 'Diş Muayenehanesi'],
+  'Ortodonti (Diş Teli)':            ['Ortodonti (Diş Teli)', 'Ortodonti', 'Diş Teli', 'Diş Teli (Ortodonti)', 'Şeffaf Plak (Invisalign)', 'Şeffaf Plak', 'Invisalign'],
+  'Pedodonti (Çocuk Diş Hekimliği)': ['Pedodonti (Çocuk Diş Hekimliği)', 'Çocuk Diş Hekimliği', 'Pedodonti', 'Çocuk Diş Hekimi'],
+  'Endodonti (Kanal Tedavisi)':      ['Endodonti (Kanal Tedavisi)', 'Endodonti', 'Kanal Tedavisi'],
+  'Ağız Diş ve Çene Cerrahisi':      ['Ağız Diş ve Çene Cerrahisi', 'Ağız Diş Çene Cerrahisi', 'Ağız, Diş ve Çene Cerrahisi', 'Çene Cerrahisi', '20 Yaş Dişi Çekimi', 'Diş Çekimi'],
+  'Restoratif Diş Tedavisi (Dolgu)': ['Restoratif Diş Tedavisi (Dolgu)', 'Restoratif Diş Tedavisi', 'Diş Dolgusu', 'Dolgu'],
+  'Protez (Diş Protezi)':            ['Protez (Diş Protezi)', 'Protetik Diş Tedavisi', 'Protez', 'Diş Protezi'],
+  'Periodontoloji (Diş Eti)':        ['Periodontoloji (Diş Eti)', 'Periodontoloji', 'Diş Eti Tedavisi', 'Diş Taşı Temizliği'],
+  'İmplantoloji (İmplant)':          ['İmplantoloji (İmplant)', 'İmplantoloji', 'İmplant', 'Diş İmplantı'],
+  'Ağız Diş ve Çene Radyolojisi':    ['Ağız Diş ve Çene Radyolojisi', 'Ağız, Diş ve Çene Radyolojisi', 'Diş Radyolojisi', 'Panoramik Röntgen'],
+  'Estetik Diş Hekimliği':           ['Estetik Diş Hekimliği', 'Estetik Diş Hekimi', 'Zirkonyum Kaplama', 'Diş Beyazlatma', 'Lamina (Laminate Veneer)', 'Lamina (Yaprak Porselen)', 'Gülüş Tasarımı', 'Porselen Kaplama'],
+  'Diş Beyazlatma':                  ['Diş Beyazlatma', 'Estetik Diş Hekimliği'],
+  'Zirkonyum Kaplama':               ['Zirkonyum Kaplama', 'Estetik Diş Hekimliği'],
+  'Lamina (Laminate Veneer)':        ['Lamina (Laminate Veneer)', 'Lamina (Yaprak Porselen)', 'Estetik Diş Hekimliği'],
+  'Şeffaf Plak (Invisalign)':        ['Şeffaf Plak (Invisalign)', 'Şeffaf Plak', 'Ortodonti (Diş Teli)', 'Ortodonti'],
+  'Gülüş Tasarımı':                  ['Gülüş Tasarımı', 'Estetik Diş Hekimliği'],
+  'Diş Taşı Temizliği':              ['Diş Taşı Temizliği', 'Periodontoloji (Diş Eti)', 'Periodontoloji'],
+  'Bruksizm (Diş Gıcırdatma)':       ['Bruksizm (Diş Gıcırdatma)', 'Bruksizm', 'Gece Plağı'],
 };
 
-/** Bir uzmanlık için veri eşleşme varyantları */
+/** Bir uzmanlık için veri eşleşme varyantları (ham metin — küme karşılaştırmaları için) */
 export function synonymsForSpec(spec: string): string[] {
   return DENTAL_SYNONYMS[spec] || [spec];
+}
+
+/** PostgREST `overlaps` filtresi için güvenli değerler.
+ *
+ *  TUZAK: `.overlaps('specs', [...])` değerleri `ov.{a,b,c}` biçiminde virgülle
+ *  birleştirir. İçinde virgül olan bir değer ("Ağız, Diş ve Çene Cerrahisi")
+ *  iki ayrı öğeye bölünür ve "Ağız" gibi yanlış etiketlerle eşleşir — İstanbul
+ *  radyoloji sayfası bu yüzden alakasız bir kliniği listeliyordu. Çift tırnak
+ *  içine alınca PostgREST tek öğe olarak okur. */
+export function specFilterValues(specs: string[]): string[] {
+  return specs.map(s => (s.includes(',') ? `"${s}"` : s));
 }
 
 /** Herhangi bir spec etiketini kanonik diş uzmanlığına eşler (diş uzmanlığı değilse null) */
@@ -422,10 +451,14 @@ export function resolveSpecOrTreatment(uzmSlug: string): { label: string; spec: 
 }
 
 /** Şehre/uzmanlığa özel SSS — hem içerik zenginliği hem FAQPage schema için */
-export function buildDentalFaq(opts: { il: string; ilce?: string | null; label: string; count: number }): { q: string; a: string }[] {
+export function buildDentalFaq(opts: { il: string; ilce?: string | null; label: string; count: number; genelListe?: boolean }): { q: string; a: string }[] {
   const yer = opts.ilce ? `${opts.ilce}, ${opts.il}` : opts.il;
+  // genelListe: bölgede bu hizmeti ayrıca belirtmiş klinik kaydı yok; liste
+  // bölgedeki diş klinikleridir. Cevap bunu olduğu gibi söylemeli.
   return [
-    { q: `${yer} bölgesinde kaç ${opts.label} hekimi bulunuyor?`, a: `Hekimhane'de ${yer} için ${opts.count} adet ${opts.label} hizmeti veren diş hekimi ve klinik listeleniyor. Hepsini puan ve hasta yorumlarıyla karşılaştırabilirsiniz.` },
+    opts.genelListe
+      ? { q: `${yer} bölgesinde kaç ${opts.label} hekimi bulunuyor?`, a: `Hekimhane rehberinde ${yer} için ${opts.label} hizmetini ayrıca belirtmiş bir klinik kaydı henüz bulunmuyor. Bu sayfada bölgedeki ${opts.count} diş kliniğini listeliyoruz; işlemin yapılıp yapılmadığını randevu öncesi klinikle teyit edebilirsiniz.` }
+      : { q: `${yer} bölgesinde kaç ${opts.label} hekimi bulunuyor?`, a: `Hekimhane'de ${yer} için ${opts.count} adet ${opts.label} hizmeti veren diş hekimi ve klinik listeleniyor. Hepsini puan ve hasta yorumlarıyla karşılaştırabilirsiniz.` },
     { q: `${yer}'da ${opts.label} için nasıl randevu alınır?`, a: `İlgili hekimin profil sayfasından telefonla doğrudan arayabilir veya "Randevu Al" butonuyla talep gönderebilirsiniz; çoğu klinik aynı gün geri dönüş yapar.` },
     { q: `${opts.il}'da ${opts.label} ücretleri ne kadar?`, a: `Ücretler hekime, vakanın zorluğuna ve kullanılan malzemeye göre değişir. Net fiyat için ön muayene önerilir; birçok klinik ilk muayeneyi ücretsiz sunar.` },
     { q: `${yer}'da en iyi ${opts.label} hekimi nasıl seçilir?`, a: `Hasta yorumlarını, puan ortalamasını, deneyimi ve klinik konumunu değerlendirin. Hekimhane bu bilgilerin tümünü tek sayfada karşılaştırmalı gösterir.` },
