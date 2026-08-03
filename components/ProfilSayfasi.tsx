@@ -810,13 +810,14 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
       else { acikGun = dt.getDay() !== 0; }
     }
     if (!acikGun) return [];
+    const bs = new Set(booked || []);
+    if (bs.has(iso)) return [];   // tüm gün kapalı/bloke
     let t = (+o.split(':')[0]) * 60 + (+o.split(':')[1]);
     const end = (+c.split(':')[0]) * 60 + (+c.split(':')[1]);
     const dk = slotDk || 30; const out: string[] = [];
     const now = new Date();
     const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const nowMin = now.getHours() * 60 + now.getMinutes(); const isToday = iso === todayIso;
-    const bs = new Set(booked || []);
     while (t + dk <= end) {
       const lbl = `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
       if (!bs.has(iso + ' ' + lbl) && !(isToday && t <= nowMin + 15)) out.push(lbl);

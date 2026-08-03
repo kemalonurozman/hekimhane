@@ -130,7 +130,7 @@ export default async function KlinikProfilPage({ params }: Props) {
   } : null;
 
   const jsonLd = { '@context': 'https://schema.org', '@graph': [business, breadcrumb, ...(faqPage ? [faqPage] : [])] };
-  const rvBooked = (k as any).randevu_aktif ? await bookedSlots(k.id) : [];
+  const rvBooked = (k as any).randevu_aktif ? [...await bookedSlots(k.id), ...(Array.isArray((k as any).randevu_bloke) ? (k as any).randevu_bloke.map(String) : [])] : [];
 
   return (
     <>

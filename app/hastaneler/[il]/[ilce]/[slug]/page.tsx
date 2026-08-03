@@ -102,7 +102,7 @@ export default async function HastaneProfilPage({ params }: Props) {
   };
 
   const jsonLd = { '@context': 'https://schema.org', '@graph': [hospital, breadcrumb] };
-  const rvBooked = (h as any).randevu_aktif ? await bookedSlots(h.id) : [];
+  const rvBooked = (h as any).randevu_aktif ? [...await bookedSlots(h.id), ...(Array.isArray((h as any).randevu_bloke) ? (h as any).randevu_bloke.map(String) : [])] : [];
 
   return (
     <>

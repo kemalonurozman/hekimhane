@@ -1661,6 +1661,12 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
   const [slotDk, setSlotDk] = useState(30);
   const [takvimSaving, setTakvimSaving] = useState(false);
   const [takvimMsg, setTakvimMsg] = useState('');
+  const [calismaSaatleri, setCalismaSaatleri] = useState('');
+  const [acik24, setAcik24] = useState(false);
+  const [bloke, setBloke] = useState<string[]>([]);          // "YYYY-MM-DD" veya "YYYY-MM-DD HH:MM"
+  const [blokeTarih, setBlokeTarih] = useState('');
+  const [blokeSaving, setBlokeSaving] = useState(false);
+  const [blokeMsg, setBlokeMsg] = useState('');
   const entities = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
 
   // Seçili işletmenin bildirim e-postasını + randevu takvim ayarını yükle
@@ -1670,13 +1676,17 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
     const TM: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
     const tbl = TM[e.entity_type]; if (!tbl) return;
     const sb = createSupabaseBrowser();
-    sb.from(tbl).select('randevu_email,randevu_aktif,randevu_slot_dk').eq('id', e.entity_id!).maybeSingle().then(({ data }) => {
+    sb.from(tbl).select('randevu_email,randevu_aktif,randevu_slot_dk,calisma_saatleri,acik_24_saat,randevu_bloke').eq('id', e.entity_id!).maybeSingle().then(({ data }) => {
       const d = (data as any) || {};
       const v = String(d.randevu_email || '').trim();
       if (v) { setNotifyMode('custom'); setNotifyEmail(v); } else { setNotifyMode('same'); setNotifyEmail(''); }
       setTakvimAktif(d.randevu_aktif === true);
       setSlotDk(Number(d.randevu_slot_dk) || 30);
-      setNotifyMsg(''); setTakvimMsg('');
+      setCalismaSaatleri(String(d.calisma_saatleri || ''));
+      setAcik24(d.acik_24_saat === true);
+      setBloke(Array.isArray(d.randevu_bloke) ? d.randevu_bloke.map(String) : []);
+      setBlokeTarih('');
+      setNotifyMsg(''); setTakvimMsg(''); setBlokeMsg('');
     });
   }, [idx, approvedClaims.length]);  // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1724,6 +1734,40 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
       setTakvimMsg(res.ok && j.success ? 'Kaydedildi' : (j.error || 'Kaydedilemedi'));
     } catch { setTakvimMsg('Bağlantı hatası'); }
     setTakvimSaving(false);
+  }
+
+  // Bir günün TÜM çalışma-saati slotları (bloke bakılmaz) — panelde kapat/aç için
+  function gunSaatleri(iso: string): string[] {
+    if (!iso) return [];
+    const dt = new Date(iso + 'T00:00:00'); const gun = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'][dt.getDay()];
+    let o = '09:00', c = '18:00', acikGun = true;
+    if (acik24) { o = '08:00'; c = '22:00'; }
+    else {
+      let sch: Record<string, { acik?: boolean; baslangic?: string; bitis?: string }> = {};
+      try { sch = calismaSaatleri ? JSON.parse(calismaSaatleri) : {}; } catch { sch = {}; }
+      if (sch && sch[gun]) { acikGun = sch[gun].acik !== false; o = sch[gun].baslangic || '09:00'; c = sch[gun].bitis || '18:00'; }
+      else if (calismaSaatleri) { acikGun = false; } else { acikGun = dt.getDay() !== 0; }
+    }
+    if (!acikGun) return [];
+    let t = (+o.split(':')[0]) * 60 + (+o.split(':')[1]); const end = (+c.split(':')[0]) * 60 + (+c.split(':')[1]); const dk = slotDk || 30; const out: string[] = [];
+    while (t + dk <= end) { out.push(String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0')); t += dk; }
+    return out;
+  }
+  const gunKapali = !!blokeTarih && bloke.includes(blokeTarih);
+  const toggleSlot = (slot: string) => { const k = `${blokeTarih} ${slot}`; setBloke(p => p.includes(k) ? p.filter(x => x !== k) : [...p, k]); setBlokeMsg(''); };
+  const toggleGun = () => { setBloke(p => p.includes(blokeTarih) ? p.filter(x => x !== blokeTarih) : [...p.filter(x => !x.startsWith(blokeTarih + ' ')), blokeTarih]); setBlokeMsg(''); };
+
+  async function saveBloke() {
+    setBlokeSaving(true); setBlokeMsg('');
+    try {
+      const res = await fetch('/api/panel/update-entity', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entityType: ent.entity_type, entityId: ent.entity_id, fields: { randevu_bloke: bloke } }),
+      });
+      const j = await res.json().catch(() => ({}));
+      setBlokeMsg(res.ok && j.success ? 'Kaydedildi' : (j.error || 'Kaydedilemedi'));
+    } catch { setBlokeMsg('Bağlantı hatası'); }
+    setBlokeSaving(false);
   }
 
   const IcS = ({ d, size = 15, color = A.muted, sw = 1.8 }: { d: string; size?: number; color?: string; sw?: number }) => (
@@ -1847,6 +1891,64 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
             {takvimMsg && <span style={{ fontSize: 13, fontWeight: 600, color: takvimMsg === 'Kaydedildi' ? '#1D7A3E' : '#C0392B' }}>{takvimMsg}</span>}
           </div>
         </div>
+
+        {/* Kapalı / Dolu Saatler (yalnız takvim açıkken) */}
+        {takvimAktif && (
+          <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: 22, boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
+            <div style={{ fontSize: 15.5, fontWeight: 600, color: A.text, letterSpacing: '-0.2px' }}>Kapalı / dolu saatler</div>
+            <p style={{ fontSize: 13, color: A.muted, margin: '4px 0 14px', lineHeight: 1.5 }}>
+              Bir gün seçin; müsait olmadığınız saatleri <strong>kapatın</strong> (kırmızı) — bu saatler hastalara gösterilmez. Gerçek randevular zaten otomatik dolar.
+            </p>
+
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: A.muted, marginBottom: 6 }}>Gün</label>
+            <input type="date" value={blokeTarih} min={new Date().toISOString().split('T')[0]}
+              onChange={e => { setBlokeTarih(e.target.value); setBlokeMsg(''); }}
+              style={{ width: '100%', boxSizing: 'border-box', padding: '11px 13px', borderRadius: 11, border: `1px solid ${A.line}`, fontSize: 14, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none' }} />
+
+            {blokeTarih && (() => {
+              const saatler = gunSaatleri(blokeTarih);
+              return (
+                <div style={{ marginTop: 14 }}>
+                  <button onClick={toggleGun}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 10, border: `1px solid ${gunKapali ? '#FCA5A5' : A.line}`, background: gunKapali ? '#FEF2F2' : A.card, color: gunKapali ? '#B91C1C' : A.text, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', marginBottom: 12 }}>
+                    {gunKapali ? '● Tüm gün kapalı — geri aç' : 'Tüm günü kapat'}
+                  </button>
+
+                  {gunKapali ? (
+                    <div style={{ fontSize: 13, color: A.muted }}>Bu gün tamamen kapalı; hiç randevu alınmaz.</div>
+                  ) : saatler.length === 0 ? (
+                    <div style={{ fontSize: 13, color: A.muted }}>Bu gün çalışma saatlerinizde kapalı. (Çalışma Saatleri’nden ayarlanır.)</div>
+                  ) : (
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(66px, 1fr))', gap: 8 }}>
+                        {saatler.map(s => {
+                          const kapali = bloke.includes(`${blokeTarih} ${s}`);
+                          return (
+                            <button key={s} onClick={() => toggleSlot(s)}
+                              title={kapali ? 'Kapalı — açmak için tıklayın' : 'Açık — kapatmak için tıklayın'}
+                              style={{ padding: '9px 4px', borderRadius: 9, border: `1px solid ${kapali ? '#FCA5A5' : '#BBF7D0'}`, background: kapali ? '#FEF2F2' : '#F0FDF4', color: kapali ? '#B91C1C' : '#166534', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', textDecoration: kapali ? 'line-through' : 'none' }}>
+                              {s}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div style={{ fontSize: 11.5, color: A.muted, marginTop: 8 }}>Yeşil = açık · Kırmızı = kapalı. Tıklayarak değiştirin.</div>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
+              <button onClick={saveBloke} disabled={blokeSaving}
+                style={{ padding: '10px 20px', borderRadius: 11, border: 'none', background: A.accent, color: '#fff', fontSize: 13.5, fontWeight: 600, cursor: blokeSaving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: blokeSaving ? .6 : 1 }}>
+                {blokeSaving ? 'Kaydediliyor…' : 'Kapalı saatleri kaydet'}
+              </button>
+              {blokeMsg && <span style={{ fontSize: 13, fontWeight: 600, color: blokeMsg === 'Kaydedildi' ? '#1D7A3E' : '#C0392B' }}>{blokeMsg}</span>}
+              {bloke.length > 0 && <span style={{ fontSize: 12, color: A.muted }}>{bloke.length} kapalı kayıt</span>}
+            </div>
+          </div>
+        )}
 
         {/* Canlı önizleme */}
         <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: 22, boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>

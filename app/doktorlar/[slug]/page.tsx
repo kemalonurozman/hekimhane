@@ -117,7 +117,7 @@ export default async function DoktorProfilPage({ params }: Props) {
   } : null;
 
   const jsonLd = { '@context': 'https://schema.org', '@graph': [physician, breadcrumb, ...(faqPage ? [faqPage] : [])] };
-  const rvBooked = (d as any).randevu_aktif ? await bookedSlots(d.id) : [];
+  const rvBooked = (d as any).randevu_aktif ? [...await bookedSlots(d.id), ...(Array.isArray((d as any).randevu_bloke) ? (d as any).randevu_bloke.map(String) : [])] : [];
 
   return (
     <>

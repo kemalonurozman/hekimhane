@@ -101,7 +101,7 @@ export default async function EczaneProfilPage({ params }: Props) {
   } : null;
 
   const jsonLd = { '@context': 'https://schema.org', '@graph': [pharmacy, breadcrumb, ...(faqPage ? [faqPage] : [])] };
-  const rvBooked = (e as any).randevu_aktif ? await bookedSlots(e.id) : [];
+  const rvBooked = (e as any).randevu_aktif ? [...await bookedSlots(e.id), ...(Array.isArray((e as any).randevu_bloke) ? (e as any).randevu_bloke.map(String) : [])] : [];
 
   return (
     <>

@@ -35,17 +35,18 @@ async function getCfg(type: EntityType, id: string) {
   const tbl = TABLE[type];
   const nameCol = type === 'doktor' ? 'ad,soyad,unvan' : 'name';
   try {
-    const { data, error } = await supabase.from(tbl)
-      .select(`${nameCol},randevu_aktif,randevu_slot_dk,calisma_saatleri,acik_24_saat`).eq('id', id).maybeSingle();
+    // select('*') → eksik kolonlarda (migration öncesi) hata vermez, graceful
+    const { data, error } = await supabase.from(tbl).select('*').eq('id', id).maybeSingle();
     if (error) throw error;
     const d = data as any;
     if (!d) return null;
     const ad = type === 'doktor' ? [d.unvan, d.ad, d.soyad].filter(Boolean).join(' ').trim() : d.name;
     if (!ad) return null;
-    return { ad, aktif: d.randevu_aktif === true, slotDk: Number(d.randevu_slot_dk) || 30, ch: String(d.calisma_saatleri || ''), acik24: d.acik_24_saat === true };
+    const bloke = Array.isArray(d.randevu_bloke) ? d.randevu_bloke.map(String) : [];
+    return { ad, aktif: d.randevu_aktif === true, slotDk: Number(d.randevu_slot_dk) || 30, ch: String(d.calisma_saatleri || ''), acik24: d.acik_24_saat === true, bloke };
   } catch {
     const ad = await entityAdi(type, id);
-    return ad ? { ad, aktif: false, slotDk: 30, ch: '', acik24: false } : null;
+    return ad ? { ad, aktif: false, slotDk: 30, ch: '', acik24: false, bloke: [] as string[] } : null;
   }
 }
 
@@ -77,6 +78,7 @@ export async function GET(req: NextRequest) {
         .select('randevu_slot').eq('entity_id', id).not('randevu_slot', 'is', null).neq('status', 'iptal');
       booked = ((data as any[]) || []).map(r => String(r.randevu_slot)).filter(Boolean);
     } catch { booked = []; }
+    booked = booked.concat(konf.bloke || []);   // elle kapatılan gün/slotları da ekle
   }
 
   // Serbest (free) mod için sabit saat listesi
@@ -190,6 +192,7 @@ export async function GET(req: NextRequest) {
       else { acik = dt.getDay()!==0; }  // çalışma saati tanımsız → Pzt-Cmt 09-18
     }
     if (!acik) return [];
+    if (CFG.booked.indexOf(dateStr)>=0) return [];  // tüm gün kapalı/bloke
     var t=(+open.split(':')[0])*60+(+open.split(':')[1]);
     var end=(+close.split(':')[0])*60+(+close.split(':')[1]);
     var dk=CFG.slotDk||30, out=[];
