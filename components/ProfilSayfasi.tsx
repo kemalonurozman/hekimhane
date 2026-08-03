@@ -565,6 +565,72 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
   );
 }
 
+// ── Yorum İtirazı (herkese açık — işletme sahibi veya ziyaretçi) ──
+function YorumItiraz({ yorumId }: { yorumId: string }) {
+  const [open, setOpen]   = useState(false);
+  const [reason, setReason] = useState('');
+  const [email, setEmail]   = useState('');
+  const [hp, setHp]         = useState(''); // honeypot
+  const [state, setState] = useState<'idle' | 'sending' | 'done' | 'err'>('idle');
+  const [msg, setMsg]     = useState('');
+
+  async function gonder() {
+    if (reason.trim().length < 5) { setMsg('Lütfen itiraz gerekçenizi yazın.'); setState('err'); return; }
+    setState('sending'); setMsg('');
+    try {
+      const r = await fetch('/api/yorum-itiraz', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ yorumId, reason: reason.trim(), email: email.trim() || null, website: hp }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.success) { setState('done'); setMsg(d.note || 'İtirazınız alındı. Yönetici en kısa sürede değerlendirecek.'); }
+      else { setState('err'); setMsg(d.error || 'İtiraz gönderilemedi.'); }
+    } catch { setState('err'); setMsg('Bağlantı hatası. Lütfen tekrar deneyin.'); }
+  }
+
+  if (state === 'done') {
+    return (
+      <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: '#15803D', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 9, padding: '7px 11px' }}>
+        <i className="fa-solid fa-circle-check" /> {msg}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginTop: 10 }}>
+      {!open ? (
+        <button onClick={() => setOpen(true)}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', padding: 0 }}>
+          <i className="fa-regular fa-flag" style={{ fontSize: 11 }} /> Bu yoruma itiraz et
+        </button>
+      ) : (
+        <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 12, padding: 12, marginTop: 4 }}>
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--text)', marginBottom: 7 }}>Bu yoruma neden itiraz ediyorsunuz?</div>
+          <textarea value={reason} onChange={e => setReason(e.target.value)} rows={3} maxLength={1000}
+            placeholder="Örn. yanıltıcı / gerçek dışı / hakaret içeriyor…"
+            style={{ width: '100%', boxSizing: 'border-box', padding: '9px 11px', border: '1.5px solid var(--border)', borderRadius: 9, fontSize: 13, fontFamily: 'inherit', resize: 'vertical', outline: 'none' }} />
+          <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="E-posta (isteğe bağlı — sonucu bildirelim)"
+            style={{ width: '100%', boxSizing: 'border-box', marginTop: 7, padding: '9px 11px', border: '1.5px solid var(--border)', borderRadius: 9, fontSize: 13, fontFamily: 'inherit', outline: 'none' }} />
+          {/* honeypot */}
+          <input value={hp} onChange={e => setHp(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true"
+            style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }} />
+          {msg && state === 'err' && <div style={{ fontSize: 12, color: '#B91C1C', marginTop: 7 }}>{msg}</div>}
+          <div style={{ display: 'flex', gap: 8, marginTop: 9 }}>
+            <button onClick={gonder} disabled={state === 'sending'}
+              style={{ padding: '8px 15px', borderRadius: 9, border: 'none', background: 'var(--navy)', color: '#fff', fontSize: 12.5, fontWeight: 700, cursor: state === 'sending' ? 'default' : 'pointer', fontFamily: 'inherit', opacity: state === 'sending' ? .6 : 1 }}>
+              {state === 'sending' ? 'Gönderiliyor…' : 'İtirazı Gönder'}
+            </button>
+            <button onClick={() => { setOpen(false); setState('idle'); setMsg(''); }}
+              style={{ padding: '8px 15px', borderRadius: 9, border: '1px solid var(--border)', background: '#fff', color: 'var(--muted)', fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              Vazgeç
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Doğrulama mührü + sahiplenme ipucu ───────────────────────────
 // NOT: <style> blok metnine tırnak (' ") koyma → hydration uyumsuzluğu.
 const SEAL_CSS = `
@@ -2008,6 +2074,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                               <p style={{ fontSize: 13, color: '#15803D', margin: 0 }}>{r.reply_text}</p>
                             </div>
                           )}
+                          <YorumItiraz yorumId={r.id} />
                         </div>
                       ))}
                     </div>

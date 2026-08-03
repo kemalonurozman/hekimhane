@@ -1364,8 +1364,12 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
   const [updating, setUpdating] = useState<string | null>(null);
   const [selectedEntity, setSelectedEntity] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [modulOpen, setModulOpen] = useState(false);
+  const [modulIdx, setModulIdx] = useState(0);
+  const [modulCopied, setModulCopied] = useState(false);
 
   const hasEntities = approvedClaims.some(c => c.entity_id && c.entity_id !== 'new');
+  const modulEntities = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
 
   useEffect(() => {
     (async () => {
@@ -1410,6 +1414,65 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
         </h1>
         <p style={{ fontSize: 13, color: T.muted, marginTop: 4 }}>İşletmenize gelen randevu taleplerini buradan görüp yönetebilirsiniz.</p>
       </div>
+
+      {/* ── Randevu modülünü sitene ekle ── */}
+      {hasEntities && (()=>{
+        const ent = modulEntities[modulIdx] || modulEntities[0];
+        const src = `https://www.hekimhane.com.tr/embed/randevu?type=${ent.entity_type}&id=${ent.entity_id}`;
+        const kod = `<iframe src="${src}" width="100%" height="640" style="border:0;max-width:480px" loading="lazy" title="Randevu Al"></iframe>`;
+        const kopyala = () => { try { navigator.clipboard.writeText(kod); setModulCopied(true); setTimeout(()=>setModulCopied(false), 2000); } catch {} };
+        return (
+          <div style={{ background:T.white, borderRadius:16, border:`1px solid ${T.border}`, marginBottom:18, overflow:'hidden' }}>
+            <button onClick={()=>setModulOpen(o=>!o)}
+              style={{ width:'100%', display:'flex', alignItems:'center', gap:12, padding:'14px 18px', background:'none', border:'none', cursor:'pointer', fontFamily:'inherit', textAlign:'left' }}>
+              <div style={{ width:38, height:38, borderRadius:11, background:'#E8F0FE', display:'flex', alignItems:'center', justifyContent:'center', color:T.navy, flexShrink:0 }}>
+                <Ic d="M16 18l6-6-6-6 M8 6l-6 6 6 6" size={18}/>
+              </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:14.5, fontWeight:800, color:T.text }}>Randevu Modülünü Sitene Ekle</div>
+                <div style={{ fontSize:12.5, color:T.muted, marginTop:1 }}>Kendi web sitenizden de randevu alın; talepler buraya düşsün.</div>
+              </div>
+              <Ic d={modulOpen ? 'M18 15l-6-6-6 6' : 'M6 9l6 6 6-6'} size={16}/>
+            </button>
+
+            {modulOpen && (
+              <div style={{ padding:'0 18px 18px', display:'flex', flexDirection:'column', gap:12 }}>
+                {modulEntities.length > 1 && (
+                  <div>
+                    <label style={{ display:'block', fontSize:11, fontWeight:700, color:T.muted, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 }}>İşletme</label>
+                    <select value={modulIdx} onChange={e=>setModulIdx(Number(e.target.value))}
+                      style={{ width:'100%', padding:'10px 13px', borderRadius:10, border:`1.5px solid ${T.border}`, fontSize:13.5, fontFamily:'inherit', color:T.text, background:'white', outline:'none' }}>
+                      {modulEntities.map((c,i)=><option key={c.id} value={i}>{c.entity_name}</option>)}
+                    </select>
+                  </div>
+                )}
+                <div>
+                  <label style={{ display:'block', fontSize:11, fontWeight:700, color:T.muted, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 }}>HTML Kodu</label>
+                  <textarea readOnly value={kod} onFocus={e=>e.currentTarget.select()}
+                    style={{ width:'100%', boxSizing:'border-box', minHeight:80, padding:'11px 13px', borderRadius:10, border:`1.5px solid ${T.border}`, fontFamily:'ui-monospace,SFMono-Regular,Menlo,monospace', fontSize:12, lineHeight:1.5, color:T.text, background:'#F8FAFF', resize:'vertical', outline:'none' }} />
+                </div>
+                <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                  <button onClick={kopyala}
+                    style={{ padding:'9px 16px', borderRadius:10, border:'none', background: modulCopied ? T.green : T.navy, color:'white', fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', display:'inline-flex', alignItems:'center', gap:7 }}>
+                    {modulCopied ? <><Ic d={icons.check} size={14}/>Kopyalandı</> : <><Ic d="M9 9h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V11a2 2 0 0 1 2-2z M5 15H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1" size={14}/>Kodu Kopyala</>}
+                  </button>
+                  <a href={src} target="_blank" rel="noopener noreferrer"
+                    style={{ padding:'9px 16px', borderRadius:10, border:`1.5px solid ${T.border}`, background:'white', color:T.navy, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', textDecoration:'none', display:'inline-flex', alignItems:'center', gap:7 }}>
+                    <Ic d="M15 3h6v6 M10 14 21 3 M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" size={13}/>Önizle
+                  </a>
+                  <a href="/randevu-modulu" target="_blank" rel="noopener noreferrer"
+                    style={{ padding:'9px 16px', borderRadius:10, border:'none', background:'#F5F5F7', color:T.muted, fontSize:13, fontWeight:600, cursor:'pointer', fontFamily:'inherit', textDecoration:'none', display:'inline-flex', alignItems:'center', gap:6 }}>
+                    Nasıl çalışır?
+                  </a>
+                </div>
+                <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.55 }}>
+                  Kodu WordPress, Wix veya kendi sitenize yapıştırın. Kendi sitenizden gelen randevu talepleri de bu sayfada görünür.
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {!hasEntities ? (
         <div style={{ background: T.white, borderRadius: 16, border: `1px solid ${T.border}`, padding: '40px 24px', textAlign: 'center', color: T.muted }}>

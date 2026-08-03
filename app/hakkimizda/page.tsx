@@ -6,6 +6,23 @@ export const metadata: Metadata = {
   description: 'Hekimhane hakkında bilgi edinin. Türkiye\'nin sağlık rehberinde misyonumuz, vizyonumuz ve ekibimiz.',
 };
 
+const ICONS: Record<string, React.ReactNode> = {
+  target:    <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" /></>,
+  unlock:    <><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 9.9-1" /></>,
+  handshake: <path d="m11 17 2 2a1 1 0 1 0 3-3 M12 12l3.3 3.3a1 1 0 0 0 3-3l-3.6-3.6a2 2 0 0 0-1.5-.6H8.4a2 2 0 0 0-1.4.6L3 12 M9 11l1 1 M2 12l3-3 M17 11l4-4" />,
+  lock:      <><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></>,
+  user:      <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></>,
+  code:      <path d="M16 18l6-6-6-6 M8 6l-6 6 6 6" />,
+  pen:       <path d="M12 20h9 M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z" />,
+};
+function IcH({ name, size = 26, color = 'var(--navy)' }: { name: string; size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      {ICONS[name]}
+    </svg>
+  );
+}
+
 export default function HakkimizdaPage() {
   const STATS = [
     { n: '12.000+', label: 'Kayıtlı Doktor' },
@@ -15,16 +32,16 @@ export default function HakkimizdaPage() {
   ];
 
   const DEGERLER = [
-    { icon: '🎯', title: 'Doğruluk', desc: 'Her listeleme manuel inceleme ve kullanıcı geri bildirimleriyle sürekli güncellenir.' },
-    { icon: '🔓', title: 'Şeffaflık', desc: 'Hiçbir sağlık kuruluşundan ücret almadan tarafsız bilgi sunarız.' },
-    { icon: '🤝', title: 'Erişilebilirlik', desc: 'Doğru sağlık bilgisine ulaşmak herkesin hakkı; hizmetimiz ücretsizdir.' },
-    { icon: '🔒', title: 'Gizlilik', desc: 'Kullanıcı verilerini asla üçüncü taraflarla paylaşmıyoruz.' },
+    { icon: 'target', title: 'Doğruluk', desc: 'Her listeleme manuel inceleme ve kullanıcı geri bildirimleriyle sürekli güncellenir.' },
+    { icon: 'unlock', title: 'Şeffaflık', desc: 'Hiçbir sağlık kuruluşundan ücret almadan tarafsız bilgi sunarız.' },
+    { icon: 'handshake', title: 'Erişilebilirlik', desc: 'Doğru sağlık bilgisine ulaşmak herkesin hakkı; hizmetimiz ücretsizdir.' },
+    { icon: 'lock', title: 'Gizlilik', desc: 'Kullanıcı verilerini asla üçüncü taraflarla paylaşmıyoruz.' },
   ];
 
   const EKIP = [
-    { ad: 'Kemal', unvan: 'Kurucu & CEO', emoji: '👨‍💼' },
-    { ad: 'Yazılım Ekibi', unvan: 'Geliştirme & Tasarım', emoji: '💻' },
-    { ad: 'İçerik Ekibi', unvan: 'Veri & Editöryal', emoji: '✍️' },
+    { ad: 'Kemal', unvan: 'Kurucu & CEO', icon: 'user' },
+    { ad: 'Yazılım Ekibi', unvan: 'Geliştirme & Tasarım', icon: 'code' },
+    { ad: 'İçerik Ekibi', unvan: 'Veri & Editöryal', icon: 'pen' },
   ];
 
   return (
@@ -35,8 +52,9 @@ export default function HakkimizdaPage() {
         <div style={{ position: 'absolute', left: '50%', top: -120, transform: 'translateX(-50%)', width: 700, height: 700, borderRadius: '50%', background: 'rgba(255,255,255,.03)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', right: -80, bottom: -80, width: 400, height: 400, borderRadius: '50%', background: 'rgba(212,168,67,.06)', pointerEvents: 'none' }} />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 20, background: 'rgba(212,168,67,.2)', border: '1px solid rgba(212,168,67,.35)', fontSize: 12, fontWeight: 700, color: '#F0C060', marginBottom: 18 }}>
-            🏥 TÜRKİYE'NİN SAĞLIK REHBERİ
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '6px 15px', borderRadius: 20, background: 'rgba(212,168,67,.2)', border: '1px solid rgba(212,168,67,.35)', fontSize: 12, fontWeight: 700, letterSpacing: '.5px', color: '#F0C060', marginBottom: 18 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18 M5 21V7l7-4 7 4v14 M12 9v6 M9 12h6" /></svg>
+            TÜRKİYE&apos;NİN SAĞLIK REHBERİ
           </div>
           <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 42, fontWeight: 800, color: 'white', marginBottom: 16, lineHeight: 1.2 }}>
             Hekimhane Hakkında
@@ -52,7 +70,7 @@ export default function HakkimizdaPage() {
         <div className="hakk-grid-4" style={{ gap: 16, marginTop: -28, marginBottom: 56 }}>
           {STATS.map(s => (
             <div key={s.label} style={{ background: 'white', borderRadius: 18, border: '1px solid var(--border)', padding: '24px 20px', textAlign: 'center', boxShadow: '0 4px 24px rgba(27,58,105,.07)' }}>
-              <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 34, fontWeight: 800, color: 'var(--navy)', lineHeight: 1 }}>{s.n}</div>
+              <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 34, fontWeight: 800, color: 'var(--navy)', lineHeight: 1.2, paddingTop: 2 }}>{s.n}</div>
               <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 6, fontWeight: 500 }}>{s.label}</div>
             </div>
           ))}
@@ -100,7 +118,9 @@ export default function HakkimizdaPage() {
           <div className="hakk-grid-4" style={{ gap: 20 }}>
             {DEGERLER.map(d => (
               <div key={d.title} style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '28px 22px' }}>
-                <div style={{ fontSize: 36, marginBottom: 14 }}>{d.icon}</div>
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg,#EEF3FB,#E3ECF9)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+                  <IcH name={d.icon} size={24} />
+                </div>
                 <h3 style={{ fontWeight: 800, fontSize: 16, color: 'var(--navy)', marginBottom: 8 }}>{d.title}</h3>
                 <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7 }}>{d.desc}</p>
               </div>
@@ -117,7 +137,7 @@ export default function HakkimizdaPage() {
           <div style={{ display: 'flex', justifyContent: 'center', gap: 20, flexWrap: 'wrap' }}>
             {EKIP.map(e => (
               <div key={e.ad} style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '28px 32px', textAlign: 'center', minWidth: 180 }}>
-                <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg,var(--navy),var(--navy2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, margin: '0 auto 14px' }}>{e.emoji}</div>
+                <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg,var(--navy),var(--navy2))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}><IcH name={e.icon} size={30} color="#fff" /></div>
                 <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--navy)', marginBottom: 4 }}>{e.ad}</div>
                 <div style={{ fontSize: 12, color: 'var(--muted)' }}>{e.unvan}</div>
               </div>
