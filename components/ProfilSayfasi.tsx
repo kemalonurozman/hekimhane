@@ -199,10 +199,11 @@ function maskName(n?: string | null) {
   return n.trim().split(/\s+/).map(w => w.length <= 2 ? w : w.slice(0, 2) + '…').join(' ');
 }
 
-const TABS = ['genel', 'konum', 'tur', 'video', 'yorumlar', 'randevu'] as const;
+const TABS = ['genel', 'meslek', 'konum', 'tur', 'video', 'yorumlar', 'randevu'] as const;
 type Tab = typeof TABS[number];
 const TAB_LABELS: Record<Tab, { icon: string; label: string }> = {
   genel:    { icon: 'fa-circle-info',      label: 'Genel' },
+  meslek:   { icon: 'fa-user-graduate',    label: 'Mesleki Bilgiler' },
   konum:    { icon: 'fa-map-location-dot', label: 'Konum' },
   tur:      { icon: 'fa-vr-cardboard',     label: '360° Tur' },
   video:    { icon: 'fa-play-circle',      label: 'Video' },
@@ -873,6 +874,15 @@ export default function ProfilSayfasi(props: ProfilProps) {
   // balon position:fixed ile mühürün ekran koordinatından konumlandırılır.
   const [sealTip, setSealTip] = useState<{ x: number; y: number; alt: boolean } | null>(null);
   const lightboxOpen = lightboxIdx !== null;
+
+  // Mesleki Bilgiler — doktorda ilgili veri varsa ayrı sekme gösterilir
+  const meslekDeneyimler = (deneyimler || []).filter(d => d && d.kurum);
+  const meslekSertifikalar = (sertifikalar || []).filter(c => c && (c.ad || c.url));
+  const hasMeslek = entityType === 'doktor' && !!(
+    (deneyimBaslangic && deneyimBaslangic >= 1950) || okul || uzmanlikKurum ||
+    meslekDeneyimler.length || meslekSertifikalar.length
+  );
+  const gorunenTabs = TABS.filter(t => t === 'meslek' ? hasMeslek : true);
   useEffect(() => {
     if (!lightboxOpen) return;
     const total = (photos || []).filter(Boolean).length;
@@ -1279,7 +1289,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
           {/* Tab bar */}
 
           <div className="profil-tab-bar" style={{ borderTop: `1px solid ${hDivider}`, marginTop: 6 }}>
-            {TABS.map(tab => (
+            {gorunenTabs.map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)}
                 style={{ padding: '14px 20px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', border: 'none', background: 'transparent', borderBottom: `3px solid ${activeTab === tab ? 'var(--gold)' : 'transparent'}`, color: activeTab === tab ? hName : hTabIdle, transition: '.2s', display: 'flex', alignItems: 'center', gap: 7, whiteSpace: 'nowrap' }}>
                 <i className={`fa-solid ${TAB_LABELS[tab].icon}`} />
@@ -1363,102 +1373,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 </div>
               )}
 
-              {/* ── Mesleki Bilgiler (doktor) ── */}
-              {entityType === 'doktor' && (() => {
-                const denList = (deneyimler || []).filter(d => d && d.kurum);
-                const certList = (sertifikalar || []).filter(c => c && (c.ad || c.url));
-                const nowYil = new Date().getFullYear();
-                const bas = deneyimBaslangic && deneyimBaslangic >= 1950 && deneyimBaslangic <= nowYil ? deneyimBaslangic : 0;
-                const yilSayi = bas ? nowYil - bas : (exp || 0);
-                const okulListe = okul ? okul.split('·').map(s => s.trim()).filter(Boolean) : [];
-                const hasMeslek = bas || okulListe.length || uzmanlikKurum || denList.length || certList.length;
-                if (!hasMeslek) return null;
-
-                // Ortak "kurum" bilgi kartı
-                const bilgiKart = (ikon: string, etiket: string, deger: React.ReactNode, rozet?: string) => (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '13px 15px', borderRadius: 14, background: 'var(--cream,#FBF8F2)', border: '1px solid var(--border)' }}>
-                    <div style={{ width: 38, height: 38, borderRadius: 11, background: 'rgba(27,58,105,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <i className={`fa-solid ${ikon}`} style={{ color: 'var(--navy)', fontSize: 15 }} />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 2 }}>{etiket}</div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', lineHeight: 1.4 }}>{deger}</div>
-                    </div>
-                    {rozet && <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, color: 'var(--navy)', background: 'rgba(27,58,105,.08)', borderRadius: 8, padding: '4px 9px' }}>{rozet}</span>}
-                  </div>
-                );
-
-                return (
-                  <div style={sc}>
-                    <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Mesleki Bilgiler</h3></div>
-                    <div style={scBody}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        {bas > 0 && bilgiKart('fa-clock', 'Deneyim Süresi', <>{bas} – Günümüz <span style={{ color: 'var(--muted)', fontWeight: 500 }}>({yilSayi} yıl)</span></>)}
-                        {okulListe.map((o, i) => bilgiKart('fa-graduation-cap', i === 0 ? 'Diploma Aldığı Kurum' : 'Eğitim', o))}
-                        {uzmanlikKurum && bilgiKart('fa-user-graduate', 'Uzmanlık Aldığı Kurum', uzmanlikKurum, 'Uzmanlık')}
-                      </div>
-
-                      {/* Deneyimler — zaman çizelgesi */}
-                      {denList.length > 0 && (
-                        <div style={{ marginTop: 22 }}>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--navy)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <i className="fa-solid fa-briefcase" style={{ fontSize: 12 }} /> Deneyimler
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            {denList.map((d, i) => (
-                              <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'stretch' }}>
-                                {/* Çizgi + nokta */}
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 14, flexShrink: 0 }}>
-                                  <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--navy)', marginTop: 4, flexShrink: 0, boxShadow: '0 0 0 4px rgba(27,58,105,.1)' }} />
-                                  {i < denList.length - 1 && <div style={{ flex: 1, width: 2, background: 'var(--border)', marginTop: 2 }} />}
-                                </div>
-                                <div style={{ paddingBottom: i < denList.length - 1 ? 18 : 0, minWidth: 0, flex: 1 }}>
-                                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', lineHeight: 1.4 }}>{d.kurum}</div>
-                                  {(d.baslangic || d.bitis) && (
-                                    <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 3 }}>
-                                      {d.baslangic || '…'} – {d.bitis || 'Günümüz'}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Sertifikalar — galeri */}
-                      {certList.length > 0 && (
-                        <div style={{ marginTop: 22 }}>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--navy)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <i className="fa-solid fa-certificate" style={{ fontSize: 12 }} /> Sertifikalar
-                          </div>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
-                            {certList.map((c, i) => {
-                              const inner = (
-                                <>
-                                  {c.url ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img src={c.url} alt={c.ad || 'Sertifika'} style={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', display: 'block' }} />
-                                  ) : (
-                                    <div style={{ width: '100%', aspectRatio: '4 / 3', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(27,58,105,.05)' }}>
-                                      <i className="fa-solid fa-certificate" style={{ color: 'var(--navy)', fontSize: 22, opacity: .5 }} />
-                                    </div>
-                                  )}
-                                  {c.ad && <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)', padding: '9px 11px', lineHeight: 1.35 }}>{c.ad}</div>}
-                                </>
-                              );
-                              const kutuStil: React.CSSProperties = { borderRadius: 13, overflow: 'hidden', border: '1px solid var(--border)', background: 'white', textDecoration: 'none', display: 'block' };
-                              return c.url
-                                ? <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" style={kutuStil}>{inner}</a>
-                                : <div key={i} style={kutuStil}>{inner}</div>;
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })()}
+              {/* Mesleki Bilgiler ayrı sekmeye taşındı → activeTab === 'meslek' */}
 
               {/* ── Fotoğraf Galerisi ── */}
               {(() => {
@@ -1740,6 +1655,99 @@ export default function ProfilSayfasi(props: ProfilProps) {
               )}
             </>
           )}
+
+          {/* ── MESLEKİ BİLGİLER TAB (doktor) ── */}
+          {activeTab === 'meslek' && entityType === 'doktor' && (() => {
+            const denList = meslekDeneyimler;
+            const certList = meslekSertifikalar;
+            const nowYil = new Date().getFullYear();
+            const bas = deneyimBaslangic && deneyimBaslangic >= 1950 && deneyimBaslangic <= nowYil ? deneyimBaslangic : 0;
+            const yilSayi = bas ? nowYil - bas : (exp || 0);
+            const okulListe = okul ? okul.split('·').map(s => s.trim()).filter(Boolean) : [];
+
+            const bilgiKart = (ikon: string, etiket: string, deger: React.ReactNode, rozet?: string) => (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '13px 15px', borderRadius: 14, background: 'var(--cream,#FBF8F2)', border: '1px solid var(--border)' }}>
+                <div style={{ width: 38, height: 38, borderRadius: 11, background: 'rgba(27,58,105,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <i className={`fa-solid ${ikon}`} style={{ color: 'var(--navy)', fontSize: 15 }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 2 }}>{etiket}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', lineHeight: 1.4 }}>{deger}</div>
+                </div>
+                {rozet && <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, color: 'var(--navy)', background: 'rgba(27,58,105,.08)', borderRadius: 8, padding: '4px 9px' }}>{rozet}</span>}
+              </div>
+            );
+
+            return (
+              <div style={sc}>
+                <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Mesleki Bilgiler</h3></div>
+                <div style={scBody}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {bas > 0 && bilgiKart('fa-clock', 'Deneyim Süresi', <>{bas} – Günümüz <span style={{ color: 'var(--muted)', fontWeight: 500 }}>({yilSayi} yıl)</span></>)}
+                    {okulListe.map((o, i) => bilgiKart('fa-graduation-cap', i === 0 ? 'Diploma Aldığı Kurum' : 'Eğitim', o))}
+                    {uzmanlikKurum && bilgiKart('fa-user-graduate', 'Uzmanlık Aldığı Kurum', uzmanlikKurum, 'Uzmanlık')}
+                  </div>
+
+                  {/* Deneyimler — zaman çizelgesi */}
+                  {denList.length > 0 && (
+                    <div style={{ marginTop: 22 }}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--navy)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <i className="fa-solid fa-briefcase" style={{ fontSize: 12 }} /> Deneyimler
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {denList.map((d, i) => (
+                          <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'stretch' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 14, flexShrink: 0 }}>
+                              <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--navy)', marginTop: 4, flexShrink: 0, boxShadow: '0 0 0 4px rgba(27,58,105,.1)' }} />
+                              {i < denList.length - 1 && <div style={{ flex: 1, width: 2, background: 'var(--border)', marginTop: 2 }} />}
+                            </div>
+                            <div style={{ paddingBottom: i < denList.length - 1 ? 18 : 0, minWidth: 0, flex: 1 }}>
+                              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', lineHeight: 1.4 }}>{d.kurum}</div>
+                              {(d.baslangic || d.bitis) && (
+                                <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 3 }}>
+                                  {d.baslangic || '…'} – {d.bitis || 'Günümüz'}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sertifikalar — galeri */}
+                  {certList.length > 0 && (
+                    <div style={{ marginTop: 22 }}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--navy)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <i className="fa-solid fa-certificate" style={{ fontSize: 12 }} /> Sertifikalar
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
+                        {certList.map((c, i) => {
+                          const inner = (
+                            <>
+                              {c.url ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={c.url} alt={c.ad || 'Sertifika'} style={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', display: 'block' }} />
+                              ) : (
+                                <div style={{ width: '100%', aspectRatio: '4 / 3', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(27,58,105,.05)' }}>
+                                  <i className="fa-solid fa-certificate" style={{ color: 'var(--navy)', fontSize: 22, opacity: .5 }} />
+                                </div>
+                              )}
+                              {c.ad && <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)', padding: '9px 11px', lineHeight: 1.35 }}>{c.ad}</div>}
+                            </>
+                          );
+                          const kutuStil: React.CSSProperties = { borderRadius: 13, overflow: 'hidden', border: '1px solid var(--border)', background: 'white', textDecoration: 'none', display: 'block' };
+                          return c.url
+                            ? <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" style={kutuStil}>{inner}</a>
+                            : <div key={i} style={kutuStil}>{inner}</div>;
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* ── KONUM TAB ── */}
           {activeTab === 'konum' && (
@@ -2156,6 +2164,45 @@ export default function ProfilSayfasi(props: ProfilProps) {
             )}
           </div>
 
+          {/* Randevu widget — masaüstünde İletişim & Konum'un hemen altında */}
+          <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 20 }}>
+            <div style={{ background: '#2D2D2D', padding: '20px 22px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                <div>
+                  <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700, color: 'white', marginBottom: 2 }}>Online Randevu</h4>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,.45)' }}>randevu sistemi</div>
+                </div>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.18)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,.6)', flexShrink: 0 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#9CA3AF', display: 'inline-block' }} />Etkin Değil
+                </span>
+              </div>
+            </div>
+            <div style={{ padding: '20px 22px' }}>
+              {/* Tarih strip (dekoratif) */}
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 8 }}>Tarih</div>
+              <div style={{ display: 'flex', gap: 6, marginBottom: 14, opacity: .4, pointerEvents: 'none' }}>
+                {Array.from({ length: 5 }, (_, i) => {
+                  const d = new Date(); d.setDate(d.getDate() + i);
+                  const days = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+                  return (
+                    <div key={i} style={{ flex: 1, border: '1.5px solid var(--border)', borderRadius: 10, padding: '8px 4px', textAlign: 'center' }}>
+                      <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)' }}>{days[d.getDay()]}</div>
+                      <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)' }}>{d.getDate()}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ textAlign: 'center', padding: '14px 8px 8px', color: 'var(--muted)', fontSize: 13, lineHeight: 1.6 }}>
+                <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 24, color: '#D1D5DB', display: 'block', marginBottom: 8 }} />
+                Bu işletme için online randevu takvimi henüz aktive edilmemiş.
+              </div>
+              <button onClick={() => setRandevuModal(true)}
+                style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}>
+                <i className="fa-solid fa-calendar-plus" /> Randevu Talep Et
+              </button>
+            </div>
+          </div>
+
           {/* Abone Widget — sidebar */}
           <div style={{ marginBottom: 20 }}>
             <AboneWidget
@@ -2193,45 +2240,6 @@ export default function ProfilSayfasi(props: ProfilProps) {
               </div>
             </div>
           )}
-
-          {/* Randevu widget */}
-          <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', overflow: 'hidden', position: 'sticky', top: 84 }}>
-            <div style={{ background: '#2D2D2D', padding: '20px 22px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-                <div>
-                  <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700, color: 'white', marginBottom: 2 }}>Online Randevu</h4>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,.45)' }}>randevu sistemi</div>
-                </div>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.18)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,.6)', flexShrink: 0 }}>
-                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#9CA3AF', display: 'inline-block' }} />Etkin Değil
-                </span>
-              </div>
-            </div>
-            <div style={{ padding: '20px 22px' }}>
-              {/* Tarih strip (dekoratif) */}
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 8 }}>Tarih</div>
-              <div style={{ display: 'flex', gap: 6, marginBottom: 14, opacity: .4, pointerEvents: 'none' }}>
-                {Array.from({ length: 5 }, (_, i) => {
-                  const d = new Date(); d.setDate(d.getDate() + i);
-                  const days = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
-                  return (
-                    <div key={i} style={{ flex: 1, border: '1.5px solid var(--border)', borderRadius: 10, padding: '8px 4px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)' }}>{days[d.getDay()]}</div>
-                      <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)' }}>{d.getDate()}</div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div style={{ textAlign: 'center', padding: '14px 8px 8px', color: 'var(--muted)', fontSize: 13, lineHeight: 1.6 }}>
-                <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 24, color: '#D1D5DB', display: 'block', marginBottom: 8 }} />
-                Bu işletme için online randevu takvimi henüz aktive edilmemiş.
-              </div>
-              <button onClick={() => setRandevuModal(true)}
-                style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}>
-                <i className="fa-solid fa-calendar-plus" /> Randevu Talep Et
-              </button>
-            </div>
-          </div>
 
         </div>{/* /sidebar */}
       </div>
