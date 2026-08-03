@@ -15,6 +15,7 @@ const NAV_LINKS = [
   // Eski /dis-hekimleri linki next.config.js'te /klinikler?tip=Diş Hekimi'ye rewrite edilir (SEO/geri uyum).
   { href: '/klinikler',                        base: '/klinikler',   label: 'Diş Hekimleri & Klinikler' },
   { href: '/blog',                             base: '/blog',        label: 'Blog' },
+  { href: '/neden-hekimhane',                  base: '/neden-hekimhane', label: 'Neden Hekimhane?' },
 ];
 
 function ChevronDown({ size = 10 }: { size?: number }) {
