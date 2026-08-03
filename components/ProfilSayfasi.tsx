@@ -558,8 +558,36 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
   );
 }
 
-// ── Randevu Talep Modalı ─────────────────────────────────────────
+// ── Doğrulama mührü + sahiplenme ipucu ───────────────────────────
 // NOT: <style> blok metnine tırnak (' ") koyma → hydration uyumsuzluğu.
+const SEAL_CSS = `
+.hk-seal-wrap{position:absolute;right:-2px;bottom:0;line-height:0;}
+.hk-seal{display:block;width:44px;height:44px;transition:transform .18s ease, filter .18s ease;}
+.hk-seal-wrap:hover .hk-seal{transform:scale(1.08);}
+/* Sahiplenilmemiş mühür — soluk değil, davetkâr */
+.hk-seal-open{cursor:pointer;text-decoration:none;}
+.hk-seal-open .hk-seal{filter:drop-shadow(0 3px 9px rgba(27,58,105,.28));animation:hkSealPulse 2.8s ease-in-out infinite;}
+.hk-seal-open:hover .hk-seal{animation:none;}
+@keyframes hkSealPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+/* İpucu balonu — hero overflow:hidden içinde kalmasın diye position:fixed,
+   konumu JS ile mühürün ekran koordinatından hesaplanır. */
+.hk-tip{position:fixed;width:270px;max-width:calc(100vw - 24px);
+  background:linear-gradient(150deg,#1B3A69,#0F2A55);color:#fff;border-radius:16px;padding:14px 16px;
+  box-shadow:0 18px 44px rgba(15,42,85,.34);pointer-events:none;z-index:1200;text-align:left;
+  transform:translate(-50%,-100%);animation:hkTipIn .16s ease both;}
+.hk-tip--alt{transform:translate(-50%,0);}
+@keyframes hkTipIn{from{opacity:0;transform:translate(-50%,calc(-100% + 6px));}to{opacity:1;transform:translate(-50%,-100%);}}
+@keyframes hkTipInAlt{from{opacity:0;transform:translate(-50%,-6px);}to{opacity:1;transform:translate(-50%,0);}}
+.hk-tip--alt{animation-name:hkTipInAlt;}
+.hk-tip-arrow{position:absolute;left:50%;bottom:-5px;width:11px;height:11px;background:#12305c;transform:translateX(-50%) rotate(45deg);border-radius:2px;}
+.hk-tip--alt .hk-tip-arrow{bottom:auto;top:-5px;}
+.hk-tip-kicker{display:block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#E8C567;line-height:1.4;margin-bottom:6px;}
+.hk-tip-title{display:block;font-size:13.5px;font-weight:800;line-height:1.4;margin-bottom:6px;}
+.hk-tip-text{display:block;font-size:12px;line-height:1.6;color:rgba(255,255,255,.74);}
+.hk-tip-cta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;font-weight:800;color:#0F2A55;background:linear-gradient(135deg,#EBC65D,#D4A843);border-radius:999px;padding:6px 12px;line-height:1.2;}
+`;
+
+// ── Randevu Talep Modalı ─────────────────────────────────────────
 const RANDEVU_MODAL_CSS = `
 .randevu-modal-card input, .randevu-modal-card select, .randevu-modal-card textarea {
   transition: border-color .15s, box-shadow .15s;
@@ -829,6 +857,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
   const [randevuModal, setRandevuModal] = useState(false);
   const [lightboxIdx, setLightboxIdx]   = useState<number | null>(null);
   const [photoOpen, setPhotoOpen]       = useState(false); // fotoğraf yoksa bölüm kapalı, tıklayınca açılır
+  // Sahiplenme mührü ipucu — hero overflow:hidden içinde kaldığı için
+  // balon position:fixed ile mühürün ekran koordinatından konumlandırılır.
+  const [sealTip, setSealTip] = useState<{ x: number; y: number; alt: boolean } | null>(null);
   const lightboxOpen = lightboxIdx !== null;
   useEffect(() => {
     if (!lightboxOpen) return;
@@ -998,6 +1029,23 @@ export default function ProfilSayfasi(props: ProfilProps) {
       </div>
 
       {heroBg && <style dangerouslySetInnerHTML={{ __html: HERO_BG_CSS }} />}
+      <style dangerouslySetInnerHTML={{ __html: SEAL_CSS }} />
+
+      {/* Sahiplenme mührü ipucu — hero clip'ine takılmaması için kökte, fixed */}
+      {sealTip && (
+        <span className={`hk-tip${sealTip.alt ? ' hk-tip--alt' : ''}`} role="tooltip"
+          style={{ left: sealTip.x, top: sealTip.y }}>
+          <span className="hk-tip-kicker">Sahiplenilmemiş profil</span>
+          <span className="hk-tip-title">Bu işletme sizin mi?</span>
+          <span className="hk-tip-text">
+            Ücretsiz sahiplenin; sunduğunuz hizmetleri ve uzmanlık alanlarınızı ekleyin,
+            iletişim bilgilerinizi ve çalışma saatlerinizi güncel tutun, fotoğraflarınızı
+            yayınlayın ve hasta yorumlarını yanıtlayın.
+          </span>
+          <span className="hk-tip-cta">Ücretsiz sahiplen →</span>
+          <span className="hk-tip-arrow" />
+        </span>
+      )}
 
       {/* HERO ─────────────────────────────────────────────── */}
       <div style={{
@@ -1052,24 +1100,64 @@ export default function ProfilSayfasi(props: ProfilProps) {
                     ? <img src={logo || photo!} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     : entityIcon}
                 </div>
-                {/* Doğrulanmış mührü — tırtıklı seal (aynı rozet); premium tam altın, değilse soluk gri */}
-                <span aria-label={premium ? 'Doğrulanmış Hekim' : 'Doğrulanmamış'}
-                  title={premium ? 'Hekimhane tarafından doğrulandı' : 'Henüz doğrulanmadı'}
-                  style={{ position: 'absolute', right: -2, bottom: 0, width: 44, height: 44,
-                    filter: premium ? 'drop-shadow(0 3px 8px rgba(198,144,43,.55))' : 'drop-shadow(0 2px 6px rgba(0,0,0,.28))',
-                    opacity: premium ? 1 : 0.5, display: 'block', lineHeight: 0 }}>
-                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
-                    <defs>
-                      <linearGradient id="hkseal" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stopColor={premium ? '#F4D479' : '#D7DBE2'} />
-                        <stop offset="1" stopColor={premium ? '#C6902B' : '#98A0AD'} />
-                      </linearGradient>
-                    </defs>
-                    <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.68.88-3.34 2.19c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91c-1.31.66-2.19 1.91-2.19 3.34s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.66 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.66 2.19-1.91 2.19-3.34z"
-                      fill="url(#hkseal)" stroke="#fff" strokeWidth="1.1" />
-                    <path d="M8.7 12.3 L11 14.6 L15.5 9.5" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </span>
+                {/* Mühür — üç durum:
+                    premium  → altın, doğrulanmış
+                    claimed  → lacivert, sahibi tarafından yönetiliyor
+                    boş      → görünür çelik mavi + hover ipucu, tıklayınca sahiplenme */}
+                {(() => {
+                  const durum = premium ? 'premium' : claimed ? 'claimed' : 'open';
+                  const renk = durum === 'premium' ? ['#F4D479', '#C6902B']
+                    : durum === 'claimed' ? ['#4E7BC0', '#1B3A69']
+                    : ['#9DB0CC', '#5B7399'];
+                  const golge = durum === 'premium' ? 'drop-shadow(0 3px 9px rgba(198,144,43,.55))'
+                    : 'drop-shadow(0 3px 9px rgba(27,58,105,.32))';
+                  const etiket = durum === 'premium' ? 'Doğrulanmış premium işletme'
+                    : durum === 'claimed' ? 'Sahibi tarafından yönetilen profil'
+                    : 'Bu profil henüz sahiplenilmemiş — sahiplenmek için tıklayın';
+
+                  const muhur = (
+                    <svg className="hk-seal" width="44" height="44" viewBox="0 0 24 24" fill="none" style={{ filter: golge }}>
+                      <defs>
+                        <linearGradient id={`hkseal-${durum}`} x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0" stopColor={renk[0]} />
+                          <stop offset="1" stopColor={renk[1]} />
+                        </linearGradient>
+                      </defs>
+                      <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.68.88-3.34 2.19c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91c-1.31.66-2.19 1.91-2.19 3.34s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.66 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.66 2.19-1.91 2.19-3.34z"
+                        fill={`url(#hkseal-${durum})`} stroke="#fff" strokeWidth="1.1" />
+                      {durum === 'open'
+                        ? <path d="M12 8.2v7.6 M8.2 12h7.6" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" />
+                        : <path d="M8.7 12.3 L11 14.6 L15.5 9.5" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />}
+                    </svg>
+                  );
+
+                  if (durum !== 'open') return (
+                    <span className="hk-seal-wrap" aria-label={etiket} title={etiket}>{muhur}</span>
+                  );
+
+                  const ipucuAc = (el: HTMLElement) => {
+                    const r = el.getBoundingClientRect();
+                    const yeterliUst = r.top > 260;                    // yukarıda yer var mı?
+                    setSealTip({
+                      x: Math.min(Math.max(r.left + r.width / 2, 145), window.innerWidth - 145),
+                      y: yeterliUst ? r.top - 12 : r.bottom + 12,
+                      alt: !yeterliUst,
+                    });
+                  };
+
+                  return (
+                    <span className="hk-seal-wrap"
+                      onMouseEnter={e => ipucuAc(e.currentTarget)}
+                      onMouseLeave={() => setSealTip(null)}>
+                      <Link href={`/sahiplen?id=${id}&type=${entityType}`} className="hk-seal-open"
+                        aria-label={etiket} title={etiket}
+                        onFocus={e => ipucuAc(e.currentTarget.parentElement as HTMLElement)}
+                        onBlur={() => setSealTip(null)}>
+                        {muhur}
+                      </Link>
+                    </span>
+                  );
+                })()}
               </div>
             </div>
 
