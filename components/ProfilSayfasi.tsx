@@ -89,6 +89,10 @@ export interface ProfilProps {
   unvan?: string | null;
   bio?: string | null;
   okul?: string | null;
+  uzmanlikKurum?: string | null;
+  deneyimBaslangic?: number | null;
+  deneyimler?: { kurum: string; baslangic: string; bitis: string }[] | null;
+  sertifikalar?: { ad: string; url: string }[] | null;
   sigorta?: string[] | null;
   conditions?: string[] | null;
   // hastane
@@ -840,7 +844,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
 
 // ── Ana Bileşen ───────────────────────────────────────────────────
 export default function ProfilSayfasi(props: ProfilProps) {
-  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
+  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, uzmanlikKurum, deneyimBaslangic, deneyimler, sertifikalar, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
 
   // Gizli iletişim (ör. Bobath terapisti henüz katılmadı) → tel/email/randevu gizlenir
   const contactGizli = contactHidden === true;
@@ -969,7 +973,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
   };
 
   // İç etiketleri (ör. devlet-dis-hastanesi) uzmanlık listesinden gizle
-  const INTERNAL_SPEC_TAGS = new Set(['devlet-dis-hastanesi']);
+  const INTERNAL_SPEC_TAGS = new Set(['devlet-dis-hastanesi', 'universite-dis-hastanesi', 'bobath-terapisti']);
   const visibleSpecs = (specs || []).filter(s => s && !INTERNAL_SPEC_TAGS.has(s));
 
   // Devlet hastanesine bağlı hekim → randevu formu yerine "hastaneyi arayın" uyarısı
@@ -1358,24 +1362,102 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 </div>
               )}
 
-              {/* ── Eğitim (doktor) ── */}
-              {entityType === 'doktor' && okul && (
-                <div style={sc}>
-                  <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Eğitim & Kariyer</h3></div>
-                  <div style={scBody}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                      {okul.split('·').map((item, i) => (
-                        <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-                          <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg,var(--navy),var(--navy2))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
-                            <i className="fa-solid fa-graduation-cap" style={{ color: 'white', fontSize: 13 }} />
+              {/* ── Mesleki Bilgiler (doktor) ── */}
+              {entityType === 'doktor' && (() => {
+                const denList = (deneyimler || []).filter(d => d && d.kurum);
+                const certList = (sertifikalar || []).filter(c => c && (c.ad || c.url));
+                const nowYil = new Date().getFullYear();
+                const bas = deneyimBaslangic && deneyimBaslangic >= 1950 && deneyimBaslangic <= nowYil ? deneyimBaslangic : 0;
+                const yilSayi = bas ? nowYil - bas : (exp || 0);
+                const okulListe = okul ? okul.split('·').map(s => s.trim()).filter(Boolean) : [];
+                const hasMeslek = bas || okulListe.length || uzmanlikKurum || denList.length || certList.length;
+                if (!hasMeslek) return null;
+
+                // Ortak "kurum" bilgi kartı
+                const bilgiKart = (ikon: string, etiket: string, deger: React.ReactNode, rozet?: string) => (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '13px 15px', borderRadius: 14, background: 'var(--cream,#FBF8F2)', border: '1px solid var(--border)' }}>
+                    <div style={{ width: 38, height: 38, borderRadius: 11, background: 'rgba(27,58,105,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <i className={`fa-solid ${ikon}`} style={{ color: 'var(--navy)', fontSize: 15 }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 2 }}>{etiket}</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', lineHeight: 1.4 }}>{deger}</div>
+                    </div>
+                    {rozet && <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, color: 'var(--navy)', background: 'rgba(27,58,105,.08)', borderRadius: 8, padding: '4px 9px' }}>{rozet}</span>}
+                  </div>
+                );
+
+                return (
+                  <div style={sc}>
+                    <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Mesleki Bilgiler</h3></div>
+                    <div style={scBody}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {bas > 0 && bilgiKart('fa-clock', 'Deneyim Süresi', <>{bas} – Günümüz <span style={{ color: 'var(--muted)', fontWeight: 500 }}>({yilSayi} yıl)</span></>)}
+                        {okulListe.map((o, i) => bilgiKart('fa-graduation-cap', i === 0 ? 'Diploma Aldığı Kurum' : 'Eğitim', o))}
+                        {uzmanlikKurum && bilgiKart('fa-user-graduate', 'Uzmanlık Aldığı Kurum', uzmanlikKurum, 'Uzmanlık')}
+                      </div>
+
+                      {/* Deneyimler — zaman çizelgesi */}
+                      {denList.length > 0 && (
+                        <div style={{ marginTop: 22 }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--navy)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <i className="fa-solid fa-briefcase" style={{ fontSize: 12 }} /> Deneyimler
                           </div>
-                          <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.6, paddingTop: 5 }}>{item.trim()}</div>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            {denList.map((d, i) => (
+                              <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'stretch' }}>
+                                {/* Çizgi + nokta */}
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 14, flexShrink: 0 }}>
+                                  <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--navy)', marginTop: 4, flexShrink: 0, boxShadow: '0 0 0 4px rgba(27,58,105,.1)' }} />
+                                  {i < denList.length - 1 && <div style={{ flex: 1, width: 2, background: 'var(--border)', marginTop: 2 }} />}
+                                </div>
+                                <div style={{ paddingBottom: i < denList.length - 1 ? 18 : 0, minWidth: 0, flex: 1 }}>
+                                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', lineHeight: 1.4 }}>{d.kurum}</div>
+                                  {(d.baslangic || d.bitis) && (
+                                    <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 3 }}>
+                                      {d.baslangic || '…'} – {d.bitis || 'Günümüz'}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      ))}
+                      )}
+
+                      {/* Sertifikalar — galeri */}
+                      {certList.length > 0 && (
+                        <div style={{ marginTop: 22 }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--navy)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <i className="fa-solid fa-certificate" style={{ fontSize: 12 }} /> Sertifikalar
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
+                            {certList.map((c, i) => {
+                              const inner = (
+                                <>
+                                  {c.url ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={c.url} alt={c.ad || 'Sertifika'} style={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', display: 'block' }} />
+                                  ) : (
+                                    <div style={{ width: '100%', aspectRatio: '4 / 3', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(27,58,105,.05)' }}>
+                                      <i className="fa-solid fa-certificate" style={{ color: 'var(--navy)', fontSize: 22, opacity: .5 }} />
+                                    </div>
+                                  )}
+                                  {c.ad && <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)', padding: '9px 11px', lineHeight: 1.35 }}>{c.ad}</div>}
+                                </>
+                              );
+                              const kutuStil: React.CSSProperties = { borderRadius: 13, overflow: 'hidden', border: '1px solid var(--border)', background: 'white', textDecoration: 'none', display: 'block' };
+                              return c.url
+                                ? <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" style={kutuStil}>{inner}</a>
+                                : <div key={i} style={kutuStil}>{inner}</div>;
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* ── Fotoğraf Galerisi ── */}
               {(() => {

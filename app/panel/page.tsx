@@ -2008,7 +2008,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   onSelectClaim: (c: ClaimRequest | null) => void;
   isMobile?: boolean;
 }) {
-  type ESection = 'info' | 'details' | 'photos' | 'konum' | 'tour';
+  type ESection = 'info' | 'details' | 'meslek' | 'photos' | 'konum' | 'tour';
   const [sec,        setSec]      = useState<ESection>('info');
   const [entityData, setED]       = useState<Record<string,any>|null>(null);
   const [formData,   setFormData] = useState<Record<string,any>>({});
@@ -2020,6 +2020,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   const [uploading,  setUploading] = useState<Record<string, boolean>>({}); // slot → yükleniyor
   const [dragOver,   setDragOver]  = useState<string | null>(null);         // slot → drag aktif
   const [waMode,     setWaMode]    = useState<'off'|'same'|'custom'>('off'); // WhatsApp: yok / telefonla aynı / farklı numara
+  const [certUp,     setCertUp]    = useState<number | null>(null);           // sertifika görseli yükleniyor (index)
 
   const et = selectedClaim?.entity_type || '';
 
@@ -2118,6 +2119,27 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
     inp.click();
   }
 
+  // Sertifika görseli yükle → sertifikalar[idx].url güncellenir
+  async function uploadCert(file: File, idx: number) {
+    setCertUp(idx);
+    try {
+      const fd = new FormData(); fd.append('file', file);
+      const res = await fetch('/api/panel/upload-photo', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok || !data.url) { alert(data.error || 'Yükleme başarısız.'); return; }
+      const list = Array.isArray(formData.sertifikalar) ? [...(formData.sertifikalar as any[])] : [];
+      list[idx] = { ...(list[idx] || { ad: '' }), url: data.url };
+      F('sertifikalar', list);
+    } catch { alert('Yükleme sırasında hata oluştu.'); }
+    finally { setCertUp(null); }
+  }
+  function pickCert(idx: number) {
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'image/*';
+    inp.onchange = () => { const f = inp.files?.[0]; if (f) uploadCert(f, idx); };
+    inp.click();
+  }
+
   const INP: React.CSSProperties = { width:'100%', padding:'10px 13px', borderRadius:10, border:`1.5px solid ${T.border}`, fontSize:13.5, fontFamily:'inherit', color:T.text, outline:'none', background:'white', transition:'border-color .15s', boxSizing:'border-box' };
   const LBL: React.CSSProperties = { display:'block', fontSize:11, fontWeight:700, color:T.muted, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 };
   const onF  = (e: React.FocusEvent<any>) => { e.currentTarget.style.borderColor=T.navy; e.currentTarget.style.boxShadow='0 0 0 3px rgba(27,58,105,.08)'; };
@@ -2157,6 +2179,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   const SECS = [
     { key:'info'    as ESection, label:'Profil Bilgileri', icon:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11A4 4 0 1 0 12 3a4 4 0 0 0 0 8z' },
     { key:'details' as ESection, label:'Detaylar',          icon:icons.list },
+    ...(et==='doktor' ? [{ key:'meslek' as ESection, label:'Mesleki', icon:'M22 10v6M2 10l10-5 10 5-10 5z M6 12v5c0 1 2 3 6 3s6-2 6-3v-5' }] : []),
     { key:'photos'  as ESection, label:'Fotoğraflar',       icon:'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z M12 17A4 4 0 1 0 12 9a4 4 0 0 0 0 8z' },
     { key:'konum'   as ESection, label:'Konum',              icon:'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z M12 10A2 2 0 1 0 12 6a2 2 0 0 0 0 4z' },
     { key:'tour'    as ESection, label:'360° Tur',           icon:'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20z M2 12h20 M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z' },
@@ -2231,6 +2254,18 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
               <Ic d={saveMsg.ok?icons.check:icons.info} size={13}/>{!isMobile && saveMsg.text}
             </span>
           )}
+          {(()=>{
+            const slug = String(entityData?.slug||'');
+            const base: Record<string,string> = { doktor:'/doktorlar', klinik:'/klinikler', hastane:'/hastaneler', eczane:'/eczaneler' };
+            if (!slug || !base[et]) return null;
+            return (
+              <a href={`${base[et]}/${slug}`} target="_blank" rel="noopener noreferrer"
+                title="Profilinizi yeni sekmede açar (kayıtlı hâli)"
+                style={{ padding:'9px 16px', borderRadius:10, border:`1.5px solid ${T.border}`, background:'white', color:T.navy, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', textDecoration:'none', display:'flex', alignItems:'center', gap:6 }}>
+                <Ic d="M15 3h6v6 M10 14 21 3 M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" size={13}/>{!isMobile && 'Önizle'}
+              </a>
+            );
+          })()}
           {!isMobile && (
           <button onClick={()=>{setFormData(entityData||{});setSaveMsg(null);}}
             style={{ padding:'9px 18px', borderRadius:10, border:`1.5px solid ${T.border}`, background:'white', color:T.muted, fontSize:13, fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>
@@ -2537,6 +2572,104 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                 </div>
               )}
             </>)}
+
+            {/* ── MESLEKİ BİLGİLER (doktor) ── */}
+            {sec==='meslek' && et==='doktor' && (()=>{
+              const YIL = new Date().getFullYear();
+              type Deneyim = { kurum:string; baslangic:string; bitis:string };
+              type Sertifika = { ad:string; url:string };
+              const deneyimler: Deneyim[] = Array.isArray(formData.deneyimler) ? formData.deneyimler : [];
+              const sertifikalar: Sertifika[] = Array.isArray(formData.sertifikalar) ? formData.sertifikalar : [];
+              const setDen = (i:number, patch:Partial<Deneyim>) => { const a=[...deneyimler]; a[i]={...a[i],...patch}; F('deneyimler',a); };
+              const addDen = () => F('deneyimler',[...deneyimler,{kurum:'',baslangic:'',bitis:''}]);
+              const delDen = (i:number) => F('deneyimler',deneyimler.filter((_,j)=>j!==i));
+              const setCertItem = (i:number, patch:Partial<Sertifika>) => { const a=[...sertifikalar]; a[i]={...a[i],...patch}; F('sertifikalar',a); };
+              const addCert = () => F('sertifikalar',[...sertifikalar,{ad:'',url:''}]);
+              const delCert = (i:number) => F('sertifikalar',sertifikalar.filter((_,j)=>j!==i));
+              const bas = Number(formData.deneyim_baslangic)||0;
+              const yilFarki = bas>=1950 && bas<=YIL ? YIL-bas : 0;
+              const miniBtn: React.CSSProperties = { display:'inline-flex', alignItems:'center', gap:6, padding:'8px 13px', borderRadius:9, border:`1.5px dashed ${T.navy}`, background:'rgba(27,58,105,.04)', color:T.navy, fontSize:12.5, fontWeight:700, cursor:'pointer', fontFamily:'inherit' };
+              const delBtn: React.CSSProperties = { width:28, height:28, borderRadius:8, border:`1px solid ${T.border}`, background:'white', color:T.red, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 };
+              return (<>
+                <div style={{ fontSize:12, fontWeight:700, color:T.navy, textTransform:'uppercase', letterSpacing:'0.6px', paddingBottom:10, borderBottom:`2px solid #E8F0FE` }}>Mesleki Bilgiler</div>
+
+                {/* Deneyim başlangıcı + kurumlar */}
+                <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                  <div>
+                    <label style={LBL}>Mesleğe Başlangıç Yılı</label>
+                    <input type="number" value={formData.deneyim_baslangic??''} placeholder="2013" style={INP}
+                      onChange={e=>F('deneyim_baslangic', e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/>
+                    {yilFarki>0 && <div style={{ fontSize:11, color:T.muted, marginTop:4 }}>≈ {yilFarki} yıllık deneyim olarak gösterilir</div>}
+                  </div>
+                  <div>
+                    <label style={LBL}>Diploma Aldığı Kurum</label>
+                    <input value={String(formData.okul||'')} placeholder="İstanbul Üniversitesi" style={INP}
+                      onChange={e=>F('okul', e.target.value)} onFocus={onF} onBlur={offF}/>
+                  </div>
+                </div>
+                <div>
+                  <label style={LBL}>Uzmanlık Aldığı Kurum</label>
+                  <input value={String(formData.uzmanlik_kurum||'')} placeholder="Üsküdar Üniversitesi" style={INP}
+                    onChange={e=>F('uzmanlik_kurum', e.target.value)} onFocus={onF} onBlur={offF}/>
+                </div>
+
+                {/* Deneyimler (iş geçmişi) */}
+                <div style={{ borderTop:`1px solid ${T.border}`, paddingTop:14 }}>
+                  <label style={{ ...LBL, marginBottom:10 }}>Deneyimler <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600 }}>· çalıştığı yerler</span></label>
+                  <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                    {deneyimler.map((d,i)=>(
+                      <div key={i} style={{ display:'flex', gap:8, alignItems:'flex-start', padding:'12px', borderRadius:12, background:T.bg, border:`1px solid ${T.border}` }}>
+                        <div style={{ flex:1, display:'flex', flexDirection:'column', gap:7 }}>
+                          <input value={d.kurum} placeholder="Kurum / klinik adı" style={INP} onChange={e=>setDen(i,{kurum:e.target.value})} onFocus={onF} onBlur={offF}/>
+                          <div style={{ display:'flex', gap:7, alignItems:'center' }}>
+                            <input value={d.baslangic} placeholder="Başlangıç (2021)" style={{...INP, flex:1}} onChange={e=>setDen(i,{baslangic:e.target.value})} onFocus={onF} onBlur={offF}/>
+                            <span style={{ color:T.muted, fontSize:13 }}>–</span>
+                            <input value={d.bitis} placeholder="Bitiş (boş = Günümüz)" style={{...INP, flex:1}} onChange={e=>setDen(i,{bitis:e.target.value})} onFocus={onF} onBlur={offF}/>
+                          </div>
+                        </div>
+                        <button type="button" onClick={()=>delDen(i)} style={delBtn} title="Sil">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                        </button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={addDen} style={miniBtn}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                      Deneyim ekle
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sertifikalar */}
+                <div style={{ borderTop:`1px solid ${T.border}`, paddingTop:14 }}>
+                  <label style={{ ...LBL, marginBottom:10 }}>Sertifikalar <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600 }}>· ad + görsel</span></label>
+                  <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                    {sertifikalar.map((c,i)=>(
+                      <div key={i} style={{ display:'flex', gap:10, alignItems:'center', padding:'10px', borderRadius:12, background:T.bg, border:`1px solid ${T.border}` }}>
+                        <div onClick={()=>certUp===null&&pickCert(i)}
+                          style={{ width:56, height:56, borderRadius:10, flexShrink:0, overflow:'hidden', border:`1.5px dashed ${T.border}`, background:'white', display:'flex', alignItems:'center', justifyContent:'center', cursor:certUp===i?'wait':'pointer' }}>
+                          {certUp===i ? (
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ animation:'spin .9s linear infinite' }}><circle cx="9" cy="9" r="7" stroke={T.border} strokeWidth="2"/><path d="M9 2a7 7 0 0 1 7 7" stroke={T.navy} strokeWidth="2" strokeLinecap="round"/></svg>
+                          ) : c.url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={c.url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/>
+                          ) : (
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={T.muted} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                          )}
+                        </div>
+                        <input value={c.ad} placeholder="Sertifika adı (ör. NDT/Bobath)" style={{...INP, flex:1}} onChange={e=>setCertItem(i,{ad:e.target.value})} onFocus={onF} onBlur={offF}/>
+                        <button type="button" onClick={()=>delCert(i)} style={delBtn} title="Sil">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                        </button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={addCert} style={miniBtn}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                      Sertifika ekle
+                    </button>
+                  </div>
+                </div>
+              </>);
+            })()}
 
             {/* ── FOTOĞRAFLAR ── */}
             {sec==='photos' && (<>

@@ -118,6 +118,10 @@ export interface Doktor {
   unvan: string | null;
   bio: string | null;
   okul: string | null;
+  uzmanlik_kurum: string | null;
+  deneyim_baslangic: number | null;
+  deneyimler: { kurum: string; baslangic: string; bitis: string }[] | null;
+  sertifikalar: { ad: string; url: string }[] | null;
   sigorta: string[] | null;
   conditions: string[] | null;
   photos: string[] | null;
