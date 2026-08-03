@@ -13,10 +13,68 @@ import type { User } from '@supabase/supabase-js';
 const NAV_LINKS = [
   // Diş klinikleri + diş hekimleri tek listede (/klinikler ikisini birlikte gösterir).
   // Eski /dis-hekimleri linki next.config.js'te /klinikler?tip=Diş Hekimi'ye rewrite edilir (SEO/geri uyum).
-  { href: '/klinikler',                        base: '/klinikler',   label: 'Diş Hekimleri & Klinikler' },
-  { href: '/blog',                             base: '/blog',        label: 'Blog' },
+  { href: '/klinikler',                        base: '/klinikler',   label: 'Diş Hekimleri' },
   { href: '/neden-hekimhane',                  base: '/neden-hekimhane', label: 'Neden Hekimhane?' },
+  { href: '/blog',                             base: '/blog',        label: 'Blog' },
 ];
+
+// Header açılır menüleri (temiz beyaz ton)
+const uz = (u: string) => `/klinikler?uzmanlik=${encodeURIComponent(u)}`;
+const HIZMETLER: [string, string][] = [
+  ['İmplant Tedavisi', uz('İmplantoloji (İmplant)')],
+  ['Ortodonti (Diş Teli)', uz('Ortodonti (Diş Teli)')],
+  ['Estetik Diş Hekimliği', uz('Estetik Diş Hekimliği')],
+  ['Kanal Tedavisi', uz('Endodonti (Kanal Tedavisi)')],
+  ['Çocuk Diş Hekimliği', uz('Pedodonti (Çocuk Diş Hekimliği)')],
+  ['Ağız, Diş ve Çene Cerrahisi', uz('Ağız Diş ve Çene Cerrahisi')],
+  ['Diş Dolgusu', uz('Restoratif Diş Tedavisi (Dolgu)')],
+  ['Genel Diş Hekimliği', uz('Genel Diş Hekimliği')],
+];
+const HASTALIKLAR: [string, string][] = [
+  ['Diş Çürüğü', '/hastaliklar/dis-sagligi/dis-curugu'],
+  ['Diş Eti İltihabı (Gingivit)', '/hastaliklar/dis-sagligi/gingivit'],
+  ['Diş Hassasiyeti', '/hastaliklar/dis-sagligi/dis-hassasiyeti'],
+  ['Ağız Kokusu', '/hastaliklar/dis-sagligi/agiz-kokusu'],
+  ['Diş Apsesi', '/hastaliklar/dis-sagligi/dis-apsesi'],
+  ['Aft (Ağız Yarası)', '/hastaliklar/dis-sagligi/aft'],
+];
+
+function NavMenu({ label, items, allLabel, allHref, open, onToggle, innerRef, active }: {
+  label: string; items: [string, string][]; allLabel: string; allHref: string;
+  open: boolean; onToggle: () => void; innerRef: React.RefObject<HTMLDivElement>; active: boolean;
+}) {
+  return (
+    <div ref={innerRef} style={{ position: 'relative' }}>
+      <button onClick={onToggle}
+        style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 13px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+          fontSize: 13.5, fontWeight: active || open ? 600 : 500, letterSpacing: '-.1px', color: active || open ? '#1B3A69' : '#3A3A3C',
+          background: active || open ? 'rgba(27,58,105,.07)' : 'transparent', transition: 'background .15s, color .15s' }}>
+        {label}
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .18s', opacity: .6 }}><path d="M6 9l6 6 6-6" /></svg>
+      </button>
+      {open && (
+        <div style={{ position: 'absolute', top: 'calc(100% + 10px)', left: 0, width: 268, background: '#fff', borderRadius: 16, boxShadow: '0 16px 44px rgba(20,30,50,.14)', border: '1px solid #ECECEC', overflow: 'hidden', zIndex: 300, padding: 6 }}>
+          {items.map(([lbl, href]) => (
+            <Link key={href} href={href} onClick={onToggle}
+              style={{ display: 'block', padding: '10px 12px', borderRadius: 10, fontSize: 13.5, fontWeight: 500, color: '#3A3A3C', textDecoration: 'none', transition: 'background .12s' }}
+              onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
+              onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
+              {lbl}
+            </Link>
+          ))}
+          <div style={{ height: 1, background: '#F0F0F0', margin: '6px 6px' }} />
+          <Link href={allHref} onClick={onToggle}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px', borderRadius: 10, fontSize: 13.5, fontWeight: 700, color: '#1B3A69', textDecoration: 'none' }}
+            onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
+            onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
+            {allLabel}
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ChevronDown({ size = 10 }: { size?: number }) {
   return (
@@ -103,6 +161,10 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen]   = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
   const regRef = useRef<HTMLDivElement>(null);
+  const [svcOpen, setSvcOpen] = useState(false);
+  const [disOpen, setDisOpen] = useState(false);
+  const svcRef = useRef<HTMLDivElement>(null);
+  const disRef = useRef<HTMLDivElement>(null);
 
   const isActive = (link: { base: string }) => pathname.startsWith(link.base);
 
@@ -126,6 +188,8 @@ export default function Navbar() {
       if (regRef.current && !regRef.current.contains(e.target as Node)) {
         setRegOpen(false);
       }
+      if (svcRef.current && !svcRef.current.contains(e.target as Node)) setSvcOpen(false);
+      if (disRef.current && !disRef.current.contains(e.target as Node)) setDisOpen(false);
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
@@ -181,24 +245,28 @@ export default function Navbar() {
 
           {/* ── Desktop nav ──────────────────────────────────────────── */}
           <div style={{ display: 'flex', gap: 2, alignItems: 'center' }} className="nav-links-desktop">
-            {NAV_LINKS.map(link => {
-              const active = isActive(link);
+            {(() => {
+              const navLink = (link: typeof NAV_LINKS[number]) => {
+                const active = isActive(link);
+                return (
+                  <Link key={link.href} href={link.href} style={{
+                    padding: '6px 13px', borderRadius: 8, fontSize: 13.5, fontWeight: active ? 600 : 500, letterSpacing: '-.1px',
+                    color: active ? '#1B3A69' : '#3A3A3C', background: active ? 'rgba(27,58,105,.07)' : 'transparent',
+                    textDecoration: 'none', transition: 'background .15s, color .15s',
+                  }}>{link.label}</Link>
+                );
+              };
               return (
-                <Link key={link.href} href={link.href} style={{
-                  padding: '6px 13px',
-                  borderRadius: 8,
-                  fontSize: 13.5,
-                  fontWeight: active ? 600 : 500,
-                  letterSpacing: '-.1px',
-                  color: active ? '#1B3A69' : '#3A3A3C',
-                  background: active ? 'rgba(27,58,105,.07)' : 'transparent',
-                  textDecoration: 'none',
-                  transition: 'background .15s, color .15s',
-                }}>
-                  {link.label}
-                </Link>
+                <>
+                  {navLink(NAV_LINKS[0])}
+                  <NavMenu label="Hizmetler" items={HIZMETLER} allLabel="Tüm Diş Hekimleri" allHref="/klinikler"
+                    open={svcOpen} onToggle={() => { setSvcOpen(o => !o); setDisOpen(false); }} innerRef={svcRef} active={pathname.startsWith('/dis-tedavileri')} />
+                  <NavMenu label="Ağız & Diş Sağlığı" items={HASTALIKLAR} allLabel="Tüm Hastalıklar" allHref="/hastaliklar/dis-sagligi"
+                    open={disOpen} onToggle={() => { setDisOpen(o => !o); setSvcOpen(false); }} innerRef={disRef} active={pathname.startsWith('/hastaliklar')} />
+                  {NAV_LINKS.slice(1).map(navLink)}
+                </>
               );
-            })}
+            })()}
           </div>
 
           {/* ── Right section: Auth + Hamburger ──────────────────────── */}
@@ -475,6 +543,22 @@ export default function Navbar() {
               </Link>
             );
           })}
+
+          {/* Mobil: Hizmetler + Ağız & Diş Sağlığı grupları */}
+          {([
+            { baslik: 'Hizmetler', items: HIZMETLER, allLabel: 'Tüm Diş Hekimleri', allHref: '/klinikler' },
+            { baslik: 'Ağız & Diş Sağlığı', items: HASTALIKLAR, allLabel: 'Tüm Hastalıklar', allHref: '/hastaliklar/dis-sagligi' },
+          ] as const).map(grp => (
+            <div key={grp.baslik} style={{ marginTop: 10 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#86868B', textTransform: 'uppercase', letterSpacing: '.5px', padding: '8px 16px 4px' }}>{grp.baslik}</div>
+              {[...grp.items, [grp.allLabel + ' →', grp.allHref] as [string, string]].map(([lbl, href]) => (
+                <Link key={href + lbl} href={href} onClick={() => setMobileOpen(false)}
+                  style={{ display: 'flex', alignItems: 'center', minHeight: 46, padding: '0 16px', borderRadius: 12, fontSize: 15.5, fontWeight: 500, color: '#1D1D1F', textDecoration: 'none' }}>
+                  {lbl}
+                </Link>
+              ))}
+            </div>
+          ))}
         </nav>
 
         {/* ── Auth section at bottom ── */}
