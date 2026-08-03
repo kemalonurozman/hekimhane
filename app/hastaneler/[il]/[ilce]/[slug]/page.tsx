@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import type { Hastane, Yorum } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
+import { bookedSlots } from '@/lib/randevu-booked';
 
 export const dynamic = 'force-dynamic';
 
@@ -101,6 +102,7 @@ export default async function HastaneProfilPage({ params }: Props) {
   };
 
   const jsonLd = { '@context': 'https://schema.org', '@graph': [hospital, breadcrumb] };
+  const rvBooked = (h as any).randevu_aktif ? await bookedSlots(h.id) : [];
 
   return (
     <>
@@ -123,6 +125,7 @@ export default async function HastaneProfilPage({ params }: Props) {
       linkedin_url={h.linkedin_url}
       calisma_saatleri={h.calisma_saatleri}
       acik_24_saat={h.acik_24_saat}
+      randevuAktif={(h as any).randevu_aktif} randevuSlotDk={(h as any).randevu_slot_dk} bookedSlots={rvBooked}
       yorumlar={yorumlar}
       kartSlug={h.slug}
       listHref="/hastaneler"

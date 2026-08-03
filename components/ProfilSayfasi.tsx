@@ -109,6 +109,10 @@ export interface ProfilProps {
   linkedin_url?: string | null;
   calisma_saatleri?: string | null;
   acik_24_saat?: boolean;
+  // randevu takvimi (slot bazlı)
+  randevuAktif?: boolean;
+  randevuSlotDk?: number;
+  bookedSlots?: string[];
   // medya
   tour360url?: string | null;
   photo360?: string | null;
@@ -710,9 +714,10 @@ const RANDEVU_MODAL_CSS = `
   .randevu-modal-card { padding: 20px 16px; border-radius: 16px; }
 }
 `;
-function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospital, hospitalTel }: {
+function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospital, hospitalTel, aktif, slotDk, calismaSaatleri, acik24, booked }: {
   name: string; entityType: string; entityId: string | number; open: boolean; onClose: () => void;
   devlet?: boolean; hospital?: string | null; hospitalTel?: string | null;
+  aktif?: boolean; slotDk?: number; calismaSaatleri?: string | null; acik24?: boolean; booked?: string[];
 }) {
   const [adSoyad, setAdSoyad] = useState('');
   const [tel, setTel]         = useState('');
@@ -733,6 +738,9 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
     // Eksik alanları sessizce geçme — kullanıcıya neyin eksik olduğunu söyle.
     if (adSoyad.trim().length < 3) { setHata('Lütfen ad ve soyadınızı girin.'); return; }
     if (!telOk) { setHata('Lütfen geçerli bir telefon numarası girin (en az 10 haneli).'); return; }
+    // Slot bazlı modda tarih + saat zorunlu
+    if (aktif && !tarih) { setHata('Lütfen bir tarih seçin.'); return; }
+    if (aktif && !saat)  { setHata('Lütfen uygun bir saat seçin.'); return; }
     if (!consent) { setHata('Göndermek için KVKK onay kutusunu işaretlemeniz gerekir.'); return; }
     setSaving(true);
     setHata('');
@@ -741,14 +749,16 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
       ? new Date(tarih + 'T00:00:00').toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' })
       : '';
     const tercih = [tarihStr, saat].filter(Boolean).join(' · ');
+    const payload: Record<string, unknown> = {
+      entity_type: entityType, entity_id: entityId, entity_name: name,
+      ad_soyad: adSoyad, tel, email, tercih, mesaj, website,
+    };
+    if (aktif && tarih && saat) payload.randevu_slot = `${tarih} ${saat}`;
     try {
       const res = await fetch('/api/randevu-talebi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          entity_type: entityType, entity_id: entityId, entity_name: name,
-          ad_soyad: adSoyad, tel, email, tercih, mesaj, website,
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) { setHata(data.error || 'Talep gönderilemedi.'); return; }
@@ -784,6 +794,37 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
     { v: 'Öğleden sonra (12:00-17:00)', label: 'Öğle', sub: '12–17' },
     { v: 'Akşam (17:00-20:00)', label: 'Akşam', sub: '17–20' },
   ];
+
+  // Slot bazlı mod: seçilen günün çalışma saatlerinden uygun saatleri üret
+  const GUN_ADI = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+  function gunSlotlari(iso: string): string[] {
+    if (!iso) return [];
+    const dt = new Date(iso + 'T00:00:00'); const gun = GUN_ADI[dt.getDay()];
+    let o = '09:00', c = '18:00', acikGun = true;
+    if (acik24) { o = '08:00'; c = '22:00'; }
+    else {
+      let sch: Record<string, { acik?: boolean; baslangic?: string; bitis?: string }> = {};
+      try { sch = calismaSaatleri ? JSON.parse(calismaSaatleri) : {}; } catch { sch = {}; }
+      if (sch && sch[gun]) { acikGun = sch[gun].acik !== false; o = sch[gun].baslangic || '09:00'; c = sch[gun].bitis || '18:00'; }
+      else if (calismaSaatleri) { acikGun = false; }
+      else { acikGun = dt.getDay() !== 0; }
+    }
+    if (!acikGun) return [];
+    let t = (+o.split(':')[0]) * 60 + (+o.split(':')[1]);
+    const end = (+c.split(':')[0]) * 60 + (+c.split(':')[1]);
+    const dk = slotDk || 30; const out: string[] = [];
+    const now = new Date();
+    const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const nowMin = now.getHours() * 60 + now.getMinutes(); const isToday = iso === todayIso;
+    const bs = new Set(booked || []);
+    while (t + dk <= end) {
+      const lbl = `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+      if (!bs.has(iso + ' ' + lbl) && !(isToday && t <= nowMin + 15)) out.push(lbl);
+      t += dk;
+    }
+    return out;
+  }
+  const slotArr = aktif ? gunSlotlari(tarih) : [];
 
   return (
     <div onClick={e => { if (e.target === e.currentTarget) onClose(); }}
@@ -858,30 +899,54 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="ornek@email.com" style={inputStyle} />
               </div>
               <div>
-                <label style={labelStyle}>Tercih Ettiğiniz Tarih <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
+                <label style={labelStyle}>{aktif ? <>Tarih <span style={{ color: '#EF4444' }}>*</span></> : <>Tercih Ettiğiniz Tarih <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></>}</label>
                 <div className="rnd-days">
-                  <button type="button" onClick={() => setTarih('')} className={`rnd-day any${tarih === '' ? ' sel' : ''}`}>
-                    <span className="d-num">Fark<br />etmez</span>
-                  </button>
-                  {dayList.map(d => (
-                    <button type="button" key={d.iso} onClick={() => setTarih(d.iso)} className={`rnd-day${tarih === d.iso ? ' sel' : ''}`}>
-                      <div className="d-dow">{d.isToday ? 'Bugün' : d.dow}</div>
-                      <div className="d-num">{d.day}</div>
-                      <div className="d-mon">{d.mon}</div>
+                  {!aktif && (
+                    <button type="button" onClick={() => setTarih('')} className={`rnd-day any${tarih === '' ? ' sel' : ''}`}>
+                      <span className="d-num">Fark<br />etmez</span>
                     </button>
-                  ))}
+                  )}
+                  {dayList.map(d => {
+                    const kapali = aktif && gunSlotlari(d.iso).length === 0;
+                    return (
+                      <button type="button" key={d.iso} disabled={kapali}
+                        onClick={() => { if (kapali) return; setTarih(d.iso); if (aktif) setSaat(''); }}
+                        className={`rnd-day${tarih === d.iso ? ' sel' : ''}`}
+                        style={kapali ? { opacity: .35, cursor: 'not-allowed' } : undefined}>
+                        <div className="d-dow">{d.isToday ? 'Bugün' : d.dow}</div>
+                        <div className="d-num">{d.day}</div>
+                        <div className="d-mon">{d.mon}</div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
               <div>
-                <label style={labelStyle}>Tercih Ettiğiniz Saat Dilimi <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
-                <div className="rnd-slots">
-                  {timeSlots.map(s => (
-                    <button type="button" key={s.v || 'any'} onClick={() => setSaat(s.v)} className={`rnd-slot${saat === s.v ? ' sel' : ''}`}>
-                      <div className="s-l">{s.label}</div>
-                      {s.sub && <div className="s-s">{s.sub}</div>}
-                    </button>
-                  ))}
-                </div>
+                <label style={labelStyle}>{aktif ? <>Uygun Saat <span style={{ color: '#EF4444' }}>*</span></> : <>Tercih Ettiğiniz Saat Dilimi <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></>}</label>
+                {aktif ? (
+                  !tarih ? (
+                    <div style={{ fontSize: 13, color: 'var(--muted)', padding: '10px 2px' }}>Önce yukarıdan bir tarih seçin.</div>
+                  ) : slotArr.length === 0 ? (
+                    <div style={{ fontSize: 13, color: 'var(--muted)', padding: '10px 2px' }}>Bu gün için uygun saat kalmadı. Lütfen başka bir gün seçin.</div>
+                  ) : (
+                    <div className="rnd-slots" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))' }}>
+                      {slotArr.map(s => (
+                        <button type="button" key={s} onClick={() => setSaat(s)} className={`rnd-slot${saat === s ? ' sel' : ''}`}>
+                          <div className="s-l">{s}</div>
+                        </button>
+                      ))}
+                    </div>
+                  )
+                ) : (
+                  <div className="rnd-slots">
+                    {timeSlots.map(s => (
+                      <button type="button" key={s.v || 'any'} onClick={() => setSaat(s.v)} className={`rnd-slot${saat === s.v ? ' sel' : ''}`}>
+                        <div className="s-l">{s.label}</div>
+                        {s.sub && <div className="s-s">{s.sub}</div>}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <label style={labelStyle}>Notunuz <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
@@ -912,7 +977,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
 
 // ── Ana Bileşen ───────────────────────────────────────────────────
 export default function ProfilSayfasi(props: ProfilProps) {
-  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, uzmanlikKurum, deneyimBaslangic, deneyimler, sertifikalar, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
+  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, uzmanlikKurum, deneyimBaslangic, deneyimler, sertifikalar, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, randevuAktif, randevuSlotDk, bookedSlots, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
 
   // Gizli iletişim (ör. Bobath terapisti henüz katılmadı) → tel/email/randevu gizlenir
   const contactGizli = contactHidden === true;
@@ -2235,8 +2300,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700, color: 'white', marginBottom: 2 }}>Online Randevu</h4>
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,.45)' }}>randevu sistemi</div>
                 </div>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.18)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,.6)', flexShrink: 0 }}>
-                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#9CA3AF', display: 'inline-block' }} />Etkin Değil
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: randevuAktif ? 'rgba(52,199,89,.16)' : 'rgba(255,255,255,.1)', border: `1px solid ${randevuAktif ? 'rgba(52,199,89,.5)' : 'rgba(255,255,255,.18)'}`, borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: randevuAktif ? '#8AE6A6' : 'rgba(255,255,255,.6)', flexShrink: 0 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: randevuAktif ? '#34C759' : '#9CA3AF', display: 'inline-block' }} />{randevuAktif ? 'Aktif' : 'Etkin Değil'}
                 </span>
               </div>
             </div>
@@ -2256,12 +2321,15 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 })}
               </div>
               <div style={{ textAlign: 'center', padding: '14px 8px 8px', color: 'var(--muted)', fontSize: 13, lineHeight: 1.6 }}>
-                <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 24, color: '#D1D5DB', display: 'block', marginBottom: 8 }} />
-                Bu işletme için online randevu takvimi henüz aktive edilmemiş.
+                {randevuAktif ? (
+                  <><i className="fa-regular fa-calendar-check" style={{ fontSize: 24, color: '#34C759', display: 'block', marginBottom: 8 }} />Uygun günü ve saati seçip randevunuzu hemen oluşturun.</>
+                ) : (
+                  <><i className="fa-regular fa-calendar-xmark" style={{ fontSize: 24, color: '#D1D5DB', display: 'block', marginBottom: 8 }} />Bu işletme için online randevu takvimi henüz aktive edilmemiş.</>
+                )}
               </div>
               <button onClick={() => setRandevuModal(true)}
                 style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}>
-                <i className="fa-solid fa-calendar-plus" /> Randevu Talep Et
+                <i className={`fa-solid ${randevuAktif ? 'fa-calendar-check' : 'fa-calendar-plus'}`} /> {randevuAktif ? 'Randevu Al' : 'Randevu Talep Et'}
               </button>
             </div>
           </div>
@@ -2309,7 +2377,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
       {/* Randevu modal */}
       <RandevuModal name={name} entityType={entityType} entityId={id} open={randevuModal} onClose={() => setRandevuModal(false)}
-        devlet={isDevletDoktor} hospital={devletHospital} hospitalTel={tel} />
+        devlet={isDevletDoktor} hospital={devletHospital} hospitalTel={tel}
+        aktif={randevuAktif} slotDk={randevuSlotDk} calismaSaatleri={calisma_saatleri} acik24={acik_24_saat} booked={bookedSlots} />
 
       {/* ── Lightbox ── */}
       {lightboxIdx !== null && (() => {

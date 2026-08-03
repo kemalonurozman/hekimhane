@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import type { Eczane, Yorum } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
+import { bookedSlots } from '@/lib/randevu-booked';
 import { buildEczaneFaq } from '@/lib/faq';
 
 export const dynamic = 'force-dynamic';
@@ -100,6 +101,7 @@ export default async function EczaneProfilPage({ params }: Props) {
   } : null;
 
   const jsonLd = { '@context': 'https://schema.org', '@graph': [pharmacy, breadcrumb, ...(faqPage ? [faqPage] : [])] };
+  const rvBooked = (e as any).randevu_aktif ? await bookedSlots(e.id) : [];
 
   return (
     <>
@@ -120,6 +122,7 @@ export default async function EczaneProfilPage({ params }: Props) {
       linkedin_url={e.linkedin_url}
       calisma_saatleri={e.calisma_saatleri}
       acik_24_saat={e.acik_24_saat}
+      randevuAktif={(e as any).randevu_aktif} randevuSlotDk={(e as any).randevu_slot_dk} bookedSlots={rvBooked}
       faq={faq}
       yorumlar={yorumlar}
       kartSlug={e.slug}

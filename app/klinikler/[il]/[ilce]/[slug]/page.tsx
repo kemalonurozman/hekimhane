@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import type { Klinik, Yorum } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
+import { bookedSlots } from '@/lib/randevu-booked';
 import { buildKlinikFaq } from '@/lib/faq';
 
 export const dynamic = 'force-dynamic';
@@ -129,6 +130,7 @@ export default async function KlinikProfilPage({ params }: Props) {
   } : null;
 
   const jsonLd = { '@context': 'https://schema.org', '@graph': [business, breadcrumb, ...(faqPage ? [faqPage] : [])] };
+  const rvBooked = (k as any).randevu_aktif ? await bookedSlots(k.id) : [];
 
   return (
     <>
@@ -150,6 +152,7 @@ export default async function KlinikProfilPage({ params }: Props) {
       linkedin_url={k.linkedin_url}
       calisma_saatleri={k.calisma_saatleri}
       acik_24_saat={k.acik_24_saat}
+      randevuAktif={(k as any).randevu_aktif} randevuSlotDk={(k as any).randevu_slot_dk} bookedSlots={rvBooked}
       faq={faq}
       yorumlar={yorumlar}
       kartSlug={k.slug}

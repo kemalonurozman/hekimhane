@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import type { Doktor, Yorum } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
+import { bookedSlots } from '@/lib/randevu-booked';
 import { buildDoktorFaq } from '@/lib/faq';
 
 export const dynamic = 'force-dynamic';
@@ -116,6 +117,7 @@ export default async function DoktorProfilPage({ params }: Props) {
   } : null;
 
   const jsonLd = { '@context': 'https://schema.org', '@graph': [physician, breadcrumb, ...(faqPage ? [faqPage] : [])] };
+  const rvBooked = (d as any).randevu_aktif ? await bookedSlots(d.id) : [];
 
   return (
     <>
@@ -152,6 +154,7 @@ export default async function DoktorProfilPage({ params }: Props) {
       linkedin_url={d.linkedin_url}
       calisma_saatleri={d.calisma_saatleri}
       acik_24_saat={d.acik_24_saat}
+      randevuAktif={(d as any).randevu_aktif} randevuSlotDk={(d as any).randevu_slot_dk} bookedSlots={rvBooked}
       faq={faq}
       yorumlar={yorumlar}
       kartSlug={d.slug}
