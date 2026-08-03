@@ -25,6 +25,7 @@ export default function Footer() {
   const SIRKET = [
     ['Hakkımızda',   '/hakkimizda'],
     ['Blog',         '/blog'],
+    ['Makale Yayınla', '/makale-yayinla'],
     ['İletişim',     '/iletisim'],
   ];
 

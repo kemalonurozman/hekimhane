@@ -7,6 +7,7 @@ import type { User } from '@supabase/supabase-js';
 import { SPEC_GRUPLARI } from '@/lib/uzmanlik-data';
 import { HERO_BACKGROUNDS, coverPresetKey } from '@/lib/hero-backgrounds';
 import { IL_LISTE, ILCELER } from '@/lib/tr-il-ilce';
+import MakalelerimTab from './MakalelerimTab';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
@@ -147,7 +148,7 @@ export default function PanelPage() {
   const router = useRouter();
   const [user,   setUser]   = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart' | 'randevu'>('dashboard');
+  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart' | 'randevu' | 'makaleler'>('dashboard');
   const [claims, setClaims] = useState<ClaimRequest[]>([]);
   const [claimsLoading, setClaimsLoading] = useState(false);
   const [profileUrls, setProfileUrls] = useState<Record<string, string>>({});
@@ -274,6 +275,7 @@ export default function PanelPage() {
     { key: 'edit'       as const, label: 'Profilimi Düzenle', icon: 'edit' },
     { key: 'hekimkart'  as const, label: 'HekimKart',         icon: 'bell' },
     { key: 'yorumlar'   as const, label: 'Yorumlar',          icon: 'star' },
+    { key: 'makaleler'  as const, label: 'Makalelerim',       icon: 'edit' },
     { key: 'profile'    as const, label: 'Hesabım',           icon: 'profile' },
     { key: 'new'        as const, label: 'Yeni Başvuru',      icon: 'plus' },
   ];
@@ -282,6 +284,7 @@ export default function PanelPage() {
   const navGroups: { title: string; keys: (typeof navItems)[number]['key'][] }[] = [
     { title: 'Genel',     keys: ['dashboard'] },
     { title: 'İşletmem',  keys: ['edit', 'hekimkart', 'yorumlar', 'randevu'] },
+    { title: 'İçerik',    keys: ['makaleler'] },
     { title: 'Başvuru',   keys: ['claims', 'new'] },
     { title: 'Hesap',     keys: ['profile'] },
   ];
@@ -395,6 +398,7 @@ export default function PanelPage() {
         {tab === 'hekimkart' && <HekimKartTab approvedClaims={approvedClaims} profileUrls={profileUrls} user={user} />}
         {tab === 'yorumlar'  && <YorumlarTab approvedClaims={approvedClaims} />}
         {tab === 'randevu'   && <RandevuTalepleriTab approvedClaims={approvedClaims} />}
+        {tab === 'makaleler' && <MakalelerimTab hasEntity={approvedClaims.some(c => c.entity_id && c.entity_id !== 'new')} />}
       </main>
 
       {/* ── MOBİL ALT NAVİGASYON ── */}

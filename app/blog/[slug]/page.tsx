@@ -1,18 +1,76 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { BLOG_YAZILARI, getBlogYazi } from '@/lib/blog-data';
+import { BLOG_YAZILARI, getBlogYazi, type BlogBlok } from '@/lib/blog-data';
+import { supabase } from '@/lib/supabase';
+import { parseGovde, okumaSuresi } from '@/lib/makale-icerik';
 
 interface Props { params: { slug: string } }
 
+// Statik yazılar önceden üretilir; panel/admin üzerinden yayınlananlar
+// istek anında Supabase'den okunur (dynamicParams varsayılan olarak açık).
 export function generateStaticParams() {
   return BLOG_YAZILARI.map(y => ({ slug: y.slug }));
 }
 
-export function generateMetadata({ params }: Props): Metadata {
-  const y = getBlogYazi(params.slug);
+export const revalidate = 300;
+
+/** Statik veri + Supabase'i tek bir görünüm modeline indirger. */
+interface Yazi {
+  title: string;
+  summary: string;
+  category: string;
+  author: string;
+  created_at: string;
+  okumaDk: number;
+  govde: BlogBlok[];
+  sponsorlu: boolean;
+  website: string | null;
+}
+
+async function getYazi(slug: string): Promise<Yazi | null> {
+  const statik = getBlogYazi(slug);
+  if (statik) {
+    return {
+      title: statik.title, summary: statik.summary, category: statik.category,
+      author: statik.author, created_at: statik.created_at, okumaDk: statik.okumaDk,
+      govde: statik.govde, sponsorlu: false, website: null,
+    };
+  }
+
+  try {
+    const { data } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('slug', slug)
+      .eq('published', true)
+      .maybeSingle();
+
+    const p = data as any;
+    if (!p) return null;
+    // status kolonu varsa yalnızca yayında olanlar açılır
+    if (p.status && p.status !== 'published') return null;
+
+    return {
+      title: p.title,
+      summary: p.summary || '',
+      category: p.category || 'Diş Sağlığı',
+      author: p.entity_name || p.author || 'Hekimhane',
+      created_at: p.created_at,
+      okumaDk: p.okuma_dk || okumaSuresi(p.content || ''),
+      govde: parseGovde(p.content || ''),
+      sponsorlu: p.sponsorlu === true,
+      website: p.website || null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const y = await getYazi(params.slug);
   if (!y) return { title: 'Yazı Bulunamadı | Hekimhane' };
-  const url = `https://www.hekimhane.com.tr/blog/${y.slug}`;
+  const url = `https://www.hekimhane.com.tr/blog/${params.slug}`;
   return {
     title: `${y.title} | Hekimhane Blog`,
     description: y.summary,
@@ -21,14 +79,16 @@ export function generateMetadata({ params }: Props): Metadata {
   };
 }
 
-const trTarih = (s: string) =>
-  new Date(s).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+const trTarih = (s: string) => {
+  try { return new Date(s).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }); }
+  catch { return s; }
+};
 
-export default function BlogDetayPage({ params }: Props) {
-  const y = getBlogYazi(params.slug);
+export default async function BlogDetayPage({ params }: Props) {
+  const y = await getYazi(params.slug);
   if (!y) notFound();
 
-  const digerYazilar = BLOG_YAZILARI.filter(x => x.slug !== y.slug).slice(0, 3);
+  const digerYazilar = BLOG_YAZILARI.filter(x => x.slug !== params.slug).slice(0, 3);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -38,7 +98,7 @@ export default function BlogDetayPage({ params }: Props) {
     author: { '@type': 'Organization', name: y.author },
     datePublished: y.created_at,
     publisher: { '@type': 'Organization', name: 'Hekimhane' },
-    mainEntityOfPage: `https://www.hekimhane.com.tr/blog/${y.slug}`,
+    mainEntityOfPage: `https://www.hekimhane.com.tr/blog/${params.slug}`,
   };
 
   return (
@@ -74,6 +134,18 @@ export default function BlogDetayPage({ params }: Props) {
 
       {/* Gövde */}
       <article className="container" style={{ maxWidth: 760, padding: '40px 32px 24px' }}>
+        {y.sponsorlu && (
+          <div style={{ background: '#FDF6E3', border: '1px solid #F0DFB4', borderRadius: 14, padding: '14px 18px', marginBottom: 26 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: '#B8860B', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 5 }}>
+              İş Ortağı İçeriği
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}>
+              Bu makale ticari bir iş ortağı ile iş birliği içinde hazırlanmıştır.
+              İçerik, okuyucuya değer sunmak amacıyla düzenlenmiştir.
+            </div>
+          </div>
+        )}
+
         <p style={{ fontSize: 18, lineHeight: 1.7, color: 'var(--text)', fontWeight: 500, marginBottom: 28, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
           {y.summary}
         </p>
@@ -92,11 +164,21 @@ export default function BlogDetayPage({ params }: Props) {
           return <p key={i} style={{ fontSize: 16, lineHeight: 1.75, color: 'var(--text)', marginBottom: 16 }}>{b.metin}</p>;
         })}
 
+        {/* Yazarın sitesi — panel/iş ortağı makalelerinde */}
+        {y.website && (
+          <div style={{ marginTop: 26, background: '#EFF6FF', border: '1px solid #DBEAFE', borderRadius: 14, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 13.5, color: 'var(--muted)' }}>Bu yazı <strong style={{ color: 'var(--navy)' }}>{y.author}</strong> tarafından hazırlanmıştır.</span>
+            <a href={y.website} target="_blank" rel="noopener" style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--navy)', textDecoration: 'none' }}>
+              {y.website.replace(/^https?:\/\//, '')} ↗
+            </a>
+          </div>
+        )}
+
         {/* Randevu CTA */}
         <div style={{ marginTop: 32, background: 'white', border: '1px solid var(--border)', borderRadius: 16, padding: '22px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>
             <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--navy)', marginBottom: 4 }}>Diş hekimi mi arıyorsunuz?</div>
-            <div style={{ fontSize: 14, color: 'var(--muted)' }}>Size en yakın uzman diş hekimini Hekimhane'de bulun.</div>
+            <div style={{ fontSize: 14, color: 'var(--muted)' }}>Size en yakın uzman diş hekimini Hekimhane&apos;de bulun.</div>
           </div>
           <Link href="/dis-hekimleri" style={{ flexShrink: 0, padding: '11px 22px', borderRadius: 11, background: 'var(--navy)', color: 'white', fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>
             Diş Hekimlerini Gör

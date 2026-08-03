@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import type { User } from '@supabase/supabase-js';
+import MakalelerTab from './MakalelerTab';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
@@ -178,7 +179,7 @@ const SIDEBAR_GROUPS: { title: string | null; items: { key: string; label: strin
   ]},
   { title: 'İçerik', items: [
     { key: 'emailler',    label: 'E-posta Listeleri', icon: IC.users   },
-    { key: 'blog',        label: 'Blog',              icon: IC.blog    },
+    { key: 'blog',        label: 'Makaleler',         icon: IC.blog    },
     { key: 'kullanici',   label: 'Kullanıcılar',      icon: IC.users   },
   ]},
   { title: 'Sistem', items: [
@@ -850,93 +851,6 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
           onSaved={updated => setItems(prev => prev.map(it => it.id === updated.id ? updated : it))}
         />
       )}
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════
-   BLOG SEKMESİ
-═══════════════════════════════════════════════ */
-function BlogTab() {
-  const [posts, setPosts]   = useState<Entity[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [toggling, setToggling] = useState<string | null>(null);
-  const [toast, setToast]   = useState('');
-
-  useEffect(() => {
-    const sb = createSupabaseBrowser();
-    (sb as any).from('blog_posts').select('id,title,slug,category,published,views,created_at').order('created_at', { ascending: false })
-      .then(({ data }: any) => { setPosts(data || []); setLoading(false); });
-  }, []);
-
-  async function togglePublish(id: string, current: boolean) {
-    setToggling(id);
-    const sb = createSupabaseBrowser();
-    await (sb as any).from('blog_posts').update({ published: !current }).eq('id', id);
-    setPosts(prev => prev.map(p => p.id === id ? { ...p, published: !current } : p));
-    setToggling(null);
-    showToast(!current ? 'Yazı yayınlandı' : 'Yazı gizlendi');
-  }
-
-  function showToast(msg: string) {
-    setToast(msg);
-    setTimeout(() => setToast(''), 3000);
-  }
-
-  return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <div>
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: C.text, letterSpacing: '-0.4px', margin: 0 }}>Blog Yazıları</h2>
-          <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>Yayın durumunu buradan yönetin</p>
-        </div>
-      </div>
-
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: 48, color: C.muted }}>Yükleniyor...</div>
-      ) : posts.length === 0 ? (
-        <div style={{ background: C.card, borderRadius: 14, border: `1px solid ${C.border}`, padding: 48, textAlign: 'center', color: C.muted }}>Henüz blog yazısı yok.</div>
-      ) : (
-        <div style={{ background: C.card, borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
-          {/* Tablo başlığı */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 80px 80px 120px', gap: 12, padding: '10px 18px', borderBottom: `1px solid ${C.border}`, background: 'rgba(0,0,0,.2)' }}>
-            {['Başlık', 'Kategori', 'Görüntülenme', 'Durum', 'Aksiyon'].map(h => (
-              <div key={h} style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</div>
-            ))}
-          </div>
-
-          {posts.map((p, i) => (
-            <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '1fr 120px 80px 80px 120px', gap: 12, padding: '13px 18px', borderBottom: i < posts.length - 1 ? `1px solid ${C.border}` : 'none', alignItems: 'center' }}>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title || '—'}</div>
-                <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>/{p.slug}</div>
-              </div>
-              <div style={{ fontSize: 12, color: C.muted }}>{p.category || '—'}</div>
-              <div style={{ fontSize: 12, color: C.text }}>{p.views || 0}</div>
-              <div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: p.published ? C.green : C.muted, background: p.published ? 'rgba(16,185,129,.12)' : 'rgba(255,255,255,.05)', padding: '2px 9px', borderRadius: 8, border: `1px solid ${p.published ? 'rgba(16,185,129,.3)' : C.border}` }}>
-                  {p.published ? 'Yayında' : 'Gizli'}
-                </span>
-              </div>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <button onClick={() => togglePublish(p.id, !!p.published)} disabled={toggling === p.id}
-                  style={{ padding: '5px 12px', borderRadius: 8, border: `1px solid ${p.published ? 'rgba(239,68,68,.3)' : 'rgba(16,185,129,.3)'}`, background: p.published ? 'rgba(239,68,68,.08)' : 'rgba(16,185,129,.08)', color: p.published ? C.red : C.green, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'all .15s', whiteSpace: 'nowrap' }}>
-                  {toggling === p.id ? '...' : p.published ? 'Gizle' : 'Yayınla'}
-                </button>
-                <a href={`/blog/${p.slug}`} target="_blank" rel="noreferrer"
-                  style={{ padding: '5px 10px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'transparent', color: C.muted, fontSize: 11, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <Ic d={IC.eye} size={11} />
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Toast */}
-      <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: `translateX(-50%) translateY(${toast ? '0' : '12px'})`, background: '#1A2744', color: 'white', padding: '10px 22px', borderRadius: 50, fontSize: 13, fontWeight: 600, opacity: toast ? 1 : 0, transition: 'all .3s', zIndex: 9999, pointerEvents: 'none', whiteSpace: 'nowrap' }}>
-        {toast}
-      </div>
     </div>
   );
 }
@@ -2149,6 +2063,16 @@ export default function AdminPage() {
   const [pendingCount, setPendingCount] = useState(0);
   const [randevuPending, setRandevuPending] = useState(0);
   const [reportPending, setReportPending] = useState(0);
+  const [makalePending, setMakalePending] = useState(0);
+
+  const loadMakaleCount = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/makale', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setMakalePending((data.makaleler || []).filter((m: any) => (m.status || (m.published ? 'published' : 'pending')) === 'pending').length);
+    } catch {}
+  }, []);
 
   const loadReportCount = useCallback(async () => {
     try {
@@ -2174,6 +2098,7 @@ export default function AdminPage() {
         loadStats();
         loadClaims();
         loadReportCount();
+        loadMakaleCount();
       }
     });
   }, []);
@@ -2324,7 +2249,8 @@ export default function AdminPage() {
                 const active = tab === item.key;
                 const badge = item.key === 'cekim' ? randevuPending
                   : item.key === 'claims' ? pendingCount
-                  : item.key === 'sikayetler' ? reportPending : 0;
+                  : item.key === 'sikayetler' ? reportPending
+                  : item.key === 'blog' ? makalePending : 0;
                 const badgeColor = item.key === 'cekim' ? '#059669' : item.key === 'sikayetler' ? C.red : C.amber;
                 return (
                   <button key={item.key} onClick={() => setTab(item.key as TabKey)}
@@ -2375,7 +2301,7 @@ export default function AdminPage() {
         {tab === 'hastaneler' && <EntityTab entityType="hastaneler" />}
         {tab === 'doktorlar'  && <EntityTab entityType="doktorlar" />}
         {tab === 'eczaneler'  && <EntityTab entityType="eczaneler" />}
-        {tab === 'blog'       && <BlogTab />}
+        {tab === 'blog'       && <MakalelerTab onCount={setMakalePending} />}
         {tab === 'kullanici'  && <UsersTab />}
         {tab === 'sistem'     && <SistemTab />}
         {tab === 'geocode'    && <GeocodeTab />}

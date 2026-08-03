@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import BlogInteractive from './BlogInteractive';
 import { HASTALIKLAR, KATEGORILER } from '@/lib/hastaliklar-data';
@@ -10,22 +11,32 @@ export const metadata: Metadata = {
   description: 'Diş sağlığı, tedaviler ve hasta rehberleri. Uzman gözünden ağız ve diş sağlığı içerikleri.',
 };
 
-// Statik diş odaklı yazılar (blog_posts boşsa gösterilir)
+// Statik diş odaklı yazılar — DB'den gelen yazılarla birleştirilir
 const STATIK_POSTS = BLOG_YAZILARI.map((y, i) => ({
   id: String(i + 1), slug: y.slug, title: y.title, summary: y.summary,
   category: y.category, author: y.author, created_at: y.created_at,
   cover_image: y.cover_image, views: y.views,
 }));
 
+// Panel/admin üzerinden yayınlanan yazılar + statik yazılar birlikte listelenir.
+// (Eskiden DB doluysa statikler gizleniyordu; ilk onaylanan makalede tüm
+//  statik içerik kaybolmasın diye birleştirip slug'a göre tekilleştiriyoruz.)
 async function getPosts() {
+  // Next Data Cache sabit Supabase sorgusunu süresiz cache'ler → yeni onaylanan
+  // makale listede görünmez. noStore() olmadan yayınlar bayat kalır.
+  noStore();
   try {
     const { data } = await supabase
       .from('blog_posts')
       .select('id,title,slug,summary,category,author,cover_image,views,created_at')
       .eq('published', true)
       .order('created_at', { ascending: false })
-      .limit(30);
-    return (data && data.length > 0) ? data : STATIK_POSTS;
+      .limit(60);
+
+    const dbPosts = data || [];
+    const dbSlugs = new Set(dbPosts.map((p: any) => p.slug));
+    return [...dbPosts, ...STATIK_POSTS.filter(p => !dbSlugs.has(p.slug))]
+      .sort((a: any, b: any) => String(b.created_at).localeCompare(String(a.created_at)));
   } catch {
     return STATIK_POSTS;
   }
