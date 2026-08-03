@@ -147,7 +147,10 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { entity_type, entity_id, entity_name, ad_soyad, tel, email, tercih, mesaj, website } = body || {};
+    const { entity_type, entity_id, entity_name, ad_soyad, tel, email, tercih, mesaj, website, randevu_slot } = body || {};
+    // Slot formatı: "YYYY-MM-DD HH:MM" (yerel; saat dilimi dönüşümü yok)
+    const slot = randevu_slot && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(String(randevu_slot).trim())
+      ? String(randevu_slot).trim() : null;
 
     // Honeypot: gerçek kullanıcılar bu gizli alanı doldurmaz
     if (website) {
@@ -166,6 +169,19 @@ export async function POST(req: NextRequest) {
     }
 
     const admin = adminClient();
+
+    // Slot bazlı ise: aynı işletme + aynı slot zaten alınmış mı? (çakışma)
+    if (slot) {
+      try {
+        const { data: cakisan } = await (admin as any).from('randevu_talepleri')
+          .select('id').eq('entity_id', String(entity_id)).eq('randevu_slot', slot)
+          .neq('status', 'iptal').limit(1).maybeSingle();
+        if (cakisan) {
+          return NextResponse.json({ error: 'Seçtiğiniz saat az önce doldu. Lütfen başka bir saat seçin.' }, { status: 409 });
+        }
+      } catch { /* randevu_slot kolonu yoksa kontrolü atla */ }
+    }
+
     const kayit = {
       entity_type,
       entity_id: String(entity_id),
@@ -176,9 +192,11 @@ export async function POST(req: NextRequest) {
       tercih: tercih ? String(tercih).trim().slice(0, 200) : null,
       mesaj: mesaj ? String(mesaj).trim().slice(0, 1000) : null,
     };
+    // Slot yalnızca varsa insert'e eklenir (kolon yoksa diğer talepler etkilenmesin)
+    const insertKayit = slot ? { ...kayit, randevu_slot: slot } : kayit;
 
     // Önce özel tabloya yaz
-    const { error } = await (admin as any).from('randevu_talepleri').insert(kayit);
+    const { error } = await (admin as any).from('randevu_talepleri').insert(insertKayit);
 
     if (!error) {
       await addToEmailList(admin, kayit);

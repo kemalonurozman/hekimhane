@@ -30,6 +30,25 @@ async function entityAdi(type: EntityType, id: string): Promise<string | null> {
   } catch { return null; }
 }
 
+/** İsim + randevu takvim ayarlarını çeker. Kolonlar yoksa (migration yok) → free mode. */
+async function getCfg(type: EntityType, id: string) {
+  const tbl = TABLE[type];
+  const nameCol = type === 'doktor' ? 'ad,soyad,unvan' : 'name';
+  try {
+    const { data, error } = await supabase.from(tbl)
+      .select(`${nameCol},randevu_aktif,randevu_slot_dk,calisma_saatleri,acik_24_saat`).eq('id', id).maybeSingle();
+    if (error) throw error;
+    const d = data as any;
+    if (!d) return null;
+    const ad = type === 'doktor' ? [d.unvan, d.ad, d.soyad].filter(Boolean).join(' ').trim() : d.name;
+    if (!ad) return null;
+    return { ad, aktif: d.randevu_aktif === true, slotDk: Number(d.randevu_slot_dk) || 30, ch: String(d.calisma_saatleri || ''), acik24: d.acik_24_saat === true };
+  } catch {
+    const ad = await entityAdi(type, id);
+    return ad ? { ad, aktif: false, slotDk: 30, ch: '', acik24: false } : null;
+  }
+}
+
 function hata(mesaj: string): Response {
   const html = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Randevu</title></head>
 <body style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#FBF8F2;color:#6E6E73;">
@@ -46,15 +65,30 @@ export async function GET(req: NextRequest) {
 
   if (!VALID.includes(type) || !id) return hata('Geçersiz randevu bağlantısı. type ve id gereklidir.');
 
-  const ad = await entityAdi(type, id);
-  if (!ad) return hata('İşletme bulunamadı. Bağlantıyı kontrol edin.');
+  const konf = await getCfg(type, id);
+  if (!konf) return hata('İşletme bulunamadı. Bağlantıyı kontrol edin.');
+  const ad = konf.ad;
 
-  // Saat seçenekleri
+  // Slot bazlı ise: dolu slotları çek (çakışmayı engellemek için)
+  let booked: string[] = [];
+  if (konf.aktif) {
+    try {
+      const { data } = await (supabase as any).from('randevu_talepleri')
+        .select('randevu_slot').eq('entity_id', id).not('randevu_slot', 'is', null).neq('status', 'iptal');
+      booked = ((data as any[]) || []).map(r => String(r.randevu_slot)).filter(Boolean);
+    } catch { booked = []; }
+  }
+
+  // Serbest (free) mod için sabit saat listesi
   const saatler: string[] = [];
   for (let h = 8; h <= 20; h++) { saatler.push(`${String(h).padStart(2, '0')}:00`); saatler.push(`${String(h).padStart(2, '0')}:30`); }
   const saatOpts = saatler.map(s => `<option value="${s}">${s}</option>`).join('');
+  const saatInit = konf.aktif ? '<option value="">Önce tarih seçin</option>' : `<option value="">Farketmez</option>${saatOpts}`;
 
-  const cfg = JSON.stringify({ entity_type: type, entity_id: id, entity_name: ad });
+  const cfg = JSON.stringify({
+    entity_type: type, entity_id: id, entity_name: ad,
+    mode: konf.aktif ? 'slot' : 'free', slotDk: konf.slotDk, ch: konf.aktif ? konf.ch : '', acik24: konf.acik24, booked,
+  });
 
   const html = `<!doctype html>
 <html lang="tr"><head>
@@ -108,7 +142,7 @@ export async function GET(req: NextRequest) {
 
     <div class="hk-row">
       <div><label>Tarih</label><input id="tarih" type="date"></div>
-      <div><label>Saat</label><select id="saat"><option value="">Farketmez</option>${saatOpts}</select></div>
+      <div><label>Saat</label><select id="saat">${saatInit}</select></div>
     </div>
 
     <label>Mesaj (isteğe bağlı)</label>
@@ -136,26 +170,74 @@ export async function GET(req: NextRequest) {
   var btn = document.getElementById('hkBtn');
   var msg = document.getElementById('hkMsg');
   var tarih = document.getElementById('tarih');
-  try { tarih.min = new Date().toISOString().split('T')[0]; } catch(e){}
+  var saatEl = document.getElementById('saat');
+  function pad(n){ return (n<10?'0':'')+n; }
+  var td = new Date(); var todayStr = td.getFullYear()+'-'+pad(td.getMonth()+1)+'-'+pad(td.getDate());
+  try { tarih.min = todayStr; } catch(e){}
+  var GUN = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
   function showMsg(t, ok){ msg.textContent = t; msg.className = 'hk-msg ' + (ok ? 'hk-ok' : 'hk-err'); msg.style.display = 'block'; }
+
+  // Slot bazlı: seçilen günün çalışma saatlerinden uygun saatleri üret
+  function gunSlotlari(dateStr){
+    if (!dateStr) return [];
+    var dt = new Date(dateStr+'T00:00:00'); var gun = GUN[dt.getDay()];
+    var open='09:00', close='18:00', acik=true;
+    if (CFG.acik24){ open='08:00'; close='22:00'; }
+    else {
+      var sch={}; try{ sch = CFG.ch ? JSON.parse(CFG.ch) : {}; }catch(e){}
+      if (sch && sch[gun]){ acik = sch[gun].acik!==false; open=sch[gun].baslangic||'09:00'; close=sch[gun].bitis||'18:00'; }
+      else if (CFG.ch){ acik=false; }
+      else { acik = dt.getDay()!==0; }  // çalışma saati tanımsız → Pzt-Cmt 09-18
+    }
+    if (!acik) return [];
+    var t=(+open.split(':')[0])*60+(+open.split(':')[1]);
+    var end=(+close.split(':')[0])*60+(+close.split(':')[1]);
+    var dk=CFG.slotDk||30, out=[];
+    var isToday = dateStr===todayStr; var nowMin = td.getHours()*60+td.getMinutes();
+    while (t+dk<=end){
+      var lbl=pad(Math.floor(t/60))+':'+pad(t%60);
+      var taken = CFG.booked.indexOf(dateStr+' '+lbl)>=0;
+      var past = isToday && t<=nowMin+15;
+      if (!taken && !past) out.push(lbl);
+      t+=dk;
+    }
+    return out;
+  }
+  function tarihDegisti(){
+    if (CFG.mode!=='slot') return;
+    if (!tarih.value){ saatEl.innerHTML='<option value="">Önce tarih seçin</option>'; return; }
+    var arr = gunSlotlari(tarih.value);
+    if (!arr.length){ saatEl.innerHTML='<option value="">Bu gün uygun saat yok</option>'; return; }
+    saatEl.innerHTML = '<option value="">Saat seçin</option>' + arr.map(function(s){ return '<option value="'+s+'">'+s+'</option>'; }).join('');
+  }
+  if (CFG.mode==='slot'){ tarih.addEventListener('change', tarihDegisti); }
+
   btn.addEventListener('click', function(){
     var ad = document.getElementById('ad').value.trim();
     var tel = document.getElementById('tel').value.trim();
     var email = document.getElementById('email').value.trim();
-    var d = document.getElementById('tarih').value;
-    var s = document.getElementById('saat').value;
+    var d = tarih.value;
+    var s = saatEl.value;
     var mesaj = document.getElementById('mesaj').value.trim();
     var website = document.getElementById('website').value;
     if (ad.length < 3) { showMsg('Lütfen ad soyad girin.', false); return; }
     if (tel.replace(/\\D/g,'').length < 10) { showMsg('Geçerli bir telefon numarası girin.', false); return; }
-    var tercih = [d, s].filter(Boolean).join(' ');
+    var payload = {
+      entity_type: CFG.entity_type, entity_id: CFG.entity_id, entity_name: CFG.entity_name,
+      ad_soyad: ad, tel: tel, email: email || null, mesaj: mesaj || null, website: website
+    };
+    if (CFG.mode==='slot'){
+      if (!d){ showMsg('Lütfen tarih seçin.', false); return; }
+      if (!s){ showMsg('Lütfen uygun bir saat seçin.', false); return; }
+      payload.randevu_slot = d+' '+s;
+      payload.tercih = d+' '+s;
+    } else {
+      payload.tercih = [d, s].filter(Boolean).join(' ') || null;
+    }
     btn.disabled = true; btn.textContent = 'Gönderiliyor…'; msg.style.display = 'none';
     fetch('/api/randevu-talebi', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        entity_type: CFG.entity_type, entity_id: CFG.entity_id, entity_name: CFG.entity_name,
-        ad_soyad: ad, tel: tel, email: email || null, tercih: tercih || null, mesaj: mesaj || null, website: website
-      })
+      body: JSON.stringify(payload)
     }).then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
       .then(function(res){
         if (res.ok && res.j && res.j.ok) {

@@ -1630,19 +1630,26 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
   const [notifyEmail, setNotifyEmail] = useState('');
   const [notifySaving, setNotifySaving] = useState(false);
   const [notifyMsg, setNotifyMsg] = useState('');
+  const [takvimAktif, setTakvimAktif] = useState(false);
+  const [slotDk, setSlotDk] = useState(30);
+  const [takvimSaving, setTakvimSaving] = useState(false);
+  const [takvimMsg, setTakvimMsg] = useState('');
   const entities = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
 
-  // Seçili işletmenin bildirim e-postasını yükle
+  // Seçili işletmenin bildirim e-postasını + randevu takvim ayarını yükle
   useEffect(() => {
     const e = entities[idx] || entities[0];
     if (!e) return;
     const TM: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
     const tbl = TM[e.entity_type]; if (!tbl) return;
     const sb = createSupabaseBrowser();
-    sb.from(tbl).select('randevu_email').eq('id', e.entity_id!).maybeSingle().then(({ data }) => {
-      const v = String((data as any)?.randevu_email || '').trim();
+    sb.from(tbl).select('randevu_email,randevu_aktif,randevu_slot_dk').eq('id', e.entity_id!).maybeSingle().then(({ data }) => {
+      const d = (data as any) || {};
+      const v = String(d.randevu_email || '').trim();
       if (v) { setNotifyMode('custom'); setNotifyEmail(v); } else { setNotifyMode('same'); setNotifyEmail(''); }
-      setNotifyMsg('');
+      setTakvimAktif(d.randevu_aktif === true);
+      setSlotDk(Number(d.randevu_slot_dk) || 30);
+      setNotifyMsg(''); setTakvimMsg('');
     });
   }, [idx, approvedClaims.length]);  // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1677,6 +1684,19 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
       setNotifyMsg(res.ok && j.success ? 'Kaydedildi' : (j.error || 'Kaydedilemedi'));
     } catch { setNotifyMsg('Bağlantı hatası'); }
     setNotifySaving(false);
+  }
+
+  async function saveTakvim() {
+    setTakvimSaving(true); setTakvimMsg('');
+    try {
+      const res = await fetch('/api/panel/update-entity', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entityType: ent.entity_type, entityId: ent.entity_id, fields: { randevu_aktif: takvimAktif, randevu_slot_dk: slotDk } }),
+      });
+      const j = await res.json().catch(() => ({}));
+      setTakvimMsg(res.ok && j.success ? 'Kaydedildi' : (j.error || 'Kaydedilemedi'));
+    } catch { setTakvimMsg('Bağlantı hatası'); }
+    setTakvimSaving(false);
   }
 
   const IcS = ({ d, size = 15, color = A.muted, sw = 1.8 }: { d: string; size?: number; color?: string; sw?: number }) => (
@@ -1755,6 +1775,49 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
               {notifySaving ? 'Kaydediliyor…' : 'Kaydet'}
             </button>
             {notifyMsg && <span style={{ fontSize: 13, fontWeight: 600, color: notifyMsg === 'Kaydedildi' ? '#1D7A3E' : '#C0392B' }}>{notifyMsg}</span>}
+          </div>
+        </div>
+
+        {/* Randevu takvimi (slot bazlı) */}
+        <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: 22, boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
+          <div style={{ fontSize: 15.5, fontWeight: 600, color: A.text, letterSpacing: '-0.2px' }}>Randevu takvimi (slot bazlı)</div>
+          <p style={{ fontSize: 13, color: A.muted, margin: '4px 0 14px', lineHeight: 1.5 }}>
+            Açık olduğunda hastalar; çalışma saatlerinize göre <strong>uygun saati seçip</strong> randevu alır (dolu saatler gizlenir). Kapalıysa serbest tarih/saat tercihi bırakırlar.
+          </p>
+
+          <div onClick={() => { setTakvimAktif(v => !v); setTakvimMsg(''); }}
+            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 12, background: takvimAktif ? 'rgba(52,199,89,.08)' : A.page, border: `1px solid ${takvimAktif ? 'rgba(52,199,89,.4)' : A.line}`, cursor: 'pointer' }}>
+            <div style={{ width: 42, height: 26, borderRadius: 13, background: takvimAktif ? A.green : '#C7C7CC', position: 'relative', transition: 'background .2s', flexShrink: 0 }}>
+              <div style={{ position: 'absolute', top: 2, left: takvimAktif ? 18 : 2, width: 22, height: 22, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.25)', transition: 'left .2s' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: A.text }}>Slot bazlı randevu {takvimAktif ? 'açık' : 'kapalı'}</div>
+              <div style={{ fontSize: 12, color: A.muted, marginTop: 1 }}>Hastalar uygun saati listeden seçsin</div>
+            </div>
+          </div>
+
+          {takvimAktif && (
+            <div style={{ marginTop: 14 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: A.muted, marginBottom: 6 }}>Randevu aralığı</label>
+              <select value={slotDk} onChange={e => { setSlotDk(Number(e.target.value)); setTakvimMsg(''); }}
+                style={{ width: '100%', padding: '11px 13px', borderRadius: 11, border: `1px solid ${A.line}`, fontSize: 14, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none' }}>
+                {[15, 20, 30, 45, 60].map(m => <option key={m} value={m}>{m} dakika</option>)}
+              </select>
+              <div style={{ display: 'flex', gap: 9, padding: '11px 13px', background: '#F0F9FF', borderRadius: 10, border: '1px solid #BAE6FD', marginTop: 12 }}>
+                <IcS d="M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20z M12 16v-4 M12 8h.01" size={15} color="#0369A1" />
+                <p style={{ fontSize: 12, color: '#075985', lineHeight: 1.55, margin: 0 }}>
+                  Saatler <strong>Profili Düzenle → Çalışma Saatleri</strong>’nden okunur. Orada gün/saatlerinizi ayarlayın; slotlar buna göre oluşur.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 14 }}>
+            <button onClick={saveTakvim} disabled={takvimSaving}
+              style={{ padding: '10px 20px', borderRadius: 11, border: 'none', background: A.accent, color: '#fff', fontSize: 13.5, fontWeight: 600, cursor: takvimSaving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: takvimSaving ? .6 : 1 }}>
+              {takvimSaving ? 'Kaydediliyor…' : 'Kaydet'}
+            </button>
+            {takvimMsg && <span style={{ fontSize: 13, fontWeight: 600, color: takvimMsg === 'Kaydedildi' ? '#1D7A3E' : '#C0392B' }}>{takvimMsg}</span>}
           </div>
         </div>
 
