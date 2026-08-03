@@ -29,7 +29,7 @@ async function getDoktorlar(filters: Record<string, string | undefined> & { page
   let query = supabase.from('doktorlar').select('*', { count: 'exact' })
     .order('rat', { ascending: false }).range(from, from + PAGE_SIZE - 1);
   // Diş hekimlerini hariç tut
-  query = (query as any).not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}');
+  query = (query as any).not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
   if (filters.il)     query = query.eq('il', filters.il);
   if (filters.ilce)   query = query.eq('ilce', filters.ilce);
   if (filters.spec)   query = query.eq('spec', filters.spec);
@@ -43,7 +43,7 @@ async function getDoktorlar(filters: Record<string, string | undefined> & { page
 async function getIller(spec?: string) {
   // il + count — aktif spec filtresi varsa sadece o uzmanlıktan sayar
   let query = (supabase.from('doktorlar').select('il').not('il', 'is', null).limit(100000) as any)
-    .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}');
+    .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
   if (spec) query = query.eq('spec', spec);
   const { data } = await query;
   const map: Record<string, number> = {};
@@ -56,7 +56,7 @@ async function getIller(spec?: string) {
 async function getUzmanliklar(il?: string) {
   // spec + count — diş hekimliği hariç, aktif il filtresi varsa sadece o şehirden sayar
   let query = (supabase.from('doktorlar').select('spec').not('spec', 'is', null).limit(100000) as any)
-    .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}');
+    .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
   if (il) query = query.eq('il', il);
   const { data } = await query;
   const map: Record<string, number> = {};
@@ -71,7 +71,7 @@ async function getKonumlar(filters: Record<string, string | undefined>) {
   let query = (supabase.from('doktorlar')
     .select('id,ad,soyad,lat,lng,tel,spec,il,ilce,slug')
     .not('il', 'is', null) as any)
-    .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}');
+    .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
   if (filters.il)   query = query.eq('il', filters.il);
   if (filters.ilce) query = query.eq('ilce', filters.ilce);
   if (filters.spec) query = query.eq('spec', filters.spec);

@@ -24,7 +24,7 @@ export const MAKALE_KATEGORILERI = [
 ];
 
 export const ICERIK_IPUCU =
-  'Düz metin yazın. Ara başlık için satırın başına ##, madde için - koyun. Paragrafları boş satırla ayırın.';
+  'Biçimlendirme: ## Başlık · - Madde · **kalın** · [bağlantı](https://...) · > Alıntı · ![görsel](https://...). Paragrafları boş satırla ayırın.';
 
 /** Başlıktan URL slug'ı üretir (Türkçe karakter uyumlu). */
 export function makaleSlug(text: string): string {
@@ -65,6 +65,21 @@ export function parseGovde(text: string): BlogBlok[] {
       paragrafiKapat(); listeyiKapat();
       const baslik = satir.replace(/^#+\s*/, '').trim();
       if (baslik) bloklar.push({ tip: 'h', metin: baslik });
+      continue;
+    }
+
+    // Görsel: ![alt](https://...)
+    const gorsel = satir.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)$/);
+    if (gorsel) {
+      paragrafiKapat(); listeyiKapat();
+      bloklar.push({ tip: 'gorsel', url: gorsel[2], alt: gorsel[1] || '' });
+      continue;
+    }
+
+    // Alıntı: > metin
+    if (/^>\s+/.test(satir)) {
+      paragrafiKapat(); listeyiKapat();
+      bloklar.push({ tip: 'alinti', metin: satir.replace(/^>\s+/, '').trim() });
       continue;
     }
 

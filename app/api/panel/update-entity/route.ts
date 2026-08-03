@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     const ALLOWED_FIELDS: Record<string, string[]> = {
       klinik:  ['name','sorumlu_hekim','type','il','ilce','adres','tel','whatsapp','website','maps_url','specs','online','acil','logo','cover','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','lat','lng'],
       hastane: ['name','sorumlu_hekim','type','il','ilce','adres','tel','whatsapp','website','maps_url','specs','docs','beds','founded','logo','cover','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','lat','lng'],
-      doktor:  ['ad','soyad','spec','il','ilce','clinic_name','tel','whatsapp','fee','bio','okul','sigorta','tags','unvan','online','photo','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','lat','lng'],
+      doktor:  ['ad','soyad','spec','il','ilce','clinic_name','tel','email','contact_hidden','whatsapp','fee','bio','okul','sigorta','tags','unvan','online','photo','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','lat','lng'],
       eczane:  ['name','pharmacist','il','ilce','address','tel','whatsapp','chamber','logo','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','lat','lng'],
     };
 

@@ -36,7 +36,7 @@ async function adminMi(request: NextRequest) {
   return session?.user?.email === ADMIN_EMAIL;
 }
 
-const SELECT = 'id,title,slug,summary,category,content,cover_image,author,author_email,entity_name,website,sponsorlu,kaynak,status,published,red_notu,okuma_dk,views,created_at';
+const SELECT = 'id,title,slug,summary,category,content,cover_image,author,author_email,entity_name,website,sponsorlu,kaynak,status,published,red_notu,okuma_dk,views,created_at,show_homepage';
 const kolonYok = (msg?: string) =>
   /column .* does not exist|could not find|schema cache/i.test(msg || '');
 const MIGRATION_UYARISI =
@@ -131,7 +131,7 @@ export async function PATCH(request: NextRequest) {
 
     const b = await request.json();
     const id = String(b.id || '');
-    const action = String(b.action || '') as 'approve' | 'reject' | 'hide' | 'publish' | 'delete';
+    const action = String(b.action || '') as 'approve' | 'reject' | 'hide' | 'publish' | 'delete' | 'homepage';
     const not = String(b.not || '').trim().slice(0, 500);
     const bildir = b.bildir !== false;   // varsayılan: yazara mail at
 
@@ -145,6 +145,16 @@ export async function PATCH(request: NextRequest) {
     if (action === 'delete') {
       const { error } = await (admin as any).from('blog_posts').delete().eq('id', id);
       if (error) return NextResponse.json({ error: 'Silinemedi' }, { status: 500 });
+      return NextResponse.json({ ok: true });
+    }
+
+    // Anasayfada öne çıkar / kaldır (admin curation)
+    if (action === 'homepage') {
+      const { error } = await (admin as any).from('blog_posts').update({ show_homepage: b.value === true }).eq('id', id);
+      if (error) {
+        if (kolonYok(error.message)) return NextResponse.json({ error: 'show_homepage kolonu yok — add_makale_placement.sql çalıştırın.' }, { status: 500 });
+        return NextResponse.json({ error: 'Güncellenemedi' }, { status: 500 });
+      }
       return NextResponse.json({ ok: true });
     }
 

@@ -85,6 +85,11 @@ export async function POST(request: NextRequest) {
       const table = TABLE_MAP[claim.entity_type];
       if (table) {
         await admin.from(table).update({ claimed: true }).eq('id', claim.entity_id);
+        // Doktor sahiplenince gizli iletişimi (Bobath vb.) otomatik aç — best-effort
+        if (claim.entity_type === 'doktor') {
+          try { await admin.from(table).update({ contact_hidden: false }).eq('id', claim.entity_id); }
+          catch { /* contact_hidden kolonu yoksa sessizce geç */ }
+        }
       }
     }
 

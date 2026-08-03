@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { BLOG_YAZILARI, getBlogYazi, type BlogBlok } from '@/lib/blog-data';
 import { supabase } from '@/lib/supabase';
 import { parseGovde, okumaSuresi } from '@/lib/makale-icerik';
+import MakaleGovde from '@/components/MakaleGovde';
 
 interface Props { params: { slug: string } }
 
@@ -21,6 +22,7 @@ interface Yazi {
   summary: string;
   category: string;
   author: string;
+  authorHref: string | null;
   created_at: string;
   okumaDk: number;
   govde: BlogBlok[];
@@ -34,7 +36,7 @@ async function getYazi(slug: string): Promise<Yazi | null> {
   if (statik) {
     return {
       title: statik.title, summary: statik.summary, category: statik.category,
-      author: statik.author, created_at: statik.created_at, okumaDk: statik.okumaDk,
+      author: statik.author, authorHref: null, created_at: statik.created_at, okumaDk: statik.okumaDk,
       govde: statik.govde, sponsorlu: false, website: null,
       cover_image: statik.cover_image,
     };
@@ -53,11 +55,26 @@ async function getYazi(slug: string): Promise<Yazi | null> {
     // status kolonu varsa yalnızca yayında olanlar açılır
     if (p.status && p.status !== 'published') return null;
 
+    // Doktor yazdıysa yazarı doktor adı + profil linkiyle göster
+    let author = p.entity_name || p.author || 'Hekimhane';
+    let authorHref: string | null = null;
+    if (p.entity_type === 'doktor' && p.entity_id) {
+      try {
+        const { data: d } = await supabase.from('doktorlar').select('ad,soyad,unvan,slug').eq('id', p.entity_id).maybeSingle();
+        const dr = d as any;
+        if (dr) {
+          author = [dr.unvan, dr.ad, dr.soyad].filter(Boolean).join(' ').trim() || author;
+          if (dr.slug) authorHref = `/doktorlar/${dr.slug}`;
+        }
+      } catch { /* geç */ }
+    }
+
     return {
       title: p.title,
       summary: p.summary || '',
       category: p.category || 'Diş Sağlığı',
-      author: p.entity_name || p.author || 'Hekimhane',
+      author,
+      authorHref,
       created_at: p.created_at,
       okumaDk: p.okuma_dk || okumaSuresi(p.content || ''),
       govde: parseGovde(p.content || ''),
@@ -127,7 +144,9 @@ export default async function BlogDetayPage({ params }: Props) {
             {y.title}
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 13, color: 'rgba(255,255,255,.7)', flexWrap: 'wrap' }}>
-            <span>{y.author}</span>
+            {y.authorHref
+              ? <Link href={y.authorHref} style={{ color: 'white', fontWeight: 600, textDecoration: 'none' }}>{y.author} <span style={{ opacity: .7, fontSize: 11 }}>(Diş Hekimi)</span></Link>
+              : <span>{y.author}</span>}
             <span style={{ opacity: .5 }}>•</span>
             <span>{trTarih(y.created_at)}</span>
             <span style={{ opacity: .5 }}>•</span>
@@ -162,20 +181,7 @@ export default async function BlogDetayPage({ params }: Props) {
         <p style={{ fontSize: 18, lineHeight: 1.7, color: 'var(--text)', fontWeight: 500, marginBottom: 28, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
           {y.summary}
         </p>
-        {y.govde.map((b, i) => {
-          if (b.tip === 'h') return <h2 key={i} style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 800, color: 'var(--navy)', margin: '30px 0 12px' }}>{b.metin}</h2>;
-          if (b.tip === 'liste') return (
-            <ul key={i} style={{ margin: '4px 0 18px', paddingLeft: 4, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 9 }}>
-              {b.ogeler.map((o, j) => (
-                <li key={j} style={{ display: 'flex', gap: 10, fontSize: 16, lineHeight: 1.6, color: 'var(--text)' }}>
-                  <span style={{ flexShrink: 0, marginTop: 8, width: 6, height: 6, borderRadius: '50%', background: 'var(--gold)' }} />
-                  {o}
-                </li>
-              ))}
-            </ul>
-          );
-          return <p key={i} style={{ fontSize: 16, lineHeight: 1.75, color: 'var(--text)', marginBottom: 16 }}>{b.metin}</p>;
-        })}
+        <MakaleGovde bloklar={y.govde} />
 
         {/* Yazarın sitesi — panel/iş ortağı makalelerinde */}
         {y.website && (

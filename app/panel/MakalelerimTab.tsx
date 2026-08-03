@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { MAKALE_KATEGORILERI, ICERIK_IPUCU, okumaSuresi } from '@/lib/makale-icerik';
+import { useEffect, useRef, useState } from 'react';
+import { MAKALE_KATEGORILERI, ICERIK_IPUCU, okumaSuresi, parseGovde } from '@/lib/makale-icerik';
 import MakaleGorselYukle from '@/components/MakaleGorselYukle';
+import MakaleGovde from '@/components/MakaleGovde';
 
 const T = {
   navy: '#1B3A69', gold: '#D4A843', white: '#FFFFFF', border: '#E2E8F4',
@@ -44,8 +45,43 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
   const [err,       setErr]       = useState('');
   const [toast,     setToast]     = useState('');
   const [silId,     setSilId]     = useState<string | null>(null);
+  const [onizle,    setOnizle]    = useState(false);
+  const contentRef = useRef<HTMLTextAreaElement>(null);
 
   const F = (k: keyof typeof form, v: string) => setForm(p => ({ ...p, [k]: v }));
+
+  /* Seçili metni sarmalar (kalın/link) ya da satır başına önek ekler (başlık/madde/alıntı). */
+  function bicimle(tur: 'baslik' | 'madde' | 'kalin' | 'link' | 'gorsel' | 'alinti') {
+    const ta = contentRef.current;
+    if (!ta) return;
+    const val = form.content;
+    const s = ta.selectionStart, e = ta.selectionEnd;
+    const secili = val.slice(s, e);
+    let yeni = val, imlecBas = s, imlecSon = e;
+
+    if (tur === 'kalin') {
+      const metin = secili || 'kalın metin';
+      yeni = val.slice(0, s) + `**${metin}**` + val.slice(e);
+      imlecBas = s + 2; imlecSon = s + 2 + metin.length;
+    } else if (tur === 'link') {
+      const metin = secili || 'bağlantı metni';
+      yeni = val.slice(0, s) + `[${metin}](https://)` + val.slice(e);
+      imlecBas = s + 1 + metin.length + 2; imlecSon = imlecBas + 8;   // https:// seçili
+    } else if (tur === 'gorsel') {
+      const ek = `![görsel açıklaması](https://)`;
+      yeni = val.slice(0, s) + ek + val.slice(e);
+      imlecBas = s + ek.length - 1; imlecSon = imlecBas;
+    } else {
+      // satır başına önek: başlık / madde / alıntı
+      const onek = tur === 'baslik' ? '## ' : tur === 'madde' ? '- ' : '> ';
+      const satirBas = val.lastIndexOf('\n', s - 1) + 1;
+      yeni = val.slice(0, satirBas) + onek + val.slice(satirBas);
+      imlecBas = imlecSon = e + onek.length;
+    }
+
+    F('content', yeni);
+    requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(imlecBas, imlecSon); });
+  }
   const bildir = (m: string) => { setToast(m); setTimeout(() => setToast(''), 3200); };
 
   async function yukle() {
@@ -61,9 +97,9 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
 
   useEffect(() => { yukle(); }, []);
 
-  function yeniAc() { setEditId(null); setForm({ ...BOS }); setErr(''); setMod('form'); }
+  function yeniAc() { setEditId(null); setForm({ ...BOS }); setErr(''); setOnizle(false); setMod('form'); }
   function duzenleAc(m: PanelMakale) {
-    setEditId(m.id);
+    setEditId(m.id); setOnizle(false);
     setForm({
       title: m.title || '', summary: m.summary || '',
       category: m.category || MAKALE_KATEGORILERI[0],
@@ -172,10 +208,46 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
         </div>
 
         <div>
-          <label style={lbl}>Makale metni *</label>
-          <textarea style={{ ...inp, minHeight: 320, lineHeight: 1.7 }} value={form.content}
-            onChange={e => F('content', e.target.value)}
-            placeholder={'Giriş paragrafı…\n\n## Ara başlık\n\nParagraf metni…\n\n- Madde bir\n- Madde iki'} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+            <label style={{ ...lbl, marginBottom: 0 }}>Makale metni *</label>
+            <div style={{ display: 'inline-flex', background: '#EEF2FB', borderRadius: 9, padding: 3, gap: 2 }}>
+              <button type="button" onClick={() => setOnizle(false)}
+                style={{ padding: '5px 12px', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 700, background: onizle ? 'transparent' : T.white, color: onizle ? T.muted : T.navy, boxShadow: onizle ? 'none' : '0 1px 2px rgba(0,0,0,.08)' }}>Yaz</button>
+              <button type="button" onClick={() => setOnizle(true)}
+                style={{ padding: '5px 12px', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 700, background: onizle ? T.white : 'transparent', color: onizle ? T.navy : T.muted, boxShadow: onizle ? '0 1px 2px rgba(0,0,0,.08)' : 'none' }}>Önizleme</button>
+            </div>
+          </div>
+
+          {!onizle && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, margin: '10px 0' }}>
+              {([
+                ['baslik', 'Başlık', 'H'],
+                ['madde', 'Madde', '•'],
+                ['kalin', 'Kalın', 'B'],
+                ['link', 'Bağlantı', '🔗'],
+                ['gorsel', 'Görsel', '🖼'],
+                ['alinti', 'Alıntı', '"'],
+              ] as const).map(([t, etiket, sim]) => (
+                <button key={t} type="button" onClick={() => bicimle(t)}
+                  title={etiket}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 11px', borderRadius: 8, border: `1px solid ${T.border}`, background: T.white, color: T.text, cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 600 }}>
+                  <span style={{ fontWeight: 800, color: T.navy }}>{sim}</span>{etiket}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {onizle ? (
+            <div style={{ minHeight: 320, border: `1px solid ${T.border}`, borderRadius: 12, padding: '20px 22px', background: T.white }}>
+              {form.content.trim()
+                ? <MakaleGovde bloklar={parseGovde(form.content)} />
+                : <div style={{ color: T.muted, fontSize: 14 }}>Önizlenecek içerik yok. “Yaz” sekmesinden metin girin.</div>}
+            </div>
+          ) : (
+            <textarea ref={contentRef} style={{ ...inp, minHeight: 320, lineHeight: 1.7 }} value={form.content}
+              onChange={e => F('content', e.target.value)}
+              placeholder={'Giriş paragrafı…\n\n## Ara başlık\n\nParagraf metni…\n\n- Madde bir\n- Madde iki'} />
+          )}
           <div style={{ fontSize: 11.5, color: T.muted, marginTop: 6, lineHeight: 1.6 }}>
             {ICERIK_IPUCU} — {form.content.trim().length} karakter · ~{okumaSuresi(form.content)} dk okuma
           </div>

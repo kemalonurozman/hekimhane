@@ -66,6 +66,8 @@ export interface ProfilProps {
   lng?: number;
   maps_url?: string | null;
   tel?: string | null;
+  email?: string | null;
+  contactHidden?: boolean | null;   // true → tel+email gizli (kişi katılana/admin açana kadar)
   whatsapp?: string | null;
   website?: string | null;
   logo?: string | null;
@@ -838,7 +840,12 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
 
 // ── Ana Bileşen ───────────────────────────────────────────────────
 export default function ProfilSayfasi(props: ProfilProps) {
-  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
+  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
+
+  // Gizli iletişim (ör. Bobath terapisti henüz katılmadı) → tel/email/randevu gizlenir
+  const contactGizli = contactHidden === true;
+  const tel = contactGizli ? null : telRaw;
+  const emailVisible = contactGizli ? null : (email || null);
 
   // Arka plan: PREMIUM → seçili tema (yoksa Pearl), dalgalar hareketli.
   // NORMAL → her zaman "Pearl-lite": açık, temiz, hareketsiz sade zemin (koyu değil).
@@ -981,6 +988,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
         { l: 'İlçe', v: ilce || '—' },
         { l: 'Deneyim', v: exp ? `${exp} yıl` : '—' },
         { l: 'Seans Ücreti', v: fee ? `${fee.toLocaleString('tr')} ₺` : '—' },
+        { l: 'Telefon', v: tel || '—' },
+        { l: 'E-posta', v: emailVisible || '—' },
       ]
     : entityType === 'eczane'
     ? [
@@ -1214,11 +1223,19 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
             {/* Aksiyon butonları — Randevu Al öne çıkan; Ara / WhatsApp / Yol Tarifi / Web Sitesi */}
             <div className="profil-action-col">
-              {/* Randevu Al — birincil */}
+              {/* İletişim gizliyse (ör. Bobath terapisti henüz katılmadı) → randevu/iletişim yerine bilgi */}
+              {contactGizli ? (
+                <div style={{ padding: '13px 16px', borderRadius: 12, background: heroLight ? 'rgba(19,43,82,.06)' : 'rgba(255,255,255,.12)', border: `1px solid ${heroLight ? 'rgba(19,43,82,.15)' : 'rgba(255,255,255,.25)'}`, color: hName, fontSize: 12.5, lineHeight: 1.5, display: 'flex', gap: 9, alignItems: 'flex-start' }}>
+                  <i className="fa-solid fa-lock" style={{ color: 'var(--gold)', marginTop: 2 }} />
+                  <span>İletişim bilgileri gizli. Bu profil sahibi Hekimhane&apos;ye katılıp doğrulandığında telefon ve e-posta görünür olacak.</span>
+                </div>
+              ) : (
+              /* Randevu Al — birincil */
               <button onClick={() => setRandevuModal(true)}
                 style={{ padding: '13px 20px', borderRadius: 12, fontSize: 14, fontWeight: 800, background: 'var(--gold)', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 6px 18px rgba(212,168,67,.35)' }}>
                 <i className="fa-solid fa-calendar-check" /> Randevu Al
               </button>
+              )}
 
               {/* İkincil aksiyonlar — mevcut veriye göre otomatik dizilir */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(92px, 1fr))', gap: 8 }}>

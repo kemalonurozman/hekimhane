@@ -2335,6 +2335,34 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                 {et==='eczane'&&<div><label style={LBL}>Eczacı Adı</label><input value={String(formData.pharmacist||'')} placeholder="Ad Soyad" style={INP} onChange={e=>F('pharmacist',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
               </div>
 
+              {/* Doktor — e-posta + iletişim görünürlüğü (hekim kendisi seçer) */}
+              {et==='doktor'&&(<>
+                <div><label style={LBL}>E-posta <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600, color:T.muted }}>· iletişim için</span></label>
+                  <input type="email" value={String(formData.email||'')} placeholder="ornek@mail.com" style={INP} onChange={e=>F('email',e.target.value)} onFocus={onF} onBlur={offF}/>
+                </div>
+                <div>
+                  <label style={LBL}>İletişim Bilgilerim <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600, color:T.muted }}>· telefon ve e-posta</span></label>
+                  <div style={{ display:'flex', gap:8 }}>
+                    {([[false,'Görünür','Ziyaretçiler telefon ve e-postanızı görebilir','M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9A3 3 0 1 0 12 15a3 3 0 0 0 0-6z'],[true,'Gizli','Profilinizde gösterilmez','M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z M7 11V7a5 5 0 0 1 10 0v4']] as const).map(([val,lbl,desc,icon])=>{
+                      const active = (formData.contact_hidden===true) === val;
+                      return (
+                        <button key={String(val)} type="button" onClick={()=>F('contact_hidden', val)}
+                          style={{ flex:1, padding:'11px 13px', borderRadius:10, textAlign:'left', cursor:'pointer', fontFamily:'inherit',
+                            border:`1.5px solid ${active?T.navy:T.border}`, background: active?'rgba(27,58,105,.06)':'white' }}>
+                          <div style={{ fontSize:12.5, fontWeight:700, color: active?T.navy:T.text, display:'flex', alignItems:'center', gap:6 }}>
+                            <Ic d={icon} size={13}/> {lbl}
+                          </div>
+                          <div style={{ fontSize:11, color:T.muted, marginTop:3, lineHeight:1.4 }}>{desc}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p style={{ fontSize:11, color:T.muted, marginTop:6, lineHeight:1.6 }}>
+                    &quot;Gizli&quot; seçerseniz telefon ve e-posta adresiniz profilinizde ziyaretçilere gösterilmez; dilediğiniz zaman &quot;Görünür&quot; yapabilirsiniz.
+                  </p>
+                </div>
+              </>)}
+
               {/* WhatsApp — işletmeye aktif mi diye sorulur; premium üyelikte profilde görünür */}
               <div>
                 <label style={LBL}>WhatsApp <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600, color:T.muted }}>· Premium üyelikte profilde görünür</span></label>

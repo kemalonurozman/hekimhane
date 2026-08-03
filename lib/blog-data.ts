@@ -5,7 +5,9 @@
 export type BlogBlok =
   | { tip: 'p'; metin: string }
   | { tip: 'h'; metin: string }
-  | { tip: 'liste'; ogeler: string[] };
+  | { tip: 'liste'; ogeler: string[] }
+  | { tip: 'gorsel'; url: string; alt: string }
+  | { tip: 'alinti'; metin: string };
 
 export interface BlogYazi {
   slug: string;

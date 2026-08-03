@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { MAKALE_KATEGORILERI, ICERIK_IPUCU, parseGovde, okumaSuresi } from '@/lib/makale-icerik';
 import MakaleGorselYukle from '@/components/MakaleGorselYukle';
+import MakaleGovde from '@/components/MakaleGovde';
 
 /* Admin paneli koyu tema — app/admin/page.tsx ile aynı palet */
 const C = {
@@ -24,6 +25,7 @@ export interface AdminMakale {
   entity_name: string | null;
   website: string | null;
   sponsorlu: boolean | null;
+  show_homepage?: boolean | null;
   kaynak: string | null;
   status: string | null;
   published: boolean;
@@ -102,6 +104,22 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
 
       bildir(action === 'approve' || action === 'publish' ? 'Makale yayınlandı' : action === 'reject' ? 'Makale reddedildi' : action === 'hide' ? 'Makale yayından kaldırıldı' : 'Makale silindi');
       setTimeout(() => yukle(), 300);
+    } catch { bildir('Bağlantı hatası'); }
+    setIslemId(null);
+  }
+
+  // Anasayfada öne çıkar / kaldır
+  async function anasayfaToggle(id: string, value: boolean) {
+    setIslemId(id);
+    try {
+      const res = await fetch('/api/admin/makale', {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, action: 'homepage', value }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { bildir(d?.error || 'İşlem başarısız'); setIslemId(null); return; }
+      setMakaleler(p => p.map(m => m.id === id ? { ...m, show_homepage: value } : m));
+      bildir(value ? 'Anasayfada öne çıkarıldı' : 'Anasayfadan kaldırıldı');
     } catch { bildir('Bağlantı hatası'); }
     setIslemId(null);
   }
@@ -293,6 +311,12 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
                     {d === 'published' && (
                       <>
                         <a href={`/blog/${m.slug}`} target="_blank" rel="noreferrer" style={{ ...btn('transparent', C.muted, C.border), textDecoration: 'none' }}>Aç</a>
+                        <button onClick={() => anasayfaToggle(m.id, !m.show_homepage)} disabled={islemId === m.id}
+                          style={m.show_homepage
+                            ? btn('rgba(212,168,67,.15)', '#B8860B', 'rgba(212,168,67,.4)')
+                            : btn('transparent', C.muted, C.border)}>
+                          {m.show_homepage ? '★ Anasayfada' : '☆ Anasayfaya çıkar'}
+                        </button>
                         <button onClick={() => islem(m.id, 'hide')} disabled={islemId === m.id}
                           style={btn('rgba(245,158,11,.08)', C.amber, 'rgba(245,158,11,.3)')}>Yayından kaldır</button>
                       </>
@@ -315,15 +339,7 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
                       <div style={{ fontSize: 12, color: C.blue, marginBottom: 12 }}>Bağlantı: {m.website}</div>
                     )}
                     <div style={{ maxHeight: 420, overflowY: 'auto', paddingRight: 6 }}>
-                      {parseGovde(m.content || '').map((b, i) => {
-                        if (b.tip === 'h') return <div key={i} style={{ fontSize: 14.5, fontWeight: 800, color: C.text, margin: '16px 0 7px' }}>{b.metin}</div>;
-                        if (b.tip === 'liste') return (
-                          <ul key={i} style={{ margin: '0 0 12px', paddingLeft: 18 }}>
-                            {b.ogeler.map((o, j) => <li key={j} style={{ fontSize: 13, color: C.muted, lineHeight: 1.7 }}>{o}</li>)}
-                          </ul>
-                        );
-                        return <p key={i} style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, margin: '0 0 11px' }}>{b.metin}</p>;
-                      })}
+                      <MakaleGovde bloklar={parseGovde(m.content || '')} />
                     </div>
                   </div>
                 )}

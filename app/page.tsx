@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import KategoriKartlari from '@/components/KategoriKartlari';
 import HeroAnimated from '@/components/HeroAnimated';
@@ -35,6 +36,31 @@ async function getStats() {
   }
 }
 
+interface OneCikan {
+  title: string; slug: string; summary: string; category: string;
+  cover_image: string | null; okuma_dk: number | null; sponsorlu: boolean;
+}
+
+/** Admin tarafından "Anasayfada öne çıkar" işaretli yayındaki makaleler. */
+async function getOneCikanMakaleler(): Promise<OneCikan[]> {
+  noStore();   // yeni öne çıkarılan makale Data Cache'te bayatlamasın
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('title,slug,summary,category,cover_image,okuma_dk,sponsorlu')
+      .eq('published', true)
+      .eq('show_homepage', true)
+      .order('created_at', { ascending: false })
+      .limit(3);
+    if (error) return [];   // show_homepage kolonu yoksa sessizce boş
+    return (data as any[])?.map(p => ({
+      title: p.title, slug: p.slug, summary: p.summary || '',
+      category: p.category || 'Diş Sağlığı', cover_image: p.cover_image || null,
+      okuma_dk: p.okuma_dk || null, sponsorlu: p.sponsorlu === true,
+    })) || [];
+  } catch { return []; }
+}
+
 const POPÜLER_İLLER = [
   'İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya',
   'Adana', 'Konya', 'Gaziantep', 'Muğla', 'Mersin',
@@ -56,7 +82,7 @@ function IconArrow() {
 }
 
 export default async function HomePage() {
-  const stats = await getStats();
+  const [stats, oneCikanlar] = await Promise.all([getStats(), getOneCikanMakaleler()]);
 
   return (
     <div style={{
@@ -157,6 +183,48 @@ export default async function HomePage() {
 
       {/* ── HASTALIK REHBERİ ────────────────────────────────────────── */}
       <HastalikRehberiSection />
+
+      {/* ── ÖNE ÇIKAN MAKALELER ─────────────────────────────────────── */}
+      {oneCikanlar.length > 0 && (
+        <section style={{ padding: '72px 0', background: '#FFFFFF' }}>
+          <div className="container">
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 28 }}>
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '1.2px', textTransform: 'uppercase', color: '#D4A843', margin: '0 0 10px' }}>
+                  Uzmanlardan
+                </p>
+                <h2 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-0.8px', color: '#1B3A69', margin: 0 }}>
+                  Öne Çıkan Makaleler
+                </h2>
+              </div>
+              <Link href="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600, color: '#1B3A69', textDecoration: 'none', flexShrink: 0 }}>
+                Tüm yazılar <IconArrow />
+              </Link>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
+              {oneCikanlar.map(m => (
+                <Link key={m.slug} href={`/blog/${m.slug}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', background: '#fff', border: '1px solid #E5E5EA', borderRadius: 18, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
+                  <div style={{ position: 'relative', aspectRatio: '16 / 9', background: m.cover_image ? '#F5F5F7' : 'linear-gradient(135deg,#1B3A69,#163D6E)' }}>
+                    {m.cover_image
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={m.cover_image} alt={m.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,.85)', fontSize: 13, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase' }}>{m.category}</div>}
+                    {m.sponsorlu && (
+                      <span style={{ position: 'absolute', top: 10, left: 10, fontSize: 10, fontWeight: 800, letterSpacing: '.5px', textTransform: 'uppercase', color: '#B8860B', background: 'rgba(255,255,255,.94)', borderRadius: 8, padding: '3px 8px' }}>İş Ortağı</span>
+                    )}
+                  </div>
+                  <div style={{ padding: '18px 20px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#D4A843', textTransform: 'uppercase', letterSpacing: '.5px' }}>{m.category}</span>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: '#1c1c1e', margin: '8px 0 8px', lineHeight: 1.35 }}>{m.title}</div>
+                    <div style={{ fontSize: 13.5, color: '#6E6E73', lineHeight: 1.55, flex: 1 }}>{m.summary.slice(0, 110)}{m.summary.length > 110 ? '…' : ''}</div>
+                    {m.okuma_dk ? <div style={{ fontSize: 12, color: '#8E8E93', marginTop: 12 }}>{m.okuma_dk} dk okuma</div> : null}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── CTA ─────────────────────────────────────────────────────── */}
       <section className="cta-section">

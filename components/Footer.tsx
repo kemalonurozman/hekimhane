@@ -16,6 +16,7 @@ export default function Footer() {
   // Diş dışı sağlık hizmetleri — ikincil, yalnızca footer'da
   const DIGER_SAGLIK = [
     ['Devlet Diş Hastaneleri', '/devlet-dis-hastaneleri'],
+    ['Bobath Terapistleri', '/bobath-terapistleri'],
     ['Diğer Doktorlar', '/doktorlar'],
     ['Hastaneler',      '/hastaneler'],
     ['Eczaneler',       '/eczaneler'],

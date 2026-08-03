@@ -106,6 +106,8 @@ export interface Doktor {
   online: boolean;
   verified: boolean;
   tel: string | null;
+  email: string | null;
+  contact_hidden: boolean | null;
   whatsapp: string | null;
   tags: string[] | null;
   exp: number;

@@ -457,6 +457,15 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - `supabase/migrations/add_account_activations.sql` — **çalıştırıldı** (aktivasyon akışı için şart).
 - `supabase/migrations/add_whatsapp.sql` — `whatsapp text` kolonu (4 tablo). WhatsApp butonu bu alan doluysa görünür (telefonu körü körüne WhatsApp saymaz).
 - `supabase/migrations/add_yorum_moderation.sql` — yorum şikayet/moderasyon kolonları (yukarıdaki akış için **şart**; çalıştırılmadan şikayet/gizleme çalışmaz).
+- `supabase/migrations/add_bobath_contact.sql` — `doktorlar.email` + `doktorlar.contact_hidden` kolonları. Bobath terapistleri importu (`scripts/import-bobath.js`) ve gizli-iletişim akışı için **şart**. Çalıştırılmadan import commit edilemez.
+
+### Bobath Terapistleri (fizyoterapist kategorisi + gizli iletişim)
+- **Amaç:** ~379 Bobath (fizyoterapist) terapisti; her biri kendi ilinde, ayrı kategori. E-posta/telefon **kayıtlı ama varsayılan gizli** (`contact_hidden=true`); kişi profilini sahiplenince otomatik açılır, admin de elle açıp kapatabilir.
+- **Veri modeli:** `doktorlar`'a `spec='Fizyoterapist'`, `tags=['bobath-terapisti','Fizyoterapist']`, `email`, `contact_hidden=true`, `verified=false`, `clinic_name=null`. Standart `/doktorlar` aramasında **tag ile gizli** (4 sorguya `.not('tags','cs','{bobath-terapisti}')` eklendi — devlet/üniversite gibi).
+- **Import:** `node scripts/import-bobath.js [--commit]` — kaynak `scripts/bobath-data.txt` (pipe: `konum|isim|email|telefon`). Konum→il/ilçe eşlemesi (ALANYA→Antalya, ÇORLU→Tekirdağ, İSTANBUK→İstanbul, "İL / İLÇE" ayrımı, yabancı yerler olduğu gibi); isim ön-eki (ERG./DKT.) temizlenir; Türkçe title-case; e-posta ile dedup. Migration çalışmadan commit **hata verir** (email/contact_hidden kolonu yok).
+- **Sayfalar:** `/bobath-terapistleri` (il il + arama) ve `/bobath-terapistleri/[il]` (terapist kartları, gizli iletişim kilitli rozetle). Veri katmanı `lib/bobath.ts` (il bazında gruplar; `noStore`). Footer 'Diğer Sağlık'ta.
+- **Gizli iletişim gating:** `ProfilSayfasi` `contactHidden` prop'u ile tel+email+Randevu butonunu gizler, "İletişim gizli" notu gösterir (`tel` yeniden atanarak tüm `{tel && ...}` noktaları otomatik kapanır). `/bobath-terapistleri/[il]` kartlarında da aynı.
+- **Otomatik açılma:** `/api/admin/claim-action` onayında entity_type='doktor' ise `contact_hidden=false` (best-effort). **Admin elle toggle:** admin doktor listesinde e-postası olan satırlarda "Gizli/Açık" butonu → `/api/admin/toggle-contact`.
 - `supabase/migrations/add_makale_gonderim.sql` — `blog_posts` onay akışı kolonları (panelden makale gönderimi için **şart**).
 
 ### DB Tabloları (Ağustos eki)

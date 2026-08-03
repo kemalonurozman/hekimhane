@@ -713,6 +713,20 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
     setDeleting(false);
   }
 
+  async function toggleContact(id: string, current: boolean) {
+    const next = !current; // current=hidden? → aç/kapa
+    const res = await fetch('/api/admin/toggle-contact', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ doktorId: id, hidden: next }),
+    });
+    if (res.ok) {
+      setItems(prev => prev.map(it => it.id === id ? { ...it, contact_hidden: next } : it));
+    } else {
+      const d = await res.json().catch(() => ({}));
+      alert('İletişim durumu değiştirilemedi: ' + (d.error || 'Hata'));
+    }
+  }
+
   const labels: Record<string, string> = {
     klinikler:  'Klinik', hastaneler: 'Hastane',
     doktorlar:  'Doktor', eczaneler:  'Eczane',
@@ -785,6 +799,15 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 9px', borderRadius: 8, background: 'rgba(212,168,67,.1)', border: `1px solid rgba(212,168,67,.3)`, color: C.gold, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                     <Ic d={IC.edit} size={11} /> Düzenle
                   </button>
+                  {/* İletişim gizle/aç — yalnız e-postası olan doktorlar (ör. Bobath) */}
+                  {typeKey === 'doktor' && e.email && (
+                    <button onClick={() => toggleContact(e.id, e.contact_hidden !== false)}
+                      title={e.contact_hidden !== false ? 'İletişim gizli — açmak için tıklayın' : 'İletişim açık — gizlemek için tıklayın'}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 8px', borderRadius: 8, background: e.contact_hidden !== false ? 'rgba(255,255,255,.05)' : 'rgba(16,185,129,.12)', border: `1px solid ${e.contact_hidden !== false ? C.border : 'rgba(16,185,129,.3)'}`, color: e.contact_hidden !== false ? C.muted : C.green, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                      <Ic d={e.contact_hidden !== false ? 'M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z M7 11V7a5 5 0 0 1 10 0v4' : 'M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z M7 11V7a5 5 0 0 1 9.9-1'} size={11} />
+                      {e.contact_hidden !== false ? 'Gizli' : 'Açık'}
+                    </button>
+                  )}
                   {url && (
                     <a href={url} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 8px', borderRadius: 8, background: 'rgba(255,255,255,.06)', border: `1px solid ${C.border}`, color: C.dim, fontSize: 11, fontWeight: 600, textDecoration: 'none' }}>
                       <Ic d={IC.eye} size={11} />
