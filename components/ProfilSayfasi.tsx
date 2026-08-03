@@ -579,7 +579,7 @@ const SEAL_CSS = `
    konumu JS ile mühürün ekran koordinatından hesaplanır. */
 .hk-tip{position:fixed;width:270px;max-width:calc(100vw - 24px);
   background:linear-gradient(150deg,#1B3A69,#0F2A55);color:#fff;border-radius:16px;padding:14px 16px;
-  box-shadow:0 18px 44px rgba(15,42,85,.34);pointer-events:none;z-index:1200;text-align:left;
+  box-shadow:0 18px 44px rgba(15,42,85,.34);pointer-events:auto;cursor:pointer;z-index:1200;text-align:left;
   transform:translate(-50%,-100%);animation:hkTipIn .16s ease both;}
 .hk-tip--alt{transform:translate(-50%,0);}
 @keyframes hkTipIn{from{opacity:0;transform:translate(-50%,calc(-100% + 6px));}to{opacity:1;transform:translate(-50%,-100%);}}
@@ -591,6 +591,7 @@ const SEAL_CSS = `
 .hk-tip-title{display:block;font-size:13.5px;font-weight:800;line-height:1.4;margin-bottom:6px;}
 .hk-tip-text{display:block;font-size:12px;line-height:1.6;color:rgba(255,255,255,.74);}
 .hk-tip-cta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;font-weight:800;color:#0F2A55;background:linear-gradient(135deg,#EBC65D,#D4A843);border-radius:999px;padding:6px 12px;line-height:1.2;}
+.hk-tip-dismiss{display:block;margin-top:10px;font-size:10.5px;font-weight:700;letter-spacing:.3px;color:rgba(255,255,255,.5);}
 `;
 
 // ── Randevu Talep Modalı ─────────────────────────────────────────
@@ -1044,18 +1045,18 @@ export default function ProfilSayfasi(props: ProfilProps) {
       {heroBg && <style dangerouslySetInnerHTML={{ __html: HERO_BG_CSS }} />}
       <style dangerouslySetInnerHTML={{ __html: SEAL_CSS }} />
 
-      {/* Sahiplenme mührü ipucu — hero clip'ine takılmaması için kökte, fixed */}
+      {/* Sahiplenilmemiş mühür — bilgi mesajı (sabit; tıklayınca kapanır, sahiplenmeye YÖNLENDİRMEZ) */}
       {sealTip && (
-        <span className={`hk-tip${sealTip.alt ? ' hk-tip--alt' : ''}`} role="tooltip"
+        <span className={`hk-tip${sealTip.alt ? ' hk-tip--alt' : ''}`} role="status"
+          onClick={() => setSealTip(null)}
           style={{ left: sealTip.x, top: sealTip.y }}>
           <span className="hk-tip-kicker">Sahiplenilmemiş profil</span>
-          <span className="hk-tip-title">Bu işletme sizin mi?</span>
+          <span className="hk-tip-title">Bu profil henüz doğrulanmadı</span>
           <span className="hk-tip-text">
-            Ücretsiz sahiplenin; sunduğunuz hizmetleri ve uzmanlık alanlarınızı ekleyin,
-            iletişim bilgilerinizi ve çalışma saatlerinizi güncel tutun, fotoğraflarınızı
-            yayınlayın ve hasta yorumlarını yanıtlayın.
+            Buradaki bilgiler herkese açık kaynaklardan derlenmiştir ve işletme tarafından
+            henüz onaylanmamıştır. İşletme sahibi profili sahiplendiğinde bilgiler güncellenir.
           </span>
-          <span className="hk-tip-cta">Ücretsiz sahiplen →</span>
+          <span className="hk-tip-dismiss">Kapatmak için tıklayın</span>
           <span className="hk-tip-arrow" />
         </span>
       )}
@@ -1148,7 +1149,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
                     <span className="hk-seal-wrap" aria-label={etiket} title={etiket}>{muhur}</span>
                   );
 
-                  const ipucuAc = (el: HTMLElement) => {
+                  // Tıklayınca bilgi mesajını aç/kapat — sahiplenmeye yönlendirmez
+                  const ipucuToggle = (el: HTMLElement) => {
+                    if (sealTip) { setSealTip(null); return; }
                     const r = el.getBoundingClientRect();
                     const yeterliUst = r.top > 260;                    // yukarıda yer var mı?
                     setSealTip({
@@ -1159,15 +1162,13 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   };
 
                   return (
-                    <span className="hk-seal-wrap"
-                      onMouseEnter={e => ipucuAc(e.currentTarget)}
-                      onMouseLeave={() => setSealTip(null)}>
-                      <Link href={`/sahiplen?id=${id}&type=${entityType}`} className="hk-seal-open"
+                    <span className="hk-seal-wrap">
+                      <button type="button" className="hk-seal-open"
                         aria-label={etiket} title={etiket}
-                        onFocus={e => ipucuAc(e.currentTarget.parentElement as HTMLElement)}
-                        onBlur={() => setSealTip(null)}>
+                        onClick={e => ipucuToggle(e.currentTarget)}
+                        style={{ background: 'none', border: 'none', padding: 0, lineHeight: 0 }}>
                         {muhur}
-                      </Link>
+                      </button>
                     </span>
                   );
                 })()}
