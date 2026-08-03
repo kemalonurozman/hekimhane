@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { MAKALE_KATEGORILERI, ICERIK_IPUCU, parseGovde, okumaSuresi } from '@/lib/makale-icerik';
+import MakaleGorselYukle from '@/components/MakaleGorselYukle';
 
 /* Admin paneli koyu tema — app/admin/page.tsx ile aynı palet */
 const C = {
@@ -156,7 +157,7 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
           <input style={inp} value={form.title} onChange={e => F('title', e.target.value)} maxLength={160} placeholder="Makale başlığı" />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>
             <label style={lbl}>Kategori</label>
             <select style={inp} value={form.category} onChange={e => F('category', e.target.value)}>
@@ -167,10 +168,11 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
             <label style={lbl}>Yazar</label>
             <input style={inp} value={form.author} onChange={e => F('author', e.target.value)} />
           </div>
-          <div>
-            <label style={lbl}>Kapak görseli (URL)</label>
-            <input style={inp} value={form.cover_image} onChange={e => F('cover_image', e.target.value)} placeholder="https://…" />
-          </div>
+        </div>
+
+        <div>
+          <label style={lbl}>Kapak görseli</label>
+          <MakaleGorselYukle dark value={form.cover_image} onChange={v => F('cover_image', v)} />
         </div>
 
         <div>

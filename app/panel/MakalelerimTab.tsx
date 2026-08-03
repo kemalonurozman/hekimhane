@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { MAKALE_KATEGORILERI, ICERIK_IPUCU, okumaSuresi } from '@/lib/makale-icerik';
+import MakaleGorselYukle from '@/components/MakaleGorselYukle';
 
 const T = {
   navy: '#1B3A69', gold: '#D4A843', white: '#FFFFFF', border: '#E2E8F4',
@@ -147,17 +148,19 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
             placeholder="Örn. İmplant Tedavisinde İyileşme Süreci Nasıl İlerler?" maxLength={160} />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-          <div>
-            <label style={lbl}>Kategori</label>
-            <select style={inp} value={form.category} onChange={e => F('category', e.target.value)}>
-              {MAKALE_KATEGORILERI.map(k => <option key={k} value={k}>{k}</option>)}
-            </select>
-          </div>
-          <div>
-            <label style={lbl}>Kapak görseli (URL)</label>
-            <input style={inp} value={form.cover_image} onChange={e => F('cover_image', e.target.value)}
-              placeholder="https://…" />
+        <div>
+          <label style={lbl}>Kategori</label>
+          <select style={{ ...inp, maxWidth: 320 }} value={form.category} onChange={e => F('category', e.target.value)}>
+            {MAKALE_KATEGORILERI.map(k => <option key={k} value={k}>{k}</option>)}
+          </select>
+        </div>
+
+        <div>
+          <label style={lbl}>Kapak görseli</label>
+          <MakaleGorselYukle value={form.cover_image} onChange={v => F('cover_image', v)} />
+          <div style={{ fontSize: 11.5, color: T.muted, marginTop: 5 }}>
+            Makalenin başında ve blog listesinde görünür. Yalnızca kullanım hakkına sahip
+            olduğunuz görselleri yükleyin; hasta fotoğrafı için yazılı izin gerekir.
           </div>
         </div>
 

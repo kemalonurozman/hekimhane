@@ -873,6 +873,23 @@ ALTER TABLE eczaneler  ADD COLUMN IF NOT EXISTS photo360   TEXT;
 ALTER TABLE eczaneler  ADD COLUMN IF NOT EXISTS photos     TEXT[];
 ALTER TABLE yorumlar   ADD COLUMN IF NOT EXISTS reply_text TEXT;
 ALTER TABLE yorumlar   ADD COLUMN IF NOT EXISTS reply_at   TIMESTAMPTZ;
+
+-- Makale gönderim / onay akışı (panel → admin → blog)
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS status       TEXT DEFAULT 'published';
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS author_email TEXT;
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS entity_id    TEXT;
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS entity_type  TEXT;
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS entity_name  TEXT;
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS okuma_dk     INTEGER;
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS red_notu     TEXT;
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS kaynak       TEXT;
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS sponsorlu    BOOLEAN DEFAULT false;
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS website      TEXT;
+UPDATE blog_posts SET status = 'published' WHERE status IS NULL AND published = true;
+UPDATE blog_posts SET status = 'pending'   WHERE status IS NULL AND published = false;
+CREATE INDEX IF NOT EXISTS blog_posts_status_idx       ON blog_posts (status);
+CREATE INDEX IF NOT EXISTS blog_posts_author_email_idx ON blog_posts (author_email);
+
 NOTIFY pgrst, 'reload schema';`;
 
 /* ═══════════════════════════════════════════════

@@ -26,6 +26,7 @@ interface Yazi {
   govde: BlogBlok[];
   sponsorlu: boolean;
   website: string | null;
+  cover_image: string | null;
 }
 
 async function getYazi(slug: string): Promise<Yazi | null> {
@@ -35,6 +36,7 @@ async function getYazi(slug: string): Promise<Yazi | null> {
       title: statik.title, summary: statik.summary, category: statik.category,
       author: statik.author, created_at: statik.created_at, okumaDk: statik.okumaDk,
       govde: statik.govde, sponsorlu: false, website: null,
+      cover_image: statik.cover_image,
     };
   }
 
@@ -61,6 +63,7 @@ async function getYazi(slug: string): Promise<Yazi | null> {
       govde: parseGovde(p.content || ''),
       sponsorlu: p.sponsorlu === true,
       website: p.website || null,
+      cover_image: p.cover_image || null,
     };
   } catch {
     return null;
@@ -97,6 +100,7 @@ export default async function BlogDetayPage({ params }: Props) {
     description: y.summary,
     author: { '@type': 'Organization', name: y.author },
     datePublished: y.created_at,
+    ...(y.cover_image ? { image: y.cover_image } : {}),
     publisher: { '@type': 'Organization', name: 'Hekimhane' },
     mainEntityOfPage: `https://www.hekimhane.com.tr/blog/${params.slug}`,
   };
@@ -132,8 +136,17 @@ export default async function BlogDetayPage({ params }: Props) {
         </div>
       </div>
 
+      {/* Kapak görseli */}
+      {y.cover_image && (
+        <div className="container" style={{ maxWidth: 760, padding: '28px 32px 0' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={y.cover_image} alt={y.title}
+            style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: 18, border: '1px solid var(--border)' }} />
+        </div>
+      )}
+
       {/* Gövde */}
-      <article className="container" style={{ maxWidth: 760, padding: '40px 32px 24px' }}>
+      <article className="container" style={{ maxWidth: 760, padding: y.cover_image ? '24px 32px 24px' : '40px 32px 24px' }}>
         {y.sponsorlu && (
           <div style={{ background: '#FDF6E3', border: '1px solid #F0DFB4', borderRadius: 14, padding: '14px 18px', marginBottom: 26 }}>
             <div style={{ fontSize: 11, fontWeight: 800, color: '#B8860B', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 5 }}>
