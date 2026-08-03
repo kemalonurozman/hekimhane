@@ -1352,6 +1352,7 @@ interface RandevuTalep {
   tercih: string | null;
   mesaj: string | null;
   status: string;
+  sahip_notu?: string | null;
   created_at: string;
 }
 const RANDEVU_DURUM: Record<string, { label: string; bg: string; color: string; border: string }> = {
@@ -1367,6 +1368,13 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
   const [updating, setUpdating] = useState<string | null>(null);
   const [selectedEntity, setSelectedEntity] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [notDraft, setNotDraft] = useState<Record<string, string>>({});   // id → düzenlenen not
+  const [notSaving, setNotSaving] = useState<string | null>(null);
+  const [mailOpen, setMailOpen] = useState<string | null>(null);          // mail composer açık talep id
+  const [mailKonu, setMailKonu] = useState('');
+  const [mailMesaj, setMailMesaj] = useState('');
+  const [mailState, setMailState] = useState<'idle' | 'sending' | 'done' | 'err'>('idle');
+  const [mailMsg, setMailMsg] = useState('');
 
   const hasEntities = approvedClaims.some(c => c.entity_id && c.entity_id !== 'new');
 
@@ -1393,6 +1401,43 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
     } catch { /* yoksay */ }
     setUpdating(null);
   }
+
+  async function saveNot(id: string) {
+    const not = notDraft[id] ?? '';
+    setNotSaving(id);
+    try {
+      const res = await fetch('/api/panel/randevu-talepleri', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, sahip_notu: not }),
+      });
+      if (res.ok) {
+        setTalepler(prev => prev.map(t => t.id === id ? { ...t, sahip_notu: not } : t));
+        setNotDraft(p => { const n = { ...p }; delete n[id]; return n; });
+      } else {
+        const d = await res.json().catch(() => ({}));
+        alert(d.error || 'Not kaydedilemedi.');
+      }
+    } catch { alert('Bağlantı hatası.'); }
+    setNotSaving(null);
+  }
+
+  async function sendHastaMail(talepId: string) {
+    if (mailMesaj.trim().length < 5) { setMailState('err'); setMailMsg('Mesaj en az 5 karakter olmalı.'); return; }
+    setMailState('sending'); setMailMsg('');
+    try {
+      const res = await fetch('/api/panel/hasta-mail', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ talepId, konu: mailKonu.trim() || null, mesaj: mailMesaj.trim() }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (res.ok && d.ok) { setMailState('done'); setMailMsg('Mail gönderildi.'); setTimeout(() => { setMailOpen(null); setMailState('idle'); setMailKonu(''); setMailMesaj(''); setMailMsg(''); }, 1400); }
+      else { setMailState('err'); setMailMsg(d.error || 'Gönderilemedi.'); }
+    } catch { setMailState('err'); setMailMsg('Bağlantı hatası.'); }
+  }
+
+  // Aynı telefon numarasıyla kaç talep var (hasta geçmişi göstergesi)
+  const telCount: Record<string, number> = {};
+  talepler.forEach(t => { const k = (t.tel || '').replace(/\D/g, ''); if (k) telCount[k] = (telCount[k] || 0) + 1; });
 
   const entityNames = Array.from(new Set(talepler.map(t => t.entity_name)));
   const shown = talepler
@@ -1478,7 +1523,14 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
                         </div>
                         <div style={{ minWidth: 0 }}>
                           <div style={{ fontSize: 15.5, fontWeight: 600, color: A.text, letterSpacing: '-0.2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.ad_soyad}</div>
-                          <div style={{ fontSize: 12, color: A.muted, marginTop: 1 }}>{fmtDate(t.created_at)}</div>
+                          <div style={{ fontSize: 12, color: A.muted, marginTop: 1, display: 'flex', alignItems: 'center', gap: 7 }}>
+                            {fmtDate(t.created_at)}
+                            {telCount[(t.tel || '').replace(/\D/g, '')] > 1 && (
+                              <span title="Bu telefon numarasından birden fazla talep" style={{ fontSize: 10.5, fontWeight: 700, color: A.accent, background: 'rgba(27,58,105,.08)', borderRadius: 6, padding: '1px 6px' }}>
+                                {telCount[(t.tel || '').replace(/\D/g, '')]} talep
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <span style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: isYeni ? '#1D7A3E' : A.muted, background: isYeni ? 'rgba(52,199,89,.12)' : A.page, borderRadius: 20, padding: '4px 11px' }}>
@@ -1513,6 +1565,48 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
                       {t.status !== 'yeni' && (
                         <button onClick={() => setStatus(t.id, 'yeni')} disabled={updating === t.id}
                           style={{ padding: '8px 15px', borderRadius: 10, fontSize: 13, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', background: 'transparent', color: A.muted, border: `1px solid ${A.line}` }}>Yeni&apos;ye al</button>
+                      )}
+                      {t.email && (
+                        <button onClick={() => { setMailOpen(mailOpen === t.id ? null : t.id); setMailKonu(''); setMailMesaj(''); setMailState('idle'); setMailMsg(''); }}
+                          style={{ padding: '8px 15px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', background: 'transparent', color: A.accent, border: `1px solid ${A.line}`, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                          <IcS d={icons.mail} size={13} color={A.accent} />Mail gönder
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Mail composer */}
+                    {mailOpen === t.id && (
+                      <div style={{ marginTop: 12, background: A.page, borderRadius: 12, padding: 12 }}>
+                        <input value={mailKonu} onChange={e => setMailKonu(e.target.value)} placeholder="Konu (boş bırakılırsa otomatik)"
+                          style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', borderRadius: 9, border: `1px solid ${A.line}`, fontSize: 13, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none', marginBottom: 7 }} />
+                        <textarea value={mailMesaj} onChange={e => setMailMesaj(e.target.value)} rows={3} placeholder={`${t.ad_soyad} adlı hastaya mesajınız…`}
+                          style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', borderRadius: 9, border: `1px solid ${A.line}`, fontSize: 13, fontFamily: 'inherit', color: A.text, background: A.card, resize: 'vertical', outline: 'none', lineHeight: 1.5 }} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+                          <button onClick={() => sendHastaMail(t.id)} disabled={mailState === 'sending'}
+                            style={{ padding: '8px 16px', borderRadius: 10, border: 'none', background: A.accent, color: '#fff', fontSize: 13, fontWeight: 600, cursor: mailState === 'sending' ? 'default' : 'pointer', fontFamily: 'inherit', opacity: mailState === 'sending' ? .6 : 1 }}>
+                            {mailState === 'sending' ? 'Gönderiliyor…' : 'Gönder'}
+                          </button>
+                          <button onClick={() => setMailOpen(null)}
+                            style={{ padding: '8px 14px', borderRadius: 10, border: `1px solid ${A.line}`, background: A.card, color: A.muted, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>Vazgeç</button>
+                          {mailMsg && <span style={{ fontSize: 12.5, fontWeight: 600, color: mailState === 'done' ? '#1D7A3E' : '#C0392B' }}>{mailMsg}</span>}
+                        </div>
+                        <div style={{ fontSize: 11, color: A.muted, marginTop: 7 }}>Hasta e-postası: {t.email} · yanıtlarsa size ulaşır.</div>
+                      </div>
+                    )}
+
+                    {/* Sahip notu — yalnızca sizin gördüğünüz */}
+                    <div style={{ marginTop: 12 }}>
+                      <textarea
+                        value={notDraft[t.id] ?? (t.sahip_notu || '')}
+                        onChange={e => setNotDraft(p => ({ ...p, [t.id]: e.target.value }))}
+                        placeholder="Bu hasta hakkında özel notunuz… (yalnızca siz görürsünüz)"
+                        rows={2}
+                        style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', borderRadius: 10, border: `1px dashed ${A.line}`, fontSize: 13, fontFamily: 'inherit', color: A.text, background: A.card, resize: 'vertical', outline: 'none', lineHeight: 1.5 }} />
+                      {(notDraft[t.id] !== undefined && notDraft[t.id] !== (t.sahip_notu || '')) && (
+                        <button onClick={() => saveNot(t.id)} disabled={notSaving === t.id}
+                          style={{ marginTop: 7, padding: '6px 13px', borderRadius: 9, border: 'none', background: A.accent, color: '#fff', fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                          {notSaving === t.id ? 'Kaydediliyor…' : 'Notu kaydet'}
+                        </button>
                       )}
                     </div>
                   </div>

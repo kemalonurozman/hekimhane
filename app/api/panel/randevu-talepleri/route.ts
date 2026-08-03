@@ -74,9 +74,15 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
     }
-    const { id, status } = await request.json();
-    if (!id || !VALID_STATUS.includes(status)) {
+    const body = await request.json();
+    const { id } = body as { id?: string };
+    const hasStatus = typeof body.status === 'string';
+    const hasNot = typeof body.sahip_notu === 'string';
+    if (!id || (!hasStatus && !hasNot)) {
       return NextResponse.json({ error: 'Geçersiz istek' }, { status: 400 });
+    }
+    if (hasStatus && !VALID_STATUS.includes(body.status)) {
+      return NextResponse.json({ error: 'Geçersiz durum' }, { status: 400 });
     }
     const admin = adminClient();
     const ids = await ownedEntityIds(admin, session.user.email);
@@ -88,9 +94,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Bu talep üzerinde yetkiniz yok' }, { status: 403 });
     }
 
-    const { error } = await (admin as any).from('randevu_talepleri')
-      .update({ status }).eq('id', id);
-    if (error) return NextResponse.json({ error: 'Güncellenemedi' }, { status: 500 });
+    const yama: Record<string, unknown> = {};
+    if (hasStatus) yama.status = body.status;
+    if (hasNot) yama.sahip_notu = String(body.sahip_notu).slice(0, 2000);
+
+    const { error } = await (admin as any).from('randevu_talepleri').update(yama).eq('id', id);
+    if (error) {
+      const kolonYok = /sahip_notu|column|schema cache/i.test(error.message || '');
+      return NextResponse.json({ error: kolonYok ? 'Not kolonu yok — add_randevu_sahip_notu.sql çalıştırın.' : 'Güncellenemedi' }, { status: 500 });
+    }
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: 'Geçersiz istek' }, { status: 400 });
