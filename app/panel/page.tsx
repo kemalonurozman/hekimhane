@@ -2441,10 +2441,17 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
           )}
           {(()=>{
             const slug = String(entityData?.slug||'');
-            const base: Record<string,string> = { doktor:'/doktorlar', klinik:'/klinikler', hastane:'/hastaneler', eczane:'/eczaneler' };
-            if (!slug || !base[et]) return null;
+            const il = tr(String(entityData?.il||'turkiye'));
+            const ilce = tr(String(entityData?.ilce||'merkez'));
+            // Klinik/hastane detay rotası il/ilçe segmentlidir; doktor/eczane yalnız slug.
+            const href =
+              et === 'klinik'  ? `/klinikler/${il}/${ilce}/${slug}` :
+              et === 'hastane' ? `/hastaneler/${il}/${ilce}/${slug}` :
+              et === 'doktor'  ? `/doktorlar/${slug}` :
+              et === 'eczane'  ? `/eczaneler/${slug}` : '';
+            if (!slug || !href) return null;
             return (
-              <a href={`${base[et]}/${slug}`} target="_blank" rel="noopener noreferrer"
+              <a href={href} target="_blank" rel="noopener noreferrer"
                 title="Profilinizi yeni sekmede açar (kayıtlı hâli)"
                 style={{ padding:'9px 16px', borderRadius:10, border:`1.5px solid ${T.border}`, background:'white', color:T.navy, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', textDecoration:'none', display:'flex', alignItems:'center', gap:6 }}>
                 <Ic d="M15 3h6v6 M10 14 21 3 M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" size={13}/>{!isMobile && 'Önizle'}
