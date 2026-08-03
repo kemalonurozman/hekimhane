@@ -6,6 +6,7 @@ import { toSlug } from './helpers';
 import { canonicalDentalSpec, TREATMENTS } from './uzmanlik-data';
 import { KATEGORILER, HASTALIKLAR } from './hastaliklar-data';
 import { BLOG_YAZILARI } from './blog-data';
+import { TEDAVI_SLUGS } from './tedavi-detaylari';
 import { getDevletHospitals } from './devlet-dis';
 
 export const BASE = 'https://www.hekimhane.com.tr';
@@ -63,7 +64,8 @@ export async function buildSection(section: string): Promise<SmUrl[]> {
       const hosp = await getDevletHospitals();
       devlet.push(...hosp.map(h => ({ loc: `${BASE}/devlet-dis-hastaneleri/${h.ilSlug}/${h.slug}`, changefreq: 'weekly' as const, priority: 0.7, lastmod })));
     } catch {}
-    return [...statics, ...kategori, ...hastalik, ...blog, ...devlet];
+    const tedaviDetay: SmUrl[] = TEDAVI_SLUGS.map(s => ({ loc: `${BASE}/tedavi-ucretleri/${s}`, changefreq: 'monthly', priority: 0.75 }));
+    return [...statics, ...kategori, ...hastalik, ...blog, ...devlet, ...tedaviDetay];
   }
 
   // ── KLİNİKLER: tüm klinik detay + ilçe landing ──

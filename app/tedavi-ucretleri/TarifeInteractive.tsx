@@ -1,7 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import type { TarifeKategori } from '@/lib/ucret-tarifesi-2026';
+import { TEDAVI_BY_TARIFE_KOD } from '@/lib/tedavi-detaylari';
 
 const TRMAP: Record<string, string> = { 'İ':'i','I':'i','ı':'i','Ş':'s','ş':'s','Ğ':'g','ğ':'g','Ü':'u','ü':'u','Ö':'o','ö':'o','Ç':'c','ç':'c' };
 const norm = (s = '') => s.split('').map(c => TRMAP[c] ?? c).join('').toLowerCase().replace(/̇/g, '').trim();
@@ -60,18 +62,28 @@ export default function TarifeInteractive({ kategoriler, toplam }: { kategoriler
             </button>
             {open && (
               <div style={{ borderTop: '1px solid #F0ECE4' }}>
-                {k.items.map((it, i) => (
-                  <div key={it.kod} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, padding: '12px 18px', borderTop: i === 0 ? 'none' : '1px solid #F5F1E9' }}>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 13.5, color: 'var(--text)', lineHeight: 1.4 }}>{it.ad}</div>
-                      <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>Kod {it.kod} · KDV hariç {it.kdvHaric} TL</div>
-                    </div>
-                    <div style={{ flexShrink: 0, textAlign: 'right' }}>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--navy)', whiteSpace: 'nowrap' }}>{it.kdvDahil} <span style={{ fontSize: 12, fontWeight: 600 }}>TL</span></div>
-                      <div style={{ fontSize: 10, color: 'var(--muted)' }}>KDV dahil</div>
-                    </div>
-                  </div>
-                ))}
+                {k.items.map((it, i) => {
+                  const detaySlug = TEDAVI_BY_TARIFE_KOD[it.kod];
+                  const inner = (
+                    <>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 13.5, color: 'var(--text)', lineHeight: 1.4, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+                          {it.ad}
+                          {detaySlug && <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--navy)', background: '#EAF1FB', borderRadius: 6, padding: '1px 6px' }}>Detay →</span>}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>Kod {it.kod} · KDV hariç {it.kdvHaric} TL</div>
+                      </div>
+                      <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--navy)', whiteSpace: 'nowrap' }}>{it.kdvDahil} <span style={{ fontSize: 12, fontWeight: 600 }}>TL</span></div>
+                        <div style={{ fontSize: 10, color: 'var(--muted)' }}>KDV dahil</div>
+                      </div>
+                    </>
+                  );
+                  const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, padding: '12px 18px', borderTop: i === 0 ? 'none' : '1px solid #F5F1E9', textDecoration: 'none' };
+                  return detaySlug
+                    ? <Link key={it.kod} href={`/tedavi-ucretleri/${detaySlug}`} style={{ ...rowStyle, background: '#FCFBF8' }}>{inner}</Link>
+                    : <div key={it.kod} style={rowStyle}>{inner}</div>;
+                })}
               </div>
             )}
           </div>

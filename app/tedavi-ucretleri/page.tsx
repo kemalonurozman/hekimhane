@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { UCRET_TARIFESI_2026, TARIFE_ITEM_SAYISI } from '@/lib/ucret-tarifesi-2026';
+import { TEDAVI_DETAYLARI } from '@/lib/tedavi-detaylari';
 import TarifeInteractive from './TarifeInteractive';
 
 const BASE = 'https://www.hekimhane.com.tr';
@@ -70,6 +71,19 @@ export default function TedaviUcretleriPage() {
       </div>
 
       <div className="container" style={{ maxWidth: 860, padding: 'clamp(24px,5vw,40px) clamp(16px,4vw,32px)' }}>
+        {/* Popüler tedaviler — detay sayfaları */}
+        <div style={{ marginBottom: 24 }}>
+          <h2 style={{ fontSize: 15, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.2px', margin: '0 0 12px' }}>Popüler Tedaviler — Detaylı Bilgi</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
+            {TEDAVI_DETAYLARI.map(t => (
+              <Link key={t.slug} href={`/tedavi-ucretleri/${t.slug}`} style={{ display: 'block', padding: '13px 15px', borderRadius: 13, border: '1px solid #EAE6DE', textDecoration: 'none', background: 'white' }}>
+                <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text)', lineHeight: 1.3 }}>{t.ad}</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3 }}>{t.kategori}</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
         <TarifeInteractive kategoriler={UCRET_TARIFESI_2026} toplam={TARIFE_ITEM_SAYISI} />
 
         {/* Yasal not */}
