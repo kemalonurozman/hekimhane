@@ -184,6 +184,59 @@ export const BLOG_YAZILARI: BlogYazi[] = [
       { tip: 'p', metin: UYARI },
     ],
   },
+  {
+    slug: 'neden-hekimhaneye-kayit-olmalisiniz',
+    title: 'İşletmeniz İçin Hekimhane: Neden Kayıt Olmalısınız?',
+    summary: 'Klinik, hastane, muayenehane ve eczaneler için Hekimhane; görünürlükten hasta yönetimine kadar somut avantajlar sunar. Kayıt olmanın işletmenize kattıklarını derledik.',
+    category: 'İşletmeler İçin',
+    author: 'Hekimhane Editör',
+    created_at: '2026-08-02',
+    okumaDk: 7,
+    cover_image: null,
+    views: 0,
+    govde: [
+      { tip: 'p', metin: 'Hastalar bugün bir hekim, klinik ya da eczane ararken önce internete bakıyor; konum, uzmanlık, yorum ve güven işaretlerini karşılaştırarak karar veriyor. Hekimhane, Türkiye genelindeki sağlık işletmelerini tek çatı altında toplayan bir rehber olarak tam da bu karar anında sizi doğru hastayla buluşturur. İşletmenizi sahiplenip (claim) profilinizi yönettiğinizde, sıradan bir listelemenin çok ötesinde araçlara kavuşursunuz.' },
+      { tip: 'p', metin: 'Bu yazıda, Hekimhane\'ye kayıtlı bir işletme olmanın size sağladığı somut avantajları başlıklar hâlinde topladık.' },
+
+      { tip: 'h', metin: 'Görünürlük: Doğru hastanın karşısına çıkın' },
+      { tip: 'p', metin: 'Hekimhane\'de aramalar il, ilçe ve uzmanlık alanına göre yapılır. Profilinizi tamamladığınızda, aradığı hizmeti tam olarak sunan hastaların önüne çıkarsınız; genel bir listede kaybolmazsınız.' },
+      { tip: 'liste', ogeler: [
+        'Karşılaştırmalı sıralama: Puan, yorum ve profil bütünlüğüne göre en iyi işletmeler arama sonuçlarında öne çıkar. Eksiksiz ve güncel bir profil, sizi rakiplerinizin önüne taşır.',
+        'İl ve ilçe bazında öne çıkma: Bulunduğunuz bölgede ve uzmanlık alanınızda görünürlüğünüz yükseltilir; kendi çevrenizdeki hastalar sizi ilk sıralarda görür.',
+        'Karşılaştırma araçları: Ziyaretçiler işletmeleri yan yana kıyaslarken; şeffaf, doğru ve zengin bir profil güven verir ve tercih edilme oranınızı artırır.',
+      ] },
+
+      { tip: 'h', metin: 'Güven: Onay ve doğrulama işaretleri' },
+      { tip: 'p', metin: 'Sağlık sektöründe tercih, her şeyden önce güvenle başlar. Hekimhane, hastalara doğru ve doğrulanmış bilgi sunmayı önceler; bu da doğrudan sizin lehinize çalışır.' },
+      { tip: 'liste', ogeler: [
+        'Onaylı hekim rozeti: Doğrulanan hekimler profilinde onay işaretiyle gösterilir. Bu rozet, hastanın gözünde güvenilirliğinizi anında artırır.',
+        'Bilgi güvenliği ve güncelliği: İşletme bilgileriniz kayıt altına alınır; adres, telefon, çalışma saatleri ve uzmanlık gibi ayrıntıları her zaman güncel ve doğru tutabilirsiniz. Yanlış veya eski bilgi yüzünden hasta kaybetmezsiniz.',
+        'Sahiplenilmiş profil: Profilini sahiplenen işletmeler, "sahiplenilmemiş" kayıtlardan ayrışır ve daha güvenilir görünür.',
+      ] },
+
+      { tip: 'h', metin: 'İzlenim: Profesyonel görsellerle fark yaratın' },
+      { tip: 'p', metin: 'İlk izlenim çoğu zaman bir fotoğrafla oluşur. İyi çekilmiş görseller, kliniğinizin hijyenini, ferahlığını ve profesyonelliğini anlatır.' },
+      { tip: 'liste', ogeler: [
+        'Profesyonel fotoğraf desteği: Fotoğraf çekimi yardımı ile işletmeniz büyük oranda daha ilgi çekici ve güven verici hâle gelir.',
+        '360° sanal tur: İsterseniz profilinize sanal tur ekleyerek hastaların kliniğinizi ziyaret etmeden gezmesini sağlayabilirsiniz.',
+      ] },
+
+      { tip: 'h', metin: 'Hasta yönetimi: Randevudan takibe kadar tek panel' },
+      { tip: 'p', metin: 'Hekimhane yalnızca bir vitrin değildir; işletmenizi yönetmenize yardımcı araçlar da sunar. Kayıtlı işletmeler panel üzerinden hasta ilişkilerini düzenli biçimde yürütür.' },
+      { tip: 'liste', ogeler: [
+        'Online randevu sistemi: Hastalar profiliniz üzerinden doğrudan randevu talebi oluşturur; talepler panelinize düşer, telefon trafiği azalır.',
+        'Özel hasta notları: Sistemde kaydettiğiniz, yalnızca sizin görebileceğiniz notlarla her hastanın geçmişini ve tedavi sürecini kolayca takip edersiniz.',
+        'Uzun süreli iletişim: Hasta iletişim bilgileriyle kalıcı bir bağ kurar; kontrol randevusu, bilgilendirme ve hatırlatmalarla ilişkiyi canlı tutarsınız.',
+      ] },
+
+      { tip: 'h', metin: 'Ayrıcalık: Yeniliklerden ilk siz haberdar olun' },
+      { tip: 'p', metin: 'Hekimhane sürekli gelişen bir platform. Kayıtlı işletme olarak yeni özellikleri, kampanyaları ve fırsatları öncelikli olarak öğrenir; rakiplerinizden bir adım önde başlarsınız.' },
+
+      { tip: 'h', metin: 'Özetle' },
+      { tip: 'p', metin: 'Hekimhane\'ye kayıt olmak; daha fazla görünürlük, daha güçlü güven işaretleri, profesyonel bir profil ve hasta yönetimini kolaylaştıran araçlar demektir. İl ve ilçenizde uzmanlık alanınızda öne çıkmak, onaylı bir işletme olarak hastalarla uzun soluklu bir bağ kurmak elinizin altında.' },
+      { tip: 'p', metin: 'İşletmenizi sahiplenmek ve profilinizi oluşturmak için Katıl sayfasından başvurunuzu iletebilir; kısa sürede değerlendirilip panelinize erişim kazanabilirsiniz.' },
+    ],
+  },
 ];
 
 export const getBlogYazi = (slug: string) => BLOG_YAZILARI.find(y => y.slug === slug);

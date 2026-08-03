@@ -12,6 +12,7 @@ const categoryColors: Record<string, { bg: string; color: string }> = {
   'Estetik':           { bg: '#FDF2F8', color: '#BE185D' },
   'Çocuk Diş Sağlığı': { bg: '#EFF6FF', color: '#1D4ED8' },
   'Hastalıklar':       { bg: '#FEF2F2', color: '#991B1B' },
+  'İşletmeler İçin':   { bg: '#FEFCE8', color: '#854D0E' },
 };
 
 function catStyle(cat: string | null) {

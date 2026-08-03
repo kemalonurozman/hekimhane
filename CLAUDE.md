@@ -422,10 +422,42 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Admin tarafı:** admin panel **Şikayetler** sekmesi (`SikayetlerTab`). Liste `/api/admin/reported-yorumlar` (service-role, entity isim çözümlemesi), aksiyonlar `/api/admin/yorum-action` (`hide`/`delete`/`dismiss`/`unhide`). Sidebar'da bekleyen şikayet sayacı (kırmızı rozet, `reportPending`).
 - **Gizleme herkese yansır:** 4 detay sayfası + kart sayfası `yorumlar`'ı **JS'te `.filter(y => !y.hidden)`** ile eler (kolon yoksa `undefined` → gösterilir; migration'dan önce sayfa bozulmaz — graceful). Not: `hidden` işlemi entity'nin `rat`/`rev` sayılarını değiştirmez, yalnız yorum metnini gizler.
 
+### İş Ortağı İçeriği — Makale Yayınlama (`/makale-yayinla`)
+- **Amaç:** Klinik/firma ücretli "iş ortağı makalesi" sipariş eder; proforma e-posta ile gönderilir.
+- **Sayfa:** `app/makale-yayinla/page.tsx` (Server — metadata + Supabase'den klinik/hekim sayacı) → `MakaleYayinlaClient.tsx` (`'use client'`, tüm bölümler + iki form). Bölümler: hero+istatistik, neden, nasıl çalışır, **fiyat** (`#fiyat`), makale önizleme, **sipariş** (`#siparis`), soru formu.
+- **Fiyat tek noktadan:** `lib/makale-fiyat.ts` — `MAKALE_FIYAT`, `KDV_ORANI`, `PAKET_ICERIK`, `tl()`. Sayfa **ve** e-postalar buradan okur; başka yerde fiyat yazılı değil. **Tek paket, tek fiyat** — Doktor.cz'deki ek modüller (3 bağlantı, ana sayfa, öne çıkarma, bülten) pakete dahildir, ayrı satır yoktur.
+- **Aylık ziyaretçi rakamı:** `page.tsx` içindeki `AYLIK_ZIYARETCI` sabiti — **placeholder**, gerçek analytics değeriyle güncellenmeli. Klinik/hekim sayaçları Supabase'den gerçek.
+- **API:** `app/api/makale-talebi/route.ts` — `tip: 'siparis' | 'soru'`. Honeypot (`hp`) + IP rate-limit. **DDL yok:** kayıtlar `cekim_talepleri`'ne `isletme_turu='makale-siparis'|'makale-soru'` ile yazılır, `notlar` alanında `[MAKALE SİPARİŞİ]` / `[MAKALE SORUSU]` önekiyle detay durur → admin panelinin Çekim listesinde görünür.
+- **Mailler:** admin'e sipariş/soru bildirimi + müşteriye onay (proforma 1 iş günü). `RESEND_API_KEY` yoksa sessizce atlanır, form yine çalışır.
+- **Tuzak:** fiyat metinlerinde `toLocaleString` kullanma — SSR/CSR farkı hydration uyumsuzluğu yapar; `lib/makale-fiyat.ts`'teki `tl()` regex ayracı kullanılır.
+
+### Makale Gönderim / Onay Akışı (panel → admin → blog)
+- **Amaç:** İşletme sahibi panelden makale yazar → **admin onaylar** → blogda yayınlanır. Admin ayrıca kendi makalesini doğrudan yayınlar.
+- **Migration (ŞART):** `supabase/migrations/add_makale_gonderim.sql` — `blog_posts`'a `status` (pending|published|rejected), `author_email`, `entity_id/type/name`, `okuma_dk`, `red_notu`, `kaynak`, `sponsorlu`, `website`. Yoksa API'ler graceful davranır (admin yazısı temel kolonlarla yazılır, panel gönderimi net hata mesajı verir).
+- **İçerik biçimi:** `content` **düz metin** (HTML değil — XSS yüzeyi yok). `## ` ara başlık, `- ` madde, boş satır paragraf. Parser + slug + okuma süresi: `lib/makale-icerik.ts` (`parseGovde` → statik bloglarla aynı `BlogBlok[]`).
+- **Panel:** `app/panel/MakalelerimTab.tsx` (sidebar → İçerik → Makalelerim). Onaylı claim şartı. Durum rozetleri; reddedilen yazı **editör notuyla** görünür, düzenleyip yeniden gönderilebilir. API `app/api/panel/makale/route.ts` (GET/POST/PUT/DELETE; yayındaki yazı silinemez/düzenlenemez).
+- **Admin:** `app/admin/MakalelerTab.tsx` (sidebar "Makaleler", bekleyen sayısı rozetle). Filtreler bekleyen/yayında/reddedilen, satır içi önizleme, Onayla/Reddet(gerekçeli)/Yayından kaldır/Sil + "Yeni Makale" (taslak seçeneği, iş ortağı etiketi). API `app/api/admin/makale/route.ts` (GET/POST/PATCH). Onay/red yazara mail atar.
+- **Blog tarafı:** `/blog` listesi DB + statik yazıları **birleştirir** (eskiden DB doluysa statikler gizleniyordu). `/blog/[slug]` statikte bulamazsa `blog_posts`'tan okur (async, `revalidate=300`), `sponsorlu` ise "İş Ortağı İçeriği" şeridi ve `website` bağlantısı gösterir.
+- **Tuzak:** blog listesinde `noStore()` **şart** — Next Data Cache sabit Supabase sorgusunu süresiz cache'ler, yeni onaylanan makale görünmez ([[nextjs-datacache-filter-stale]] ile aynı tuzak).
+
+### Diş Tedavileri Combo Sayfaları — 404 yerine dürüst fallback
+- **Sorun:** `/dis-tedavileri/[il]/[...seg]` bölgede o hizmetle etiketli klinik yoksa 404 veriyordu. Ölçüm: 44 il × 11 uzmanlık = 484 kombinasyonun **367'si** boştu (yalnızca "Genel Diş Hekimliği" tam doluydu) — çünkü import kaynağı kliniklerin çoğuna sadece jenerik etiket veriyor.
+- **İki gerçek hata düzeltildi (`lib/uzmanlik-data.ts`):**
+  1. `DENTAL_SYNONYMS` genişletildi — tedavi adları ilgili uzmanlığın altına eklendi. "Zirkonyum Kaplama" etiketli klinik `/bartin/zirkonyum-kaplama`'da görünmüyordu.
+  2. **`overlaps` virgül tuzağı:** `.overlaps('specs', [...])` değerleri `ov.{a,b,c}` olarak birleştirir; içinde virgül olan etiket ("Ağız, Diş ve Çene Cerrahisi") ikiye bölünüp "Ağız" gibi alakasız etiketlerle eşleşiyordu. `specFilterValues()` virgüllü değerleri çift tırnağa alır — **yeni `overlaps` çağrılarında bu fonksiyonu kullan.**
+- **Fallback (veriye dokunmadan):** kapsamda etiketli klinik yoksa `genelListe=true` → (a) hizmeti **fiilen etiketlemiş en yakın klinikler** (`enYakinlar()`: önce aynı ilin diğer ilçeleri, sonra `IL_KONUM` üzerinden haversine ile en yakın iller, ilk 6; her kartın üstünde "Bursa — İstanbul'a yaklaşık 93 km" rozeti) + (b) bölgenin kendi diş klinikleri, üstte şeffaflık notu ve düzeltilmiş SSS metniyle. Başlık/description de değişir.
+- **Karar:** klinik kayıtlarına doğrulanmamış hizmet etiketi **yazılmadı** — sağlık rehberinde gerçek işletme hakkında yanlış iddia olurdu. Fallback sayfaları sitemap'e de eklenmedi (aynı klinik listesi 11 başlıkta → yinelenen içerik riski); sitemap yalnızca veri destekli kombinasyonları listeler.
+
+### Sahiplenilmemiş Profil Mührü
+- `components/ProfilSayfasi.tsx` — logo üzerindeki tırtıklı mühür üç durumlu: **premium** (altın ✓), **claimed** (lacivert ✓), **sahiplenilmemiş** (çelik mavi **+**, eskiden %50 opak gri).
+- Sahiplenilmemişte mühür tıklanabilir (`/sahiplen?id=…&type=…`), hafif nabız animasyonu var ve üzerine gelince profesyonel davet balonu açılır.
+- **Tuzak:** hero `overflow:hidden` — balon `position:fixed` ve konumu React state'ten (`sealTip`) hesaplanır; absolute konumlandırma kırpılıyordu. Yukarıda yer yoksa (`r.top < 260`) balon aşağı açılır (`hk-tip--alt`), yatayda viewport'a klemplenir.
+
 ### Bekleyen migration'lar (kullanıcı Supabase SQL Editor'da çalıştırmalı)
 - `supabase/migrations/add_account_activations.sql` — **çalıştırıldı** (aktivasyon akışı için şart).
 - `supabase/migrations/add_whatsapp.sql` — `whatsapp text` kolonu (4 tablo). WhatsApp butonu bu alan doluysa görünür (telefonu körü körüne WhatsApp saymaz).
 - `supabase/migrations/add_yorum_moderation.sql` — yorum şikayet/moderasyon kolonları (yukarıdaki akış için **şart**; çalıştırılmadan şikayet/gizleme çalışmaz).
+- `supabase/migrations/add_makale_gonderim.sql` — `blog_posts` onay akışı kolonları (panelden makale gönderimi için **şart**).
 
 ### DB Tabloları (Ağustos eki)
 | Tablo | Açıklama |
