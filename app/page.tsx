@@ -5,8 +5,6 @@ import { supabase } from '@/lib/supabase';
 import KategoriKartlari from '@/components/KategoriKartlari';
 import HeroAnimated from '@/components/HeroAnimated';
 import HastalikRehberiSection from '@/components/HastalikRehberiSection';
-import HekimhaneAI from '@/components/HekimhaneAI';
-import SaglikBul from '@/components/SaglikBul';
 
 export const metadata: Metadata = {
   title: 'Hekimhane — Türkiye Diş Hekimi & Klinik Rehberi',
@@ -116,18 +114,11 @@ export default async function HomePage() {
         }
       `}</style>
 
-      {/* ── HERO — canvas partikül + mouse efekti ────────────────── */}
+      {/* ── HERO — canvas partikül + mouse efekti + hero arama & hızlı filtreler ─── */}
       <HeroAnimated stats={stats} />
 
-      {/* ── SAĞLIK SORUNU BUL ────────────────────────────────────── */}
-      <SaglikBul />
-
-      {/* ── HEKİMHANE AI ────────────────────────────────────────────── */}
-      <section style={{ padding: '40px 0 0', background: '#F5F5F7' }}>
-        <div className="container">
-          <HekimhaneAI />
-        </div>
-      </section>
+      {/* Not: Ayrı "Şikayetinizi Anlatın" ve "Hekimhane AI" arama bölümleri kaldırıldı;
+          tek arama hero'da (yazı + hızlı filtre butonları) toplandı. */}
 
       {/* ── KATEGORİLER ─────────────────────────────────────────────── */}
       <section style={{ padding: '72px 0', background: '#F5F5F7' }}>

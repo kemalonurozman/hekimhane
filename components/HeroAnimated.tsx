@@ -562,6 +562,26 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
           Ara
         </button>
       </form>
+
+      {/* Hızlı filtre butonları — doğrudan aramaya götürür */}
+      <div className="hero-chips" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 14, justifyContent: 'center' }}>
+        {([
+          ['İmplant', `/klinikler?uzmanlik=${encodeURIComponent('İmplantoloji (İmplant)')}`],
+          ['Ortodonti', `/klinikler?uzmanlik=${encodeURIComponent('Ortodonti (Diş Teli)')}`],
+          ['Estetik Diş', `/klinikler?uzmanlik=${encodeURIComponent('Estetik Diş Hekimliği')}`],
+          ['Kanal Tedavisi', `/klinikler?uzmanlik=${encodeURIComponent('Endodonti (Kanal Tedavisi)')}`],
+          ['Çocuk Diş', `/klinikler?uzmanlik=${encodeURIComponent('Pedodonti (Çocuk Diş Hekimliği)')}`],
+          ['Tüm Klinikler →', '/klinikler'],
+        ] as [string, string][]).map(([label, href]) => (
+          <a key={href} href={href}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 15px', borderRadius: 999,
+              background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.18)', color: 'rgba(255,255,255,.92)',
+              fontSize: 13, fontWeight: 600, textDecoration: 'none', letterSpacing: '-.1px',
+              backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', whiteSpace: 'nowrap', transition: 'background .15s' }}>
+            {label}
+          </a>
+        ))}
+      </div>
     </div>
   );
 }
