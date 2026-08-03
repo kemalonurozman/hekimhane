@@ -11,10 +11,21 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        // /embed hariç tüm rotalar — çerçevelenmeye kapalı
+        source: '/:path((?!embed).*)',
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
+      {
+        // Randevu embed'i — işletmeler kendi sitelerine gömebilsin diye
+        // X-Frame-Options göndermez; CSP frame-ancestors ile her yerde çerçevelenebilir.
+        source: '/embed/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Content-Security-Policy', value: 'frame-ancestors *' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
         ],
       },

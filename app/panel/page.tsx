@@ -2008,7 +2008,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   onSelectClaim: (c: ClaimRequest | null) => void;
   isMobile?: boolean;
 }) {
-  type ESection = 'info' | 'details' | 'meslek' | 'photos' | 'konum' | 'tour';
+  type ESection = 'info' | 'details' | 'meslek' | 'photos' | 'konum' | 'tour' | 'embed';
   const [sec,        setSec]      = useState<ESection>('info');
   const [entityData, setED]       = useState<Record<string,any>|null>(null);
   const [formData,   setFormData] = useState<Record<string,any>>({});
@@ -2021,6 +2021,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   const [dragOver,   setDragOver]  = useState<string | null>(null);         // slot → drag aktif
   const [waMode,     setWaMode]    = useState<'off'|'same'|'custom'>('off'); // WhatsApp: yok / telefonla aynı / farklı numara
   const [certUp,     setCertUp]    = useState<number | null>(null);           // sertifika görseli yükleniyor (index)
+  const [embedCopied, setEmbedCopied] = useState(false);                      // randevu embed kodu kopyalandı
 
   const et = selectedClaim?.entity_type || '';
 
@@ -2183,6 +2184,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
     { key:'photos'  as ESection, label:'Fotoğraflar',       icon:'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z M12 17A4 4 0 1 0 12 9a4 4 0 0 0 0 8z' },
     { key:'konum'   as ESection, label:'Konum',              icon:'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z M12 10A2 2 0 1 0 12 6a2 2 0 0 0 0 4z' },
     { key:'tour'    as ESection, label:'360° Tur',           icon:'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20z M2 12h20 M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z' },
+    { key:'embed'   as ESection, label:'Siteme Ekle',         icon:'M16 18l6-6-6-6 M8 6l-6 6 6 6' },
   ];
 
   /* ── EMPTY STATE ── */
@@ -2667,6 +2669,52 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                       Sertifika ekle
                     </button>
                   </div>
+                </div>
+              </>);
+            })()}
+
+            {/* ── SİTEME EKLE (randevu embed) ── */}
+            {sec==='embed' && (()=>{
+              const SITE = 'https://www.hekimhane.com.tr';
+              const src = `${SITE}/embed/randevu?type=${et}&id=${selectedClaim.entity_id}`;
+              const iframeKodu = `<iframe src="${src}" width="100%" height="640" style="border:0;max-width:480px" loading="lazy" title="Randevu Al"></iframe>`;
+              const kopyala = () => {
+                try { navigator.clipboard.writeText(iframeKodu); setEmbedCopied(true); setTimeout(()=>setEmbedCopied(false), 2000); } catch {}
+              };
+              return (<>
+                <div style={{ fontSize:12, fontWeight:700, color:T.navy, textTransform:'uppercase', letterSpacing:'0.6px', paddingBottom:10, borderBottom:`2px solid #E8F0FE` }}>Randevu Modülünü Sitenize Ekleyin</div>
+                <p style={{ fontSize:13, color:T.muted, lineHeight:1.6, margin:0 }}>
+                  Aşağıdaki kodu kendi web sitenize yapıştırın; ziyaretçileriniz doğrudan sizin sitenizden randevu talebi bıraksın.
+                  Talepler yine Hekimhane panelinizdeki <strong style={{ color:T.text }}>Randevu Talepleri</strong> sekmesine düşer ve size e-posta gönderilir.
+                </p>
+
+                {/* Kod kutusu */}
+                <div>
+                  <label style={LBL}>HTML Kodu</label>
+                  <textarea readOnly value={iframeKodu} onFocus={e=>e.currentTarget.select()}
+                    style={{ ...INP, minHeight:88, fontFamily:'ui-monospace,SFMono-Regular,Menlo,monospace', fontSize:12, lineHeight:1.5, resize:'vertical', background:'#F8FAFF' }} />
+                  <button onClick={kopyala}
+                    style={{ marginTop:8, padding:'9px 16px', borderRadius:10, border:'none', background: embedCopied ? T.green : T.navy, color:'white', fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', display:'inline-flex', alignItems:'center', gap:7 }}>
+                    {embedCopied
+                      ? <><Ic d={icons.check} size={14}/>Kopyalandı</>
+                      : <><Ic d="M9 9h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V11a2 2 0 0 1 2-2z M5 15H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1" size={14}/>Kodu Kopyala</>}
+                  </button>
+                </div>
+
+                {/* Canlı önizleme */}
+                <div>
+                  <label style={LBL}>Önizleme</label>
+                  <div style={{ border:`1px solid ${T.border}`, borderRadius:12, overflow:'hidden', background:'#fff' }}>
+                    <iframe src={src} style={{ width:'100%', height:560, border:0 }} title="Randevu önizleme" />
+                  </div>
+                </div>
+
+                <div style={{ display:'flex', gap:9, padding:'11px 13px', background:'#F0F9FF', borderRadius:10, border:'1px solid #BAE6FD' }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0369A1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0, marginTop:1 }}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                  <p style={{ fontSize:12, color:'#075985', lineHeight:1.55, margin:0 }}>
+                    Kod her sitede çalışır (WordPress, Wix, kendi siteniz…). Rengi değiştirmek için bağlantının sonuna
+                    <code style={{ background:'#E0F2FE', padding:'1px 5px', borderRadius:5, margin:'0 3px' }}>&amp;accent=1B3A69</code> gibi bir renk ekleyebilirsiniz.
+                  </p>
                 </div>
               </>);
             })()}
