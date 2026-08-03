@@ -159,6 +159,10 @@ export default function PanelPage() {
   const [selectedEditClaim, setSelectedEditClaim] = useState<ClaimRequest | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sbLight, setSbLight] = useState(false);   // sidebar teması: false=gece, true=açık
+
+  useEffect(() => { try { setSbLight(localStorage.getItem('hk_panel_theme') === 'light'); } catch {} }, []);
+  const toggleTheme = () => setSbLight(v => { const n = !v; try { localStorage.setItem('hk_panel_theme', n ? 'light' : 'dark'); } catch {} return n; });
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -291,6 +295,23 @@ export default function PanelPage() {
     { title: 'Hesap',     keys: ['profile'] },
   ];
 
+  // Sidebar teması — gece (varsayılan) veya açık
+  const S = sbLight ? {
+    bg: 'linear-gradient(180deg,#FFFFFF 0%,#F4F6F9 100%)', divider: '#EAECEF',
+    brand: '#1D1D1F', portal: '#9AA0A6',
+    userName: '#1D1D1F', userMail: '#9AA0A6', avatarBg: '#EEF1F5', avatarText: T.navy, avatarBorder: '#E5E5EA',
+    section: '#9AA0A6', itemText: '#4B5563', itemActiveBg: 'rgba(27,58,105,.09)', itemActiveText: T.navy,
+    iconIdle: '#A2A8B0', iconActive: T.navy, hover: 'rgba(0,0,0,.04)', logout: '#9AA0A6',
+    borderRight: '1px solid #EAECEF',
+  } : {
+    bg: `linear-gradient(180deg, ${T.navy2} 0%, ${T.navy} 100%)`, divider: 'rgba(255,255,255,.08)',
+    brand: 'white', portal: 'rgba(255,255,255,.35)',
+    userName: 'white', userMail: 'rgba(255,255,255,.4)', avatarBg: 'rgba(255,255,255,.15)', avatarText: 'white', avatarBorder: 'rgba(255,255,255,.2)',
+    section: 'rgba(255,255,255,.32)', itemText: 'rgba(255,255,255,.6)', itemActiveBg: 'rgba(212,168,67,.16)', itemActiveText: 'white',
+    iconIdle: 'rgba(255,255,255,.55)', iconActive: T.gold, hover: 'rgba(255,255,255,.05)', logout: 'rgba(255,255,255,.4)',
+    borderRight: 'none',
+  };
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
 
@@ -319,31 +340,31 @@ export default function PanelPage() {
       )}
 
       {/* ── SIDEBAR ── */}
-      <aside style={{ position: 'fixed', top: isMobile ? 112 : 64, left: 0, bottom: 0, width: 240, background: `linear-gradient(180deg, ${T.navy2} 0%, ${T.navy} 100%)`, display: isMobile ? (mobileMenuOpen ? 'flex' : 'none') : 'flex', flexDirection: 'column', zIndex: isMobile ? 200 : 100 }}>
-        <div style={{ padding: '24px 22px 20px', borderBottom: '1px solid rgba(255,255,255,.08)' }}>
+      <aside style={{ position: 'fixed', top: isMobile ? 112 : 64, left: 0, bottom: 0, width: 240, background: S.bg, borderRight: isMobile ? 'none' : S.borderRight, display: isMobile ? (mobileMenuOpen ? 'flex' : 'none') : 'flex', flexDirection: 'column', zIndex: isMobile ? 200 : 100 }}>
+        <div style={{ padding: '24px 22px 20px', borderBottom: `1px solid ${S.divider}` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <div style={{ width: 32, height: 32, background: 'white', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontWeight: 900, fontSize: 14, color: T.navy }}>H</span>
+            <div style={{ width: 32, height: 32, background: T.navy, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontWeight: 900, fontSize: 14, color: 'white' }}>H</span>
             </div>
-            <span style={{ fontWeight: 800, fontSize: 17, color: 'white', letterSpacing: '-0.3px' }}>Hekimhane</span>
+            <span style={{ fontWeight: 800, fontSize: 17, color: S.brand, letterSpacing: '-0.3px' }}>Hekimhane</span>
           </div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.35)', fontWeight: 500 }}>İşletme Portalı</div>
+          <div style={{ fontSize: 11, color: S.portal, fontWeight: 500 }}>İşletme Portalı</div>
         </div>
 
-        <div style={{ padding: '14px 22px 12px', borderBottom: '1px solid rgba(255,255,255,.06)' }}>
+        <div style={{ padding: '14px 22px 12px', borderBottom: `1px solid ${S.divider}` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {user?.user_metadata?.avatar_url ? (
-              <img src={user.user_metadata.avatar_url} alt="" style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid rgba(255,255,255,.2)' }} />
+              <img src={user.user_metadata.avatar_url} alt="" style={{ width: 36, height: 36, borderRadius: '50%', border: `2px solid ${S.avatarBorder}` }} />
             ) : (
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: S.avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: S.avatarText }}>
                 <Ic d={icons.profile} size={16} />
               </div>
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: S.userName, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {user?.user_metadata?.full_name || user?.user_metadata?.name || 'Kullanıcı'}
               </div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,.4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</div>
+              <div style={{ fontSize: 11, color: S.userMail, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</div>
             </div>
           </div>
         </div>
@@ -351,16 +372,16 @@ export default function PanelPage() {
         <nav style={{ flex: 1, padding: '10px 12px 16px', overflowY: 'auto' }}>
           {navGroups.map((g, gi) => (
             <div key={g.title} style={{ marginBottom: gi < navGroups.length - 1 ? 12 : 0 }}>
-              <div style={{ padding: '10px 12px 6px', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,.32)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>{g.title}</div>
+              <div style={{ padding: '10px 12px 6px', fontSize: 10, fontWeight: 700, color: S.section, letterSpacing: '0.8px', textTransform: 'uppercase' }}>{g.title}</div>
               {g.keys.map(k => {
                 const item = navItems.find(n => n.key === k)!;
                 const active = tab === item.key;
                 return (
                   <button key={item.key} onClick={() => { setTab(item.key); setMobileMenuOpen(false); }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 11px', marginBottom: 1, borderRadius: 9, background: active ? 'rgba(212,168,67,.16)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', color: active ? 'white' : 'rgba(255,255,255,.6)', fontSize: 13, fontWeight: active ? 700 : 500, fontFamily: 'inherit', transition: 'background .12s, color .12s' }}
-                    onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,.05)'; }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 11px', marginBottom: 1, borderRadius: 9, background: active ? S.itemActiveBg : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', color: active ? S.itemActiveText : S.itemText, fontSize: 13, fontWeight: active ? 700 : 500, fontFamily: 'inherit', transition: 'background .12s, color .12s' }}
+                    onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = S.hover; }}
                     onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}>
-                    <span style={{ flexShrink: 0, color: active ? T.gold : 'rgba(255,255,255,.55)', display: 'flex' }}><Ic d={icons[item.icon as keyof typeof icons]} size={16} /></span>
+                    <span style={{ flexShrink: 0, color: active ? S.iconActive : S.iconIdle, display: 'flex' }}><Ic d={icons[item.icon as keyof typeof icons]} size={16} /></span>
                     <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
                     {item.key === 'claims' && pendingClaims.length > 0 && (
                       <span style={{ flexShrink: 0, background: T.amber, color: 'white', borderRadius: 20, minWidth: 18, height: 18, padding: '0 6px', fontSize: 10, fontWeight: 800, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{pendingClaims.length}</span>
@@ -372,9 +393,15 @@ export default function PanelPage() {
           ))}
         </nav>
 
-        <div style={{ padding: '16px 22px', borderTop: '1px solid rgba(255,255,255,.08)' }}>
-          <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.4)', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', padding: 0, transition: 'color .15s' }}>
+        <div style={{ padding: '14px 22px', borderTop: `1px solid ${S.divider}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+          <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: S.logout, fontSize: 12, fontWeight: 600, fontFamily: 'inherit', padding: 0, transition: 'color .15s' }}>
             <Ic d={icons.logout} size={14} /> Çıkış Yap
+          </button>
+          <button onClick={toggleTheme} title={sbLight ? 'Gece moduna geç' : 'Açık moda geç'}
+            style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${S.divider}`, background: 'transparent', cursor: 'pointer', color: S.itemText, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            {sbLight
+              ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+              : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>}
           </button>
         </div>
       </aside>
