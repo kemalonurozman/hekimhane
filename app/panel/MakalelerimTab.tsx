@@ -35,6 +35,62 @@ const DURUM: Record<string, { label: string; bg: string; fg: string; bd: string 
 
 const BOS = { title: '', summary: '', category: MAKALE_KATEGORILERI[0], content: '', cover_image: '', website: '' };
 
+const ICERIK_PH = 'Giriş paragrafı…\n\n## Ara başlık\n\nParagraf metni…\n\n- Madde bir\n- Madde iki';
+
+/* ── Yazarken sözdizimi vurgusu — textarea arkasındaki katmanı besler ──
+   Tüm kullanıcı metni escape edilir; yalnızca sabit <span> etiketleri eklenir (XSS yok). */
+function escHtml(s: string) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function vurguInline(raw: string) {
+  const re = /(\*\*[^*]+\*\*)|(!\[[^\]]*\]\([^\s)]*\))|(\[[^\]]+\]\([^\s)]*\))/g;
+  let out = '', last = 0, m: RegExpExecArray | null;
+  while ((m = re.exec(raw)) !== null) {
+    out += escHtml(raw.slice(last, m.index));
+    if (m[1]) out += `<span class="mk-mark">**</span><b class="mk-b">${escHtml(m[1].slice(2, -2))}</b><span class="mk-mark">**</span>`;
+    else if (m[2]) out += `<span class="mk-img">${escHtml(m[2])}</span>`;
+    else if (m[3]) out += `<span class="mk-link">${escHtml(m[3])}</span>`;
+    last = re.lastIndex;
+  }
+  out += escHtml(raw.slice(last));
+  return out;
+}
+function vurgulaGovde(text: string) {
+  return text.split('\n').map(line => {
+    if (/^##\s/.test(line))    return `<span class="mk-mark">${escHtml(line.slice(0, 3))}</span><span class="mk-h">${vurguInline(line.slice(3))}</span>`;
+    if (/^>\s/.test(line))     return `<span class="mk-mark">${escHtml(line.slice(0, 2))}</span><span class="mk-quote">${vurguInline(line.slice(2))}</span>`;
+    if (/^[-*•]\s/.test(line)) return `<span class="mk-bullet">${escHtml(line.slice(0, 2))}</span>${vurguInline(line.slice(2))}`;
+    return vurguInline(line);
+  }).join('\n');
+}
+
+const MK_HL_CSS = `
+.mk-wrap { position: relative; }
+.mk-back, .mk-ta {
+  margin: 0; font-family: inherit; font-size: 14px; line-height: 1.7;
+  padding: 11px 14px; border: 1.5px solid transparent; border-radius: 10px;
+  box-sizing: border-box; white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word;
+}
+.mk-back {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  color: #1A2744; background: #FFFFFF;
+}
+.mk-ta {
+  position: relative; z-index: 1; width: 100%; min-height: 320px; resize: vertical;
+  background: transparent; color: transparent; caret-color: #1A2744; outline: none;
+  border-color: #E2E8F4;
+}
+.mk-ta::placeholder { color: transparent; }
+.mk-h { font-weight: 800; color: #1B3A69; }
+.mk-b { font-weight: 800; color: #1A2744; }
+.mk-quote { color: #6B7A99; font-style: italic; }
+.mk-bullet { color: #D4A843; font-weight: 800; }
+.mk-mark { color: #B8C2D9; }
+.mk-link { color: #2563EB; }
+.mk-img { color: #059669; }
+.mk-ph { color: #9AA7BF; }
+`;
+
 export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
   const [makaleler, setMakaleler] = useState<PanelMakale[]>([]);
   const [loading,   setLoading]   = useState(true);
@@ -47,6 +103,7 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
   const [silId,     setSilId]     = useState<string | null>(null);
   const [onizle,    setOnizle]    = useState(false);
   const contentRef = useRef<HTMLTextAreaElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
 
   const F = (k: keyof typeof form, v: string) => setForm(p => ({ ...p, [k]: v }));
 
@@ -237,6 +294,7 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
             </div>
           )}
 
+          <style>{MK_HL_CSS}</style>
           {onizle ? (
             <div style={{ minHeight: 320, border: `1px solid ${T.border}`, borderRadius: 12, padding: '20px 22px', background: T.white }}>
               {form.content.trim()
@@ -244,9 +302,18 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
                 : <div style={{ color: T.muted, fontSize: 14 }}>Önizlenecek içerik yok. “Yaz” sekmesinden metin girin.</div>}
             </div>
           ) : (
-            <textarea ref={contentRef} style={{ ...inp, minHeight: 320, lineHeight: 1.7 }} value={form.content}
-              onChange={e => F('content', e.target.value)}
-              placeholder={'Giriş paragrafı…\n\n## Ara başlık\n\nParagraf metni…\n\n- Madde bir\n- Madde iki'} />
+            <div className="mk-wrap">
+              <div ref={backdropRef} className="mk-back" aria-hidden="true"
+                dangerouslySetInnerHTML={{
+                  __html: form.content
+                    ? vurgulaGovde(form.content) + '\n'
+                    : `<span class="mk-ph">${escHtml(ICERIK_PH)}</span>`,
+                }} />
+              <textarea ref={contentRef} className="mk-ta" value={form.content}
+                onChange={e => F('content', e.target.value)}
+                onScroll={e => { if (backdropRef.current) backdropRef.current.scrollTop = e.currentTarget.scrollTop; }}
+                placeholder={ICERIK_PH} spellCheck={false} />
+            </div>
           )}
           <div style={{ fontSize: 11.5, color: T.muted, marginTop: 6, lineHeight: 1.6 }}>
             {ICERIK_IPUCU} — {form.content.trim().length} karakter · ~{okumaSuresi(form.content)} dk okuma
