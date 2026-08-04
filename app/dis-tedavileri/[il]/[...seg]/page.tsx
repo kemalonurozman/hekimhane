@@ -148,10 +148,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!d) return { title: 'Sayfa Bulunamadı' };
   const yer = d.ilce ? `${d.ilce}, ${d.il}` : d.il;
   const yerBaslik = d.ilce ? `${d.ilce} ${d.il}` : d.il;
-  const title = d.genelListe
+  const title = d.problem
+    ? `${yerBaslik} ${d.label} Tedavisi — Diş Klinikleri`
+    : d.genelListe
     ? `${yerBaslik} ${d.label} — Başvurabileceğiniz Diş Klinikleri`
     : `${yerBaslik} ${d.label} — Diş Hekimleri`;
-  const desc = d.genelListe
+  const desc = d.problem
+    ? `${yer} bölgesinde ${d.label} şikâyeti için başvurabileceğiniz diş klinikleri ve hekimleri. ${d.problem.ozet} Puan, yorum, adres ve online randevu bilgileri Hekimhane'de.`
+    : d.genelListe
     ? `${yer} bölgesinde ${d.label} için başvurabileceğiniz ${d.klinikler.length} diş kliniği. Puanlar, hasta yorumları, adres ve telefon bilgileriyle karşılaştırın; işlemi klinikle teyit edin.`
     : `${yer} bölgesinde ${d.label} hizmeti veren ${d.klinikler.length} diş hekimi ve klinik. Puanlar, hasta yorumları, adres, telefon ve online randevu bilgileri Hekimhane'de.`;
   const canonical = `https://www.hekimhane.com.tr/dis-tedavileri/${params.il}/${params.seg.join('/')}`;
@@ -169,7 +173,7 @@ const chip = { padding: '8px 14px', borderRadius: 20, background: 'white', borde
 export default async function DisTedaviPage({ params }: Props) {
   const d = await getData(params.il, params.seg);
   if (!d) notFound();
-  const { il, ilce, label, spec, treatment, klinikler, relatedSpecs, genelListe, yakin } = d;
+  const { il, ilce, label, spec, treatment, problem, klinikler, relatedSpecs, genelListe, yakin } = d;
 
   const ilPath = toSlug(il);
   const uzmPath = params.seg[params.seg.length - 1];
@@ -223,11 +227,14 @@ export default async function DisTedaviPage({ params }: Props) {
           </nav>
 
           <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, letterSpacing: '-0.5px', margin: 0 }}>
-            {genelListe ? <>{yerBaslik}&apos;da {label} İçin Diş Klinikleri</> : <>{yerBaslik} {label}</>}
+            {problem ? <>{yerBaslik}&apos;da {label}</> : genelListe ? <>{yerBaslik}&apos;da {label} İçin Diş Klinikleri</> : <>{yerBaslik} {label}</>}
           </h1>
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,.85)', marginTop: 8, maxWidth: 760, lineHeight: 1.6 }}>
             {treatment ? <>{treatment.ozet} </> : null}
-            {genelListe
+            {problem ? <>{problem.ozet} </> : null}
+            {problem
+              ? <>{yer}&apos;da <strong>{label}</strong> şikâyetiniz için başvurabileceğiniz {sorted.length} diş kliniği ve hekimi. Puan, hasta yorumu ve iletişim bilgileriyle karşılaştırın.</>
+              : genelListe
               ? <>{yer}&apos;da <strong>{label}</strong> için başvurabileceğiniz {sorted.length} diş kliniği. Puanları, hasta yorumları ve iletişim bilgileriyle karşılaştırın.</>
               : <>{yer}&apos;da <strong>{label}</strong> hizmeti veren {sorted.length} diş hekimi ve klinik. Puanları, hasta yorumları ve iletişim bilgileriyle karşılaştırın, size en uygun uzmanı bulun.</>}
           </p>

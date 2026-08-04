@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────────────────────
 import { supabase } from './supabase';
 import { toSlug } from './helpers';
-import { canonicalDentalSpec, TREATMENTS } from './uzmanlik-data';
+import { canonicalDentalSpec, TREATMENTS, DENTAL_PROBLEMS } from './uzmanlik-data';
 import { KATEGORILER, HASTALIKLAR } from './hastaliklar-data';
 import { BLOG_YAZILARI } from './blog-data';
 import { TEDAVI_SLUGS } from './tedavi-detaylari';
@@ -106,11 +106,14 @@ export async function buildSection(section: string): Promise<SmUrl[]> {
       });
     });
     const treatmentsFor = (set: Set<string>) => TREATMENTS.filter(t => { const c = canonicalDentalSpec(t.spec); return c && set.has(c); });
+    // Diş sağlığı problemleri — çözüm sunan uzmanlık o ilde varsa problem sayfası eklenir.
+    const problemsFor = (set: Set<string>) => DENTAL_PROBLEMS.filter(p => { const c = canonicalDentalSpec(p.spec); return c && set.has(c); });
     const out: SmUrl[] = [];
     for (const [il, set] of Object.entries(ilSpecs)) {
       const ilP = tr(il);
       for (const spec of Array.from(set)) out.push({ loc: `${BASE}/dis-tedavileri/${ilP}/${tr(spec)}`, changefreq: 'weekly', priority: 0.7, lastmod });
       for (const t of treatmentsFor(set)) out.push({ loc: `${BASE}/dis-tedavileri/${ilP}/${t.slug}`, changefreq: 'weekly', priority: 0.72, lastmod });
+      for (const p of problemsFor(set)) out.push({ loc: `${BASE}/dis-tedavileri/${ilP}/${p.slug}`, changefreq: 'weekly', priority: 0.68, lastmod });
     }
     for (const [key, set] of Object.entries(ilceSpecs)) {
       const [il, ic] = key.split('|'); const ilP = tr(il); const icP = tr(ic);
