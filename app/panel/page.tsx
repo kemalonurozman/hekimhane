@@ -2035,6 +2035,11 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   const [calEntity, setCalEntity] = useState('');
   const [weekOffset, setWeekOffset] = useState(0);
   const [calSaving, setCalSaving] = useState(false);
+  const [addSlot, setAddSlot] = useState<{ iso: string; time: string } | null>(null);
+  const [addAd, setAddAd] = useState('');
+  const [addTel, setAddTel] = useState('');
+  const [addSaving, setAddSaving] = useState(false);
+  const [addMsg, setAddMsg] = useState('');
   type Islem = { id: string; entity_id: string; tel: string; tarih: string | null; islem: string; notlar: string | null; ucret: number | null };
   const [islemler, setIslemler] = useState<Record<string, Islem[]>>({});   // key: entity_id|tel
   const [isTarih, setIsTarih] = useState('');
@@ -2131,6 +2136,24 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
       });
     } catch { /* yoksay */ }
     setCalSaving(false);
+  }
+  async function addRandevu() {
+    if (!addSlot) return;
+    if (addAd.trim().length < 2) { setAddMsg('Ad soyad girin.'); return; }
+    if (addTel.replace(/\D/g, '').length < 10) { setAddMsg('Geçerli telefon girin.'); return; }
+    setAddSaving(true); setAddMsg('');
+    try {
+      const ent = approvedClaims.find(c => c.entity_id === calEntity);
+      const slot = `${addSlot.iso} ${addSlot.time}`;
+      const res = await fetch('/api/panel/randevu-ekle', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entityId: calEntity, entityType: ent?.entity_type, entityName: cfgMap[calEntity]?.name, ad_soyad: addAd.trim(), tel: addTel.trim(), randevu_slot: slot }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (res.ok && d.ok && d.talep) { setTalepler(p => [d.talep, ...p]); setAddSlot(null); setAddAd(''); setAddTel(''); }
+      else setAddMsg(d.error || 'Eklenemedi');
+    } catch { setAddMsg('Bağlantı hatası'); }
+    setAddSaving(false);
   }
 
   // Telefona göre benzersiz hastalar
@@ -2535,7 +2558,7 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
                             const kapali = blokeSet.has(iso) || blokeSet.has(slotKey);
                             if (hasta) return <div key={iso} title={hasta} style={{ ...cellBase, background: 'rgba(27,58,105,.9)', color: '#fff', padding: '4px 5px', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.3 }}>{hasta}</div>;
                             if (kapali) return <div key={iso} onClick={() => !blokeSet.has(iso) && toggleSlot(iso, time)} title={blokeSet.has(iso) ? 'Gün kapalı' : 'Kapalı — açmak için tıkla'} style={{ ...cellBase, background: '#F1F1F4', color: '#B0B0B5', cursor: blokeSet.has(iso) ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</div>;
-                            return <div key={iso} onClick={() => toggleSlot(iso, time)} title="Boş — kapatmak için tıkla" style={{ ...cellBase, background: '#F0FDF4', cursor: 'pointer' }} />;
+                            return <div key={iso} onClick={() => { setAddSlot({ iso, time }); setAddAd(''); setAddTel(''); setAddMsg(''); }} title="Boş — randevu ekle veya kapat" style={{ ...cellBase, background: '#F0FDF4', cursor: 'pointer' }} />;
                           })}
                         </React.Fragment>
                       ))}
@@ -2548,6 +2571,29 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
                     <span>Gün başlığına tıkla → tüm günü aç/kapat.</span>
                   </div>
                 </>
+              )}
+
+              {/* Elle randevu ekle (boş slota tıklayınca) */}
+              {addSlot && (
+                <div onClick={e => { if (e.target === e.currentTarget) setAddSlot(null); }}
+                  style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.4)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+                  <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 380, padding: 22, boxShadow: '0 20px 60px rgba(0,0,0,.25)' }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: A.text }}>Randevu ekle</div>
+                    <div style={{ fontSize: 13, color: A.muted, margin: '3px 0 16px', textTransform: 'capitalize' }}>
+                      {new Date(addSlot.iso + 'T00:00:00').toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })} · {addSlot.time}{cfgMap[calEntity]?.name ? ' · ' + cfgMap[calEntity].name : ''}
+                    </div>
+                    <input value={addAd} onChange={e => { setAddAd(e.target.value); setAddMsg(''); }} placeholder="Ad Soyad" style={{ ...inp, marginBottom: 8 }} />
+                    <input value={addTel} onChange={e => { setAddTel(e.target.value); setAddMsg(''); }} type="tel" placeholder="Telefon" style={inp} />
+                    {addMsg && <div style={{ fontSize: 12.5, color: '#C0392B', marginTop: 8 }}>{addMsg}</div>}
+                    <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+                      <button onClick={addRandevu} disabled={addSaving}
+                        style={{ flex: 1, padding: '11px', borderRadius: 11, border: 'none', background: A.accent, color: '#fff', fontSize: 14, fontWeight: 600, cursor: addSaving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: addSaving ? .6 : 1 }}>{addSaving ? 'Ekleniyor…' : 'Randevu ekle'}</button>
+                      <button onClick={() => setAddSlot(null)} style={{ padding: '11px 16px', borderRadius: 11, border: `1px solid ${A.line}`, background: '#fff', color: A.muted, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>Vazgeç</button>
+                    </div>
+                    <button onClick={() => { toggleSlot(addSlot.iso, addSlot.time); setAddSlot(null); }}
+                      style={{ width: '100%', marginTop: 10, padding: '9px', borderRadius: 10, border: 'none', background: 'transparent', color: '#B91C1C', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Randevu yerine bu saati kapat</button>
+                  </div>
+                </div>
               )}
             </>
           );
