@@ -38,7 +38,7 @@ async function getDoktorlar(filters: Record<string, string | undefined> & { page
   if (filters.ilce)   query = query.eq('ilce', filters.ilce);
   if (filters.spec)   query = query.eq('spec', filters.spec);
   if (filters.online) query = query.eq('online', true);
-  if (filters.dil)    query = query.contains('yabanci_diller', JSON.stringify([filters.dil]));   // jsonb @> ["Dil"]
+  if (filters.dil && filters.dil !== 'Türkçe')    query = query.contains('yabanci_diller', JSON.stringify([filters.dil]));   // jsonb @> ["Dil"]
   if (filters.q)      query = query.or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%,spec.ilike.%${filters.q}%`);
   const { data, count, error } = await query;
   if (error) console.error(error);
@@ -80,7 +80,7 @@ async function getKonumlar(filters: Record<string, string | undefined>) {
   if (filters.il)   query = query.eq('il', filters.il);
   if (filters.ilce) query = query.eq('ilce', filters.ilce);
   if (filters.spec) query = query.eq('spec', filters.spec);
-  if (filters.dil)  query = query.contains('yabanci_diller', JSON.stringify([filters.dil]));
+  if (filters.dil && filters.dil !== 'Türkçe')  query = query.contains('yabanci_diller', JSON.stringify([filters.dil]));
   if (filters.q)    query = query.or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%`);
   const { data } = await query.limit(5000);
 
@@ -160,7 +160,7 @@ export default async function DoktorlarPage(
         { key: 'q', label: 'Arama', type: 'search', placeholder: 'Doktor veya uzmanlık ara...' },
         { key: 'spec', label: 'Uzmanlık Alanı', type: 'radio', options: uzmanliklarWithCount },
         { key: 'il',   label: 'Şehir',           type: 'radio', options: illerWithCount },
-        { key: 'dil',  label: 'Yabancı Dil',     type: 'radio', render: 'chips', options: DIL_SECENEKLERI },
+        { key: 'dil',  label: 'Konuşulan Dil',     type: 'radio', render: 'chips', options: DIL_SECENEKLERI },
       ]}
       activeFilters={{ il: filters.il, ilce: filters.ilce, spec: filters.spec, dil: filters.dil, q: filters.q }}
       hasActiveFilters={!!(filters.il || filters.ilce || filters.spec || filters.dil || filters.q || filters.online)}

@@ -66,7 +66,7 @@ async function getKlinikler(filters: KlinikFilters) {
   if (filters.ilce)     query = query.eq('ilce', filters.ilce);
   if (filters.tip)      query = query.eq('type', filters.tip);
   if (filters.uzmanlik) query = query.contains('specs', [filters.uzmanlik]);
-  if (filters.dil)      query = (query as any).contains('yabanci_diller', JSON.stringify([filters.dil]));
+  if (filters.dil && filters.dil !== 'Türkçe')      query = (query as any).contains('yabanci_diller', JSON.stringify([filters.dil]));
   if (filters.minRat)   query = query.gte('rat', filters.minRat);
   if (filters.q) {
     const nq = norm(filters.q);
@@ -156,7 +156,7 @@ async function getKonumlar(filters: KlinikFilters) {
     if (filters.ilce)     q = q.eq('ilce', filters.ilce);
     if (filters.tip)      q = q.eq('type', filters.tip);
     if (filters.uzmanlik) q = (q as any).contains('specs', [filters.uzmanlik]);
-    if (filters.dil)      q = (q as any).contains('yabanci_diller', JSON.stringify([filters.dil]));
+    if (filters.dil && filters.dil !== 'Türkçe')      q = (q as any).contains('yabanci_diller', JSON.stringify([filters.dil]));
     if (filters.q)        q = q.ilike('name', `%${filters.q}%`);
     return q;
   }, 6000);
@@ -397,7 +397,7 @@ export default async function KliniklerPage(
           ? [{ key: 'ilce', label: 'İlçe', type: 'radio' as const, options: ilcelerWithCount }]
           : []),
         { key: 'uzmanlik', label: 'Uzmanlık', type: 'checkbox', options: uzmanliklarWithCount },
-        { key: 'dil',      label: 'Yabancı Dil', type: 'radio', render: 'chips', options: KLINIK_DIL_SECENEKLERI },
+        { key: 'dil',      label: 'Konuşulan Dil', type: 'radio', render: 'chips', options: KLINIK_DIL_SECENEKLERI },
       ]}
       activeFilters={{ kurum: kurumSel, il: filters.il, ilce: filters.ilce, uzmanlik: filters.uzmanlik, tip: filters.tip, dil: filters.dil, q: filters.q }}
       hasActiveFilters={!!(filters.il || filters.ilce || filters.uzmanlik || filters.tip || filters.dil || filters.q || kurumSel !== 'ozel')}
