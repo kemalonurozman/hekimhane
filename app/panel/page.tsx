@@ -4261,6 +4261,13 @@ function HekimKartTab({ approvedClaims, profileUrls, user }: {
     }).catch(() => setLoadingK(false));
   }, []);
 
+  // Tek onaylı profil varsa otomatik seç (seçim ekranını atla); birden fazlaysa kullanıcı seçer.
+  useEffect(() => {
+    if (!loadingK && approvedClaims.length === 1 && !activeClaim) {
+      selectClaim(approvedClaims[0]);
+    }
+  }, [loadingK, approvedClaims.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Entity verisini çek + form'a doldur
   async function selectClaim(claim: ClaimRequest) {
     setActiveClaim(claim);
