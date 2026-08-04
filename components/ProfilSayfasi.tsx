@@ -708,6 +708,9 @@ const RANDEVU_MODAL_CSS = `
 .rnd-slot .s-s{font-size:10px;color:var(--muted);margin-top:1px;}
 .rnd-slot.sel{background:var(--navy);border-color:var(--navy);box-shadow:0 6px 16px rgba(27,58,105,.28);}
 .rnd-slot.sel .s-l,.rnd-slot.sel .s-s{color:#fff;}
+.rnd-slot.kapali{cursor:not-allowed;background:#F7F7F9;border-color:var(--border);}
+.rnd-slot.kapali:active{transform:none;}
+.rnd-slot.kapali .s-l{color:#B0B0B5;text-decoration:line-through;text-decoration-thickness:1.5px;}
 .randevu-modal-card input[type=date] {
   -webkit-appearance: none; appearance: none; min-height: 48px;
 }
@@ -810,7 +813,8 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
 
   // Slot bazlı mod: seçilen günün çalışma saatlerinden uygun saatleri üret
   const GUN_ADI = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
-  function gunSlotlari(iso: string): string[] {
+  // Kapalı/dolu saatler LİSTEDE KALIR (üzeri çizili, tıklanamaz); yalnızca geçmiş saatler gizlenir.
+  function gunSlotlari(iso: string): { time: string; available: boolean }[] {
     if (!iso) return [];
     const dt = new Date(iso + 'T00:00:00'); const gun = GUN_ADI[dt.getDay()];
     let o = '09:00', c = '18:00', acikGun = true;
@@ -824,16 +828,18 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
     }
     if (!acikGun) return [];
     const bs = new Set(booked || []);
-    if (bs.has(iso)) return [];   // tüm gün kapalı/bloke
+    if (bs.has(iso)) return [];   // tüm gün kapalı → gün seçicide pasif olur
     let t = (+o.split(':')[0]) * 60 + (+o.split(':')[1]);
     const end = (+c.split(':')[0]) * 60 + (+c.split(':')[1]);
-    const dk = slotDk || 30; const out: string[] = [];
+    const dk = slotDk || 30; const out: { time: string; available: boolean }[] = [];
     const now = new Date();
     const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const nowMin = now.getHours() * 60 + now.getMinutes(); const isToday = iso === todayIso;
     while (t + dk <= end) {
       const lbl = `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
-      if (!bs.has(iso + ' ' + lbl) && !(isToday && t <= nowMin + 15)) out.push(lbl);
+      if (!(isToday && t <= nowMin + 15)) {   // geçmiş saatleri gizle; kapalı/dolu olanları çizili göster
+        out.push({ time: lbl, available: !bs.has(iso + ' ' + lbl) });
+      }
       t += dk;
     }
     return out;
@@ -921,7 +927,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
                     </button>
                   )}
                   {dayList.map(d => {
-                    const kapali = aktif && gunSlotlari(d.iso).length === 0;
+                    const kapali = aktif && gunSlotlari(d.iso).filter(s => s.available).length === 0;
                     return (
                       <button type="button" key={d.iso} disabled={kapali}
                         onClick={() => { if (kapali) return; setTarih(d.iso); if (aktif) setSaat(''); }}
@@ -945,8 +951,11 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
                   ) : (
                     <div className="rnd-slots" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))' }}>
                       {slotArr.map(s => (
-                        <button type="button" key={s} onClick={() => setSaat(s)} className={`rnd-slot${saat === s ? ' sel' : ''}`}>
-                          <div className="s-l">{s}</div>
+                        <button type="button" key={s.time} disabled={!s.available}
+                          onClick={() => { if (s.available) setSaat(s.time); }}
+                          title={s.available ? undefined : 'Bu saat dolu / kapalı — rezervasyon oluşturulamaz'}
+                          className={`rnd-slot${saat === s.time ? ' sel' : ''}${s.available ? '' : ' kapali'}`}>
+                          <div className="s-l">{s.time}</div>
                         </button>
                       ))}
                     </div>
