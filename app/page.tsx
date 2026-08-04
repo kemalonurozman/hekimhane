@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase';
 import KategoriKartlari from '@/components/KategoriKartlari';
 import HeroAnimated from '@/components/HeroAnimated';
 import HastalikRehberiSection from '@/components/HastalikRehberiSection';
+import OneCikanHekimler, { type PremiumItem } from '@/components/OneCikanHekimler';
+import { toSlug } from '@/lib/helpers';
 
 export const metadata: Metadata = {
   title: 'Hekimhane — Türkiye Diş Hekimi & Klinik Rehberi',
@@ -59,6 +61,44 @@ async function getOneCikanMakaleler(): Promise<OneCikan[]> {
   } catch { return []; }
 }
 
+const INTERNAL_SPEC_TAGS = new Set(['devlet-dis-hastanesi', 'universite-dis-hastanesi', 'bobath-terapisti']);
+
+/** Premium (öne çıkan) klinik + diş hekimleri — anasayfa carousel'i için. */
+async function getOneCikanPremium(): Promise<PremiumItem[]> {
+  noStore();
+  try {
+    const [kRes, dRes] = await Promise.all([
+      supabase.from('klinikler').select('*').eq('premium', true).limit(10),
+      supabase.from('doktorlar').select('*').eq('premium', true).not('tags', 'cs', '{devlet-dis-hastanesi}').limit(10),
+    ]);
+    const klinikler: PremiumItem[] = (kRes.data as any[] || [])
+      .filter(k => k.slug && k.il && k.ilce)
+      .map(k => ({
+        tip: 'klinik' as const,
+        ad: k.name || 'Diş Kliniği',
+        altbaslik: (k.specs || []).filter((s: string) => s && !INTERNAL_SPEC_TAGS.has(s))[0] || 'Diş Kliniği',
+        il: k.il || '', ilce: k.ilce || '',
+        ozellikler: (k.specs || []).filter((s: string) => s && !INTERNAL_SPEC_TAGS.has(s)).slice(0, 4),
+        foto: k.logo || (k.photos || [])[0] || null,
+        href: `/klinikler/${toSlug(k.il)}/${toSlug(k.ilce)}/${k.slug}`,
+        rat: Number(k.rat) || 0, rev: Number(k.rev) || 0,
+      }));
+    const doktorlar: PremiumItem[] = (dRes.data as any[] || [])
+      .filter(d => d.slug)
+      .map(d => ({
+        tip: 'doktor' as const,
+        ad: [d.unvan, d.ad, d.soyad].filter(Boolean).join(' ') || 'Diş Hekimi',
+        altbaslik: d.spec || 'Diş Hekimi',
+        il: d.il || '', ilce: d.ilce || '',
+        ozellikler: [d.spec, d.clinic_name].filter(Boolean).slice(0, 4),
+        foto: d.photo || (d.photos || [])[0] || null,
+        href: `/doktorlar/${d.slug}`,
+        rat: Number(d.rat) || 0, rev: Number(d.rev) || 0,
+      }));
+    return [...klinikler, ...doktorlar];
+  } catch { return []; }
+}
+
 const POPÜLER_İLLER = [
   'İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya',
   'Adana', 'Konya', 'Gaziantep', 'Muğla', 'Mersin',
@@ -80,7 +120,7 @@ function IconArrow() {
 }
 
 export default async function HomePage() {
-  const [stats, oneCikanlar] = await Promise.all([getStats(), getOneCikanMakaleler()]);
+  const [stats, oneCikanlar, premiumler] = await Promise.all([getStats(), getOneCikanMakaleler(), getOneCikanPremium()]);
 
   return (
     <div style={{
@@ -119,6 +159,9 @@ export default async function HomePage() {
 
       {/* Not: Ayrı "Şikayetinizi Anlatın" ve "Hekimhane AI" arama bölümleri kaldırıldı;
           tek arama hero'da (yazı + hızlı filtre butonları) toplandı. */}
+
+      {/* ── ÖNE ÇIKAN PREMIUM HEKİM/KLİNİKLER (geçişli carousel) ─────── */}
+      {premiumler.length > 0 && <OneCikanHekimler items={premiumler} />}
 
       {/* ── KATEGORİLER ─────────────────────────────────────────────── */}
       <section style={{ padding: '72px 0', background: '#F5F5F7' }}>
