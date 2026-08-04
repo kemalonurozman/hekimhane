@@ -2083,6 +2083,7 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   type Dosya = { id: string; entity_id: string; tel: string; ad: string | null; tip: string | null; boyut: number | null; created_at: string };
   const [dosyalar, setDosyalar] = useState<Record<string, Dosya[]>>({});   // key: entity_id|tel
   const [uploading, setUploading] = useState(false);
+  const [silTel, setSilTel] = useState('');   // silinmekte olan hasta telefonu (spinner)
 
   const hasEntities = approvedClaims.some(c => c.entity_id && c.entity_id !== 'new');
   const A = { page: '#F5F5F7', card: '#FFFFFF', text: '#1D1D1F', muted: '#86868B', line: '#E5E5EA', accent: T.navy, green: '#34C759' };
@@ -2263,6 +2264,29 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
     } catch { /* yoksay */ }
   }
   const tl = (n: number | null) => n == null ? '' : n.toLocaleString('tr-TR') + ' ₺';
+
+  // Hastayı sistemden tamamen sil (randevu talepleri + not + işlem + dosyalar). Geri alınamaz.
+  async function silHasta(h: { tel: string; ad: string }) {
+    if (!window.confirm(`"${h.ad || 'Bu hasta'}" sistemden kalıcı olarak silinsin mi?\n\nRandevu talepleri, notlar, işlem/tedavi geçmişi ve dosyalar dahil TÜM kayıtları silinir. Bu işlem geri alınamaz.`)) return;
+    setSilTel(h.tel);
+    try {
+      const res = await fetch('/api/panel/hasta-sil', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tel: h.tel }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok && j.ok) {
+        const norm = h.tel.replace(/\D/g, '');
+        // Yerel state'i temizle → kart kaybolur
+        setTalepler(p => p.filter(t => String(t.tel || '').replace(/\D/g, '') !== norm));
+        setNotlar(p => { const n = { ...p }; Object.keys(n).forEach(k => { if (k.endsWith('|' + norm)) delete n[k]; }); return n; });
+        setIslemler(p => { const n = { ...p }; Object.keys(n).forEach(k => { if (k.endsWith('|' + norm)) delete n[k]; }); return n; });
+        setDosyalar(p => { const n = { ...p }; Object.keys(n).forEach(k => { if (k.endsWith('|' + norm)) delete n[k]; }); return n; });
+        if (openTel === h.tel) setOpenTel(null);
+      } else alert(j.error || 'Hasta silinemedi.');
+    } catch { alert('Bağlantı hatası.'); }
+    setSilTel('');
+  }
 
   async function uploadDosya(h: { entity_id: string; tel: string }, file: File) {
     setUploading(true);
@@ -2496,6 +2520,18 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
                               </>
                             );
                           })()}
+                        </div>
+
+                        {/* Tehlikeli alan — hastayı sistemden sil */}
+                        <div style={{ borderTop: `1px solid ${A.line}`, paddingTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                          <div style={{ fontSize: 11.5, color: A.muted, lineHeight: 1.5, flex: 1, minWidth: 200 }}>
+                            Hastayı sistemden silmek tüm randevu, not, işlem ve dosya kayıtlarını kalıcı olarak kaldırır.
+                          </div>
+                          <button onClick={() => silHasta(h)} disabled={silTel === h.tel}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 16px', borderRadius: 10, border: '1px solid #FCA5A5', background: '#FEF2F2', color: '#B91C1C', fontSize: 13, fontWeight: 600, cursor: silTel === h.tel ? 'default' : 'pointer', fontFamily: 'inherit', opacity: silTel === h.tel ? .6 : 1, flexShrink: 0 }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 5v6m4-6v6"/></svg>
+                            {silTel === h.tel ? 'Siliniyor…' : 'Hastayı sil'}
+                          </button>
                         </div>
                       </div>
                     )}
