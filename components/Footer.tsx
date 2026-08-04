@@ -154,6 +154,11 @@ export default function Footer() {
                 Abone Ol
               </button>
             </div>
+            {/* İletişim — bize ulaşın (iletişim formu) */}
+            <Link href="/iletisim" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 14, fontSize: 13, fontWeight: 600, color: 'var(--gold)', textDecoration: 'none' }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 5L2 7" /></svg>
+              Bize ulaşın · İletişim formu
+            </Link>
             {/* Sosyal medya — yalnızca gerçek hesap linki girildiğinde görünür.
                 Hesaplar açıldıkça href'leri doldurun (ör. 'https://instagram.com/hekimhane'). */}
             {SOCIAL.some(s => s.href) && (

@@ -93,6 +93,7 @@ export interface ProfilProps {
   deneyimBaslangic?: number | null;
   deneyimler?: { kurum: string; baslangic: string; bitis: string }[] | null;
   sertifikalar?: { ad: string; url: string }[] | null;
+  yabanciDiller?: string[] | null;
   sigorta?: string[] | null;
   conditions?: string[] | null;
   // hastane
@@ -1008,7 +1009,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
 
 // ── Ana Bileşen ───────────────────────────────────────────────────
 export default function ProfilSayfasi(props: ProfilProps) {
-  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, uzmanlikKurum, deneyimBaslangic, deneyimler, sertifikalar, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, randevuAktif, randevuSlotDk, bookedSlots, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
+  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, uzmanlikKurum, deneyimBaslangic, deneyimler, sertifikalar, yabanciDiller, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, randevuAktif, randevuSlotDk, bookedSlots, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
 
   // Gizli iletişim (ör. Bobath terapisti henüz katılmadı) → tel/email/randevu gizlenir
   const contactGizli = contactHidden === true;
@@ -1050,9 +1051,10 @@ export default function ProfilSayfasi(props: ProfilProps) {
   // Mesleki Bilgiler — doktorda ilgili veri varsa ayrı sekme gösterilir
   const meslekDeneyimler = (deneyimler || []).filter(d => d && d.kurum);
   const meslekSertifikalar = (sertifikalar || []).filter(c => c && (c.ad || c.url));
+  const meslekDiller = (yabanciDiller || []).filter(d => d && d.trim());
   const hasMeslek = entityType === 'doktor' && !!(
     (deneyimBaslangic && deneyimBaslangic >= 1950) || okul || uzmanlikKurum ||
-    meslekDeneyimler.length || meslekSertifikalar.length
+    meslekDeneyimler.length || meslekSertifikalar.length || meslekDiller.length
   );
   const gorunenTabs = TABS.filter(t => t === 'meslek' ? hasMeslek : true);
   useEffect(() => {
@@ -1909,6 +1911,22 @@ export default function ProfilSayfasi(props: ProfilProps) {
                             ? <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" style={kutuStil}>{inner}</a>
                             : <div key={i} style={kutuStil}>{inner}</div>;
                         })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Yabancı Diller */}
+                  {meslekDiller.length > 0 && (
+                    <div style={{ marginTop: 22 }}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--navy)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <i className="fa-solid fa-language" style={{ fontSize: 13 }} /> Yabancı Diller
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                        {meslekDiller.map((dil, i) => (
+                          <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--navy)', background: 'rgba(27,58,105,.06)', border: '1px solid var(--border)', borderRadius: 10, padding: '8px 13px' }}>
+                            <i className="fa-solid fa-globe" style={{ fontSize: 12, opacity: .7 }} />{dil}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   )}

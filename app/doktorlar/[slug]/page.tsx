@@ -146,6 +146,7 @@ export default async function DoktorProfilPage({ params }: Props) {
       deneyimBaslangic={(d as any).deneyim_baslangic}
       deneyimler={(d as any).deneyimler}
       sertifikalar={(d as any).sertifikalar}
+      yabanciDiller={(d as any).yabanci_diller}
       sigorta={d.sigorta}
       conditions={d.conditions}
       tour360url={d.tour360url}
