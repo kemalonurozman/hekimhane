@@ -447,23 +447,27 @@ export function treatmentBySlug(s: string): Treatment | null {
 // klinikler listelenir. hastalikSlug varsa /hastaliklar detayına bağlanır.
 export interface DentalProblem { slug: string; ad: string; spec: string; ozet: string; hastalikSlug?: string; }
 export const DENTAL_PROBLEMS: DentalProblem[] = [
-  { slug: 'dis-agrisi',           ad: 'Diş Ağrısı',                 spec: 'Endodonti (Kanal Tedavisi)',      ozet: 'Diş ağrısının en sık nedenleri ilerlemiş çürük, diş siniri iltihabı ve apsedir. Ağrının kaynağına göre dolgu, kanal tedavisi veya çekim gerekebilir.' },
-  { slug: 'dis-eti-kanamasi',     ad: 'Diş Eti Kanaması',           spec: 'Periodontoloji (Diş Eti)',        ozet: 'Fırçalarken veya kendiliğinden diş eti kanaması çoğunlukla diş taşı ve diş eti iltihabının (gingivit) belirtisidir; erken tedaviyle geri döndürülebilir.' },
-  { slug: 'dis-curugu',           ad: 'Diş Çürüğü',                 spec: 'Restoratif Diş Tedavisi (Dolgu)', ozet: 'Diş çürüğü, minede başlayan ve ilerledikçe ağrı ve hassasiyet yapan doku kaybıdır. Erken evrede dolgu ile tedavi edilir.' },
-  { slug: 'dis-hassasiyeti',      ad: 'Diş Hassasiyeti',            spec: 'Restoratif Diş Tedavisi (Dolgu)', ozet: 'Soğuk-sıcak veya tatlıya karşı kısa süreli keskin ağrı; mine aşınması, çürük ya da diş eti çekilmesine bağlı olabilir.' },
-  { slug: 'dis-apsesi',           ad: 'Diş Apsesi',                 spec: 'Endodonti (Kanal Tedavisi)',      ozet: 'Diş kökü çevresinde iltihap birikmesi; zonklayan ağrı ve şişlik yapar. Kanal tedavisi veya cerrahi müdahale gerektirir.' },
-  { slug: 'dis-eti-cekilmesi',    ad: 'Diş Eti Çekilmesi',          spec: 'Periodontoloji (Diş Eti)',        ozet: 'Diş etinin kök yüzeyini açığa çıkaracak şekilde geri çekilmesi; hassasiyet ve estetik kayba yol açar.' },
-  { slug: 'agiz-kokusu',          ad: 'Ağız Kokusu (Halitozis)',    spec: 'Diş Taşı Temizliği',              ozet: 'Kalıcı ağız kokusunun başlıca nedenleri diş taşı, diş eti hastalığı ve dil bakımının yetersizliğidir; profesyonel temizlikle azalır.' },
-  { slug: '20-yas-disi-agrisi',   ad: '20 Yaş Dişi Ağrısı',         spec: 'Ağız Diş ve Çene Cerrahisi',      ozet: 'Sürmekte olan veya gömülü 20 yaş dişleri ağrı, şişlik ve çevre dişlere baskı yapabilir; sıklıkla cerrahi çekim gerekir.' },
-  { slug: 'gomulu-dis',           ad: 'Gömülü Diş',                 spec: 'Ağız Diş ve Çene Cerrahisi',      ozet: 'Çene kemiği veya diş eti içinde kalarak süremeyen dişler; ağrı ve enfeksiyon yapabilir, cerrahi olarak değerlendirilir.' },
-  { slug: 'carpik-dis',           ad: 'Çarpık / Düzensiz Dişler',   spec: 'Ortodonti (Diş Teli)',            ozet: 'Çapraşık ve düzensiz dişler; diş teli veya şeffaf plak (ortodonti) ile düzeltilir, hem estetik hem sağlık kazandırır.' },
-  { slug: 'eksik-dis',            ad: 'Eksik Diş',                  spec: 'İmplantoloji (İmplant)',          ozet: 'Bir veya birden fazla eksik diş; implant, köprü veya protez ile fonksiyon ve estetik yeniden kazanılır.' },
-  { slug: 'dis-sikma-gicirdatma', ad: 'Diş Sıkma / Gıcırdatma',     spec: 'Bruksizm (Diş Gıcırdatma)',       ozet: 'Genellikle uykuda görülen diş sıkma/gıcırdatma; diş aşınması, çene ağrısı ve baş ağrısı yapar, gece plağı ile korunur.' },
-  { slug: 'dis-kirigi',           ad: 'Diş Kırığı / Çatlağı',       spec: 'Restoratif Diş Tedavisi (Dolgu)', ozet: 'Travma veya sert gıdalarla oluşan diş kırığı/çatlağı; kapsamına göre dolgu, kaplama veya kanal tedavisiyle onarılır.' },
+  { slug: 'dis-agrisi',           ad: 'Diş Ağrısı',                 spec: 'Endodonti (Kanal Tedavisi)',      ozet: 'Diş ağrısının en sık nedenleri ilerlemiş çürük, diş siniri iltihabı ve apsedir. Ağrının kaynağına göre dolgu, kanal tedavisi veya çekim gerekebilir.', hastalikSlug: 'dis-curugu' },
+  { slug: 'dis-eti-kanamasi',     ad: 'Diş Eti Kanaması',           spec: 'Periodontoloji (Diş Eti)',        ozet: 'Fırçalarken veya kendiliğinden diş eti kanaması çoğunlukla diş taşı ve diş eti iltihabının (gingivit) belirtisidir; erken tedaviyle geri döndürülebilir.', hastalikSlug: 'gingivit' },
+  { slug: 'dis-curugu',           ad: 'Diş Çürüğü',                 spec: 'Restoratif Diş Tedavisi (Dolgu)', ozet: 'Diş çürüğü, minede başlayan ve ilerledikçe ağrı ve hassasiyet yapan doku kaybıdır. Erken evrede dolgu ile tedavi edilir.', hastalikSlug: 'dis-curugu' },
+  { slug: 'dis-hassasiyeti',      ad: 'Diş Hassasiyeti',            spec: 'Restoratif Diş Tedavisi (Dolgu)', ozet: 'Soğuk-sıcak veya tatlıya karşı kısa süreli keskin ağrı; mine aşınması, çürük ya da diş eti çekilmesine bağlı olabilir.', hastalikSlug: 'dis-hassasiyeti' },
+  { slug: 'dis-apsesi',           ad: 'Diş Apsesi',                 spec: 'Endodonti (Kanal Tedavisi)',      ozet: 'Diş kökü çevresinde iltihap birikmesi; zonklayan ağrı ve şişlik yapar. Kanal tedavisi veya cerrahi müdahale gerektirir.', hastalikSlug: 'dis-apsesi' },
+  { slug: 'dis-eti-cekilmesi',    ad: 'Diş Eti Çekilmesi',          spec: 'Periodontoloji (Diş Eti)',        ozet: 'Diş etinin kök yüzeyini açığa çıkaracak şekilde geri çekilmesi; hassasiyet ve estetik kayba yol açar.', hastalikSlug: 'dis-eti-cekilmesi' },
+  { slug: 'agiz-kokusu',          ad: 'Ağız Kokusu (Halitozis)',    spec: 'Diş Taşı Temizliği',              ozet: 'Kalıcı ağız kokusunun başlıca nedenleri diş taşı, diş eti hastalığı ve dil bakımının yetersizliğidir; profesyonel temizlikle azalır.', hastalikSlug: 'agiz-kokusu' },
+  { slug: '20-yas-disi-agrisi',   ad: '20 Yaş Dişi Ağrısı',         spec: 'Ağız Diş ve Çene Cerrahisi',      ozet: 'Sürmekte olan veya gömülü 20 yaş dişleri ağrı, şişlik ve çevre dişlere baskı yapabilir; sıklıkla cerrahi çekim gerekir.', hastalikSlug: 'gomulu-dis' },
+  { slug: 'gomulu-dis',           ad: 'Gömülü Diş',                 spec: 'Ağız Diş ve Çene Cerrahisi',      ozet: 'Çene kemiği veya diş eti içinde kalarak süremeyen dişler; ağrı ve enfeksiyon yapabilir, cerrahi olarak değerlendirilir.', hastalikSlug: 'gomulu-dis' },
+  { slug: 'carpik-dis',           ad: 'Çarpık / Düzensiz Dişler',   spec: 'Ortodonti (Diş Teli)',            ozet: 'Çapraşık ve düzensiz dişler; diş teli veya şeffaf plak (ortodonti) ile düzeltilir, hem estetik hem sağlık kazandırır.', hastalikSlug: 'malokluzyon' },
+  { slug: 'eksik-dis',            ad: 'Eksik Diş',                  spec: 'İmplantoloji (İmplant)',          ozet: 'Bir veya birden fazla eksik diş; implant, köprü veya protez ile fonksiyon ve estetik yeniden kazanılır.', hastalikSlug: 'dis-kaybi' },
+  { slug: 'dis-sikma-gicirdatma', ad: 'Diş Sıkma / Gıcırdatma',     spec: 'Bruksizm (Diş Gıcırdatma)',       ozet: 'Genellikle uykuda görülen diş sıkma/gıcırdatma; diş aşınması, çene ağrısı ve baş ağrısı yapar, gece plağı ile korunur.', hastalikSlug: 'bruksizm' },
+  { slug: 'dis-kirigi',           ad: 'Diş Kırığı / Çatlağı',       spec: 'Restoratif Diş Tedavisi (Dolgu)', ozet: 'Travma veya sert gıdalarla oluşan diş kırığı/çatlağı; kapsamına göre dolgu, kaplama veya kanal tedavisiyle onarılır.', hastalikSlug: 'dis-kirigi' },
   { slug: 'dis-sararmasi',        ad: 'Diş Sararması / Renklenme',  spec: 'Diş Beyazlatma',                  ozet: 'Kahve, çay, sigara ve yaşa bağlı renklenmeler; profesyonel diş beyazlatma ile birkaç ton açılabilir.' },
 ];
 export function problemBySlug(s: string): DentalProblem | null {
   return DENTAL_PROBLEMS.find(p => p.slug === s) || null;
+}
+/** Bir hastalık (dis-sagligi) slug'ına karşılık gelen diş problemi (ters bağlantı için) */
+export function problemForHastalik(hastalikSlug: string): DentalProblem | null {
+  return DENTAL_PROBLEMS.find(p => p.hastalikSlug === hastalikSlug) || null;
 }
 
 /** Uzmanlık, tedavi veya diş-sağlığı problemi slug'ını çöz → { label, spec, treatment?, problem? } (yoksa null) */

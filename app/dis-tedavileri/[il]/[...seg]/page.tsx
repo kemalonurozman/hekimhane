@@ -10,7 +10,7 @@ import type { Klinik } from '@/lib/types';
 import { toSlug } from '@/lib/helpers';
 import { IL_KONUM } from '@/lib/il-koordinatlari';
 import {
-  DENTAL_SPECIALTIES, synonymsForSpec, specFilterValues, resolveSpecOrTreatment, buildDentalFaq, TREATMENTS,
+  DENTAL_SPECIALTIES, synonymsForSpec, specFilterValues, resolveSpecOrTreatment, buildDentalFaq, TREATMENTS, DENTAL_PROBLEMS,
 } from '@/lib/uzmanlik-data';
 import KlinikCard from '@/components/KlinikCard';
 
@@ -238,8 +238,15 @@ export default async function DisTedaviPage({ params }: Props) {
               ? <>{yer}&apos;da <strong>{label}</strong> için başvurabileceğiniz {sorted.length} diş kliniği. Puanları, hasta yorumları ve iletişim bilgileriyle karşılaştırın.</>
               : <>{yer}&apos;da <strong>{label}</strong> hizmeti veren {sorted.length} diş hekimi ve klinik. Puanları, hasta yorumları ve iletişim bilgileriyle karşılaştırın, size en uygun uzmanı bulun.</>}
           </p>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 14, background: 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700 }}>
-            <i className="fa-solid fa-tooth" style={{ color: 'var(--gold)' }} /> {sorted.length} sonuç
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700 }}>
+              <i className="fa-solid fa-tooth" style={{ color: 'var(--gold)' }} /> {sorted.length} sonuç
+            </span>
+            {problem?.hastalikSlug && (
+              <Link href={`/hastaliklar/dis-sagligi/${problem.hastalikSlug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'var(--gold)', color: 'var(--navy)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                <i className="fa-solid fa-book-medical" /> {label} nedir? Rehber →
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -327,6 +334,20 @@ export default async function DisTedaviPage({ params }: Props) {
             {TREATMENTS.filter(t => t.slug !== uzmPath).slice(0, 8).map(t => (
               <Link key={t.slug} href={ilce ? `/dis-tedavileri/${ilPath}/${toSlug(ilce)}/${t.slug}` : `/dis-tedavileri/${ilPath}/${t.slug}`} style={chip}>
                 {yerBaslik} {t.name}
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* İç linkleme: sık aranan diş problemleri (aynı yer) */}
+        <section style={{ marginTop: 32 }}>
+          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 700, color: 'var(--navy)', marginBottom: 14 }}>
+            {yerBaslik}&apos;da Sık Aranan Diş Problemleri
+          </h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
+            {DENTAL_PROBLEMS.filter(p => p.slug !== uzmPath).slice(0, 10).map(p => (
+              <Link key={p.slug} href={ilce ? `/dis-tedavileri/${ilPath}/${toSlug(ilce)}/${p.slug}` : `/dis-tedavileri/${ilPath}/${p.slug}`} style={chip}>
+                {yerBaslik} {p.ad}
               </Link>
             ))}
           </div>

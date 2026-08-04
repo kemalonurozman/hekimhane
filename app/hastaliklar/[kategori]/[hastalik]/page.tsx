@@ -7,6 +7,8 @@ import {
   getAllHastalikSlugs,
   HASTALIKLAR,
 } from '@/lib/hastaliklar-data';
+import { problemForHastalik } from '@/lib/uzmanlik-data';
+import { toSlug } from '@/lib/helpers';
 
 interface Props {
   params: { kategori: string; hastalik: string };
@@ -318,6 +320,29 @@ export default function HastalıkDetayPage({ params }: Props) {
               </div>
             </section>
           )}
+
+          {/* Şehir bazlı: bu şikâyet için diş klinikleri (dis-tedavileri problem sayfaları) */}
+          {(() => {
+            const prob = kat.slug === 'dis-sagligi' ? problemForHastalik(h.slug) : null;
+            if (!prob) return null;
+            const CITIES = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya'];
+            return (
+              <section style={{ marginBottom: 24 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--navy)', marginBottom: 8 }}>Şehrinizde {prob.ad} Tedavisi</h2>
+                <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 16, lineHeight: 1.6 }}>
+                  {prob.ad} şikâyetiniz için bulunduğunuz şehirdeki diş kliniklerini ve hekimlerini görüntüleyin, puan ve yorumlara göre karşılaştırın.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
+                  {CITIES.map(c => (
+                    <Link key={c} href={`/dis-tedavileri/${toSlug(c)}/${prob.slug}`}
+                      style={{ padding: '8px 14px', borderRadius: 20, background: 'white', border: '1px solid var(--border)', color: 'var(--navy)', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                      {c} {prob.ad}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            );
+          })()}
 
         </article>
 
