@@ -1978,6 +1978,14 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   const [draftNot, setDraftNot] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState('');
+  const [view, setView] = useState<'hastalar' | 'ajanda'>('hastalar');
+  type Islem = { id: string; entity_id: string; tel: string; tarih: string | null; islem: string; notlar: string | null; ucret: number | null };
+  const [islemler, setIslemler] = useState<Record<string, Islem[]>>({});   // key: entity_id|tel
+  const [isTarih, setIsTarih] = useState('');
+  const [isAd, setIsAd] = useState('');
+  const [isNot, setIsNot] = useState('');
+  const [isUcret, setIsUcret] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const hasEntities = approvedClaims.some(c => c.entity_id && c.entity_id !== 'new');
   const A = { page: '#F5F5F7', card: '#FFFFFF', text: '#1D1D1F', muted: '#86868B', line: '#E5E5EA', accent: T.navy, green: '#34C759' };
@@ -1986,14 +1994,18 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
     (async () => {
       setLoading(true);
       try {
-        const [r1, r2] = await Promise.all([
+        const [r1, r2, r3] = await Promise.all([
           fetch('/api/panel/randevu-talepleri').then(r => r.ok ? r.json() : { talepler: [] }),
           fetch('/api/panel/hasta-notu').then(r => r.ok ? r.json() : { hastalar: [] }),
+          fetch('/api/panel/hasta-islem').then(r => r.ok ? r.json() : { islemler: [] }),
         ]);
         setTalepler(r1.talepler || []);
         const nm: Record<string, any> = {};
         (r2.hastalar || []).forEach((h: any) => { nm[`${h.entity_id}|${String(h.tel).replace(/\D/g, '')}`] = h; });
         setNotlar(nm);
+        const im: Record<string, Islem[]> = {};
+        (r3.islemler || []).forEach((x: Islem) => { const k = `${x.entity_id}|${String(x.tel).replace(/\D/g, '')}`; (im[k] = im[k] || []).push(x); });
+        setIslemler(im);
       } catch { setTalepler([]); }
       setLoading(false);
     })();
@@ -2001,6 +2013,7 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
 
   const fmt = (s: string) => { try { return new Date(s).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }); } catch { return s; } };
   const DURUM: Record<string, string> = { yeni: 'Yeni', arandi: 'Arandı', tamamlandi: 'Tamamlandı', iptal: 'İptal' };
+  const entityNames = Array.from(new Set(talepler.map(t => t.entity_name)));
 
   // Telefona göre benzersiz hastalar
   const hastalar = (() => {
@@ -2038,6 +2051,31 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
     setSaving(false);
   }
 
+  async function addIslem(h: { entity_id: string; tel: string }) {
+    if (!isAd.trim()) return;
+    setIsSaving(true);
+    try {
+      const res = await fetch('/api/panel/hasta-islem', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entityId: h.entity_id, tel: h.tel, tarih: isTarih || undefined, islem: isAd.trim(), notlar: isNot.trim() || null, ucret: isUcret }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok && j.ok && j.islem) {
+        const k = `${h.entity_id}|${h.tel}`;
+        setIslemler(p => ({ ...p, [k]: [j.islem, ...(p[k] || [])] }));
+        setIsAd(''); setIsNot(''); setIsUcret(''); setIsTarih('');
+      } else alert(j.error || 'İşlem eklenemedi.');
+    } catch { alert('Bağlantı hatası.'); }
+    setIsSaving(false);
+  }
+  async function delIslem(h: { entity_id: string; tel: string }, id: string) {
+    try {
+      const res = await fetch(`/api/panel/hasta-islem?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      if (res.ok) { const k = `${h.entity_id}|${h.tel}`; setIslemler(p => ({ ...p, [k]: (p[k] || []).filter(x => x.id !== id) })); }
+    } catch { /* yoksay */ }
+  }
+  const tl = (n: number | null) => n == null ? '' : n.toLocaleString('tr-TR') + ' ₺';
+
   const inp: React.CSSProperties = { width: '100%', boxSizing: 'border-box', padding: '11px 14px', borderRadius: 11, border: `1px solid ${A.line}`, fontSize: 14, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none' };
 
   return (
@@ -2047,13 +2085,27 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
         <p style={{ fontSize: 14, color: A.muted, marginTop: 5 }}>Randevu bırakan hastalarınız telefona göre burada listelenir; her hastaya özel not tutabilirsiniz.</p>
       </div>
 
+      {hasEntities && !loading && (
+        <div style={{ display: 'inline-flex', background: A.page, borderRadius: 11, padding: 3, gap: 2, marginBottom: 16 }}>
+          {([['hastalar', 'Hastalar'], ['ajanda', 'Randevu Takvimi']] as const).map(([v, lbl]) => {
+            const on = view === v;
+            return (
+              <button key={v} onClick={() => setView(v)}
+                style={{ padding: '7px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: on ? 700 : 500, background: on ? A.card : 'transparent', color: on ? A.text : A.muted, boxShadow: on ? '0 1px 3px rgba(0,0,0,.08)' : 'none', transition: 'all .15s' }}>
+                {lbl}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {!hasEntities ? (
         <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '48px 24px', textAlign: 'center', color: A.muted, fontSize: 14 }}>
           Hastalarınızı görebilmek için önce bir işletmenizin sahipliğini onaylatın.
         </div>
       ) : loading ? (
         <div style={{ padding: 48, textAlign: 'center', color: A.muted, fontSize: 14 }}>Yükleniyor…</div>
-      ) : (
+      ) : view === 'hastalar' ? (
         <>
           <input value={q} onChange={e => setQ(e.target.value)} placeholder="Hasta ara — isim veya telefon…" style={{ ...inp, marginBottom: 14 }} />
           {filtered.length === 0 ? (
@@ -2069,7 +2121,7 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
                 const mevcutNot = notlar[notKey]?.notlar || '';
                 return (
                   <div key={h.tel} style={{ background: A.card, borderRadius: 16, border: `1px solid ${A.line}`, boxShadow: '0 1px 2px rgba(0,0,0,.03)', overflow: 'hidden' }}>
-                    <button onClick={() => { const willOpen = !acik; setOpenTel(willOpen ? h.tel : null); if (willOpen) { setDraftNot(mevcutNot); setSavedMsg(''); } }}
+                    <button onClick={() => { const willOpen = !acik; setOpenTel(willOpen ? h.tel : null); if (willOpen) { setDraftNot(mevcutNot); setSavedMsg(''); setIsAd(''); setIsNot(''); setIsUcret(''); setIsTarih(''); } }}
                       style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 13, padding: '15px 18px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
                       <div style={{ width: 42, height: 42, borderRadius: '50%', background: A.page, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16, fontWeight: 700, color: A.accent }}>
                         {(h.ad || '?').trim().charAt(0).toLocaleUpperCase('tr')}
@@ -2120,6 +2172,46 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
                             {savedMsg && <span style={{ fontSize: 12.5, fontWeight: 600, color: savedMsg === 'Kaydedildi' ? '#1D7A3E' : '#C0392B' }}>{savedMsg}</span>}
                           </div>
                         </div>
+
+                        {/* İşlem / tedavi geçmişi */}
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: A.muted, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 8 }}>İşlemler / tedavi geçmişi</div>
+                          {(() => {
+                            const k = `${h.entity_id}|${h.tel}`;
+                            const list = islemler[k] || [];
+                            const toplam = list.reduce((s, x) => s + (x.ucret || 0), 0);
+                            return (
+                              <>
+                                {list.length > 0 && (
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+                                    {list.map(x => (
+                                      <div key={x.id} style={{ display: 'flex', alignItems: 'center', gap: 10, background: A.page, borderRadius: 10, padding: '9px 12px' }}>
+                                        <div style={{ fontSize: 12, color: A.muted, minWidth: 66, flexShrink: 0 }}>{x.tarih ? new Date(x.tarih + 'T00:00:00').toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: '2-digit' }) : ''}</div>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                          <div style={{ fontSize: 13.5, fontWeight: 600, color: A.text }}>{x.islem}</div>
+                                          {x.notlar && <div style={{ fontSize: 12, color: A.muted }}>{x.notlar}</div>}
+                                        </div>
+                                        {x.ucret != null && <div style={{ fontSize: 13, fontWeight: 700, color: A.text, flexShrink: 0 }}>{tl(x.ucret)}</div>}
+                                        <button onClick={() => delIslem(h, x.id)} title="Sil" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C0392B', fontSize: 16, padding: 0, flexShrink: 0 }}>×</button>
+                                      </div>
+                                    ))}
+                                    {toplam > 0 && <div style={{ textAlign: 'right', fontSize: 13, fontWeight: 700, color: A.accent, marginTop: 2 }}>Toplam: {tl(toplam)}</div>}
+                                  </div>
+                                )}
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                                  <input type="date" value={isTarih} onChange={e => setIsTarih(e.target.value)} style={inp} />
+                                  <input value={isUcret} onChange={e => setIsUcret(e.target.value)} type="number" placeholder="Ücret (₺)" style={inp} />
+                                  <input value={isAd} onChange={e => setIsAd(e.target.value)} placeholder="İşlem (ör. Dolgu, İmplant)" style={{ ...inp, gridColumn: '1 / -1' }} />
+                                  <input value={isNot} onChange={e => setIsNot(e.target.value)} placeholder="Not (isteğe bağlı)" style={{ ...inp, gridColumn: '1 / -1' }} />
+                                </div>
+                                <button onClick={() => addIslem(h)} disabled={isSaving || !isAd.trim()}
+                                  style={{ marginTop: 8, padding: '8px 16px', borderRadius: 10, border: 'none', background: A.accent, color: '#fff', fontSize: 13, fontWeight: 600, cursor: (isSaving || !isAd.trim()) ? 'default' : 'pointer', fontFamily: 'inherit', opacity: (isSaving || !isAd.trim()) ? .6 : 1 }}>
+                                  {isSaving ? 'Ekleniyor…' : 'İşlem ekle'}
+                                </button>
+                              </>
+                            );
+                          })()}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -2128,6 +2220,63 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
             </div>
           )}
         </>
+      ) : (
+        (() => {
+          // AJANDA — slot bazlı (tarih-saatli) randevular, bugünden itibaren güne göre
+          const pad = (n: number) => String(n).padStart(2, '0');
+          const now = new Date();
+          const todayStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+          const parseSlot = (s: string) => { const m = /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})$/.exec(s || ''); return m ? { tarih: m[1], saat: m[2] } : null; };
+          type Rnd = { tarih: string; saat: string; t: RandevuTalep };
+          const rand: Rnd[] = [];
+          talepler.forEach(t => { const p = t.randevu_slot ? parseSlot(t.randevu_slot) : null; if (p && p.tarih >= todayStr && t.status !== 'iptal') rand.push({ tarih: p.tarih, saat: p.saat, t }); });
+          rand.sort((a, b) => (a.tarih + a.saat < b.tarih + b.saat ? -1 : 1));
+          const wk = new Date(now); wk.setDate(now.getDate() + 7); const weekStr = `${wk.getFullYear()}-${pad(wk.getMonth() + 1)}-${pad(wk.getDate())}`;
+          const bugunN = rand.filter(r => r.tarih === todayStr).length;
+          const haftaN = rand.filter(r => r.tarih <= weekStr).length;
+          const gruplar: { tarih: string; items: Rnd[] }[] = [];
+          rand.forEach(r => { let g = gruplar.find(x => x.tarih === r.tarih); if (!g) { g = { tarih: r.tarih, items: [] }; gruplar.push(g); } g.items.push(r); });
+          const gunEtiket = (iso: string) => { try { const d = new Date(iso + 'T00:00:00'); const s = d.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' }); return iso === todayStr ? `Bugün · ${s}` : s; } catch { return iso; } };
+
+          return (
+            <>
+              <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
+                {([[bugunN, 'Bugün'], [haftaN, 'Önümüzdeki 7 gün'], [rand.length, 'Toplam yaklaşan']] as const).map(([n, l]) => (
+                  <div key={l} style={{ flex: '1 1 120px', background: A.card, border: `1px solid ${A.line}`, borderRadius: 14, padding: '14px 16px' }}>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: A.accent, letterSpacing: '-0.5px' }}>{n}</div>
+                    <div style={{ fontSize: 12.5, color: A.muted }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+
+              {gruplar.length === 0 ? (
+                <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '40px 24px', textAlign: 'center', color: A.muted, fontSize: 14 }}>
+                  Yaklaşan (tarih-saatli) randevu yok. Slot bazlı randevu açıksa, seçilen saatler burada güne göre görünür.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {gruplar.map(g => (
+                    <div key={g.tarih}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: g.tarih === todayStr ? A.accent : A.text, marginBottom: 8, textTransform: 'capitalize' }}>{gunEtiket(g.tarih)}</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {g.items.map(r => (
+                          <div key={r.t.id} style={{ background: A.card, border: `1px solid ${A.line}`, borderRadius: 12, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 13 }}>
+                            <div style={{ fontSize: 15, fontWeight: 800, color: A.accent, minWidth: 48 }}>{r.saat}</div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontSize: 14.5, fontWeight: 600, color: A.text }}>{r.t.ad_soyad}</div>
+                              <div style={{ fontSize: 12.5, color: A.muted }}>{r.t.tel}{entityNames.length > 1 ? ' · ' + r.t.entity_name : ''}</div>
+                            </div>
+                            <span style={{ flexShrink: 0, fontSize: 12, fontWeight: 600, color: r.t.status === 'yeni' ? '#1D7A3E' : A.muted, background: r.t.status === 'yeni' ? 'rgba(52,199,89,.12)' : A.page, borderRadius: 20, padding: '4px 11px' }}>{DURUM[r.t.status] || r.t.status}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          );
+        })()
       )}
     </div>
   );
