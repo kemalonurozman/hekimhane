@@ -1843,7 +1843,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
           )}
 
           {/* ── MESLEKİ BİLGİLER TAB (doktor) ── */}
-          {activeTab === 'meslek' && entityType === 'doktor' && (() => {
+          {activeTab === 'meslek' && (entityType === 'doktor' || entityType === 'klinik') && (() => {
             const denList = meslekDeneyimler;
             const certList = meslekSertifikalar;
             const nowYil = new Date().getFullYear();
