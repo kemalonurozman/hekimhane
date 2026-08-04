@@ -8,8 +8,12 @@ import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 
 const BUCKET      = 'hekimhane-photos';
-const MAX_SIZE_MB = 8;
-const ALLOWED     = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+const MAX_SIZE_MB = 15;
+const ALLOWED     = [
+  'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/avif',
+  'image/heic', 'image/heif', 'image/tiff', 'image/bmp', 'image/svg+xml',
+  'application/pdf',
+];
 
 function adminClient() {
   return createClient(
@@ -46,7 +50,7 @@ export async function POST(req: NextRequest) {
 
     // Tip kontrolü
     if (!ALLOWED.includes(file.type)) {
-      return NextResponse.json({ error: 'Desteklenmeyen dosya türü. JPEG, PNG, WebP, GIF desteklenir.' }, { status: 400 });
+      return NextResponse.json({ error: 'Desteklenmeyen dosya türü. JPEG, PNG, WebP, GIF, HEIC, TIFF, BMP, SVG ve PDF desteklenir.' }, { status: 400 });
     }
 
     // Boyut kontrolü

@@ -48,6 +48,25 @@ const icons = {
   calendar:   'M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z',
 };
 
+// Görsel dosyayı tarayıcıda JPEG'e çevirir + küçültür (HEIC/PNG/BMP/TIFF… → JPEG).
+// PDF ve SVG olduğu gibi döner; çözülemeyen türlerde orijinal gönderilir (sunucu kabul eder).
+async function dosyayiHazirla(file: File): Promise<File> {
+  if (file.type === 'application/pdf' || file.type === 'image/svg+xml') return file;
+  if (file.type === 'image/jpeg' && file.size < 1.2 * 1024 * 1024) return file;   // zaten küçük JPEG
+  try {
+    const bitmap = await createImageBitmap(file);
+    const maxW = 1600;
+    const scale = Math.min(1, maxW / bitmap.width);
+    const w = Math.round(bitmap.width * scale), h = Math.round(bitmap.height * scale);
+    const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d'); if (!ctx) { (bitmap as any).close?.(); return file; }
+    ctx.drawImage(bitmap, 0, 0, w, h); (bitmap as any).close?.();
+    const blob: Blob | null = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.9));
+    if (!blob) return file;
+    return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+  } catch { return file; }   // HEIC (Chrome) vb. çözülemedi → orijinali gönder
+}
+
 const T = {
   navy:   '#1B3A69',
   navy2:  '#0F2A55',
@@ -3381,6 +3400,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   const [dragOver,   setDragOver]  = useState<string | null>(null);         // slot → drag aktif
   const [waMode,     setWaMode]    = useState<'off'|'same'|'custom'>('off'); // WhatsApp: yok / telefonla aynı / farklı numara
   const [certUp,     setCertUp]    = useState<number | null>(null);           // sertifika görseli yükleniyor (index)
+  const [certDrag,   setCertDrag]  = useState<number | null>(null);           // üzerine dosya sürüklenen slot (index)
   const [embedCopied, setEmbedCopied] = useState(false);                      // randevu embed kodu kopyalandı
   const [dilInput,   setDilInput]  = useState('');                            // yabancı dil ekleme kutusu
 
@@ -3485,7 +3505,8 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   async function uploadCert(file: File, idx: number) {
     setCertUp(idx);
     try {
-      const fd = new FormData(); fd.append('file', file);
+      const hazir = await dosyayiHazirla(file);   // HEIC/PNG/BMP → JPEG'e çevrilir, küçültülür
+      const fd = new FormData(); fd.append('file', hazir);
       const res = await fetch('/api/panel/upload-photo', { method: 'POST', body: fd });
       const data = await res.json();
       if (!res.ok || !data.url) { alert(data.error || 'Yükleme başarısız.'); return; }
@@ -3497,7 +3518,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   }
   function pickCert(idx: number) {
     const inp = document.createElement('input');
-    inp.type = 'file'; inp.accept = 'image/*';
+    inp.type = 'file'; inp.accept = 'image/*,application/pdf,.heic,.heif,.tiff,.bmp';
     inp.onchange = () => { const f = inp.files?.[0]; if (f) uploadCert(f, idx); };
     inp.click();
   }
@@ -4052,9 +4073,15 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                     {sertifikalar.map((c,i)=>(
                       <div key={i} style={{ display:'flex', gap:10, alignItems:'center', padding:'10px', borderRadius:12, background:T.bg, border:`1px solid ${T.border}` }}>
                         <div onClick={()=>certUp===null&&pickCert(i)}
-                          style={{ width:56, height:56, borderRadius:10, flexShrink:0, overflow:'hidden', border:`1.5px dashed ${T.border}`, background:'white', display:'flex', alignItems:'center', justifyContent:'center', cursor:certUp===i?'wait':'pointer' }}>
+                          onDragOver={e=>{ e.preventDefault(); if(certUp===null) setCertDrag(i); }}
+                          onDragLeave={()=>setCertDrag(d=>d===i?null:d)}
+                          onDrop={e=>{ e.preventDefault(); setCertDrag(null); const f=e.dataTransfer.files?.[0]; if(f && certUp===null) uploadCert(f,i); }}
+                          title="Tıklayın ya da dosyayı buraya sürükleyin (JPEG, PNG, HEIC, PDF…)"
+                          style={{ width:56, height:56, borderRadius:10, flexShrink:0, overflow:'hidden', border:`1.5px dashed ${certDrag===i?T.navy:T.border}`, background:certDrag===i?'rgba(27,58,105,.06)':'white', display:'flex', alignItems:'center', justifyContent:'center', cursor:certUp===i?'wait':'pointer', transition:'all .12s' }}>
                           {certUp===i ? (
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ animation:'spin .9s linear infinite' }}><circle cx="9" cy="9" r="7" stroke={T.border} strokeWidth="2"/><path d="M9 2a7 7 0 0 1 7 7" stroke={T.navy} strokeWidth="2" strokeLinecap="round"/></svg>
+                          ) : c.url && /\.pdf(\?|$)/i.test(c.url) ? (
+                            <div style={{ fontSize:9, fontWeight:800, color:T.red, letterSpacing:'.5px' }}>PDF</div>
                           ) : c.url ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={c.url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/>

@@ -1915,7 +1915,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         {certList.map((c, i) => {
                           const inner = (
                             <>
-                              {c.url ? (
+                              {c.url && /\.pdf(\?|$)/i.test(c.url) ? (
+                                <div style={{ width: '100%', aspectRatio: '4 / 3', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, background: 'rgba(220,38,38,.05)' }}>
+                                  <i className="fa-solid fa-file-pdf" style={{ color: '#DC2626', fontSize: 26 }} />
+                                  <span style={{ fontSize: 11, fontWeight: 700, color: '#B91C1C' }}>PDF Belge</span>
+                                </div>
+                              ) : c.url ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img src={c.url} alt={c.ad || 'Sertifika'} style={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', display: 'block' }} />
                               ) : (
