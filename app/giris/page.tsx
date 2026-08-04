@@ -215,28 +215,52 @@ function GirisContent() {
 
   /* Ortak stil nesneleri */
   const card: React.CSSProperties = {
-    background: 'white', borderRadius: 24,
-    border: '1px solid var(--border)',
-    boxShadow: '0 20px 60px rgba(27,58,105,.10)',
-    padding: '44px 40px', width: '100%', maxWidth: 420,
+    background: 'white', borderRadius: 28,
+    boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 12px 44px rgba(27,58,105,.13)',
+    padding: '40px 34px', width: '100%', maxWidth: 400,
     textAlign: 'center',
   };
   const btn: React.CSSProperties = {
     width: '100%', padding: '13px 20px', borderRadius: 13,
-    border: '1.5px solid #E2E8F0', background: 'white',
+    border: '1px solid #E2E8F0', background: 'white',
     cursor: 'pointer', display: 'flex', alignItems: 'center',
     justifyContent: 'center', gap: 10,
     fontSize: 15, fontWeight: 600, color: '#1A2744',
-    boxShadow: '0 2px 8px rgba(0,0,0,.06)',
     transition: 'all .15s',
+  };
+  // Apple-tarzı segmented control
+  const segTrack: React.CSSProperties = { display: 'flex', background: '#EFEFF2', borderRadius: 12, padding: 4, gap: 4 };
+  const segBtn = (active: boolean): React.CSSProperties => ({
+    flex: 1, padding: '9px 8px', borderRadius: 9, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+    fontSize: 13.5, fontWeight: 600, letterSpacing: '-0.1px',
+    background: active ? '#FFFFFF' : 'transparent',
+    color: active ? 'var(--navy)' : '#8A8A8E',
+    boxShadow: active ? '0 1px 3px rgba(0,0,0,.13), 0 1px 1px rgba(0,0,0,.04)' : 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+    transition: 'all .18s cubic-bezier(.4,0,.2,1)',
+  });
+  // Apple-tarzı input (açık gri dolgu; odakta beyaz + mavi halka)
+  const inpStyle = (err?: boolean): React.CSSProperties => ({
+    width: '100%', padding: '13px 42px', borderRadius: 12, fontSize: 15, fontFamily: 'inherit', color: 'var(--text)',
+    background: '#F5F5F7', border: `1px solid ${err ? '#FF8080' : 'transparent'}`,
+    outline: 'none', boxSizing: 'border-box', transition: 'background .15s, border-color .15s, box-shadow .15s',
+  });
+  const inpFocus = (e: React.FocusEvent<HTMLInputElement>) => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#1B3A69'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(27,58,105,.10)'; };
+  const inpBlur = (err?: boolean) => (e: React.FocusEvent<HTMLInputElement>) => { e.currentTarget.style.background = '#F5F5F7'; e.currentTarget.style.borderColor = err ? '#FF8080' : 'transparent'; e.currentTarget.style.boxShadow = 'none'; };
+  const primaryBtn: React.CSSProperties = {
+    width: '100%', padding: '15px 20px', borderRadius: 14, border: 'none',
+    background: 'linear-gradient(180deg,#234A80,#1B3A69)', color: 'white',
+    fontSize: 16, fontWeight: 600, letterSpacing: '-0.2px', fontFamily: 'inherit',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
+    boxShadow: '0 8px 20px rgba(27,58,105,.28)', transition: 'transform .1s, box-shadow .15s, opacity .15s',
   };
 
   return (
     <div style={{
       minHeight: '100vh', paddingTop: 66,
-      background: 'linear-gradient(135deg, #F0F4FF 0%, #E8EDF8 100%)',
+      background: 'radial-gradient(1100px 520px at 50% -8%, #EAF1FD 0%, rgba(234,241,253,0) 62%), linear-gradient(180deg, #F4F6FB 0%, #EBEEF6 100%)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '80px 16px',
+      padding: '80px 16px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
     }}>
       <div style={card}>
 
@@ -300,11 +324,11 @@ function GirisContent() {
           </div>
         ) : (
           <>
-            <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--text)', marginBottom: 6, letterSpacing: '-0.3px' }}>
+            <h1 style={{ fontSize: 27, fontWeight: 700, color: 'var(--text)', marginBottom: 8, letterSpacing: '-0.7px' }}>
               Hoş Geldiniz
             </h1>
-            <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 28, lineHeight: 1.6 }}>
-              İşletmenizi sahiplenin, yorumlarınızı yönetin,<br />profilinizi güncelleyin.
+            <p style={{ color: '#86868B', fontSize: 14.5, marginBottom: 26, lineHeight: 1.5, letterSpacing: '-0.1px' }}>
+              İşletmenizi sahiplenin, yorumlarınızı yönetin, profilinizi güncelleyin.
             </p>
 
             {/* Hata (URL'den gelen) */}
@@ -315,44 +339,26 @@ function GirisContent() {
               </div>
             )}
 
-            {/* Kullanıcı tipi seçici */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            {/* Kullanıcı tipi seçici — Apple segmented */}
+            <div style={{ ...segTrack, marginBottom: 10 }}>
               {([
                 { key: 'hasta',    label: 'Hasta / Ziyaretçi', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg> },
                 { key: 'isletme',  label: 'Doktor / İşletme', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M6 21V7l6-4 6 4v14M10 9h.01M14 9h.01M10 13h.01M14 13h.01M10 17h4"/></svg> },
               ] as const).map(t => (
-                <button key={t.key} type="button"
-                  onClick={() => setKullaniciTip(t.key)}
-                  style={{
-                    flex: 1, padding: '10px 8px', borderRadius: 11, cursor: 'pointer', fontFamily: 'inherit',
-                    border: `1.5px solid ${kullaniciTip === t.key ? '#1B3A69' : '#E5E7EB'}`,
-                    background: kullaniciTip === t.key ? '#EFF6FF' : 'white',
-                    color: kullaniciTip === t.key ? '#1B3A69' : '#6B7280',
-                    fontSize: 12, fontWeight: 700, transition: 'all .15s',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                  }}>
+                <button key={t.key} type="button" onClick={() => setKullaniciTip(t.key)} style={segBtn(kullaniciTip === t.key)}>
                   {t.icon}{t.label}
                 </button>
               ))}
             </div>
 
-            {/* Mod seçici: Giriş Yap / Kayıt Ol */}
-            <div style={{ display: 'flex', background: '#F3F4F6', borderRadius: 10, padding: 3, marginBottom: 18 }}>
+            {/* Mod seçici: Giriş Yap / Kayıt Ol — Apple segmented */}
+            <div style={{ ...segTrack, marginBottom: 20 }}>
               {([
                 { key: 'password', label: 'Giriş Yap' },
                 { key: 'signup',   label: 'Kayıt Ol' },
               ] as const).map(m => (
-                <button key={m.key}
-                  onClick={() => { setMod(m.key); setEmailError(''); setPassword(''); setPassword2(''); }}
-                  style={{
-                    flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', cursor: 'pointer',
-                    fontSize: 12.5, fontWeight: 600, transition: 'all .15s',
-                    background: mod === m.key ? 'white' : 'transparent',
-                    color: mod === m.key ? 'var(--navy)' : '#9CA3AF',
-                    boxShadow: mod === m.key ? '0 1px 4px rgba(0,0,0,.10)' : 'none',
-                    fontFamily: 'inherit',
-                  }}
-                >
+                <button key={m.key} onClick={() => { setMod(m.key); setEmailError(''); setPassword(''); setPassword2(''); }}
+                  style={segBtn(mod === m.key)}>
                   {m.label}
                 </button>
               ))}
@@ -360,7 +366,7 @@ function GirisContent() {
 
             {/* Form */}
             <form onSubmit={mod === 'magic' ? handleMagicLink : mod === 'signup' ? handleSignup : handlePasswordGiris} style={{ textAlign: 'left' }}>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 7 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#48484A', marginBottom: 8, letterSpacing: '-0.1px' }}>
                 E-posta Adresi
               </label>
               <div style={{ position: 'relative', marginBottom: 12 }}>
@@ -372,22 +378,16 @@ function GirisContent() {
                   value={email}
                   onChange={e => { setEmail(e.target.value); setEmailError(''); }}
                   placeholder="ornek@email.com"
-                  style={{
-                    width: '100%', padding: '12px 14px 12px 40px',
-                    borderRadius: 12, fontSize: 14, fontFamily: 'inherit',
-                    border: `1.5px solid ${emailError ? '#FCA5A5' : '#E5E7EB'}`,
-                    outline: 'none', boxSizing: 'border-box',
-                    transition: 'border-color .15s',
-                  }}
-                  onFocus={e => (e.currentTarget.style.borderColor = '#1B3A69')}
-                  onBlur={e => (e.currentTarget.style.borderColor = emailError ? '#FCA5A5' : '#E5E7EB')}
+                  style={inpStyle(!!emailError)}
+                  onFocus={inpFocus}
+                  onBlur={inpBlur(!!emailError)}
                 />
               </div>
 
               {/* Şifre alanı — password veya signup modunda */}
               {(mod === 'password' || mod === 'signup') && (
                 <>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 7 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#48484A', marginBottom: 8, letterSpacing: '-0.1px' }}>
                     Şifre {mod === 'signup' && <span style={{ color: '#9CA3AF', fontWeight: 400 }}>(en az 6 karakter)</span>}
                   </label>
                   <div style={{ position: 'relative', marginBottom: 12 }}>
@@ -399,15 +399,9 @@ function GirisContent() {
                       value={password}
                       onChange={e => { setPassword(e.target.value); setEmailError(''); }}
                       placeholder="••••••••"
-                      style={{
-                        width: '100%', padding: '12px 40px 12px 40px',
-                        borderRadius: 12, fontSize: 14, fontFamily: 'inherit',
-                        border: `1.5px solid ${emailError ? '#FCA5A5' : '#E5E7EB'}`,
-                        outline: 'none', boxSizing: 'border-box',
-                        transition: 'border-color .15s',
-                      }}
-                      onFocus={e => (e.currentTarget.style.borderColor = '#1B3A69')}
-                      onBlur={e => (e.currentTarget.style.borderColor = emailError ? '#FCA5A5' : '#E5E7EB')}
+                      style={inpStyle(!!emailError)}
+                      onFocus={inpFocus}
+                      onBlur={inpBlur(!!emailError)}
                     />
                     <button type="button" onClick={() => setShowPw(!showPw)}
                       style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', padding: 0, display: 'flex' }}>
@@ -420,7 +414,7 @@ function GirisContent() {
               {/* Şifre tekrar — yalnızca signup modunda */}
               {mod === 'signup' && (
                 <>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 7 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#48484A', marginBottom: 8, letterSpacing: '-0.1px' }}>
                     Şifre Tekrar
                   </label>
                   <div style={{ position: 'relative', marginBottom: 12 }}>
@@ -432,15 +426,9 @@ function GirisContent() {
                       value={password2}
                       onChange={e => { setPassword2(e.target.value); setEmailError(''); }}
                       placeholder="••••••••"
-                      style={{
-                        width: '100%', padding: '12px 40px 12px 40px',
-                        borderRadius: 12, fontSize: 14, fontFamily: 'inherit',
-                        border: `1.5px solid ${emailError && password2 && password !== password2 ? '#FCA5A5' : '#E5E7EB'}`,
-                        outline: 'none', boxSizing: 'border-box',
-                        transition: 'border-color .15s',
-                      }}
-                      onFocus={e => (e.currentTarget.style.borderColor = '#1B3A69')}
-                      onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
+                      style={inpStyle(!!(emailError && password2 && password !== password2))}
+                      onFocus={inpFocus}
+                      onBlur={inpBlur(!!(emailError && password2 && password !== password2))}
                     />
                     <button type="button" onClick={() => setShowPw2(!showPw2)}
                       style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', padding: 0, display: 'flex' }}>
@@ -460,16 +448,10 @@ function GirisContent() {
               <button
                 type="submit"
                 disabled={sending}
-                style={{
-                  width: '100%', padding: '13px 20px', borderRadius: 13,
-                  border: 'none', background: 'var(--navy)', color: 'white',
-                  cursor: sending ? 'not-allowed' : 'pointer',
-                  fontSize: 15, fontWeight: 700,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  opacity: sending ? 0.7 : 1,
-                  transition: 'opacity .15s',
-                  fontFamily: 'inherit',
-                }}
+                style={{ ...primaryBtn, cursor: sending ? 'not-allowed' : 'pointer', opacity: sending ? 0.65 : 1, marginTop: 4 }}
+                onMouseDown={e => { if (!sending) e.currentTarget.style.transform = 'scale(.98)'; }}
+                onMouseUp={e => (e.currentTarget.style.transform = 'scale(1)')}
+                onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
               >
                 {sending ? (
                   <>
