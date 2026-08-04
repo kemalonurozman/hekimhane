@@ -18,6 +18,7 @@ export interface BlogYazi {
   created_at: string;   // YYYY-MM-DD
   okumaDk: number;
   cover_image: string | null;
+  cover_alt?: string;   // görsel SEO — kapak için açıklayıci alt metni
   views: number;
   govde: BlogBlok[];
 }
@@ -34,7 +35,8 @@ export const BLOG_YAZILARI: BlogYazi[] = [
     author: 'Hekimhane Editör',
     created_at: '2026-06-02',
     okumaDk: 5,
-    cover_image: null,
+    cover_image: '/blog/dis-hekimi-secimi-kriterleri.svg',
+    cover_alt: 'Diş hekimi seçerken dikkat edilmesi gereken kriterleri gösteren kontrol listesi ve diş görseli',
     views: 0,
     govde: [
       { tip: 'p', metin: 'Diş tedavileri çoğu zaman tek seferlik değildir; dolgudan kanal tedavisine, implanttan ortodontiye kadar birçok işlem süreklilik ve güven ister. Bu yüzden doğru diş hekimini seçmek, tedavinin kendisi kadar önemlidir.' },
@@ -63,7 +65,8 @@ export const BLOG_YAZILARI: BlogYazi[] = [
     author: 'Hekimhane Editör',
     created_at: '2026-05-20',
     okumaDk: 6,
-    cover_image: null,
+    cover_image: '/blog/dis-implant-tedavisi.svg',
+    cover_alt: 'Diş implantı tedavisi: çene kemiğine yerleştirilen titanyum vida ve protez diş kesiti',
     views: 0,
     govde: [
       { tip: 'p', metin: 'Diş implantı, kaybedilen bir dişin yerine çene kemiğine yerleştirilen titanyum bir vida ve üzerine yapılan protez dişten oluşur. Doğal dişe en yakın çözüm olarak kabul edilir.' },
@@ -91,7 +94,8 @@ export const BLOG_YAZILARI: BlogYazi[] = [
     author: 'Hekimhane Editör',
     created_at: '2026-05-08',
     okumaDk: 4,
-    cover_image: null,
+    cover_image: '/blog/dis-eti-kanamasi.svg',
+    cover_alt: 'Diş eti kanaması nedenleri ve doğru diş fırçalama ile bakım görseli',
     views: 0,
     govde: [
       { tip: 'p', metin: 'Diş eti kanaması genellikle diş etinin iltihaplanması (gingivit) belirtisidir. En sık nedeni, diş yüzeyinde biriken ve zamanla sertleşen bakteri plağıdır.' },
@@ -119,7 +123,8 @@ export const BLOG_YAZILARI: BlogYazi[] = [
     author: 'Hekimhane Editör',
     created_at: '2026-04-25',
     okumaDk: 4,
-    cover_image: null,
+    cover_image: '/blog/cocuk-dis-hekimi-ilk-ziyaret.svg',
+    cover_alt: 'Çocuklarda ilk diş hekimi ziyareti için güler yüzlü diş ve muayene aynası görseli',
     views: 0,
     govde: [
       { tip: 'p', metin: 'Uzmanlar, çocuğun ilk dişinin çıkmasından sonra veya en geç 1 yaşına kadar ilk diş hekimi ziyaretinin yapılmasını önerir. Erken tanışma, çürükleri önlemenin ve çocuğun hekim korkusu geliştirmemesinin anahtarıdır.' },
@@ -144,7 +149,8 @@ export const BLOG_YAZILARI: BlogYazi[] = [
     author: 'Hekimhane Editör',
     created_at: '2026-04-10',
     okumaDk: 5,
-    cover_image: null,
+    cover_image: '/blog/dis-beyazlatma-yontemleri.svg',
+    cover_alt: 'Diş beyazlatma yöntemleri: parlayan beyaz diş ve diş rengi skalası görseli',
     views: 0,
     govde: [
       { tip: 'p', metin: 'Dişler; kahve, çay, sigara ve yaşlanmayla zamanla sararır. Beyazlatma, bu renklenmeleri açmayı hedefler; ancak her yöntem aynı derecede güvenli ve etkili değildir.' },
@@ -167,7 +173,8 @@ export const BLOG_YAZILARI: BlogYazi[] = [
     author: 'Hekimhane Editör',
     created_at: '2026-03-28',
     okumaDk: 4,
-    cover_image: null,
+    cover_image: '/blog/agiz-kokusu-halitozis.svg',
+    cover_alt: 'Ağız kokusu (halitozis) nedenleri ve ağız tazeliği için nane yapraklı diş görseli',
     views: 0,
     govde: [
       { tip: 'p', metin: 'Ağız kokusunun (halitozis) yaklaşık %85–90\'ı ağız kaynaklıdır. Dilin arka bölgesinde ve dişler arasında biriken bakteriler, kötü kokulu bileşikler üretir.' },
@@ -194,7 +201,8 @@ export const BLOG_YAZILARI: BlogYazi[] = [
     author: 'Hekimhane Editör',
     created_at: '2026-08-02',
     okumaDk: 7,
-    cover_image: null,
+    cover_image: '/blog/hekimhane-isletme-kayit.svg',
+    cover_alt: 'İşletmeniz için Hekimhane: klinik binası, konum işareti ve doğrulanmış işletme rozeti',
     views: 0,
     govde: [
       { tip: 'p', metin: 'Hastalar bugün bir hekim, klinik ya da eczane ararken önce internete bakıyor; konum, uzmanlık, yorum ve güven işaretlerini karşılaştırarak karar veriyor. Hekimhane, Türkiye genelindeki sağlık işletmelerini tek çatı altında toplayan bir rehber olarak tam da bu karar anında sizi doğru hastayla buluşturur. İşletmenizi sahiplenip (claim) profilinizi yönettiğinizde, sıradan bir listelemenin çok ötesinde araçlara kavuşursunuz.' },

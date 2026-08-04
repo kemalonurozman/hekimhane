@@ -14,7 +14,8 @@ export const BASE = 'https://www.hekimhane.com.tr';
 export const SITEMAP_SECTIONS = ['genel', 'klinikler', 'dis-tedavileri', 'hastaneler', 'doktorlar', 'eczaneler'] as const;
 export type SitemapSection = typeof SITEMAP_SECTIONS[number];
 
-export interface SmUrl { loc: string; changefreq?: string; priority?: number; lastmod?: string }
+export interface SmImage { loc: string; caption?: string; title?: string }
+export interface SmUrl { loc: string; changefreq?: string; priority?: number; lastmod?: string; images?: SmImage[] }
 
 const tr = toSlug;
 
@@ -58,7 +59,10 @@ export async function buildSection(section: string): Promise<SmUrl[]> {
       .map(k => ({ loc: `${BASE}/hastaliklar/${k.slug}`, changefreq: 'weekly', priority: 0.75 }));
     const hastalik = HASTALIKLAR.filter(h => h.kategoriSlug === 'dis-sagligi')
       .map(h => ({ loc: `${BASE}/hastaliklar/${h.kategoriSlug}/${h.slug}`, changefreq: 'weekly', priority: 0.7 }));
-    const blog = BLOG_YAZILARI.map(b => ({ loc: `${BASE}/blog/${b.slug}`, changefreq: 'monthly', priority: 0.6, lastmod: new Date(b.created_at).toISOString() }));
+    const blog = BLOG_YAZILARI.map(b => ({
+      loc: `${BASE}/blog/${b.slug}`, changefreq: 'monthly', priority: 0.6, lastmod: new Date(b.created_at).toISOString(),
+      images: b.cover_image ? [{ loc: b.cover_image.startsWith('http') ? b.cover_image : `${BASE}${b.cover_image}`, caption: b.cover_alt || b.title, title: b.title }] : undefined,
+    }));
     // Devlet diş hastaneleri kategorisi + hastane sayfaları
     let devlet: SmUrl[] = [{ loc: `${BASE}/devlet-dis-hastaneleri`, changefreq: 'weekly', priority: 0.85 }];
     try {
@@ -153,14 +157,20 @@ ${body}
 }
 
 export function renderUrlset(urls: SmUrl[]): string {
+  const hasImages = urls.some(u => u.images && u.images.length);
   const body = urls.map(u => `  <url>
     <loc>${esc(u.loc)}</loc>${u.lastmod ? `
     <lastmod>${u.lastmod}</lastmod>` : ''}${u.changefreq ? `
     <changefreq>${u.changefreq}</changefreq>` : ''}${u.priority != null ? `
-    <priority>${u.priority}</priority>` : ''}
+    <priority>${u.priority}</priority>` : ''}${(u.images || []).map(im => `
+    <image:image>
+      <image:loc>${esc(im.loc)}</image:loc>${im.caption ? `
+      <image:caption>${esc(im.caption)}</image:caption>` : ''}${im.title ? `
+      <image:title>${esc(im.title)}</image:title>` : ''}
+    </image:image>`).join('')}
   </url>`).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${hasImages ? ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"' : ''}>
 ${body}
 </urlset>`;
 }

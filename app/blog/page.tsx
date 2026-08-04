@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 const STATIK_POSTS = BLOG_YAZILARI.map((y, i) => ({
   id: String(i + 1), slug: y.slug, title: y.title, summary: y.summary,
   category: y.category, author: y.author, created_at: y.created_at,
-  cover_image: y.cover_image, views: y.views,
+  cover_image: y.cover_image, cover_alt: y.cover_alt || null, views: y.views,
 }));
 
 // Panel/admin üzerinden yayınlanan yazılar + statik yazılar birlikte listelenir.

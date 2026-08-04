@@ -41,6 +41,7 @@ interface Post {
   category: string | null;
   author: string | null;
   cover_image: string | null;
+  cover_alt?: string | null;
   views: number | null;
   created_at: string;
 }
@@ -61,7 +62,7 @@ function BlogCard({ post }: { post: Post }) {
         }}>
         {/* Görsel alanı */}
         <div style={{ height: 140 }}>
-          <KapakGorseli src={post.cover_image} alt={post.title} iconSize={52} />
+          <KapakGorseli src={post.cover_image} alt={post.cover_alt || post.title} iconSize={52} />
         </div>
         <div style={{ padding: '20px 22px', flex: 1, display: 'flex', flexDirection: 'column' }}>
           {post.category && (
@@ -280,7 +281,7 @@ export default function BlogInteractive({ posts, hastaliklar }: { posts: Post[];
               </div>
             </div>
             <div style={{ minHeight: 200 }}>
-              <KapakGorseli src={featured.cover_image} alt={featured.title} iconSize={90} />
+              <KapakGorseli src={featured.cover_image} alt={featured.cover_alt || featured.title} iconSize={90} />
             </div>
           </div>
         </Link>

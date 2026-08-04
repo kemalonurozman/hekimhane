@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Diş eti kanaması nedenleri ve bakımı — diş, diş eti ve diş fırçası simgesi">
+  <defs>
+    <linearGradient id="c_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="c_gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="c_glow" cx="0.45" cy="0.4" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#c_bg)"/>
+  <rect width="1200" height="675" fill="url(#c_glow)"/>
+  <circle cx="1050" cy="560" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="170" cy="120" r="170" fill="#fff" opacity="0.03"/>
+
+  <!-- Tooth in gum -->
+  <g transform="translate(470 340)">
+    <path d="M-150 40 C -60 -30 60 -30 150 40 L 150 120 L -150 120 Z" fill="#E79A91" opacity="0.9"/>
+    <path d="M0 -110 C -58 -110 -96 -70 -96 -22 C -96 26 -80 66 -60 66 C -46 66 -40 40 0 40 C 40 40 46 66 60 66 C 80 66 96 26 96 -22 C 96 -70 58 -110 0 -110 Z" fill="#FFFFFF"/>
+    <path d="M-52 -66 C -40 -84 -14 -86 4 -76" fill="none" stroke="#D5DEEC" stroke-width="7" stroke-linecap="round" opacity="0.8"/>
+    <!-- Droplet -->
+    <g transform="translate(64 92)"><path d="M0 -26 C 16 -4 24 8 24 20 A 24 24 0 0 1 -24 20 C -24 8 -16 -4 0 -26 Z" fill="url(#c_gold)"/><circle cx="-7" cy="14" r="5" fill="#fff" opacity="0.55"/></g>
+  </g>
+
+  <!-- Toothbrush -->
+  <g transform="translate(820 360) rotate(32)">
+    <rect x="-16" y="-14" width="300" height="28" rx="14" fill="#EEF2F8"/>
+    <rect x="-16" y="-14" width="70" height="28" rx="14" fill="#fff"/>
+    <g fill="url(#c_gold)"><rect x="-10" y="-30" width="8" height="18" rx="3"/><rect x="6" y="-32" width="8" height="20" rx="3"/><rect x="22" y="-31" width="8" height="19" rx="3"/><rect x="38" y="-30" width="8" height="18" rx="3"/></g>
+    <rect x="250" y="-9" width="34" height="18" rx="9" fill="#C7D2E4"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

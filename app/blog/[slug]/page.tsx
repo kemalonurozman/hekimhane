@@ -29,6 +29,7 @@ interface Yazi {
   sponsorlu: boolean;
   website: string | null;
   cover_image: string | null;
+  cover_alt: string | null;
 }
 
 async function getYazi(slug: string): Promise<Yazi | null> {
@@ -39,6 +40,7 @@ async function getYazi(slug: string): Promise<Yazi | null> {
       author: statik.author, authorHref: null, created_at: statik.created_at, okumaDk: statik.okumaDk,
       govde: statik.govde, sponsorlu: false, website: null,
       cover_image: statik.cover_image,
+      cover_alt: statik.cover_alt || null,
     };
   }
 
@@ -81,6 +83,7 @@ async function getYazi(slug: string): Promise<Yazi | null> {
       sponsorlu: p.sponsorlu === true,
       website: p.website || null,
       cover_image: p.cover_image || null,
+      cover_alt: p.cover_alt || null,
     };
   } catch {
     return null;
@@ -91,11 +94,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const y = await getYazi(params.slug);
   if (!y) return { title: 'Yazı Bulunamadı | Hekimhane' };
   const url = `https://www.hekimhane.com.tr/blog/${params.slug}`;
+  const imgAbs = y.cover_image
+    ? (y.cover_image.startsWith('http') ? y.cover_image : `https://www.hekimhane.com.tr${y.cover_image}`)
+    : null;
+  const ogImages = imgAbs ? [{ url: imgAbs, width: 1200, height: 675, alt: y.cover_alt || y.title }] : undefined;
   return {
     title: `${y.title} | Hekimhane Blog`,
     description: y.summary,
     alternates: { canonical: url },
-    openGraph: { title: y.title, description: y.summary, url, type: 'article' },
+    openGraph: { title: y.title, description: y.summary, url, type: 'article', images: ogImages },
+    twitter: { card: imgAbs ? 'summary_large_image' : 'summary', title: y.title, description: y.summary, images: imgAbs ? [imgAbs] : undefined },
   };
 }
 
@@ -110,6 +118,9 @@ export default async function BlogDetayPage({ params }: Props) {
 
   const digerYazilar = BLOG_YAZILARI.filter(x => x.slug !== params.slug).slice(0, 3);
 
+  const imgAbs = y.cover_image
+    ? (y.cover_image.startsWith('http') ? y.cover_image : `https://www.hekimhane.com.tr${y.cover_image}`)
+    : null;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -117,7 +128,7 @@ export default async function BlogDetayPage({ params }: Props) {
     description: y.summary,
     author: { '@type': 'Organization', name: y.author },
     datePublished: y.created_at,
-    ...(y.cover_image ? { image: y.cover_image } : {}),
+    ...(imgAbs ? { image: { '@type': 'ImageObject', url: imgAbs, width: 1200, height: 675 } } : {}),
     publisher: { '@type': 'Organization', name: 'Hekimhane' },
     mainEntityOfPage: `https://www.hekimhane.com.tr/blog/${params.slug}`,
   };
@@ -159,7 +170,7 @@ export default async function BlogDetayPage({ params }: Props) {
       {y.cover_image && (
         <div className="container" style={{ maxWidth: 760, padding: '28px 32px 0' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={y.cover_image} alt={y.title}
+          <img src={y.cover_image} alt={y.cover_alt || y.title} width={1200} height={675}
             style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: 18, border: '1px solid var(--border)' }} />
         </div>
       )}
