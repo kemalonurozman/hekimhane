@@ -15,10 +15,8 @@ export type PremiumItem = {
   rev: number;
 };
 
-function bashHarfler(ad: string) {
-  return ad.replace(/^(Uzm\.?|Dt\.?|Dr\.?|Op\.?|Prof\.?|Doç\.?)\s*/gi, '')
-    .trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toLocaleUpperCase('tr');
-}
+// Fotoğrafı olmayan kartlar için markaya uygun, telifsiz diş temalı jenerik görseller
+const GENEL_GORSELLER = ['/premium/dis-1.svg', '/premium/dis-2.svg', '/premium/dis-3.svg', '/premium/dis-4.svg'];
 
 function Yildizlar({ rat }: { rat: number }) {
   const dolu = Math.round(rat);
@@ -64,10 +62,9 @@ export default function OneCikanHekimler({ items }: { items: PremiumItem[] }) {
           {items.slice(0, 9).map((it, idx) => (
             <Link key={idx} href={it.href} className="ocp-item">
               <div className="ocp-ph">
-                {it.foto
-                  // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={it.foto} alt={it.ad} loading="lazy" />
-                  : <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,.9)', fontSize: 40, fontWeight: 800 }}>{bashHarfler(it.ad)}</div>}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={it.foto || GENEL_GORSELLER[idx % GENEL_GORSELLER.length]} alt={it.ad} loading="lazy" />
+
                 {/* Altın yıldız mührü (profildeki gibi) — "premium" yazısı yerine */}
                 <span title="Premium üye" style={{ position: 'absolute', top: 11, left: 11, width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg,#EAC86B,#D4A843)', border: '2px solid rgba(255,255,255,.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,.28)' }}>
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.8 5.9 20.4l1.5-6.8L2.2 9l6.9-.7z" /></svg>

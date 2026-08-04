@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 550" width="800" height="550" role="img" aria-label="Ağız ve diş sağlığı görseli">
+  <defs>
+    <linearGradient id="p3bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <radialGradient id="p3g" cx="0.5" cy="0.4" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.8"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <linearGradient id="p3gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#D4A843"/></linearGradient>
+  </defs>
+  <rect width="800" height="550" fill="url(#p3bg)"/>
+  <rect width="800" height="550" fill="url(#p3g)"/>
+  <circle cx="660" cy="450" r="150" fill="#fff" opacity="0.04"/>
+  <circle cx="130" cy="120" r="120" fill="#fff" opacity="0.03"/>
+  <!-- Kalkan -->
+  <g transform="translate(400 275)">
+    <path d="M0 -140 L 120 -100 L 120 20 C 120 110 0 165 0 165 C 0 165 -120 110 -120 20 L -120 -100 Z" fill="#22467C" stroke="#345C93" stroke-width="3"/>
+    <g transform="translate(0 -8) scale(1.15)">
+      <path d="M0 -62 C -40 -62 -72 -38 -72 2 C -72 34 -60 60 -48 78 C -40 90 -30 92 -25 78 C -19 62 -12 56 0 56 C 12 56 19 62 25 78 C 30 92 40 90 48 78 C 60 60 72 34 72 2 C 72 -38 40 -62 0 -62 Z" fill="#FFFFFF"/>
+      <path d="M-42 -46 C -32 -62 -10 -64 4 -56" fill="none" stroke="#CBD6E8" stroke-width="6" stroke-linecap="round" opacity="0.8"/>
+    </g>
+    <g transform="translate(78 -92)"><circle r="26" fill="url(#p3gold)"/><path d="M-11 0l8 8 15 -17" fill="none" stroke="#12294B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  </g>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 550" width="800" height="550" role="img" aria-label="Diş sağlığı görseli">
+  <defs>
+    <linearGradient id="p1bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <radialGradient id="p1g" cx="0.5" cy="0.42" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.8"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="800" height="550" fill="url(#p1bg)"/>
+  <rect width="800" height="550" fill="url(#p1g)"/>
+  <circle cx="670" cy="90" r="150" fill="#fff" opacity="0.04"/>
+  <circle cx="120" cy="470" r="130" fill="#fff" opacity="0.035"/>
+  <g fill="#D4A843" opacity="0.55"><circle cx="180" cy="130" r="6"/><circle cx="640" cy="440" r="7"/></g>
+  <g transform="translate(400 285) scale(1.9)">
+    <path d="M0 -72 C -46 -72 -84 -44 -84 2 C -84 40 -72 70 -58 92 C -49 106 -35 108 -29 92 C -22 74 -14 66 0 66 C 14 66 22 74 29 92 C 35 108 49 106 58 92 C 72 70 84 40 84 2 C 84 -44 46 -72 0 -72 Z" fill="#FFFFFF"/>
+    <path d="M-50 -58 C -38 -76 -12 -78 6 -68" fill="none" stroke="#DCE4F0" stroke-width="7" stroke-linecap="round" opacity="0.85"/>
+  </g>
+  <path d="M560 180 l 8 20 20 8 -20 8 -8 20 -8 -20 -20 -8 20 -8 z" fill="#D4A843"/>
+</svg>
