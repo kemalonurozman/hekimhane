@@ -209,6 +209,7 @@ export interface KlinikFilters {
   tip?: string;
   kurum?: string;
   minRat?: number;
+  dil?: string;
   q?: string;
   page?: number;
   limit?: number;

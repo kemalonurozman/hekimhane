@@ -1531,6 +1531,22 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 </div>
               )}
 
+              {/* ── Yabancı Diller (doktor dışı: klinik/hastane/eczane — doktorda ayrı Mesleki Bilgiler sekmesinde) ── */}
+              {entityType !== 'doktor' && meslekDiller.length > 0 && (
+                <div style={sc}>
+                  <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Yabancı Diller</h3></div>
+                  <div style={scBody}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {meslekDiller.map((dil, i) => (
+                        <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--navy)', background: 'rgba(27,58,105,.06)', border: '1px solid var(--border)', borderRadius: 10, padding: '8px 13px' }}>
+                          <i className="fa-solid fa-globe" style={{ fontSize: 12, opacity: .7 }} />{dil}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* ── Biyografi (doktor) ── */}
               {entityType === 'doktor' && bio && (
                 <div style={sc}>

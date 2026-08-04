@@ -145,6 +145,7 @@ export default async function KlinikProfilPage({ params }: Props) {
       logo={k.logo} cover={k.cover} photos={k.photos} photo360={k.photo360}
       rat={k.rat} rev={k.rev}
       specs={k.specs} type={k.type}
+      yabanciDiller={(k as any).yabanci_diller}
       claimed={k.claimed} online={k.online} acil={k.acil} premium={k.premium}
       tour360url={k.tour360url}
       video_url={k.video_url}

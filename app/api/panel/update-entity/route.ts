@@ -67,10 +67,10 @@ export async function POST(request: NextRequest) {
     };
 
     const ALLOWED_FIELDS: Record<string, string[]> = {
-      klinik:  ['name','sorumlu_hekim','type','il','ilce','adres','tel','whatsapp','website','maps_url','specs','online','acil','logo','cover','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','randevu_email','randevu_aktif','randevu_slot_dk','randevu_bloke','lat','lng'],
-      hastane: ['name','sorumlu_hekim','type','il','ilce','adres','tel','whatsapp','website','maps_url','specs','docs','beds','founded','logo','cover','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','randevu_email','randevu_aktif','randevu_slot_dk','randevu_bloke','lat','lng'],
+      klinik:  ['name','sorumlu_hekim','type','il','ilce','adres','tel','whatsapp','website','maps_url','specs','yabanci_diller','online','acil','logo','cover','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','randevu_email','randevu_aktif','randevu_slot_dk','randevu_bloke','lat','lng'],
+      hastane: ['name','sorumlu_hekim','type','il','ilce','adres','tel','whatsapp','website','maps_url','specs','yabanci_diller','docs','beds','founded','logo','cover','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','randevu_email','randevu_aktif','randevu_slot_dk','randevu_bloke','lat','lng'],
       doktor:  ['ad','soyad','spec','il','ilce','clinic_name','tel','email','contact_hidden','whatsapp','fee','bio','okul','uzmanlik_kurum','deneyim_baslangic','deneyimler','sertifikalar','yabanci_diller','sigorta','tags','conditions','unvan','online','photo','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','randevu_email','randevu_aktif','randevu_slot_dk','randevu_bloke','lat','lng'],
-      eczane:  ['name','pharmacist','il','ilce','address','tel','whatsapp','chamber','logo','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','randevu_email','randevu_aktif','randevu_slot_dk','randevu_bloke','lat','lng'],
+      eczane:  ['name','pharmacist','il','ilce','address','tel','whatsapp','chamber','yabanci_diller','logo','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','randevu_email','randevu_aktif','randevu_slot_dk','randevu_bloke','lat','lng'],
     };
 
     const table   = TABLE_MAP[entityType];

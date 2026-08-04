@@ -14,6 +14,9 @@ const PAGE_SIZE = 20;
 const DEVLET_TAG = 'devlet-dis-hastanesi';
 const UNI_TAG = 'universite-dis-hastanesi';
 const KURUM_VALS = ['ozel', 'devlet', 'universite', 'hepsi'] as const;
+// Yabancı dil filtresi (klinikler.yabanci_diller ile eşleşir)
+const KLINIK_DIL_SECENEKLERI = ['Türkçe', 'İngilizce', 'Fransızca', 'Arapça', 'Rusça', 'Ukraynaca', 'Azerice']
+  .map(d => ({ value: d, label: d }));
 const TR = (s: string) => (s||'').toLowerCase()
   .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
   .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
@@ -63,6 +66,7 @@ async function getKlinikler(filters: KlinikFilters) {
   if (filters.ilce)     query = query.eq('ilce', filters.ilce);
   if (filters.tip)      query = query.eq('type', filters.tip);
   if (filters.uzmanlik) query = query.contains('specs', [filters.uzmanlik]);
+  if (filters.dil)      query = (query as any).contains('yabanci_diller', JSON.stringify([filters.dil]));
   if (filters.minRat)   query = query.gte('rat', filters.minRat);
   if (filters.q) {
     const nq = norm(filters.q);
@@ -152,6 +156,7 @@ async function getKonumlar(filters: KlinikFilters) {
     if (filters.ilce)     q = q.eq('ilce', filters.ilce);
     if (filters.tip)      q = q.eq('type', filters.tip);
     if (filters.uzmanlik) q = (q as any).contains('specs', [filters.uzmanlik]);
+    if (filters.dil)      q = (q as any).contains('yabanci_diller', JSON.stringify([filters.dil]));
     if (filters.q)        q = q.ilike('name', `%${filters.q}%`);
     return q;
   }, 6000);
@@ -278,6 +283,7 @@ export default async function KliniklerPage(
     tip:      searchParams.tip      || undefined,
     kurum:    kurumSel,
     minRat:   searchParams.minpuan  ? parseFloat(searchParams.minpuan) : undefined,
+    dil:      searchParams.dil       || undefined,
     q:        searchParams.q        || undefined,
     page:     searchParams.page     ? parseInt(searchParams.page) : 1,
   };
@@ -391,9 +397,10 @@ export default async function KliniklerPage(
           ? [{ key: 'ilce', label: 'İlçe', type: 'radio' as const, options: ilcelerWithCount }]
           : []),
         { key: 'uzmanlik', label: 'Uzmanlık', type: 'checkbox', options: uzmanliklarWithCount },
+        { key: 'dil',      label: 'Yabancı Dil', type: 'radio', options: KLINIK_DIL_SECENEKLERI },
       ]}
-      activeFilters={{ kurum: kurumSel, il: filters.il, ilce: filters.ilce, uzmanlik: filters.uzmanlik, tip: filters.tip, q: filters.q }}
-      hasActiveFilters={!!(filters.il || filters.ilce || filters.uzmanlik || filters.tip || filters.q || kurumSel !== 'ozel')}
+      activeFilters={{ kurum: kurumSel, il: filters.il, ilce: filters.ilce, uzmanlik: filters.uzmanlik, tip: filters.tip, dil: filters.dil, q: filters.q }}
+      hasActiveFilters={!!(filters.il || filters.ilce || filters.uzmanlik || filters.tip || filters.dil || filters.q || kurumSel !== 'ozel')}
       markers={konumlar.map((k: any) => {
         const isKlinik = !isDoc;
         const nm = isKlinik ? k.name : `${k.ad || ''} ${k.soyad || ''}`.trim();

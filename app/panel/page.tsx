@@ -3941,6 +3941,42 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                   <SpecPicker value={specs} onChange={val=>F(et==='doktor'?'tags':'specs',val)} entityType={et}/>
                 </div>
               )}
+
+              {/* Yabancı Diller (klinik/hastane/eczane — doktorda ayrı Mesleki Bilgiler sekmesinde) */}
+              {et!=='doktor' && (()=>{
+                const diller: string[] = Array.isArray(formData.yabanci_diller) ? formData.yabanci_diller : [];
+                const addDil = (v:string) => { const t=v.trim(); if(t && !diller.some(d=>d.toLocaleLowerCase('tr')===t.toLocaleLowerCase('tr'))) F('yabanci_diller',[...diller,t]); setDilInput(''); };
+                const delDil = (i:number) => F('yabanci_diller', diller.filter((_,j)=>j!==i));
+                const PRESET=['İngilizce','Almanca','Fransızca','Arapça','Rusça','Ukraynaca','Azerice'];
+                return (
+                  <div>
+                    <label style={{ ...LBL, marginBottom:10 }}>Yabancı Diller <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600 }}>· konuşulan diller</span></label>
+                    {diller.length>0 && (
+                      <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:10 }}>
+                        {diller.map((d,i)=>(
+                          <span key={i} style={{ display:'inline-flex', alignItems:'center', gap:7, fontSize:13, fontWeight:600, color:T.navy, background:'rgba(27,58,105,.06)', border:`1px solid ${T.border}`, borderRadius:9, padding:'6px 10px' }}>
+                            {d}
+                            <button type="button" onClick={()=>delDil(i)} title="Kaldır" style={{ border:'none', background:'none', color:T.red, cursor:'pointer', fontSize:15, lineHeight:1, padding:0, fontFamily:'inherit' }}>×</button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <div style={{ display:'flex', gap:7, marginBottom:10 }}>
+                      <input value={dilInput} placeholder="Dil ekleyin (ör. İtalyanca)" style={{ ...INP, flex:1 }}
+                        onChange={e=>setDilInput(e.target.value)} onFocus={onF} onBlur={offF}
+                        onKeyDown={e=>{ if(e.key==='Enter'){ e.preventDefault(); addDil(dilInput); } }}/>
+                      <button type="button" onClick={()=>addDil(dilInput)}
+                        style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'8px 13px', borderRadius:9, border:`1.5px dashed ${T.navy}`, background:'rgba(27,58,105,.04)', color:T.navy, fontSize:12.5, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>Ekle</button>
+                    </div>
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                      {PRESET.filter(p=>!diller.some(d=>d.toLocaleLowerCase('tr')===p.toLocaleLowerCase('tr'))).map(p=>(
+                        <button key={p} type="button" onClick={()=>addDil(p)}
+                          style={{ padding:'5px 11px', borderRadius:8, border:`1px dashed ${T.border}`, background:'white', color:T.muted, fontSize:12, fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>+ {p}</button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </>)}
 
             {/* ── MESLEKİ BİLGİLER (doktor) ── */}
