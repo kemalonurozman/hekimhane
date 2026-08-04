@@ -45,6 +45,7 @@ const icons = {
   link:       'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71 M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71',
   code:       'M16 18l6-6-6-6 M8 6l-6 6 6 6',
   users:      'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11A4 4 0 1 0 9 3a4 4 0 0 0 0 8z M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75',
+  calendar:   'M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z',
 };
 
 const T = {
@@ -279,7 +280,7 @@ export default function PanelPage() {
     { key: 'claims'     as const, label: 'Başvurularım',      icon: 'list' },
     { key: 'randevu'    as const, label: 'Randevu Talepleri', icon: 'bell' },
     { key: 'hastalar'   as const, label: 'Hastalarım',        icon: 'users' },
-    { key: 'randevumodul' as const, label: 'Randevu Modülü',  icon: 'code' },
+    { key: 'randevumodul' as const, label: 'Randevu Takvimi',  icon: 'calendar' },
     { key: 'edit'       as const, label: 'Profilimi Düzenle', icon: 'edit' },
     { key: 'hekimkart'  as const, label: 'HekimKart',         icon: 'bell' },
     { key: 'yorumlar'   as const, label: 'Yorumlar',          icon: 'star' },
@@ -292,7 +293,7 @@ export default function PanelPage() {
   const navGroups: { title: string; keys: (typeof navItems)[number]['key'][] }[] = [
     { title: 'Genel',     keys: ['dashboard'] },
     { title: 'İşletmem',  keys: ['edit', 'hekimkart', 'yorumlar'] },
-    { title: 'Randevu & Hasta', keys: ['randevu', 'hastalar', 'randevumodul'] },
+    { title: 'Randevu & Hasta', keys: ['randevu', 'randevumodul', 'hastalar'] },
     { title: 'İçerik',    keys: ['makaleler'] },
     { title: 'Başvuru',   keys: ['claims', 'new'] },
     { title: 'Hesap',     keys: ['profile'] },
@@ -1723,6 +1724,9 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
   const _bugun = new Date(); _bugun.setHours(0, 0, 0, 0);
   const [ayCursor, setAyCursor] = useState<{ y: number; m: number }>({ y: _bugun.getFullYear(), m: _bugun.getMonth() }); // Ay görünümü
   const [yilCursor, setYilCursor] = useState<number>(_bugun.getFullYear()); // Yıl görünümü
+  const [rangeMode, setRangeMode] = useState(false);   // tarih aralığı seçimi açık mı
+  const [rangeStart, setRangeStart] = useState('');    // aralık başlangıç ISO
+  const [rangeEnd, setRangeEnd] = useState('');        // aralık bitiş ISO
   const [blokeSaving, setBlokeSaving] = useState(false);
   const [blokeMsg, setBlokeMsg] = useState('');
   const entities = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
@@ -1753,9 +1757,9 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
   if (entities.length === 0) {
     return (
       <div style={{ maxWidth: 760 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 700, color: A.text, margin: 0, letterSpacing: '-0.6px' }}>Randevu Modülü</h1>
+        <h1 style={{ fontSize: 26, fontWeight: 700, color: A.text, margin: 0, letterSpacing: '-0.6px' }}>Randevu Takvimi</h1>
         <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '48px 24px', textAlign: 'center', marginTop: 22, color: A.muted, fontSize: 14 }}>
-          Randevu modülünü kullanmak için önce bir işletmenizin sahipliğini onaylatın.
+          Randevu takvimini kullanmak için önce bir işletmenizin sahipliğini onaylatın.
         </div>
       </div>
     );
@@ -1815,17 +1819,36 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
   const toggleSlot = (slot: string) => { const k = `${blokeTarih} ${slot}`; setBloke(p => p.includes(k) ? p.filter(x => x !== k) : [...p, k]); setBlokeMsg(''); };
   const toggleGun = () => { setBloke(p => p.includes(blokeTarih) ? p.filter(x => x !== blokeTarih) : [...p.filter(x => !x.startsWith(blokeTarih + ' ')), blokeTarih]); setBlokeMsg(''); };
 
-  async function saveBloke() {
+  async function saveBloke(arr: string[] = bloke) {
     setBlokeSaving(true); setBlokeMsg('');
     try {
       const res = await fetch('/api/panel/update-entity', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ entityType: ent.entity_type, entityId: ent.entity_id, fields: { randevu_bloke: bloke } }),
+        body: JSON.stringify({ entityType: ent.entity_type, entityId: ent.entity_id, fields: { randevu_bloke: arr } }),
       });
       const j = await res.json().catch(() => ({}));
       setBlokeMsg(res.ok && j.success ? 'Kaydedildi' : (j.error || 'Kaydedilemedi'));
     } catch { setBlokeMsg('Bağlantı hatası'); }
     setBlokeSaving(false);
+  }
+
+  // İki tarih arasındaki tüm günleri tek seferde kapat/aç (aralık seçimi).
+  function isoAralik(a: string, b: string): string[] {
+    const [s, e] = a <= b ? [a, b] : [b, a];
+    const out: string[] = []; const d = new Date(s + 'T00:00:00'); const son = new Date(e + 'T00:00:00');
+    while (d <= son) { out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`); d.setDate(d.getDate() + 1); }
+    return out;
+  }
+  async function applyRange(close: boolean) {
+    if (!rangeStart || !rangeEnd) return;
+    const isos = isoAralik(rangeStart, rangeEnd);
+    const set = new Set(isos);
+    // Önce bu günlere ait tüm kayıtları (tam gün + tek tek saat) temizle
+    let next = bloke.filter(x => !set.has(x.slice(0, 10)));
+    if (close) next = [...next, ...isos];   // her günü tam-gün kapalı işaretle
+    setBloke(next);
+    setRangeStart(''); setRangeEnd(''); setRangeMode(false); setBlokeTarih('');
+    await saveBloke(next);
   }
 
   const IcS = ({ d, size = 15, color = A.muted, sw = 1.8 }: { d: string; size?: number; color?: string; sw?: number }) => (
@@ -1837,8 +1860,8 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
   return (
     <div style={{ maxWidth: 760 }}>
       <div style={{ marginBottom: 22 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 700, color: A.text, margin: 0, letterSpacing: '-0.6px' }}>Randevu Modülü</h1>
-        <p style={{ fontSize: 14, color: A.muted, marginTop: 5, letterSpacing: '-0.1px' }}>Kendi web sitenizden de randevu alın. Gelen talepler “Randevu Talepleri” sayfasında toplanır.</p>
+        <h1 style={{ fontSize: 26, fontWeight: 700, color: A.text, margin: 0, letterSpacing: '-0.6px' }}>Randevu Takvimi</h1>
+        <p style={{ fontSize: 14, color: A.muted, marginTop: 5, letterSpacing: '-0.1px' }}>Takvim doluluk/boşluk durumunu yönetin: günleri açıp kapatın, kapalı saatleri ve tarih aralıklarını ayarlayın. Kendi sitenizden de randevu alabilirsiniz.</p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr)', gap: 16 }}>
@@ -2019,7 +2042,7 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
                     );
                   })()}
 
-                  {/* AY — takvim ızgarası (Pzt→Paz) */}
+                  {/* AY — takvim ızgarası (Pzt→Paz) + tarih aralığı seçimi */}
                   {blokeMod === 'ay' && (() => {
                     const { y, m } = ayCursor;
                     const ilk = new Date(y, m, 1); const bosOncesi = (ilk.getDay() + 6) % 7; // Pzt=0
@@ -2028,8 +2051,24 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
                     for (let i = 0; i < bosOncesi; i++) hucreler.push(null);
                     for (let d = 1; d <= gunSayisi; d++) { const iso = isoOf(y, m, d); hucreler.push({ iso, gun: d, gecmis: iso < bugunIso }); }
                     const buAyMi = (y * 12 + m) === bugunYM;
+                    const raMin = rangeStart && rangeEnd ? (rangeStart <= rangeEnd ? rangeStart : rangeEnd) : rangeStart;
+                    const raMax = rangeStart && rangeEnd ? (rangeStart <= rangeEnd ? rangeEnd : rangeStart) : rangeStart;
+                    const fmtKisa = (iso: string) => { const [, mm, dd] = iso.split('-'); return `${Number(dd)} ${AY_KISA[Number(mm) - 1]}`; };
+                    const gunSayi = rangeStart && rangeEnd ? isoAralik(rangeStart, rangeEnd).length : 0;
                     return (
                       <div>
+                        {/* Aralık seçim modu düğmesi */}
+                        <button onClick={() => { setRangeMode(v => !v); setRangeStart(''); setRangeEnd(''); }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 13px', borderRadius: 10, border: `1px solid ${rangeMode ? A.accent : A.line}`, background: rangeMode ? A.accent : A.card, color: rangeMode ? '#fff' : A.text, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', marginBottom: 10 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={rangeMode ? '#fff' : A.accent} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                          {rangeMode ? 'Aralık seçimi açık' : 'İki tarih arasını kapat'}
+                        </button>
+                        {rangeMode && (
+                          <div style={{ fontSize: 11.5, color: A.muted, marginBottom: 10, lineHeight: 1.5 }}>
+                            {!rangeStart ? 'Başlangıç gününe tıklayın.' : !rangeEnd ? `Başlangıç: ${fmtKisa(rangeStart)} — şimdi bitiş gününe tıklayın.` : `${fmtKisa(raMin!)} – ${fmtKisa(raMax!)} arası ${gunSayi} gün seçili.`}
+                          </div>
+                        )}
+
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                           <button onClick={() => setAyCursor(c => c.m === 0 ? { y: c.y - 1, m: 11 } : { y: c.y, m: c.m - 1 })} disabled={y * 12 + m <= bugunYM} aria-label="Önceki ay"
                             style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${A.line}`, background: A.card, color: (y * 12 + m <= bugunYM) ? A.line : A.muted, cursor: (y * 12 + m <= bugunYM) ? 'default' : 'pointer', fontSize: 17, fontFamily: 'inherit' }}>‹</button>
@@ -2043,17 +2082,47 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
                           {hucreler.map((c, i) => {
                             if (!c) return <div key={'b' + i} />;
-                            const aktif = blokeTarih === c.iso; const kv = kapaliVar(c.iso); const tumGun = bloke.includes(c.iso); const bg = c.iso === bugunIso;
+                            const kv = kapaliVar(c.iso); const tumGun = bloke.includes(c.iso); const bg = c.iso === bugunIso;
+                            const uc = rangeMode && (c.iso === rangeStart || c.iso === rangeEnd);   // aralık uç noktası
+                            const ic = rangeMode && !!rangeStart && ((rangeEnd && c.iso >= raMin! && c.iso <= raMax!) || c.iso === rangeStart);  // aralık içi
+                            const aktif = !rangeMode && blokeTarih === c.iso;
+                            const secili = uc || aktif;
+                            const arka = secili ? A.accent : (ic ? '#E8EEF7' : (tumGun ? '#FEF2F2' : A.card));
+                            const yazi = c.gecmis ? A.line : (secili ? '#fff' : (ic ? A.accent : (tumGun ? '#B91C1C' : A.text)));
+                            const kenar = (secili || ic || bg) ? A.accent : A.line;
                             return (
-                              <button key={c.iso} onClick={() => { if (!c.gecmis) { setBlokeTarih(c.iso); setBlokeMsg(''); } }} disabled={c.gecmis} title={c.iso}
-                                style={{ position: 'relative', aspectRatio: '1 / 1', borderRadius: 10, border: `1.5px solid ${aktif ? A.accent : (bg ? A.accent : A.line)}`, background: aktif ? A.accent : (tumGun ? '#FEF2F2' : A.card), color: c.gecmis ? A.line : (aktif ? '#fff' : (tumGun ? '#B91C1C' : A.text)), cursor: c.gecmis ? 'default' : 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: c.gecmis ? .5 : 1 }}>
+                              <button key={c.iso} disabled={c.gecmis} title={c.iso}
+                                onClick={() => {
+                                  if (c.gecmis) return;
+                                  setBlokeMsg('');
+                                  if (rangeMode) {
+                                    if (!rangeStart || (rangeStart && rangeEnd)) { setRangeStart(c.iso); setRangeEnd(''); }
+                                    else { setRangeEnd(c.iso); }
+                                  } else { setBlokeTarih(c.iso); }
+                                }}
+                                style={{ position: 'relative', aspectRatio: '1 / 1', borderRadius: 10, border: `1.5px solid ${kenar}`, background: arka, color: yazi, cursor: c.gecmis ? 'default' : 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: c.gecmis ? .5 : 1 }}>
                                 {c.gun}
-                                {kv && !aktif && !tumGun && <span style={{ position: 'absolute', top: 4, right: 4, width: 5, height: 5, borderRadius: '50%', background: '#DC2626' }} />}
+                                {kv && !secili && !ic && !tumGun && <span style={{ position: 'absolute', top: 4, right: 4, width: 5, height: 5, borderRadius: '50%', background: '#DC2626' }} />}
                               </button>
                             );
                           })}
                         </div>
-                        {!buAyMi && <button onClick={() => setAyCursor({ y: bugun.getFullYear(), m: bugun.getMonth() })} style={{ marginTop: 8, background: 'none', border: 'none', color: A.accent, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Bu aya dön</button>}
+
+                        {/* Aralık aksiyon çubuğu */}
+                        {rangeMode && rangeStart && rangeEnd && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+                            <button onClick={() => applyRange(true)} disabled={blokeSaving}
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 16px', borderRadius: 10, border: 'none', background: '#B91C1C', color: '#fff', fontSize: 13, fontWeight: 600, cursor: blokeSaving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: blokeSaving ? .6 : 1 }}>
+                              {blokeSaving ? 'Kaydediliyor…' : `${gunSayi} günü kapat`}
+                            </button>
+                            <button onClick={() => applyRange(false)} disabled={blokeSaving}
+                              style={{ padding: '10px 16px', borderRadius: 10, border: `1px solid ${A.line}`, background: A.card, color: A.text, fontSize: 13, fontWeight: 600, cursor: blokeSaving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+                              {gunSayi} günü aç
+                            </button>
+                            <button onClick={() => { setRangeStart(''); setRangeEnd(''); }} style={{ padding: '10px 14px', borderRadius: 10, border: 'none', background: 'transparent', color: A.muted, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>Temizle</button>
+                          </div>
+                        )}
+                        {!buAyMi && !rangeMode && <button onClick={() => setAyCursor({ y: bugun.getFullYear(), m: bugun.getMonth() })} style={{ marginTop: 8, background: 'none', border: 'none', color: A.accent, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Bu aya dön</button>}
                       </div>
                     );
                   })()}
@@ -2092,7 +2161,7 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
               );
             })()}
 
-            {blokeTarih && (() => {
+            {!rangeMode && blokeTarih && (() => {
               const saatler = gunSaatleri(blokeTarih);
               return (
                 <div style={{ marginTop: 14 }}>
@@ -2127,7 +2196,7 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
             })()}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
-              <button onClick={saveBloke} disabled={blokeSaving}
+              <button onClick={() => saveBloke()} disabled={blokeSaving}
                 style={{ padding: '10px 20px', borderRadius: 11, border: 'none', background: A.accent, color: '#fff', fontSize: 13.5, fontWeight: 600, cursor: blokeSaving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: blokeSaving ? .6 : 1 }}>
                 {blokeSaving ? 'Kaydediliyor…' : 'Kapalı saatleri kaydet'}
               </button>
@@ -2690,7 +2759,7 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
               {/* Açıklama + aktif değilse uyarı */}
               {cfg && !cfg.aktif && (
                 <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 12, padding: '10px 14px', fontSize: 12.5, color: '#9A3412', marginBottom: 12 }}>
-                  Slot bazlı randevu bu işletmede kapalı. Açmak için <strong>Randevu Modülü</strong>’nden takvimi açın; yine de saatleri buradan planlayabilirsiniz.
+                  Slot bazlı randevu bu işletmede kapalı. Açmak için <strong>Randevu Takvimi</strong>’nden takvimi açın; yine de saatleri buradan planlayabilirsiniz.
                 </div>
               )}
 
