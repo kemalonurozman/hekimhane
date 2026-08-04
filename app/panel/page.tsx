@@ -291,7 +291,8 @@ export default function PanelPage() {
   // Sidebar sekmeleri gruplandı (bölüm başlıklarıyla)
   const navGroups: { title: string; keys: (typeof navItems)[number]['key'][] }[] = [
     { title: 'Genel',     keys: ['dashboard'] },
-    { title: 'İşletmem',  keys: ['edit', 'hekimkart', 'yorumlar', 'randevu', 'hastalar', 'randevumodul'] },
+    { title: 'İşletmem',  keys: ['edit', 'hekimkart', 'yorumlar'] },
+    { title: 'Randevu & Hasta', keys: ['randevu', 'hastalar', 'randevumodul'] },
     { title: 'İçerik',    keys: ['makaleler'] },
     { title: 'Başvuru',   keys: ['claims', 'new'] },
     { title: 'Hesap',     keys: ['profile'] },
