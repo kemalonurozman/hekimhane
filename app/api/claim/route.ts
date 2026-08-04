@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendEmail, mailShell, satir } from '@/lib/email';
+import { sendEmail, mailShell, satir, satirTel } from '@/lib/email';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
@@ -23,7 +23,7 @@ async function sendClaimBildirimleri(k: {
       satir('İşletme', k.entity_name) +
       satir('Tür', k.entity_type) +
       satir('Ad Soyad', k.claimant_name) +
-      satir('Telefon', k.phone) +
+      satirTel('Telefon', k.phone) +
       satir('E-posta', k.email) +
       satir('Not / Rol', k.role);
 

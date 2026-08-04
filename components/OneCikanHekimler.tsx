@@ -61,7 +61,7 @@ export default function OneCikanHekimler({ items }: { items: PremiumItem[] }) {
         </div>
 
         <div className="ocp-grid">
-          {items.slice(0, 6).map((it, idx) => (
+          {items.slice(0, 9).map((it, idx) => (
             <Link key={idx} href={it.href} className="ocp-item">
               <div className="ocp-ph">
                 {it.foto

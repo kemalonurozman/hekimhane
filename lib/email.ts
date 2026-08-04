@@ -58,3 +58,19 @@ export function satir(etiket: string, deger: string | null | undefined): string 
   if (!deger) return '';
   return `<p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">${etiket}:</strong> ${esc(deger)}</p>`;
 }
+
+// Telefon numarasını tıklanınca aranabilir (tel:) bağlantı olarak gösterir.
+export function telHref(tel: string | null | undefined): string {
+  const d = String(tel || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.length === 11 && d.startsWith('0')) return '+90' + d.slice(1);   // 05xx… → +90 5xx…
+  if (d.length === 10) return '+90' + d;                                 // 5xx… → +90 5xx…
+  if (d.length === 12 && d.startsWith('90')) return '+' + d;             // 905xx… → +905xx…
+  return d;
+}
+export function satirTel(etiket: string, tel: string | null | undefined): string {
+  if (!tel) return '';
+  const href = telHref(tel);
+  if (!href) return satir(etiket, tel);
+  return `<p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">${etiket}:</strong> <a href="tel:${href}" style="color:#1B3A69;font-weight:700;text-decoration:none;">${esc(tel)}</a> <span style="color:#9CA3AF;font-size:12px;">(aramak için dokunun)</span></p>`;
+}

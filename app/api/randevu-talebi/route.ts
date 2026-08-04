@@ -1,24 +1,44 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendEmail, mailShell, satir } from '@/lib/email';
+import { sendEmail, mailShell, satir, satirTel } from '@/lib/email';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
+
+// "YYYY-MM-DD HH:MM" slotundan Google Takvim "etkinlik ekle" bağlantısı üretir.
+function googleTakvimUrl(kayit: { entity_name: string; ad_soyad: string; tel: string; email: string | null; mesaj: string | null; randevu_slot?: string | null }): string | null {
+  const m = kayit.randevu_slot && /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/.exec(kayit.randevu_slot);
+  if (!m) return null;
+  const [, Y, Mo, D, H, Mi] = m;
+  const bas = (+H) * 60 + (+Mi);
+  const bit = bas + 30;   // 30 dk varsayılan
+  const eh = String(Math.floor(bit / 60) % 24).padStart(2, '0');
+  const em = String(bit % 60).padStart(2, '0');
+  const start = `${Y}${Mo}${D}T${H}${Mi}00`;
+  const end = `${Y}${Mo}${D}T${eh}${em}00`;
+  const detay = [`Hasta: ${kayit.ad_soyad}`, `Telefon: ${kayit.tel}`, kayit.email ? `E-posta: ${kayit.email}` : '', kayit.mesaj ? `Not: ${kayit.mesaj}` : '', '', 'Hekimhane randevu talebi'].filter(Boolean).join('\n');
+  const p = new URLSearchParams({ action: 'TEMPLATE', text: `Randevu — ${kayit.ad_soyad}`, dates: `${start}/${end}`, details: detay, location: kayit.entity_name });
+  return `https://calendar.google.com/calendar/render?${p.toString()}`;
+}
 
 // Randevu talebi bildirimleri — asla ana akışı bloklamaz (hepsi try/catch içinde).
 // RESEND_API_KEY yoksa sendEmail sessizce atlar.
 async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, kayit: {
   entity_type: string; entity_id: string; entity_name: string;
   ad_soyad: string; tel: string; email: string | null;
-  tercih: string | null; mesaj: string | null;
+  tercih: string | null; mesaj: string | null; randevu_slot?: string | null;
 }) {
   try {
     const detay =
       satir('İşletme', kayit.entity_name) +
       satir('Ad Soyad', kayit.ad_soyad) +
-      satir('Telefon', kayit.tel) +
+      satirTel('Telefon', kayit.tel) +
       satir('E-posta', kayit.email) +
       satir('Tercih', kayit.tercih) +
       satir('Mesaj', kayit.mesaj);
+    const calUrl = googleTakvimUrl(kayit);
+    const calBtn = calUrl
+      ? `<div style="margin:16px 0 4px;"><a href="${calUrl}" style="display:inline-block;background:#D4A843;color:#12294B;font-weight:700;font-size:14px;text-decoration:none;border-radius:10px;padding:11px 20px;">Google Takvim'e Ekle</a></div>`
+      : '';
     const bildirimHtml = mailShell('Yeni Randevu Talebi', detay +
       `<p style="margin-top:14px;font-size:12px;color:#6E6E73;">Admin panelindeki Talepler sekmesinden yönetebilirsiniz.</p>`);
 
@@ -55,6 +75,7 @@ async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, ka
         const sahipHtml = mailShell('Yeni Randevu Talebiniz Var',
           `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${kayit.entity_name}</strong> işletmeniz için yeni bir randevu talebi geldi. Talep sahibiyle en kısa sürede iletişime geçebilirsiniz:</p>` +
           detay +
+          calBtn +
           `<p style="margin-top:14px;font-size:12px;color:#6E6E73;">Bu bildirim Hekimhane üzerinden gönderilmiştir.</p>`);
         await sendEmail({
           to: hedef,
@@ -200,7 +221,7 @@ export async function POST(req: NextRequest) {
 
     if (!error) {
       await addToEmailList(admin, kayit);
-      await sendRandevuBildirimleri(admin, kayit);
+      await sendRandevuBildirimleri(admin, { ...kayit, randevu_slot: slot || null });
       return NextResponse.json({ ok: true });
     }
 
@@ -226,7 +247,7 @@ export async function POST(req: NextRequest) {
       });
       if (!fbErr) {
         await addToEmailList(admin, kayit);
-        await sendRandevuBildirimleri(admin, kayit);
+        await sendRandevuBildirimleri(admin, { ...kayit, randevu_slot: slot || null });
         return NextResponse.json({ ok: true });
       }
       console.error('randevu-talebi fallback error:', fbErr.message);
