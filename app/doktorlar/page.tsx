@@ -24,6 +24,10 @@ export async function generateMetadata(
 // Diş Hekimleri Klinikler bölümünde yer aldığı için Doktorlar'dan hariç tutulur
 const DIS_HEKIMI_SPECS = ['Diş Hekimi', 'Diş Hekimliği', 'Dişçi'];
 
+// Yabancı dil filtresi seçenekleri (doktorlar.yabanci_diller ile eşleşir)
+const DIL_SECENEKLERI = ['Türkçe', 'İngilizce', 'Fransızca', 'Arapça', 'Rusça', 'Ukraynaca', 'Azerice']
+  .map(d => ({ value: d, label: d }));
+
 async function getDoktorlar(filters: Record<string, string | undefined> & { page?: number }) {
   const from = ((filters.page || 1) - 1) * PAGE_SIZE;
   let query = supabase.from('doktorlar').select('*', { count: 'exact' })
@@ -34,6 +38,7 @@ async function getDoktorlar(filters: Record<string, string | undefined> & { page
   if (filters.ilce)   query = query.eq('ilce', filters.ilce);
   if (filters.spec)   query = query.eq('spec', filters.spec);
   if (filters.online) query = query.eq('online', true);
+  if (filters.dil)    query = query.contains('yabanci_diller', JSON.stringify([filters.dil]));   // jsonb @> ["Dil"]
   if (filters.q)      query = query.or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%,spec.ilike.%${filters.q}%`);
   const { data, count, error } = await query;
   if (error) console.error(error);
@@ -75,6 +80,7 @@ async function getKonumlar(filters: Record<string, string | undefined>) {
   if (filters.il)   query = query.eq('il', filters.il);
   if (filters.ilce) query = query.eq('ilce', filters.ilce);
   if (filters.spec) query = query.eq('spec', filters.spec);
+  if (filters.dil)  query = query.contains('yabanci_diller', JSON.stringify([filters.dil]));
   if (filters.q)    query = query.or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%`);
   const { data } = await query.limit(5000);
 
@@ -95,6 +101,7 @@ export default async function DoktorlarPage(
     ilce:   searchParams.ilce   || undefined,
     spec:   searchParams.spec   || undefined,
     online: searchParams.online || undefined,
+    dil:    searchParams.dil    || undefined,
     q:      searchParams.q      || undefined,
     page:   searchParams.page   ? parseInt(searchParams.page) : 1,
   };
@@ -153,9 +160,10 @@ export default async function DoktorlarPage(
         { key: 'q', label: 'Arama', type: 'search', placeholder: 'Doktor veya uzmanlık ara...' },
         { key: 'spec', label: 'Uzmanlık Alanı', type: 'radio', options: uzmanliklarWithCount },
         { key: 'il',   label: 'Şehir',           type: 'radio', options: illerWithCount },
+        { key: 'dil',  label: 'Yabancı Dil',     type: 'radio', options: DIL_SECENEKLERI },
       ]}
-      activeFilters={{ il: filters.il, ilce: filters.ilce, spec: filters.spec, q: filters.q }}
-      hasActiveFilters={!!(filters.il || filters.ilce || filters.spec || filters.q || filters.online)}
+      activeFilters={{ il: filters.il, ilce: filters.ilce, spec: filters.spec, dil: filters.dil, q: filters.q }}
+      hasActiveFilters={!!(filters.il || filters.ilce || filters.spec || filters.dil || filters.q || filters.online)}
       markers={konumlar.map(d => ({
         id: d.id,
         name: `${d.ad} ${d.soyad}`.trim(),
