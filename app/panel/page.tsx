@@ -2030,6 +2030,11 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState('');
   const [view, setView] = useState<'hastalar' | 'ajanda'>('hastalar');
+  type EntCfg = { name: string; calisma: string; slotDk: number; acik24: boolean; bloke: string[]; aktif: boolean };
+  const [cfgMap, setCfgMap] = useState<Record<string, EntCfg>>({});   // entity_id → config
+  const [calEntity, setCalEntity] = useState('');
+  const [weekOffset, setWeekOffset] = useState(0);
+  const [calSaving, setCalSaving] = useState(false);
   type Islem = { id: string; entity_id: string; tel: string; tarih: string | null; islem: string; notlar: string | null; ucret: number | null };
   const [islemler, setIslemler] = useState<Record<string, Islem[]>>({});   // key: entity_id|tel
   const [isTarih, setIsTarih] = useState('');
@@ -2072,6 +2077,20 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
         const dm: Record<string, Dosya[]> = {};
         (r4.dosyalar || []).forEach((x: Dosya) => { const k = `${x.entity_id}|${String(x.tel).replace(/\D/g, '')}`; (dm[k] = dm[k] || []).push(x); });
         setDosyalar(dm);
+
+        // İşletmelerin randevu ayarlarını çek (takvim için)
+        const ents = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
+        const TM: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
+        const sb = createSupabaseBrowser();
+        const cm: Record<string, EntCfg> = {};
+        await Promise.all(ents.map(async c => {
+          const tbl = TM[c.entity_type]; if (!tbl) return;
+          const { data } = await sb.from(tbl).select('calisma_saatleri,acik_24_saat,randevu_slot_dk,randevu_bloke,randevu_aktif').eq('id', c.entity_id!).maybeSingle();
+          const d = (data as any) || {};
+          cm[c.entity_id!] = { name: c.entity_name || '', calisma: String(d.calisma_saatleri || ''), slotDk: Number(d.randevu_slot_dk) || 30, acik24: d.acik_24_saat === true, bloke: Array.isArray(d.randevu_bloke) ? d.randevu_bloke.map(String) : [], aktif: d.randevu_aktif === true };
+        }));
+        setCfgMap(cm);
+        if (ents[0]?.entity_id) setCalEntity(ents[0].entity_id);
       } catch { setTalepler([]); }
       setLoading(false);
     })();
@@ -2080,6 +2099,39 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   const fmt = (s: string) => { try { return new Date(s).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }); } catch { return s; } };
   const DURUM: Record<string, string> = { yeni: 'Yeni', arandi: 'Arandı', tamamlandi: 'Tamamlandı', iptal: 'İptal' };
   const entityNames = Array.from(new Set(talepler.map(t => t.entity_name)));
+
+  // ── Takvim yardımcıları ──
+  const pad2 = (n: number) => String(n).padStart(2, '0');
+  const isoOf = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  const GUN_ADI = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+  function gunSaatleri(cfg: EntCfg | undefined, iso: string): string[] {
+    if (!cfg) return [];
+    const dt = new Date(iso + 'T00:00:00'); const gun = GUN_ADI[dt.getDay()];
+    let o = '09:00', c = '18:00', acikGun = true;
+    if (cfg.acik24) { o = '08:00'; c = '22:00'; }
+    else {
+      let sch: Record<string, { acik?: boolean; baslangic?: string; bitis?: string }> = {};
+      try { sch = cfg.calisma ? JSON.parse(cfg.calisma) : {}; } catch { sch = {}; }
+      if (sch && sch[gun]) { acikGun = sch[gun].acik !== false; o = sch[gun].baslangic || '09:00'; c = sch[gun].bitis || '18:00'; }
+      else if (cfg.calisma) { acikGun = false; } else { acikGun = dt.getDay() !== 0; }
+    }
+    if (!acikGun) return [];
+    let t = (+o.split(':')[0]) * 60 + (+o.split(':')[1]); const end = (+c.split(':')[0]) * 60 + (+c.split(':')[1]); const dk = cfg.slotDk || 30; const out: string[] = [];
+    while (t + dk <= end) { out.push(pad2(Math.floor(t / 60)) + ':' + pad2(t % 60)); t += dk; }
+    return out;
+  }
+  async function saveBlokeCal(entityId: string, yeni: string[]) {
+    setCfgMap(p => ({ ...p, [entityId]: { ...p[entityId], bloke: yeni } }));   // optimistik
+    setCalSaving(true);
+    try {
+      const ent = approvedClaims.find(c => c.entity_id === entityId);
+      await fetch('/api/panel/update-entity', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entityType: ent?.entity_type, entityId, fields: { randevu_bloke: yeni } }),
+      });
+    } catch { /* yoksay */ }
+    setCalSaving(false);
+  }
 
   // Telefona göre benzersiz hastalar
   const hastalar = (() => {
@@ -2399,57 +2451,103 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
         </>
       ) : (
         (() => {
-          // AJANDA — slot bazlı (tarih-saatli) randevular, bugünden itibaren güne göre
-          const pad = (n: number) => String(n).padStart(2, '0');
-          const now = new Date();
-          const todayStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-          const parseSlot = (s: string) => { const m = /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})$/.exec(s || ''); return m ? { tarih: m[1], saat: m[2] } : null; };
-          type Rnd = { tarih: string; saat: string; t: RandevuTalep };
-          const rand: Rnd[] = [];
-          talepler.forEach(t => { const p = t.randevu_slot ? parseSlot(t.randevu_slot) : null; if (p && p.tarih >= todayStr && t.status !== 'iptal') rand.push({ tarih: p.tarih, saat: p.saat, t }); });
-          rand.sort((a, b) => (a.tarih + a.saat < b.tarih + b.saat ? -1 : 1));
-          const wk = new Date(now); wk.setDate(now.getDate() + 7); const weekStr = `${wk.getFullYear()}-${pad(wk.getMonth() + 1)}-${pad(wk.getDate())}`;
-          const bugunN = rand.filter(r => r.tarih === todayStr).length;
-          const haftaN = rand.filter(r => r.tarih <= weekStr).length;
-          const gruplar: { tarih: string; items: Rnd[] }[] = [];
-          rand.forEach(r => { let g = gruplar.find(x => x.tarih === r.tarih); if (!g) { g = { tarih: r.tarih, items: [] }; gruplar.push(g); } g.items.push(r); });
-          const gunEtiket = (iso: string) => { try { const d = new Date(iso + 'T00:00:00'); const s = d.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' }); return iso === todayStr ? `Bugün · ${s}` : s; } catch { return iso; } };
+          // HAFTA TAKVİMİ — çalışma saatleri çerçeve; dolu (her kanaldan) + kapalı + boş
+          const ents = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
+          const cfg = cfgMap[calEntity];
+          const todayIso = isoOf(new Date());
+          // Haftanın günleri (Pazartesi başlangıç)
+          const base = new Date(); base.setHours(0, 0, 0, 0);
+          const dow = (base.getDay() + 6) % 7;
+          base.setDate(base.getDate() - dow + weekOffset * 7);
+          const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(base); d.setDate(base.getDate() + i); return d; });
+          const dayIsos = days.map(isoOf);
+          // Dolu (bu işletme, iptal değil, slotlu)
+          const bookedMap: Record<string, string> = {};
+          talepler.forEach(t => { if (t.entity_id === calEntity && t.randevu_slot && t.status !== 'iptal') bookedMap[t.randevu_slot] = t.ad_soyad; });
+          const blokeSet = new Set(cfg?.bloke || []);
+          // Zaman ekseni: haftanın günlerindeki slotların birleşimi
+          const daySlots: Record<string, string[]> = {}; const timeSet = new Set<string>();
+          dayIsos.forEach(iso => { const s = gunSaatleri(cfg, iso); daySlots[iso] = s; s.forEach(x => timeSet.add(x)); });
+          const times = Array.from(timeSet).sort();
+          const haftaBaslik = `${days[0].toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })} – ${days[6].toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}`;
+
+          const toggleSlot = (iso: string, time: string) => { const key = iso + ' ' + time; const arr = (cfg?.bloke || []).slice(); const i = arr.indexOf(key); if (i >= 0) arr.splice(i, 1); else arr.push(key); saveBlokeCal(calEntity, arr); };
+          const toggleGun = (iso: string) => { let arr = (cfg?.bloke || []).slice(); arr = arr.includes(iso) ? arr.filter(x => x !== iso) : [...arr.filter(x => !x.startsWith(iso + ' ')), iso]; saveBlokeCal(calEntity, arr); };
+
+          const gunKisa = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 
           return (
             <>
-              <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
-                {([[bugunN, 'Bugün'], [haftaN, 'Önümüzdeki 7 gün'], [rand.length, 'Toplam yaklaşan']] as const).map(([n, l]) => (
-                  <div key={l} style={{ flex: '1 1 120px', background: A.card, border: `1px solid ${A.line}`, borderRadius: 14, padding: '14px 16px' }}>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: A.accent, letterSpacing: '-0.5px' }}>{n}</div>
-                    <div style={{ fontSize: 12.5, color: A.muted }}>{l}</div>
-                  </div>
-                ))}
+              {/* Üst bar: işletme seçici + hafta nav */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
+                {ents.length > 1 && (
+                  <select value={calEntity} onChange={e => setCalEntity(e.target.value)}
+                    style={{ padding: '9px 12px', borderRadius: 10, border: `1px solid ${A.line}`, fontSize: 13.5, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none' }}>
+                    {ents.map(c => <option key={c.id} value={c.entity_id!}>{c.entity_name}</option>)}
+                  </select>
+                )}
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginLeft: ents.length > 1 ? 0 : 'auto' }}>
+                  <button onClick={() => setWeekOffset(w => w - 1)} style={{ width: 32, height: 32, borderRadius: 9, border: `1px solid ${A.line}`, background: A.card, cursor: 'pointer', color: A.text, fontSize: 15 }}>‹</button>
+                  <button onClick={() => setWeekOffset(0)} style={{ padding: '0 12px', height: 32, borderRadius: 9, border: `1px solid ${A.line}`, background: weekOffset === 0 ? 'rgba(27,58,105,.07)' : A.card, cursor: 'pointer', color: A.accent, fontSize: 13, fontWeight: 600, fontFamily: 'inherit' }}>Bu hafta</button>
+                  <button onClick={() => setWeekOffset(w => w + 1)} style={{ width: 32, height: 32, borderRadius: 9, border: `1px solid ${A.line}`, background: A.card, cursor: 'pointer', color: A.text, fontSize: 15 }}>›</button>
+                </div>
+                <span style={{ marginLeft: 'auto', fontSize: 13.5, fontWeight: 600, color: A.text }}>{haftaBaslik}{calSaving ? ' · kaydediliyor…' : ''}</span>
               </div>
 
-              {gruplar.length === 0 ? (
+              {/* Açıklama + aktif değilse uyarı */}
+              {cfg && !cfg.aktif && (
+                <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 12, padding: '10px 14px', fontSize: 12.5, color: '#9A3412', marginBottom: 12 }}>
+                  Slot bazlı randevu bu işletmede kapalı. Açmak için <strong>Randevu Modülü</strong>’nden takvimi açın; yine de saatleri buradan planlayabilirsiniz.
+                </div>
+              )}
+
+              {times.length === 0 ? (
                 <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '40px 24px', textAlign: 'center', color: A.muted, fontSize: 14 }}>
-                  Yaklaşan (tarih-saatli) randevu yok. Slot bazlı randevu açıksa, seçilen saatler burada güne göre görünür.
+                  Bu hafta çalışma saati tanımlı değil. <strong>Profili Düzenle → Çalışma Saatleri</strong>’nden gün/saatlerinizi ayarlayın.
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {gruplar.map(g => (
-                    <div key={g.tarih}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: g.tarih === todayStr ? A.accent : A.text, marginBottom: 8, textTransform: 'capitalize' }}>{gunEtiket(g.tarih)}</div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {g.items.map(r => (
-                          <div key={r.t.id} style={{ background: A.card, border: `1px solid ${A.line}`, borderRadius: 12, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 13 }}>
-                            <div style={{ fontSize: 15, fontWeight: 800, color: A.accent, minWidth: 48 }}>{r.saat}</div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 14.5, fontWeight: 600, color: A.text }}>{r.t.ad_soyad}</div>
-                              <div style={{ fontSize: 12.5, color: A.muted }}>{r.t.tel}{entityNames.length > 1 ? ' · ' + r.t.entity_name : ''}</div>
-                            </div>
-                            <span style={{ flexShrink: 0, fontSize: 12, fontWeight: 600, color: r.t.status === 'yeni' ? '#1D7A3E' : A.muted, background: r.t.status === 'yeni' ? 'rgba(52,199,89,.12)' : A.page, borderRadius: 20, padding: '4px 11px' }}>{DURUM[r.t.status] || r.t.status}</span>
+                <>
+                  <div style={{ overflowX: 'auto', border: `1px solid ${A.line}`, borderRadius: 14, background: A.card }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: `48px repeat(7, minmax(78px, 1fr))`, minWidth: 620 }}>
+                      {/* Başlık satırı */}
+                      <div style={{ borderBottom: `1px solid ${A.line}`, borderRight: `1px solid ${A.line}` }} />
+                      {dayIsos.map((iso, i) => {
+                        const gunFull = blokeSet.has(iso);
+                        return (
+                          <div key={iso} onClick={() => toggleGun(iso)} title={gunFull ? 'Tüm gün kapalı — açmak için tıkla' : 'Tüm günü kapat'}
+                            style={{ borderBottom: `1px solid ${A.line}`, borderRight: i < 6 ? `1px solid ${A.line}` : 'none', padding: '8px 4px', textAlign: 'center', cursor: 'pointer', background: iso === todayIso ? 'rgba(27,58,105,.05)' : 'transparent' }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: iso === todayIso ? A.accent : A.muted }}>{gunKisa[i]}</div>
+                            <div style={{ fontSize: 15, fontWeight: 800, color: gunFull ? '#B91C1C' : A.text }}>{days[i].getDate()}</div>
+                            {gunFull && <div style={{ fontSize: 9, fontWeight: 700, color: '#B91C1C' }}>KAPALI</div>}
                           </div>
-                        ))}
-                      </div>
+                        );
+                      })}
+                      {/* Saat satırları */}
+                      {times.map(time => (
+                        <React.Fragment key={time}>
+                          <div style={{ borderRight: `1px solid ${A.line}`, borderBottom: `1px solid ${A.line}`, padding: '0 4px', fontSize: 10.5, color: A.muted, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', minHeight: 34 }}>{time}</div>
+                          {dayIsos.map((iso, i) => {
+                            const cellBase: React.CSSProperties = { borderRight: i < 6 ? `1px solid ${A.line}` : 'none', borderBottom: `1px solid ${A.line}`, minHeight: 34, fontSize: 11 };
+                            const active = daySlots[iso].includes(time);
+                            if (!active) return <div key={iso} style={{ ...cellBase, background: '#FAFAFB' }} />;
+                            const slotKey = iso + ' ' + time;
+                            const hasta = bookedMap[slotKey];
+                            const kapali = blokeSet.has(iso) || blokeSet.has(slotKey);
+                            if (hasta) return <div key={iso} title={hasta} style={{ ...cellBase, background: 'rgba(27,58,105,.9)', color: '#fff', padding: '4px 5px', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.3 }}>{hasta}</div>;
+                            if (kapali) return <div key={iso} onClick={() => !blokeSet.has(iso) && toggleSlot(iso, time)} title={blokeSet.has(iso) ? 'Gün kapalı' : 'Kapalı — açmak için tıkla'} style={{ ...cellBase, background: '#F1F1F4', color: '#B0B0B5', cursor: blokeSet.has(iso) ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</div>;
+                            return <div key={iso} onClick={() => toggleSlot(iso, time)} title="Boş — kapatmak için tıkla" style={{ ...cellBase, background: '#F0FDF4', cursor: 'pointer' }} />;
+                          })}
+                        </React.Fragment>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginTop: 10, fontSize: 12, color: A.muted }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: 'rgba(27,58,105,.9)' }} />Dolu (randevu)</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: '#F0FDF4', border: `1px solid ${A.line}` }} />Boş (tıkla → kapat)</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: '#F1F1F4' }} />Kapalı</span>
+                    <span>Gün başlığına tıkla → tüm günü aç/kapat.</span>
+                  </div>
+                </>
               )}
             </>
           );
