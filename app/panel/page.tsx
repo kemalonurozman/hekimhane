@@ -1406,6 +1406,10 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
   const [mailMesaj, setMailMesaj] = useState('');
   const [mailState, setMailState] = useState<'idle' | 'sending' | 'done' | 'err'>('idle');
   const [mailMsg, setMailMsg] = useState('');
+  const [ertelId, setErtelId] = useState<string | null>(null);
+  const [ertelTarih, setErtelTarih] = useState('');
+  const [ertelSaat, setErtelSaat] = useState('');
+  const [ertelMsg, setErtelMsg] = useState('');
 
   const hasEntities = approvedClaims.some(c => c.entity_id && c.entity_id !== 'new');
 
@@ -1450,6 +1454,24 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
       }
     } catch { alert('Bağlantı hatası.'); }
     setNotSaving(null);
+  }
+
+  async function ertele(id: string) {
+    if (!ertelTarih || !ertelSaat) { setErtelMsg('Tarih ve saat seçin.'); return; }
+    const slot = `${ertelTarih} ${ertelSaat}`;
+    setUpdating(id); setErtelMsg('');
+    try {
+      const res = await fetch('/api/panel/randevu-talepleri', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, randevu_slot: slot }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (res.ok && d.ok) {
+        setTalepler(prev => prev.map(t => t.id === id ? { ...t, randevu_slot: slot, tercih: slot } : t));
+        setErtelId(null); setErtelTarih(''); setErtelSaat('');
+      } else setErtelMsg(d.error || 'Ertelenemedi');
+    } catch { setErtelMsg('Bağlantı hatası'); }
+    setUpdating(null);
   }
 
   async function sendHastaMail(talepId: string) {
@@ -1603,7 +1625,33 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
                           <IcS d={icons.mail} size={13} color={A.accent} />Mail gönder
                         </button>
                       )}
+                      <button onClick={() => { const o = ertelId === t.id; setErtelId(o ? null : t.id); setErtelMsg(''); const p = (t.randevu_slot || '').split(' '); setErtelTarih(o ? '' : (p[0] || '')); setErtelSaat(o ? '' : (p[1] || '')); }}
+                        style={{ padding: '8px 15px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', background: 'transparent', color: A.muted, border: `1px solid ${A.line}` }}>Ertele</button>
+                      {t.status !== 'iptal' && (
+                        <button onClick={() => { if (confirm('Bu randevuyu iptal etmek istiyor musunuz? Hastaya e-posta bırakmışsa bilgilendirilir.')) setStatus(t.id, 'iptal'); }} disabled={updating === t.id}
+                          style={{ padding: '8px 15px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', background: 'transparent', color: '#C0392B', border: '1px solid #F3C9C4' }}>İptal et</button>
+                      )}
                     </div>
+
+                    {/* Erteleme formu */}
+                    {ertelId === t.id && (
+                      <div style={{ marginTop: 12, background: A.page, borderRadius: 12, padding: 12 }}>
+                        <div style={{ fontSize: 12.5, fontWeight: 600, color: A.text, marginBottom: 8 }}>Yeni tarih ve saat</div>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          <input type="date" value={ertelTarih} min={new Date().toISOString().split('T')[0]} onChange={e => { setErtelTarih(e.target.value); setErtelMsg(''); }}
+                            style={{ flex: '1 1 150px', padding: '10px 12px', borderRadius: 10, border: `1px solid ${A.line}`, fontSize: 13.5, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none' }} />
+                          <input type="time" value={ertelSaat} onChange={e => { setErtelSaat(e.target.value); setErtelMsg(''); }}
+                            style={{ flex: '1 1 110px', padding: '10px 12px', borderRadius: 10, border: `1px solid ${A.line}`, fontSize: 13.5, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none' }} />
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+                          <button onClick={() => ertele(t.id)} disabled={updating === t.id}
+                            style={{ padding: '8px 16px', borderRadius: 10, border: 'none', background: A.accent, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Ertele ve bildir</button>
+                          <button onClick={() => setErtelId(null)}
+                            style={{ padding: '8px 14px', borderRadius: 10, border: `1px solid ${A.line}`, background: A.card, color: A.muted, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>Vazgeç</button>
+                          {ertelMsg && <span style={{ fontSize: 12.5, fontWeight: 600, color: '#C0392B' }}>{ertelMsg}</span>}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Mail composer */}
                     {mailOpen === t.id && (
