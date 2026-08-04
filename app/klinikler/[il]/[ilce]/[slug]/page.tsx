@@ -7,6 +7,7 @@ import ProfilSayfasi from '@/components/ProfilSayfasi';
 import { maskReviewName } from '@/lib/helpers';
 import { bookedSlots } from '@/lib/randevu-booked';
 import { buildKlinikFaq } from '@/lib/faq';
+import { openingHoursSpec } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -94,6 +95,7 @@ export default async function KlinikProfilPage({ params }: Props) {
     ...(k.rat && k.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: k.rat, reviewCount: k.rev, bestRating: 5, worstRating: 1 } } : {}),
     ...(k.lat && k.lng ? { geo: { '@type': 'GeoCoordinates', latitude: k.lat, longitude: k.lng } } : {}),
     ...((k.specs || []).length ? { medicalSpecialty: k.specs } : {}),
+    ...(openingHoursSpec(k.calisma_saatleri, k.acik_24_saat) ? { openingHoursSpecification: openingHoursSpec(k.calisma_saatleri, k.acik_24_saat) } : {}),
     ...(yorumlar.filter(y => (y.text || '').trim()).length ? {
       review: yorumlar.filter(y => (y.text || '').trim()).slice(0, 5).map(y => ({
         '@type': 'Review',

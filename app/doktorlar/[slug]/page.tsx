@@ -7,6 +7,7 @@ import ProfilSayfasi from '@/components/ProfilSayfasi';
 import { maskReviewName } from '@/lib/helpers';
 import { bookedSlots } from '@/lib/randevu-booked';
 import { buildDoktorFaq } from '@/lib/faq';
+import { openingHoursSpec } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -79,6 +80,7 @@ export default async function DoktorProfilPage({ params }: Props) {
     ...(d.clinic_name ? { worksFor: { '@type': 'MedicalClinic', name: d.clinic_name } } : {}),
     ...(d.il ? { areaServed: { '@type': 'City', name: d.il } } : {}),
     ...(d.lat && d.lng ? { geo: { '@type': 'GeoCoordinates', latitude: d.lat, longitude: d.lng } } : {}),
+    ...(openingHoursSpec((d as any).calisma_saatleri, (d as any).acik_24_saat) ? { openingHoursSpecification: openingHoursSpec((d as any).calisma_saatleri, (d as any).acik_24_saat) } : {}),
     ...(d.rat && d.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: d.rat, reviewCount: d.rev, bestRating: 5, worstRating: 1 } } : {}),
     ...(yorumlar.filter(y => (y.text || '').trim()).length ? {
       review: yorumlar.filter(y => (y.text || '').trim()).slice(0, 5).map(y => ({

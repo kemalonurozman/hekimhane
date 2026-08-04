@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
+import { openingHoursSpec } from '@/lib/seo';
 import type { Hastane, Yorum } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
 import { maskReviewName } from '@/lib/helpers';
@@ -80,6 +81,7 @@ export default async function HastaneProfilPage({ params }: Props) {
     ...(h.il ? { areaServed: { '@type': 'City', name: h.il } } : {}),
     ...(h.rat && h.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: h.rat, reviewCount: h.rev, bestRating: 5, worstRating: 1 } } : {}),
     ...(h.lat && h.lng ? { geo: { '@type': 'GeoCoordinates', latitude: h.lat, longitude: h.lng } } : {}),
+    ...(openingHoursSpec((h as any).calisma_saatleri, (h as any).acik_24_saat) ? { openingHoursSpecification: openingHoursSpec((h as any).calisma_saatleri, (h as any).acik_24_saat) } : {}),
     ...(yorumlar.filter(y => (y.text || '').trim()).length ? {
       review: yorumlar.filter(y => (y.text || '').trim()).slice(0, 5).map(y => ({
         '@type': 'Review',

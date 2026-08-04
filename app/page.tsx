@@ -122,11 +122,40 @@ function IconArrow() {
 export default async function HomePage() {
   const [stats, oneCikanlar, premiumler] = await Promise.all([getStats(), getOneCikanMakaleler(), getOneCikanPremium()]);
 
+  const BASE = 'https://www.hekimhane.com.tr';
+  const homeJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${BASE}/#organization`,
+        name: 'Hekimhane',
+        url: BASE,
+        logo: `${BASE}/apple-icon.png`,
+        description: 'Türkiye genelindeki diş klinikleri, hastaneler, diş hekimleri ve eczaneleri listeleyen sağlık rehberi.',
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${BASE}/#website`,
+        url: BASE,
+        name: 'Hekimhane',
+        publisher: { '@id': `${BASE}/#organization` },
+        inLanguage: 'tr-TR',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: { '@type': 'EntryPoint', urlTemplate: `${BASE}/klinikler?q={search_term_string}` },
+          'query-input': 'required name=search_term_string',
+        },
+      },
+    ],
+  };
+
   return (
     <div style={{
       paddingTop: 64,
       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
     }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }} />
       <style>{`
         .cta-section {
           padding: 80px 0;

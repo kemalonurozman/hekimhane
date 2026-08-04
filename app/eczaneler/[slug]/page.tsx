@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
+import { openingHoursSpec } from '@/lib/seo';
 import type { Eczane, Yorum } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
 import { maskReviewName } from '@/lib/helpers';
@@ -61,7 +62,7 @@ export default async function EczaneProfilPage({ params }: Props) {
     telephone: e.tel || undefined,
     url: canonical,
     ...(sameAs.length ? { sameAs } : {}),
-    ...(e.acik_24_saat ? { openingHours: 'Mo-Su 00:00-23:59' } : {}),
+    ...(openingHoursSpec(e.calisma_saatleri, e.acik_24_saat) ? { openingHoursSpecification: openingHoursSpec(e.calisma_saatleri, e.acik_24_saat) } : {}),
     ...(e.il ? { areaServed: { '@type': 'City', name: e.il } } : {}),
     ...(e.lat && e.lng ? { geo: { '@type': 'GeoCoordinates', latitude: e.lat, longitude: e.lng } } : {}),
     ...(e.rat && e.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: e.rat, reviewCount: e.rev, bestRating: 5, worstRating: 1 } } : {}),
