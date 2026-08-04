@@ -44,6 +44,7 @@ const icons = {
   info:       'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20z M12 8h.01 M12 12v4',
   link:       'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71 M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71',
   code:       'M16 18l6-6-6-6 M8 6l-6 6 6 6',
+  users:      'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11A4 4 0 1 0 9 3a4 4 0 0 0 0 8z M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75',
 };
 
 const T = {
@@ -149,7 +150,7 @@ export default function PanelPage() {
   const router = useRouter();
   const [user,   setUser]   = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart' | 'randevu' | 'randevumodul' | 'makaleler'>('dashboard');
+  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart' | 'randevu' | 'randevumodul' | 'hastalar' | 'makaleler'>('dashboard');
   const [claims, setClaims] = useState<ClaimRequest[]>([]);
   const [claimsLoading, setClaimsLoading] = useState(false);
   const [profileUrls, setProfileUrls] = useState<Record<string, string>>({});
@@ -277,6 +278,7 @@ export default function PanelPage() {
     { key: 'dashboard'  as const, label: 'Genel Bakış',       icon: 'dashboard' },
     { key: 'claims'     as const, label: 'Başvurularım',      icon: 'list' },
     { key: 'randevu'    as const, label: 'Randevu Talepleri', icon: 'bell' },
+    { key: 'hastalar'   as const, label: 'Hastalarım',        icon: 'users' },
     { key: 'randevumodul' as const, label: 'Randevu Modülü',  icon: 'code' },
     { key: 'edit'       as const, label: 'Profilimi Düzenle', icon: 'edit' },
     { key: 'hekimkart'  as const, label: 'HekimKart',         icon: 'bell' },
@@ -289,7 +291,7 @@ export default function PanelPage() {
   // Sidebar sekmeleri gruplandı (bölüm başlıklarıyla)
   const navGroups: { title: string; keys: (typeof navItems)[number]['key'][] }[] = [
     { title: 'Genel',     keys: ['dashboard'] },
-    { title: 'İşletmem',  keys: ['edit', 'hekimkart', 'yorumlar', 'randevu', 'randevumodul'] },
+    { title: 'İşletmem',  keys: ['edit', 'hekimkart', 'yorumlar', 'randevu', 'hastalar', 'randevumodul'] },
     { title: 'İçerik',    keys: ['makaleler'] },
     { title: 'Başvuru',   keys: ['claims', 'new'] },
     { title: 'Hesap',     keys: ['profile'] },
@@ -428,6 +430,7 @@ export default function PanelPage() {
         {tab === 'yorumlar'  && <YorumlarTab approvedClaims={approvedClaims} />}
         {tab === 'randevu'   && <RandevuTalepleriTab approvedClaims={approvedClaims} />}
         {tab === 'randevumodul' && <RandevuModulTab approvedClaims={approvedClaims} />}
+        {tab === 'hastalar'  && <HastalarTab approvedClaims={approvedClaims} />}
         {tab === 'makaleler' && <MakalelerimTab hasEntity={approvedClaims.some(c => c.entity_id && c.entity_id !== 'new')} />}
       </main>
 
@@ -1380,6 +1383,7 @@ interface RandevuTalep {
   mesaj: string | null;
   status: string;
   sahip_notu?: string | null;
+  randevu_slot?: string | null;
   created_at: string;
 }
 const RANDEVU_DURUM: Record<string, { label: string; bg: string; color: string; border: string }> = {
@@ -1958,6 +1962,173 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   HASTALARIM TAB — telefona göre hasta listesi + geçmiş + kalıcı not
+═══════════════════════════════════════════════ */
+function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
+  const [talepler, setTalepler] = useState<RandevuTalep[]>([]);
+  const [notlar, setNotlar] = useState<Record<string, { entity_id: string; tel: string; notlar: string | null }>>({}); // key: entity_id|tel
+  const [loading, setLoading] = useState(true);
+  const [q, setQ] = useState('');
+  const [openTel, setOpenTel] = useState<string | null>(null);
+  const [draftNot, setDraftNot] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [savedMsg, setSavedMsg] = useState('');
+
+  const hasEntities = approvedClaims.some(c => c.entity_id && c.entity_id !== 'new');
+  const A = { page: '#F5F5F7', card: '#FFFFFF', text: '#1D1D1F', muted: '#86868B', line: '#E5E5EA', accent: T.navy, green: '#34C759' };
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const [r1, r2] = await Promise.all([
+          fetch('/api/panel/randevu-talepleri').then(r => r.ok ? r.json() : { talepler: [] }),
+          fetch('/api/panel/hasta-notu').then(r => r.ok ? r.json() : { hastalar: [] }),
+        ]);
+        setTalepler(r1.talepler || []);
+        const nm: Record<string, any> = {};
+        (r2.hastalar || []).forEach((h: any) => { nm[`${h.entity_id}|${String(h.tel).replace(/\D/g, '')}`] = h; });
+        setNotlar(nm);
+      } catch { setTalepler([]); }
+      setLoading(false);
+    })();
+  }, []);
+
+  const fmt = (s: string) => { try { return new Date(s).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }); } catch { return s; } };
+  const DURUM: Record<string, string> = { yeni: 'Yeni', arandi: 'Arandı', tamamlandi: 'Tamamlandı', iptal: 'İptal' };
+
+  // Telefona göre benzersiz hastalar
+  const hastalar = (() => {
+    const map: Record<string, { tel: string; ad: string; email: string | null; entity_id: string; entity_name: string; kayitlar: RandevuTalep[] }> = {};
+    talepler.forEach(t => {
+      const tel = (t.tel || '').replace(/\D/g, ''); if (!tel) return;
+      if (!map[tel]) map[tel] = { tel, ad: t.ad_soyad, email: t.email || null, entity_id: t.entity_id, entity_name: t.entity_name, kayitlar: [] };
+      map[tel].kayitlar.push(t);
+      // en güncel bilgiyi tut (talepler zaten created_at desc geliyor → ilk gelen en yeni)
+      if (!map[tel].email && t.email) map[tel].email = t.email;
+    });
+    return Object.values(map)
+      .map(h => ({ ...h, kayitlar: h.kayitlar.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)), son: h.kayitlar[0]?.created_at }))
+      .sort((a, b) => (a.son! < b.son! ? 1 : -1));
+  })();
+
+  const filtered = hastalar.filter(h => {
+    const s = q.trim().toLowerCase(); if (!s) return true;
+    return h.ad.toLowerCase().includes(s) || h.tel.includes(s.replace(/\D/g, ''));
+  });
+
+  async function saveNot(h: { entity_id: string; tel: string; ad: string; email: string | null }) {
+    setSaving(true); setSavedMsg('');
+    try {
+      const res = await fetch('/api/panel/hasta-notu', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entityId: h.entity_id, tel: h.tel, ad: h.ad, email: h.email, notlar: draftNot }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok && j.ok) {
+        setNotlar(p => ({ ...p, [`${h.entity_id}|${h.tel}`]: { entity_id: h.entity_id, tel: h.tel, notlar: draftNot } }));
+        setSavedMsg('Kaydedildi');
+      } else setSavedMsg(j.error || 'Kaydedilemedi');
+    } catch { setSavedMsg('Bağlantı hatası'); }
+    setSaving(false);
+  }
+
+  const inp: React.CSSProperties = { width: '100%', boxSizing: 'border-box', padding: '11px 14px', borderRadius: 11, border: `1px solid ${A.line}`, fontSize: 14, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none' };
+
+  return (
+    <div style={{ maxWidth: 760 }}>
+      <div style={{ marginBottom: 20 }}>
+        <h1 style={{ fontSize: 26, fontWeight: 700, color: A.text, margin: 0, letterSpacing: '-0.6px' }}>Hastalarım</h1>
+        <p style={{ fontSize: 14, color: A.muted, marginTop: 5 }}>Randevu bırakan hastalarınız telefona göre burada listelenir; her hastaya özel not tutabilirsiniz.</p>
+      </div>
+
+      {!hasEntities ? (
+        <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '48px 24px', textAlign: 'center', color: A.muted, fontSize: 14 }}>
+          Hastalarınızı görebilmek için önce bir işletmenizin sahipliğini onaylatın.
+        </div>
+      ) : loading ? (
+        <div style={{ padding: 48, textAlign: 'center', color: A.muted, fontSize: 14 }}>Yükleniyor…</div>
+      ) : (
+        <>
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Hasta ara — isim veya telefon…" style={{ ...inp, marginBottom: 14 }} />
+          {filtered.length === 0 ? (
+            <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '40px 24px', textAlign: 'center', color: A.muted, fontSize: 14 }}>
+              {hastalar.length === 0 ? 'Henüz kayıtlı hasta yok. Randevu talepleri geldikçe burada birikir.' : 'Aramanıza uygun hasta yok.'}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ fontSize: 12.5, color: A.muted, marginBottom: 2 }}>{filtered.length} hasta</div>
+              {filtered.map(h => {
+                const acik = openTel === h.tel;
+                const notKey = `${h.entity_id}|${h.tel}`;
+                const mevcutNot = notlar[notKey]?.notlar || '';
+                return (
+                  <div key={h.tel} style={{ background: A.card, borderRadius: 16, border: `1px solid ${A.line}`, boxShadow: '0 1px 2px rgba(0,0,0,.03)', overflow: 'hidden' }}>
+                    <button onClick={() => { const willOpen = !acik; setOpenTel(willOpen ? h.tel : null); if (willOpen) { setDraftNot(mevcutNot); setSavedMsg(''); } }}
+                      style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 13, padding: '15px 18px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+                      <div style={{ width: 42, height: 42, borderRadius: '50%', background: A.page, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16, fontWeight: 700, color: A.accent }}>
+                        {(h.ad || '?').trim().charAt(0).toLocaleUpperCase('tr')}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 15.5, fontWeight: 600, color: A.text, letterSpacing: '-0.2px' }}>{h.ad}</div>
+                        <div style={{ fontSize: 12.5, color: A.muted, marginTop: 1 }}>{h.tel}{h.email ? ' · ' + h.email : ''}</div>
+                      </div>
+                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: A.accent }}>{h.kayitlar.length} randevu</div>
+                        <div style={{ fontSize: 11.5, color: A.muted }}>son: {fmt(h.son!)}</div>
+                      </div>
+                      {mevcutNot && !acik && <span title="Not var" style={{ width: 8, height: 8, borderRadius: '50%', background: A.green, flexShrink: 0 }} />}
+                    </button>
+
+                    {acik && (
+                      <div style={{ borderTop: `1px solid ${A.line}`, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                        {/* Geçmiş */}
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: A.muted, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 8 }}>Randevu geçmişi</div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            {h.kayitlar.map(k => (
+                              <div key={k.id} style={{ background: A.page, borderRadius: 10, padding: '9px 12px', fontSize: 13, color: A.text }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                                  <span style={{ fontWeight: 600 }}>{k.randevu_slot ? k.randevu_slot : fmt(k.created_at)}</span>
+                                  <span style={{ color: A.muted, fontSize: 12 }}>{DURUM[k.status] || k.status}</span>
+                                </div>
+                                {(k.tercih && !k.randevu_slot) && <div style={{ color: A.muted, fontSize: 12, marginTop: 2 }}>Tercih: {k.tercih}</div>}
+                                {k.mesaj && <div style={{ color: A.muted, fontSize: 12, marginTop: 2 }}>Not: {k.mesaj}</div>}
+                                {k.sahip_notu && <div style={{ color: A.accent, fontSize: 12, marginTop: 2 }}>Sizin notunuz: {k.sahip_notu}</div>}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Kalıcı hasta notu */}
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: A.muted, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 6 }}>Hasta notu <span style={{ textTransform: 'none', fontWeight: 500 }}>· yalnız siz görürsünüz</span></div>
+                          <textarea value={draftNot} onChange={e => { setDraftNot(e.target.value); setSavedMsg(''); }} rows={3}
+                            placeholder="Tedavi geçmişi, alerji, yapılan işlemler, önemli notlar…"
+                            style={{ ...inp, resize: 'vertical', lineHeight: 1.5 }} />
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+                            <button onClick={() => saveNot(h)} disabled={saving}
+                              style={{ padding: '8px 18px', borderRadius: 10, border: 'none', background: A.accent, color: '#fff', fontSize: 13, fontWeight: 600, cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: saving ? .6 : 1 }}>
+                              {saving ? 'Kaydediliyor…' : 'Notu kaydet'}
+                            </button>
+                            {h.email && <a href={`mailto:${h.email}`} style={{ fontSize: 13, fontWeight: 600, color: A.accent, textDecoration: 'none' }}>E-posta gönder</a>}
+                            <a href={`tel:${h.tel}`} style={{ fontSize: 13, fontWeight: 600, color: A.accent, textDecoration: 'none' }}>Ara</a>
+                            {savedMsg && <span style={{ fontSize: 12.5, fontWeight: 600, color: savedMsg === 'Kaydedildi' ? '#1D7A3E' : '#C0392B' }}>{savedMsg}</span>}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
