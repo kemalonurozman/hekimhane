@@ -1,0 +1,5 @@
+{
+  "crons": [
+    { "path": "/api/cron/randevu-hatirlatma", "schedule": "0 9 * * *" }
+  ]
+}
