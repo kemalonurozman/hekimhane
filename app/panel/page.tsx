@@ -1986,6 +1986,9 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   const [isNot, setIsNot] = useState('');
   const [isUcret, setIsUcret] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  type Dosya = { id: string; entity_id: string; tel: string; ad: string | null; tip: string | null; boyut: number | null; created_at: string };
+  const [dosyalar, setDosyalar] = useState<Record<string, Dosya[]>>({});   // key: entity_id|tel
+  const [uploading, setUploading] = useState(false);
 
   const hasEntities = approvedClaims.some(c => c.entity_id && c.entity_id !== 'new');
   const A = { page: '#F5F5F7', card: '#FFFFFF', text: '#1D1D1F', muted: '#86868B', line: '#E5E5EA', accent: T.navy, green: '#34C759' };
@@ -1994,10 +1997,11 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
     (async () => {
       setLoading(true);
       try {
-        const [r1, r2, r3] = await Promise.all([
+        const [r1, r2, r3, r4] = await Promise.all([
           fetch('/api/panel/randevu-talepleri').then(r => r.ok ? r.json() : { talepler: [] }),
           fetch('/api/panel/hasta-notu').then(r => r.ok ? r.json() : { hastalar: [] }),
           fetch('/api/panel/hasta-islem').then(r => r.ok ? r.json() : { islemler: [] }),
+          fetch('/api/panel/hasta-dosya').then(r => r.ok ? r.json() : { dosyalar: [] }),
         ]);
         setTalepler(r1.talepler || []);
         const nm: Record<string, any> = {};
@@ -2006,6 +2010,9 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
         const im: Record<string, Islem[]> = {};
         (r3.islemler || []).forEach((x: Islem) => { const k = `${x.entity_id}|${String(x.tel).replace(/\D/g, '')}`; (im[k] = im[k] || []).push(x); });
         setIslemler(im);
+        const dm: Record<string, Dosya[]> = {};
+        (r4.dosyalar || []).forEach((x: Dosya) => { const k = `${x.entity_id}|${String(x.tel).replace(/\D/g, '')}`; (dm[k] = dm[k] || []).push(x); });
+        setDosyalar(dm);
       } catch { setTalepler([]); }
       setLoading(false);
     })();
@@ -2075,6 +2082,37 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
     } catch { /* yoksay */ }
   }
   const tl = (n: number | null) => n == null ? '' : n.toLocaleString('tr-TR') + ' ₺';
+
+  async function uploadDosya(h: { entity_id: string; tel: string }, file: File) {
+    setUploading(true);
+    try {
+      const fd = new FormData(); fd.append('file', file); fd.append('entityId', h.entity_id); fd.append('tel', h.tel);
+      const res = await fetch('/api/panel/hasta-dosya', { method: 'POST', body: fd });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok && j.ok && j.dosya) { const k = `${h.entity_id}|${h.tel}`; setDosyalar(p => ({ ...p, [k]: [j.dosya, ...(p[k] || [])] })); }
+      else alert(j.error || 'Yükleme başarısız.');
+    } catch { alert('Bağlantı hatası.'); }
+    setUploading(false);
+  }
+  function pickDosya(h: { entity_id: string; tel: string }) {
+    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*,application/pdf';
+    inp.onchange = () => { const f = inp.files?.[0]; if (f) uploadDosya(h, f); };
+    inp.click();
+  }
+  async function gorDosya(id: string) {
+    try {
+      const res = await fetch(`/api/panel/hasta-dosya?signed=${encodeURIComponent(id)}`);
+      const j = await res.json().catch(() => ({}));
+      if (res.ok && j.url) window.open(j.url, '_blank', 'noopener'); else alert(j.error || 'Açılamadı.');
+    } catch { alert('Bağlantı hatası.'); }
+  }
+  async function delDosya(h: { entity_id: string; tel: string }, id: string) {
+    if (!confirm('Bu dosyayı kalıcı olarak silmek istiyor musunuz?')) return;
+    try {
+      const res = await fetch(`/api/panel/hasta-dosya?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      if (res.ok) { const k = `${h.entity_id}|${h.tel}`; setDosyalar(p => ({ ...p, [k]: (p[k] || []).filter(x => x.id !== id) })); }
+    } catch { /* yoksay */ }
+  }
 
   const inp: React.CSSProperties = { width: '100%', boxSizing: 'border-box', padding: '11px 14px', borderRadius: 11, border: `1px solid ${A.line}`, fontSize: 14, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none' };
 
@@ -2208,6 +2246,40 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
                                   style={{ marginTop: 8, padding: '8px 16px', borderRadius: 10, border: 'none', background: A.accent, color: '#fff', fontSize: 13, fontWeight: 600, cursor: (isSaving || !isAd.trim()) ? 'default' : 'pointer', fontFamily: 'inherit', opacity: (isSaving || !isAd.trim()) ? .6 : 1 }}>
                                   {isSaving ? 'Ekleniyor…' : 'İşlem ekle'}
                                 </button>
+                              </>
+                            );
+                          })()}
+                        </div>
+
+                        {/* Hasta dosyaları — röntgen / foto (özel, güvenli) */}
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: A.muted, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 8 }}>Dosyalar <span style={{ textTransform: 'none', fontWeight: 500 }}>· röntgen, foto, reçete</span></div>
+                          {(() => {
+                            const k = `${h.entity_id}|${h.tel}`;
+                            const list = dosyalar[k] || [];
+                            return (
+                              <>
+                                {list.length > 0 && (
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 }}>
+                                    {list.map(f => (
+                                      <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 10, background: A.page, borderRadius: 10, padding: '9px 12px' }}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={A.muted} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></svg>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                          <div style={{ fontSize: 13.5, fontWeight: 600, color: A.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.ad || 'Dosya'}</div>
+                                          <div style={{ fontSize: 11.5, color: A.muted }}>{f.tip?.includes('pdf') ? 'PDF' : 'Görsel'}{f.boyut ? ` · ${Math.round(f.boyut / 1024)} KB` : ''}</div>
+                                        </div>
+                                        <button onClick={() => gorDosya(f.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: A.accent, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', flexShrink: 0 }}>Görüntüle</button>
+                                        <button onClick={() => delDosya(h, f.id)} title="Sil" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C0392B', fontSize: 16, padding: 0, flexShrink: 0 }}>×</button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                <button onClick={() => pickDosya(h)} disabled={uploading}
+                                  style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 15px', borderRadius: 10, border: `1.5px dashed ${A.line}`, background: 'transparent', color: A.accent, fontSize: 13, fontWeight: 600, cursor: uploading ? 'default' : 'pointer', fontFamily: 'inherit', opacity: uploading ? .6 : 1 }}>
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                                  {uploading ? 'Yükleniyor…' : 'Dosya ekle (röntgen / foto / PDF)'}
+                                </button>
+                                <div style={{ fontSize: 11, color: A.muted, marginTop: 7, lineHeight: 1.5 }}>Dosyalar özel/güvenli alanda tutulur; görüntüleme bağlantısı yalnız size ve kısa süre geçerlidir (KVKK — hassas sağlık verisi).</div>
                               </>
                             );
                           })()}
