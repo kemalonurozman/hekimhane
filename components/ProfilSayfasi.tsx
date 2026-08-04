@@ -1052,7 +1052,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
   const meslekDeneyimler = (deneyimler || []).filter(d => d && d.kurum);
   const meslekSertifikalar = (sertifikalar || []).filter(c => c && (c.ad || c.url));
   const meslekDiller = (yabanciDiller || []).filter(d => d && d.trim());
-  const hasMeslek = entityType === 'doktor' && !!(
+  const hasMeslek = (entityType === 'doktor' || entityType === 'klinik') && !!(
     (deneyimBaslangic && deneyimBaslangic >= 1950) || okul || uzmanlikKurum ||
     meslekDeneyimler.length || meslekSertifikalar.length || meslekDiller.length
   );
@@ -1531,8 +1531,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 </div>
               )}
 
-              {/* ── Yabancı Diller (doktor dışı: klinik/hastane/eczane — doktorda ayrı Mesleki Bilgiler sekmesinde) ── */}
-              {entityType !== 'doktor' && meslekDiller.length > 0 && (
+              {/* ── Yabancı Diller (hastane/eczane — doktor & klinik'te ayrı Mesleki Bilgiler sekmesinde) ── */}
+              {entityType !== 'doktor' && entityType !== 'klinik' && meslekDiller.length > 0 && (
                 <div style={sc}>
                   <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Yabancı Diller</h3></div>
                   <div style={scBody}>
@@ -1547,8 +1547,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 </div>
               )}
 
-              {/* ── Biyografi (doktor) ── */}
-              {entityType === 'doktor' && bio && (
+              {/* ── Biyografi (doktor / klinik) ── */}
+              {(entityType === 'doktor' || entityType === 'klinik') && bio && (
                 <div style={sc}>
                   <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Hakkında</h3></div>
                   <div style={scBody}>

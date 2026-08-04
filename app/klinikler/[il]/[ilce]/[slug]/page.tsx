@@ -146,6 +146,12 @@ export default async function KlinikProfilPage({ params }: Props) {
       rat={k.rat} rev={k.rev}
       specs={k.specs} type={k.type}
       yabanciDiller={(k as any).yabanci_diller}
+      bio={(k as any).bio}
+      okul={(k as any).okul}
+      uzmanlikKurum={(k as any).uzmanlik_kurum}
+      deneyimBaslangic={(k as any).deneyim_baslangic}
+      deneyimler={(k as any).deneyimler}
+      sertifikalar={(k as any).sertifikalar}
       claimed={k.claimed} online={k.online} acil={k.acil} premium={k.premium}
       tour360url={k.tour360url}
       video_url={k.video_url}

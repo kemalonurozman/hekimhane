@@ -3541,7 +3541,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   const SECS = [
     { key:'info'    as ESection, label:'Profil Bilgileri', icon:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11A4 4 0 1 0 12 3a4 4 0 0 0 0 8z' },
     { key:'details' as ESection, label:'Detaylar',          icon:icons.list },
-    ...(et==='doktor' ? [{ key:'meslek' as ESection, label:'Mesleki', icon:'M22 10v6M2 10l10-5 10 5-10 5z M6 12v5c0 1 2 3 6 3s6-2 6-3v-5' }] : []),
+    ...((et==='doktor'||et==='klinik') ? [{ key:'meslek' as ESection, label:'Mesleki', icon:'M22 10v6M2 10l10-5 10 5-10 5z M6 12v5c0 1 2 3 6 3s6-2 6-3v-5' }] : []),
     { key:'photos'  as ESection, label:'Fotoğraflar',       icon:'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z M12 17A4 4 0 1 0 12 9a4 4 0 0 0 0 8z' },
     { key:'konum'   as ESection, label:'Konum',              icon:'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z M12 10A2 2 0 1 0 12 6a2 2 0 0 0 0 4z' },
     { key:'tour'    as ESection, label:'360° Tur',           icon:'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20z M2 12h20 M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z' },
@@ -3942,8 +3942,8 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                 </div>
               )}
 
-              {/* Yabancı Diller (klinik/hastane/eczane — doktorda ayrı Mesleki Bilgiler sekmesinde) */}
-              {et!=='doktor' && (()=>{
+              {/* Yabancı Diller (hastane/eczane — doktor & klinik'te ayrı Mesleki Bilgiler sekmesinde) */}
+              {et!=='doktor' && et!=='klinik' && (()=>{
                 const diller: string[] = Array.isArray(formData.yabanci_diller) ? formData.yabanci_diller : [];
                 const addDil = (v:string) => { const t=v.trim(); if(t && !diller.some(d=>d.toLocaleLowerCase('tr')===t.toLocaleLowerCase('tr'))) F('yabanci_diller',[...diller,t]); setDilInput(''); };
                 const delDil = (i:number) => F('yabanci_diller', diller.filter((_,j)=>j!==i));
@@ -3980,7 +3980,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
             </>)}
 
             {/* ── MESLEKİ BİLGİLER (doktor) ── */}
-            {sec==='meslek' && et==='doktor' && (()=>{
+            {sec==='meslek' && (et==='doktor'||et==='klinik') && (()=>{
               const YIL = new Date().getFullYear();
               type Deneyim = { kurum:string; baslangic:string; bitis:string };
               type Sertifika = { ad:string; url:string };
