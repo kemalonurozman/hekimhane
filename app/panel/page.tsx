@@ -1724,9 +1724,9 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
   const _bugun = new Date(); _bugun.setHours(0, 0, 0, 0);
   const [ayCursor, setAyCursor] = useState<{ y: number; m: number }>({ y: _bugun.getFullYear(), m: _bugun.getMonth() }); // Ay görünümü
   const [yilCursor, setYilCursor] = useState<number>(_bugun.getFullYear()); // Yıl görünümü
-  const [rangeMode, setRangeMode] = useState(false);   // tarih aralığı seçimi açık mı
-  const [rangeStart, setRangeStart] = useState('');    // aralık başlangıç ISO
-  const [rangeEnd, setRangeEnd] = useState('');        // aralık bitiş ISO
+  const [rangeStart, setRangeStart] = useState('');    // seçim başlangıç ISO (tek gün de olabilir)
+  const [rangeEnd, setRangeEnd] = useState('');        // seçim bitiş ISO ('' ise tek gün seçili)
+  const [saatDuzenle, setSaatDuzenle] = useState(false); // seçili tek günün saatlerini tek tek düzenle
   const [blokeSaving, setBlokeSaving] = useState(false);
   const [blokeMsg, setBlokeMsg] = useState('');
   const entities = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
@@ -1840,14 +1840,14 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
     return out;
   }
   async function applyRange(close: boolean) {
-    if (!rangeStart || !rangeEnd) return;
-    const isos = isoAralik(rangeStart, rangeEnd);
+    if (!rangeStart) return;
+    const isos = isoAralik(rangeStart, rangeEnd || rangeStart);   // bitiş yoksa tek gün
     const set = new Set(isos);
     // Önce bu günlere ait tüm kayıtları (tam gün + tek tek saat) temizle
     let next = bloke.filter(x => !set.has(x.slice(0, 10)));
     if (close) next = [...next, ...isos];   // her günü tam-gün kapalı işaretle
     setBloke(next);
-    setRangeStart(''); setRangeEnd(''); setRangeMode(false); setBlokeTarih('');
+    setRangeStart(''); setRangeEnd(''); setSaatDuzenle(false); setBlokeTarih('');
     await saveBloke(next);
   }
 
@@ -1895,39 +1895,6 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
           <p style={{ fontSize: 12.5, color: A.muted, lineHeight: 1.55, margin: '14px 0 0' }}>
             Kodu WordPress, Wix veya kendi sitenize yapıştırın. Ziyaretçiler sitenizden randevu bıraksın; talepler size e-posta olarak da iletilir.
           </p>
-        </div>
-
-        {/* Bildirim e-postası ayarı */}
-        <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: 22, boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
-          <div style={{ fontSize: 15.5, fontWeight: 600, color: A.text, letterSpacing: '-0.2px' }}>Randevu bildirim e-postası</div>
-          <p style={{ fontSize: 13, color: A.muted, margin: '4px 0 14px', lineHeight: 1.5 }}>Yeni randevu talepleri hangi e-posta adresine gelsin?</p>
-          <div style={{ display: 'inline-flex', background: A.page, borderRadius: 11, padding: 3, gap: 2, marginBottom: 14 }}>
-            {([['same', 'Hesabımla aynı'], ['custom', 'Farklı adres']] as const).map(([m, lbl]) => {
-              const on = notifyMode === m;
-              return (
-                <button key={m} onClick={() => { setNotifyMode(m); setNotifyMsg(''); }}
-                  style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: on ? 700 : 500,
-                    background: on ? A.card : 'transparent', color: on ? A.text : A.muted, boxShadow: on ? '0 1px 3px rgba(0,0,0,.08)' : 'none', transition: 'all .15s' }}>
-                  {lbl}
-                </button>
-              );
-            })}
-          </div>
-          {notifyMode === 'custom' && (
-            <input type="email" value={notifyEmail} onChange={e => { setNotifyEmail(e.target.value); setNotifyMsg(''); }}
-              placeholder="ornek@mail.com" autoComplete="email"
-              style={{ width: '100%', boxSizing: 'border-box', padding: '12px 14px', borderRadius: 12, border: `1px solid ${A.line}`, fontSize: 14, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none', marginBottom: 12 }} />
-          )}
-          {notifyMode === 'same' && (
-            <p style={{ fontSize: 12.5, color: A.muted, margin: '0 0 12px', lineHeight: 1.5 }}>Bildirimler, işletmeyi sahiplendiğiniz hesabın e-posta adresine gönderilir.</p>
-          )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button onClick={saveNotify} disabled={notifySaving}
-              style={{ padding: '10px 20px', borderRadius: 11, border: 'none', background: A.accent, color: '#fff', fontSize: 13.5, fontWeight: 600, cursor: notifySaving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: notifySaving ? .6 : 1 }}>
-              {notifySaving ? 'Kaydediliyor…' : 'Kaydet'}
-            </button>
-            {notifyMsg && <span style={{ fontSize: 13, fontWeight: 600, color: notifyMsg === 'Kaydedildi' ? '#1D7A3E' : '#C0392B' }}>{notifyMsg}</span>}
-          </div>
         </div>
 
         {/* Randevu takvimi (slot bazlı) */}
@@ -1998,7 +1965,7 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
                 return set.size;
               };
               const btn = (label: string, mod: 'hafta' | 'ay' | 'yil') => (
-                <button onClick={() => setBlokeMod(mod)}
+                <button onClick={() => { setBlokeMod(mod); setRangeStart(''); setRangeEnd(''); setSaatDuzenle(false); setBlokeTarih(''); setBlokeMsg(''); }}
                   style={{ padding: '6px 16px', borderRadius: 9, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 700, background: blokeMod === mod ? A.card : 'transparent', color: blokeMod === mod ? A.accent : A.muted, boxShadow: blokeMod === mod ? '0 1px 4px rgba(0,0,0,.08)' : 'none', transition: 'all .12s' }}>{label}</button>
               );
               return (
@@ -2054,27 +2021,22 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
                     const raMin = rangeStart && rangeEnd ? (rangeStart <= rangeEnd ? rangeStart : rangeEnd) : rangeStart;
                     const raMax = rangeStart && rangeEnd ? (rangeStart <= rangeEnd ? rangeEnd : rangeStart) : rangeStart;
                     const fmtKisa = (iso: string) => { const [, mm, dd] = iso.split('-'); return `${Number(dd)} ${AY_KISA[Number(mm) - 1]}`; };
-                    const gunSayi = rangeStart && rangeEnd ? isoAralik(rangeStart, rangeEnd).length : 0;
+                    const tekGun = !!rangeStart && !rangeEnd;
+                    const seciliIsos = rangeStart ? isoAralik(rangeStart, rangeEnd || rangeStart) : [];
+                    const gunSayi = seciliIsos.length;
+                    const anyKapali = seciliIsos.some(d => bloke.includes(d));
+                    const allKapali = gunSayi > 0 && seciliIsos.every(d => bloke.includes(d));
                     return (
                       <div>
-                        {/* Aralık seçim modu düğmesi */}
-                        <button onClick={() => { setRangeMode(v => !v); setRangeStart(''); setRangeEnd(''); }}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 13px', borderRadius: 10, border: `1px solid ${rangeMode ? A.accent : A.line}`, background: rangeMode ? A.accent : A.card, color: rangeMode ? '#fff' : A.text, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', marginBottom: 10 }}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={rangeMode ? '#fff' : A.accent} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                          {rangeMode ? 'Aralık seçimi açık' : 'İki tarih arasını kapat'}
-                        </button>
-                        {rangeMode && (
-                          <div style={{ fontSize: 11.5, color: A.muted, marginBottom: 10, lineHeight: 1.5 }}>
-                            {!rangeStart ? 'Başlangıç gününe tıklayın.' : !rangeEnd ? `Başlangıç: ${fmtKisa(rangeStart)} — şimdi bitiş gününe tıklayın.` : `${fmtKisa(raMin!)} – ${fmtKisa(raMax!)} arası ${gunSayi} gün seçili.`}
-                          </div>
-                        )}
-
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                           <button onClick={() => setAyCursor(c => c.m === 0 ? { y: c.y - 1, m: 11 } : { y: c.y, m: c.m - 1 })} disabled={y * 12 + m <= bugunYM} aria-label="Önceki ay"
                             style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${A.line}`, background: A.card, color: (y * 12 + m <= bugunYM) ? A.line : A.muted, cursor: (y * 12 + m <= bugunYM) ? 'default' : 'pointer', fontSize: 17, fontFamily: 'inherit' }}>‹</button>
                           <div style={{ fontSize: 14.5, fontWeight: 700, color: A.text }}>{AY_TAM[m]} {y}</div>
                           <button onClick={() => setAyCursor(c => c.m === 11 ? { y: c.y + 1, m: 0 } : { y: c.y, m: c.m + 1 })} aria-label="Sonraki ay"
                             style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${A.line}`, background: A.card, color: A.muted, cursor: 'pointer', fontSize: 17, fontFamily: 'inherit' }}>›</button>
+                        </div>
+                        <div style={{ fontSize: 11.5, color: A.muted, marginBottom: 8, lineHeight: 1.5 }}>
+                          Bir güne tıklayın; aralık için ikinci güne tıklayın. Seçince kapat/aç düğmesi çıkar.
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 4 }}>
                           {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(g => <div key={g} style={{ textAlign: 'center', fontSize: 10.5, fontWeight: 700, color: A.muted, padding: '2px 0' }}>{g}</div>)}
@@ -2083,46 +2045,62 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
                           {hucreler.map((c, i) => {
                             if (!c) return <div key={'b' + i} />;
                             const kv = kapaliVar(c.iso); const tumGun = bloke.includes(c.iso); const bg = c.iso === bugunIso;
-                            const uc = rangeMode && (c.iso === rangeStart || c.iso === rangeEnd);   // aralık uç noktası
-                            const ic = rangeMode && !!rangeStart && ((rangeEnd && c.iso >= raMin! && c.iso <= raMax!) || c.iso === rangeStart);  // aralık içi
-                            const aktif = !rangeMode && blokeTarih === c.iso;
-                            const secili = uc || aktif;
-                            const arka = secili ? A.accent : (ic ? '#E8EEF7' : (tumGun ? '#FEF2F2' : A.card));
-                            const yazi = c.gecmis ? A.line : (secili ? '#fff' : (ic ? A.accent : (tumGun ? '#B91C1C' : A.text)));
-                            const kenar = (secili || ic || bg) ? A.accent : A.line;
+                            const uc = c.iso === rangeStart || c.iso === rangeEnd;   // seçim uç noktası
+                            const ic = !!rangeStart && ((rangeEnd && c.iso >= raMin! && c.iso <= raMax!) || c.iso === rangeStart);  // seçim içi
+                            const arka = uc ? A.accent : (ic ? '#E8EEF7' : (tumGun ? '#FEF2F2' : A.card));
+                            const yazi = c.gecmis ? A.line : (uc ? '#fff' : (ic ? A.accent : (tumGun ? '#B91C1C' : A.text)));
+                            const kenar = (uc || ic || bg) ? A.accent : A.line;
                             return (
                               <button key={c.iso} disabled={c.gecmis} title={c.iso}
                                 onClick={() => {
                                   if (c.gecmis) return;
-                                  setBlokeMsg('');
-                                  if (rangeMode) {
-                                    if (!rangeStart || (rangeStart && rangeEnd)) { setRangeStart(c.iso); setRangeEnd(''); }
-                                    else { setRangeEnd(c.iso); }
-                                  } else { setBlokeTarih(c.iso); }
+                                  setBlokeMsg(''); setSaatDuzenle(false);
+                                  if (!rangeStart || (rangeStart && rangeEnd)) { setRangeStart(c.iso); setRangeEnd(''); }
+                                  else if (c.iso === rangeStart) { setRangeStart(''); setRangeEnd(''); }   // aynı güne tekrar → seçimi kaldır
+                                  else { setRangeEnd(c.iso); }
                                 }}
                                 style={{ position: 'relative', aspectRatio: '1 / 1', borderRadius: 10, border: `1.5px solid ${kenar}`, background: arka, color: yazi, cursor: c.gecmis ? 'default' : 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: c.gecmis ? .5 : 1 }}>
                                 {c.gun}
-                                {kv && !secili && !ic && !tumGun && <span style={{ position: 'absolute', top: 4, right: 4, width: 5, height: 5, borderRadius: '50%', background: '#DC2626' }} />}
+                                {kv && !uc && !ic && !tumGun && <span style={{ position: 'absolute', top: 4, right: 4, width: 5, height: 5, borderRadius: '50%', background: '#DC2626' }} />}
                               </button>
                             );
                           })}
                         </div>
 
-                        {/* Aralık aksiyon çubuğu */}
-                        {rangeMode && rangeStart && rangeEnd && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-                            <button onClick={() => applyRange(true)} disabled={blokeSaving}
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 16px', borderRadius: 10, border: 'none', background: '#B91C1C', color: '#fff', fontSize: 13, fontWeight: 600, cursor: blokeSaving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: blokeSaving ? .6 : 1 }}>
-                              {blokeSaving ? 'Kaydediliyor…' : `${gunSayi} günü kapat`}
-                            </button>
-                            <button onClick={() => applyRange(false)} disabled={blokeSaving}
-                              style={{ padding: '10px 16px', borderRadius: 10, border: `1px solid ${A.line}`, background: A.card, color: A.text, fontSize: 13, fontWeight: 600, cursor: blokeSaving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
-                              {gunSayi} günü aç
-                            </button>
-                            <button onClick={() => { setRangeStart(''); setRangeEnd(''); }} style={{ padding: '10px 14px', borderRadius: 10, border: 'none', background: 'transparent', color: A.muted, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>Temizle</button>
+                        {/* Airbnb tarzı otomatik aksiyon çubuğu — gün/aralık seçilince çıkar */}
+                        {rangeStart && (
+                          <div style={{ marginTop: 14, background: A.card, border: `1px solid ${A.line}`, borderRadius: 14, padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', boxShadow: '0 6px 20px rgba(0,0,0,.08)' }}>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontSize: 14, fontWeight: 700, color: A.text }}>
+                                {tekGun ? fmtKisa(rangeStart) : `${fmtKisa(raMin!)} – ${fmtKisa(raMax!)}`}
+                              </div>
+                              <div style={{ fontSize: 11.5, color: A.muted, marginTop: 1 }}>
+                                {tekGun ? (allKapali ? 'Bu gün kapalı' : 'Bu gün açık') : `${gunSayi} gün${allKapali ? ' · tümü kapalı' : (anyKapali ? ' · bazıları kapalı' : '')}`}
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                              {tekGun && !saatDuzenle && (
+                                <button onClick={() => { setBlokeTarih(rangeStart); setSaatDuzenle(true); }}
+                                  style={{ padding: '9px 12px', borderRadius: 10, border: `1px solid ${A.line}`, background: A.card, color: A.text, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Saat saat düzenle</button>
+                              )}
+                              {!allKapali && (
+                                <button onClick={() => applyRange(true)} disabled={blokeSaving}
+                                  style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: '#B91C1C', color: '#fff', fontSize: 13.5, fontWeight: 700, cursor: blokeSaving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: blokeSaving ? .6 : 1 }}>
+                                  {blokeSaving ? 'Kaydediliyor…' : (tekGun ? 'Bu tarihi kapat' : `${gunSayi} günü kapat`)}
+                                </button>
+                              )}
+                              {anyKapali && (
+                                <button onClick={() => applyRange(false)} disabled={blokeSaving}
+                                  style={{ padding: '10px 18px', borderRadius: 10, border: allKapali ? 'none' : `1px solid ${A.line}`, background: allKapali ? '#059669' : A.card, color: allKapali ? '#fff' : A.text, fontSize: 13.5, fontWeight: 700, cursor: blokeSaving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: blokeSaving ? .6 : 1 }}>
+                                  {tekGun ? 'Bu tarihi aç' : `${gunSayi} günü aç`}
+                                </button>
+                              )}
+                              <button onClick={() => { setRangeStart(''); setRangeEnd(''); setSaatDuzenle(false); setBlokeTarih(''); }} aria-label="Seçimi temizle"
+                                style={{ width: 34, height: 34, borderRadius: 10, border: 'none', background: 'transparent', color: A.muted, fontSize: 17, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>✕</button>
+                            </div>
                           </div>
                         )}
-                        {!buAyMi && !rangeMode && <button onClick={() => setAyCursor({ y: bugun.getFullYear(), m: bugun.getMonth() })} style={{ marginTop: 8, background: 'none', border: 'none', color: A.accent, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Bu aya dön</button>}
+                        {!buAyMi && !rangeStart && <button onClick={() => setAyCursor({ y: bugun.getFullYear(), m: bugun.getMonth() })} style={{ marginTop: 8, background: 'none', border: 'none', color: A.accent, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Bu aya dön</button>}
                       </div>
                     );
                   })()}
@@ -2161,7 +2139,7 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
               );
             })()}
 
-            {!rangeMode && blokeTarih && (() => {
+            {blokeTarih && (blokeMod === 'hafta' || saatDuzenle) && (() => {
               const saatler = gunSaatleri(blokeTarih);
               return (
                 <div style={{ marginTop: 14 }}>
@@ -2205,6 +2183,39 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
             </div>
           </div>
         )}
+
+        {/* Bildirim e-postası ayarı */}
+        <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: 22, boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
+          <div style={{ fontSize: 15.5, fontWeight: 600, color: A.text, letterSpacing: '-0.2px' }}>Randevu bildirim e-postası</div>
+          <p style={{ fontSize: 13, color: A.muted, margin: '4px 0 14px', lineHeight: 1.5 }}>Yeni randevu talepleri hangi e-posta adresine gelsin?</p>
+          <div style={{ display: 'inline-flex', background: A.page, borderRadius: 11, padding: 3, gap: 2, marginBottom: 14 }}>
+            {([['same', 'Hesabımla aynı'], ['custom', 'Farklı adres']] as const).map(([m, lbl]) => {
+              const on = notifyMode === m;
+              return (
+                <button key={m} onClick={() => { setNotifyMode(m); setNotifyMsg(''); }}
+                  style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: on ? 700 : 500,
+                    background: on ? A.card : 'transparent', color: on ? A.text : A.muted, boxShadow: on ? '0 1px 3px rgba(0,0,0,.08)' : 'none', transition: 'all .15s' }}>
+                  {lbl}
+                </button>
+              );
+            })}
+          </div>
+          {notifyMode === 'custom' && (
+            <input type="email" value={notifyEmail} onChange={e => { setNotifyEmail(e.target.value); setNotifyMsg(''); }}
+              placeholder="ornek@mail.com" autoComplete="email"
+              style={{ width: '100%', boxSizing: 'border-box', padding: '12px 14px', borderRadius: 12, border: `1px solid ${A.line}`, fontSize: 14, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none', marginBottom: 12 }} />
+          )}
+          {notifyMode === 'same' && (
+            <p style={{ fontSize: 12.5, color: A.muted, margin: '0 0 12px', lineHeight: 1.5 }}>Bildirimler, işletmeyi sahiplendiğiniz hesabın e-posta adresine gönderilir.</p>
+          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button onClick={saveNotify} disabled={notifySaving}
+              style={{ padding: '10px 20px', borderRadius: 11, border: 'none', background: A.accent, color: '#fff', fontSize: 13.5, fontWeight: 600, cursor: notifySaving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: notifySaving ? .6 : 1 }}>
+              {notifySaving ? 'Kaydediliyor…' : 'Kaydet'}
+            </button>
+            {notifyMsg && <span style={{ fontSize: 13, fontWeight: 600, color: notifyMsg === 'Kaydedildi' ? '#1D7A3E' : '#C0392B' }}>{notifyMsg}</span>}
+          </div>
+        </div>
 
         {/* Canlı önizleme */}
         <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: 22, boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
