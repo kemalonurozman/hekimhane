@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import type { Doktor } from '@/lib/types';
 import DoktorCard from '@/components/DoktorCard';
@@ -45,8 +46,8 @@ async function getDoktorlar(filters: Record<string, string | undefined> & { page
   return { data: (data || []) as Doktor[], count: count || 0 };
 }
 
-async function getIller(spec?: string) {
-  // il + count — aktif spec filtresi varsa sadece o uzmanlıktan sayar
+// Filtre sayaçları yavaş değişir → 1 saat önbellek (her istekte 100k satır çekilmez).
+const getIller = unstable_cache(async (spec?: string) => {
   let query = (supabase.from('doktorlar').select('il').not('il', 'is', null).limit(100000) as any)
     .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
   if (spec) query = query.eq('spec', spec);
@@ -56,10 +57,9 @@ async function getIller(spec?: string) {
   return Object.entries(map)
     .sort((a, b) => a[0].localeCompare(b[0], 'tr'))
     .map(([il, count]) => ({ value: il, label: il, count }));
-}
+}, ['dok-iller-v1'], { revalidate: 3600, tags: ['facets'] });
 
-async function getUzmanliklar(il?: string) {
-  // spec + count — diş hekimliği hariç, aktif il filtresi varsa sadece o şehirden sayar
+const getUzmanliklar = unstable_cache(async (il?: string) => {
   let query = (supabase.from('doktorlar').select('spec').not('spec', 'is', null).limit(100000) as any)
     .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
   if (il) query = query.eq('il', il);
@@ -69,10 +69,10 @@ async function getUzmanliklar(il?: string) {
   return Object.entries(map)
     .sort((a, b) => b[1] - a[1])
     .map(([spec, count]) => ({ value: spec, label: spec, count }));
-}
+}, ['dok-uzmanliklar-v1'], { revalidate: 3600, tags: ['facets'] });
 
-async function getKonumlar(filters: Record<string, string | undefined>) {
-  // Koordinatsız doktorları da dahil et — il merkezi fallback için
+// Harita marker'ları da yavaş değişir → filtre kombinasyonuna göre 1 saat önbellek.
+const getKonumlar = unstable_cache(async (filters: Record<string, string | undefined>) => {
   let query = (supabase.from('doktorlar')
     .select('id,ad,soyad,lat,lng,tel,spec,il,ilce,slug')
     .not('il', 'is', null) as any)
@@ -83,15 +83,13 @@ async function getKonumlar(filters: Record<string, string | undefined>) {
   if (filters.dil && filters.dil !== 'Türkçe')  query = query.contains('yabanci_diller', JSON.stringify([filters.dil]));
   if (filters.q)    query = query.or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%`);
   const { data } = await query.limit(5000);
-
-  // Koordinatsızlara il merkezi ata
   return (data || []).map((d: any) => {
     if (d.lat && d.lng && d.lat !== 0 && d.lng !== 0) return d;
     const center = d.il ? IL_KONUM[d.il] : null;
     if (!center) return null;
     return { ...d, lat: center.lat, lng: center.lng };
   }).filter(Boolean);
-}
+}, ['dok-konumlar-v1'], { revalidate: 3600, tags: ['facets'] });
 
 export default async function DoktorlarPage(
   { searchParams }: { searchParams: Record<string, string> }

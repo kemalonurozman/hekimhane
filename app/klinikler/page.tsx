@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 import type { Metadata } from 'next';
-import { unstable_noStore as noStore } from 'next/cache';
+import { unstable_noStore as noStore, unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import type { KlinikFilters, Klinik, Doktor } from '@/lib/types';
 import KlinikCard from '@/components/KlinikCard';
@@ -95,7 +95,8 @@ async function getKlinikler(filters: KlinikFilters) {
 // Şehir sayıları — aktif uzmanlik filtresi dikkate alınır
 // Supabase tek sorguda en fazla 1000 satır döndürür; tüm satırları sayfalayarak topla.
 async function fetchAllRows<T = any>(build: () => any, maxRows = 20000): Promise<T[]> {
-  noStore();
+  // Not: noStore() burada YOK — sayaç/harita fonksiyonları unstable_cache ile
+  // önbelleğe alınır; ana liste (getKlinikler) kendi noStore'unu tutar.
   const PAGE = 1000; const out: T[] = [];
   for (let from = 0; from < maxRows; from += PAGE) {
     const { data, error } = await build().range(from, from + PAGE - 1);
@@ -106,7 +107,8 @@ async function fetchAllRows<T = any>(build: () => any, maxRows = 20000): Promise
   return out;
 }
 
-async function getIller(uzmanlik?: string) {
+// Filtre sayaçları + harita yavaş değişir → 1 saat önbellek (her istekte tüm tablo taranmaz).
+const getIller = unstable_cache(async (uzmanlik?: string) => {
   const rows = await fetchAllRows<{ il: string | null }>(() => {
     let q = supabase.from('klinikler').select('il').not('il', 'is', null);
     if (uzmanlik) q = (q as any).contains('specs', [uzmanlik]);
@@ -117,10 +119,9 @@ async function getIller(uzmanlik?: string) {
   return Object.entries(map)
     .sort((a, b) => a[0].localeCompare(b[0], 'tr'))
     .map(([il, count]) => ({ value: il, label: il, count }));
-}
+}, ['klinik-iller-v1'], { revalidate: 3600, tags: ['facets'] });
 
-// Uzmanlık sayıları — aktif il filtresi dikkate alınır
-async function getUzmanliklar(il?: string) {
+const getUzmanliklar = unstable_cache(async (il?: string) => {
   const rows = await fetchAllRows<{ specs: string[] | null }>(() => {
     let q = supabase.from('klinikler').select('specs').not('specs', 'is', null);
     if (il) q = q.eq('il', il);
@@ -131,10 +132,9 @@ async function getUzmanliklar(il?: string) {
   return Object.entries(map)
     .sort((a, b) => b[1] - a[1])
     .map(([uzmanlik, count]) => ({ value: uzmanlik, label: uzmanlik, count }));
-}
+}, ['klinik-uzmanliklar-v1'], { revalidate: 3600, tags: ['facets'] });
 
-// İlçe sayıları — yalnızca bir il seçiliyken doldurulur
-async function getIlceler(il?: string) {
+const getIlceler = unstable_cache(async (il?: string) => {
   if (!il) return [];
   const rows = await fetchAllRows<{ ilce: string | null }>(() =>
     supabase.from('klinikler').select('ilce').eq('il', il).not('ilce', 'is', null));
@@ -143,10 +143,9 @@ async function getIlceler(il?: string) {
   return Object.entries(map)
     .sort((a, b) => a[0].localeCompare(b[0], 'tr'))
     .map(([ilce, count]) => ({ value: ilce, label: ilce, count }));
-}
+}, ['klinik-ilceler-v1'], { revalidate: 3600, tags: ['facets'] });
 
-async function getKonumlar(filters: KlinikFilters) {
-  // Yalnızca gerçek koordinatı olan klinikler — null ve 0 değerleri hariç
+const getKonumlar = unstable_cache(async (filters: KlinikFilters) => {
   return fetchAllRows(() => {
     let q = supabase.from('klinikler')
       .select('id,name,lat,lng,tel,type,il,ilce,slug')
@@ -160,7 +159,7 @@ async function getKonumlar(filters: KlinikFilters) {
     if (filters.q)        q = q.ilike('name', `%${filters.q}%`);
     return q;
   }, 6000);
-}
+}, ['klinik-konumlar-v1'], { revalidate: 3600, tags: ['facets'] });
 
 // ── Devlet/Üniversite kovası — doktorlar tablosundan (etiketli) ──
 async function getDoktorBucket(filters: KlinikFilters, tag: string) {
