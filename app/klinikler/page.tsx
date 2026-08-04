@@ -107,8 +107,11 @@ async function fetchAllRows<T = any>(build: () => any, maxRows = 20000): Promise
   return out;
 }
 
-// Filtre sayaçları + harita yavaş değişir → 1 saat önbellek (her istekte tüm tablo taranmaz).
+// Filtre sayaçları + harita yavaş değişir → 1 saat önbellek. Önce GROUP BY RPC,
+// yoksa tüm satırları çekip JS'te sayma (graceful).
 const getIller = unstable_cache(async (uzmanlik?: string) => {
+  const rpc = await supabase.rpc('klinik_il_counts', { p_uzmanlik: uzmanlik || null });
+  if (!rpc.error && rpc.data) return (rpc.data as { deger: string; adet: number }[]).map(r => ({ value: r.deger, label: r.deger, count: Number(r.adet) }));
   const rows = await fetchAllRows<{ il: string | null }>(() => {
     let q = supabase.from('klinikler').select('il').not('il', 'is', null);
     if (uzmanlik) q = (q as any).contains('specs', [uzmanlik]);
@@ -122,6 +125,8 @@ const getIller = unstable_cache(async (uzmanlik?: string) => {
 }, ['klinik-iller-v1'], { revalidate: 3600, tags: ['facets'] });
 
 const getUzmanliklar = unstable_cache(async (il?: string) => {
+  const rpc = await supabase.rpc('klinik_uzmanlik_counts', { p_il: il || null });
+  if (!rpc.error && rpc.data) return (rpc.data as { deger: string; adet: number }[]).map(r => ({ value: r.deger, label: r.deger, count: Number(r.adet) }));
   const rows = await fetchAllRows<{ specs: string[] | null }>(() => {
     let q = supabase.from('klinikler').select('specs').not('specs', 'is', null);
     if (il) q = q.eq('il', il);
@@ -136,6 +141,8 @@ const getUzmanliklar = unstable_cache(async (il?: string) => {
 
 const getIlceler = unstable_cache(async (il?: string) => {
   if (!il) return [];
+  const rpc = await supabase.rpc('klinik_ilce_counts', { p_il: il });
+  if (!rpc.error && rpc.data) return (rpc.data as { deger: string; adet: number }[]).map(r => ({ value: r.deger, label: r.deger, count: Number(r.adet) }));
   const rows = await fetchAllRows<{ ilce: string | null }>(() =>
     supabase.from('klinikler').select('ilce').eq('il', il).not('ilce', 'is', null));
   const map: Record<string, number> = {};

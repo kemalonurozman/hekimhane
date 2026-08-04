@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import type { Doktor } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
@@ -125,9 +126,9 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
           {/* Avatar */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <div className="doktor-card__avatar"
-              style={{ background: d.photo ? 'transparent' : 'linear-gradient(135deg, var(--navy), var(--navy2))' }}>
+              style={{ background: d.photo ? 'transparent' : 'linear-gradient(135deg, var(--navy), var(--navy2))', position: 'relative', overflow: 'hidden' }}>
               {d.photo
-                ? <img src={d.photo} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ? <Image src={d.photo} alt={displayName} fill sizes="60px" style={{ objectFit: 'cover' }} />
                 : <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>

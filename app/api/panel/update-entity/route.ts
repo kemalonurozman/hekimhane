@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 // Service role client — RLS'yi bypass eder, sadece server-side
 function adminClient() {
@@ -115,6 +115,7 @@ export async function POST(request: NextRequest) {
       revalidatePath(basePath, 'layout');  // liste sayfası
       revalidatePath('/', 'layout');       // ana sayfa stats
     }
+    revalidateTag('facets');   // filtre sayaçları (1s önbellek) düzenlemeden sonra tazelensin
 
     return NextResponse.json({ success: true });
   } catch (err) {

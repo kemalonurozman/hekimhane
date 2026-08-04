@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import type { Klinik } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
@@ -137,9 +138,9 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
           {/* İkon / Logo */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <div className="klinik-card__icon"
-              style={{ background: k.logo ? 'transparent' : 'linear-gradient(135deg, var(--navy), var(--navy2))' }}>
+              style={{ background: k.logo ? 'transparent' : 'linear-gradient(135deg, var(--navy), var(--navy2))', position: 'relative', overflow: 'hidden' }}>
               {k.logo
-                ? <img src={k.logo} alt={k.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ? <Image src={k.logo} alt={k.name} fill sizes="72px" style={{ objectFit: 'cover' }} />
                 : <ToothGlyph size={34} fill="rgba(255,255,255,0.9)" />
               }
             </div>

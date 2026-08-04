@@ -47,7 +47,10 @@ async function getDoktorlar(filters: Record<string, string | undefined> & { page
 }
 
 // Filtre sayaçları yavaş değişir → 1 saat önbellek (her istekte 100k satır çekilmez).
+// Önce GROUP BY RPC denenir (DB'de sayar); RPC yoksa tüm satırları çekip JS'te sayar.
 const getIller = unstable_cache(async (spec?: string) => {
+  const rpc = await supabase.rpc('doktor_il_counts', { p_spec: spec || null });
+  if (!rpc.error && rpc.data) return (rpc.data as { deger: string; adet: number }[]).map(r => ({ value: r.deger, label: r.deger, count: Number(r.adet) }));
   let query = (supabase.from('doktorlar').select('il').not('il', 'is', null).limit(100000) as any)
     .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
   if (spec) query = query.eq('spec', spec);
@@ -60,6 +63,8 @@ const getIller = unstable_cache(async (spec?: string) => {
 }, ['dok-iller-v1'], { revalidate: 3600, tags: ['facets'] });
 
 const getUzmanliklar = unstable_cache(async (il?: string) => {
+  const rpc = await supabase.rpc('doktor_spec_counts', { p_il: il || null });
+  if (!rpc.error && rpc.data) return (rpc.data as { deger: string; adet: number }[]).map(r => ({ value: r.deger, label: r.deger, count: Number(r.adet) }));
   let query = (supabase.from('doktorlar').select('spec').not('spec', 'is', null).limit(100000) as any)
     .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
   if (il) query = query.eq('il', il);
