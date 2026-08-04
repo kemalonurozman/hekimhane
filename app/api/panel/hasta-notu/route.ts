@@ -53,13 +53,14 @@ export async function POST(request: NextRequest) {
     const ids = await ownedEntityIds(admin, session.user.email);
     if (!ids.includes(entityId)) return NextResponse.json({ error: 'Bu işletme üzerinde yetkiniz yok' }, { status: 403 });
 
-    const kayit = {
+    const kayit: Record<string, unknown> = {
       entity_id: entityId, tel,
       ad: b.ad ? String(b.ad).slice(0, 120) : null,
       email: b.email ? String(b.email).slice(0, 150) : null,
       notlar: b.notlar != null ? String(b.notlar).slice(0, 4000) : null,
       updated_at: new Date().toISOString(),
     };
+    if (Array.isArray(b.etiketler)) kayit.etiketler = b.etiketler.slice(0, 20).map((x: any) => String(x).slice(0, 40));
     const { error } = await (admin as any).from('hastalar').upsert(kayit, { onConflict: 'entity_id,tel' });
     if (error) {
       const kolonYok = /relation .*hastalar.* does not exist|schema cache|does not exist/i.test(error.message || '');

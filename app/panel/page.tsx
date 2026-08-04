@@ -2019,7 +2019,9 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
 ═══════════════════════════════════════════════ */
 function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   const [talepler, setTalepler] = useState<RandevuTalep[]>([]);
-  const [notlar, setNotlar] = useState<Record<string, { entity_id: string; tel: string; notlar: string | null }>>({}); // key: entity_id|tel
+  const [notlar, setNotlar] = useState<Record<string, { entity_id: string; tel: string; notlar: string | null; etiketler?: string[] }>>({}); // key: entity_id|tel
+  const [draftEtiket, setDraftEtiket] = useState<string[]>([]);
+  const [tagFilter, setTagFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState('');
   const [openTel, setOpenTel] = useState<string | null>(null);
@@ -2040,6 +2042,14 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
 
   const hasEntities = approvedClaims.some(c => c.entity_id && c.entity_id !== 'new');
   const A = { page: '#F5F5F7', card: '#FFFFFF', text: '#1D1D1F', muted: '#86868B', line: '#E5E5EA', accent: T.navy, green: '#34C759' };
+  const TAGS: { ad: string; bg: string; fg: string }[] = [
+    { ad: 'Yeni hasta', bg: '#EFF6FF', fg: '#1D4ED8' },
+    { ad: 'Tedavi sürüyor', bg: '#FEF3C7', fg: '#92400E' },
+    { ad: 'VIP', bg: '#F3E8FF', fg: '#7C3AED' },
+    { ad: 'Takip', bg: '#ECFDF5', fg: '#065F46' },
+    { ad: 'Borçlu', bg: '#FEF2F2', fg: '#B91C1C' },
+  ];
+  const tagStil = (ad: string) => TAGS.find(t => t.ad === ad) || { bg: '#F1F1F4', fg: '#4B5563' };
 
   useEffect(() => {
     (async () => {
@@ -2086,20 +2096,34 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   })();
 
   const filtered = hastalar.filter(h => {
+    if (tagFilter) { const tags = notlar[`${h.entity_id}|${h.tel}`]?.etiketler || []; if (!tags.includes(tagFilter)) return false; }
     const s = q.trim().toLowerCase(); if (!s) return true;
     return h.ad.toLowerCase().includes(s) || h.tel.includes(s.replace(/\D/g, ''));
   });
+
+  function disaAktar() {
+    const esc = (v: string) => `"${String(v || '').replace(/"/g, '""')}"`;
+    const head = ['Ad Soyad', 'Telefon', 'E-posta', 'Randevu sayısı', 'Son ziyaret', 'Etiketler', 'Not'];
+    const rows = filtered.map(h => {
+      const rec = notlar[`${h.entity_id}|${h.tel}`];
+      return [h.ad, h.tel, h.email || '', String(h.kayitlar.length), h.son ? fmt(h.son) : '', (rec?.etiketler || []).join(', '), rec?.notlar || ''].map(esc).join(',');
+    });
+    const csv = '﻿' + [head.map(esc).join(','), ...rows].join('\r\n');   // BOM → Excel Türkçe
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+    const a = document.createElement('a'); a.href = url; a.download = `hastalar-${new Date().toISOString().split('T')[0]}.csv`; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
 
   async function saveNot(h: { entity_id: string; tel: string; ad: string; email: string | null }) {
     setSaving(true); setSavedMsg('');
     try {
       const res = await fetch('/api/panel/hasta-notu', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ entityId: h.entity_id, tel: h.tel, ad: h.ad, email: h.email, notlar: draftNot }),
+        body: JSON.stringify({ entityId: h.entity_id, tel: h.tel, ad: h.ad, email: h.email, notlar: draftNot, etiketler: draftEtiket }),
       });
       const j = await res.json().catch(() => ({}));
       if (res.ok && j.ok) {
-        setNotlar(p => ({ ...p, [`${h.entity_id}|${h.tel}`]: { entity_id: h.entity_id, tel: h.tel, notlar: draftNot } }));
+        setNotlar(p => ({ ...p, [`${h.entity_id}|${h.tel}`]: { entity_id: h.entity_id, tel: h.tel, notlar: draftNot, etiketler: draftEtiket } }));
         setSavedMsg('Kaydedildi');
       } else setSavedMsg(j.error || 'Kaydedilemedi');
     } catch { setSavedMsg('Bağlantı hatası'); }
@@ -2193,7 +2217,19 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
         <div style={{ padding: 48, textAlign: 'center', color: A.muted, fontSize: 14 }}>Yükleniyor…</div>
       ) : view === 'hastalar' ? (
         <>
-          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Hasta ara — isim veya telefon…" style={{ ...inp, marginBottom: 14 }} />
+          <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+            <input value={q} onChange={e => setQ(e.target.value)} placeholder="Hasta ara — isim veya telefon…" style={{ ...inp, flex: 1 }} />
+            <button onClick={disaAktar} title="Görünen hastaları CSV/Excel indir"
+              style={{ padding: '11px 16px', borderRadius: 11, border: `1px solid ${A.line}`, background: A.card, color: A.accent, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Excel’e aktar</button>
+          </div>
+          {/* Etiket filtresi */}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+            <button onClick={() => setTagFilter('')} style={{ padding: '5px 12px', borderRadius: 999, border: `1px solid ${tagFilter === '' ? A.accent : A.line}`, background: tagFilter === '' ? 'rgba(27,58,105,.07)' : A.card, color: tagFilter === '' ? A.accent : A.muted, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Tümü</button>
+            {TAGS.map(tg => (
+              <button key={tg.ad} onClick={() => setTagFilter(tagFilter === tg.ad ? '' : tg.ad)}
+                style={{ padding: '5px 12px', borderRadius: 999, border: `1px solid ${tagFilter === tg.ad ? tg.fg : A.line}`, background: tagFilter === tg.ad ? tg.bg : A.card, color: tagFilter === tg.ad ? tg.fg : A.muted, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{tg.ad}</button>
+            ))}
+          </div>
           {filtered.length === 0 ? (
             <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '40px 24px', textAlign: 'center', color: A.muted, fontSize: 14 }}>
               {hastalar.length === 0 ? 'Henüz kayıtlı hasta yok. Randevu talepleri geldikçe burada birikir.' : 'Aramanıza uygun hasta yok.'}
@@ -2207,13 +2243,16 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
                 const mevcutNot = notlar[notKey]?.notlar || '';
                 return (
                   <div key={h.tel} style={{ background: A.card, borderRadius: 16, border: `1px solid ${A.line}`, boxShadow: '0 1px 2px rgba(0,0,0,.03)', overflow: 'hidden' }}>
-                    <button onClick={() => { const willOpen = !acik; setOpenTel(willOpen ? h.tel : null); if (willOpen) { setDraftNot(mevcutNot); setSavedMsg(''); setIsAd(''); setIsNot(''); setIsUcret(''); setIsTarih(''); } }}
+                    <button onClick={() => { const willOpen = !acik; setOpenTel(willOpen ? h.tel : null); if (willOpen) { setDraftNot(mevcutNot); setDraftEtiket(notlar[notKey]?.etiketler || []); setSavedMsg(''); setIsAd(''); setIsNot(''); setIsUcret(''); setIsTarih(''); } }}
                       style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 13, padding: '15px 18px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
                       <div style={{ width: 42, height: 42, borderRadius: '50%', background: A.page, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16, fontWeight: 700, color: A.accent }}>
                         {(h.ad || '?').trim().charAt(0).toLocaleUpperCase('tr')}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 15.5, fontWeight: 600, color: A.text, letterSpacing: '-0.2px' }}>{h.ad}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: 15.5, fontWeight: 600, color: A.text, letterSpacing: '-0.2px' }}>{h.ad}</span>
+                          {(notlar[notKey]?.etiketler || []).map(et => { const s = tagStil(et); return <span key={et} style={{ fontSize: 10.5, fontWeight: 700, color: s.fg, background: s.bg, borderRadius: 6, padding: '1px 7px' }}>{et}</span>; })}
+                        </div>
                         <div style={{ fontSize: 12.5, color: A.muted, marginTop: 1 }}>{h.tel}{h.email ? ' · ' + h.email : ''}</div>
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -2242,6 +2281,23 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
                             ))}
                           </div>
                         </div>
+                        {/* Etiketler */}
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: A.muted, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 8 }}>Etiketler</div>
+                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                            {TAGS.map(tg => {
+                              const on = draftEtiket.includes(tg.ad);
+                              return (
+                                <button key={tg.ad} onClick={() => { setDraftEtiket(p => p.includes(tg.ad) ? p.filter(x => x !== tg.ad) : [...p, tg.ad]); setSavedMsg(''); }}
+                                  style={{ padding: '6px 13px', borderRadius: 999, border: `1.5px solid ${on ? tg.fg : A.line}`, background: on ? tg.bg : A.card, color: on ? tg.fg : A.muted, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                                  {on ? '✓ ' : ''}{tg.ad}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <div style={{ fontSize: 11, color: A.muted, marginTop: 6 }}>Etiketi seçip aşağıdaki “Notu kaydet” ile kaydedin.</div>
+                        </div>
+
                         {/* Kalıcı hasta notu */}
                         <div>
                           <div style={{ fontSize: 12, fontWeight: 700, color: A.muted, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 6 }}>Hasta notu <span style={{ textTransform: 'none', fontWeight: 500 }}>· yalnız siz görürsünüz</span></div>
