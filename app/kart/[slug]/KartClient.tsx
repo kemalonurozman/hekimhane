@@ -336,7 +336,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         .kp-hero::before { content:''; position:absolute; top:-40px; right:-40px; width:140px; height:140px; border-radius:50%; background:rgba(212,168,67,.12); }
         .kp-hero::after  { content:''; position:absolute; bottom:-25px; left:-25px; width:90px; height:90px; border-radius:50%; background:rgba(255,255,255,.05); }
 
-        .kp-avatar { width:108px; height:108px; border-radius:50%; border:3px solid #D4A843; object-fit:cover; position:relative; z-index:1; background:rgba(255,255,255,.12); }
+        .kp-avatar { width:108px; height:108px; border-radius:50%; border:3px solid #D4A843; position:relative; z-index:1; background-color:rgba(255,255,255,.12); background-size:cover; background-position:center; object-fit:cover; }
         .kp-avatar-ph { width:108px; height:108px; border-radius:50%; border:3px solid rgba(212,168,67,.5); background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; color:white; font-size:38px; font-weight:700; position:relative; z-index:1; }
 
         .kp-name { font-size:20px; font-weight:800; color:white; text-align:center; letter-spacing:-0.3px; line-height:1.2; position:relative; z-index:1; }
@@ -489,7 +489,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
           {/* Hero */}
           <div className="kp-hero">
             {photo
-              ? <img src={photo} alt={fullName} className="kp-avatar" />
+              ? <div className="kp-avatar" role="img" aria-label={fullName} style={{ backgroundImage: `url("${photo}")` }} />
               : <div className="kp-avatar-ph">{d.ad?.[0]?.toUpperCase() || 'H'}</div>
             }
 
@@ -828,7 +828,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
           background: '#25457c', display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 40, fontWeight: 800, color: 'rgba(255,255,255,.9)', marginBottom: 10, flexShrink: 0,
         }}>
-          {photo ? <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (d.ad?.[0]?.toUpperCase() || 'H')}
+          {photo ? <div style={{ width: '100%', height: '100%', backgroundImage: `url("${photo}")`, backgroundSize: 'cover', backgroundPosition: 'center' }} /> : (d.ad?.[0]?.toUpperCase() || 'H')}
         </div>
 
         {/* İsim + uzmanlık */}
