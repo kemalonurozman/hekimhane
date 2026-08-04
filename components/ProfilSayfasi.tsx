@@ -730,10 +730,44 @@ const RANDEVU_MODAL_CSS = `
   .randevu-modal-card { padding: 20px 16px; border-radius: 16px; }
 }
 `;
-function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospital, hospitalTel, aktif, slotDk, calismaSaatleri, acik24, booked }: {
+// Bir günün slotlarını üret — kapalı/dolu saatler LİSTEDE KALIR (available:false), yalnızca geçmiş gizli.
+// Hem rezervasyon modalı hem yan taraftaki "Online Randevu" widget'ı bunu kullanır.
+const GUN_ADI_RND = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+function hesaplaGunSlotlari(iso: string, opts: { calismaSaatleri?: string | null; acik24?: boolean; slotDk?: number; booked?: string[] }): { time: string; available: boolean }[] {
+  if (!iso) return [];
+  const { calismaSaatleri, acik24, slotDk, booked } = opts;
+  const dt = new Date(iso + 'T00:00:00'); const gun = GUN_ADI_RND[dt.getDay()];
+  let o = '09:00', c = '18:00', acikGun = true;
+  if (acik24) { o = '08:00'; c = '22:00'; }
+  else {
+    let sch: Record<string, { acik?: boolean; baslangic?: string; bitis?: string }> = {};
+    try { sch = calismaSaatleri ? JSON.parse(calismaSaatleri) : {}; } catch { sch = {}; }
+    if (sch && sch[gun]) { acikGun = sch[gun].acik !== false; o = sch[gun].baslangic || '09:00'; c = sch[gun].bitis || '18:00'; }
+    else if (calismaSaatleri) { acikGun = false; }
+    else { acikGun = dt.getDay() !== 0; }
+  }
+  if (!acikGun) return [];
+  const bs = new Set(booked || []);
+  if (bs.has(iso)) return [];   // tüm gün kapalı
+  let t = (+o.split(':')[0]) * 60 + (+o.split(':')[1]);
+  const end = (+c.split(':')[0]) * 60 + (+c.split(':')[1]);
+  const dk = slotDk || 30; const out: { time: string; available: boolean }[] = [];
+  const now = new Date();
+  const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const nowMin = now.getHours() * 60 + now.getMinutes(); const isToday = iso === todayIso;
+  while (t + dk <= end) {
+    const lbl = `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+    if (!(isToday && t <= nowMin + 15)) out.push({ time: lbl, available: !bs.has(iso + ' ' + lbl) });
+    t += dk;
+  }
+  return out;
+}
+
+function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospital, hospitalTel, aktif, slotDk, calismaSaatleri, acik24, booked, initialDate }: {
   name: string; entityType: string; entityId: string | number; open: boolean; onClose: () => void;
   devlet?: boolean; hospital?: string | null; hospitalTel?: string | null;
   aktif?: boolean; slotDk?: number; calismaSaatleri?: string | null; acik24?: boolean; booked?: string[];
+  initialDate?: string;
 }) {
   const [adSoyad, setAdSoyad] = useState('');
   const [tel, setTel]         = useState('');
@@ -746,6 +780,11 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
   const [saving, setSaving]   = useState(false);
   const [hata, setHata]       = useState('');
   const [website, setWebsite] = useState(''); // honeypot — botlar doldurur, insanlar görmez
+
+  // Widget'tan bir güne tıklanarak açıldıysa o tarihi ön-seç (doğrudan saat seçimine)
+  useEffect(() => {
+    if (open && initialDate) { setTarih(initialDate); setSaat(''); }
+  }, [open, initialDate]);
 
   const telOk = tel.replace(/\D/g, '').length >= 10;
 
@@ -811,39 +850,8 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
     { v: 'Akşam (17:00-20:00)', label: 'Akşam', sub: '17–20' },
   ];
 
-  // Slot bazlı mod: seçilen günün çalışma saatlerinden uygun saatleri üret
-  const GUN_ADI = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
-  // Kapalı/dolu saatler LİSTEDE KALIR (üzeri çizili, tıklanamaz); yalnızca geçmiş saatler gizlenir.
-  function gunSlotlari(iso: string): { time: string; available: boolean }[] {
-    if (!iso) return [];
-    const dt = new Date(iso + 'T00:00:00'); const gun = GUN_ADI[dt.getDay()];
-    let o = '09:00', c = '18:00', acikGun = true;
-    if (acik24) { o = '08:00'; c = '22:00'; }
-    else {
-      let sch: Record<string, { acik?: boolean; baslangic?: string; bitis?: string }> = {};
-      try { sch = calismaSaatleri ? JSON.parse(calismaSaatleri) : {}; } catch { sch = {}; }
-      if (sch && sch[gun]) { acikGun = sch[gun].acik !== false; o = sch[gun].baslangic || '09:00'; c = sch[gun].bitis || '18:00'; }
-      else if (calismaSaatleri) { acikGun = false; }
-      else { acikGun = dt.getDay() !== 0; }
-    }
-    if (!acikGun) return [];
-    const bs = new Set(booked || []);
-    if (bs.has(iso)) return [];   // tüm gün kapalı → gün seçicide pasif olur
-    let t = (+o.split(':')[0]) * 60 + (+o.split(':')[1]);
-    const end = (+c.split(':')[0]) * 60 + (+c.split(':')[1]);
-    const dk = slotDk || 30; const out: { time: string; available: boolean }[] = [];
-    const now = new Date();
-    const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    const nowMin = now.getHours() * 60 + now.getMinutes(); const isToday = iso === todayIso;
-    while (t + dk <= end) {
-      const lbl = `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
-      if (!(isToday && t <= nowMin + 15)) {   // geçmiş saatleri gizle; kapalı/dolu olanları çizili göster
-        out.push({ time: lbl, available: !bs.has(iso + ' ' + lbl) });
-      }
-      t += dk;
-    }
-    return out;
-  }
+  // Slot bazlı mod: seçilen günün çalışma saatlerinden uygun saatleri üret (modül helper'ı ile).
+  const gunSlotlari = (iso: string) => hesaplaGunSlotlari(iso, { calismaSaatleri, acik24, slotDk, booked });
   const slotArr = aktif ? gunSlotlari(tarih) : [];
 
   return (
@@ -1022,6 +1030,16 @@ export default function ProfilSayfasi(props: ProfilProps) {
   const [activeTab, setActiveTab] = useState<Tab>('genel');
   const [yorumlar, setYorumlar]   = useState<YorumItem[]>(props.yorumlar);
   const [randevuModal, setRandevuModal] = useState(false);
+  const [preselectDate, setPreselectDate] = useState(''); // widget'tan seçilen tarih (modalı ön-seçili açar)
+  // "Online Randevu" widget'ı için önümüzdeki 7 günün açık/kapalı durumu (aktif randevuda canlı)
+  const widgetGunler = randevuAktif ? Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + i);
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const slots = hesaplaGunSlotlari(iso, { calismaSaatleri: calisma_saatleri, acik24: acik_24_saat, slotDk: randevuSlotDk, booked: bookedSlots });
+    const uygun = slots.filter(s => s.available).length;
+    return { iso, dow: d.getDay(), gun: d.getDate(), acik: uygun > 0, uygun, bugun: i === 0 };
+  }) : [];
+  const acikGun = (iso: string) => { setPreselectDate(iso); setRandevuModal(true); };
   const [lightboxIdx, setLightboxIdx]   = useState<number | null>(null);
   const [photoOpen, setPhotoOpen]       = useState(false); // fotoğraf yoksa bölüm kapalı, tıklayınca açılır
   // Sahiplenme mührü ipucu — hero overflow:hidden içinde kaldığı için
@@ -2329,28 +2347,53 @@ export default function ProfilSayfasi(props: ProfilProps) {
               </div>
             </div>
             <div style={{ padding: '20px 22px' }}>
-              {/* Tarih strip (dekoratif) */}
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 8 }}>Tarih</div>
-              <div style={{ display: 'flex', gap: 6, marginBottom: 14, opacity: .4, pointerEvents: 'none' }}>
-                {Array.from({ length: 5 }, (_, i) => {
-                  const d = new Date(); d.setDate(d.getDate() + i);
-                  const days = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
-                  return (
-                    <div key={i} style={{ flex: 1, border: '1.5px solid var(--border)', borderRadius: 10, padding: '8px 4px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)' }}>{days[d.getDay()]}</div>
-                      <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)' }}>{d.getDate()}</div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div style={{ textAlign: 'center', padding: '14px 8px 8px', color: 'var(--muted)', fontSize: 13, lineHeight: 1.6 }}>
-                {randevuAktif ? (
-                  <><i className="fa-regular fa-calendar-check" style={{ fontSize: 24, color: '#34C759', display: 'block', marginBottom: 8 }} />Uygun günü ve saati seçip randevunuzu hemen oluşturun.</>
-                ) : (
-                  <><i className="fa-regular fa-calendar-xmark" style={{ fontSize: 24, color: '#D1D5DB', display: 'block', marginBottom: 8 }} />Bu işletme için online randevu takvimi henüz aktive edilmemiş.</>
-                )}
-              </div>
-              <button onClick={() => setRandevuModal(true)}
+              {randevuAktif ? (
+                <>
+                  {/* Canlı tarih şeridi — açık günler tıklanabilir, doğrudan saat seçimine götürür */}
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 8 }}>
+                    Tarih <span style={{ textTransform: 'none', fontWeight: 600, color: '#059669', letterSpacing: 0 }}>· açık günü seçin</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 5, marginBottom: 12 }}>
+                    {widgetGunler.map(g => {
+                      const days = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+                      return (
+                        <button key={g.iso} type="button" disabled={!g.acik} onClick={() => g.acik && acikGun(g.iso)}
+                          title={g.acik ? `${g.uygun} uygun saat — tıklayın` : 'Bu gün kapalı'}
+                          style={{ border: `1.5px solid ${g.acik ? '#A7F3D0' : 'var(--border)'}`, background: g.acik ? '#F0FDF4' : '#F9FAFB', borderRadius: 10, padding: '7px 2px 5px', textAlign: 'center', cursor: g.acik ? 'pointer' : 'not-allowed', fontFamily: 'inherit', opacity: g.acik ? 1 : .5, transition: 'transform .1s' }}>
+                          <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: g.acik ? '#059669' : 'var(--muted)' }}>{g.bugun ? 'Bug' : days[g.dow]}</div>
+                          <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)', lineHeight: 1.1 }}>{g.gun}</div>
+                          <div style={{ height: 6, marginTop: 3 }}>{g.acik && <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#34C759', display: 'inline-block' }} />}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div style={{ textAlign: 'center', padding: '2px 8px 10px', color: 'var(--muted)', fontSize: 12.5, lineHeight: 1.55 }}>
+                    {widgetGunler.some(g => g.acik)
+                      ? <>Yeşil günler rezervasyona açık. Bir güne tıklayıp <strong>uygun saati</strong> seçin.</>
+                      : 'Önümüzdeki 7 günde uygun saat görünmüyor; yine de talep bırakabilirsiniz.'}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 8 }}>Tarih</div>
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 14, opacity: .4, pointerEvents: 'none' }}>
+                    {Array.from({ length: 5 }, (_, i) => {
+                      const d = new Date(); d.setDate(d.getDate() + i);
+                      const days = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+                      return (
+                        <div key={i} style={{ flex: 1, border: '1.5px solid var(--border)', borderRadius: 10, padding: '8px 4px', textAlign: 'center' }}>
+                          <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)' }}>{days[d.getDay()]}</div>
+                          <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)' }}>{d.getDate()}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ textAlign: 'center', padding: '14px 8px 8px', color: 'var(--muted)', fontSize: 13, lineHeight: 1.6 }}>
+                    <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 24, color: '#D1D5DB', display: 'block', marginBottom: 8 }} />Bu işletme için online randevu takvimi henüz aktive edilmemiş.
+                  </div>
+                </>
+              )}
+              <button onClick={() => { setPreselectDate(''); setRandevuModal(true); }}
                 style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}>
                 <i className={`fa-solid ${randevuAktif ? 'fa-calendar-check' : 'fa-calendar-plus'}`} /> {randevuAktif ? 'Randevu Al' : 'Randevu Talep Et'}
               </button>
@@ -2399,9 +2442,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
       </div>
 
       {/* Randevu modal */}
-      <RandevuModal name={name} entityType={entityType} entityId={id} open={randevuModal} onClose={() => setRandevuModal(false)}
+      <RandevuModal name={name} entityType={entityType} entityId={id} open={randevuModal} onClose={() => { setRandevuModal(false); setPreselectDate(''); }}
         devlet={isDevletDoktor} hospital={devletHospital} hospitalTel={tel}
-        aktif={randevuAktif} slotDk={randevuSlotDk} calismaSaatleri={calisma_saatleri} acik24={acik_24_saat} booked={bookedSlots} />
+        aktif={randevuAktif} slotDk={randevuSlotDk} calismaSaatleri={calisma_saatleri} acik24={acik_24_saat} booked={bookedSlots} initialDate={preselectDate} />
 
       {/* ── Lightbox ── */}
       {lightboxIdx !== null && (() => {
