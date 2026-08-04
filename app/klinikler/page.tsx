@@ -397,7 +397,7 @@ export default async function KliniklerPage(
           ? [{ key: 'ilce', label: 'İlçe', type: 'radio' as const, options: ilcelerWithCount }]
           : []),
         { key: 'uzmanlik', label: 'Uzmanlık', type: 'checkbox', options: uzmanliklarWithCount },
-        { key: 'dil',      label: 'Yabancı Dil', type: 'radio', options: KLINIK_DIL_SECENEKLERI },
+        { key: 'dil',      label: 'Yabancı Dil', type: 'radio', render: 'chips', options: KLINIK_DIL_SECENEKLERI },
       ]}
       activeFilters={{ kurum: kurumSel, il: filters.il, ilce: filters.ilce, uzmanlik: filters.uzmanlik, tip: filters.tip, dil: filters.dil, q: filters.q }}
       hasActiveFilters={!!(filters.il || filters.ilce || filters.uzmanlik || filters.tip || filters.dil || filters.q || kurumSel !== 'ozel')}

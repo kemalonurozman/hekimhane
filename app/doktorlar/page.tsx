@@ -160,7 +160,7 @@ export default async function DoktorlarPage(
         { key: 'q', label: 'Arama', type: 'search', placeholder: 'Doktor veya uzmanlık ara...' },
         { key: 'spec', label: 'Uzmanlık Alanı', type: 'radio', options: uzmanliklarWithCount },
         { key: 'il',   label: 'Şehir',           type: 'radio', options: illerWithCount },
-        { key: 'dil',  label: 'Yabancı Dil',     type: 'radio', options: DIL_SECENEKLERI },
+        { key: 'dil',  label: 'Yabancı Dil',     type: 'radio', render: 'chips', options: DIL_SECENEKLERI },
       ]}
       activeFilters={{ il: filters.il, ilce: filters.ilce, spec: filters.spec, dil: filters.dil, q: filters.q }}
       hasActiveFilters={!!(filters.il || filters.ilce || filters.spec || filters.dil || filters.q || filters.online)}

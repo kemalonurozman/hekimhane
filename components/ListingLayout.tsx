@@ -18,6 +18,7 @@ export interface FilterSection {
   options?: FilterOption[];
   placeholder?: string;
   hideAll?: boolean; // "Tümü" seçeneğini gizle (ör. kurum: varsayılan Özel seçili)
+  render?: 'chips'; // sabit/kısa seçenekler için tıklanabilir çip görünümü (ör. Yabancı Dil)
 }
 
 export interface MapMarker {
@@ -706,7 +707,33 @@ function FilterSectionBlock({
             />
           )}
 
-          {(section.type === 'radio' || section.type === 'checkbox') && section.options && (
+          {/* Çip görünümü — tıklayınca seç/kaldır, seçili belirgin dolu görünür */}
+          {section.render === 'chips' && section.options && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {section.options.map(opt => {
+                const isActive = activeValue === opt.value;
+                return (
+                  <button key={opt.value} onClick={() => onUpdate(isActive ? null : opt.value)}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      padding: '7px 13px', borderRadius: 20, cursor: 'pointer',
+                      fontSize: 12.5, fontWeight: isActive ? 700 : 600, fontFamily: 'inherit',
+                      background: isActive ? color : '#fff',
+                      color: isActive ? '#fff' : 'var(--text)',
+                      border: `1.5px solid ${isActive ? color : 'var(--border)'}`,
+                      transition: 'all .15s',
+                    }}>
+                    {isActive && (
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                    )}
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {section.render !== 'chips' && (section.type === 'radio' || section.type === 'checkbox') && section.options && (
             <div style={{ maxHeight: 260, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2, scrollbarWidth: 'thin', paddingRight: 2 }}>
               {/* Tümü */}
               {!section.hideAll && (() => {
