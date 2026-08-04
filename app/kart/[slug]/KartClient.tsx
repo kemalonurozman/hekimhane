@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { KartData, KartYorum } from './page';
+import { maskReviewName } from '@/lib/helpers';
 
 /* ── Yorum tarihi biçimlendir (YYYY-MM veya ISO) ── */
 function fmtRevDate(raw?: string | null): string {
@@ -164,6 +165,8 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
 
   const handleReviewSubmit = async () => {
     if (revRating === 0) { setRevErr('Lütfen bir puan seçin.'); return; }
+    const adParcalari = revName.trim().split(/\s+/).filter(w => w.length >= 2);
+    if (adParcalari.length < 2) { setRevErr('Lütfen ad ve soyadınızı tam yazın.'); return; }
     if (!revText.trim()) { setRevErr('Yorum metni zorunludur.'); return; }
     setRevSending(true); setRevErr('');
     try {
@@ -172,7 +175,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         entity_type:   d.entity_type   || null,
         hekimhane_url: d.hekimhane_url || null,  // sunucu tarafında çözülmüş URL
         slug:          d.slug,
-        name:          revName.trim() || 'Anonim',
+        name:          revName.trim(),  // tam ad saklanır; herkese açık sayfada maskelenir
         rating:        revRating,
         text:          revText.trim(),
         date:          buildRevDate(),
@@ -700,7 +703,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
                     <div className="kp-review-top">
                       <div className="kp-review-av">{(rv.author || 'A').trim().charAt(0).toUpperCase()}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div className="kp-review-name">{rv.author?.trim() || 'Anonim'}</div>
+                        <div className="kp-review-name">{maskReviewName(rv.author)}</div>
                         <div className="kp-review-stars">
                           {[1,2,3,4,5].map(n => (
                             <svg key={n} width="13" height="13" viewBox="0 0 24 24"
@@ -1032,15 +1035,21 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
                   </div>
                 </div>
 
-                {/* Ad (opsiyonel) */}
+                {/* Ad Soyad (zorunlu — sayfada maskelenir, tam adı yalnızca hekim görür) */}
                 <div style={{ marginBottom: 10 }}>
-                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: '#6B7A99', letterSpacing: '.3px', textTransform: 'uppercase', marginBottom: 5 }}>Adınız (opsiyonel)</label>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: '#6B7A99', letterSpacing: '.3px', textTransform: 'uppercase', marginBottom: 5 }}>Ad Soyad *</label>
                   <input
                     className="rev-inp"
                     value={revName}
                     onChange={e => setRevName(e.target.value)}
-                    placeholder="Anonim olarak gönderin veya adınızı yazın"
+                    placeholder="Adınız ve soyadınız"
                   />
+                  <div style={{ display: 'flex', gap: 7, alignItems: 'flex-start', marginTop: 7 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <div style={{ fontSize: 11, color: '#6B7A99', lineHeight: 1.5 }}>
+                      Adınız sayfada <strong>tam ve açık gösterilmez</strong> (ör. “Elif K.”). Tam adınızı yalnızca değerlendirdiğiniz hekim görür; yorumun gerçek bir hastadan geldiğinin doğrulanması için gereklidir.
+                    </div>
+                  </div>
                 </div>
 
                 {/* Ziyaret tarihi */}

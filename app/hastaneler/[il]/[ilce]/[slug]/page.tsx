@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import type { Hastane, Yorum } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
+import { maskReviewName } from '@/lib/helpers';
 import { bookedSlots } from '@/lib/randevu-booked';
 
 export const dynamic = 'force-dynamic';
@@ -82,7 +83,7 @@ export default async function HastaneProfilPage({ params }: Props) {
     ...(yorumlar.filter(y => (y.text || '').trim()).length ? {
       review: yorumlar.filter(y => (y.text || '').trim()).slice(0, 5).map(y => ({
         '@type': 'Review',
-        author: { '@type': 'Person', name: y.author || 'Anonim' },
+        author: { '@type': 'Person', name: maskReviewName(y.author) },
         reviewRating: { '@type': 'Rating', ratingValue: y.rating, bestRating: 5, worstRating: 1 },
         reviewBody: y.text,
         ...(y.date ? { datePublished: y.date } : {}),

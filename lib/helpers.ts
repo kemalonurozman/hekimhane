@@ -45,6 +45,23 @@ export function buildKlinikQuery(
 }
 
 // Puan yıldızı
+// ================================================================
+// Yorum yazarı adını herkese açık yüzeyler için maskele.
+// Tam ad DB'de saklanır ve yalnızca işletme sahibi (doktor) panelde görür;
+// ziyaretçilere ad + soyad baş harf(ler)i gösterilir. Örn: "Elif Sifil K." → "Elif S. K."
+// ================================================================
+export function maskReviewName(n?: string | null): string {
+  if (!n) return 'Hasta';
+  const parts = n.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return 'Hasta';
+  if (parts.length === 1) return parts[0];
+  const first = parts[0];
+  const initials = parts.slice(1)
+    .map(w => w.charAt(0).toLocaleUpperCase('tr') + '.')
+    .join(' ');
+  return `${first} ${initials}`;
+}
+
 export function formatRat(rat: number): string {
   return rat.toFixed(1);
 }

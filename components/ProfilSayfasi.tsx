@@ -200,7 +200,12 @@ function extractTourSrc(val: string | null | undefined): { src: string; isEmbed:
 
 function maskName(n?: string | null) {
   if (!n) return 'Hasta';
-  return n.trim().split(/\s+/).map(w => w.length <= 2 ? w : w.slice(0, 2) + '…').join(' ');
+  const parts = n.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return 'Hasta';
+  if (parts.length === 1) return parts[0];
+  const first = parts[0];
+  const initials = parts.slice(1).map(w => w.charAt(0).toLocaleUpperCase('tr') + '.').join(' ');
+  return `${first} ${initials}`;
 }
 
 const TABS = ['genel', 'meslek', 'konum', 'tur', 'video', 'yorumlar', 'randevu'] as const;
@@ -459,11 +464,13 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
 
   async function submit() {
     if (!star) { showToast('Lütfen puan seçin!'); return; }
+    if (ad.trim().length < 2 || soyad.trim().length < 2) { showToast('Lütfen ad ve soyadınızı tam yazın.'); return; }
     if (txt.length < 20) { showToast('Deneyiminiz en az 20 karakter olmalı.'); return; }
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRe.test(email)) { showToast('Geçerli bir e-posta girin.'); return; }
     setSaving(true);
-    const author = (ad + ' ' + (soyad ? soyad[0] + '.' : '')).trim() || 'Anonim';
+    // Tam ad saklanır (yalnızca işletme sahibi panelde görür); ziyaretçilere maskeli gösterilir.
+    const author = (ad.trim() + ' ' + soyad.trim()).trim() || 'Anonim';
     let data: YorumItem | null = null;
     try {
       const r = await fetch('/api/yorum', {
@@ -528,17 +535,23 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
               placeholder="Bu işletmeyle yaşadığınız deneyimi anlatın..." rows={4}
               style={{ width: '100%', padding: '12px 16px', border: '2px solid #BBF7D0', borderRadius: 12, fontSize: 14, fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box', marginBottom: 12 }} />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 8 }}>
               {[
                 { label: 'Adınız', val: ad, set: setAd, ph: 'Adınız' },
                 { label: 'Soyadınız', val: soyad, set: setSoyad, ph: 'Soyadınız' },
               ].map(f => (
                 <div key={f.label}>
-                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 5 }}>{f.label}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 5 }}>{f.label} <span style={{ color: '#DC2626' }}>*</span></div>
                   <input type="text" value={f.val} onChange={e => f.set(e.target.value)} placeholder={f.ph}
                     style={{ width: '100%', padding: '10px 14px', border: '2px solid #BBF7D0', borderRadius: 10, fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
               ))}
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '9px 12px', marginBottom: 12 }}>
+              <i className="fa-solid fa-shield-halved" style={{ color: '#059669', fontSize: 13, marginTop: 2 }} />
+              <div style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.55 }}>
+                Adınız sayfada <strong>tam ve açık gösterilmez</strong> (ör. “Elif K.”). Tam adınızı yalnızca değerlendirdiğiniz hekim/işletme görür; yorumun gerçek bir hastadan geldiğini doğrulamak için gereklidir.
+              </div>
             </div>
             <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 5 }}>E-posta <span style={{ color: '#DC2626' }}>*</span></div>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="ornek@mail.com"
