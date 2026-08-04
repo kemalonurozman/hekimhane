@@ -1718,6 +1718,7 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
   const [acik24, setAcik24] = useState(false);
   const [bloke, setBloke] = useState<string[]>([]);          // "YYYY-MM-DD" veya "YYYY-MM-DD HH:MM"
   const [blokeTarih, setBlokeTarih] = useState('');
+  const [blokeOffset, setBlokeOffset] = useState(0); // gün şeridi kaydırma penceresi (7'şer gün)
   const [blokeSaving, setBlokeSaving] = useState(false);
   const [blokeMsg, setBlokeMsg] = useState('');
   const entities = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
@@ -1954,9 +1955,41 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
             </p>
 
             <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: A.muted, marginBottom: 6 }}>Gün</label>
-            <input type="date" value={blokeTarih} min={new Date().toISOString().split('T')[0]}
-              onChange={e => { setBlokeTarih(e.target.value); setBlokeMsg(''); }}
-              style={{ width: '100%', boxSizing: 'border-box', padding: '11px 13px', borderRadius: 11, border: `1px solid ${A.line}`, fontSize: 14, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none' }} />
+            {(() => {
+              const GUN_KISA = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+              const AY_KISA = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+              const days = Array.from({ length: 7 }, (_, i) => {
+                const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + blokeOffset + i);
+                const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                return { iso, dow: d.getDay(), gun: d.getDate(), ay: d.getMonth() };
+              });
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <button onClick={() => setBlokeOffset(o => Math.max(0, o - 7))} disabled={blokeOffset === 0}
+                    aria-label="Önceki günler"
+                    style={{ flexShrink: 0, width: 34, height: 52, borderRadius: 11, border: `1px solid ${A.line}`, background: A.card, color: blokeOffset === 0 ? A.line : A.muted, cursor: blokeOffset === 0 ? 'default' : 'pointer', fontSize: 18, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
+                  <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
+                    {days.map(({ iso, dow, gun, ay }) => {
+                      const aktif = blokeTarih === iso;
+                      const kapaliVar = bloke.some(x => x === iso || x.startsWith(iso + ' '));
+                      const bugun = blokeOffset === 0 && iso === days[0].iso;
+                      return (
+                        <button key={iso} onClick={() => { setBlokeTarih(iso); setBlokeMsg(''); }} title={iso}
+                          style={{ position: 'relative', padding: '8px 2px', borderRadius: 12, border: `1.5px solid ${aktif ? A.accent : A.line}`, background: aktif ? A.accent : A.card, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, transition: 'all .12s' }}>
+                          <span style={{ fontSize: 10.5, fontWeight: 600, color: aktif ? 'rgba(255,255,255,.75)' : A.muted, letterSpacing: '.3px' }}>{GUN_KISA[dow]}</span>
+                          <span style={{ fontSize: 16, fontWeight: 700, color: aktif ? '#fff' : A.text, lineHeight: 1 }}>{gun}</span>
+                          <span style={{ fontSize: 9.5, color: aktif ? 'rgba(255,255,255,.65)' : A.muted }}>{AY_KISA[ay]}</span>
+                          {bugun && <span style={{ fontSize: 8.5, fontWeight: 700, color: aktif ? '#fff' : A.accent, letterSpacing: '.3px' }}>BUGÜN</span>}
+                          {kapaliVar && !aktif && <span style={{ position: 'absolute', top: 6, right: 6, width: 6, height: 6, borderRadius: '50%', background: '#DC2626' }} />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <button onClick={() => setBlokeOffset(o => o + 7)} aria-label="Sonraki günler"
+                    style={{ flexShrink: 0, width: 34, height: 52, borderRadius: 11, border: `1px solid ${A.line}`, background: A.card, color: A.muted, cursor: 'pointer', fontSize: 18, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>›</button>
+                </div>
+              );
+            })()}
 
             {blokeTarih && (() => {
               const saatler = gunSaatleri(blokeTarih);
