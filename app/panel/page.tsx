@@ -1719,6 +1719,10 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
   const [bloke, setBloke] = useState<string[]>([]);          // "YYYY-MM-DD" veya "YYYY-MM-DD HH:MM"
   const [blokeTarih, setBlokeTarih] = useState('');
   const [blokeOffset, setBlokeOffset] = useState(0); // gün şeridi kaydırma penceresi (7'şer gün)
+  const [blokeMod, setBlokeMod] = useState<'hafta' | 'ay' | 'yil'>('hafta'); // gün seçim görünümü
+  const _bugun = new Date(); _bugun.setHours(0, 0, 0, 0);
+  const [ayCursor, setAyCursor] = useState<{ y: number; m: number }>({ y: _bugun.getFullYear(), m: _bugun.getMonth() }); // Ay görünümü
+  const [yilCursor, setYilCursor] = useState<number>(_bugun.getFullYear()); // Yıl görünümü
   const [blokeSaving, setBlokeSaving] = useState(false);
   const [blokeMsg, setBlokeMsg] = useState('');
   const entities = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
@@ -1954,40 +1958,137 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
               Bir gün seçin; müsait olmadığınız saatleri <strong>kapatın</strong> (kırmızı) — bu saatler hastalara gösterilmez. Gerçek randevular zaten otomatik dolar.
             </p>
 
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: A.muted, marginBottom: 6 }}>Gün</label>
             {(() => {
               const GUN_KISA = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
               const AY_KISA = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
-              const days = Array.from({ length: 7 }, (_, i) => {
-                const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + blokeOffset + i);
-                const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-                return { iso, dow: d.getDay(), gun: d.getDate(), ay: d.getMonth() };
-              });
+              const AY_TAM = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+              const isoOf = (y: number, m: number, d: number) => `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+              const kapaliVar = (iso: string) => bloke.some(x => x === iso || x.startsWith(iso + ' '));
+              const bugun = new Date(); bugun.setHours(0, 0, 0, 0);
+              const bugunIso = isoOf(bugun.getFullYear(), bugun.getMonth(), bugun.getDate());
+              const bugunYM = bugun.getFullYear() * 12 + bugun.getMonth();
+              // Ay içinde herhangi bir kapalı kaydı var mı? (yıl/ay rozeti için)
+              const ayKapaliSayisi = (y: number, m: number) => {
+                const pre = `${y}-${String(m + 1).padStart(2, '0')}-`;
+                const set = new Set<string>();
+                bloke.forEach(x => { if (x.startsWith(pre)) set.add(x.slice(0, 10)); });
+                return set.size;
+              };
+              const btn = (label: string, mod: 'hafta' | 'ay' | 'yil') => (
+                <button onClick={() => setBlokeMod(mod)}
+                  style={{ padding: '6px 16px', borderRadius: 9, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 700, background: blokeMod === mod ? A.card : 'transparent', color: blokeMod === mod ? A.accent : A.muted, boxShadow: blokeMod === mod ? '0 1px 4px rgba(0,0,0,.08)' : 'none', transition: 'all .12s' }}>{label}</button>
+              );
               return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <button onClick={() => setBlokeOffset(o => Math.max(0, o - 7))} disabled={blokeOffset === 0}
-                    aria-label="Önceki günler"
-                    style={{ flexShrink: 0, width: 34, height: 52, borderRadius: 11, border: `1px solid ${A.line}`, background: A.card, color: blokeOffset === 0 ? A.line : A.muted, cursor: blokeOffset === 0 ? 'default' : 'pointer', fontSize: 18, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
-                  <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
-                    {days.map(({ iso, dow, gun, ay }) => {
-                      const aktif = blokeTarih === iso;
-                      const kapaliVar = bloke.some(x => x === iso || x.startsWith(iso + ' '));
-                      const bugun = blokeOffset === 0 && iso === days[0].iso;
-                      return (
-                        <button key={iso} onClick={() => { setBlokeTarih(iso); setBlokeMsg(''); }} title={iso}
-                          style={{ position: 'relative', padding: '8px 2px', borderRadius: 12, border: `1.5px solid ${aktif ? A.accent : A.line}`, background: aktif ? A.accent : A.card, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, transition: 'all .12s' }}>
-                          <span style={{ fontSize: 10.5, fontWeight: 600, color: aktif ? 'rgba(255,255,255,.75)' : A.muted, letterSpacing: '.3px' }}>{GUN_KISA[dow]}</span>
-                          <span style={{ fontSize: 16, fontWeight: 700, color: aktif ? '#fff' : A.text, lineHeight: 1 }}>{gun}</span>
-                          <span style={{ fontSize: 9.5, color: aktif ? 'rgba(255,255,255,.65)' : A.muted }}>{AY_KISA[ay]}</span>
-                          {bugun && <span style={{ fontSize: 8.5, fontWeight: 700, color: aktif ? '#fff' : A.accent, letterSpacing: '.3px' }}>BUGÜN</span>}
-                          {kapaliVar && !aktif && <span style={{ position: 'absolute', top: 6, right: 6, width: 6, height: 6, borderRadius: '50%', background: '#DC2626' }} />}
-                        </button>
-                      );
-                    })}
+                <>
+                  {/* Mod seçici: Hafta · Ay · Yıl */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: A.muted }}>Gün seç</label>
+                    <div style={{ display: 'inline-flex', background: A.page, borderRadius: 11, padding: 3, gap: 2 }}>
+                      {btn('Hafta', 'hafta')}{btn('Ay', 'ay')}{btn('Yıl', 'yil')}
+                    </div>
                   </div>
-                  <button onClick={() => setBlokeOffset(o => o + 7)} aria-label="Sonraki günler"
-                    style={{ flexShrink: 0, width: 34, height: 52, borderRadius: 11, border: `1px solid ${A.line}`, background: A.card, color: A.muted, cursor: 'pointer', fontSize: 18, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>›</button>
-                </div>
+
+                  {/* HAFTA — 7 günlük şerit */}
+                  {blokeMod === 'hafta' && (() => {
+                    const days = Array.from({ length: 7 }, (_, i) => {
+                      const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + blokeOffset + i);
+                      return { iso: isoOf(d.getFullYear(), d.getMonth(), d.getDate()), dow: d.getDay(), gun: d.getDate(), ay: d.getMonth() };
+                    });
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <button onClick={() => setBlokeOffset(o => Math.max(0, o - 7))} disabled={blokeOffset === 0} aria-label="Önceki günler"
+                          style={{ flexShrink: 0, width: 34, height: 52, borderRadius: 11, border: `1px solid ${A.line}`, background: A.card, color: blokeOffset === 0 ? A.line : A.muted, cursor: blokeOffset === 0 ? 'default' : 'pointer', fontSize: 18, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
+                        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
+                          {days.map(({ iso, dow, gun, ay }) => {
+                            const aktif = blokeTarih === iso; const kv = kapaliVar(iso); const bg = iso === bugunIso;
+                            return (
+                              <button key={iso} onClick={() => { setBlokeTarih(iso); setBlokeMsg(''); }} title={iso}
+                                style={{ position: 'relative', padding: '8px 2px', borderRadius: 12, border: `1.5px solid ${aktif ? A.accent : A.line}`, background: aktif ? A.accent : A.card, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, transition: 'all .12s' }}>
+                                <span style={{ fontSize: 10.5, fontWeight: 600, color: aktif ? 'rgba(255,255,255,.75)' : A.muted, letterSpacing: '.3px' }}>{GUN_KISA[dow]}</span>
+                                <span style={{ fontSize: 16, fontWeight: 700, color: aktif ? '#fff' : A.text, lineHeight: 1 }}>{gun}</span>
+                                <span style={{ fontSize: 9.5, color: aktif ? 'rgba(255,255,255,.65)' : A.muted }}>{AY_KISA[ay]}</span>
+                                {bg && <span style={{ fontSize: 8.5, fontWeight: 700, color: aktif ? '#fff' : A.accent, letterSpacing: '.3px' }}>BUGÜN</span>}
+                                {kv && !aktif && <span style={{ position: 'absolute', top: 6, right: 6, width: 6, height: 6, borderRadius: '50%', background: '#DC2626' }} />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <button onClick={() => setBlokeOffset(o => o + 7)} aria-label="Sonraki günler"
+                          style={{ flexShrink: 0, width: 34, height: 52, borderRadius: 11, border: `1px solid ${A.line}`, background: A.card, color: A.muted, cursor: 'pointer', fontSize: 18, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>›</button>
+                      </div>
+                    );
+                  })()}
+
+                  {/* AY — takvim ızgarası (Pzt→Paz) */}
+                  {blokeMod === 'ay' && (() => {
+                    const { y, m } = ayCursor;
+                    const ilk = new Date(y, m, 1); const bosOncesi = (ilk.getDay() + 6) % 7; // Pzt=0
+                    const gunSayisi = new Date(y, m + 1, 0).getDate();
+                    const hucreler: ({ iso: string; gun: number; gecmis: boolean } | null)[] = [];
+                    for (let i = 0; i < bosOncesi; i++) hucreler.push(null);
+                    for (let d = 1; d <= gunSayisi; d++) { const iso = isoOf(y, m, d); hucreler.push({ iso, gun: d, gecmis: iso < bugunIso }); }
+                    const buAyMi = (y * 12 + m) === bugunYM;
+                    return (
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                          <button onClick={() => setAyCursor(c => c.m === 0 ? { y: c.y - 1, m: 11 } : { y: c.y, m: c.m - 1 })} disabled={y * 12 + m <= bugunYM} aria-label="Önceki ay"
+                            style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${A.line}`, background: A.card, color: (y * 12 + m <= bugunYM) ? A.line : A.muted, cursor: (y * 12 + m <= bugunYM) ? 'default' : 'pointer', fontSize: 17, fontFamily: 'inherit' }}>‹</button>
+                          <div style={{ fontSize: 14.5, fontWeight: 700, color: A.text }}>{AY_TAM[m]} {y}</div>
+                          <button onClick={() => setAyCursor(c => c.m === 11 ? { y: c.y + 1, m: 0 } : { y: c.y, m: c.m + 1 })} aria-label="Sonraki ay"
+                            style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${A.line}`, background: A.card, color: A.muted, cursor: 'pointer', fontSize: 17, fontFamily: 'inherit' }}>›</button>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 4 }}>
+                          {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(g => <div key={g} style={{ textAlign: 'center', fontSize: 10.5, fontWeight: 700, color: A.muted, padding: '2px 0' }}>{g}</div>)}
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
+                          {hucreler.map((c, i) => {
+                            if (!c) return <div key={'b' + i} />;
+                            const aktif = blokeTarih === c.iso; const kv = kapaliVar(c.iso); const tumGun = bloke.includes(c.iso); const bg = c.iso === bugunIso;
+                            return (
+                              <button key={c.iso} onClick={() => { if (!c.gecmis) { setBlokeTarih(c.iso); setBlokeMsg(''); } }} disabled={c.gecmis} title={c.iso}
+                                style={{ position: 'relative', aspectRatio: '1 / 1', borderRadius: 10, border: `1.5px solid ${aktif ? A.accent : (bg ? A.accent : A.line)}`, background: aktif ? A.accent : (tumGun ? '#FEF2F2' : A.card), color: c.gecmis ? A.line : (aktif ? '#fff' : (tumGun ? '#B91C1C' : A.text)), cursor: c.gecmis ? 'default' : 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: c.gecmis ? .5 : 1 }}>
+                                {c.gun}
+                                {kv && !aktif && !tumGun && <span style={{ position: 'absolute', top: 4, right: 4, width: 5, height: 5, borderRadius: '50%', background: '#DC2626' }} />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {!buAyMi && <button onClick={() => setAyCursor({ y: bugun.getFullYear(), m: bugun.getMonth() })} style={{ marginTop: 8, background: 'none', border: 'none', color: A.accent, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Bu aya dön</button>}
+                      </div>
+                    );
+                  })()}
+
+                  {/* YIL — 12 ay; aya tıkla → Ay görünümü */}
+                  {blokeMod === 'yil' && (() => {
+                    return (
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                          <button onClick={() => setYilCursor(v => Math.max(bugun.getFullYear(), v - 1))} disabled={yilCursor <= bugun.getFullYear()} aria-label="Önceki yıl"
+                            style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${A.line}`, background: A.card, color: yilCursor <= bugun.getFullYear() ? A.line : A.muted, cursor: yilCursor <= bugun.getFullYear() ? 'default' : 'pointer', fontSize: 17, fontFamily: 'inherit' }}>‹</button>
+                          <div style={{ fontSize: 15, fontWeight: 800, color: A.text }}>{yilCursor}</div>
+                          <button onClick={() => setYilCursor(v => v + 1)} aria-label="Sonraki yıl"
+                            style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${A.line}`, background: A.card, color: A.muted, cursor: 'pointer', fontSize: 17, fontFamily: 'inherit' }}>›</button>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                          {AY_TAM.map((ad, mi) => {
+                            const gecmis = (yilCursor * 12 + mi) < bugunYM;
+                            const say = ayKapaliSayisi(yilCursor, mi);
+                            const buAy = (yilCursor * 12 + mi) === bugunYM;
+                            return (
+                              <button key={ad} onClick={() => { if (!gecmis) { setAyCursor({ y: yilCursor, m: mi }); setBlokeMod('ay'); } }} disabled={gecmis}
+                                style={{ position: 'relative', padding: '16px 8px', borderRadius: 12, border: `1.5px solid ${buAy ? A.accent : A.line}`, background: A.card, color: gecmis ? A.line : A.text, cursor: gecmis ? 'default' : 'pointer', fontFamily: 'inherit', fontSize: 13.5, fontWeight: 700, opacity: gecmis ? .5 : 1, textAlign: 'center' }}>
+                                {ad}
+                                {say > 0 && <span style={{ position: 'absolute', top: 7, right: 7, minWidth: 16, height: 16, padding: '0 4px', borderRadius: 8, background: '#DC2626', color: '#fff', fontSize: 9.5, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{say}</span>}
+                                {buAy && <div style={{ fontSize: 9, fontWeight: 700, color: A.accent, marginTop: 3, letterSpacing: '.3px' }}>BU AY</div>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <div style={{ fontSize: 11.5, color: A.muted, marginTop: 10, lineHeight: 1.5 }}>Kırmızı rozet o aydaki kapalı gün sayısıdır. Düzenlemek için aya tıklayın.</div>
+                      </div>
+                    );
+                  })()}
+                </>
               );
             })()}
 
