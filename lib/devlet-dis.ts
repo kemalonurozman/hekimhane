@@ -20,7 +20,14 @@ async function fetchAll<T = any>(build: () => any, max = 8000): Promise<T[]> {
   return out;
 }
 
-export interface DevletHospital { name: string; il: string; ilce: string; slug: string; ilSlug: string; count: number; }
+// hastaneler rota slug'ı (app/hastaneler/[il]/[ilce]/[slug] ile aynı dönüşüm)
+const trUrl = (s: string) => (s || '').toLowerCase()
+  .replace(/[şŞ]/g, 's').replace(/[ıİ]/g, 'i').replace(/[ğĞ]/g, 'g')
+  .replace(/[üÜ]/g, 'u').replace(/[öÖ]/g, 'o').replace(/[çÇ]/g, 'c').replace(/\s+/g, '-');
+
+// href: standart profesyonel hastane sayfası (/hastaneler/...) — devlet diş hastaneleri
+// hastaneler tablosunda kayıtlı; kullanıcı buraya yönlendirilir (yorum, randevu, harita + roster).
+export interface DevletHospital { name: string; il: string; ilce: string; slug: string; ilSlug: string; count: number; href: string; }
 
 export async function getDevletHospitals(): Promise<DevletHospital[]> {
   const rows = await fetchAll<{ clinic_name: string | null; il: string | null; ilce: string | null }>(
@@ -28,9 +35,20 @@ export async function getDevletHospitals(): Promise<DevletHospital[]> {
   const map: Record<string, DevletHospital> = {};
   rows.forEach(r => {
     if (!r.clinic_name) return;
-    const h = map[r.clinic_name] ||= { name: r.clinic_name, il: r.il || 'Türkiye', ilce: r.ilce || 'Merkez', slug: toSlug(r.clinic_name), ilSlug: toSlug(r.il || 'turkiye'), count: 0 };
+    const h = map[r.clinic_name] ||= { name: r.clinic_name, il: r.il || 'Türkiye', ilce: r.ilce || 'Merkez', slug: toSlug(r.clinic_name), ilSlug: toSlug(r.il || 'turkiye'), count: 0, href: '' };
     h.count++;
   });
+  // Standart hastane sayfası linkini (hastaneler.slug) eşleştir
+  const names = Object.keys(map);
+  if (names.length) {
+    const { data: hrows } = await supabase.from('hastaneler').select('name,il,ilce,slug').in('name', names);
+    const hmap: Record<string, { il: string | null; ilce: string | null; slug: string | null }> = {};
+    ((hrows || []) as any[]).forEach(h => { hmap[h.name] = h; });
+    Object.values(map).forEach(h => {
+      const hr = hmap[h.name];
+      if (hr?.slug) h.href = `/hastaneler/${trUrl(hr.il || 'turkiye')}/${trUrl(hr.ilce || 'merkez')}/${hr.slug}`;
+    });
+  }
   return Object.values(map).sort((a, b) => a.il.localeCompare(b.il, 'tr') || b.count - a.count);
 }
 

@@ -8,7 +8,6 @@ import { KATEGORILER, HASTALIKLAR } from './hastaliklar-data';
 import { BLOG_YAZILARI } from './blog-data';
 import { TEDAVI_SLUGS } from './tedavi-detaylari';
 import { UZMANLIK_REHBERLERI } from './uzmanlik-rehberleri';
-import { getDevletHospitals } from './devlet-dis';
 
 export const BASE = 'https://www.hekimhane.com.tr';
 
@@ -68,12 +67,10 @@ export async function buildSection(section: string): Promise<SmUrl[]> {
       loc: `${BASE}/blog/${b.slug}`, changefreq: 'monthly', priority: 0.6, lastmod: new Date(b.created_at).toISOString(),
       images: b.cover_image ? [{ loc: b.cover_image.startsWith('http') ? b.cover_image : `${BASE}${b.cover_image}`, caption: b.cover_alt || b.title, title: b.title }] : undefined,
     }));
-    // Devlet diş hastaneleri kategorisi + hastane sayfaları
-    let devlet: SmUrl[] = [{ loc: `${BASE}/devlet-dis-hastaneleri`, changefreq: 'weekly', priority: 0.85 }];
-    try {
-      const hosp = await getDevletHospitals();
-      devlet.push(...hosp.map(h => ({ loc: `${BASE}/devlet-dis-hastaneleri/${h.ilSlug}/${h.slug}`, changefreq: 'weekly' as const, priority: 0.7, lastmod })));
-    } catch {}
+    // Devlet diş hastaneleri: kategori sayfası sitemap'te; hastanelerin kendisi
+    // artık standart profesyonel /hastaneler/... sayfasında (sitemap-hastaneler'de zaten var),
+    // custom detay URL'leri oraya 301 yönlendiriyor → burada tekrar listelenmez.
+    const devlet: SmUrl[] = [{ loc: `${BASE}/devlet-dis-hastaneleri`, changefreq: 'weekly', priority: 0.85 }];
     const tedaviDetay: SmUrl[] = TEDAVI_SLUGS.map(s => ({ loc: `${BASE}/tedavi-ucretleri/${s}`, changefreq: 'monthly', priority: 0.75 }));
     return [...statics, ...kategori, ...hastalik, ...blog, ...devlet, ...tedaviDetay];
   }

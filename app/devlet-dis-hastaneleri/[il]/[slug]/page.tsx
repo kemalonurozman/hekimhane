@@ -3,7 +3,7 @@ export const revalidate = 0;
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { getHospitalWithDoctors } from '@/lib/devlet-dis';
 
 interface Props { params: { il: string; slug: string } }
@@ -27,6 +27,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function HastaneDoktorlariPage({ params }: Props) {
   const res = await getHospitalWithDoctors(params.il, params.slug);
   if (!res) notFound();
+  // Devlet diş hastaneleri artık standart profesyonel hastane sayfasında (yorum, randevu,
+  // harita + Hekimler roster). Kayıtlı hastaneye kalıcı olarak yönlendir.
+  if (res.hospital.href) permanentRedirect(res.hospital.href);
   const { hospital, doctors } = res;
   const shortName = hospital.name.replace('T.C. Sağlık Bakanlığı ', '');
 

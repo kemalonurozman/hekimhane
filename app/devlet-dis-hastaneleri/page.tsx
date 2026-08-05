@@ -50,7 +50,7 @@ export default async function DevletDisPage({ searchParams }: { searchParams: Re
         { '@type': 'ListItem', position: 2, name: 'Devlet Diş Hastaneleri', item: 'https://www.hekimhane.com.tr/devlet-dis-hastaneleri' },
       ] },
       { '@type': 'ItemList', name: 'Devlet Ağız ve Diş Sağlığı Hastaneleri', numberOfItems: hospitals.length,
-        itemListElement: hospitals.slice(0, 30).map((h, i) => ({ '@type': 'ListItem', position: i + 1, name: h.name, url: `https://www.hekimhane.com.tr/devlet-dis-hastaneleri/${h.ilSlug}/${h.slug}` })) },
+        itemListElement: hospitals.slice(0, 30).map((h, i) => ({ '@type': 'ListItem', position: i + 1, name: h.name, url: h.href ? `https://www.hekimhane.com.tr${h.href}` : `https://www.hekimhane.com.tr/devlet-dis-hastaneleri/${h.ilSlug}/${h.slug}` })) },
     ],
   };
 
@@ -105,7 +105,7 @@ export default async function DevletDisPage({ searchParams }: { searchParams: Re
             <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 700, color: 'var(--navy)', marginBottom: 12 }}>{il}</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 12 }}>
               {byIl[il].map(h => (
-                <Link key={h.slug} href={`/devlet-dis-hastaneleri/${h.ilSlug}/${h.slug}`} style={{ ...card, padding: '16px 18px' }}>
+                <Link key={h.slug} href={h.href || `/devlet-dis-hastaneleri/${h.ilSlug}/${h.slug}`} style={{ ...card, padding: '16px 18px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg,var(--navy),var(--navy2))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <i className="fa-solid fa-hospital" style={{ color: 'white', fontSize: 16 }} />
