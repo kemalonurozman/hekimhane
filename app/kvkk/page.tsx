@@ -210,7 +210,7 @@ export default function KVKKPage() {
               {[
                 { icon: '📧', label: 'E-posta', value: 'kvkk@hekimhane.com.tr', note: 'Kayıtlı e-posta veya noter onaylı imza gerekebilir' },
                 { icon: '📬', label: 'Posta', value: 'Hekimhane, [Adres]', note: 'Kimlik fotokopisi ile birlikte' },
-                { icon: '📝', label: 'Online Form', value: 'iletisim@hekimhane.com.tr', note: 'KVKK başvuru formu ile' },
+                { icon: '📝', label: 'Online Form', value: 'hekimhane.com.tr/iletisim', note: 'İletişim formu üzerinden' },
               ].map(item => (
                 <div key={item.label} style={{ display: 'flex', gap: 14, padding: '14px 18px', background: 'white', borderRadius: 10, border: '1px solid var(--border)', alignItems: 'flex-start' }}>
                   <span style={{ fontSize: 22, flexShrink: 0 }}>{item.icon}</span>

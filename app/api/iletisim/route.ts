@@ -1,5 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { sendEmail, mailShell, satir, satirTel } from '@/lib/email';
+
+const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
 function adminClient() {
   return createClient(
@@ -50,6 +53,46 @@ export async function POST(req: NextRequest) {
       console.error('iletisim insert error:', error.message);
       return NextResponse.json({ error: 'Mesaj gönderilemedi. Lütfen tekrar deneyin.' }, { status: 500 });
     }
+
+    // ── E-posta bildirimleri (best-effort; RESEND_API_KEY yoksa sessizce atlar) ──
+    const kullaniciEmail = String(email).trim();
+    try {
+      // 1) Admin'e bildirim — yanıtla dediğinde doğrudan kullanıcıya gider
+      await sendEmail({
+        to: ADMIN_EMAIL,
+        subject: `Yeni iletişim mesajı — ${konuEtiket}`,
+        replyTo: kullaniciEmail,
+        html: mailShell('Yeni İletişim Mesajı', `
+          ${satir('Konu', konuEtiket)}
+          ${satir('Ad Soyad', adSoyad)}
+          ${satir('E-posta', kullaniciEmail)}
+          ${satirTel('Telefon', String(tel || ''))}
+          <div style="margin:14px 0 4px;border-top:1px solid #E5E5EA;padding-top:14px;">
+            <strong style="color:#6E6E73;font-size:14px;">Mesaj:</strong>
+            <p style="margin:6px 0 0;font-size:14px;color:#1c1c1e;line-height:1.6;white-space:pre-wrap;">${String(mesaj).trim().replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c] || c))}</p>
+          </div>
+          <p style="margin:16px 0 0;font-size:12px;color:#9CA3AF;">Bu e-postayı yanıtlayarak doğrudan kullanıcıya dönüş yapabilirsiniz.</p>
+        `),
+      });
+      // 2) Kullanıcıya onay
+      await sendEmail({
+        to: kullaniciEmail,
+        subject: 'Mesajınız alındı — Hekimhane',
+        html: mailShell('Mesajınız Alındı', `
+          <p style="margin:0 0 12px;font-size:14px;color:#1c1c1e;line-height:1.6;">Merhaba ${adSoyad.split(' ')[0] || ''},</p>
+          <p style="margin:0 0 12px;font-size:14px;color:#1c1c1e;line-height:1.6;">Bize ulaştığınız için teşekkürler. Mesajınızı aldık ve en geç <strong>24 saat</strong> içinde size dönüş yapacağız.</p>
+          <div style="background:#FBF8F2;border-radius:12px;padding:14px 16px;margin:14px 0;">
+            ${satir('Konu', konuEtiket)}
+            <p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">Mesajınız:</strong></p>
+            <p style="margin:4px 0 0;font-size:13.5px;color:#6E6E73;line-height:1.6;white-space:pre-wrap;">${String(mesaj).trim().replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c] || c))}</p>
+          </div>
+        `),
+      });
+    } catch (e) {
+      console.error('iletisim mail error:', e instanceof Error ? e.message : e);
+      // mail hatası akışı bozmaz — kayıt zaten alındı
+    }
+
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: 'Geçersiz istek.' }, { status: 400 });

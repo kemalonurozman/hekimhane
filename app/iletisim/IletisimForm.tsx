@@ -47,7 +47,7 @@ export default function IletisimForm() {
         </div>
         <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 800, marginBottom: 8 }}>Mesajınız Alındı</h2>
         <p style={{ color: 'var(--muted)', fontSize: 14.5, lineHeight: 1.6 }}>
-          En geç 24 saat içinde <strong>{f.email}</strong> adresinden size dönüş yapacağız.
+          En geç 24 saat içinde <strong>{f.email}</strong> adresine dönüş yapacağız. Onay e-postası gönderdik.
         </p>
       </div>
     );

@@ -39,7 +39,7 @@ export default function IletisimPage() {
 
           {/* İletişim kartları */}
           {[
-            { icon: 'fa-envelope', color: '#1B3A69', bg: '#EEF2FF', label: 'E-posta', value: 'iletisim@hekimhane.com.tr', href: 'mailto:iletisim@hekimhane.com.tr' },
+            { icon: 'fa-clock', color: '#1B3A69', bg: '#EEF2FF', label: 'Yanıt Süresi', value: 'En geç 24 saat içinde', href: undefined },
             { icon: 'fa-building', color: '#065F46', bg: '#ECFDF5', label: 'Şirket', value: 'Hekimhane Sağlık Rehberi A.Ş.', href: undefined },
           ].map(item => (
             <div key={item.label} style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '20px 22px', display: 'flex', alignItems: 'flex-start', gap: 14 }}>

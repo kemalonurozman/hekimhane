@@ -71,7 +71,7 @@ Sağlık kuruluşlarının listeleme bilgileri kamuya açık olup gizlilik kapsa
 • Otomatik sistemler vasıtasıyla aleyhinize bir sonucun ortaya çıkmasına itiraz etme
 • Kanuna aykırı işleme nedeniyle zararınızın giderilmesini talep etme
 
-Bu haklarınızı kullanmak için **iletisim@hekimhane.com.tr** adresine başvurabilirsiniz.`,
+Bu haklarınızı kullanmak için **hekimhane.com.tr/iletisim** adresindeki iletişim formu üzerinden başvurabilirsiniz.`,
     },
     {
       title: '7. Çocukların Gizliliği',
