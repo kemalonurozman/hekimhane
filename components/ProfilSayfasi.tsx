@@ -1869,7 +1869,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
           {/* ── HEKİMLER TAB (hastane) — bünyedeki doktorlar, bölüm bölüm ── */}
           {activeTab === 'hekimler' && entityType === 'hastane' && !!hospitalDoctors?.length && (() => {
-            const byBolum = {};
+            const byBolum: Record<string, Doktor[]> = {};
             hospitalDoctors.forEach(d => { const k = d.spec || 'Diğer'; (byBolum[k] || (byBolum[k] = [])).push(d); });
             const bolumler = Object.keys(byBolum).sort((a, b) => a.localeCompare(b, 'tr'));
             return (
