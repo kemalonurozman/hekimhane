@@ -117,10 +117,10 @@ interface FormData {
   mesaj:       string;
 }
 
-const KATEGORILER: { type: BusinessType; label: string; desc: string; renk: string; bg: string; icon: React.ReactNode; soon?: boolean }[] = [
-  { type: 'klinik',  label: 'Diş Kliniği', desc: 'Diş hekimi, ortodontist, implant',     renk: '#1B3A69', bg: '#EEF2FF', icon: <IcTooth /> },
-  { type: 'hastane', label: 'Hastane',      desc: 'Özel, devlet veya dal hastanesi',       renk: '#065F46', bg: '#ECFDF5', icon: <IcHospital />, soon: true },
-  { type: 'doktor',  label: 'Doktor',       desc: 'Her uzmanlık dalından bireysel hekim', renk: '#92400E', bg: '#FEF3C7', icon: <IcDoctor />,   soon: true },
+const KATEGORILER: { type: BusinessType; label: string; desc: string; renk: string; bg: string; icon: React.ReactNode; soon?: boolean; oncelik?: boolean }[] = [
+  { type: 'klinik',  label: 'Diş Kliniği / Diş Hekimi', desc: 'Diş hekimi, ortodontist, implant — önceliğimiz', renk: '#1B3A69', bg: '#EEF2FF', icon: <IcTooth />, oncelik: true },
+  { type: 'hastane', label: 'Hastane',      desc: 'Özel, devlet veya dal hastanesi',       renk: '#065F46', bg: '#ECFDF5', icon: <IcHospital /> },
+  { type: 'doktor',  label: 'Doktor',       desc: 'Her uzmanlık dalından bireysel hekim', renk: '#92400E', bg: '#FEF3C7', icon: <IcDoctor /> },
   { type: 'eczane',  label: 'Eczane',       desc: 'Eczane ve nöbetçi eczane bilgisi',     renk: '#6D28D9', bg: '#F5F3FF', icon: <IcPill />,     soon: true },
 ];
 
@@ -479,6 +479,16 @@ export default function KatilPage() {
                       borderRadius: 20, padding: '3px 10px',
                     }}>
                       Yakında
+                    </span>
+                  )}
+                  {k.oncelik && (
+                    <span style={{
+                      position: 'absolute', top: 14, right: 14,
+                      fontSize: 10.5, fontWeight: 800, letterSpacing: '.6px', textTransform: 'uppercase',
+                      color: '#8A6A16', background: '#FBF4DD', border: '1px solid #E9CE7E',
+                      borderRadius: 20, padding: '3px 10px',
+                    }}>
+                      Önerilen
                     </span>
                   )}
                   <div style={{ width: 62, height: 62, borderRadius: 18, background: k.bg, color: k.renk, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 4px 14px ${k.renk}18` }}>
