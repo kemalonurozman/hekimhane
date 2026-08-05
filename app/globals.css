@@ -468,6 +468,11 @@ button {
   }
 }
 
+/* Katıl kategori kartları — dar ekranda tek sütun (taşmayı önler) */
+@media (max-width: 600px) {
+  .katil-kat-grid { grid-template-columns: 1fr !important; }
+}
+
 /* ── Responsive grid yardımcıları (mobilde sütun sayısını azaltır) ── */
 @media (max-width: 640px) {
   .m-grid-2 { grid-template-columns: repeat(2, 1fr) !important; }

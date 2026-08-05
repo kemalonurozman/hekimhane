@@ -455,7 +455,7 @@ export default function KatilPage() {
               <p style={{ color: 'var(--muted)', fontSize: 15 }}>Hangi türde işletme listelemek istiyorsunuz?</p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 18, maxWidth: 720, margin: '0 auto 56px' }}>
+            <div className="katil-kat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 18, maxWidth: 720, margin: '0 auto 56px' }}>
               {KATEGORILER.map(k => (
                 <button key={k.type} onClick={() => { if (!k.soon) handleTypeSelect(k.type); }}
                   disabled={k.soon}
@@ -567,7 +567,7 @@ export default function KatilPage() {
                 </div>
 
                 {/* Ad Soyad + Ünvan */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div className="form-two-col">
                   <div>
                     <label style={lbl}>Ad Soyad <span style={{ color: '#EF4444' }}>*</span></label>
                     <input type="text" value={form.ad_soyad} placeholder="Adınız Soyadınız"
@@ -588,7 +588,7 @@ export default function KatilPage() {
                 </div>
 
                 {/* Tel + Email */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div className="form-two-col">
                   <div>
                     <label style={lbl}>İşletme Telefonu <span style={{ color: '#EF4444' }}>*</span></label>
                     <input type="tel" value={form.tel} placeholder="0500 000 00 00"
@@ -618,7 +618,7 @@ export default function KatilPage() {
                 </div>
 
                 {/* İl + İlçe */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div className="form-two-col">
                   <div>
                     <label style={lbl}>Şehir <span style={{ color: '#EF4444' }}>*</span></label>
                     <select value={form.il} onChange={e => setForm(f => ({ ...f, il: e.target.value, ilce: '' }))}
