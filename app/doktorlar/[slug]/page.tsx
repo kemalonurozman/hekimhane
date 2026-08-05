@@ -13,6 +13,10 @@ export const dynamic = 'force-dynamic';
 
 interface Props { params: { slug: string } }
 
+const tr = (s: string) => (s||'').toLowerCase()
+  .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
+  .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
+
 async function getData(slug: string) {
   noStore(); // Supabase sonucu bayat kalmasın (premium/edit anında yansısın)
   const { data: raw } = await supabase.from('doktorlar').select('*').eq('slug', slug).single();
@@ -22,7 +26,15 @@ async function getData(slug: string) {
     .eq('entity_type', 'doktor').eq('entity_id', d.id)
     .order('created_at', { ascending: false }).limit(50);
   const yorumlar = ((rawYorumlar || []) as Yorum[]).filter((y: any) => !y.hidden);
-  return { d, yorumlar };
+  // Doktorun çalıştığı hastane sistemde kayıtlıysa → hastane sayfası linki
+  let clinicHref: string | null = null;
+  if (d.clinic_name) {
+    const { data: hosp } = await supabase.from('hastaneler')
+      .select('il,ilce,slug').eq('name', d.clinic_name).maybeSingle();
+    const h = hosp as { il: string | null; ilce: string | null; slug: string | null } | null;
+    if (h?.slug) clinicHref = `/hastaneler/${tr(h.il||'turkiye')}/${tr(h.ilce||'merkez')}/${h.slug}`;
+  }
+  return { d, yorumlar, clinicHref };
 }
 
 export async function generateStaticParams() {
@@ -55,7 +67,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function DoktorProfilPage({ params }: Props) {
   const res = await getData(params.slug);
   if (!res) notFound();
-  const { d, yorumlar } = res;
+  const { d, yorumlar, clinicHref } = res;
 
   const fullName = `${d.ad} ${d.soyad}`.trim();
   const displayLabel = d.unvan ? `${d.unvan} ${fullName}` : fullName;
@@ -131,6 +143,7 @@ export default async function DoktorProfilPage({ params }: Props) {
       name={fullName}
       il={d.il} ilce={d.ilce}
       adres={d.clinic_name}
+      clinicHref={clinicHref}
       lat={d.lat} lng={d.lng}
       tel={d.tel} whatsapp={d.whatsapp}
       email={(d as any).email} contactHidden={(d as any).contact_hidden}

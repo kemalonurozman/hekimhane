@@ -127,6 +127,7 @@ export interface ProfilProps {
   listHref: string; // geri dön linki
   kartSlug?: string | null; // /kart/<slug> — HekimKart dijital kartvizit
   hospitalDoctors?: Doktor[]; // hastane profilinde bünyedeki hekimler (clinic_name eşleşmesi)
+  clinicHref?: string | null; // doktorun çalıştığı hastane sistemde kayıtlıysa → hastane sayfası linki
 }
 
 // ── Yardımcı ─────────────────────────────────────────────────────
@@ -1013,7 +1014,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
 
 // ── Ana Bileşen ───────────────────────────────────────────────────
 export default function ProfilSayfasi(props: ProfilProps) {
-  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, uzmanlikKurum, deneyimBaslangic, deneyimler, sertifikalar, yabanciDiller, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, randevuAktif, randevuSlotDk, bookedSlots, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug, hospitalDoctors } = props;
+  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, uzmanlikKurum, deneyimBaslangic, deneyimler, sertifikalar, yabanciDiller, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, randevuAktif, randevuSlotDk, bookedSlots, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug, hospitalDoctors, clinicHref } = props;
 
   // Gizli iletişim (ör. Bobath terapisti henüz katılmadı) → tel/email/randevu gizlenir
   const contactGizli = contactHidden === true;
@@ -1408,7 +1409,14 @@ export default function ProfilSayfasi(props: ProfilProps) {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: hSub, fontSize: 14, fontWeight: 500, marginBottom: 10 }}>
                 <i className="fa-solid fa-location-dot" style={{ color: 'var(--gold)' }} />
-                {[adres, ilce, il].filter(Boolean).join(', ') || '—'}
+                {clinicHref && adres ? (
+                  <span>
+                    <Link href={clinicHref} title={`${adres} — hastane sayfası`} style={{ color: 'inherit', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: 3, textDecorationColor: 'var(--gold)' }}>{adres}</Link>
+                    {[ilce, il].filter(Boolean).length ? `, ${[ilce, il].filter(Boolean).join(', ')}` : ''}
+                  </span>
+                ) : (
+                  [adres, ilce, il].filter(Boolean).join(', ') || '—'
+                )}
               </div>
               <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: hSubSoft }}>
                 <span><Stars rat={avg} /> <strong style={{ color: hName, fontSize: 16 }}>{avg}</strong></span>
