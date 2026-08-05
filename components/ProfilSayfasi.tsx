@@ -2414,20 +2414,28 @@ export default function ProfilSayfasi(props: ProfilProps) {
               ) : (
                 <>
                   <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 8 }}>Tarih</div>
-                  <div style={{ display: 'flex', gap: 6, marginBottom: 14, opacity: .4, pointerEvents: 'none' }}>
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
                     {Array.from({ length: 5 }, (_, i) => {
                       const d = new Date(); d.setDate(d.getDate() + i);
                       const days = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+                      const aylar = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+                      const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                       return (
-                        <div key={i} style={{ flex: 1, border: '1.5px solid var(--border)', borderRadius: 10, padding: '8px 4px', textAlign: 'center' }}>
+                        <button key={i} type="button"
+                          title={`Hekim ${d.getDate()} ${aylar[d.getMonth()]} gününü henüz online randevuya açmadı — yine de bu tarih için randevu talebi gönderebilirsiniz.`}
+                          onClick={() => { setPreselectDate(iso); setRandevuModal(true); }}
+                          onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.borderColor = '#A7F3D0'; }}
+                          onMouseLeave={e => { e.currentTarget.style.opacity = '.55'; e.currentTarget.style.borderColor = 'var(--border)'; }}
+                          style={{ flex: 1, border: '1.5px dashed var(--border)', background: '#F9FAFB', borderRadius: 10, padding: '8px 4px', textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit', opacity: .55, transition: 'opacity .12s, border-color .12s' }}>
                           <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)' }}>{days[d.getDay()]}</div>
                           <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)' }}>{d.getDate()}</div>
-                        </div>
+                        </button>
                       );
                     })}
                   </div>
-                  <div style={{ textAlign: 'center', padding: '14px 8px 8px', color: 'var(--muted)', fontSize: 13, lineHeight: 1.6 }}>
-                    <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 24, color: '#D1D5DB', display: 'block', marginBottom: 8 }} />Bu işletme için online randevu takvimi henüz aktive edilmemiş.
+                  <div style={{ textAlign: 'center', padding: '10px 8px 8px', color: 'var(--muted)', fontSize: 13, lineHeight: 1.6 }}>
+                    <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 24, color: '#D1D5DB', display: 'block', marginBottom: 8 }} />
+                    Bu işletme online randevu takvimini henüz aktifleştirmedi. Yine de bir tarih seçip <strong>randevu talebi</strong> gönderebilirsiniz — talebiniz hekime iletilir.
                   </div>
                 </>
               )}
