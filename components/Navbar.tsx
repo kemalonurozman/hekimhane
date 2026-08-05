@@ -159,6 +159,7 @@ export default function Navbar() {
   const [regOpen, setRegOpen]         = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [mobileOpen, setMobileOpen]   = useState(false);
+  const [mobGrp, setMobGrp]           = useState<string | null>(null); // mobil akordeon: açık grup
   const dropRef = useRef<HTMLDivElement>(null);
   const regRef = useRef<HTMLDivElement>(null);
   const [svcOpen, setSvcOpen] = useState(false);
@@ -548,17 +549,28 @@ export default function Navbar() {
           {([
             { baslik: 'Hizmetler', items: HIZMETLER, allLabel: 'Tüm Diş Hekimleri', allHref: '/klinikler' },
             { baslik: 'Ağız & Diş Sağlığı', items: HASTALIKLAR, allLabel: 'Tüm Hastalıklar', allHref: '/hastaliklar/dis-sagligi' },
-          ] as const).map(grp => (
-            <div key={grp.baslik} style={{ marginTop: 10 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#86868B', textTransform: 'uppercase', letterSpacing: '.5px', padding: '8px 16px 4px' }}>{grp.baslik}</div>
-              {[...grp.items, [grp.allLabel + ' →', grp.allHref] as [string, string]].map(([lbl, href]) => (
-                <Link key={href + lbl} href={href} onClick={() => setMobileOpen(false)}
-                  style={{ display: 'flex', alignItems: 'center', minHeight: 46, padding: '0 16px', borderRadius: 12, fontSize: 15.5, fontWeight: 500, color: '#1D1D1F', textDecoration: 'none' }}>
-                  {lbl}
-                </Link>
-              ))}
-            </div>
-          ))}
+          ] as const).map(grp => {
+            const acik = mobGrp === grp.baslik;
+            return (
+              <div key={grp.baslik} style={{ marginBottom: 4 }}>
+                <button type="button" onClick={() => setMobGrp(acik ? null : grp.baslik)} aria-expanded={acik}
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 52, padding: '0 16px', borderRadius: 12, fontSize: 17, fontWeight: acik ? 700 : 500, letterSpacing: '-.2px', color: acik ? '#1B3A69' : '#1D1D1F', background: acik ? 'rgba(27,58,105,.07)' : 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+                  {grp.baslik}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={acik ? '#1B3A69' : '#86868B'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: acik ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform .2s', flexShrink: 0 }}><path d="m6 9 6 6 6-6" /></svg>
+                </button>
+                {acik && (
+                  <div style={{ padding: '2px 0 6px' }}>
+                    {[...grp.items, [grp.allLabel + ' →', grp.allHref] as [string, string]].map(([lbl, href]) => (
+                      <Link key={href + lbl} href={href} onClick={() => setMobileOpen(false)}
+                        style={{ display: 'flex', alignItems: 'center', minHeight: 44, padding: '0 16px 0 28px', borderRadius: 12, fontSize: 15, fontWeight: 500, color: '#3A3A3C', textDecoration: 'none' }}>
+                        {lbl}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
 
         {/* ── Auth section at bottom ── */}
