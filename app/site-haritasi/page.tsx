@@ -51,7 +51,6 @@ export default async function SiteHaritasi() {
         { label: 'Blog', href: '/blog' },
         { label: 'Karşılaştır', href: '/karsilastir' },
         { label: 'HekimKart — Dijital Kartvizit', href: '/hekimkart' },
-        { label: '360° Fotoğraf', href: '/360-fotograf' },
         { label: 'Kliniğinizi Ekleyin', href: '/katil' },
       ],
     },
