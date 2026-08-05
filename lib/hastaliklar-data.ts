@@ -3493,6 +3493,257 @@ export const HASTALIKLAR: Hastalik[] = [
     ],
   },
 
+  // ── d021. ORAL LİKEN PLANUS (nadir) ────────────────
+  {
+    slug: 'oral-liken-planus',
+    ad: 'Oral Liken Planus (Ağız Liken Planusu)',
+    kategoriSlug: 'dis-sagligi',
+    altKategoriSlug: 'agiz',
+    ozet: 'Oral liken planus; ağız mukozasını tutan, bağışıklık sisteminin kendi dokusuna saldırdığı kronik iltihabi bir hastalıktır. Genellikle yanak içinde dantel benzeri beyaz çizgiler (Wickham striyaları) ile kendini gösterir; eroziv formu ağrılıdır ve az da olsa kötü huylu değişim riski taşıdığı için takip gerektirir.',
+    gorulmeOrani: 'Genel nüfusun yaklaşık %1-2\'si; kadınlarda ve orta yaş üzerinde daha sık',
+    yasGrubu: 'Sıklıkla 30-60 yaş; çocuklarda nadir',
+    ciddiyeti: 'orta',
+    belirtiler: [
+      { baslik: 'Dantel benzeri beyaz çizgiler', aciklama: 'Yanak içi mukozada iki taraflı, ağrısız beyaz ağ görünümü (retiküler form) en tipik bulgudur.' },
+      { baslik: 'Kırmızı, eroziv alanlar ve yanma', aciklama: 'Eroziv formda kızarık, soyulmuş ve ağrılı bölgeler oluşur; baharatlı/asidik gıdalarla yanma artar.' },
+      { baslik: 'Diş eti ve dilde tutulum', aciklama: 'Diş etinde parlak kırmızı, hassas görünüm (deskuamatif gingivit) ve dilde beyaz plaklar görülebilir.' },
+    ],
+    nedenler: [
+      { baslik: 'Bağışıklık (T hücre) aracılı hasar', aciklama: 'T lenfositler mukoza taban hücrelerini hedef alır; kesin tetikleyici çoğu vakada bilinmez (idiyopatik).' },
+      { baslik: 'İlaç ve dolgu ilişkili reaksiyon', aciklama: 'Bazı tansiyon/ağrı ilaçları ve amalgam dolgu teması benzer likenoid reaksiyona yol açabilir.' },
+      { baslik: 'Stres ve sistemik ilişki', aciklama: 'Psikolojik stres alevlenmeleri tetikler; hepatit C ile ilişki bazı toplumlarda bildirilmiştir.' },
+    ],
+    taniYontemleri: [
+      { ad: 'Klinik Muayene', aciklama: 'İki taraflı dantel görünümü ve dağılımı deneyimli hekim için oldukça tipiktir.' },
+      { ad: 'Biyopsi', aciklama: 'Eroziv/atipik lezyonlarda tanıyı kesinleştirmek ve kötü huylu değişimi dışlamak için doku örneği alınır.' },
+      { ad: 'Periyodik Takip', aciklama: 'Kötü huylu dönüşüm riski düşük ama sıfır değildir; 6-12 ayda bir kontrol önerilir.' },
+    ],
+    tedaviSecenekleri: [
+      { tip: 'Topikal Kortikosteroid', ikon: '🧴', aciklama: 'Eroziv ve ağrılı formda ağız içi kortizonlu jel/gargara iltihabı baskılar; ilk basamak tedavidir.' },
+      { tip: 'Tetikleyiciyi Uzaklaştırma', ikon: '💊', aciklama: 'Şüpheli ilaç değişimi veya amalgam dolgunun yenilenmesi likenoid reaksiyonu gerileterek belirti verir.' },
+      { tip: 'Ağız Hijyeni ve Takip', ikon: '🦷', aciklama: 'Nazik fırçalama, baharatlı gıdalardan kaçınma ve düzenli kontrol nüksleri ve komplikasyonu azaltır.' },
+    ],
+    riskFaktorleri: [
+      'Orta yaş ve kadın cinsiyet',
+      'Kronik stres',
+      'Bazı tansiyon ve ağrı kesici ilaçlar',
+      'Amalgam dolguya karşı temas duyarlılığı',
+      'Hepatit C (bazı toplumlarda)',
+    ],
+    korunmaYollari: [
+      'Baharatlı, asidik ve çok sıcak gıdalardan kaçının',
+      'Yumuşak fırça ile nazik ağız bakımı yapın',
+      'Stres yönetimine önem verin',
+      'Beyaz veya kırmızı lezyon 2 haftadan uzun sürerse mutlaka diş hekimine görünün',
+    ],
+    uzmanlik: 'Diş Hekimliği',
+    ilgiliHastaliklar: ['lokoplaki', 'agiz-kanseri', 'aft'],
+    sikSorilanSorular: [
+      { soru: 'Oral liken planus bulaşıcı mı?', cevap: 'Hayır. Bağışıklık sistemi kaynaklı bir hastalıktır; öpüşme, çatal-kaşık paylaşımı veya temasla bulaşmaz.' },
+      { soru: 'Kansere döner mi?', cevap: 'Çoğu vaka iyi huyludur; ancak özellikle eroziv form düşük oranda (yaklaşık %1) kötü huylu değişim riski taşıdığı için düzenli takip şarttır.' },
+    ],
+  },
+
+  // ── d022. AĞIZ YANMASI SENDROMU (nadir) ────────────
+  {
+    slug: 'agiz-yanmasi-sendromu',
+    ad: 'Ağız Yanması Sendromu (Burning Mouth)',
+    kategoriSlug: 'dis-sagligi',
+    altKategoriSlug: 'agiz',
+    ozet: 'Ağız yanması sendromu; ağızda görünür bir lezyon veya laboratuvar bulgusu olmadığı hâlde dil, dudak veya tüm ağızda süregelen yanma, karıncalanma ve haşlanmış his ile seyreden kronik ağrı durumudur. Çoğunlukla menopoz dönemindeki kadınları etkiler ve tanısı diğer nedenler dışlanarak konur.',
+    gorulmeOrani: 'Genel nüfusun yaklaşık %1-4\'ü; menopoz sonrası kadınlarda belirgin şekilde artar',
+    yasGrubu: 'Sıklıkla 50 yaş üzeri, özellikle kadınlar',
+    ciddiyeti: 'düşük',
+    belirtiler: [
+      { baslik: 'Dil ucunda haşlanma hissi', aciklama: 'En çok dil ucu ve kenarında, sıcak içecekle haşlanmış gibi süregelen yanma olur.' },
+      { baslik: 'Gün içinde artan şiddet', aciklama: 'Sabah hafif başlayıp akşama doğru şiddetlenmesi tipiktir; yemek yerken paradoksal olarak azalabilir.' },
+      { baslik: 'Ağız kuruluğu ve tat değişikliği', aciklama: 'Metalik veya acı tat ile birlikte ağız kuruluğu hissi eşlik edebilir.' },
+    ],
+    nedenler: [
+      { baslik: 'Sinir (nöropatik) kaynaklı', aciklama: 'Ağız mukozasındaki ince duyu sinirlerinin işlev bozukluğu birincil formun temelini oluşturur.' },
+      { baslik: 'Hormonal değişim', aciklama: 'Menopozda östrojen düşüşü mukoza duyarlılığını artırır; bu nedenle kadınlarda daha sıktır.' },
+      { baslik: 'Eksiklik ve sistemik nedenler', aciklama: 'B12, folat, demir eksikliği, diyabet, ağız kuruluğu ve mantar enfeksiyonu ikincil forma yol açabilir.' },
+    ],
+    taniYontemleri: [
+      { ad: 'Dışlama Tanısı', aciklama: 'Görünür lezyon, mantar, eksiklik ve refü gibi nedenler dışlandığında birincil tanı konur.' },
+      { ad: 'Kan Testleri', aciklama: 'B12, folat, demir, ferritin ve kan şekeri bakılarak düzeltilebilir nedenler araştırılır.' },
+      { ad: 'Tükürük ve Mantar Değerlendirmesi', aciklama: 'Ağız kuruluğu ve kandida enfeksiyonu ekarte edilir.' },
+    ],
+    tedaviSecenekleri: [
+      { tip: 'Nöropatik Ağrı İlaçları', ikon: '💊', aciklama: 'Düşük doz klonazepam, gabapentin veya bazı antidepresanlar sinir kaynaklı yanmayı azaltmada etkilidir.' },
+      { tip: 'Eksikliklerin Giderilmesi', ikon: '🧴', aciklama: 'B12/demir eksikliği veya mantar varsa tedavi edilince ikincil form belirgin biçimde geriler.' },
+      { tip: 'Tetikleyicilerden Kaçınma ve Destek', ikon: '🦷', aciklama: 'Baharatlı-asidik gıda, alkollü gargara ve sigaradan uzak durmak; stres yönetimi ve bol su semptomu hafifletir.' },
+    ],
+    riskFaktorleri: [
+      'Menopoz ve kadın cinsiyet',
+      'B12, folat, demir eksikliği',
+      'Ağız kuruluğu (kserostomi)',
+      'Anksiyete ve depresyon',
+      'Diyabet',
+    ],
+    korunmaYollari: [
+      'Baharatlı, asidik ve çok sıcak gıdaları sınırlayın',
+      'Alkol içeren gargaralardan kaçının, bol su için',
+      'Vitamin-mineral değerlerinizi düzenli kontrol ettirin',
+      'Stres ve uyku düzeninize dikkat edin',
+    ],
+    uzmanlik: 'Diş Hekimliği',
+    ilgiliHastaliklar: ['kserostomi', 'oral-kandida', 'cografi-dil'],
+    sikSorilanSorular: [
+      { soru: 'Ağzımda hiçbir yara yok ama sürekli yanıyor, normal mi?', cevap: 'Görünür bir bulgu olmadan süregelen yanma tam olarak bu sendromun tanımıdır. Yine de eksiklik, mantar ve diyabet gibi nedenlerin dışlanması için hekime başvurmalısınız.' },
+      { soru: 'Geçer mi?', cevap: 'İkincil formda altta yatan neden düzeltilince genellikle geçer. Birincil (nöropatik) formda ise ilaç ve yaşam düzenlemesiyle şiddeti belirgin biçimde azaltılabilir.' },
+    ],
+  },
+
+  // ── d023. HİPODONTİ (nadir — konjenital diş eksikliği) ─
+  {
+    slug: 'hipodonti',
+    ad: 'Hipodonti (Konjenital Diş Eksikliği)',
+    kategoriSlug: 'dis-sagligi',
+    altKategoriSlug: 'dis',
+    ozet: 'Hipodonti; bir veya birkaç dişin doğuştan hiç oluşmaması durumudur. En sık yan kesici dişler ve alt küçük azılar eksik olur. Genetik kökenlidir; hem estetik hem de çiğneme ve kapanış sorunlarına yol açabildiği için çoğu vakada ortodonti ve protez ile birlikte planlanır.',
+    gorulmeOrani: 'Yirmilik dişler hariç toplumda yaklaşık %5-6; şiddetli formu (oligodonti) çok nadir',
+    yasGrubu: 'Doğuştan; genellikle çocuklukta süt dişleri düşünce fark edilir',
+    ciddiyeti: 'düşük',
+    belirtiler: [
+      { baslik: 'Eksik veya hiç çıkmayan diş', aciklama: 'Beklenen yaşta bazı kalıcı dişlerin hiç sürmemesi; süt dişinin uzun süre yerinde kalması.' },
+      { baslik: 'Dişler arası boşluklar', aciklama: 'Eksik diş nedeniyle diastema (boşluk) ve komşu dişlerin boşluğa doğru kayması.' },
+      { baslik: 'Kapanış ve estetik sorun', aciklama: 'Özellikle ön bölgede yan kesici eksikliği gülüş estetiğini ve çiğneme dengesini etkiler.' },
+    ],
+    nedenler: [
+      { baslik: 'Genetik yatkınlık', aciklama: 'Diş gelişiminden sorumlu genlerdeki (ör. MSX1, PAX9) varyasyonlar ailesel olarak aktarılabilir.' },
+      { baslik: 'Sendromik ilişki', aciklama: 'Ektodermal displazi ve yarık damak gibi durumlarda çok sayıda diş eksikliği (oligodonti) görülebilir.' },
+      { baslik: 'Gelişimsel etkenler', aciklama: 'Diş tomurcuğunun oluşum evresindeki bozulma nadiren tek diş eksikliğine yol açar.' },
+    ],
+    taniYontemleri: [
+      { ad: 'Panoramik Röntgen', aciklama: 'Çene kemiği içinde diş tomurcuğu olup olmadığını gösteren en temel yöntemdir.' },
+      { ad: 'Klinik ve Yaş Değerlendirmesi', aciklama: 'Sürme takvimine göre gecikme mi yoksa gerçek eksiklik mi olduğu ayırt edilir.' },
+      { ad: 'Ortodontik Analiz', aciklama: 'Boşluk yönetimi ve tedavi planı için model ve sefalometrik değerlendirme yapılır.' },
+    ],
+    tedaviSecenekleri: [
+      { tip: 'Ortodonti (Boşluk Yönetimi)', ikon: '🦷', aciklama: 'Diş teli ile boşluk ya kapatılır ya da implant/protez için ideal genişlikte açık bırakılır.' },
+      { tip: 'İmplant veya Köprü', ikon: '💊', aciklama: 'Büyüme tamamlandıktan sonra eksik diş bölgesi implant veya köprü ile kalıcı olarak tamamlanır.' },
+      { tip: 'Kompozit / Laminate Estetik', ikon: '🧴', aciklama: 'Ön bölge estetiği için komşu dişler kompozit ya da kaplama ile şekillendirilerek uyum sağlanır.' },
+    ],
+    riskFaktorleri: [
+      'Ailede diş eksikliği öyküsü',
+      'Ektodermal displazi gibi sendromlar',
+      'Yarık dudak-damak',
+      'Süt dişinin beklenenden uzun kalması',
+    ],
+    korunmaYollari: [
+      'Konjenital eksiklik önlenemez; erken teşhis kilit rol oynar',
+      'Çocuklarda 6-7 yaşında ilk ortodonti kontrolünü yaptırın',
+      'Süt dişi zamanında düşmüyorsa panoramik röntgen çektirin',
+      'Boşlukların komşu dişleri kaydırmaması için hekim takibinde kalın',
+    ],
+    uzmanlik: 'Ortodonti',
+    ilgiliHastaliklar: ['dis-kaybi', 'maloklusyon', 'gomulu-dis'],
+    sikSorilanSorular: [
+      { soru: 'Süt dişi düşmüyorsa altında diş yok anlamına mı gelir?', cevap: 'Her zaman değil, ancak güçlü bir ipucudur. Kesin karar için panoramik röntgen ile alttaki kalıcı diş tomurcuğunun varlığı kontrol edilmelidir.' },
+      { soru: 'Eksik diş yerine ne yapılır?', cevap: 'Yaşa ve boşluğa göre ortodonti ile boşluk kapatma, implant veya köprü seçenekleri planlanır. Büyüme çağında implant genellikle beklenir.' },
+    ],
+  },
+
+  // ── d024. HİPERDONTİ (nadir — fazla diş) ───────────
+  {
+    slug: 'hiperdonti',
+    ad: 'Hiperdonti (Fazla / Süpernümerer Diş)',
+    kategoriSlug: 'dis-sagligi',
+    altKategoriSlug: 'dis',
+    ozet: 'Hiperdonti; normal diş sayısının üzerinde fazladan diş bulunması durumudur. En sık iki üst ön kesici arasında görülen mesiodens tipidir. Fazla diş çoğu zaman gömülü kalır; komşu dişlerin sürmesini engelleyebildiği ve boşluk/sıkışmaya yol açabildiği için genellikle çekilir.',
+    gorulmeOrani: 'Toplumda yaklaşık %1-3; erkeklerde ve üst çenede daha sık',
+    yasGrubu: 'Çocukluk ve ergenlik; sıklıkla röntgende tesadüfen fark edilir',
+    ciddiyeti: 'düşük',
+    belirtiler: [
+      { baslik: 'Ön dişler arası boşluk', aciklama: 'Mesiodens iki üst kesici arasında geniş bir boşluk (diastema) oluşturabilir.' },
+      { baslik: 'Kalıcı dişin geç sürmesi', aciklama: 'Fazla diş, komşu kalıcı dişin sürme yolunu tıkayarak onu gömülü bırakabilir.' },
+      { baslik: 'Sıkışıklık ve düzensizlik', aciklama: 'Ek diş yer darlığı yaratıp çapraşıklığa ve kapanış bozukluğuna neden olabilir.' },
+    ],
+    nedenler: [
+      { baslik: 'Diş lamininin aşırı etkinliği', aciklama: 'Diş oluşumundan sorumlu dokunun fazla tomurcuk üretmesi süpernümerer dişe yol açar.' },
+      { baslik: 'Genetik ve ailesel eğilim', aciklama: 'Ailede fazla diş öyküsü olan bireylerde görülme olasılığı artar.' },
+      { baslik: 'Sendromik ilişki', aciklama: 'Kleidokraniyal displazi ve Gardner sendromu gibi durumlarda çok sayıda fazla diş bulunabilir.' },
+    ],
+    taniYontemleri: [
+      { ad: 'Panoramik / Periapikal Röntgen', aciklama: 'Fazla dişin varlığını, konumunu ve komşu dişlerle ilişkisini gösterir.' },
+      { ad: '3B Tomografi (KIBT)', aciklama: 'Gömülü fazla dişin tam konumu ve çekim planı için üç boyutlu görüntüleme kullanılır.' },
+      { ad: 'Klinik Muayene', aciklama: 'Sürme gecikmesi ve boşluk gibi bulgular değerlendirilir.' },
+    ],
+    tedaviSecenekleri: [
+      { tip: 'Cerrahi Çekim', ikon: '🦷', aciklama: 'Komşu dişe zarar veren veya sürmeyi engelleyen fazla diş çene cerrahisiyle çıkarılır.' },
+      { tip: 'Ortodontik Düzeltme', ikon: '💊', aciklama: 'Çekim sonrası oluşan boşluk veya sıkışıklık diş teli ile düzeltilir; gömülü kalan komşu diş sürdürülür.' },
+      { tip: 'Takip', ikon: '🧴', aciklama: 'Belirti vermeyen, komşu dişe zarar vermeyen bazı fazla dişler cerrahi yerine periyodik röntgenle izlenebilir.' },
+    ],
+    riskFaktorleri: [
+      'Ailede fazla diş öyküsü',
+      'Erkek cinsiyet',
+      'Kleidokraniyal displazi, Gardner sendromu',
+      'Yarık damak',
+    ],
+    korunmaYollari: [
+      'Önlenemez; erken röntgenle erken teşhis önemlidir',
+      'Çocuklarda ön dişler geç sürüyor ya da aralıklıysa hekime danışın',
+      'Fazla diş komşu dişe zarar vermeden çıkarılmalı; hekim takibinde kalın',
+      'Ortodonti değerlendirmesini geciktirmeyin',
+    ],
+    uzmanlik: 'Ağız Diş ve Çene Cerrahisi',
+    ilgiliHastaliklar: ['gomulu-dis', 'maloklusyon', 'hipodonti'],
+    sikSorilanSorular: [
+      { soru: 'Fazla diş mutlaka çekilmeli mi?', cevap: 'Hayır. Komşu dişe zarar vermeyen, sürmeyi engellemeyen ve belirti vermeyen bazı fazla dişler röntgenle takip edilebilir. Karar diş hekiminindir.' },
+      { soru: 'Mesiodens nedir?', cevap: 'İki üst ön kesici diş arasında yer alan en sık görülen fazla diş tipidir; genellikle ön dişler arasında boşluk yapar ve gömülü kalabilir.' },
+    ],
+  },
+
+  // ── d025. AMELOGENEZİS İMPERFEKTA (nadir — mine kusuru) ─
+  {
+    slug: 'amelogenezis-imperfekta',
+    ad: 'Amelogenezis İmperfekta (Mine Gelişim Kusuru)',
+    kategoriSlug: 'dis-sagligi',
+    altKategoriSlug: 'dis',
+    ozet: 'Amelogenezis imperfekta; diş minesinin doğuştan hatalı oluştuğu kalıtsal bir bozukluktur. Hem süt hem kalıcı dişleri etkiler; mine ince, yumuşak veya lekelidir. Dişler sarımsı-kahverengi görünür, kolay aşınır ve hassastır. Erken koruyucu tedavi ve kaplama ile hem estetik hem işlev korunur.',
+    gorulmeOrani: 'Çok nadir; yaklaşık 1/700 – 1/14.000 arası (toplumdan topluma değişir)',
+    yasGrubu: 'Doğuştan; süt dişlerinden itibaren belirgindir',
+    ciddiyeti: 'orta',
+    belirtiler: [
+      { baslik: 'Sarı-kahverengi, pürüzlü dişler', aciklama: 'Mine ince veya yumuşak olduğundan dişler renk değişikliği ve pürüzlü yüzey gösterir.' },
+      { baslik: 'Aşırı hassasiyet', aciklama: 'İnce/eksik mine nedeniyle sıcak-soğuk ve tatlıya karşı belirgin diş hassasiyeti olur.' },
+      { baslik: 'Hızlı aşınma ve kırılma', aciklama: 'Zayıf mine kısa sürede aşınır, ufalanır; boy kısalması ve kapanış düşüklüğü gelişebilir.' },
+    ],
+    nedenler: [
+      { baslik: 'Kalıtsal gen kusuru', aciklama: 'Mine proteinlerini kodlayan genlerdeki (ör. AMELX, ENAM, MMP20) mutasyonlar mine oluşumunu bozar.' },
+      { baslik: 'Kalıtım biçimi', aciklama: 'X\'e bağlı, otozomal dominant veya resesif geçiş gösterebilir; aile öyküsü sıktır.' },
+      { baslik: 'Yalnız mineyi etkiler', aciklama: 'Florozis veya antibiyotik lekesinden farklı olarak neden diş gelişiminin mine evresindeki genetik hatadır.' },
+    ],
+    taniYontemleri: [
+      { ad: 'Klinik Muayene', aciklama: 'Hem süt hem kalıcı dişlerin tamamını simetrik etkilemesi tipik ipucudur.' },
+      { ad: 'Röntgen', aciklama: 'Mine tabakasının ince/yok oluşu ve dentinle kontrast farkı radyografide değerlendirilir.' },
+      { ad: 'Aile Öyküsü ve Genetik Değerlendirme', aciklama: 'Kalıtım biçimini anlamak ve florozisten ayırmak için aile taraması yapılır.' },
+    ],
+    tedaviSecenekleri: [
+      { tip: 'Koruyucu Uygulama (Flor / Fissür Örtücü)', ikon: '🧴', aciklama: 'Erken dönemde hassasiyeti azaltmak ve çürüğü önlemek için yoğun flor ve koruyucu uygulanır.' },
+      { tip: 'Kompozit / Kaplama Restorasyonu', ikon: '🦷', aciklama: 'Aşınan dişler kompozit, laminate veya kron ile kaplanarak boy, estetik ve işlev geri kazanılır.' },
+      { tip: 'Protetik / İmplant Rehabilitasyon', ikon: '💊', aciklama: 'İleri aşınma veya kayıpta erişkinlikte kapsamlı protetik ya da implant destekli çözüm planlanır.' },
+    ],
+    riskFaktorleri: [
+      'Ailede benzer diş görünümü öyküsü',
+      'Akraba evliliği (resesif formlar)',
+      'Genetik sendrom birlikteliği',
+    ],
+    korunmaYollari: [
+      'Kalıtsaldır, önlenemez; ancak erken tedaviyle diş korunabilir',
+      'Süt dişlerinden itibaren düzenli diş hekimi kontrolü şarttır',
+      'Yüksek flor ve koruyucu programa uyun, şekeri sınırlayın',
+      'Aşınmayı yavaşlatmak için sert fırçalama ve asidik gıdadan kaçının',
+    ],
+    uzmanlik: 'Diş Hekimliği',
+    ilgiliHastaliklar: ['dis-hassasiyeti', 'dental-fluorozis', 'mine-erozyonu'],
+    sikSorilanSorular: [
+      { soru: 'Florozisten farkı ne?', cevap: 'Florozis aşırı flor alımına bağlı sonradan oluşan lekelenmedir; amelogenezis imperfekta ise doğuştan gelen genetik bir mine yapım kusurudur ve tüm dişleri simetrik etkiler.' },
+      { soru: 'Bu dişler kurtarılabilir mi?', cevap: 'Evet. Erken koruyucu tedavi, kompozit ve kaplamalarla dişler hem estetik hem işlevsel olarak uzun yıllar korunabilir; ileri vakalarda protetik çözümler uygulanır.' },
+    ],
+  },
+
   // ══════════════════════════════════════════════
   // KADIN SAĞLIĞI — h001–h020
   // ══════════════════════════════════════════════
