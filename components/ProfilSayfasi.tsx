@@ -1764,9 +1764,19 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   {/* Rating summary */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginBottom: 22, flexWrap: 'wrap' }}>
                     <div style={{ textAlign: 'center', flexShrink: 0, minWidth: 100 }}>
-                      <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 52, fontWeight: 800, color: 'var(--navy)', lineHeight: 1 }}>{avg}</div>
-                      <div style={{ margin: '6px 0 4px' }}><Stars rat={avg} size={18} /></div>
-                      <div style={{ fontSize: 12, color: 'var(--muted)' }}>{yorumlar.length} değerlendirme</div>
+                      {yorumlar.length > 0 ? (
+                        <>
+                          <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 52, fontWeight: 800, color: 'var(--navy)', lineHeight: 1 }}>{avg}</div>
+                          <div style={{ margin: '6px 0 4px' }}><Stars rat={avg} size={18} /></div>
+                          <div style={{ fontSize: 12, color: 'var(--muted)' }}>{yorumlar.length} değerlendirme</div>
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, color: 'var(--navy)', lineHeight: 1.1 }}>Yeni</div>
+                          <div style={{ margin: '8px 0 4px' }}><Stars rat={0} size={18} /></div>
+                          <div style={{ fontSize: 12, color: 'var(--muted)' }}>Henüz değerlendirilmedi</div>
+                        </>
+                      )}
                     </div>
                     <div style={{ flex: 1, minWidth: 200, display: 'flex', flexDirection: 'column', gap: 9 }}>
                       {[5,4,3,2,1].map(star => {

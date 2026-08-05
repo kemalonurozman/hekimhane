@@ -143,7 +143,7 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
 
             {/* Yıldız + puan + ücret aynı satırda */}
             <div className="doktor-card__rating-row">
-              {d.rat > 0 && <>
+              {d.rev > 0 && <>
                 <span className="doktor-card__rat-num">{d.rat.toFixed(1)}</span>
                 <Stars rat={d.rat} />
                 {d.rev > 0 && <span className="doktor-card__rev">({d.rev})</span>}

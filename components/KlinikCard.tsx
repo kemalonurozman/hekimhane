@@ -150,7 +150,7 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
           <div className="klinik-card__info">
             <div className="klinik-card__name"><span className="klinik-card__name-shim" aria-hidden="true" />{k.name}</div>
 
-            {k.rat > 0 && (
+            {k.rev > 0 && (
               <div className="klinik-card__rating-row">
                 <span className="klinik-card__rat-num">{k.rat.toFixed(1)}</span>
                 <Stars rat={k.rat} />
