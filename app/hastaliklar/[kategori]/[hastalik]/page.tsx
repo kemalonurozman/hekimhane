@@ -9,6 +9,7 @@ import {
 } from '@/lib/hastaliklar-data';
 import { problemForHastalik } from '@/lib/uzmanlik-data';
 import { toSlug } from '@/lib/helpers';
+import PremiumHekimler from '@/components/PremiumHekimler';
 
 interface Props {
   params: { kategori: string; hastalik: string };
@@ -343,6 +344,9 @@ export default function HastalıkDetayPage({ params }: Props) {
               </section>
             );
           })()}
+
+          {/* Premium ekipten önerilen diş hekimleri — yalnız diş sağlığı hastalıklarında */}
+          {kat.slug === 'dis-sagligi' && <PremiumHekimler uzmanlik={h.uzmanlik} />}
 
         </article>
 
