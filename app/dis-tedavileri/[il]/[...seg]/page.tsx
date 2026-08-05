@@ -12,6 +12,7 @@ import { IL_KONUM } from '@/lib/il-koordinatlari';
 import {
   DENTAL_SPECIALTIES, synonymsForSpec, specFilterValues, resolveSpecOrTreatment, buildDentalFaq, TREATMENTS, DENTAL_PROBLEMS,
 } from '@/lib/uzmanlik-data';
+import { rehberBySpec } from '@/lib/uzmanlik-rehberleri';
 import KlinikCard from '@/components/KlinikCard';
 
 interface Props { params: { il: string; seg: string[] } }
@@ -247,6 +248,11 @@ export default async function DisTedaviPage({ params }: Props) {
                 <i className="fa-solid fa-book-medical" /> {label} nedir? Rehber →
               </Link>
             )}
+            {(() => { const rb = rehberBySpec(spec); return rb ? (
+              <Link href={`/uzmanlik/${rb.slug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'var(--gold)', color: 'var(--navy)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                <i className="fa-solid fa-book-medical" /> {rb.kisaAd} rehberi →
+              </Link>
+            ) : null; })()}
           </div>
         </div>
       </div>
