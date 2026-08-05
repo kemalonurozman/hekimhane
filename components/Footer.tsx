@@ -29,6 +29,7 @@ export default function Footer() {
     ['Hakkımızda',   '/hakkimizda'],
     ['Blog',         '/blog'],
     ['Makale Yayınla', '/makale-yayinla'],
+    ['Randevu Sistemi', '/randevu-sistemi'],
     ['Değerlendirme Sistemi', '/degerlendirme-sistemi'],
     ['İletişim',     '/iletisim'],
   ];
