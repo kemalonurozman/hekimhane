@@ -166,13 +166,12 @@ export default function RandevuSistemiPage() {
           {/* Takvim grafiği: açık / bloke / dolu saat dilimleri */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(74px, 1fr))', gap: 10, marginTop: 18 }}>
             {[
-              { s: '09:00', st: 'acik' }, { s: '10:00', st: 'dolu' }, { s: '11:00', st: 'acik' },
-              { s: '13:00', st: 'bloke' }, { s: '14:00', st: 'acik' }, { s: '15:00', st: 'dolu' },
+              { s: '09:00', st: 'acik' }, { s: '10:00', st: 'bloke' }, { s: '11:00', st: 'acik' },
+              { s: '13:00', st: 'bloke' }, { s: '14:00', st: 'acik' }, { s: '15:00', st: 'acik' },
               { s: '16:00', st: 'acik' }, { s: '17:00', st: 'bloke' },
             ].map((slot, i) => {
               const map: Record<string, { bg: string; bd: string; fg: string; label: string }> = {
                 acik: { bg: '#ECFDF5', bd: '#A7F3D0', fg: '#059669', label: 'Açık' },
-                dolu: { bg: '#EEF2FF', bd: '#C7D2FE', fg: '#2563EB', label: 'Dolu' },
                 bloke: { bg: '#F3F4F6', bd: '#E5E7EB', fg: '#9CA3AF', label: 'Bloke' },
               };
               const m = map[slot.st];
@@ -185,7 +184,7 @@ export default function RandevuSistemiPage() {
             })}
           </div>
           <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginTop: 16 }}>
-            {[['#059669', 'Açık — randevuya uygun'], ['#2563EB', 'Dolu — randevu alınmış'], ['#9CA3AF', 'Bloke — hastalara gösterilmez']].map(([c, t], i) => (
+            {[['#059669', 'Açık — randevuya uygun'], ['#9CA3AF', 'Bloke — hastalara gösterilmez']].map(([c, t], i) => (
               <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: 'var(--muted)' }}>
                 <span style={{ width: 11, height: 11, borderRadius: 3, background: c as string }} />{t}
               </span>
