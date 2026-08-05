@@ -137,7 +137,7 @@ const getUzmanliklar = unstable_cache(async (il?: string) => {
   return Object.entries(map)
     .sort((a, b) => b[1] - a[1])
     .map(([uzmanlik, count]) => ({ value: uzmanlik, label: uzmanlik, count }));
-}, ['klinik-uzmanliklar-v1'], { revalidate: 3600, tags: ['facets'] });
+}, ['klinik-uzmanliklar-v2'], { revalidate: 3600, tags: ['facets'] });
 
 const getIlceler = unstable_cache(async (il?: string) => {
   if (!il) return [];
