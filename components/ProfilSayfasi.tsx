@@ -7,7 +7,9 @@ import { specToHref, dentalComboHref } from '@/lib/uzmanlik-data';
 import { heroBgByKey, coverPresetKey, HERO_BG_CSS, HERO_WAVE_PATHS } from '@/lib/hero-backgrounds';
 import AboneWidget from '@/components/AboneWidget';
 import PremiumBadge from '@/components/PremiumBadge';
+import DoktorCard from '@/components/DoktorCard';
 import { ToothGlyph } from '@/components/Logo';
+import type { Doktor } from '@/lib/types';
 
 // ── Türkiye İl Merkez Koordinatları ──────────────────────────────
 const IL_MERKEZ: Record<string, [number, number]> = {
@@ -124,6 +126,7 @@ export interface ProfilProps {
   breadcrumb: Array<{ label: string; href: string }>;
   listHref: string; // geri dön linki
   kartSlug?: string | null; // /kart/<slug> — HekimKart dijital kartvizit
+  hospitalDoctors?: Doktor[]; // hastane profilinde bünyedeki hekimler (clinic_name eşleşmesi)
 }
 
 // ── Yardımcı ─────────────────────────────────────────────────────
@@ -209,10 +212,11 @@ function maskName(n?: string | null) {
   return `${first} ${initials}`;
 }
 
-const TABS = ['genel', 'meslek', 'konum', 'tur', 'video', 'yorumlar', 'randevu'] as const;
+const TABS = ['genel', 'hekimler', 'meslek', 'konum', 'tur', 'video', 'yorumlar', 'randevu'] as const;
 type Tab = typeof TABS[number];
 const TAB_LABELS: Record<Tab, { icon: string; label: string }> = {
   genel:    { icon: 'fa-circle-info',      label: 'Genel' },
+  hekimler: { icon: 'fa-user-doctor',      label: 'Hekimler' },
   meslek:   { icon: 'fa-user-graduate',    label: 'Mesleki Bilgiler' },
   konum:    { icon: 'fa-map-location-dot', label: 'Konum' },
   tur:      { icon: 'fa-vr-cardboard',     label: '360° Tur' },
@@ -1009,7 +1013,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
 
 // ── Ana Bileşen ───────────────────────────────────────────────────
 export default function ProfilSayfasi(props: ProfilProps) {
-  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, uzmanlikKurum, deneyimBaslangic, deneyimler, sertifikalar, yabanciDiller, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, randevuAktif, randevuSlotDk, bookedSlots, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug } = props;
+  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, uzmanlikKurum, deneyimBaslangic, deneyimler, sertifikalar, yabanciDiller, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, randevuAktif, randevuSlotDk, bookedSlots, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug, hospitalDoctors } = props;
 
   // Gizli iletişim (ör. Bobath terapisti henüz katılmadı) → tel/email/randevu gizlenir
   const contactGizli = contactHidden === true;
@@ -1060,7 +1064,11 @@ export default function ProfilSayfasi(props: ProfilProps) {
     (deneyimBaslangic && deneyimBaslangic >= 1950) || okul || uzmanlikKurum ||
     meslekDeneyimler.length || meslekSertifikalar.length
   );
-  const gorunenTabs = TABS.filter(t => t === 'meslek' ? hasMeslek : true);
+  const hekimSayisi = hospitalDoctors?.length || 0;
+  const gorunenTabs = TABS.filter(t =>
+    t === 'meslek'   ? hasMeslek :
+    t === 'hekimler' ? (entityType === 'hastane' && hekimSayisi > 0) :
+    true);
   useEffect(() => {
     if (!lightboxOpen) return;
     const total = (photos || []).filter(Boolean).length;
@@ -1471,6 +1479,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 {tab === 'yorumlar' && (
                   <span style={{ background: heroLight ? 'rgba(19,43,82,.12)' : 'rgba(255,255,255,.2)', color: hName, padding: '2px 7px', borderRadius: 10, fontSize: 11, marginLeft: 2 }}>{yorumlar.length}</span>
                 )}
+                {tab === 'hekimler' && (
+                  <span style={{ background: heroLight ? 'rgba(19,43,82,.12)' : 'rgba(255,255,255,.2)', color: hName, padding: '2px 7px', borderRadius: 10, fontSize: 11, marginLeft: 2 }}>{hekimSayisi}</span>
+                )}
                 {tab === 'tur' && (
                   <span style={{ background: 'rgba(212,168,67,.2)', color: 'var(--gold)', padding: '2px 7px', borderRadius: 10, fontSize: 10, fontWeight: 700, marginLeft: 2 }}>YENİ</span>
                 )}
@@ -1855,6 +1866,37 @@ export default function ProfilSayfasi(props: ProfilProps) {
               )}
             </>
           )}
+
+          {/* ── HEKİMLER TAB (hastane) — bünyedeki doktorlar, bölüm bölüm ── */}
+          {activeTab === 'hekimler' && entityType === 'hastane' && !!hospitalDoctors?.length && (() => {
+            const byBolum = {};
+            hospitalDoctors.forEach(d => { const k = d.spec || 'Diğer'; (byBolum[k] || (byBolum[k] = [])).push(d); });
+            const bolumler = Object.keys(byBolum).sort((a, b) => a.localeCompare(b, 'tr'));
+            return (
+              <div style={sc}>
+                <div style={scHd}>
+                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Bünyedeki Hekimler</h3>
+                  <span style={{ fontSize: 13, color: 'var(--muted)' }}>{hospitalDoctors.length} hekim · {bolumler.length} bölüm</span>
+                </div>
+                <div style={{ ...scBody, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  {bolumler.map(bolum => (
+                    <div key={bolum}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                        <i className="fa-solid fa-stethoscope" style={{ color: 'var(--gold)', fontSize: 14 }} />
+                        <h4 style={{ fontSize: 15, fontWeight: 700, color: 'var(--navy)', margin: 0 }}>{bolum}</h4>
+                        <span style={{ fontSize: 12, color: 'var(--muted)' }}>({byBolum[bolum].length})</span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 12 }}>
+                        {byBolum[bolum].slice().sort((a, b) => `${a.ad} ${a.soyad}`.localeCompare(`${b.ad} ${b.soyad}`, 'tr')).map(d => (
+                          <DoktorCard key={d.id} doktor={d} />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* ── MESLEKİ BİLGİLER TAB (doktor) ── */}
           {activeTab === 'meslek' && (entityType === 'doktor' || entityType === 'klinik') && (() => {

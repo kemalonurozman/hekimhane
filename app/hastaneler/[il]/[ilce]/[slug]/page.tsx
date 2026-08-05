@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import { openingHoursSpec } from '@/lib/seo';
-import type { Hastane, Yorum } from '@/lib/types';
+import type { Hastane, Yorum, Doktor } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
 import { maskReviewName } from '@/lib/helpers';
 import { bookedSlots } from '@/lib/randevu-booked';
@@ -25,7 +25,11 @@ async function getData(slug: string) {
     .eq('entity_type', 'hastane').eq('entity_id', h.id)
     .order('created_at', { ascending: false }).limit(50);
   const yorumlar = ((rawYorumlar || []) as Yorum[]).filter((y: any) => !y.hidden);
-  return { h, yorumlar };
+  // Bünyedeki hekimler — doktorlar.clinic_name = hastane adı ile eşleşenler (bölüm bölüm gösterilir)
+  const { data: rawDocs } = await supabase.from('doktorlar').select('*')
+    .eq('clinic_name', h.name).limit(500);
+  const hospitalDoctors = ((rawDocs || []) as Doktor[]);
+  return { h, yorumlar, hospitalDoctors };
 }
 
 export async function generateStaticParams() {
@@ -57,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function HastaneProfilPage({ params }: Props) {
   const res = await getData(params.slug);
   if (!res) notFound();
-  const { h, yorumlar } = res;
+  const { h, yorumlar, hospitalDoctors } = res;
 
   const canonical = `https://www.hekimhane.com.tr/hastaneler/${tr(h.il||'turkiye')}/${tr(h.ilce||'merkez')}/${h.slug}`;
   const sameAs = [h.website, h.instagram_url, h.facebook_url, h.linkedin_url].filter(Boolean) as string[];
@@ -130,6 +134,7 @@ export default async function HastaneProfilPage({ params }: Props) {
       acik_24_saat={h.acik_24_saat}
       randevuAktif={(h as any).randevu_aktif} randevuSlotDk={(h as any).randevu_slot_dk} bookedSlots={rvBooked}
       yorumlar={yorumlar}
+      hospitalDoctors={hospitalDoctors}
       kartSlug={h.slug}
       listHref="/hastaneler"
       breadcrumb={[
