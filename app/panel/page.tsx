@@ -4325,22 +4325,30 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                   <p style={{ fontSize:11.5, color:T.muted, marginBottom:12, lineHeight:1.6 }}>
                     Apple tarzı, hafif hareketli arka planlardan birini seçin. Profil sayfanızın üst kısmında görünür; yazılar okunur kalır.
                   </p>
-                  <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(140px, 1fr))', gap:10 }}>
-                    {/* Varsayılan (preset yok) */}
-                    <button type="button" onClick={()=>F('cover','')}
-                      style={{ height:64, borderRadius:12, cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:700,
-                        background:'linear-gradient(150deg,#0F2A55,#1B3A69,#163D6E)',
-                        border:`3px solid ${!coverPresetKey(String(formData.cover||'')) ? T.gold : 'transparent'}`,
-                        display:'flex', alignItems:'flex-end', justifyContent:'center', padding:6 }}>
-                      <span style={{ color:'white', textShadow:'0 1px 3px rgba(0,0,0,.5)' }}>Varsayılan</span>
-                    </button>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(104px, 1fr))', gap:12 }}>
+                    {/* Varsayılan (preset yok) — gerçekte beyaz arka plan, swatch de beyaz */}
+                    {(() => {
+                      const sel = !coverPresetKey(String(formData.cover||''));
+                      return (
+                        <button type="button" onClick={()=>F('cover','')}
+                          style={{ aspectRatio:'1 / 1', borderRadius:14, cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:700,
+                            background:'#FFFFFF', border:'none',
+                            outline: sel ? `3px solid ${T.gold}` : '1px solid rgba(0,0,0,.10)', outlineOffset: sel ? 2 : -1,
+                            boxShadow: sel ? '0 6px 18px rgba(212,168,67,.28)' : '0 1px 5px rgba(0,0,0,.06)',
+                            display:'flex', alignItems:'flex-end', justifyContent:'center', padding:8 }}>
+                          <span style={{ color:'#1B3A69' }}>Varsayılan</span>
+                        </button>
+                      );
+                    })()}
                     {HERO_BACKGROUNDS.map(b=>{
                       const sel = coverPresetKey(String(formData.cover||'')) === b.key;
                       return (
                         <button key={b.key} type="button" onClick={()=>F('cover',`preset:${b.key}`)}
-                          style={{ height:64, borderRadius:12, cursor:'pointer', fontFamily:'inherit', fontSize:11.5, fontWeight:700,
-                            background:b.swatch, border:`3px solid ${sel ? T.gold : 'transparent'}`, boxShadow: sel ? '0 4px 14px rgba(212,168,67,.35)' : '0 1px 4px rgba(0,0,0,.1)',
-                            display:'flex', alignItems:'flex-end', justifyContent:'center', padding:6 }}>
+                          style={{ aspectRatio:'1 / 1', borderRadius:14, cursor:'pointer', fontFamily:'inherit', fontSize:11.5, fontWeight:700,
+                            background:b.swatch, border:'none',
+                            outline: sel ? `3px solid ${T.gold}` : 'none', outlineOffset: sel ? 2 : 0,
+                            boxShadow: sel ? '0 6px 18px rgba(212,168,67,.35)' : '0 1px 5px rgba(0,0,0,.12)',
+                            display:'flex', alignItems:'flex-end', justifyContent:'center', padding:8 }}>
                           <span style={{ color:'white', textShadow:'0 1px 3px rgba(0,0,0,.55)' }}>{b.name.split(' (')[0]}</span>
                         </button>
                       );
