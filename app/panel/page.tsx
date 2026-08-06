@@ -177,6 +177,7 @@ export default function PanelPage() {
   const [premiumMap, setPremiumMap] = useState<Record<string, boolean>>({});
   const [premiumMsg, setPremiumMsg] = useState<'success' | 'cancel' | null>(null);
   const [upgradingId, setUpgradingId] = useState<string | null>(null);
+  const [releasingId, setReleasingId] = useState<string | null>(null);
   const [selectedEditClaim, setSelectedEditClaim] = useState<ClaimRequest | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -255,6 +256,24 @@ export default function PanelPage() {
       alert(j.error || 'Ödeme başlatılamadı.');
     } catch { alert('Ödeme başlatılamadı.'); }
     setUpgradingId(null);
+  }
+
+  async function handleRelease(claimId: string, entityName: string) {
+    if (!window.confirm(`"${entityName}" işletmesinin sahipliğini bırakmak istediğinize emin misiniz?\n\nSahiplik kalkacak, işletme "sahiplenilmemiş" duruma dönecek ve premium/online randevu kapanacaktır. Dilerseniz daha sonra yeniden sahiplenebilirsiniz.`)) return;
+    setReleasingId(claimId);
+    try {
+      const res = await fetch('/api/panel/release-claim', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ claimId }),
+      });
+      const j = await res.json();
+      if (res.ok && j.success) {
+        await loadClaims(user?.email || '');
+      } else {
+        alert(j.error || 'Sahiplik bırakılamadı.');
+      }
+    } catch { alert('Sahiplik bırakılamadı.'); }
+    setReleasingId(null);
   }
 
   async function handleLogout() {
@@ -442,7 +461,7 @@ export default function PanelPage() {
             <button onClick={() => setPremiumMsg(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'inherit', fontFamily: 'inherit' }}>×</button>
           </div>
         )}
-        {tab === 'dashboard' && <DashboardTab user={user} claims={claims} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { setSelectedEditClaim(c); setTab('edit'); }} premiumMap={premiumMap} onUpgrade={handleUpgrade} upgradingId={upgradingId} />}
+        {tab === 'dashboard' && <DashboardTab user={user} claims={claims} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { setSelectedEditClaim(c); setTab('edit'); }} premiumMap={premiumMap} onUpgrade={handleUpgrade} upgradingId={upgradingId} onRelease={handleRelease} releasingId={releasingId} />}
         {tab === 'claims'    && <ClaimsTab claims={claims} loading={claimsLoading} onNewClaim={() => setTab('new')} profileUrls={profileUrls} onDeleted={() => loadClaims(user?.email || '')} />}
         {tab === 'profile'   && <ProfileTab user={user} />}
         {tab === 'new'       && <NewClaimTab user={user} onSuccess={() => { loadClaims(user?.email || ''); setTab('claims'); }} />}
@@ -496,7 +515,7 @@ export default function PanelPage() {
 /* ═══════════════════════════════════════════════
    DASHBOARD
 ═══════════════════════════════════════════════ */
-function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoading, onTabChange, profileUrls, onEditClaim, premiumMap, onUpgrade, upgradingId }: { user: User | null; claims: ClaimRequest[]; approvedClaims: ClaimRequest[]; pendingClaims: ClaimRequest[]; claimsLoading: boolean; onTabChange: (t: any) => void; profileUrls: Record<string, string>; onEditClaim: (c: ClaimRequest) => void; premiumMap: Record<string, boolean>; onUpgrade: (claimId: string, entityType: string, entityId: string) => void; upgradingId: string | null }) {
+function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoading, onTabChange, profileUrls, onEditClaim, premiumMap, onUpgrade, upgradingId, onRelease, releasingId }: { user: User | null; claims: ClaimRequest[]; approvedClaims: ClaimRequest[]; pendingClaims: ClaimRequest[]; claimsLoading: boolean; onTabChange: (t: any) => void; profileUrls: Record<string, string>; onEditClaim: (c: ClaimRequest) => void; premiumMap: Record<string, boolean>; onUpgrade: (claimId: string, entityType: string, entityId: string) => void; upgradingId: string | null; onRelease: (claimId: string, entityName: string) => void; releasingId: string | null }) {
   const name = user?.user_metadata?.full_name || user?.user_metadata?.name || 'Kullanıcı';
   return (
     <div>
@@ -546,6 +565,13 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                     <button onClick={() => onUpgrade(c.id, c.entity_type, c.entity_id!)} disabled={upgradingId === c.id}
                       style={{ padding: '7px 14px', background: 'linear-gradient(135deg,#1B3A69,#0F2A55)', color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, border: 'none', cursor: upgradingId === c.id ? 'default' : 'pointer', opacity: upgradingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
                       {upgradingId === c.id ? '…' : <>👑 Premium&apos;a Yükselt</>}
+                    </button>
+                  )}
+                  {c.entity_id && c.entity_id !== 'new' && (
+                    <button onClick={() => onRelease(c.id, c.entity_name || 'İşletme')} disabled={releasingId === c.id}
+                      title="Bu işletmenin sahipliğini bırak — profil sahiplenilmemiş duruma döner"
+                      style={{ padding: '7px 14px', background: 'transparent', color: '#B91C1C', borderRadius: 9, fontSize: 12, fontWeight: 700, border: '1px solid #FCA5A5', cursor: releasingId === c.id ? 'default' : 'pointer', opacity: releasingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
+                      {releasingId === c.id ? '…' : <><Ic d={icons.logout} size={13} /> Sahipliği Bırak</>}
                     </button>
                   )}
                 </div>
