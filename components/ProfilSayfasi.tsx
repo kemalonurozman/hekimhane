@@ -1794,9 +1794,11 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         </>
                       ) : (
                         <>
-                          <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, color: 'var(--navy)', lineHeight: 1.1 }}>Yeni</div>
-                          <div style={{ margin: '8px 0 4px' }}><Stars rat={0} size={18} /></div>
-                          <div style={{ fontSize: 12, color: 'var(--muted)' }}>Henüz değerlendirilmedi</div>
+                          <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 52, fontWeight: 800, color: 'var(--navy)', lineHeight: 1 }}>{avg}</div>
+                          <div style={{ margin: '6px 0 4px' }}><Stars rat={avg} size={18} /></div>
+                          <Link href="/degerlendirme-sistemi" style={{ fontSize: 11.5, color: 'var(--muted)', textDecoration: 'none', borderBottom: '1px dotted var(--muted)' }} title="Puanlar neden 4.2 civarında başlar? Değerlendirme sistemimizi öğrenin">
+                            Başlangıç puanı · henüz yorum yok
+                          </Link>
                         </>
                       )}
                     </div>

@@ -16,7 +16,7 @@ export default function DegerlendirmeSistemiPage() {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: [
-      { '@type': 'Question', name: 'Bir profilde neden "Yeni" yazıyor veya puan görünmüyor?', acceptedAnswer: { '@type': 'Answer', text: 'Henüz doğrulanmış hasta değerlendirmesi olmayan profiller "Yeni" olarak gösterilir. Gerçek bir yorum yokken puan gösterilmez; ilk değerlendirmeyle birlikte puan oluşur.' } },
+      { '@type': 'Question', name: 'Puanlar neden 4.2 civarında başlıyor?', acceptedAnswer: { '@type': 'Answer', text: 'Hekimhane dengeli (Bayesian) bir ortalama kullanır. Her profil, 4.2 gibi nötr bir başlangıç puanından başlar; böylece tek bir 5 yıldız bir işletmeyi anında 5.0 yapamaz, tek bir kötü niyetli 1 yıldız da bir işletmeyi yerin dibine sokamaz. Gerçek yorumlar biriktikçe puan, o işletmenin gerçek ortalamasına doğru kayar. Yorum sayısı arttıkça başlangıç değerinin etkisi azalır.' } },
       { '@type': 'Question', name: 'Yorumlar gerçek hastalardan mı geliyor?', acceptedAnswer: { '@type': 'Answer', text: 'Evet. Değerlendirmeler ziyaretçiler ve hastalar tarafından bırakılır. Yorum bırakırken ad-soyad istenir; bu bilgi sayfada gizlenir, yalnızca değerlendirilen hekim/işletme doğrulama için tam adı görebilir.' } },
       { '@type': 'Question', name: 'Yorumumdaki adım herkese görünür mü?', acceptedAnswer: { '@type': 'Answer', text: 'Hayır. Adınız sayfada tam ve açık gösterilmez (ör. "Elif K."). Tam adınızı yalnızca değerlendirdiğiniz hekim görür; bu, yorumun gerçek bir hastadan geldiğinin doğrulanması içindir.' } },
     ],
@@ -46,17 +46,23 @@ export default function DegerlendirmeSistemiPage() {
 
       <div className="container" style={{ maxWidth: 820, padding: '36px 16px 64px', display: 'flex', flexDirection: 'column', gap: 18 }}>
 
-        {/* "Yeni" açıklaması — en sık soru */}
+        {/* 4.2 başlangıç puanı açıklaması — en sık soru */}
         <section style={{ ...KART, borderLeft: '4px solid var(--gold)' }}>
-          <h2 style={H2}>Bir profilde neden “Yeni” yazıyor ya da puan görünmüyor?</h2>
+          <h2 style={H2}>Puanlar neden 4.2 civarında başlıyor?</h2>
           <p style={P}>
-            Henüz <strong>doğrulanmış hasta değerlendirmesi olmayan</strong> profiller <strong>“Yeni”</strong> olarak
-            gösterilir. Gerçek bir yorum yokken profilde puan (ör. 4,2) <strong>gösterilmez</strong> — çünkü ortada
-            değerlendiren kimse yoktur. İlk gerçek yorumla birlikte puan oluşmaya başlar.
+            Hekimhane’de puanlar <strong>dengeli (Bayesian) ortalama</strong> ile hesaplanır. Her profil, henüz yorumu
+            yokken <strong>4.2 gibi nötr bir başlangıç puanından</strong> başlar. Bunun nedeni basit: <strong>tek bir
+            değerlendirmenin</strong> bir işletmeyi haksız yere uçlara savurmasını engellemek.
+          </p>
+          <p style={P}>
+            Yani <strong>bir tane 5 yıldız</strong> bir kliniği anında 5.0 yapmaz; aynı şekilde <strong>tek bir kötü
+            niyetli 1 yıldız</strong> da bir işletmeyi yerin dibine sokamaz. Puan, ortada gerçek bir topluluk görüşü
+            oluşana kadar dengeli, ortada bir noktadan başlar.
           </p>
           <p style={{ ...P, margin: 0 }}>
-            Bu, yeni eklenen bir kliniğin yapay bir puanla öne çıkmasını engeller; gördüğünüz her yıldız, gerçek bir
-            hasta deneyimine dayanır.
+            <strong>Gerçek yorumlar biriktikçe</strong> puan, o işletmenin gerçek ortalamasına doğru kayar ve başlangıç
+            değerinin etkisi giderek azalır. Yorumu olmayan profillerde bu değer <em>“başlangıç puanı”</em> olarak
+            etiketlenir — gerçek bir topluluk puanı değil, adil bir başlangıç noktasıdır.
           </p>
         </section>
 
