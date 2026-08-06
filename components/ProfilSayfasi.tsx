@@ -1066,9 +1066,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
     meslekDeneyimler.length || meslekSertifikalar.length
   );
   const hekimSayisi = hospitalDoctors?.length || 0;
+  // Eczaneler randevu almaz → randevu sistemi (sekme, buton, widget) eczanede gizlenir.
+  const randevuGizli = entityType === 'eczane';
   const gorunenTabs = TABS.filter(t =>
     t === 'meslek'   ? hasMeslek :
     t === 'hekimler' ? (entityType === 'hastane' && hekimSayisi > 0) :
+    t === 'randevu'  ? !randevuGizli :
     true);
   useEffect(() => {
     if (!lightboxOpen) return;
@@ -1434,8 +1437,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <i className="fa-solid fa-lock" style={{ color: 'var(--gold)', marginTop: 2 }} />
                   <span>İletişim bilgileri gizli. Bu profil sahibi Hekimhane&apos;ye katılıp doğrulandığında telefon ve e-posta görünür olacak.</span>
                 </div>
-              ) : (
-              /* Randevu Al — birincil */
+              ) : randevuGizli ? null : (
+              /* Randevu Al — birincil (eczanede gizli) */
               <button onClick={() => setRandevuModal(true)}
                 style={{ padding: '13px 20px', borderRadius: 12, fontSize: 14, fontWeight: 800, background: 'var(--gold)', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 6px 18px rgba(212,168,67,.35)' }}>
                 <i className="fa-solid fa-calendar-check" /> Randevu Al
@@ -2416,7 +2419,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
             )}
           </div>
 
-          {/* Randevu widget — masaüstünde İletişim & Konum'un hemen altında */}
+          {/* Randevu widget — masaüstünde İletişim & Konum'un hemen altında; eczanede gizli (randevu almaz) */}
+          {!randevuGizli && (
           <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 20 }}>
             <div style={{ background: '#2D2D2D', padding: '20px 22px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
@@ -2490,6 +2494,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               </button>
             </div>
           </div>
+          )}
 
           {/* Abone Widget — sidebar */}
           <div style={{ marginBottom: 20 }}>
