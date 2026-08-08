@@ -1048,6 +1048,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
   const acikGun = (iso: string) => { setPreselectDate(iso); setRandevuModal(true); };
   const [lightboxIdx, setLightboxIdx]   = useState<number | null>(null);
   const [photoOpen, setPhotoOpen]       = useState(false); // fotoğraf yoksa bölüm kapalı, tıklayınca açılır
+  const [kapaliBolum, setKapaliBolum]   = useState<Record<string, boolean>>({}); // hastane hekim bölümleri aç/kapa
   // Sahiplenme mührü ipucu — hero overflow:hidden içinde kaldığı için
   // balon position:fixed ile mühürün ekran koordinatından konumlandırılır.
   const [sealTip, setSealTip] = useState<{ x: number; y: number; alt: boolean } | null>(null);
@@ -1136,9 +1137,11 @@ export default function ProfilSayfasi(props: ProfilProps) {
     );
   const entityIcon = entityIconSvg;
 
+  // Devlet hastane adlarındaki resmi önek başlıkta gösterilmez
+  const cleanName = (name || '').replace(/^T\.C\.\s*Sağlık Bakanlığı\s+/i, '');
   const displayName = (entityType === 'doktor' && unvan)
     ? `${unvan} ${name}`
-    : name;
+    : cleanName;
 
   // ── Aksiyon buton linkleri (Ara / WhatsApp / Yol Tarifi / Web Sitesi) ──
   const telClean = (tel || '').replace(/[^\d]/g, '');
@@ -1891,21 +1894,30 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Bünyedeki Hekimler</h3>
                   <span style={{ fontSize: 13, color: 'var(--muted)' }}>{hospitalDoctors.length} hekim · {bolumler.length} bölüm</span>
                 </div>
-                <div style={{ ...scBody, display: 'flex', flexDirection: 'column', gap: 24 }}>
-                  {bolumler.map(bolum => (
-                    <div key={bolum}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <div style={{ ...scBody, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {bolumler.map(bolum => {
+                    const kapali = !!kapaliBolum[bolum];
+                    return (
+                    <div key={bolum} style={{ border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
+                      <button type="button"
+                        onClick={() => setKapaliBolum(p => ({ ...p, [bolum]: !p[bolum] }))}
+                        aria-expanded={!kapali}
+                        style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '13px 16px', background: kapali ? '#fff' : 'var(--cream,#FBF8F2)', border: 'none', borderBottom: kapali ? 'none' : '1px solid var(--border)', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
                         <i className="fa-solid fa-stethoscope" style={{ color: 'var(--gold)', fontSize: 14 }} />
                         <h4 style={{ fontSize: 15, fontWeight: 700, color: 'var(--navy)', margin: 0 }}>{bolum}</h4>
                         <span style={{ fontSize: 12, color: 'var(--muted)' }}>({byBolum[bolum].length})</span>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 12 }}>
-                        {byBolum[bolum].slice().sort((a, b) => `${a.ad} ${a.soyad}`.localeCompare(`${b.ad} ${b.soyad}`, 'tr')).map(d => (
-                          <DoktorCard key={d.id} doktor={d} />
-                        ))}
-                      </div>
+                        <i className="fa-solid fa-chevron-down" style={{ marginLeft: 'auto', color: 'var(--muted)', fontSize: 13, transition: 'transform .2s', transform: kapali ? 'rotate(-90deg)' : 'none' }} />
+                      </button>
+                      {!kapali && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 12, padding: 16 }}>
+                          {byBolum[bolum].slice().sort((a, b) => `${a.ad} ${a.soyad}`.localeCompare(`${b.ad} ${b.soyad}`, 'tr')).map(d => (
+                            <DoktorCard key={d.id} doktor={d} />
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );
