@@ -36,8 +36,9 @@ export default function HeroKonumSecici({ mounted }: { mounted: boolean }) {
     if (il) p.set('il', il);
     if (ilce) p.set('ilce', ilce);
     if (uz) p.set('uzmanlik', uz);
-    const qs = p.toString();
-    router.push(qs ? `/klinikler?${qs}` : '/klinikler');
+    // Özel klinikler öncelikli, devamında devlet/üniversite hastanesi hekimleri de listelensin
+    p.set('kurum', 'hepsi');
+    router.push(`/klinikler?${p.toString()}`);
   }
 
   return (

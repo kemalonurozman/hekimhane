@@ -278,7 +278,12 @@ async function getHepsi(filters: KlinikFilters) {
     ...((kl.data || []) as Klinik[]).map(k => ({ kind: 'klinik' as const, rat: k.rat || 0, data: k })),
     ...((dv.data || []) as Doktor[]).map(d => ({ kind: 'doktor' as const, rat: d.rat || 0, data: d })),
     ...((uni.data || []) as Doktor[]).map(d => ({ kind: 'doktor' as const, rat: d.rat || 0, data: d })),
-  ].sort((a, b) => b.rat - a.rat);
+  ].sort((a, b) => {
+    // Özel klinikler önceliklidir → her zaman üstte; sonra devlet/üniversite hastanesi
+    // hekimleri. Grup içinde puana göre sıralanır.
+    if (a.kind !== b.kind) return a.kind === 'klinik' ? -1 : 1;
+    return b.rat - a.rat;
+  });
   const start = ((filters.page || 1) - 1) * PAGE_SIZE;
   return { items: merged.slice(start, start + PAGE_SIZE), count: (kc.count || 0) + (dc.count || 0) + (uc.count || 0) };
 }
