@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { COCUK_KONULAR, cocukKonuBySlug, COCUK_UZMANLIK } from '@/lib/cocuk-dis';
+import { COCUK_KONULAR, cocukKonuBySlug, COCUK_UZMANLIK, tarifeForKonu } from '@/lib/cocuk-dis';
 import PremiumHekimler from '@/components/PremiumHekimler';
 
 interface Props { params: { slug: string } }
@@ -31,6 +31,7 @@ export default function CocukKonuDetayPage({ params }: Props) {
   if (!k) notFound();
 
   const digerKonular = COCUK_KONULAR.filter(x => x.slug !== k.slug);
+  const fiyatlar = tarifeForKonu(k.slug);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -94,6 +95,29 @@ export default function CocukKonuDetayPage({ params }: Props) {
                 </div>
               ))}
             </div>
+          </section>
+        )}
+
+        {/* Yaklaşık ücret — TDB 2026 asgari (taban) tarife */}
+        {fiyatlar.length > 0 && (
+          <section style={KART}>
+            <h2 style={H2}>Yaklaşık Ücret</h2>
+            <p style={{ ...P, marginBottom: 16 }}>
+              Aşağıdaki fiyatlar <strong>TDB (Türk Dişhekimleri Birliği) 2026 asgari (taban) tarifesinden</strong>{' '}
+              alınmıştır — yani yasal alt sınırdır. Kliniğin uzmanlığına, şehre ve işlemin kapsamına göre gerçek ücret bu değerin üzerinde olabilir.
+            </p>
+            <div style={{ border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
+              {fiyatlar.map((it, i) => (
+                <div key={it.kod} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '13px 16px', background: i % 2 ? '#FBFAF7' : 'white', borderTop: i ? '1px solid var(--border)' : 'none' }}>
+                  <span style={{ fontSize: 14, color: 'var(--navy)', fontWeight: 600 }}>{it.ad}</span>
+                  <span style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--navy)', whiteSpace: 'nowrap' }}>{it.kdvDahil} ₺</span>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontSize: 12, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.55 }}>
+              Fiyatlar KDV dâhildir. Tam liste için{' '}
+              <Link href="/tedavi-ucretleri" style={{ color: 'var(--navy)', fontWeight: 600 }}>2026 Tedavi Ücretleri</Link> sayfasına bakabilirsiniz.
+            </p>
           </section>
         )}
 

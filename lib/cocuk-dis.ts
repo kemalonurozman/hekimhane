@@ -4,6 +4,8 @@
 //  (/cocuk-dis-sagligi/[slug]). Alt sayfalarda premium öneri hekimleri görünür.
 // ─────────────────────────────────────────────────────────────────
 
+import { UCRET_TARIFESI_2026, type TarifeItem } from './ucret-tarifesi-2026';
+
 export interface CocukKonu {
   slug: string;
   ad: string;
@@ -15,6 +17,36 @@ export interface CocukKonu {
 
 /** Pedodonti uzmanlık etiketi — alt sayfalardaki "önerilen hekimler" bu alana göre önceliklenir */
 export const COCUK_UZMANLIK = 'Pedodonti (Çocuk Diş Hekimliği)';
+
+// Her konunun ilgili TDB 2026 tarife kalem kodları — alt sayfada "yaklaşık ücret"
+// olarak sistemdeki asgari (taban) fiyatlarla gösterilir.
+export const KONU_FIYAT_KODLARI: Record<string, string[]> = {
+  'cocuk-disi-nedir': ['1-1'],
+  'arayuz-curukleri': ['1-16', '2-4'],
+  'sut-disi-cekimi': ['5-1', '3-10'],
+  'koruyucu-dis-tedavisi': ['3-2', '3-3', '1-9'],
+  'fissur-ortucu': ['3-2'],
+  'flor-uygulamasi': ['3-3'],
+  'cocuk-dis-dolgusu': ['2-4', '3-4', '2-9'],
+  'agiz-ici-dijital-tarama': ['1-34'],
+  'cocuklarda-dis-travmasi': ['3-14', '3-18', '1-14'],
+  'sut-disi-kanal-tedavisi': ['3-6', '3-7', '3-12'],
+  'yer-tutucular': ['3-10', '3-11'],
+  'biberon-curugu': ['3-3', '2-4'],
+  'cocuklarda-dis-hekimi-korkusu': ['1-1'],
+};
+
+// Kod → tarife kalemi (tek seferde düz harita)
+const TARIFE_MAP: Record<string, TarifeItem> = (() => {
+  const m: Record<string, TarifeItem> = {};
+  for (const kat of UCRET_TARIFESI_2026) for (const it of kat.items) m[it.kod] = it;
+  return m;
+})();
+
+/** Bir konuya karşılık gelen TDB 2026 tarife kalemleri (asgari ücret gösterimi için) */
+export function tarifeForKonu(slug: string): TarifeItem[] {
+  return (KONU_FIYAT_KODLARI[slug] || []).map(k => TARIFE_MAP[k]).filter(Boolean);
+}
 
 export const COCUK_KONULAR: CocukKonu[] = [
   {
@@ -207,6 +239,126 @@ export const COCUK_KONULAR: CocukKonu[] = [
     sss: [
       { soru: 'Dijital tarama röntgen mi, zararlı mı?', cevap: 'Hayır. Dijital ağız içi tarama ışık tabanlı bir görüntülemedir, radyasyon içermez. Röntgenden farklı olarak dişlerin yüzeyinin üç boyutlu modelini çıkarır.' },
       { soru: 'Ölçü macununa göre farkı ne?', cevap: 'Klasik ölçüde ağıza macun dolu kaşık yerleştirilir ve bu çoğu çocukta öğürme yaratır. Dijital taramada böyle bir rahatsızlık olmaz; işlem daha hızlı ve konforludur.' },
+    ],
+  },
+  {
+    slug: 'cocuklarda-dis-travmasi',
+    ad: 'Çocuklarda Diş Travması (Düşme ve Darbeler)',
+    kisa: 'Kırılan, yerinden oynayan veya düşen dişte ilk 30 dakika kritiktir',
+    ozet: 'Çocuklarda düşme ve darbeler sonucu diş kırıkları, yerinden oynama veya dişin tamamen yerinden çıkması (avülsiyon) sık görülür. Diş travmasında ilk müdahale ve hızlı diş hekimi başvurusu, dişin kurtarılma şansını doğrudan belirler.',
+    bolumler: [
+      { baslik: 'Travma türleri', icerik: [
+        'En sık ön dişlerde görülür: mine-dentin kırığı, dişin sarsılıp gevşemesi (subluksasyon), çeneye doğru gömülmesi (intrüzyon) veya tamamen yerinden çıkması (avülsiyon).',
+        'Süt dişi travmalarında öncelik, alttaki kalıcı diş tomurcuğunu korumaktır; bu yüzden değerlendirme mutlaka diş hekimince yapılmalıdır.',
+      ]},
+      { baslik: 'Yerinden çıkan kalıcı dişte ne yapmalı?', icerik: [
+        'Kalıcı diş tamamen çıktıysa dişi taç (üst) kısmından tutun, köküne dokunmayın. Kirliyse süt veya serum fizyolojikle nazikçe durulayın; ovmayın.',
+        'Mümkünse dişi yuvasına geri yerleştirin; olmuyorsa süt ya da çocuğun tükürüğü içinde saklayıp 30 dakika içinde diş hekimine ulaşın. Süt dişi ise yerine takılmaya çalışılmaz.',
+      ]},
+      { baslik: 'Tedavi', icerik: [
+        'Gevşeyen dişler komşu dişlere splint ile sabitlenir; kırıklarda kompozit onarım veya kanal tedavisi gerekebilir.',
+        'Travma sonrası dişin rengi zamanla değişebilir; bu yüzden birkaç ay boyunca kontrol ve gerektiğinde röntgen takibi önemlidir.',
+      ]},
+    ],
+    sss: [
+      { soru: 'Yerinden çıkan dişi suyla yıkayabilir miyim?', cevap: 'Musluk suyu kök yüzeyindeki canlı hücrelere zarar verebilir. Diş çok kirliyse yalnızca süt veya serum fizyolojikle kısa bir durulama yapın, kökünü ovmayın ve dişi süt/tükürük içinde diş hekimine götürün.' },
+      { soru: 'Süt dişi yerinden çıktı, geri takılır mı?', cevap: 'Hayır. Süt dişleri, alttaki kalıcı diş tomurcuğuna zarar vermemek için yerine geri takılmaz. Yine de kanama ve keskin kenar kontrolü için diş hekimine başvurulmalıdır.' },
+    ],
+  },
+  {
+    slug: 'sut-disi-kanal-tedavisi',
+    ad: 'Süt Dişi Kanal Tedavisi ve Amputasyon',
+    kisa: 'Derin çürükte süt dişini düşene kadar kurtaran tedavi',
+    ozet: 'Çürük dişin sinirine (pulpa) ulaştığında, süt dişini çekmek yerine düşme zamanına kadar korumak için amputasyon veya süt dişi kanal tedavisi uygulanır. Böylece ağrı ve enfeksiyon giderilir, diş yerini korur.',
+    bolumler: [
+      { baslik: 'Amputasyon ile kanal tedavisi farkı', icerik: [
+        'Amputasyonda dişin yalnızca taç kısmındaki iltihaplı pulpa alınır, kök pulpası korunur; erken-orta düzey pulpa tutulumunda tercih edilir.',
+        'Süt dişi kanal tedavisinde ise enfeksiyon köke ilerlemişse kök kanalları da temizlenip özel, emilebilen bir dolgu malzemesiyle doldurulur.',
+      ]},
+      { baslik: 'Ne zaman gerekir?', icerik: [
+        'Derin çürük nedeniyle gece ağrısı, sıcak-soğukta geçmeyen ağrı, diş etinde şişlik/apse veya röntgende kök ucu enfeksiyonu varsa uygulanır.',
+        'İşlem, dişin kalıcı diş sürene kadar sağlıklı kalmasını ve erken çekimin yer kaybı sorununu önler.',
+      ]},
+      { baslik: 'İşlem sonrası', icerik: [
+        'Tedavi sonrası diş çoğunlukla prefabrik (paslanmaz çelik) kron ya da uygun dolguyla üstten korunur; böylece kırılmadan işlevini sürdürür.',
+        'İşlem lokal anesteziyle ağrısız yapılır ve genellikle tek-iki seansta tamamlanır.',
+      ]},
+    ],
+    sss: [
+      { soru: 'Süt dişine kanal tedavisi mantıklı mı, nasılsa düşecek?', cevap: 'Evet. Kalıcı dişin sürmesine yıllar varsa, süt dişini korumak yer kaybını ve kalıcı dişlerin çapraşık çıkmasını önler; ayrıca çocuğu ağrı ve enfeksiyondan kurtarır.' },
+      { soru: 'Amputasyon ağrılı mı?', cevap: 'Hayır. İşlem lokal anesteziyle bölge uyuşturularak yapılır, çocuk ağrı hissetmez. Çocuk diş hekimleri süreci çocuğun korkmayacağı biçimde yönetir.' },
+    ],
+  },
+  {
+    slug: 'yer-tutucular',
+    ad: 'Yer Tutucular',
+    kisa: 'Erken kaybedilen süt dişinin boşluğunu koruyan küçük apareyler',
+    ozet: 'Yer tutucular, bir süt dişi erken kaybedildiğinde komşu dişlerin boşluğa kaymasını önleyen apareylerdir. Alttan gelecek kalıcı dişe yer açık tutulur; böylece ileride çapraşıklık ve ortodonti ihtiyacı azalır.',
+    bolumler: [
+      { baslik: 'Neden gerekir?', icerik: [
+        'Bir süt dişi zamanından önce düştüğünde, komşu dişler boşluğa doğru kayar ve kalıcı dişin süreceği alan daralır. Bu, kalıcı dişin gömülü kalmasına veya çapraşık çıkmasına yol açar.',
+        'Yer tutucu bu boşluğu koruyarak kalıcı dişin doğru konumda sürmesini sağlar.',
+      ]},
+      { baslik: 'Türleri', icerik: [
+        'Sabit yer tutucular komşu dişe bantla tutturulur ve çıkarılmaz; tek diş boşluklarında sık kullanılır.',
+        'Hareketli yer tutucular takılıp çıkarılabilir; birden fazla diş eksikliğinde veya estetik gereken bölgelerde tercih edilebilir.',
+      ]},
+      { baslik: 'Bakımı', icerik: [
+        'Yer tutucu takılan çocukta düzenli kontrol önemlidir; kalıcı diş sürmeye başlayınca aparey diş hekimince çıkarılır.',
+        'Aparey bölgesinin iyi temizlenmesi, çürük ve diş eti sorunlarını önler.',
+      ]},
+    ],
+    sss: [
+      { soru: 'Yer tutucu ne kadar süre kalır?', cevap: 'Alttaki kalıcı diş sürmeye başlayana kadar kalır. Bu süre boşluğun yerine ve çocuğun yaşına göre değişir; diş hekimi kontrollerle takip eder ve zamanı gelince çıkarır.' },
+      { soru: 'Her erken diş kaybında gerekir mi?', cevap: 'Kalıcı dişin sürmesine çok az kaldıysa gerekmeyebilir. Karar; boşluğun yeri, kalıcı dişin durumu ve röntgen değerlendirmesiyle diş hekimince verilir.' },
+    ],
+  },
+  {
+    slug: 'biberon-curugu',
+    ad: 'Biberon (Gece Şişesi) Çürüğü',
+    kisa: 'Bebeklerde ön dişleri hızla etkileyen erken çocukluk çürüğü',
+    ozet: 'Biberon çürüğü (erken çocukluk çürüğü), özellikle gece biberonla süt, meyve suyu veya şekerli içecek verilen bebeklerde ön dişlerde hızla ilerleyen çürüktür. Önlenebilir bir durumdur; erken fark edilmezse ağrı ve erken diş kaybına yol açar.',
+    bolumler: [
+      { baslik: 'Neden oluşur?', icerik: [
+        'Uyurken ağızda kalan şekerli sıvı (süt dâhil) dişlerin çevresinde uzun süre bekler; tükürük akışı gece azaldığından bakteriler bu şekeri aside çevirip mineyi hızla çürütür.',
+        'İlk olarak üst ön dişlerde tebeşirimsi beyaz lekeler, ardından kahverengi çürükler görülür.',
+      ]},
+      { baslik: 'Nasıl önlenir?', icerik: [
+        'Bebeği biberonla (özellikle süt/meyve suyuyla) uyutmayın; gece susarsa yalnızca su verin. Emzirme sonrası da dişleri nemli bezle silin.',
+        'İlk diş çıktığında yaşa uygun florlu macunla (pirinç tanesi kadar) fırçalamaya başlayın ve şekerli içecek sıklığını azaltın.',
+      ]},
+      { baslik: 'Tedavisi', icerik: [
+        'Erken (beyaz leke) dönemde flor uygulaması ile durdurulabilir. İlerlemiş çürüklerde dolgu, prefabrik kron veya gerekirse kanal tedavisi uygulanır.',
+        'Erken teşhis için ilk diş hekimi ziyareti en geç 1 yaşında yapılmalıdır.',
+      ]},
+    ],
+    sss: [
+      { soru: 'Gece emzirmek de çürük yapar mı?', cevap: 'Anne sütü tek başına en sağlıklı besindir; ancak gece boyunca sık sık ve dişler silinmeden emzirme, ağızda kalan sütle çürük riskini artırabilir. Emzirme sonrası dişleri temizlemek önemlidir.' },
+      { soru: 'Beyaz lekeler çürük mü?', cevap: 'Dişteki tebeşirimsi beyaz lekeler çürüğün ilk (başlangıç) belirtisidir. Bu dönemde flor ve bakım ile ilerlemesi durdurulabilir; bu yüzden erken diş hekimi kontrolü önemlidir.' },
+    ],
+  },
+  {
+    slug: 'cocuklarda-dis-hekimi-korkusu',
+    ad: 'Çocuklarda Diş Hekimi Korkusu ve Davranış Yönlendirme',
+    kisa: 'Çocuğu korkutmadan diş hekimine alıştırmanın yolları',
+    ozet: 'Diş hekimi korkusu çocuklarda yaygındır ve çoğu zaman önlenebilir. Çocuk diş hekimleri, korkuyu azaltan davranış yönlendirme teknikleriyle çocuğun tedaviye uyumunu sağlar; ebeveynin tutumu da bu süreçte kritiktir.',
+    bolumler: [
+      { baslik: 'Korku neden oluşur?', icerik: [
+        'Bilinmeyenden çekinme, ağrılı bir ilk deneyim ya da ailenin (farkında olmadan) aktardığı kaygı çocukta diş hekimi korkusunu besler.',
+        'Erken yaşta, çürük oluşmadan yapılan tanışma ziyaretleri korkuyu büyük ölçüde önler.',
+      ]},
+      { baslik: 'Davranış yönlendirme yöntemleri', icerik: [
+        'Çocuk diş hekimleri "anlat-göster-uygula" (tell-show-do) yöntemiyle işlemi çocuğun anlayacağı dille, korkutmadan tanıtır; olumlu pekiştirme kullanır.',
+        'Gerekli durumlarda ağrısız tedavi için lokal anestezi, bazı vakalarda sedasyon veya genel anestezi seçenekleri değerlendirilebilir.',
+      ]},
+      { baslik: 'Ebeveyne düşenler', icerik: [
+        'Çocuğa "acımayacak", "iğne yok" gibi korku çağrıştıran sözler kurmayın; ziyareti olumlu ve sıradan bir olay gibi anlatın.',
+        'İlk ziyareti bir sorun çıkmadan, tanışma amaçlı planlayın; düzenli kontroller çocuğun ortama alışmasını kolaylaştırır.',
+      ]},
+    ],
+    sss: [
+      { soru: 'İlk diş hekimi ziyareti nasıl olmalı?', cevap: 'En geç 1 yaşında, bir sorun oluşmadan yapılan kısa bir tanışma ziyareti idealdir. Çocuk ortama, hekime ve koltuğa alışır; bu, ileride tedavi gerektiğinde korkuyu azaltır.' },
+      { soru: 'Çocuğum çok korkuyor, tedavi nasıl yapılır?', cevap: 'Çocuk diş hekimleri davranış yönlendirme teknikleriyle çoğu çocuğu tedaviye kazandırır. Şiddetli kaygı veya kapsamlı tedavi gereken durumlarda sedasyon ya da genel anestezi güvenli seçeneklerdir.' },
     ],
   },
 ];
