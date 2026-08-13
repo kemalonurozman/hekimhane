@@ -8,6 +8,7 @@ import { KATEGORILER, HASTALIKLAR } from './hastaliklar-data';
 import { BLOG_YAZILARI } from './blog-data';
 import { TEDAVI_SLUGS } from './tedavi-detaylari';
 import { UZMANLIK_REHBERLERI } from './uzmanlik-rehberleri';
+import { COCUK_KONULAR } from './cocuk-dis';
 
 export const BASE = 'https://www.hekimhane.com.tr';
 
@@ -54,6 +55,8 @@ export async function buildSection(section: string): Promise<SmUrl[]> {
       { loc: `${BASE}/degerlendirme-sistemi`, changefreq: 'yearly', priority: 0.4 },
       { loc: `${BASE}/uzmanlik`, changefreq: 'monthly', priority: 0.7 },
       ...UZMANLIK_REHBERLERI.map(r => ({ loc: `${BASE}/uzmanlik/${r.slug}`, changefreq: 'monthly' as const, priority: 0.72 })),
+      { loc: `${BASE}/cocuk-dis-sagligi`, changefreq: 'monthly', priority: 0.7 },
+      ...COCUK_KONULAR.map(k => ({ loc: `${BASE}/cocuk-dis-sagligi/${k.slug}`, changefreq: 'monthly' as const, priority: 0.68 })),
       { loc: `${BASE}/iletisim`, changefreq: 'monthly', priority: 0.5 },
       { loc: `${BASE}/gizlilik`, changefreq: 'yearly', priority: 0.3 },
       { loc: `${BASE}/kvkk`, changefreq: 'yearly', priority: 0.3 },
