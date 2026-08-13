@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { SearchResults } from '@/app/api/search/route';
+import HeroKonumSecici from '@/components/HeroKonumSecici';
 
 // ── Partikül canvas ──────────────────────────────────────────────────────────
 interface Particle {
@@ -615,7 +616,7 @@ export default function HeroAnimated({ stats }: Props) {
         }
         .hero-search-form {
           max-width: 560px;
-          margin: 0 auto 60px;
+          margin: 0 auto 26px;
         }
         @media (max-width: 480px) {
           .hero-section {
@@ -698,6 +699,9 @@ export default function HeroAnimated({ stats }: Props) {
 
         {/* ── Canlı Arama ─────────────────────────────────────────── */}
         <LiveSearchForm mounted={mounted} />
+
+        {/* ── Konumdan seç: İl / İlçe / Sorun → Diş Hekimlerini Listele ── */}
+        <HeroKonumSecici mounted={mounted} />
 
         {/* İstatistik sayaçları */}
         <div style={{
