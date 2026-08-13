@@ -7,7 +7,7 @@ import { specToHref, dentalComboHref } from '@/lib/uzmanlik-data';
 import { heroBgByKey, coverPresetKey, HERO_BG_CSS, HERO_WAVE_PATHS } from '@/lib/hero-backgrounds';
 import AboneWidget from '@/components/AboneWidget';
 import PremiumBadge from '@/components/PremiumBadge';
-import DoktorCard from '@/components/DoktorCard';
+import HekimRosterKart from '@/components/HekimRosterKart';
 import { ToothGlyph } from '@/components/Logo';
 import type { Doktor } from '@/lib/types';
 
@@ -1911,7 +1911,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                       {!kapali && (
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 12, padding: 16 }}>
                           {byBolum[bolum].slice().sort((a, b) => `${a.ad} ${a.soyad}`.localeCompare(`${b.ad} ${b.soyad}`, 'tr')).map(d => (
-                            <DoktorCard key={d.id} doktor={d} />
+                            <HekimRosterKart key={d.id} doktor={d} />
                           ))}
                         </div>
                       )}
