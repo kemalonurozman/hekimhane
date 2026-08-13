@@ -4,7 +4,7 @@
 //  (/cocuk-dis-sagligi/[slug]). Alt sayfalarda premium öneri hekimleri görünür.
 // ─────────────────────────────────────────────────────────────────
 
-import { UCRET_TARIFESI_2026, type TarifeItem } from './ucret-tarifesi-2026';
+import { tarifeByKodlar, AKTIF_TARIFE_YILI, type TarifeItem } from './ucret-tarifesi';
 
 export interface CocukKonu {
   slug: string;
@@ -36,17 +36,14 @@ export const KONU_FIYAT_KODLARI: Record<string, string[]> = {
   'cocuklarda-dis-hekimi-korkusu': ['1-1'],
 };
 
-// Kod → tarife kalemi (tek seferde düz harita)
-const TARIFE_MAP: Record<string, TarifeItem> = (() => {
-  const m: Record<string, TarifeItem> = {};
-  for (const kat of UCRET_TARIFESI_2026) for (const it of kat.items) m[it.kod] = it;
-  return m;
-})();
-
-/** Bir konuya karşılık gelen TDB 2026 tarife kalemleri (asgari ücret gösterimi için) */
+/** Bir konuya karşılık gelen aktif TDB tarife kalemleri (asgari ücret gösterimi için).
+ *  Kaynak merkezi lib/ucret-tarifesi (aktif yıl) — yeni yıl gelince otomatik güncellenir. */
 export function tarifeForKonu(slug: string): TarifeItem[] {
-  return (KONU_FIYAT_KODLARI[slug] || []).map(k => TARIFE_MAP[k]).filter(Boolean);
+  return tarifeByKodlar(KONU_FIYAT_KODLARI[slug] || []);
 }
+
+/** Aktif tarife yılı (fiyat başlıkları için) — merkezi kaynaktan */
+export { AKTIF_TARIFE_YILI };
 
 export const COCUK_KONULAR: CocukKonu[] = [
   {

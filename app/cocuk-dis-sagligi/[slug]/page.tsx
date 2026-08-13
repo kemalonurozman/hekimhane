@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { COCUK_KONULAR, cocukKonuBySlug, COCUK_UZMANLIK, tarifeForKonu } from '@/lib/cocuk-dis';
+import { COCUK_KONULAR, cocukKonuBySlug, COCUK_UZMANLIK, tarifeForKonu, AKTIF_TARIFE_YILI } from '@/lib/cocuk-dis';
 import PremiumHekimler from '@/components/PremiumHekimler';
 
 interface Props { params: { slug: string } }
@@ -103,7 +103,7 @@ export default function CocukKonuDetayPage({ params }: Props) {
           <section style={KART}>
             <h2 style={H2}>Yaklaşık Ücret</h2>
             <p style={{ ...P, marginBottom: 16 }}>
-              Aşağıdaki fiyatlar <strong>TDB (Türk Dişhekimleri Birliği) 2026 asgari (taban) tarifesinden</strong>{' '}
+              Aşağıdaki fiyatlar <strong>TDB (Türk Dişhekimleri Birliği) {AKTIF_TARIFE_YILI} asgari (taban) tarifesinden</strong>{' '}
               alınmıştır — yani yasal alt sınırdır. Kliniğin uzmanlığına, şehre ve işlemin kapsamına göre gerçek ücret bu değerin üzerinde olabilir.
             </p>
             <div style={{ border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
@@ -116,7 +116,7 @@ export default function CocukKonuDetayPage({ params }: Props) {
             </div>
             <p style={{ fontSize: 12, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.55 }}>
               Fiyatlar KDV dâhildir. Tam liste için{' '}
-              <Link href="/tedavi-ucretleri" style={{ color: 'var(--navy)', fontWeight: 600 }}>2026 Tedavi Ücretleri</Link> sayfasına bakabilirsiniz.
+              <Link href="/tedavi-ucretleri" style={{ color: 'var(--navy)', fontWeight: 600 }}>{AKTIF_TARIFE_YILI} Tedavi Ücretleri</Link> sayfasına bakabilirsiniz.
             </p>
           </section>
         )}

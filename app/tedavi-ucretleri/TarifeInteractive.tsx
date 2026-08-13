@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import type { TarifeKategori } from '@/lib/ucret-tarifesi-2026';
+import type { TarifeKategori } from '@/lib/ucret-tarifesi';
 import { TEDAVI_BY_TARIFE_KOD } from '@/lib/tedavi-detaylari';
 
 const TRMAP: Record<string, string> = { 'İ':'i','I':'i','ı':'i','Ş':'s','ş':'s','Ğ':'g','ğ':'g','Ü':'u','ü':'u','Ö':'o','ö':'o','Ç':'c','ç':'c' };

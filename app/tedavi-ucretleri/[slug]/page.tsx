@@ -2,15 +2,14 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { TEDAVI_DETAYLARI, TEDAVI_SLUGS, tedaviBySlug } from '@/lib/tedavi-detaylari';
-import { UCRET_TARIFESI_2026 } from '@/lib/ucret-tarifesi-2026';
+import { tarifeByKod, AKTIF_TARIFE_YILI } from '@/lib/ucret-tarifesi';
 
 const BASE = 'https://www.hekimhane.com.tr';
+const YIL = AKTIF_TARIFE_YILI;
 
 function fiyatByKod(kod: string): { ad: string; kdvDahil: string; kdvHaric: string } | null {
-  for (const k of UCRET_TARIFESI_2026) {
-    const it = k.items.find(i => i.kod === kod);
-    if (it) return { ad: it.ad, kdvDahil: it.kdvDahil, kdvHaric: it.kdvHaric };
-  }
+  const it = tarifeByKod(kod);
+  if (it) return { ad: it.ad, kdvDahil: it.kdvDahil, kdvHaric: it.kdvHaric };
   return null;
 }
 
@@ -25,9 +24,9 @@ export function generateMetadata({ params }: Props): Metadata {
   if (!t) return { title: 'Tedavi Bulunamadı' };
   const url = `${BASE}/tedavi-ucretleri/${t.slug}`;
   return {
-    title: `${t.ad} — Nedir, Nasıl Yapılır, 2026 Fiyatları`,
+    title: `${t.ad} — Nedir, Nasıl Yapılır, ${YIL} Fiyatları`,
     description: t.ozet,
-    keywords: [t.ad, `${t.ad} fiyatı`, `${t.ad} 2026`, `${t.ad} nedir`, 'diş tedavi fiyatları'],
+    keywords: [t.ad, `${t.ad} fiyatı`, `${t.ad} ${YIL}`, `${t.ad} nedir`, 'diş tedavi fiyatları'],
     alternates: { canonical: url },
     openGraph: { title: `${t.ad} — Nedir, Nasıl Yapılır | Hekimhane`, description: t.ozet, url, type: 'article' },
   };
@@ -77,7 +76,7 @@ export default function TedaviDetayPage({ params }: Props) {
           <p style={{ color: 'var(--muted)', fontSize: 15, maxWidth: 640, lineHeight: 1.65, margin: 0 }}>{t.ozet}</p>
           {fiyat && (
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginTop: 18, background: '#F7F5F0', border: '1px solid #EAE6DE', borderRadius: 13, padding: '11px 16px' }}>
-              <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>TDB 2026 taban ücreti</span>
+              <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>TDB {YIL} taban ücreti</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--navy)' }}>{fiyat.kdvDahil} <span style={{ fontSize: 12 }}>TL</span></span>
               <span style={{ fontSize: 11, color: 'var(--muted)' }}>(KDV dahil)</span>
             </div>
@@ -176,7 +175,7 @@ export default function TedaviDetayPage({ params }: Props) {
         )}
 
         <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.7, marginTop: 8 }}>
-          Bu içerik bilgilendirme amaçlıdır, tıbbi tavsiye yerine geçmez. Fiyatlar TDB 2026 taban tarifesidir; kesin ücret için hekiminize danışın.
+          Bu içerik bilgilendirme amaçlıdır, tıbbi tavsiye yerine geçmez. Fiyatlar TDB {YIL} taban tarifesidir; kesin ücret için hekiminize danışın.
         </p>
       </div>
     </div>
