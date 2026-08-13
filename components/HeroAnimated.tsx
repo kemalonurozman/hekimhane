@@ -217,10 +217,10 @@ function MouseGradient() {
     <div ref={ref} style={{
       position: 'absolute',
       top: 0, left: 0,
-      width: 700, height: 700,
-      marginTop: -350, marginLeft: -350,
+      width: 560, height: 560,
+      marginTop: -280, marginLeft: -280,
       borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(212,168,67,.2) 0%, rgba(212,168,67,.05) 45%, transparent 70%)',
+      background: 'radial-gradient(circle, rgba(212,168,67,.06) 0%, rgba(212,168,67,.018) 42%, transparent 68%)',
       zIndex: 2, pointerEvents: 'none',
       willChange: 'transform',
     }} />

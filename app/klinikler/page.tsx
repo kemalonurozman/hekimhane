@@ -288,6 +288,51 @@ async function getHepsi(filters: KlinikFilters) {
   return { items: merged.slice(start, start + PAGE_SIZE), count: (kc.count || 0) + (dc.count || 0) + (uc.count || 0) };
 }
 
+// ── En yakın konum fallback: sonuç 0 ise boş bırakma ──
+function mesafeKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371, dLat = (b.lat - a.lat) * Math.PI / 180, dLng = (b.lng - a.lng) * Math.PI / 180;
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+}
+
+// Belirli bir konum için özel+devlet+üniversite hekimlerini birleşik getirir (özel önce).
+async function fallbackFetch(f: KlinikFilters, limit: number): Promise<{ kind: 'klinik' | 'doktor'; data: any }[]> {
+  const applyK = (q: any) => { if (f.il) q = q.eq('il', f.il); if (f.ilce) q = q.eq('ilce', f.ilce); if (f.uzmanlik) q = q.overlaps('specs', uzmanlikOverlap(f.uzmanlik)); return q; };
+  const applyD = (q: any) => { if (f.il) q = q.eq('il', f.il); if (f.ilce) q = q.eq('ilce', f.ilce); if (f.uzmanlik) q = q.eq('spec', f.uzmanlik); return q; };
+  const [kl, dv, uni] = await Promise.all([
+    applyK(supabase.from('klinikler').select('*').order('rat', { ascending: false }).range(0, limit - 1)),
+    applyD(supabase.from('doktorlar').select('*').contains('tags', [DEVLET_TAG]).order('rat', { ascending: false }).range(0, limit - 1)),
+    applyD(supabase.from('doktorlar').select('*').contains('tags', [UNI_TAG]).order('rat', { ascending: false }).range(0, limit - 1)),
+  ]);
+  return [
+    ...((kl.data || []) as Klinik[]).map(k => ({ kind: 'klinik' as const, data: k })),
+    ...((dv.data || []) as Doktor[]).map(d => ({ kind: 'doktor' as const, data: d })),
+    ...((uni.data || []) as Doktor[]).map(d => ({ kind: 'doktor' as const, data: d })),
+  ];
+}
+
+// İlçede yoksa il geneli, ilde yoksa en yakın il — hiçbir zaman boş bırakma.
+async function getFallback(filters: KlinikFilters, limit = 5): Promise<{ items: { kind: 'klinik' | 'doktor'; data: any }[]; note: string } | null> {
+  noStore();
+  // 1) İlçe düş → il geneli
+  if (filters.ilce && filters.il) {
+    const r = await fallbackFetch({ ...filters, ilce: undefined, page: 1 }, limit);
+    if (r.length) return { items: r.slice(0, limit), note: `"${filters.ilce}" için sonuç yok — ${filters.il} genelindeki en yakın hekimler` };
+  }
+  // 2) İl geneli de boşsa → en yakın iller
+  const baseIl = filters.il;
+  if (baseIl && IL_KONUM[baseIl]) {
+    const merkez = IL_KONUM[baseIl];
+    const yakinIller = Object.keys(IL_KONUM).filter(x => x !== baseIl)
+      .map(x => ({ il: x, km: mesafeKm(merkez, IL_KONUM[x]) })).sort((a, b) => a.km - b.km);
+    for (const n of yakinIller.slice(0, 10)) {
+      const r = await fallbackFetch({ ...filters, il: n.il, ilce: undefined, page: 1 }, limit);
+      if (r.length) return { items: r.slice(0, limit), note: `"${filters.ilce || baseIl}" için sonuç yok — en yakın ${n.il} ilindeki hekimler (~${Math.round(n.km)} km)` };
+    }
+  }
+  return null;
+}
+
 export default async function KliniklerPage(
   { searchParams }: { searchParams: Record<string, string> }
 ) {
@@ -333,6 +378,11 @@ export default async function KliniklerPage(
   ]);
 
   const totalPages = Math.ceil(count / PAGE_SIZE);
+
+  // Sonuç 0 ve konum filtresi varsa → en yakın hekimleri getir (boş bırakma)
+  const fallback = (items.length === 0 && (filters.il || filters.ilce))
+    ? await getFallback(filters, 5)
+    : null;
 
   // tip='Diş Hekimi' → bireysel diş hekimleri listesi (menüdeki "Diş Hekimleri")
   const tipEtiket = filters.tip === 'Diş Hekimi' ? 'Diş Hekimleri'
@@ -431,7 +481,19 @@ export default async function KliniklerPage(
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {items.length === 0 ? (
-        <EmptyState href="/klinikler" />
+        fallback ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: '#FBF4DD', border: '1px solid #E9CE7E', borderRadius: 14, padding: '13px 16px' }}>
+              <i className="fa-solid fa-location-dot" style={{ color: '#B8860B', marginTop: 2, flexShrink: 0 }} />
+              <span style={{ fontSize: 13.5, color: '#6B5B2E', lineHeight: 1.55 }}>{fallback.note}</span>
+            </div>
+            {fallback.items.map(it => it.kind === 'klinik'
+              ? <KlinikCard key={`fk-${it.data.id}`} klinik={it.data as Klinik} />
+              : <DoktorCard key={`fd-${it.data.id}`} doktor={it.data as Doktor} />)}
+          </div>
+        ) : (
+          <EmptyState href="/klinikler" />
+        )
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {items.map(it => it.kind === 'klinik'
