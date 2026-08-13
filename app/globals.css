@@ -473,21 +473,32 @@ button {
   .katil-kat-grid { grid-template-columns: 1fr !important; }
 }
 
-/* ── Onaylı avatar halkası — Instagram-story tarzı dönen renkli çember ── */
-@keyframes hk-ring-spin { to { transform: rotate(360deg); } }
-.hk-ring { position: relative; border-radius: 50%; padding: 3px; }
+/* ── Onaylı avatar halkası — Instagram-story tarzı dönen renkli çerçeve ──
+   Renkler kutuyu döndürmeden dolaşır (@property açı animasyonu) → köşeli
+   (yuvarlak kare) logolarda da köşeler dönmez, halka çerçeveyi tam sarar. */
+@property --hk-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+@keyframes hk-ring-spin { to { --hk-angle: 360deg; } }
+.hk-ring {
+  position: relative;
+  border-radius: 50%;      /* doktor: daire */
+  padding: 3px;
+  --hk-angle: 0deg;        /* @property desteklenmezse fallback (statik gradient) */
+}
+/* klinik logosu yuvarlak kare → halka da aynı şekli alır, tam sarar */
+.hk-ring:has(.klinik-card__icon) { border-radius: 19px; }
 .hk-ring::before {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 50%;
-  background: conic-gradient(from 0deg, #feda75, #fa7e1e 18%, #d62976 42%, #962fbf 63%, #4f5bd5 85%, #feda75);
+  border-radius: inherit;  /* halkanın şeklini (daire/yuvarlak kare) izler */
+  background: conic-gradient(from var(--hk-angle), #feda75, #fa7e1e 18%, #d62976 42%, #962fbf 63%, #4f5bd5 85%, #feda75);
   animation: hk-ring-spin 4s linear infinite;
 }
 .hk-ring > * { position: relative; z-index: 1; }
 /* halka ile fotoğraf arasında ince beyaz boşluk */
 .hk-ring .doktor-card__avatar,
 .hk-ring .klinik-card__icon { border-color: #fff !important; }
+@media (max-width: 768px) { .hk-ring:has(.klinik-card__icon) { border-radius: 17px; } }
 @media (prefers-reduced-motion: reduce) { .hk-ring::before { animation: none; } }
 
 /* ── Responsive grid yardımcıları (mobilde sütun sayısını azaltır) ── */

@@ -8,8 +8,13 @@ import KlinikCard from '@/components/KlinikCard';
 import DoktorCard from '@/components/DoktorCard';
 import ListingLayout from '@/components/ListingLayout';
 import { resolveKonum, IL_KONUM } from '@/lib/il-koordinatlari';
+import { synonymsForSpec, specFilterValues } from '@/lib/uzmanlik-data';
 
 const PAGE_SIZE = 20;
+
+// Uzmanlık filtresi — sinonim-duyarlı: "Dolgu" gibi evrensel işlemlerde genel diş
+// klinikleri de eşleşir; kendi sinonimi olmayan uzmanlıklar tam eşleşme gibi davranır.
+const uzmanlikOverlap = (uzmanlik: string) => specFilterValues(synonymsForSpec(uzmanlik));
 // Kurum türü — özel=klinikler tablosu; devlet/üniversite=doktorlar tablosu (etiketle)
 const DEVLET_TAG = 'devlet-dis-hastanesi';
 const UNI_TAG = 'universite-dis-hastanesi';
@@ -65,7 +70,7 @@ async function getKlinikler(filters: KlinikFilters) {
   if (filters.il)       query = query.eq('il', filters.il);
   if (filters.ilce)     query = query.eq('ilce', filters.ilce);
   if (filters.tip)      query = query.eq('type', filters.tip);
-  if (filters.uzmanlik) query = query.contains('specs', [filters.uzmanlik]);
+  if (filters.uzmanlik) query = (query as any).overlaps('specs', uzmanlikOverlap(filters.uzmanlik));
   if (filters.dil && filters.dil !== 'Türkçe')      query = (query as any).contains('yabanci_diller', JSON.stringify([filters.dil]));
   if (filters.minRat)   query = query.gte('rat', filters.minRat);
   if (filters.q) {
@@ -114,7 +119,7 @@ const getIller = unstable_cache(async (uzmanlik?: string) => {
   if (!rpc.error && rpc.data) return (rpc.data as { deger: string; adet: number }[]).map(r => ({ value: r.deger, label: r.deger, count: Number(r.adet) }));
   const rows = await fetchAllRows<{ il: string | null }>(() => {
     let q = supabase.from('klinikler').select('il').not('il', 'is', null);
-    if (uzmanlik) q = (q as any).contains('specs', [uzmanlik]);
+    if (uzmanlik) q = (q as any).overlaps('specs', uzmanlikOverlap(uzmanlik));
     return q;
   });
   const map: Record<string, number> = {};
@@ -161,7 +166,7 @@ const getKonumlar = unstable_cache(async (filters: KlinikFilters) => {
     if (filters.il)       q = q.eq('il', filters.il);
     if (filters.ilce)     q = q.eq('ilce', filters.ilce);
     if (filters.tip)      q = q.eq('type', filters.tip);
-    if (filters.uzmanlik) q = (q as any).contains('specs', [filters.uzmanlik]);
+    if (filters.uzmanlik) q = (q as any).overlaps('specs', uzmanlikOverlap(filters.uzmanlik));
     if (filters.dil && filters.dil !== 'Türkçe')      q = (q as any).contains('yabanci_diller', JSON.stringify([filters.dil]));
     if (filters.q)        q = q.ilike('name', `%${filters.q}%`);
     return q;
@@ -250,7 +255,7 @@ async function getHepsi(filters: KlinikFilters) {
   const applyK = (q: any) => {
     if (filters.il) q = q.eq('il', filters.il);
     if (filters.ilce) q = q.eq('ilce', filters.ilce);
-    if (filters.uzmanlik) q = q.contains('specs', [filters.uzmanlik]);
+    if (filters.uzmanlik) q = (q as any).overlaps('specs', uzmanlikOverlap(filters.uzmanlik));
     if (filters.q) q = q.or(`name.ilike.%${filters.q}%,adres.ilike.%${filters.q}%`);
     return q;
   };

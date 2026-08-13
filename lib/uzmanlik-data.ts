@@ -374,7 +374,8 @@ export const DENTAL_SYNONYMS: Record<string, string[]> = {
   'Pedodonti (Çocuk Diş Hekimliği)': ['Pedodonti (Çocuk Diş Hekimliği)', 'Çocuk Diş Hekimliği', 'Pedodonti', 'Çocuk Diş Hekimi'],
   'Endodonti (Kanal Tedavisi)':      ['Endodonti (Kanal Tedavisi)', 'Endodonti', 'Kanal Tedavisi'],
   'Ağız Diş ve Çene Cerrahisi':      ['Ağız Diş ve Çene Cerrahisi', 'Ağız Diş Çene Cerrahisi', 'Ağız, Diş ve Çene Cerrahisi', 'Çene Cerrahisi', '20 Yaş Dişi Çekimi', 'Diş Çekimi'],
-  'Restoratif Diş Tedavisi (Dolgu)': ['Restoratif Diş Tedavisi (Dolgu)', 'Restoratif Diş Tedavisi', 'Diş Dolgusu', 'Dolgu'],
+  // Dolgu her genel diş hekiminin yaptığı EVRENSEL işlemdir → genel diş klinikleri de bu başlık altında listelenir (dürüst).
+  'Restoratif Diş Tedavisi (Dolgu)': ['Restoratif Diş Tedavisi (Dolgu)', 'Restoratif Diş Tedavisi', 'Diş Dolgusu', 'Dolgu', 'Genel Diş Hekimliği', 'Diş Sağlığı', 'Diş Kliniği'],
   'Protez (Diş Protezi)':            ['Protez (Diş Protezi)', 'Protetik Diş Tedavisi', 'Protez', 'Diş Protezi'],
   'Periodontoloji (Diş Eti)':        ['Periodontoloji (Diş Eti)', 'Periodontoloji', 'Diş Eti Tedavisi', 'Diş Taşı Temizliği'],
   'İmplantoloji (İmplant)':          ['İmplantoloji (İmplant)', 'İmplantoloji', 'İmplant', 'Diş İmplantı'],
