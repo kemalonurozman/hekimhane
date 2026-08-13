@@ -123,8 +123,8 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
         }} />
 
         <div className="doktor-card__body">
-          {/* Avatar */}
-          <div style={{ position: 'relative', flexShrink: 0 }}>
+          {/* Avatar — onaylı hekimde Instagram-story tarzı dönen halka */}
+          <div className={d.verified ? 'hk-ring' : undefined} style={{ position: 'relative', flexShrink: 0 }}>
             <div className="doktor-card__avatar"
               style={{ background: d.photo ? 'transparent' : 'linear-gradient(135deg, var(--navy), var(--navy2))', position: 'relative', overflow: 'hidden' }}>
               {d.photo

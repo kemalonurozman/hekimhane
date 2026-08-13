@@ -135,8 +135,8 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
         }} />
 
         <div className="klinik-card__body">
-          {/* İkon / Logo */}
-          <div style={{ position: 'relative', flexShrink: 0 }}>
+          {/* İkon / Logo — onaylı klinikte Instagram-story tarzı dönen halka */}
+          <div className={k.claimed ? 'hk-ring' : undefined} style={{ position: 'relative', flexShrink: 0 }}>
             <div className="klinik-card__icon"
               style={{ background: k.logo ? 'transparent' : 'linear-gradient(135deg, var(--navy), var(--navy2))', position: 'relative', overflow: 'hidden' }}>
               {k.logo

@@ -473,6 +473,23 @@ button {
   .katil-kat-grid { grid-template-columns: 1fr !important; }
 }
 
+/* ── Onaylı avatar halkası — Instagram-story tarzı dönen renkli çember ── */
+@keyframes hk-ring-spin { to { transform: rotate(360deg); } }
+.hk-ring { position: relative; border-radius: 50%; padding: 3px; }
+.hk-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #feda75, #fa7e1e 18%, #d62976 42%, #962fbf 63%, #4f5bd5 85%, #feda75);
+  animation: hk-ring-spin 4s linear infinite;
+}
+.hk-ring > * { position: relative; z-index: 1; }
+/* halka ile fotoğraf arasında ince beyaz boşluk */
+.hk-ring .doktor-card__avatar,
+.hk-ring .klinik-card__icon { border-color: #fff !important; }
+@media (prefers-reduced-motion: reduce) { .hk-ring::before { animation: none; } }
+
 /* ── Responsive grid yardımcıları (mobilde sütun sayısını azaltır) ── */
 @media (max-width: 640px) {
   .m-grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
