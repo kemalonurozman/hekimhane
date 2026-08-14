@@ -140,19 +140,21 @@ export default async function NedenHekimhanePage() {
         </div>
       </section>
 
-      {/* ── SOSYAL KANIT + GÜVEN ─────────────────────────── */}
+      {/* ── PROFİLİN ZATEN BURADA — SAHİPLEN / EKLE ─────────── */}
       <section className="nh-wrap" style={{ padding: '56px 24px 8px', textAlign: 'center' }}>
-        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: GOLD, margin: '0 0 12px' }}>Yalnız Değilsiniz</p>
+        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: GOLD, margin: '0 0 12px' }}>Profiliniz İçin</p>
         <h2 style={{ fontSize: 'clamp(24px, 3.4vw, 34px)', fontWeight: 800, letterSpacing: '-1px', color: NAVY, margin: '0 0 10px' }}>
-          Binlerce klinik ve hekim zaten Hekimhane’de
+          Profiliniz çoktan burada olabilir
         </h2>
-        <p style={{ fontSize: 16, color: MUTED, lineHeight: 1.6, maxWidth: 680, margin: '0 auto 34px' }}>
-          Türkiye’nin en kapsamlı diş sağlığı rehberinde sizde yerinizi alın; profilinizi sahiplenip
-          <strong style={{ color: TEXT }}> profesyonel görünürlükle öne çıkın</strong> ve hastalarınıza daha kolay ulaşın.
+        <p style={{ fontSize: 16, color: MUTED, lineHeight: 1.6, maxWidth: 700, margin: '0 auto 30px' }}>
+          {yuvarla(sayilar.klinik)} klinik ve hekim Hekimhane’de listeleniyor; hastalar tam da burada arıyor.
+          Profilinizi <strong style={{ color: TEXT }}>sahiplenin</strong>, doğrulanın ve
+          <strong style={{ color: TEXT }}> doğrudan randevu</strong> almaya başlayın — kaydınız yoksa dakikalar içinde
+          <strong style={{ color: TEXT }}> ekleyin</strong>.
         </p>
 
-        {/* Gerçek sayılar */}
-        <div className="nh-stat" style={{ maxWidth: 820, margin: '0 auto 30px' }}>
+        {/* Gerçek erişim sayıları */}
+        <div className="nh-stat" style={{ maxWidth: 820, margin: '0 auto 26px' }}>
           {[
             { k: yuvarla(sayilar.klinik),    l: 'Diş Kliniği & Muayenehane' },
             { k: yuvarla(sayilar.disHekimi), l: 'Diş Hekimi' },
@@ -165,20 +167,32 @@ export default async function NedenHekimhanePage() {
           ))}
         </div>
 
-        {/* Güven rozetleri */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 6 }}>
+        {/* Sahiplenince ne kazanırsınız — kazanım rozetleri */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 26 }}>
           {[
-            'Gerçek hasta yorumları',
-            'Doğrulanmış profiller',
-            'Google’da bölgesel görünürlük',
-            'KVKK uyumlu, güvenli',
-            'Türkiye geneli 44+ il',
+            'Doğrudan randevu alın',
+            'Doğrulanmış ✓ rozet',
+            'Listede öne çıkan sıralama',
+            'Profilinizi siz yönetin',
+            'Ücretsiz HekimKart',
+            'Yorumlara yanıt verin',
           ].map(t => (
             <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 15px', borderRadius: 999, background: '#F0FDF4', border: '1px solid #BBF7D0', color: '#166534', fontSize: 13, fontWeight: 600 }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
               {t}
             </span>
           ))}
+        </div>
+
+        {/* CTA: Sahiplen / Ekle */}
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link href="/klinikler" className="nh-cta nh-cta-gold" style={{ boxShadow: '0 8px 22px rgba(212,168,67,.32)' }}>
+            Profilinizi Sahiplenin
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          </Link>
+          <Link href="/katil" className="nh-cta" style={{ background: '#EEF3FB', color: NAVY, border: `1.5px solid #D6DEEC` }}>
+            Profilim yok, ekleyeyim
+          </Link>
         </div>
       </section>
 
