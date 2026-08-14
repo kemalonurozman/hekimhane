@@ -7,6 +7,29 @@
 
 import { NextRequest } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { IL_LISTE, IL_ILCE } from '@/lib/tr-il-ilce';
+
+// Konum tespiti için normalize (Türkçe + aksan-duyarsız)
+const norm = (s: string) => s.replace(/İ/g, 'i').replace(/I/g, 'i').toLowerCase()
+  .replace(/[̀-ͯ]/g, '').replace(/ı/g, 'i').replace(/ş/g, 's').replace(/ğ/g, 'g')
+  .replace(/ü/g, 'u').replace(/ö/g, 'o').replace(/ç/g, 'c').trim();
+
+const IL_SET = new Set(IL_LISTE.map(norm));
+const ILCE_SET = new Set<string>();
+for (const arr of Object.values(IL_ILCE)) for (const x of arr) ILCE_SET.add(norm(x));
+
+/** "hasan antalya" → { name: 'hasan', loc: 'antalya' } (konum kelimesi tanınırsa) */
+function parseQuery(q: string): { name: string; loc: string } {
+  const words = q.split(/\s+/).filter(Boolean);
+  if (words.length < 2) return { name: q, loc: '' };
+  const locWords = words.filter(w => IL_SET.has(norm(w)) || ILCE_SET.has(norm(w)));
+  // Konum kelimesi var ama tümü konum değilse (ad kısmı da kalmalı) → ayır
+  if (locWords.length > 0 && locWords.length < words.length) {
+    const locSet = new Set(locWords);
+    return { name: words.filter(w => !locSet.has(w)).join(' '), loc: locWords.join(' ') };
+  }
+  return { name: q, loc: '' };
+}
 
 export interface SearchItem {
   ad: string;
@@ -41,48 +64,61 @@ export async function GET(req: NextRequest) {
   // scope=dental → sadece diş klinikleri ve diş hekimleri (ana sayfa diş odaklı arama)
   const dental = req.nextUrl.searchParams.get('scope') === 'dental';
 
-  // Diş hekimi sorgusu: dental modda spec 'diş' ile sınırlanır
-  const doktorQuery = dental
-    ? supabase
-        .from('doktorlar')
-        .select('ad, soyad, spec, il, ilce, slug')
-        .ilike('spec', '%diş%')
-        .or(`ad.ilike.${like},soyad.ilike.${like},il.ilike.${like}`)
-        .limit(LIMIT)
-    : supabase
-        .from('doktorlar')
-        .select('ad, soyad, spec, il, ilce, slug')
-        .or(`ad.ilike.${like},soyad.ilike.${like},spec.ilike.${like},il.ilike.${like}`)
-        .limit(LIMIT);
+  // İsim + konum ayrıştır: "hasan antalya" → ad=hasan, konum=antalya
+  const { name, loc } = parseQuery(q);
+  const nameLike = `%${name}%`;
+  const locLike  = `%${loc}%`;
+  const hasLoc   = loc.length > 0;
+
+  // ── Doktor sorgusu ──
+  let doktorQuery: any = supabase.from('doktorlar').select('ad, soyad, spec, il, ilce, slug');
+  if (dental) doktorQuery = doktorQuery.ilike('spec', '%diş%');
+  if (hasLoc) {
+    // (ad VEYA soyad ~ isim) VE (il VEYA ilçe ~ konum)
+    doktorQuery = doktorQuery
+      .or(`ad.ilike.${nameLike},soyad.ilike.${nameLike}`)
+      .or(`il.ilike.${locLike},ilce.ilike.${locLike}`);
+  } else {
+    doktorQuery = dental
+      ? doktorQuery.or(`ad.ilike.${like},soyad.ilike.${like},il.ilike.${like}`)
+      : doktorQuery.or(`ad.ilike.${like},soyad.ilike.${like},spec.ilike.${like},il.ilike.${like}`);
+  }
+  doktorQuery = doktorQuery.limit(LIMIT);
+
+  // ── Klinik sorgusu ── (specs text[] olduğu için ada + konuma göre)
+  let klinikQuery: any = supabase.from('klinikler').select('name, il, ilce, slug');
+  klinikQuery = hasLoc
+    ? klinikQuery.ilike('name', nameLike).or(`il.ilike.${locLike},ilce.ilike.${locLike}`)
+    : klinikQuery.or(`name.ilike.${like},il.ilike.${like}`);
+  klinikQuery = klinikQuery.limit(LIMIT);
+
+  // ── Hastane sorgusu ──
+  let hastaneQuery: any = dental
+    ? Promise.resolve({ data: [] as never[] })
+    : (() => {
+        let q2: any = supabase.from('hastaneler').select('name, type, il, ilce, slug');
+        q2 = hasLoc
+          ? q2.ilike('name', nameLike).or(`il.ilike.${locLike},ilce.ilike.${locLike}`)
+          : q2.or(`name.ilike.${like},il.ilike.${like},type.ilike.${like}`);
+        return q2.limit(LIMIT);
+      })();
+
+  // ── Eczane sorgusu ──
+  let eczaneQuery: any = dental
+    ? Promise.resolve({ data: [] as never[] })
+    : (() => {
+        let q2: any = supabase.from('eczaneler').select('name, il, ilce, slug');
+        q2 = hasLoc
+          ? q2.ilike('name', nameLike).or(`il.ilike.${locLike},ilce.ilike.${locLike}`)
+          : q2.or(`name.ilike.${like},il.ilike.${like}`);
+        return q2.limit(LIMIT);
+      })();
 
   const [doktorRes, hastaneRes, klinikRes, eczaneRes] = await Promise.allSettled([
     doktorQuery,
-
-    // Dental modda hastane araması yapılmaz
-    dental
-      ? Promise.resolve({ data: [] as never[] })
-      : supabase
-          .from('hastaneler')
-          .select('name, type, il, ilce, slug')
-          .or(`name.ilike.${like},il.ilike.${like},type.ilike.${like}`)
-          .limit(LIMIT),
-
-    // NOT: specs bir text[] dizisi — .ilike tüm .or() sorgusunu çökertiyordu
-    // (operator does not exist: text[] ~~*). Ada ve ile göre ara.
-    supabase
-      .from('klinikler')
-      .select('name, il, ilce, slug')
-      .or(`name.ilike.${like},il.ilike.${like}`)
-      .limit(LIMIT),
-
-    // Dental modda eczane araması yapılmaz
-    dental
-      ? Promise.resolve({ data: [] as never[] })
-      : supabase
-          .from('eczaneler')
-          .select('name, il, ilce, slug')
-          .or(`name.ilike.${like},il.ilike.${like}`)
-          .limit(LIMIT),
+    hastaneQuery,
+    klinikQuery,
+    eczaneQuery,
   ]);
 
   // ── Doktorlar ─────────────────────────────────────────────────────────────
