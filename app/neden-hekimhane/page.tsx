@@ -64,15 +64,23 @@ const VALUES = [
 
 async function getSayilar() {
   try {
-    const [klinik, disHekimi] = await Promise.all([
+    const [klinik, disHekimi, hastane] = await Promise.all([
       supabase.from('klinikler').select('id', { count: 'exact', head: true }),
       supabase.from('doktorlar').select('id', { count: 'exact', head: true }).ilike('spec', '%diş%'),
+      supabase.from('hastaneler').select('id', { count: 'exact', head: true }),
     ]);
-    return { klinik: klinik.count || 0, disHekimi: disHekimi.count || 0 };
+    return { klinik: klinik.count || 0, disHekimi: disHekimi.count || 0, hastane: hastane.count || 0 };
   } catch {
-    return { klinik: 0, disHekimi: 0 };
+    return { klinik: 0, disHekimi: 0, hastane: 0 };
   }
 }
+
+// Yuvarlanmış "+"'lı gösterim: 2710 → "2.700+", 4488 → "4.400+"
+const yuvarla = (n: number) => {
+  if (n < 100) return `${n}`;
+  const basamak = n >= 1000 ? 100 : 10;
+  return `${Math.floor(n / basamak) * basamak}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '+';
+};
 
 const NAVY = '#1B3A69', GOLD = '#D4A843', TEXT = '#1c1c1e', MUTED = '#6E6E73', BORDER = '#E5E5EA';
 
@@ -132,8 +140,50 @@ export default async function NedenHekimhanePage() {
         </div>
       </section>
 
+      {/* ── SOSYAL KANIT + GÜVEN ─────────────────────────── */}
+      <section className="nh-wrap" style={{ padding: '56px 24px 8px', textAlign: 'center' }}>
+        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: GOLD, margin: '0 0 12px' }}>Yalnız Değilsiniz</p>
+        <h2 style={{ fontSize: 'clamp(24px, 3.4vw, 34px)', fontWeight: 800, letterSpacing: '-1px', color: NAVY, margin: '0 0 10px' }}>
+          Binlerce klinik ve hekim zaten Hekimhane’de
+        </h2>
+        <p style={{ fontSize: 16, color: MUTED, lineHeight: 1.6, maxWidth: 680, margin: '0 auto 34px' }}>
+          Türkiye’nin en kapsamlı diş sağlığı rehberinde sizde yerinizi alın; profilinizi sahiplenip
+          <strong style={{ color: TEXT }}> profesyonel görünürlükle öne çıkın</strong> ve hastalarınıza daha kolay ulaşın.
+        </p>
+
+        {/* Gerçek sayılar */}
+        <div className="nh-stat" style={{ maxWidth: 820, margin: '0 auto 30px' }}>
+          {[
+            { k: yuvarla(sayilar.klinik),    l: 'Diş Kliniği & Muayenehane' },
+            { k: yuvarla(sayilar.disHekimi), l: 'Diş Hekimi' },
+            { k: yuvarla(sayilar.hastane),   l: 'Hastane' },
+          ].map((s, i) => (
+            <div key={i} style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 18, padding: '22px 16px', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
+              <div style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, color: NAVY, letterSpacing: '-1px', lineHeight: 1 }}>{s.k}</div>
+              <div style={{ fontSize: 13.5, fontWeight: 600, color: MUTED, marginTop: 7 }}>{s.l}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Güven rozetleri */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 6 }}>
+          {[
+            'Gerçek hasta yorumları',
+            'Doğrulanmış profiller',
+            'Google’da bölgesel görünürlük',
+            'KVKK uyumlu, güvenli',
+            'Türkiye geneli 44+ il',
+          ].map(t => (
+            <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 15px', borderRadius: 999, background: '#F0FDF4', border: '1px solid #BBF7D0', color: '#166534', fontSize: 13, fontWeight: 600 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+              {t}
+            </span>
+          ))}
+        </div>
+      </section>
+
       {/* ── STAT BANDI ───────────────────────────────────── */}
-      <section style={{ background: '#F5F5F7', borderBottom: `1px solid ${BORDER}` }}>
+      <section style={{ background: '#F5F5F7', borderBottom: `1px solid ${BORDER}`, marginTop: 48 }}>
         <div className="nh-wrap" style={{ padding: '40px 24px' }}>
           <div className="nh-stat">
             {[
