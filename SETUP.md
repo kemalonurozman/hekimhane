@@ -143,6 +143,75 @@ hekimhane-next/
 
 ---
 
+## ADIM 9 — Stripe Ödeme Sistemi (Hekimhane-Pro)
+
+İşletme sahipleri panelden **Hekimhane-Pro** aylık aboneliğine (150 TL/ay) geçer.
+Kod tarafı hazır; aşağıdaki adımlar Stripe ve Vercel panellerinden yapılmalıdır.
+
+### 9.1 — Ortam değişkenleri (Vercel → Settings → Environment Variables)
+
+| Değişken | Zorunlu | Nereden alınır |
+|----------|---------|----------------|
+| `STRIPE_SECRET_KEY` | Evet | Stripe → Developers → API keys → Secret key (`sk_live_…`) |
+| `STRIPE_WEBHOOK_SECRET` | Evet | Webhook oluşturunca verilen `whsec_…` (bkz. 9.3) |
+| `STRIPE_PRICE_MONTHLY` | Hayır | Fiyat ID'si (`price_…`). Boş bırakılırsa ürünün varsayılan fiyatı Stripe API'den okunur. |
+| `STRIPE_PRODUCT_PRO` | Hayır | Ürün ID'si. Varsayılan: `prod_VA4Ez1eZ6NPoBm` |
+
+> `STRIPE_SECRET_KEY` yoksa "Pro'ya Yükselt" butonu hata verir — site geri kalanı çalışmaya devam eder.
+
+### 9.2 — Veritabanı migration'ları (Supabase → SQL Editor)
+
+```sql
+-- Sırayla çalıştırın:
+supabase/migrations/add_premium_column.sql        -- 4 tabloya premium kolonu
+supabase/migrations/add_premium_subscriptions.sql -- abonelik kayıt tablosu
+```
+
+`add_premium_subscriptions.sql` daha önce çalıştırıldıysa **tekrar çalıştırın** — eski
+sürüm abonelik tablosuna herkese açık okuma izni veriyordu (abone e-postaları + Stripe
+müşteri ID'leri görünürdü). Yeni sürüm o politikayı kaldırır.
+
+### 9.3 — Webhook (Stripe → Developers → Webhooks → Add endpoint)
+
+- **URL:** `https://www.hekimhane.com.tr/api/stripe/webhook`
+- **Dinlenecek olaylar:** `checkout.session.completed`, `customer.subscription.updated`,
+  `customer.subscription.deleted`
+
+Webhook olmadan ödeme alınır ama profil Pro'ya geçmez. Verilen `whsec_…` değerini
+`STRIPE_WEBHOOK_SECRET` olarak Vercel'e ekleyin.
+
+### 9.4 — Müşteri Portalı (Stripe → Settings → Billing → Customer portal)
+
+**Etkinleştirilmeli.** Panel'deki "Aboneliği Yönet" butonu buraya yönlendirir; abonelik
+iptali, kart değiştirme ve fatura geçmişi Stripe'ın kendi arayüzünde yapılır. Portal
+kapalıysa buton hata verir.
+
+### 9.5 — Akış özeti
+
+```
+Panel → "Pro'ya Yükselt"  → /api/stripe/checkout → Stripe Checkout → ödeme
+                                                          ↓
+                          /api/stripe/webhook ← checkout.session.completed
+                                    ↓
+                   premium = true  +  premium_subscriptions kaydı
+                                    ↓
+Panel → "Aboneliği Yönet" → /api/stripe/portal → Stripe Müşteri Portalı
+```
+
+Ödeme başarısız olursa (`past_due`) webhook premium'u kapatır ve panel
+"Ödeme Sorunu · Kartı Güncelle" butonuna döner — yeni abonelik açtırmaz.
+
+### 9.6 — Yayına almadan önce
+
+- [ ] Stripe **test modunda** uçtan uca dene (test kartı `4242 4242 4242 4242`)
+- [ ] 150 TL'nin **KDV dahil mi hariç mi** olduğuna karar ver, ürün açıklamasına yaz
+- [ ] **Mesafeli Satış Sözleşmesi** ve **İptal/İade Koşulları** sayfalarını yayınla —
+      Türkiye'de online tahsilat için yasal zorunluluk (mevcut `/kvkk`, `/gizlilik`,
+      `/kullanim` bunları karşılamaz)
+- [ ] Ödeme sayfasında bu sözleşmelere bağlantı ver
+
+---
+
 ## Sonraki Adımlar
 
 Temel kurulum tamamlandıktan sonra eklenecekler:

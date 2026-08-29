@@ -453,8 +453,21 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - Sahiplenilmemişte mühür tıklanabilir (`/sahiplen?id=…&type=…`), hafif nabız animasyonu var ve üzerine gelince profesyonel davet balonu açılır.
 - **Tuzak:** hero `overflow:hidden` — balon `position:fixed` ve konumu React state'ten (`sealTip`) hesaplanır; absolute konumlandırma kırpılıyordu. Yukarıda yer yoksa (`r.top < 260`) balon aşağı açılır (`hk-tip--alt`), yatayda viewport'a klemplenir.
 
+### Stripe Ödeme Sistemi — Hekimhane-Pro (aylık 150 TL)
+- **Ürün:** Stripe Product Catalog → `Hekimhane-Pro`, `prod_VA4Ez1eZ6NPoBm`, 150 TL/ay abonelik.
+- **Fiyat çözümü (`lib/stripe.ts` → `getProPriceId()`):** önce `STRIPE_PRICE_MONTHLY` env → yoksa ürünün Stripe'daki varsayılan fiyatı (API'den, modül seviyesinde cache) → son çare eski `STRIPE_PRICE_YEARLY`. **Fiyat kodda sabit değil** — Stripe'da değiştirmek yeter. UI'da görünen metin ayrı: `lib/pro-plan.ts` (`PRO_AYLIK_TL`).
+- **Rotalar:** `checkout` (abonelik başlat) · `portal` (iptal/kart/fatura — Stripe Müşteri Portalı) · `subscription` (panel için durum okuma) · `webhook` (premium bayrağını yönetir).
+- **Yetki:** dördü de `lib/stripe-owner.ts` → `verifyOwner()` kullanır: oturum + `claim_requests`'te `status='approved'` e-posta eşleşmesi. Stripe çağrısından **önce** çalışır, böylece anahtar yokken bile yetkisiz istek 401 alır.
+- **Premium bayrağı yalnız webhook'tan değişir:** `checkout.session.completed` → `premium=true`; `customer.subscription.updated/deleted` → `active|trialing` dışında `premium=false`. İmzasız istek 400 — kimse dışarıdan premium açamaz.
+- **Metadata düşerse:** abonelik olayında `entity_type/entity_id` yoksa `premium_subscriptions`'tan `stripe_subscription_id` ile bulunur (Stripe panelinden elle açılan abonelikler kaybolmasın).
+- **Panel butonu üç durumlu** (`app/panel/page.tsx`): `past_due|unpaid|incomplete` → "Ödeme Sorunu · Kartı Güncelle" (portal) · `active|trialing` → "Aboneliği Yönet" (portal) · yoksa → "Pro'ya Yükselt". **Tuzak:** ödeme sorunlu abonede "Yükselt" göstermek mükerrer abonelik doğurur — bu yüzden durum `subsMap`'ten okunur, tek başına `premium` bayrağından değil.
+- **`premium_subscriptions` tarayıcıya kapalı:** abone e-postası + Stripe ID'leri içerir, RLS'te politika yok (yalnız service-role). Panel durumu bu yüzden `/api/stripe/subscription` üzerinden sunucudan okur — `supabase.from('premium_subscriptions')` client'ta **çalışmaz**.
+- **Stripe panelinden yapılması gerekenler:** Customer portal etkin olmalı (yoksa "Aboneliği Yönet" hata verir) + webhook endpoint'i 3 olaya abone olmalı. Detay: `SETUP.md` ADIM 9.
+- **Yasal eksik:** Mesafeli Satış Sözleşmesi + İptal/İade sayfaları **yok**; Türkiye'de online tahsilat için zorunlu. `/kvkk`, `/gizlilik`, `/kullanim` bunları karşılamaz.
+
 ### Bekleyen migration'lar (kullanıcı Supabase SQL Editor'da çalıştırmalı)
 - `supabase/migrations/add_account_activations.sql` — **çalıştırıldı** (aktivasyon akışı için şart).
+- `supabase/migrations/add_premium_column.sql` + `add_premium_subscriptions.sql` — Stripe akışı için **şart**. `add_premium_subscriptions.sql` daha önce çalıştırıldıysa **yeniden çalıştırılmalı**: eski sürümdeki `USING (TRUE)` SELECT politikası abone e-postalarını herkese açıyordu, yeni sürüm onu `DROP` eder.
 - `supabase/migrations/add_whatsapp.sql` — `whatsapp text` kolonu (4 tablo). WhatsApp butonu bu alan doluysa görünür (telefonu körü körüne WhatsApp saymaz).
 - `supabase/migrations/add_yorum_moderation.sql` — yorum şikayet/moderasyon kolonları (yukarıdaki akış için **şart**; çalıştırılmadan şikayet/gizleme çalışmaz).
 - `supabase/migrations/add_bobath_contact.sql` — `doktorlar.email` + `doktorlar.contact_hidden` kolonları. Bobath terapistleri importu (`scripts/import-bobath.js`) ve gizli-iletişim akışı için **şart**. Çalıştırılmadan import commit edilemez.

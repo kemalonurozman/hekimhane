@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { getStripe, ENTITY_TABLE } from '@/lib/stripe';
+import { getStripe, getProPriceId, ENTITY_TABLE } from '@/lib/stripe';
 
 export const runtime = 'nodejs';
 
@@ -30,9 +30,6 @@ export async function POST(request: NextRequest) {
     if (!VALID.includes(entity_type) || !entity_id) {
       return NextResponse.json({ error: 'Geçersiz işletme.' }, { status: 400 });
     }
-    if (!process.env.STRIPE_PRICE_YEARLY) {
-      return NextResponse.json({ error: 'Abonelik yapılandırması eksik (fiyat).' }, { status: 500 });
-    }
 
     // 3) Sahiplik — bu işletme için onaylı claim var mı?
     const admin = adminClient();
@@ -53,11 +50,12 @@ export async function POST(request: NextRequest) {
       .from(ENTITY_TABLE[entity_type]).select('name,ad,soyad').eq('id', entity_id).maybeSingle();
     const entName = ent?.name || [ent?.ad, ent?.soyad].filter(Boolean).join(' ') || 'İşletme';
 
-    // 5) Checkout session (yıllık abonelik)
+    // 5) Checkout session (Hekimhane-Pro — aylık abonelik)
     const stripe = getStripe();
+    const priceId = await getProPriceId();
     const cs = await stripe.checkout.sessions.create({
       mode: 'subscription',
-      line_items: [{ price: process.env.STRIPE_PRICE_YEARLY, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       customer_email: email,
       client_reference_id: `${entity_type}:${entity_id}`,
       metadata: { entity_type, entity_id: String(entity_id), entity_name: entName, user_email: email },

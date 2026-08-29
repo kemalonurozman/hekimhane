@@ -17,7 +17,11 @@ CREATE INDEX IF NOT EXISTS idx_premsub_entity ON premium_subscriptions(entity_ty
 CREATE INDEX IF NOT EXISTS idx_premsub_sub    ON premium_subscriptions(stripe_subscription_id);
 
 ALTER TABLE premium_subscriptions ENABLE ROW LEVEL SECURITY;
--- Yazma yalnızca service-role (webhook) ile; okuma admin API service-role ile yapılır.
-CREATE POLICY "svc read premsub" ON premium_subscriptions FOR SELECT USING (TRUE);
+
+-- Tabloda abone e-postası + Stripe müşteri/abonelik ID'leri duruyor; tarayıcıya
+-- (anon key) hiçbir satır açılmaz. Service-role RLS'i zaten baypas eder, o yüzden
+-- webhook yazması ve panel/admin okuması için politika gerekmez.
+-- NOT: eski kurulumda herkese açık SELECT politikası vardı — aşağıdaki DROP onu kaldırır.
+DROP POLICY IF EXISTS "svc read premsub" ON premium_subscriptions;
 
 NOTIFY pgrst, 'reload schema';

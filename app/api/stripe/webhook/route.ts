@@ -70,8 +70,21 @@ export async function POST(request: NextRequest) {
       }
     } else if (event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {
       const sub = event.data.object as Stripe.Subscription;
-      const m = sub.metadata || {};
+      let m: Record<string, string> = (sub.metadata || {}) as any;
+
+      // Metadata düşmüşse (ör. abonelik Stripe panelinden elle oluşturulmuşsa)
+      // ilgili işletmeyi kendi kaydımızdan bul — sessizce kaybolmasın.
+      if (!m.entity_type || !m.entity_id) {
+        const { data: row } = await (adminClient() as any)
+          .from('premium_subscriptions')
+          .select('entity_type,entity_id')
+          .eq('stripe_subscription_id', sub.id)
+          .maybeSingle();
+        if (row) m = { entity_type: row.entity_type, entity_id: String(row.entity_id) };
+      }
+
       if (m.entity_type && m.entity_id) {
+        // 'past_due' / 'unpaid' → ödeme alınamadı, premium kapanır.
         const active = ['active', 'trialing'].includes(sub.status);
         await applyPremium({
           entity_type: m.entity_type, entity_id: m.entity_id, active,

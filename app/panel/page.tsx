@@ -7,6 +7,7 @@ import type { User } from '@supabase/supabase-js';
 import { SPEC_GRUPLARI } from '@/lib/uzmanlik-data';
 import { HERO_BACKGROUNDS, coverPresetKey } from '@/lib/hero-backgrounds';
 import { IL_LISTE, ILCELER } from '@/lib/tr-il-ilce';
+import { PRO_FIYAT_ETIKET } from '@/lib/pro-plan';
 import MakalelerimTab from './MakalelerimTab';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
@@ -95,6 +96,15 @@ interface ClaimRequest {
   mesaj: string | null;
 }
 
+/** Stripe abonelik özeti — /api/stripe/subscription'dan gelir. */
+interface SubInfo {
+  status: string;               // active | trialing | past_due | unpaid | canceled | inactive
+  period_end: string | null;    // ISO tarih — dönem sonu
+}
+
+/** Ödeme sorunlu durumlar: yeni abonelik değil, kart güncelleme gerekir. */
+const ODEME_SORUNLU = ['past_due', 'unpaid', 'incomplete'];
+
 function Badge({ status }: { status: string }) {
   const map: Record<string, { label: string; bg: string; color: string; border: string }> = {
     pending:  { label: 'İncelemede', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
@@ -177,6 +187,8 @@ export default function PanelPage() {
   const [premiumMap, setPremiumMap] = useState<Record<string, boolean>>({});
   const [premiumMsg, setPremiumMsg] = useState<'success' | 'cancel' | null>(null);
   const [upgradingId, setUpgradingId] = useState<string | null>(null);
+  const [managingId, setManagingId] = useState<string | null>(null);
+  const [subsMap, setSubsMap] = useState<Record<string, SubInfo>>({});
   const [releasingId, setReleasingId] = useState<string | null>(null);
   const [selectedEditClaim, setSelectedEditClaim] = useState<ClaimRequest | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -242,6 +254,22 @@ export default function PanelPage() {
       } catch { /* geç */ }
     }));
     setPremiumMap(pmap);
+
+    // Abonelik durumu — 'past_due'/'unpaid' işletmede yeni abonelik açtırmak yerine
+    // kart güncellemeye yönlendirmek için gerekli (yoksa mükerrer abonelik riski).
+    try {
+      const res = await fetch('/api/stripe/subscription', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: approved.map(c => ({ entity_type: c.entity_type, entity_id: c.entity_id })) }),
+      });
+      const j = await res.json();
+      const smap: Record<string, SubInfo> = {};
+      approved.forEach(c => {
+        const s = j?.subs?.[`${c.entity_type}:${c.entity_id}`];
+        if (s) smap[c.id] = s;
+      });
+      setSubsMap(smap);
+    } catch { /* abonelik detayı alınamadıysa panel yine çalışır */ }
   }
 
   async function handleUpgrade(claimId: string, entity_type: string, entity_id: string) {
@@ -256,6 +284,21 @@ export default function PanelPage() {
       alert(j.error || 'Ödeme başlatılamadı.');
     } catch { alert('Ödeme başlatılamadı.'); }
     setUpgradingId(null);
+  }
+
+  // Stripe Müşteri Portalı — iptal, kart değişikliği, fatura geçmişi
+  async function handleManage(claimId: string, entity_type: string, entity_id: string) {
+    setManagingId(claimId);
+    try {
+      const res = await fetch('/api/stripe/portal', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entity_type, entity_id }),
+      });
+      const j = await res.json();
+      if (j.url) { window.location.href = j.url; return; }
+      alert(j.error || 'Abonelik yönetimi açılamadı.');
+    } catch { alert('Abonelik yönetimi açılamadı.'); }
+    setManagingId(null);
   }
 
   async function handleRelease(claimId: string, entityName: string) {
@@ -456,12 +499,12 @@ export default function PanelPage() {
             border: `1px solid ${premiumMsg === 'success' ? '#86EFAC' : '#FED7AA'}`,
             color: premiumMsg === 'success' ? '#166534' : '#9A3412', fontSize: 13.5, fontWeight: 600 }}>
             {premiumMsg === 'success'
-              ? '👑 Ödemeniz alındı! Premium üyeliğiniz birkaç saniye içinde aktifleşir (aktifleşmezse sayfayı yenileyin).'
+              ? '👑 Ödemeniz alındı! Hekimhane-Pro üyeliğiniz birkaç saniye içinde aktifleşir (aktifleşmezse sayfayı yenileyin).'
               : 'Ödeme iptal edildi. Dilediğinizde tekrar deneyebilirsiniz.'}
             <button onClick={() => setPremiumMsg(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'inherit', fontFamily: 'inherit' }}>×</button>
           </div>
         )}
-        {tab === 'dashboard' && <DashboardTab user={user} claims={claims} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { setSelectedEditClaim(c); setTab('edit'); }} premiumMap={premiumMap} onUpgrade={handleUpgrade} upgradingId={upgradingId} onRelease={handleRelease} releasingId={releasingId} />}
+        {tab === 'dashboard' && <DashboardTab user={user} claims={claims} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { setSelectedEditClaim(c); setTab('edit'); }} premiumMap={premiumMap} subsMap={subsMap} onUpgrade={handleUpgrade} upgradingId={upgradingId} onManage={handleManage} managingId={managingId} onRelease={handleRelease} releasingId={releasingId} />}
         {tab === 'claims'    && <ClaimsTab claims={claims} loading={claimsLoading} onNewClaim={() => setTab('new')} profileUrls={profileUrls} onDeleted={() => loadClaims(user?.email || '')} />}
         {tab === 'profile'   && <ProfileTab user={user} />}
         {tab === 'new'       && <NewClaimTab user={user} onSuccess={() => { loadClaims(user?.email || ''); setTab('claims'); }} />}
@@ -515,7 +558,7 @@ export default function PanelPage() {
 /* ═══════════════════════════════════════════════
    DASHBOARD
 ═══════════════════════════════════════════════ */
-function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoading, onTabChange, profileUrls, onEditClaim, premiumMap, onUpgrade, upgradingId, onRelease, releasingId }: { user: User | null; claims: ClaimRequest[]; approvedClaims: ClaimRequest[]; pendingClaims: ClaimRequest[]; claimsLoading: boolean; onTabChange: (t: any) => void; profileUrls: Record<string, string>; onEditClaim: (c: ClaimRequest) => void; premiumMap: Record<string, boolean>; onUpgrade: (claimId: string, entityType: string, entityId: string) => void; upgradingId: string | null; onRelease: (claimId: string, entityName: string) => void; releasingId: string | null }) {
+function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoading, onTabChange, profileUrls, onEditClaim, premiumMap, subsMap, onUpgrade, upgradingId, onManage, managingId, onRelease, releasingId }: { user: User | null; claims: ClaimRequest[]; approvedClaims: ClaimRequest[]; pendingClaims: ClaimRequest[]; claimsLoading: boolean; onTabChange: (t: any) => void; profileUrls: Record<string, string>; onEditClaim: (c: ClaimRequest) => void; premiumMap: Record<string, boolean>; subsMap: Record<string, SubInfo>; onUpgrade: (claimId: string, entityType: string, entityId: string) => void; upgradingId: string | null; onManage: (claimId: string, entityType: string, entityId: string) => void; managingId: string | null; onRelease: (claimId: string, entityName: string) => void; releasingId: string | null }) {
   const name = user?.user_metadata?.full_name || user?.user_metadata?.name || 'Kullanıcı';
   return (
     <div>
@@ -561,12 +604,37 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                       <Ic d={icons.edit} size={13} /> Düzenle
                     </button>
                   )}
-                  {c.entity_id && c.entity_id !== 'new' && !premiumMap[c.id] && (
-                    <button onClick={() => onUpgrade(c.id, c.entity_type, c.entity_id!)} disabled={upgradingId === c.id}
-                      style={{ padding: '7px 14px', background: 'linear-gradient(135deg,#1B3A69,#0F2A55)', color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, border: 'none', cursor: upgradingId === c.id ? 'default' : 'pointer', opacity: upgradingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
-                      {upgradingId === c.id ? '…' : <>👑 Premium&apos;a Yükselt</>}
-                    </button>
-                  )}
+                  {/* Abonelik butonu üç durumlu: ödeme sorunu → kart güncelle,
+                      aktif → yönet, yoksa → yükselt. Ödeme sorunlu abonelikte yeni
+                      checkout açtırmak mükerrer abonelik doğurur. */}
+                  {c.entity_id && c.entity_id !== 'new' && (() => {
+                    const sub = subsMap[c.id];
+                    const sorunlu = sub && ODEME_SORUNLU.includes(sub.status);
+                    const aktif = premiumMap[c.id] || (sub && ['active', 'trialing'].includes(sub.status));
+
+                    if (sorunlu) return (
+                      <button onClick={() => onManage(c.id, c.entity_type, c.entity_id!)} disabled={managingId === c.id}
+                        title="Son ödeme alınamadı — kart bilgilerinizi güncelleyin"
+                        style={{ padding: '7px 14px', background: '#FEF2F2', color: '#B91C1C', borderRadius: 9, fontSize: 12, fontWeight: 700, border: '1.5px solid #FCA5A5', cursor: managingId === c.id ? 'default' : 'pointer', opacity: managingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
+                        {managingId === c.id ? '…' : 'Ödeme Sorunu · Kartı Güncelle'}
+                      </button>
+                    );
+
+                    if (aktif) return (
+                      <button onClick={() => onManage(c.id, c.entity_type, c.entity_id!)} disabled={managingId === c.id}
+                        title="Aboneliği iptal et, kartını değiştir veya faturalarını gör"
+                        style={{ padding: '7px 14px', background: 'white', color: T.navy, borderRadius: 9, fontSize: 12, fontWeight: 700, border: `1.5px solid ${T.navy}`, cursor: managingId === c.id ? 'default' : 'pointer', opacity: managingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
+                        {managingId === c.id ? '…' : 'Aboneliği Yönet'}
+                      </button>
+                    );
+
+                    return (
+                      <button onClick={() => onUpgrade(c.id, c.entity_type, c.entity_id!)} disabled={upgradingId === c.id}
+                        style={{ padding: '7px 14px', background: 'linear-gradient(135deg,#1B3A69,#0F2A55)', color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, border: 'none', cursor: upgradingId === c.id ? 'default' : 'pointer', opacity: upgradingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
+                        {upgradingId === c.id ? '…' : <>Pro&apos;ya Yükselt · {PRO_FIYAT_ETIKET}</>}
+                      </button>
+                    );
+                  })()}
                   {c.entity_id && c.entity_id !== 'new' && (
                     <button onClick={() => onRelease(c.id, c.entity_name || 'İşletme')} disabled={releasingId === c.id}
                       title="Bu işletmenin sahipliğini bırak — profil sahiplenilmemiş duruma döner"
