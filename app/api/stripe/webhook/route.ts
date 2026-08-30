@@ -98,14 +98,23 @@ export async function POST(request: NextRequest) {
         const subId = typeof (inv as any).subscription === 'string' ? (inv as any).subscription : (inv as any).subscription?.id;
         const email = inv.customer_email || (inv as any).customer_address?.email || null;
 
-        // İşletme adını abonelik kaydımızdan çöz (fatura müşterisi = işletme)
+        // İşletme adını abonelik kaydımızdan çöz (fatura müşterisi = işletme).
+        // Stripe olay sırası garanti etmez: invoice.paid, checkout.session.completed'dan
+        // ÖNCE gelebilir ve abonelik kaydı henüz yazılmamış olur — kısa bekleyerek
+        // birkaç kez denenir (ilk gerçek ödemede yaşandı: fatura kart sahibinin
+        // adıyla kesildi).
         let musteriAd = inv.customer_name || email || 'Hekimhane-Pro Üyesi';
         if (subId) {
-          const { data: row } = await (adminClient() as any)
-            .from('premium_subscriptions')
-            .select('entity_type,entity_id')
-            .eq('stripe_subscription_id', subId)
-            .maybeSingle();
+          let row: any = null;
+          for (let deneme = 0; deneme < 4 && !row; deneme++) {
+            if (deneme > 0) await new Promise(r => setTimeout(r, 2500));
+            const { data } = await (adminClient() as any)
+              .from('premium_subscriptions')
+              .select('entity_type,entity_id')
+              .eq('stripe_subscription_id', subId)
+              .maybeSingle();
+            row = data;
+          }
           if (row) {
             const { data: ent } = await (adminClient() as any)
               .from(ENTITY_TABLE[row.entity_type]).select('name,ad,soyad').eq('id', row.entity_id).maybeSingle();

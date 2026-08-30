@@ -85,10 +85,30 @@ export async function faturalaVeGonder(opts: {
     const gonder = await monetraCall('send_invoice_email', {
       invoice_id: String(invoiceId),
       to: musteriEmail,
-      subject: 'Hekimhane-Pro — Aylık Üyelik Faturanız',
-      message: 'Hekimhane-Pro üyeliğinizin bu döneme ait faturası ektedir. Bizi tercih ettiğiniz için teşekkür ederiz.',
+      subject: 'Hekimhane-Pro — Ödemeniz Alındı, Faturanız Ektedir',
+      message: proFaturaMesaji(donem),
     });
     if (!gonder.ok) return { ok: true, data: olustur.data, error: `fatura kesildi ama mail gönderilemedi: ${gonder.error}` };
   }
   return { ok: true, data: olustur.data };
+}
+
+/**
+ * Ödenmiş fatura e-postasının gövde metni — hem otomatik gönderimde hem
+ * Monetra'daki elle "Send" için tek kaynak. Fatura zaten ödendiği için
+ * ödeme talebi değil, teşekkür + bilgilendirme tonundadır.
+ */
+export function proFaturaMesaji(donem: string): string {
+  return [
+    'Merhaba,',
+    '',
+    `Hekimhane-Pro üyeliğinizin ${donem} dönemine ait ödemeniz başarıyla alınmıştır — teşekkür ederiz. Bu döneme ait faturanızı ekte bulabilirsiniz.`,
+    '',
+    'Fatura ödenmiş olarak düzenlenmiştir; yapmanız gereken ek bir işlem yoktur. Üyeliğiniz dönem sonunda otomatik olarak yenilenir; aboneliğinizi dilediğiniz an panelinizden ("Pro Üyeliği Yönet") iptal edebilir veya kart bilgilerinizi güncelleyebilirsiniz.',
+    '',
+    'Sorularınız için bu e-postayı yanıtlamanız yeterlidir.',
+    '',
+    'İşletmenizi Hekimhane-Pro ile büyüttüğünüz için teşekkür ederiz.',
+    'Hekimhane Ekibi · www.hekimhane.com.tr',
+  ].join('\n');
 }
