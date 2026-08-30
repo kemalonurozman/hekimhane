@@ -8,6 +8,15 @@ export const runtime = 'nodejs';
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.hekimhane.com.tr';
 const VALID = ['klinik', 'hastane', 'doktor', 'eczane'];
 
+/**
+ * Stripe Payment Link (canlı mod, Hekimhane-Pro aylık abonelik).
+ * Doluysa API ile session açılmaz; kullanıcı sahiplik kontrolünden sonra
+ * bu linke client_reference_id (işletme kimliği) eklenerek yönlendirilir —
+ * webhook ödemeyi bu kimlikle doğru işletmeye bağlar. STRIPE_SECRET_KEY'e
+ * bu akışta hiç ihtiyaç yoktur (webhook imzası hariç).
+ */
+const PAYMENT_LINK = process.env.STRIPE_PAYMENT_LINK ?? 'https://buy.stripe.com/bJe4gzbfAel5fJp48B43S0C';
+
 function adminClient() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } });
@@ -74,7 +83,15 @@ export async function POST(request: NextRequest) {
     }
     const entName = ent?.name || [ent?.ad, ent?.soyad].filter(Boolean).join(' ') || 'İşletme';
 
-    // 5) Checkout session (Hekimhane-Pro — aylık abonelik)
+    // 5a) Payment Link akışı — client_reference_id yalnızca harf/rakam/-/_
+    //     kabul eder, bu yüzden ayraç '__' (webhook her iki biçimi de çözer).
+    if (PAYMENT_LINK) {
+      const ref = `${entity_type}__${String(entity_id)}`.replace(/[^A-Za-z0-9_-]/g, '-');
+      const url = `${PAYMENT_LINK}?client_reference_id=${encodeURIComponent(ref)}&prefilled_email=${encodeURIComponent(email)}`;
+      return NextResponse.json({ url });
+    }
+
+    // 5b) API ile checkout session (Payment Link kapatılırsa yedek yol)
     const stripe = getStripe();
     const priceId = await getProPriceId();
     const cs = await stripe.checkout.sessions.create({

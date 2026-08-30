@@ -58,11 +58,24 @@ export async function POST(request: NextRequest) {
   try {
     if (event.type === 'checkout.session.completed') {
       const s = event.data.object as Stripe.Checkout.Session;
-      const m = s.metadata || {};
+      let m: Record<string, string> = (s.metadata || {}) as any;
+
+      // Payment Link akışında metadata olmaz; işletme kimliği
+      // client_reference_id'de taşınır. İki biçim: 'tip:id' (API akışı)
+      // ve 'tip__id' (Payment Link — ':' kabul etmediği için).
+      if ((!m.entity_type || !m.entity_id) && s.client_reference_id) {
+        const ref = s.client_reference_id;
+        const ayrac = ref.includes(':') ? ':' : '__';
+        const i = ref.indexOf(ayrac);
+        if (i > 0) {
+          m = { entity_type: ref.slice(0, i), entity_id: ref.slice(i + ayrac.length) };
+        }
+      }
+
       if (m.entity_type && m.entity_id) {
         await applyPremium({
           entity_type: m.entity_type, entity_id: m.entity_id, active: true,
-          email: s.customer_email || m.user_email || null,
+          email: s.customer_email || (s as any).customer_details?.email || m.user_email || null,
           customerId: typeof s.customer === 'string' ? s.customer : null,
           subId: typeof s.subscription === 'string' ? s.subscription : null,
           status: 'active',
