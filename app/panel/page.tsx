@@ -7,7 +7,7 @@ import type { User } from '@supabase/supabase-js';
 import { SPEC_GRUPLARI } from '@/lib/uzmanlik-data';
 import { HERO_BACKGROUNDS, coverPresetKey } from '@/lib/hero-backgrounds';
 import { IL_LISTE, ILCELER } from '@/lib/tr-il-ilce';
-import { PRO_FIYAT_ETIKET } from '@/lib/pro-plan';
+import { PRO_AYLIK_TL } from '@/lib/pro-plan';
 import MakalelerimTab from './MakalelerimTab';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
@@ -215,7 +215,6 @@ export default function PanelPage() {
   const [profileUrls, setProfileUrls] = useState<Record<string, string>>({});
   const [premiumMap, setPremiumMap] = useState<Record<string, boolean>>({});
   const [premiumMsg, setPremiumMsg] = useState<'success' | 'cancel' | null>(null);
-  const [upgradingId, setUpgradingId] = useState<string | null>(null);
   const [managingId, setManagingId] = useState<string | null>(null);
   const [subsMap, setSubsMap] = useState<Record<string, SubInfo>>({});
   const [releasingId, setReleasingId] = useState<string | null>(null);
@@ -301,19 +300,7 @@ export default function PanelPage() {
     } catch { /* abonelik detayı alınamadıysa panel yine çalışır */ }
   }
 
-  async function handleUpgrade(claimId: string, entity_type: string, entity_id: string) {
-    setUpgradingId(claimId);
-    try {
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ entity_type, entity_id }),
-      });
-      const j = await res.json();
-      if (j.url) { window.location.href = j.url; return; }
-      alert(j.error || 'Ödeme başlatılamadı.');
-    } catch { alert('Ödeme başlatılamadı.'); }
-    setUpgradingId(null);
-  }
+  // Yükseltme artık /pro sayfasından yapılır (özellik tanıtımı + checkout tek yerde).
 
   // Stripe Müşteri Portalı — iptal, kart değişikliği, fatura geçmişi
   async function handleManage(claimId: string, entity_type: string, entity_id: string) {
@@ -533,7 +520,7 @@ export default function PanelPage() {
             <button onClick={() => setPremiumMsg(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'inherit', fontFamily: 'inherit' }}>×</button>
           </div>
         )}
-        {tab === 'dashboard' && <DashboardTab user={user} claims={claims} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { setSelectedEditClaim(c); setTab('edit'); }} premiumMap={premiumMap} subsMap={subsMap} onUpgrade={handleUpgrade} upgradingId={upgradingId} onManage={handleManage} managingId={managingId} onRelease={handleRelease} releasingId={releasingId} />}
+        {tab === 'dashboard' && <DashboardTab user={user} claims={claims} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { setSelectedEditClaim(c); setTab('edit'); }} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} onRelease={handleRelease} releasingId={releasingId} />}
         {tab === 'claims'    && <ClaimsTab claims={claims} loading={claimsLoading} onNewClaim={() => setTab('new')} profileUrls={profileUrls} onDeleted={() => loadClaims(user?.email || '')} />}
         {tab === 'profile'   && <ProfileTab user={user} />}
         {tab === 'new'       && <NewClaimTab user={user} onSuccess={() => { loadClaims(user?.email || ''); setTab('claims'); }} />}
@@ -587,7 +574,7 @@ export default function PanelPage() {
 /* ═══════════════════════════════════════════════
    DASHBOARD
 ═══════════════════════════════════════════════ */
-function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoading, onTabChange, profileUrls, onEditClaim, premiumMap, subsMap, onUpgrade, upgradingId, onManage, managingId, onRelease, releasingId }: { user: User | null; claims: ClaimRequest[]; approvedClaims: ClaimRequest[]; pendingClaims: ClaimRequest[]; claimsLoading: boolean; onTabChange: (t: any) => void; profileUrls: Record<string, string>; onEditClaim: (c: ClaimRequest) => void; premiumMap: Record<string, boolean>; subsMap: Record<string, SubInfo>; onUpgrade: (claimId: string, entityType: string, entityId: string) => void; upgradingId: string | null; onManage: (claimId: string, entityType: string, entityId: string) => void; managingId: string | null; onRelease: (claimId: string, entityName: string) => void; releasingId: string | null }) {
+function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoading, onTabChange, profileUrls, onEditClaim, premiumMap, subsMap, onManage, managingId, onRelease, releasingId }: { user: User | null; claims: ClaimRequest[]; approvedClaims: ClaimRequest[]; pendingClaims: ClaimRequest[]; claimsLoading: boolean; onTabChange: (t: any) => void; profileUrls: Record<string, string>; onEditClaim: (c: ClaimRequest) => void; premiumMap: Record<string, boolean>; subsMap: Record<string, SubInfo>; onManage: (claimId: string, entityType: string, entityId: string) => void; managingId: string | null; onRelease: (claimId: string, entityName: string) => void; releasingId: string | null }) {
   const name = user?.user_metadata?.full_name || user?.user_metadata?.name || 'Kullanıcı';
   return (
     <div>
@@ -665,10 +652,10 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                     );
 
                     return (
-                      <button onClick={() => onUpgrade(c.id, c.entity_type, c.entity_id!)} disabled={upgradingId === c.id}
-                        style={{ padding: '7px 14px', background: 'linear-gradient(135deg,#1B3A69,#0F2A55)', color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, border: 'none', cursor: upgradingId === c.id ? 'default' : 'pointer', opacity: upgradingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
-                        {upgradingId === c.id ? '…' : <>Pro&apos;ya Yükselt · {PRO_FIYAT_ETIKET}</>}
-                      </button>
+                      <a href="/pro" title="Pro hesabın tüm özelliklerini görün ve yükseltin"
+                        style={{ padding: '7px 14px', background: 'linear-gradient(135deg,#1B3A69,#0F2A55)', color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
+                        Pro&apos;ya Yükseltin (Aylık {PRO_AYLIK_TL} TL)
+                      </a>
                     );
                   })()}
                   {c.entity_id && c.entity_id !== 'new' && (

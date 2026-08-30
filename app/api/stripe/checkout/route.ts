@@ -25,14 +25,34 @@ export async function POST(request: NextRequest) {
     const email = session?.user?.email;
     if (!email) return NextResponse.json({ error: 'Giriş yapmanız gerekiyor.' }, { status: 401 });
 
-    // 2) Girdi
-    const { entity_type, entity_id } = await request.json();
+    // 2) Girdi — /pro sayfası işletme belirtmeden çağırır; o durumda
+    //    kullanıcının ilk onaylı işletmesi kullanılır.
+    let { entity_type, entity_id } = await request.json().catch(() => ({}));
+    const admin = adminClient();
+
+    if (!entity_type || !entity_id) {
+      const { data: first } = await (admin as any)
+        .from('claim_requests')
+        .select('entity_type,entity_id')
+        .eq('email', email)
+        .eq('status', 'approved')
+        .not('entity_id', 'is', null)
+        .neq('entity_id', 'new')
+        .limit(1)
+        .maybeSingle();
+      if (!first) {
+        return NextResponse.json(
+          { error: 'no_claim', message: 'Önce işletmenizi sahiplenmeniz gerekiyor.' }, { status: 403 });
+      }
+      entity_type = first.entity_type;
+      entity_id = first.entity_id;
+    }
+
     if (!VALID.includes(entity_type) || !entity_id) {
       return NextResponse.json({ error: 'Geçersiz işletme.' }, { status: 400 });
     }
 
     // 3) Sahiplik — bu işletme için onaylı claim var mı?
-    const admin = adminClient();
     const { data: claim } = await (admin as any)
       .from('claim_requests')
       .select('id')
@@ -45,9 +65,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Bu işletmeyi yönetme yetkiniz yok (onaylı sahiplik gerekli).' }, { status: 403 });
     }
 
-    // 4) İşletme adı (açıklama için)
+    // 4) İşletme adı (açıklama için) + zaten Pro ise ikinci abonelik açma
     const { data: ent } = await (admin as any)
-      .from(ENTITY_TABLE[entity_type]).select('name,ad,soyad').eq('id', entity_id).maybeSingle();
+      .from(ENTITY_TABLE[entity_type]).select('name,ad,soyad,premium').eq('id', entity_id).maybeSingle();
+    if (ent?.premium) {
+      return NextResponse.json(
+        { error: 'already_pro', message: 'Bu işletme zaten Pro üye. Aboneliği panelden yönetebilirsiniz.' }, { status: 409 });
+    }
     const entName = ent?.name || [ent?.ad, ent?.soyad].filter(Boolean).join(' ') || 'İşletme';
 
     // 5) Checkout session (Hekimhane-Pro — aylık abonelik)
