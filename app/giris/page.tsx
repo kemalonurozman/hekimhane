@@ -81,7 +81,8 @@ function GirisContent() {
   const urlError     = searchParams.get('error');
 
   // Mod: 'password' | 'signup' (magic link kaldırıldı — SMTP gerektirir)
-  const [mod,        setMod]        = useState<'magic' | 'password' | 'signup'>('password');
+  const [mod,        setMod]        = useState<'magic' | 'password' | 'signup' | 'reset'>('password');
+  const [resetSent,  setResetSent]  = useState(false);
   const [kullaniciTip, setKullaniciTip] = useState<'hasta' | 'isletme'>('hasta');
   const [email,      setEmail]      = useState(searchParams.get('email') || '');
   const [password,   setPassword]   = useState('');
@@ -172,6 +173,26 @@ function GirisContent() {
         saveToAboneList(email.trim(), kullaniciTip, 'giris');
         router.replace(redirect);
       }
+    } catch {
+      setSending(false);
+      setEmailError('Bağlantı hatası. İnternet bağlantınızı kontrol edip tekrar deneyin.');
+    }
+  }
+
+  /* Şifre sıfırlama bağlantısı gönder */
+  async function handleReset(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) { setEmailError('Lütfen e-posta adresinizi girin.'); return; }
+    setSending(true); setEmailError('');
+    try {
+      const res = await fetch('/api/hesap/sifre-sifirlama', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      const j = await res.json();
+      setSending(false);
+      if (res.ok) setResetSent(true);
+      else setEmailError(j.error || 'İşlem tamamlanamadı. Lütfen tekrar deneyin.');
     } catch {
       setSending(false);
       setEmailError('Bağlantı hatası. İnternet bağlantınızı kontrol edip tekrar deneyin.');
@@ -357,7 +378,7 @@ function GirisContent() {
                 { key: 'password', label: 'Giriş Yap' },
                 { key: 'signup',   label: 'Kayıt Ol' },
               ] as const).map(m => (
-                <button key={m.key} onClick={() => { setMod(m.key); setEmailError(''); setPassword(''); setPassword2(''); }}
+                <button key={m.key} onClick={() => { setMod(m.key); setEmailError(''); setPassword(''); setPassword2(''); setResetSent(false); }}
                   style={segBtn(mod === m.key)}>
                   {m.label}
                 </button>
@@ -365,7 +386,25 @@ function GirisContent() {
             </div>
 
             {/* Form */}
-            <form onSubmit={mod === 'magic' ? handleMagicLink : mod === 'signup' ? handleSignup : handlePasswordGiris} style={{ textAlign: 'left' }}>
+            {/* Şifre sıfırlama modu — açıklama veya "gönderildi" onayı */}
+            {mod === 'reset' && (
+              resetSent ? (
+                <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: 12, padding: '13px 15px', display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 18, textAlign: 'left' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#166534" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span style={{ color: '#166534', fontSize: 13, lineHeight: 1.55 }}>
+                    Bu adres kayıtlıysa sıfırlama bağlantısı gönderildi. Gelen kutunuzu
+                    (ve spam klasörünü) kontrol edin — bağlantı tek kullanımlıktır.
+                  </span>
+                </div>
+              ) : (
+                <p style={{ color: '#86868B', fontSize: 13.5, lineHeight: 1.6, margin: '0 0 18px', textAlign: 'left' }}>
+                  E-posta adresinizi girin; kayıtlıysa size yeni şifre belirlemeniz
+                  için tek kullanımlık bir bağlantı gönderelim.
+                </p>
+              )
+            )}
+
+            <form onSubmit={mod === 'magic' ? handleMagicLink : mod === 'signup' ? handleSignup : mod === 'reset' ? handleReset : handlePasswordGiris} style={{ textAlign: 'left' }}>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#48484A', marginBottom: 8, letterSpacing: '-0.1px' }}>
                 E-posta Adresi
               </label>
@@ -408,6 +447,15 @@ function GirisContent() {
                       <EyeIcon open={showPw} />
                     </button>
                   </div>
+                  {mod === 'password' && (
+                    <div style={{ textAlign: 'right', marginTop: -4, marginBottom: 12 }}>
+                      <button type="button"
+                        onClick={() => { setMod('reset'); setEmailError(''); setPassword(''); setResetSent(false); }}
+                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12.5, fontWeight: 600, color: '#1B3A69', fontFamily: 'inherit' }}>
+                        Şifremi unuttum
+                      </button>
+                    </div>
+                  )}
                 </>
               )}
 
@@ -459,7 +507,12 @@ function GirisContent() {
                       <circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,.3)" strokeWidth="2"/>
                       <path d="M8 2a6 6 0 0 1 6 6" stroke="white" strokeWidth="2" strokeLinecap="round"/>
                     </svg>
-                    {mod === 'magic' ? 'Gönderiliyor...' : mod === 'signup' ? 'Hesap oluşturuluyor...' : 'Giriş yapılıyor...'}
+                    {mod === 'magic' || mod === 'reset' ? 'Gönderiliyor...' : mod === 'signup' ? 'Hesap oluşturuluyor...' : 'Giriş yapılıyor...'}
+                  </>
+                ) : mod === 'reset' ? (
+                  <>
+                    <IcMail />
+                    Sıfırlama Bağlantısı Gönder
                   </>
                 ) : mod === 'magic' ? (
                   <>
@@ -479,6 +532,14 @@ function GirisContent() {
                 )}
               </button>
             </form>
+
+            {mod === 'reset' && (
+              <button type="button"
+                onClick={() => { setMod('password'); setEmailError(''); setResetSent(false); }}
+                style={{ background: 'none', border: 'none', padding: 0, marginTop: 16, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#1B3A69', fontFamily: 'inherit' }}>
+                ← Girişe geri dön
+              </button>
+            )}
 
             <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 20, lineHeight: 1.7 }}>
               Devam ederek{' '}
