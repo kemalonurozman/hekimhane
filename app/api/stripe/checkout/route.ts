@@ -92,7 +92,28 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: cs.url });
   } catch (e: any) {
-    console.error('stripe/checkout error:', e?.message || e);
-    return NextResponse.json({ error: 'Ödeme başlatılamadı.' }, { status: 500 });
+    const msg: string = e?.message || String(e);
+    console.error('stripe/checkout error:', msg);
+
+    // Tek bir genel mesaj sebebi gizliyordu; en sık kurulum hataları ayrıştırılır.
+    if (msg.includes('STRIPE_SECRET_KEY')) {
+      return NextResponse.json(
+        { error: 'Ödeme yapılandırması eksik: STRIPE_SECRET_KEY tanımlı değil.' }, { status: 500 });
+    }
+    if (/no such product|no such price/i.test(msg)) {
+      // Tipik sebep: ürün test modunda, anahtar canlı modda (veya tersi).
+      return NextResponse.json(
+        { error: 'Stripe ürünü bulunamadı — API anahtarı ile ürün farklı modda (test/canlı) olabilir. Stripe panelinde modu kontrol edin.' },
+        { status: 500 });
+    }
+    if (/api key|authentication|invalid.*key/i.test(msg)) {
+      return NextResponse.json(
+        { error: 'Stripe anahtarı geçersiz. STRIPE_SECRET_KEY değerini kontrol edin.' }, { status: 500 });
+    }
+    if (msg.includes('Pro abonelik fiyatı bulunamadı')) {
+      return NextResponse.json(
+        { error: 'Üründe aktif fiyat yok. Stripe panelinde Hekimhane-Pro ürününe varsayılan fiyat ekleyin.' }, { status: 500 });
+    }
+    return NextResponse.json({ error: `Ödeme başlatılamadı: ${msg}` }, { status: 500 });
   }
 }
