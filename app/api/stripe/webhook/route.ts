@@ -43,16 +43,23 @@ async function applyPremium(opts: {
 }
 
 export async function POST(request: NextRequest) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  // Virgülle ayrılmış birden çok secret desteklenir ("whsec_a,whsec_b") —
+  // Stripe'ta hedef değiştirilirken/yenilenirken eski+yeni birlikte
+  // tanımlanabilir, geçiş sırasında hiçbir olay kaybolmaz.
+  const secrets = (process.env.STRIPE_WEBHOOK_SECRET || '')
+    .split(',').map(s => s.trim()).filter(Boolean);
   const sig = request.headers.get('stripe-signature');
-  if (!secret || !sig) return NextResponse.json({ error: 'İmza yok' }, { status: 400 });
+  if (!secrets.length || !sig) return NextResponse.json({ error: 'İmza yok' }, { status: 400 });
 
-  let event: Stripe.Event;
-  try {
-    const body = await request.text(); // ham gövde — imza doğrulaması için şart
-    event = getStripe().webhooks.constructEvent(body, sig, secret);
-  } catch (e: any) {
-    console.error('webhook imza hatası:', e?.message || e);
+  const body = await request.text(); // ham gövde — imza doğrulaması için şart
+  let event: Stripe.Event | null = null;
+  let sonHata = '';
+  for (const secret of secrets) {
+    try { event = getStripe().webhooks.constructEvent(body, sig, secret); break; }
+    catch (e: any) { sonHata = e?.message || String(e); }
+  }
+  if (!event) {
+    console.error('webhook imza hatası:', sonHata);
     return NextResponse.json({ error: 'Geçersiz imza' }, { status: 400 });
   }
 
