@@ -46,7 +46,24 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: portal.url });
   } catch (e: any) {
-    console.error('stripe/portal error:', e?.message || e);
-    return NextResponse.json({ error: 'Abonelik yönetimi açılamadı.' }, { status: 500 });
+    const msg: string = e?.message || String(e);
+    console.error('stripe/portal error:', msg);
+
+    // Tek bir "açılamadı" mesajı sebebi gizliyordu; en sık üç sebep ayrıştırılır.
+    if (msg.includes('STRIPE_SECRET_KEY')) {
+      return NextResponse.json(
+        { error: 'Ödeme yapılandırması eksik: STRIPE_SECRET_KEY tanımlı değil.' }, { status: 500 });
+    }
+    if (/configuration/i.test(msg)) {
+      // Stripe: müşteri portalı ayarları hiç kaydedilmemiş
+      return NextResponse.json(
+        { error: 'Stripe Müşteri Portalı henüz etkinleştirilmemiş. Stripe → Settings → Billing → Customer portal ayarlarını kaydedin.' },
+        { status: 500 });
+    }
+    if (/api key|authentication|invalid.*key/i.test(msg)) {
+      return NextResponse.json(
+        { error: 'Stripe anahtarı geçersiz. STRIPE_SECRET_KEY değerini kontrol edin.' }, { status: 500 });
+    }
+    return NextResponse.json({ error: `Abonelik yönetimi açılamadı: ${msg}` }, { status: 500 });
   }
 }
