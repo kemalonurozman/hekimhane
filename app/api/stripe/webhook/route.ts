@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import type Stripe from 'stripe';
 import { getStripe, ENTITY_TABLE } from '@/lib/stripe';
+import { faturalaVeGonder } from '@/lib/monetra';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -80,6 +81,49 @@ export async function POST(request: NextRequest) {
           subId: typeof s.subscription === 'string' ? s.subscription : null,
           status: 'active',
         });
+      }
+    } else if (event.type === 'invoice.paid') {
+      // Her başarılı abonelik tahsilatı (ilk ödeme + aylık yenilemeler) —
+      // Monetra'da fatura kes ve müşteriye e-posta ile gönder. Best-effort:
+      // faturalama hatası premium akışını asla bozmaz (webhook yine 200 döner).
+      const inv = event.data.object as Stripe.Invoice;
+      try {
+        const subId = typeof (inv as any).subscription === 'string' ? (inv as any).subscription : (inv as any).subscription?.id;
+        const email = inv.customer_email || (inv as any).customer_address?.email || null;
+
+        // İşletme adını abonelik kaydımızdan çöz (fatura müşterisi = işletme)
+        let musteriAd = inv.customer_name || email || 'Hekimhane-Pro Üyesi';
+        if (subId) {
+          const { data: row } = await (adminClient() as any)
+            .from('premium_subscriptions')
+            .select('entity_type,entity_id')
+            .eq('stripe_subscription_id', subId)
+            .maybeSingle();
+          if (row) {
+            const { data: ent } = await (adminClient() as any)
+              .from(ENTITY_TABLE[row.entity_type]).select('name,ad,soyad').eq('id', row.entity_id).maybeSingle();
+            const ad = ent?.name || [ent?.ad, ent?.soyad].filter(Boolean).join(' ');
+            if (ad) musteriAd = ad;
+          }
+        }
+
+        // Dönem metni: faturanın ilk kaleminin period aralığı
+        const p = (inv.lines?.data?.[0] as any)?.period;
+        const tr = (t: number) => new Date(t * 1000).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+        const donem = p?.start && p?.end ? `${tr(p.start)} – ${tr(p.end)}` : tr(inv.created);
+
+        const sonuc = await faturalaVeGonder({
+          musteriAd,
+          musteriEmail: email,
+          tutar: (inv.amount_paid || 0) / 100,
+          paraBirimi: inv.currency || 'try',
+          donem,
+          stripeInvoiceId: inv.id,
+        });
+        if (!sonuc.ok && !sonuc.skipped) console.error('monetra fatura hatası:', sonuc.error);
+        else if (sonuc.error) console.error('monetra uyarı:', sonuc.error);
+      } catch (e: any) {
+        console.error('invoice.paid işleme hatası:', e?.message || e);
       }
     } else if (event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {
       const sub = event.data.object as Stripe.Subscription;
