@@ -85,6 +85,19 @@ export async function POST(request: NextRequest) {
     for (const key of allowed) {
       if (key in fields) safeFields[key] = fields[key];
     }
+
+    // Pro'ya kilitli alanlar — panel bunları zaten devre dışı gösterir ama
+    // API doğrudan çağrılırsa da yazılamamalı. Premium değilse sessizce
+    // düşürülür (form tüm formData'yı gönderdiği için hata dönmek her
+    // kaydı bozar); mevcut değerler DB'de olduğu gibi kalır.
+    const PRO_FIELDS = ['website', 'instagram_url', 'facebook_url', 'linkedin_url',
+      'randevu_aktif', 'randevu_slot_dk', 'randevu_bloke'];
+    if (PRO_FIELDS.some(k => k in safeFields)) {
+      const { data: entRow } = await (admin as any).from(table).select('premium').eq('id', entityId).maybeSingle();
+      if (entRow?.premium !== true) {
+        for (const k of PRO_FIELDS) delete safeFields[k];
+      }
+    }
     // eczaneler tablosunda updated_at kolonu yok
     if (entityType !== 'eczane') safeFields['updated_at'] = new Date().toISOString();
 

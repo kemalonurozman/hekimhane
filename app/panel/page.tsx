@@ -116,6 +116,27 @@ function proAktifMi(claimId: string, premiumMap: Record<string, boolean>, subsMa
   return !!premiumMap[claimId] || !!(sub && ['active', 'trialing'].includes(sub.status));
 }
 
+/**
+ * Pro'ya kilitli özellik kutusu — ücretsiz hesapta özellik GÖRÜNÜR ama
+ * kilitlidir; /pro sayfasına yönlendirir. Sunucu tarafı da aynı kuralı
+ * uygular (update-entity alanları eler, embed kilit ekranı döner) —
+ * UI kilidi tek başına güvenlik değildir.
+ */
+function ProKilit({ baslik, aciklama, kucuk = false }: { baslik: string; aciklama: string; kucuk?: boolean }) {
+  return (
+    <div style={{ border: '1.5px dashed #D4A843', borderRadius: 14, background: 'linear-gradient(135deg,#FDFAF3,#FBF6E9)', padding: kucuk ? '16px 18px' : '26px 24px', textAlign: 'center' }}>
+      <div style={{ width: kucuk ? 34 : 42, height: kucuk ? 34 : 42, borderRadius: '50%', background: 'linear-gradient(145deg,#D4A843,#BE8F2C)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', boxShadow: '0 3px 10px rgba(190,143,44,.35)' }}>
+        <svg width={kucuk ? 15 : 18} height={kucuk ? 15 : 18} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div style={{ fontSize: kucuk ? 13.5 : 15, fontWeight: 800, color: '#1D1D1F', marginBottom: 5 }}>{baslik}</div>
+      <p style={{ fontSize: kucuk ? 12 : 13, color: T.muted, lineHeight: 1.55, margin: '0 auto 14px', maxWidth: 380 }}>{aciklama}</p>
+      <a href="/pro" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: kucuk ? '7px 16px' : '9px 20px', borderRadius: 10, background: 'linear-gradient(135deg,#D4A843,#BE8F2C)', color: 'white', fontSize: kucuk ? 12 : 13, fontWeight: 800, textDecoration: 'none', boxShadow: '0 3px 10px rgba(190,143,44,.3)' }}>
+        Pro&apos;ya Geç · {PRO_AYLIK_TL} TL/ay
+      </a>
+    </div>
+  );
+}
+
 /** Onaylı işletme satırında Pro üyeliği görünür kılan altın rozet. */
 function ProBadge() {
   return (
@@ -1865,6 +1886,8 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
   const [saatDuzenle, setSaatDuzenle] = useState(false); // seçili tek günün saatlerini tek tek düzenle
   const [blokeSaving, setBlokeSaving] = useState(false);
   const [blokeMsg, setBlokeMsg] = useState('');
+  // null = yükleniyor; false = Pro değil (modül kilitli); true = açık
+  const [proAktif, setProAktif] = useState<boolean | null>(null);
   const entities = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
 
   // Seçili işletmenin bildirim e-postasını + randevu takvim ayarını yükle
@@ -1874,8 +1897,9 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
     const TM: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
     const tbl = TM[e.entity_type]; if (!tbl) return;
     const sb = createSupabaseBrowser();
-    sb.from(tbl).select('randevu_email,randevu_aktif,randevu_slot_dk,calisma_saatleri,acik_24_saat,randevu_bloke').eq('id', e.entity_id!).maybeSingle().then(({ data }) => {
+    sb.from(tbl).select('randevu_email,randevu_aktif,randevu_slot_dk,calisma_saatleri,acik_24_saat,randevu_bloke,premium').eq('id', e.entity_id!).maybeSingle().then(({ data }) => {
       const d = (data as any) || {};
+      setProAktif(d.premium === true);
       const v = String(d.randevu_email || '').trim();
       if (v) { setNotifyMode('custom'); setNotifyEmail(v); } else { setNotifyMode('same'); setNotifyEmail(''); }
       setTakvimAktif(d.randevu_aktif === true);
@@ -1902,6 +1926,29 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
   }
 
   const ent = entities[idx] || entities[0];
+
+  // Rezervasyon modülü Pro'ya kilitli — ücretsiz hesap sekmeyi görür ama içerik kilitlidir.
+  if (proAktif !== true) {
+    return (
+      <div style={{ maxWidth: 760 }}>
+        <h1 style={{ fontSize: 26, fontWeight: 700, color: A.text, margin: 0, letterSpacing: '-0.6px' }}>Randevu Takvimi</h1>
+        <p style={{ fontSize: 13.5, color: A.muted, margin: '6px 0 22px' }}>{ent.entity_name}</p>
+        {entities.length > 1 && (
+          <select value={idx} onChange={e => setIdx(Number(e.target.value))}
+            style={{ marginBottom: 16, padding: '9px 12px', borderRadius: 10, border: `1px solid ${A.line}`, fontSize: 13.5, fontFamily: 'inherit', background: 'white' }}>
+            {entities.map((c, i) => <option key={c.id} value={i}>{c.entity_name}</option>)}
+          </select>
+        )}
+        {proAktif === null ? (
+          <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '40px 24px', textAlign: 'center', color: A.muted, fontSize: 14 }}>Yükleniyor…</div>
+        ) : (
+          <ProKilit baslik="Rezervasyon modülü Pro üyelikte aktif"
+            aciklama="Randevu takvimi, saat bloklama ve web sitenize gömülebilir rezervasyon modülü Hekimhane-Pro'ya dahildir. Pro'ya geçtiğinizde bu sekme anında açılır." />
+        )}
+      </div>
+    );
+  }
+
   const src = `https://www.hekimhane.com.tr/embed/randevu?type=${ent.entity_type}&id=${ent.entity_id}`;
   const kod = `<iframe src="${src}" width="100%" height="640" style="border:0;max-width:480px" loading="lazy" title="Randevu Al"></iframe>`;
   const kopyala = () => { try { navigator.clipboard.writeText(kod); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch {} };
@@ -3563,6 +3610,9 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   }
 
   const F = (k: string, v: unknown) => setFormData(p => ({ ...p, [k]: v }));
+  // Pro'ya kilitli alanlar (website, sosyal medya, embed) için — formData
+  // select('*') ile yüklendiğinden premium kolonu zaten elimizde.
+  const pro = (formData as any).premium === true;
 
   const profKey = et === 'doktor' ? 'photo' : 'logo';
   const profUrl = String(formData[profKey] || '');
@@ -3873,7 +3923,16 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
 
               <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                 <div><label style={LBL}>Telefon</label><input type="tel" value={String(formData.tel||'')} placeholder="05xx xxx xx xx" style={INP} onChange={e=>F('tel',e.target.value)} onFocus={onF} onBlur={offF}/></div>
-                {et!=='eczane'&&et!=='doktor'&&<div><label style={LBL}>Website</label><input type="url" value={String(formData.website||'')} placeholder="https://" style={INP} onChange={e=>F('website',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
+                {et!=='eczane'&&et!=='doktor'&&<div>
+                  <label style={{ ...LBL, display:'flex', alignItems:'center', gap:6 }}>
+                    Website
+                    {!pro && <a href="/pro" title="Web sitesi bağlantısı Pro üyelikte eklenir" style={{ display:'inline-flex', alignItems:'center', gap:3, padding:'1px 8px', borderRadius:999, background:'linear-gradient(135deg,#D4A843,#BE8F2C)', color:'white', fontSize:9.5, fontWeight:800, letterSpacing:'.7px', textDecoration:'none' }}>
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.6" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      PRO
+                    </a>}
+                  </label>
+                  <input type="url" value={String(formData.website||'')} placeholder={pro?'https://':'Pro üyelikte aktif'} style={{...INP, ...(pro?{}:{ background:'#F4F4F6', color:'#9CA3AF', cursor:'not-allowed' })}} disabled={!pro} onChange={e=>F('website',e.target.value)} onFocus={onF} onBlur={offF}/>
+                </div>}
                 {et==='doktor'&&<div><label style={LBL}>Muayene Ücreti (₺)</label><input type="number" value={formData.fee??''} placeholder="500" style={INP} onChange={e=>F('fee',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>}
                 {et==='eczane'&&<div><label style={LBL}>Eczacı Adı</label><input value={String(formData.pharmacist||'')} placeholder="Ad Soyad" style={INP} onChange={e=>F('pharmacist',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
               </div>
@@ -4015,10 +4074,10 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                 );
               })()}
 
-              {/* ── SOSYAL MEDYA ── */}
+              {/* ── SOSYAL MEDYA — Pro'ya kilitli ── */}
               <div style={{ borderTop:`1px solid ${T.border}`, paddingTop:14 }}>
                 <label style={{ ...LBL, marginBottom:10 }}>Sosyal Medya</label>
-                <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                <div style={{ display:'flex', flexDirection:'column', gap:8, ...(pro?{}:{ opacity:.55, pointerEvents:'none' as const }) }}>
                   {[
                     { key:'instagram_url', label:'Instagram', placeholder:'https://instagram.com/hesap_adi', color:'#E1306C' },
                     { key:'facebook_url',  label:'Facebook',  placeholder:'https://facebook.com/sayfa_adi', color:'#1877F2' },
@@ -4033,14 +4092,21 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                       <input
                         type="url"
                         value={String((formData as any)[s.key]||'')}
-                        placeholder={s.placeholder}
-                        style={{...INP, flex:1}}
+                        placeholder={pro?s.placeholder:'Pro üyelikte aktif'}
+                        style={{...INP, flex:1, ...(pro?{}:{ background:'#F4F4F6', color:'#9CA3AF' })}}
+                        disabled={!pro}
                         onChange={e=>F(s.key,e.target.value)}
                         onFocus={onF} onBlur={offF}
                       />
                     </div>
                   ))}
                 </div>
+                {!pro && (
+                  <div style={{ marginTop:10 }}>
+                    <ProKilit kucuk baslik="Sosyal medya bağlantıları Pro'da"
+                      aciklama="Instagram, Facebook ve LinkedIn hesaplarınız profilinizde ziyaretçilere gösterilir." />
+                  </div>
+                )}
               </div>
             </>)}
 
@@ -4256,8 +4322,12 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
               </>);
             })()}
 
-            {/* ── SİTEME EKLE (randevu embed) ── */}
-            {sec==='embed' && (()=>{
+            {/* ── SİTEME EKLE (randevu embed) — Pro'ya kilitli ── */}
+            {sec==='embed' && !pro && (
+              <ProKilit baslik="Rezervasyon modülü Pro üyelikte aktif"
+                aciklama="Hekimhane randevu modülünü kendi web sitenize gömün; sitenizden gelen talepler de bu panelde toplanır." />
+            )}
+            {sec==='embed' && pro && (()=>{
               const SITE = 'https://www.hekimhane.com.tr';
               const src = `${SITE}/embed/randevu?type=${et}&id=${selectedClaim.entity_id}`;
               const iframeKodu = `<iframe src="${src}" width="100%" height="640" style="border:0;max-width:480px" loading="lazy" title="Randevu Al"></iframe>`;

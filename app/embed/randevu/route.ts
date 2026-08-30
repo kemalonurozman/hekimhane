@@ -43,11 +43,27 @@ async function getCfg(type: EntityType, id: string) {
     const ad = type === 'doktor' ? [d.unvan, d.ad, d.soyad].filter(Boolean).join(' ').trim() : d.name;
     if (!ad) return null;
     const bloke = Array.isArray(d.randevu_bloke) ? d.randevu_bloke.map(String) : [];
-    return { ad, aktif: d.randevu_aktif === true, slotDk: Number(d.randevu_slot_dk) || 30, ch: String(d.calisma_saatleri || ''), acik24: d.acik_24_saat === true, bloke };
+    return { ad, pro: d.premium === true, aktif: d.randevu_aktif === true, slotDk: Number(d.randevu_slot_dk) || 30, ch: String(d.calisma_saatleri || ''), acik24: d.acik_24_saat === true, bloke };
   } catch {
+    // Premium durumu doğrulanamıyorsa modül kapalı kalır (fail-closed).
     const ad = await entityAdi(type, id);
-    return ad ? { ad, aktif: false, slotDk: 30, ch: '', acik24: false, bloke: [] as string[] } : null;
+    return ad ? { ad, pro: false, aktif: false, slotDk: 30, ch: '', acik24: false, bloke: [] as string[] } : null;
   }
+}
+
+/** Dış sitelere gömülen modül — Pro üyelik yoksa kilit ekranı. */
+function proKilitHtml(ad: string, accent: string): Response {
+  const html = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Randevu</title></head>
+<body style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#FBF8F2;">
+<div style="text-align:center;padding:32px 24px;max-width:340px;">
+  <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(145deg,#D4A843,#BE8F2C);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  </div>
+  <div style="font-size:15px;font-weight:700;color:#1D1D1F;margin-bottom:6px;">${esc(ad)}</div>
+  <p style="font-size:13px;color:#6E6E73;line-height:1.6;margin:0 0 16px;">Online randevu modülü şu an aktif değil. İşletme sahibiyseniz Hekimhane-Pro ile aktifleştirebilirsiniz.</p>
+  <a href="https://www.hekimhane.com.tr/pro" target="_blank" rel="noopener" style="display:inline-block;padding:10px 22px;border-radius:11px;background:${esc(accent)};color:#fff;font-size:13px;font-weight:700;text-decoration:none;">Hekimhane-Pro</a>
+</div></body></html>`;
+  return new Response(html, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8' } });
 }
 
 function hata(mesaj: string): Response {
@@ -69,6 +85,9 @@ export async function GET(req: NextRequest) {
   const konf = await getCfg(type, id);
   if (!konf) return hata('İşletme bulunamadı. Bağlantıyı kontrol edin.');
   const ad = konf.ad;
+
+  // Rezervasyon modülü Pro üyeliğe kilitli — ücretsiz hesapta kilit ekranı.
+  if (!konf.pro) return proKilitHtml(ad, accent);
 
   // Slot bazlı ise: dolu slotları çek (çakışmayı engellemek için)
   let booked: string[] = [];
