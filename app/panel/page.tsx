@@ -105,6 +105,35 @@ interface SubInfo {
 /** Ödeme sorunlu durumlar: yeni abonelik değil, kart güncelleme gerekir. */
 const ODEME_SORUNLU = ['past_due', 'unpaid', 'incomplete'];
 
+/**
+ * Pro üyelik fiilen aktif mi? Rozet, istatistik kartı ve buton **aynı** cevabı
+ * kullanmalı — yoksa rozet "Pro" derken buton "Yükselt" diyebilir.
+ * Ödeme sorunlu abonelik Pro sayılmaz (kart güncellenmeli).
+ */
+function proAktifMi(claimId: string, premiumMap: Record<string, boolean>, subsMap: Record<string, SubInfo>) {
+  const sub = subsMap[claimId];
+  if (sub && ODEME_SORUNLU.includes(sub.status)) return false;
+  return !!premiumMap[claimId] || !!(sub && ['active', 'trialing'].includes(sub.status));
+}
+
+/** Onaylı işletme satırında Pro üyeliği görünür kılan altın rozet. */
+function ProBadge() {
+  return (
+    <span title="Hekimhane-Pro üyeliği aktif"
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px',
+        borderRadius: 999, background: 'linear-gradient(135deg,#D4A843,#BE8F2C)',
+        color: 'white', fontSize: 10.5, fontWeight: 800, letterSpacing: '.9px',
+        textTransform: 'uppercase', boxShadow: '0 1px 4px rgba(190,143,44,.4)', flexShrink: 0,
+      }}>
+      <svg width="10" height="10" viewBox="0 0 12 10" fill="none" aria-hidden="true">
+        <path d="M1 5 L4.5 8.5 L11 1.5" stroke="white" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      Pro
+    </span>
+  );
+}
+
 function Badge({ status }: { status: string }) {
   const map: Record<string, { label: string; bg: string; color: string; border: string }> = {
     pending:  { label: 'İncelemede', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
@@ -571,7 +600,11 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
         <StatCard label="Toplam Başvuru"   value={claimsLoading ? '—' : claims.length}         iconKey="list"     color={T.navy} />
         <StatCard label="Onaylı İşletme"  value={claimsLoading ? '—' : approvedClaims.length} iconKey="check"    color={T.green} />
         <StatCard label="İncelemede"       value={claimsLoading ? '—' : pendingClaims.length}  iconKey="clock"    color={T.amber} />
-        <StatCard label="Hesap Durumu"     value="Aktif"                                        iconKey="shield"   color="#7C3AED" />
+        {(() => {
+          const proVar = approvedClaims.some(c => proAktifMi(c.id, premiumMap, subsMap));
+          return <StatCard label="Hesap Durumu" value={claimsLoading ? '—' : (proVar ? 'Pro' : 'Aktif')}
+            iconKey="shield" color={proVar ? T.gold : '#7C3AED'} />;
+        })()}
       </div>
 
       {approvedClaims.length > 0 && (
@@ -584,7 +617,10 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
             {approvedClaims.map(c => (
               <div key={c.id} className="panel-approved-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '14px 18px', background: '#F0FDF4', borderRadius: 12, marginBottom: 10, border: '1px solid #86EFAC' }}>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: 15, color: T.text, marginBottom: 3 }}>{c.entity_name}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 3 }}>
+                    <span style={{ fontWeight: 700, fontSize: 15, color: T.text }}>{c.entity_name}</span>
+                    {proAktifMi(c.id, premiumMap, subsMap) && <ProBadge />}
+                  </div>
                   <EntityTypeLabel type={c.entity_type} />
                 </div>
                 <div className="panel-approved-actions" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
@@ -610,7 +646,7 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                   {c.entity_id && c.entity_id !== 'new' && (() => {
                     const sub = subsMap[c.id];
                     const sorunlu = sub && ODEME_SORUNLU.includes(sub.status);
-                    const aktif = premiumMap[c.id] || (sub && ['active', 'trialing'].includes(sub.status));
+                    const aktif = proAktifMi(c.id, premiumMap, subsMap);
 
                     if (sorunlu) return (
                       <button onClick={() => onManage(c.id, c.entity_type, c.entity_id!)} disabled={managingId === c.id}
@@ -624,7 +660,7 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                       <button onClick={() => onManage(c.id, c.entity_type, c.entity_id!)} disabled={managingId === c.id}
                         title="Aboneliği iptal et, kartını değiştir veya faturalarını gör"
                         style={{ padding: '7px 14px', background: 'white', color: T.navy, borderRadius: 9, fontSize: 12, fontWeight: 700, border: `1.5px solid ${T.navy}`, cursor: managingId === c.id ? 'default' : 'pointer', opacity: managingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
-                        {managingId === c.id ? '…' : 'Aboneliği Yönet'}
+                        {managingId === c.id ? '…' : 'Pro Üyeliği Yönet'}
                       </button>
                     );
 
