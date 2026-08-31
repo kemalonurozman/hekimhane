@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getStripe } from '@/lib/stripe';
+import { getStripe, stripeKeyTeshis } from '@/lib/stripe';
 import { verifyOwner, adminClient } from '@/lib/stripe-owner';
 
 export const runtime = 'nodejs';
@@ -61,8 +61,12 @@ export async function POST(request: NextRequest) {
         { status: 500 });
     }
     if (/api key|authentication|invalid.*key/i.test(msg)) {
-      return NextResponse.json(
-        { error: 'Stripe anahtarı geçersiz. STRIPE_SECRET_KEY değerini kontrol edin.' }, { status: 500 });
+      // Teşhis yalnız sunucu loguna (Vercel → Logs); anahtarın kendisi sızdırılmaz.
+      console.error('stripe/portal anahtar teşhisi:', stripeKeyTeshis());
+      return NextResponse.json({
+        error: 'Ödeme sağlayıcısına şu an bağlanılamıyor (Stripe anahtarı reddedildi). '
+             + 'Aboneliğinizi iptal etmek için iptal talep formunu kullanabilirsiniz — talebiniz 1 iş günü içinde işlenir.',
+      }, { status: 500 });
     }
     return NextResponse.json({ error: `Abonelik yönetimi açılamadı: ${msg}` }, { status: 500 });
   }

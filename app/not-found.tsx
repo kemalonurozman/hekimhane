@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LogoMark } from '@/components/Logo';
+import Image from 'next/image';
 
 export default function NotFound() {
   return (
@@ -9,8 +9,19 @@ export default function NotFound() {
       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
     }}>
       <div style={{ textAlign: 'center', padding: '48px 24px', maxWidth: 480 }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
-          <LogoMark size={56} />
+        <div style={{
+          position: 'relative', width: '100%', maxWidth: 420, aspectRatio: '3 / 2',
+          margin: '0 auto 26px', borderRadius: 20, overflow: 'hidden',
+          border: '1px solid var(--border)', boxShadow: '0 1px 4px rgba(0,0,0,.05)',
+        }}>
+          <Image
+            src="/hata-gorsel.jpg"
+            alt="Hekimhane — diş sağlığı rehberi"
+            fill
+            priority
+            sizes="(max-width: 520px) 100vw, 420px"
+            style={{ objectFit: 'cover' }}
+          />
         </div>
         <div style={{ fontSize: 64, fontWeight: 800, color: 'var(--navy)', letterSpacing: '-2px', lineHeight: 1 }}>404</div>
         <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 24, fontWeight: 800, color: 'var(--text)', margin: '14px 0 10px' }}>

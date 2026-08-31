@@ -323,6 +323,18 @@ export default function PanelPage() {
 
   // Yükseltme artık /pro sayfasından yapılır (özellik tanıtımı + checkout tek yerde).
 
+  /**
+   * Stripe portalı açılamadığında kullanıcı iptal edemeden kalıyordu. Hatayı
+   * gösterip her zaman çalışan ikinci yolu (iptal talep formu) öneriyoruz.
+   */
+  function iptalYolunuOner(hata: string) {
+    const git = window.confirm(
+      `${hata}\n\nAboneliğinizi yine de iptal edebilirsiniz: iptal talep formunu açalım mı?\n` +
+      'Formu doldurduğunuzda talebiniz 1 iş günü içinde işleme alınır.'
+    );
+    if (git) window.location.href = '/abonelik-iptali';
+  }
+
   // Stripe Müşteri Portalı — iptal, kart değişikliği, fatura geçmişi
   async function handleManage(claimId: string, entity_type: string, entity_id: string) {
     setManagingId(claimId);
@@ -333,8 +345,8 @@ export default function PanelPage() {
       });
       const j = await res.json();
       if (j.url) { window.location.href = j.url; return; }
-      alert(j.error || 'Abonelik yönetimi açılamadı.');
-    } catch { alert('Abonelik yönetimi açılamadı.'); }
+      iptalYolunuOner(j.error || 'Abonelik yönetimi açılamadı.');
+    } catch { iptalYolunuOner('Abonelik yönetimi açılamadı.'); }
     setManagingId(null);
   }
 
@@ -543,7 +555,7 @@ export default function PanelPage() {
         )}
         {tab === 'dashboard' && <DashboardTab user={user} claims={claims} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { setSelectedEditClaim(c); setTab('edit'); }} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} onRelease={handleRelease} releasingId={releasingId} />}
         {tab === 'claims'    && <ClaimsTab claims={claims} loading={claimsLoading} onNewClaim={() => setTab('new')} profileUrls={profileUrls} onDeleted={() => loadClaims(user?.email || '')} />}
-        {tab === 'profile'   && <ProfileTab user={user} />}
+        {tab === 'profile'   && <ProfileTab user={user} approvedClaims={approvedClaims} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} />}
         {tab === 'new'       && <NewClaimTab user={user} onSuccess={() => { loadClaims(user?.email || ''); setTab('claims'); }} />}
         {tab === 'edit'      && <EditProfileTab approvedClaims={approvedClaims} selectedClaim={selectedEditClaim} onSelectClaim={setSelectedEditClaim} isMobile={isMobile} />}
         {tab === 'hekimkart' && <HekimKartTab approvedClaims={approvedClaims} profileUrls={profileUrls} user={user} />}
@@ -668,7 +680,7 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                       <button onClick={() => onManage(c.id, c.entity_type, c.entity_id!)} disabled={managingId === c.id}
                         title="Aboneliği iptal et, kartını değiştir veya faturalarını gör"
                         style={{ padding: '7px 14px', background: 'white', color: T.navy, borderRadius: 9, fontSize: 12, fontWeight: 700, border: `1.5px solid ${T.navy}`, cursor: managingId === c.id ? 'default' : 'pointer', opacity: managingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
-                        {managingId === c.id ? '…' : 'Pro Üyeliği Yönet'}
+                        {managingId === c.id ? '…' : 'Aboneliği Yönet · İptal'}
                       </button>
                     );
 
@@ -840,9 +852,18 @@ function ClaimsTab({ claims, loading, onNewClaim, profileUrls, onDeleted }: { cl
 /* ═══════════════════════════════════════════════
    HESABIM
 ═══════════════════════════════════════════════ */
-function ProfileTab({ user }: { user: User | null }) {
+function ProfileTab({ user, approvedClaims, premiumMap, subsMap, onManage, managingId }: {
+  user: User | null;
+  approvedClaims: ClaimRequest[];
+  premiumMap: Record<string, boolean>;
+  subsMap: Record<string, SubInfo>;
+  onManage: (claimId: string, entityType: string, entityId: string) => void;
+  managingId: string | null;
+}) {
   if (!user) return null;
   const meta = user.user_metadata || {};
+  const isletmeler = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
+  const proVar = isletmeler.some(c => proAktifMi(c.id, premiumMap, subsMap));
   return (
     <div>
       <div style={{ marginBottom: 28 }}>
@@ -865,6 +886,7 @@ function ProfileTab({ user }: { user: User | null }) {
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#16A34A', display: 'inline-block' }} />
             Aktif Hesap
           </div>
+          {proVar && <div style={{ marginTop: 10 }}><ProBadge /></div>}
         </div>
 
         <div>
@@ -891,14 +913,167 @@ function ProfileTab({ user }: { user: User | null }) {
               ))}
             </div>
           </div>
-          <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 12, padding: '14px 18px', display: 'flex', gap: 10 }}>
-            <span style={{ color: T.amber, flexShrink: 0, marginTop: 1 }}><Ic d={icons.info} size={16} /></span>
-            <p style={{ fontSize: 12, color: '#92400E', lineHeight: 1.7, margin: 0 }}>
-              Profil bilgilerinizi güncellemek için lütfen <strong>info@hekimhane.com.tr</strong> adresine e-posta gönderin.
-            </p>
+          {/* ── Pro üyelik & abonelik yönetimi ──
+              Abonelik durumu ve iptal yolu Hesabım'da da görünür olmalı; kullanıcı
+              iptali burada arıyor, Genel Bakış'ta değil. */}
+          <div style={{ background: T.white, borderRadius: 16, border: `1px solid ${T.border}`, overflow: 'hidden', marginBottom: 16 }}>
+            <div style={{ padding: '14px 22px', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span style={{ color: T.gold }}><Ic d={icons.shield} size={16} /></span>
+              <span style={{ fontSize: 13, fontWeight: 800, color: T.text }}>Hekimhane-Pro Üyeliği</span>
+              <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700, color: proVar ? T.gold : T.muted }}>
+                {proVar ? 'Aktif' : 'Üyeliğiniz yok'}
+              </span>
+            </div>
+
+            {isletmeler.length === 0 ? (
+              <div style={{ padding: '22px', fontSize: 13, color: T.muted, lineHeight: 1.7 }}>
+                Onaylı işletmeniz olmadığı için abonelik bilgisi görüntülenemiyor.
+              </div>
+            ) : (
+              <div style={{ padding: '16px 22px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {isletmeler.map(c => {
+                  const sub = subsMap[c.id];
+                  const sorunlu = !!(sub && ODEME_SORUNLU.includes(sub.status));
+                  const aktif = proAktifMi(c.id, premiumMap, subsMap);
+                  const bitis = sub?.period_end
+                    ? new Date(sub.period_end).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })
+                    : null;
+                  return (
+                    <div key={c.id} style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap',
+                      padding: '14px 16px', borderRadius: 12,
+                      background: sorunlu ? '#FEF2F2' : (aktif ? '#FFFBF0' : T.bg),
+                      border: `1px solid ${sorunlu ? '#FCA5A5' : (aktif ? '#EBD9A8' : T.border)}`,
+                    }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          <span style={{ fontWeight: 700, fontSize: 14.5, color: T.text }}>{c.entity_name}</span>
+                          {aktif && <ProBadge />}
+                        </div>
+                        <div style={{ fontSize: 12, color: sorunlu ? '#B91C1C' : T.muted, marginTop: 3, lineHeight: 1.6 }}>
+                          {sorunlu
+                            ? 'Son ödeme alınamadı — kartınızı güncelleyin, aksi halde üyelik kapanır.'
+                            : aktif
+                              ? `Aylık ${PRO_AYLIK_TL} TL${bitis ? ` · Sonraki yenileme: ${bitis}` : ''}`
+                              : `Ücretsiz üyelik · Pro aylık ${PRO_AYLIK_TL} TL`}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        {aktif || sorunlu ? (
+                          <button onClick={() => onManage(c.id, c.entity_type, c.entity_id!)} disabled={managingId === c.id}
+                            title="Aboneliği iptal et, kartını değiştir veya faturalarını gör"
+                            style={{ padding: '8px 15px', background: sorunlu ? '#B91C1C' : T.navy, color: 'white', borderRadius: 9, fontSize: 12.5, fontWeight: 700, border: 'none', cursor: managingId === c.id ? 'default' : 'pointer', opacity: managingId === c.id ? .6 : 1, fontFamily: 'inherit' }}>
+                            {managingId === c.id ? '…' : (sorunlu ? 'Kartı Güncelle' : 'Aboneliği Yönet · İptal')}
+                          </button>
+                        ) : (
+                          <a href="/pro"
+                            style={{ padding: '8px 15px', background: 'linear-gradient(135deg,#1B3A69,#0F2A55)', color: 'white', borderRadius: 9, fontSize: 12.5, fontWeight: 700, textDecoration: 'none' }}>
+                            Pro&apos;ya Yükselt
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '13px 15px', borderRadius: 12, background: T.bg, border: `1px dashed ${T.border}` }}>
+                  <span style={{ color: T.muted, flexShrink: 0, marginTop: 1 }}><Ic d={icons.info} size={15} /></span>
+                  <p style={{ fontSize: 12.5, color: T.muted, lineHeight: 1.7, margin: 0 }}>
+                    <strong style={{ color: T.text }}>Nasıl iptal edilir?</strong> “Aboneliği Yönet · İptal” butonu Stripe güvenli ödeme
+                    sayfasını açar; oradaki <strong>“Aboneliği iptal et”</strong> ile üyelik anında sonlandırılır. Taahhüt yoktur, üyeliğiniz
+                    ödemesi yapılmış dönemin sonuna kadar açık kalır. Sayfa açılmazsa{' '}
+                    <a href="/abonelik-iptali" target="_blank" rel="noopener" style={{ color: T.navy, fontWeight: 700 }}>iptal talep formunu</a>{' '}
+                    doldurun, aboneliğinizi biz kapatalım.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
+
+          <HesapDestekFormu userEmail={user?.email || ''} />
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Hesabım — öne çıkan destek formu. Mesaj Resend ile doğrudan admin'e gider;
+ * gönderen kimliği sunucuda oturumdan alınır (hangi hesaptan geldiği ve onaylı
+ * işletmeleri e-postada görünür), yanıtla doğrudan kullanıcıya döner.
+ */
+function HesapDestekFormu({ userEmail }: { userEmail: string }) {
+  const [konu, setKonu] = useState('genel');
+  const [mesaj, setMesaj] = useState('');
+  const [durum, setDurum] = useState<'form' | 'gonderiliyor' | 'tamam'>('form');
+  const [hata, setHata] = useState('');
+
+  async function gonder(e: React.FormEvent) {
+    e.preventDefault();
+    setHata('');
+    if (mesaj.trim().length < 10) { setHata('Lütfen mesajınızı biraz daha ayrıntılı yazın.'); return; }
+    setDurum('gonderiliyor');
+    try {
+      const res = await fetch('/api/panel/destek', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ konu, mesaj }),
+      });
+      const j = await res.json();
+      if (res.ok && j.ok) { setDurum('tamam'); setMesaj(''); return; }
+      setHata(j.error || 'Mesaj gönderilemedi. Lütfen tekrar deneyin.');
+    } catch { setHata('Bağlantı hatası. Lütfen tekrar deneyin.'); }
+    setDurum('form');
+  }
+
+  const inp: React.CSSProperties = {
+    width: '100%', padding: '11px 13px', borderRadius: 11, fontSize: 13.5,
+    border: `1.5px solid ${T.border}`, background: 'white', fontFamily: 'inherit',
+    outline: 'none', boxSizing: 'border-box', color: T.text,
+  };
+
+  return (
+    <div style={{ background: 'white', borderRadius: 16, border: `1.5px solid ${T.navy}`, overflow: 'hidden', boxShadow: '0 4px 18px rgba(27,58,105,.10)' }}>
+      <div style={{ background: `linear-gradient(135deg, ${T.navy}, #0F2A55)`, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 8.5-8.5 8.38 8.38 0 0 1 8.5 8.5z"/></svg>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>Bize Ulaşın</div>
+          <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.65)' }}>Mesajınız doğrudan Hekimhane ekibine iletilir; yanıt {userEmail || 'e-posta adresinize'} gelir.</div>
+        </div>
+      </div>
+
+      {durum === 'tamam' ? (
+        <div style={{ padding: '26px 20px', textAlign: 'center' }}>
+          <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#F0FDF4', border: '1.5px solid #86EFAC', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#166534" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: T.text, marginBottom: 4 }}>Mesajınız iletildi</div>
+          <p style={{ fontSize: 12.5, color: T.muted, margin: '0 0 14px' }}>En kısa sürede {userEmail || 'e-posta adresinize'} yanıt vereceğiz.</p>
+          <button onClick={() => setDurum('form')} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12.5, fontWeight: 700, color: T.navy, fontFamily: 'inherit' }}>Yeni mesaj gönder</button>
+        </div>
+      ) : (
+        <form onSubmit={gonder} style={{ padding: '18px 20px', display: 'grid', gap: 12 }}>
+          <div>
+            <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '.6px', marginBottom: 6 }}>Konu</label>
+            <select value={konu} onChange={e => setKonu(e.target.value)} style={{ ...inp, cursor: 'pointer' }}>
+              <option value="genel">Genel Soru</option>
+              <option value="profil">Profil Güncelleme Talebi</option>
+              <option value="abonelik">Pro Abonelik / Fatura</option>
+              <option value="teknik">Teknik Sorun</option>
+              <option value="diger">Diğer</option>
+            </select>
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '.6px', marginBottom: 6 }}>Mesajınız</label>
+            <textarea value={mesaj} onChange={e => { setMesaj(e.target.value); setHata(''); }} rows={4}
+              placeholder="Size nasıl yardımcı olabiliriz?" style={{ ...inp, resize: 'vertical', minHeight: 90 }} />
+          </div>
+          {hata && <p style={{ fontSize: 12.5, color: '#DC2626', fontWeight: 600, margin: 0 }}>{hata}</p>}
+          <button type="submit" disabled={durum === 'gonderiliyor'}
+            style={{ justifySelf: 'start', padding: '11px 26px', borderRadius: 11, border: 'none', background: `linear-gradient(135deg, ${T.navy}, #0F2A55)`, color: 'white', fontSize: 13.5, fontWeight: 800, cursor: durum === 'gonderiliyor' ? 'default' : 'pointer', opacity: durum === 'gonderiliyor' ? 0.65 : 1, fontFamily: 'inherit' }}>
+            {durum === 'gonderiliyor' ? 'Gönderiliyor…' : 'Mesajı Gönder'}
+          </button>
+        </form>
+      )}
     </div>
   );
 }
@@ -1861,6 +2036,63 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
 /* ═══════════════════════════════════════════════
    RANDEVU MODÜLÜ TAB — sitene ekle (Apple tarzı)
 ═══════════════════════════════════════════════ */
+/**
+ * Randevu takvimi işletme seçici — kullanıcının birden çok işletmesi olduğunda
+ * <select> hangisinin takviminin açık olduğunu göstermiyordu. Burada her işletme
+ * ismiyle listelenir, Pro/takvim durumu rozetle görünür ve tek tıkla geçilir.
+ */
+function IsletmeSecici({ entities, idx, onSelect, durum }: {
+  entities: ClaimRequest[];
+  idx: number;
+  onSelect: (i: number) => void;
+  durum: Record<string, { premium: boolean; aktif: boolean }>;
+}) {
+  if (entities.length === 0) return null;
+
+  const rozet = (metin: string, renk: string, bg: string, kenar: string) => (
+    <span style={{ padding: '2px 9px', borderRadius: 999, background: bg, border: `1px solid ${kenar}`, color: renk, fontSize: 10.5, fontWeight: 800, letterSpacing: '.4px', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{metin}</span>
+  );
+
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '.5px' }}>
+        İşletmeleriniz ({entities.length})
+      </div>
+      <div style={{ display: 'grid', gap: 8 }}>
+        {entities.map((c, i) => {
+          const secili = i === idx;
+          const d = durum[c.entity_id || ''] || { premium: false, aktif: false };
+          return (
+            <button key={c.id} onClick={() => onSelect(i)} type="button"
+              title={secili ? 'Şu an bu işletmenin takvimini yönetiyorsunuz' : `${c.entity_name} takvimine geç`}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', textAlign: 'left',
+                padding: '12px 15px', borderRadius: 13, cursor: secili ? 'default' : 'pointer',
+                background: secili ? '#EEF4FF' : T.white,
+                border: `1.5px solid ${secili ? T.navy : T.border}`,
+                boxShadow: secili ? '0 1px 6px rgba(27,58,105,.12)' : 'none',
+                fontFamily: 'inherit', width: '100%',
+              }}>
+              {/* Seçili göstergesi — radyo görünümü */}
+              <span style={{ width: 17, height: 17, borderRadius: '50%', border: `2px solid ${secili ? T.navy : '#C7D2E4'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {secili && <span style={{ width: 8, height: 8, borderRadius: '50%', background: T.navy, display: 'block' }} />}
+              </span>
+              <span style={{ fontSize: 14.5, fontWeight: secili ? 800 : 600, color: T.text, minWidth: 0, flex: 1 }}>{c.entity_name}</span>
+              {d.premium && rozet('Pro', '#8A6100', '#FDF6E3', '#EBD9A8')}
+              {d.premium
+                ? (d.aktif
+                    ? rozet('Takvim açık', '#065F46', '#ECFDF5', '#A7F3D0')
+                    : rozet('Takvim kapalı', '#6B7A99', '#F1F5F9', '#D9E2EC'))
+                : rozet('Ücretsiz', '#6B7A99', '#F1F5F9', '#D9E2EC')}
+              {secili && <span style={{ fontSize: 11, fontWeight: 800, color: T.navy, letterSpacing: '.5px', textTransform: 'uppercase' }}>Yönetiliyor</span>}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   const [idx, setIdx] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -1888,7 +2120,34 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
   const [blokeMsg, setBlokeMsg] = useState('');
   // null = yükleniyor; false = Pro değil (modül kilitli); true = açık
   const [proAktif, setProAktif] = useState<boolean | null>(null);
+  // Tüm işletmelerin Pro/takvim durumu — seçici listesinde rozet olarak gösterilir.
+  const [durum, setDurum] = useState<Record<string, { premium: boolean; aktif: boolean }>>({});
   const entities = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
+  const entityKey = entities.map(c => `${c.entity_type}:${c.entity_id}`).join('|');
+
+  // Liste rozetleri için tek seferde (tablo başına tek sorgu) durum yükle.
+  useEffect(() => {
+    if (entities.length === 0) return;
+    const TM: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
+    const gruplar: Record<string, string[]> = {};
+    entities.forEach(c => {
+      const tbl = TM[c.entity_type]; if (!tbl || !c.entity_id) return;
+      (gruplar[tbl] ||= []).push(c.entity_id);
+    });
+    const sb = createSupabaseBrowser();
+    let iptal = false;
+    (async () => {
+      const out: Record<string, { premium: boolean; aktif: boolean }> = {};
+      await Promise.all(Object.entries(gruplar).map(async ([tbl, ids]) => {
+        try {
+          const { data } = await sb.from(tbl).select('id,premium,randevu_aktif').in('id', ids);
+          (data || []).forEach((r: any) => { out[String(r.id)] = { premium: r.premium === true, aktif: r.randevu_aktif === true }; });
+        } catch { /* durum alınamazsa rozet gösterilmez, sekme yine çalışır */ }
+      }));
+      if (!iptal) setDurum(out);
+    })();
+    return () => { iptal = true; };
+  }, [entityKey]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   // Seçili işletmenin bildirim e-postasını + randevu takvim ayarını yükle
   useEffect(() => {
@@ -1897,6 +2156,7 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
     const TM: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
     const tbl = TM[e.entity_type]; if (!tbl) return;
     const sb = createSupabaseBrowser();
+    setProAktif(null);   // yeni işletmenin durumu gelene kadar eski ekranı gösterme
     sb.from(tbl).select('randevu_email,randevu_aktif,randevu_slot_dk,calisma_saatleri,acik_24_saat,randevu_bloke,premium').eq('id', e.entity_id!).maybeSingle().then(({ data }) => {
       const d = (data as any) || {};
       setProAktif(d.premium === true);
@@ -1932,13 +2192,9 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
     return (
       <div style={{ maxWidth: 760 }}>
         <h1 style={{ fontSize: 26, fontWeight: 700, color: A.text, margin: 0, letterSpacing: '-0.6px' }}>Randevu Takvimi</h1>
-        <p style={{ fontSize: 13.5, color: A.muted, margin: '6px 0 22px' }}>{ent.entity_name}</p>
-        {entities.length > 1 && (
-          <select value={idx} onChange={e => setIdx(Number(e.target.value))}
-            style={{ marginBottom: 16, padding: '9px 12px', borderRadius: 10, border: `1px solid ${A.line}`, fontSize: 13.5, fontFamily: 'inherit', background: 'white' }}>
-            {entities.map((c, i) => <option key={c.id} value={i}>{c.entity_name}</option>)}
-          </select>
-        )}
+        {entities.length > 1
+          ? <div style={{ marginTop: 18 }}><IsletmeSecici entities={entities} idx={idx} onSelect={setIdx} durum={durum} /></div>
+          : <p style={{ fontSize: 13.5, color: A.muted, margin: '6px 0 22px' }}>{ent.entity_name}</p>}
         {proAktif === null ? (
           <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '40px 24px', textAlign: 'center', color: A.muted, fontSize: 14 }}>Yükleniyor…</div>
         ) : (
@@ -1976,7 +2232,10 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
         body: JSON.stringify({ entityType: ent.entity_type, entityId: ent.entity_id, fields: { randevu_aktif: takvimAktif, randevu_slot_dk: slotDk } }),
       });
       const j = await res.json().catch(() => ({}));
-      setTakvimMsg(res.ok && j.success ? 'Kaydedildi' : (j.error || 'Kaydedilemedi'));
+      const ok = res.ok && j.success;
+      setTakvimMsg(ok ? 'Kaydedildi' : (j.error || 'Kaydedilemedi'));
+      // Seçici rozeti ("Takvim açık/kapalı") kaydetmeyle birlikte güncellensin
+      if (ok && ent.entity_id) setDurum(p => ({ ...p, [ent.entity_id!]: { premium: p[ent.entity_id!]?.premium ?? true, aktif: takvimAktif } }));
     } catch { setTakvimMsg('Bağlantı hatası'); }
     setTakvimSaving(false);
   }
@@ -2047,20 +2306,17 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
         <p style={{ fontSize: 14, color: A.muted, marginTop: 5, letterSpacing: '-0.1px' }}>Takvim doluluk/boşluk durumunu yönetin: günleri açıp kapatın, kapalı saatleri ve tarih aralıklarını ayarlayın. Kendi sitenizden de randevu alabilirsiniz.</p>
       </div>
 
+      {/* Birden çok işletmede: hangisinin takvimini düzenlediğiniz açıkça görünsün. */}
+      {entities.length > 1
+        ? <IsletmeSecici entities={entities} idx={idx} onSelect={setIdx} durum={durum} />
+        : <p style={{ fontSize: 13.5, color: A.text, fontWeight: 700, margin: '-8px 0 18px' }}>{ent.entity_name}</p>}
+
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr)', gap: 16 }}>
         {/* Kod kartı */}
         <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: 22, boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
-          {entities.length > 1 && (
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: A.muted, marginBottom: 6 }}>İşletme</label>
-              <select value={idx} onChange={e => setIdx(Number(e.target.value))}
-                style={{ width: '100%', padding: '11px 13px', borderRadius: 11, border: `1px solid ${A.line}`, fontSize: 14, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none' }}>
-                {entities.map((c, i) => <option key={c.id} value={i}>{c.entity_name}</option>)}
-              </select>
-            </div>
-          )}
-
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: A.muted, marginBottom: 6 }}>Siteye ekleme kodu</label>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: A.muted, marginBottom: 6 }}>
+            Siteye ekleme kodu — <strong style={{ color: A.text }}>{ent.entity_name}</strong>
+          </label>
           <textarea readOnly value={kod} onFocus={e => e.currentTarget.select()}
             style={{ width: '100%', boxSizing: 'border-box', minHeight: 86, padding: '13px 15px', borderRadius: 12, border: `1px solid ${A.line}`, fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', fontSize: 12.5, lineHeight: 1.55, color: A.text, background: A.page, resize: 'vertical', outline: 'none' }} />
 

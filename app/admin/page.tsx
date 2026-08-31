@@ -1793,7 +1793,16 @@ function UsersTab() {
    ANA BİLEŞEN
 ═══════════════════════════════════════════════ */
 // ── Premium Üyeler ──────────────────────────────────────────────
-interface PremiumItem { type: string; id: string; name: string; il: string; ilce: string; slug: string | null; spec: string | null; rat: number; rev: number; claimed: boolean; tel: string | null; sub: any | null; }
+interface PremiumSub {
+  email: string | null;
+  status: string;
+  current_period_end: string | null;
+  stripe_subscription_id: string | null;
+  stripe_customer_id: string | null;
+  cancel_at_period_end: boolean | null;   // yalnız Stripe'a ulaşıldığında dolu
+  stripe_canli?: boolean;
+}
+interface PremiumItem { type: string; id: string; name: string; il: string; ilce: string; slug: string | null; spec: string | null; rat: number; rev: number; claimed: boolean; tel: string | null; sub: PremiumSub | null; }
 const TYPE_META: Record<string, { label: string; color: string }> = {
   klinik:  { label: 'Klinik',  color: C.cyan },
   hastane: { label: 'Hastane', color: C.purple },
@@ -1806,17 +1815,56 @@ function PremiumTab() {
   const [counts, setCounts] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  const [busy, setBusy] = useState<string | null>(null);        // işlem yapılan satır anahtarı
+  const [stripeHata, setStripeHata] = useState<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/admin/premium', { cache: 'no-store' });
-        const j = await res.json();
-        setItems(j.items || []); setCounts(j.counts || null);
-      } catch { /* noop */ }
-      setLoading(false);
-    })();
-  }, []);
+  async function load() {
+    try {
+      const res = await fetch('/api/admin/premium', { cache: 'no-store' });
+      const j = await res.json();
+      setItems(j.items || []); setCounts(j.counts || null); setStripeHata(j.stripeHata || null);
+    } catch { /* noop */ }
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); }, []);
+
+  /**
+   * Abonelik işlemi — Stripe iptali/geri alması ve elle premium kapatma.
+   * Her işlem onaylatılır; iptallerde aboneye mail gönderilip gönderilmeyeceği
+   * ayrıca sorulur (claim onayındaki desenle aynı).
+   */
+  async function aksiyon(it: PremiumItem, action: 'cancel_period_end' | 'cancel_now' | 'resume' | 'premium_off') {
+    const key = `${it.type}:${it.id}`;
+    const ad = it.name || 'İşletme';
+    const metin: Record<string, string> = {
+      cancel_period_end: `"${ad}" aboneliği DÖNEM SONUNDA iptal edilecek.\n\nYeni ödeme alınmayacak; üyelik ödemesi yapılmış dönemin sonuna kadar açık kalacak.\n\nDevam edilsin mi?`,
+      cancel_now:        `"${ad}" aboneliği HEMEN iptal edilecek.\n\nÜyelik anında kapanır ve Pro özellikleri hemen kalkar. Kalan günler için iade yapılmaz.\n\nDevam edilsin mi?`,
+      resume:            `"${ad}" için dönem sonu iptali GERİ ALINACAK; abonelik normal şekilde yenilenmeye devam edecek.\n\nDevam edilsin mi?`,
+      premium_off:       `"${ad}" için premium bayrağı ELLE kapatılacak.\n\nBu, Stripe aboneliği olmayan (elle açılmış) premiumlar içindir.\n\nDevam edilsin mi?`,
+    };
+    if (!window.confirm(metin[action])) return;
+
+    const notify = action === 'resume' ? false : window.confirm(
+      'İşletme sahibine bilgilendirme maili gönderilsin mi?\n\nTamam = İşlemi yap ve mail gönder\nİptal = Sadece işlemi yap'
+    );
+
+    setBusy(key);
+    try {
+      const res = await fetch('/api/admin/premium-action', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entity_type: it.type, entity_id: it.id, action, notify }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok && j.success) {
+        alert(`${j.mesaj}${notify ? `\n\nMail: ${j.mail}` : ''}`);
+        await load();
+      } else {
+        alert(j.error || 'İşlem başarısız.');
+      }
+    } catch { alert('Bağlantı hatası.'); }
+    setBusy(null);
+  }
 
   const shown = filter === 'all' ? items : items.filter(i => i.type === filter);
   const profilHref = (it: PremiumItem) => {
@@ -1832,8 +1880,15 @@ function PremiumTab() {
     <div>
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: '-0.4px', margin: '0 0 4px' }}>Premium Üyeler</h1>
-        <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Premium (👑) işletmeler ve varsa Stripe abonelik durumları.</p>
+        <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Premium (👑) işletmeler, Stripe abonelik durumları ve iptal işlemleri.</p>
       </div>
+
+      {stripeHata && (
+        <div style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: 'rgba(239,68,68,.1)', border: `1px solid ${C.red}55`, color: C.text, fontSize: 12.5, lineHeight: 1.6 }}>
+          <strong style={{ color: C.red }}>Stripe’a ulaşılamadı.</strong> Abonelik durumları veritabanı kaydından gösteriliyor ve
+          iptal işlemleri çalışmayabilir. Sebep: {stripeHata}
+        </div>
+      )}
 
       {/* Sayılar + filtre */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
@@ -1867,7 +1922,7 @@ function PremiumTab() {
             const m = TYPE_META[it.type] || { label: it.type, color: C.muted };
             const href = profilHref(it);
             return (
-              <div key={`${it.type}:${it.id}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', borderBottom: i < shown.length - 1 ? `1px solid ${C.border}` : 'none' }}>
+              <div key={`${it.type}:${it.id}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', flexWrap: 'wrap', borderBottom: i < shown.length - 1 ? `1px solid ${C.border}` : 'none' }}>
                 <span style={{ fontSize: 10, fontWeight: 800, color: m.color, background: `${m.color}22`, border: `1px solid ${m.color}44`, borderRadius: 20, padding: '3px 9px', flexShrink: 0, minWidth: 58, textAlign: 'center' }}>{m.label}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.name || '—'}</div>
@@ -1875,15 +1930,79 @@ function PremiumTab() {
                     {[it.ilce, it.il].filter(Boolean).join(', ')}{it.spec ? ` · ${it.spec}` : ''}{it.rat > 0 ? ` · ★ ${it.rat.toFixed(1)} (${it.rev})` : ''}
                   </div>
                 </div>
-                {it.sub ? (
-                  <span style={{ fontSize: 10.5, fontWeight: 700, color: it.sub.status === 'active' ? C.green : C.amber, background: it.sub.status === 'active' ? 'rgba(16,185,129,.12)' : 'rgba(245,158,11,.12)', borderRadius: 8, padding: '3px 9px', flexShrink: 0 }}>
-                    Stripe: {it.sub.status}
-                  </span>
-                ) : (
-                  <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, background: C.border, borderRadius: 8, padding: '3px 9px', flexShrink: 0 }}>Elle</span>
-                )}
-                <span style={{ fontSize: 10.5, fontWeight: 700, color: it.claimed ? C.green : C.muted, flexShrink: 0 }}>{it.claimed ? '✓ Sahipli' : 'Sahipsiz'}</span>
-                {href && <a href={href} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, fontWeight: 700, color: C.gold, textDecoration: 'none', flexShrink: 0 }}>Profil →</a>}
+                {(() => {
+                  const sub = it.sub;
+                  const key = `${it.type}:${it.id}`;
+                  const calisiyor = busy === key;
+                  const aktif = !!sub && ['active', 'trialing'].includes(sub.status);
+                  const sorunlu = !!sub && ['past_due', 'unpaid', 'incomplete'].includes(sub.status);
+                  const donemSonu = sub?.cancel_at_period_end === true;
+                  // İptal edilebilir abonelik: Stripe'ta hâlâ yaşayan bir kayıt.
+                  // Zaten 'canceled' olan abonelikte Stripe iptal çağrısı hata verir;
+                  // o satırda yalnızca elle "Premium'u Kapat" gösterilir.
+                  const yonetilebilir = !!sub?.stripe_subscription_id
+                    && ['active', 'trialing', 'past_due', 'unpaid', 'incomplete'].includes(sub.status);
+                  const bitis = sub?.current_period_end
+                    ? new Date(sub.current_period_end).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : null;
+
+                  const btn = (renk: string, dolu: boolean): React.CSSProperties => ({
+                    padding: '6px 11px', borderRadius: 8, fontSize: 11.5, fontWeight: 700, fontFamily: 'inherit',
+                    border: `1px solid ${renk}${dolu ? '' : '66'}`, background: dolu ? renk : 'transparent',
+                    color: dolu ? '#0B1120' : renk, cursor: calisiyor ? 'default' : 'pointer',
+                    opacity: calisiyor ? .5 : 1, whiteSpace: 'nowrap',
+                  });
+
+                  return (
+                    <>
+                      {/* Abonelik durumu */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3, flexShrink: 0, minWidth: 132 }}>
+                        {sub ? (
+                          <span style={{ fontSize: 10.5, fontWeight: 700, borderRadius: 8, padding: '3px 9px',
+                            color: donemSonu ? C.amber : (aktif ? C.green : (sorunlu ? C.red : C.muted)),
+                            background: donemSonu ? 'rgba(245,158,11,.12)' : (aktif ? 'rgba(16,185,129,.12)' : (sorunlu ? 'rgba(239,68,68,.12)' : C.border)) }}>
+                            {donemSonu ? 'Dönem sonunda bitecek' : `Stripe: ${sub.status}`}
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, background: C.border, borderRadius: 8, padding: '3px 9px' }}>Elle açılmış</span>
+                        )}
+                        {bitis && <span style={{ fontSize: 10.5, color: C.muted }}>{donemSonu ? 'Bitiş' : 'Yenileme'}: {bitis}</span>}
+                        {sub?.email && <span style={{ fontSize: 10.5, color: C.dim, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>{sub.email}</span>}
+                      </div>
+
+                      <span style={{ fontSize: 10.5, fontWeight: 700, color: it.claimed ? C.green : C.muted, flexShrink: 0 }}>{it.claimed ? '✓ Sahipli' : 'Sahipsiz'}</span>
+
+                      {/* İşlemler */}
+                      <div style={{ display: 'flex', gap: 6, flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                        {yonetilebilir ? (
+                          donemSonu ? (
+                            <button disabled={calisiyor} onClick={() => aksiyon(it, 'resume')} style={btn(C.green, false)}
+                              title="Dönem sonu iptalini geri al, abonelik yenilenmeye devam etsin">
+                              {calisiyor ? '…' : 'İptali Geri Al'}
+                            </button>
+                          ) : (
+                            <button disabled={calisiyor} onClick={() => aksiyon(it, 'cancel_period_end')} style={btn(C.amber, false)}
+                              title="Dönem sonunda iptal — yeni ödeme alınmaz, üyelik dönem sonuna kadar açık kalır">
+                              {calisiyor ? '…' : 'İptal Et'}
+                            </button>
+                          )
+                        ) : (
+                          <button disabled={calisiyor} onClick={() => aksiyon(it, 'premium_off')} style={btn(C.red, false)}
+                            title="Stripe aboneliği olmayan elle premium'u kapat">
+                            {calisiyor ? '…' : 'Premium’u Kapat'}
+                          </button>
+                        )}
+                        {yonetilebilir && (
+                          <button disabled={calisiyor} onClick={() => aksiyon(it, 'cancel_now')} style={btn(C.red, false)}
+                            title="Aboneliği hemen iptal et ve premium'u anında kapat">
+                            {calisiyor ? '…' : 'Hemen İptal'}
+                          </button>
+                        )}
+                        {href && <a href={href} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11.5, fontWeight: 700, color: C.gold, textDecoration: 'none', alignSelf: 'center', padding: '6px 4px' }}>Profil →</a>}
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             );
           })}
@@ -2094,6 +2213,15 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [allowed, setAllowed] = useState(false);
   const [tab,     setTab]     = useState<TabKey>('dashboard');
+  const [isMobile,       setIsMobile]       = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const [stats,        setStats]        = useState<Stats | null>(null);
   const [claims,       setClaims]       = useState<Claim[]>([]);
@@ -2259,8 +2387,32 @@ export default function AdminPage() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: C.bg, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
 
+      {/* ── MOBİL ÜST BAR ── */}
+      {isMobile && (
+        <div style={{
+          position: 'fixed', top: 64, left: 0, right: 0, height: 48, zIndex: 210,
+          background: C.panel, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', padding: '0 16px'
+        }}>
+          <span style={{ color: C.gold, fontWeight: 800, fontSize: 13, letterSpacing: '0.5px' }}>ADMİN PANELİ</span>
+          <button onClick={() => setMobileMenuOpen(o => !o)} aria-label="Menü" style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.text, padding: 6 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              {mobileMenuOpen
+                ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
+                : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>
+              }
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* ── MOBİL BACKDROP ── */}
+      {isMobile && mobileMenuOpen && (
+        <div onClick={() => setMobileMenuOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 190 }} />
+      )}
+
       {/* ── SIDEBAR ── */}
-      <aside style={{ position: 'fixed', top: 64, left: 0, bottom: 0, width: 224, background: C.panel, borderRight: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', zIndex: 100 }}>
+      <aside style={{ position: 'fixed', top: isMobile ? 112 : 64, left: 0, bottom: 0, width: isMobile ? 264 : 224, background: C.panel, borderRight: `1px solid ${C.border}`, display: isMobile ? (mobileMenuOpen ? 'flex' : 'none') : 'flex', flexDirection: 'column', zIndex: isMobile ? 200 : 100 }}>
 
         {/* Logo */}
         <div style={{ padding: '22px 18px 18px', borderBottom: `1px solid ${C.border}` }}>
@@ -2293,7 +2445,7 @@ export default function AdminPage() {
                   : item.key === 'blog' ? makalePending : 0;
                 const badgeColor = item.key === 'cekim' ? '#059669' : item.key === 'sikayetler' ? C.red : C.amber;
                 return (
-                  <button key={item.key} onClick={() => setTab(item.key as TabKey)}
+                  <button key={item.key} onClick={() => { setTab(item.key as TabKey); setMobileMenuOpen(false); }}
                     style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 11px', marginBottom: 1, borderRadius: 9, background: active ? 'rgba(212,168,67,.12)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', color: active ? C.text : C.muted, fontSize: 13, fontWeight: active ? 700 : 500, fontFamily: 'inherit', transition: 'background .12s, color .12s' }}
                     onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,.04)'; }}
                     onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}>
@@ -2330,7 +2482,7 @@ export default function AdminPage() {
       </aside>
 
       {/* ── MAIN ── */}
-      <main style={{ marginLeft: 224, flex: 1, padding: '32px 36px', paddingTop: 96, minHeight: '100vh' }}>
+      <main style={{ marginLeft: isMobile ? 0 : 224, flex: 1, minWidth: 0, padding: isMobile ? '128px 14px 48px' : '96px 36px 32px', minHeight: '100vh', overflowX: 'auto' }}>
         {tab === 'dashboard'  && <DashboardTab stats={stats} onTabChange={setTab} />}
         {tab === 'claims'     && <ClaimsTab claims={claims} loading={claimsLoading} onAction={handleClaimAction} actionId={actionId} />}
         {tab === 'cekim'      && <CekimTalepleriTab />}

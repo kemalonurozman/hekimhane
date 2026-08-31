@@ -467,6 +467,28 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Ödeme akışı Payment Link üzerinden (Ağu 2026):** checkout rotası sahiplik + zaten-Pro kontrolünden sonra canlı Payment Link'e `client_reference_id=tip__id` + `prefilled_email` ekleyip yönlendirir (`STRIPE_PAYMENT_LINK` env ile değiştirilebilir; boş string API-session akışına döndürür). Webhook metadata yoksa `client_reference_id`'yi çözer (`tip:id` ve `tip__id`). Fiyat 190 TL/ay (`lib/pro-plan.ts`). **Çıplak link paylaşılmamalı** — referanssız ödemede Pro otomatik açılmaz.
 - **Pro'ya kilitli alanlar (Ağu 2026):** `website`, `instagram_url/facebook_url/linkedin_url`, rezervasyon modülü (`randevu_aktif/randevu_slot_dk/randevu_bloke` + embed). Üç katman: panel UI kilidi (EditProfileTab `pro` = formData.premium; RandevuModulTab `proAktif`; ortak `ProKilit` bileşeni) + `update-entity` API'de `PRO_FIELDS` sessizce düşürülür (form tüm formData'yı gönderdiği için hata dönmek her kaydı bozar) + `/embed/randevu` premium değilse kilit HTML döner (fail-closed). `randevu_email` kilitli DEĞİL (Randevu Talepleri sekmesi ücretsiz kalır).
 
+### Abonelik İptali & İletişim Görünürlüğü (Ağu 2026)
+- **Sorun:** Pro aboneliğin iptal yolu yalnızca Genel Bakış'taki "Pro Üyeliği Yönet" butonuydu; buton Stripe portalına gidiyor, portal hata verince kullanıcı çıkmazda kalıyordu ("ayarlara giremiyorum").
+- **Üç katmanlı iptal yolu:**
+  1. `app/panel/page.tsx` → **Hesabım** sekmesinde "Hekimhane-Pro Üyeliği" kartı: her işletme için durum (Pro/ücretsiz/ödeme sorunu), sonraki yenileme tarihi, **"Aboneliği Yönet · İptal"** butonu + "Nasıl iptal edilir?" açıklaması. `ProfileTab` artık `approvedClaims/premiumMap/subsMap/onManage/managingId` alır.
+  2. Genel Bakış butonu "Pro Üyeliği Yönet" → **"Aboneliği Yönet · İptal"** (iptal kelimesi görünür olmalı).
+  3. `handleManage` başarısız olursa `iptalYolunuOner()` → kullanıcıya `/abonelik-iptali` formunu önerir (eskiden düz `alert` ile çıkmaz).
+- **`/abonelik-iptali` sayfası:** panelden 3 adımda iptal anlatımı + iptal talep formu (`AbonelikIptalForm.tsx`) + iptal SSS'i. Form `/api/iletisim`'e `konu='abonelik-iptali'` ve `isletme` ile gider; admin'e "ABONELİK İPTAL TALEBİ — <işletme>" başlıklı mail (kemalonurozman@gmail.com), aboneye onay maili. Kayıt `cekim_talepleri`'ne `isletme_turu='abonelik-iptali'` ile düşer — **DDL yok.**
+- **Footer:** marka sütununda ayrı **İletişim** bloğu (info@hekimhane.com.tr + iletişim formu + Pro abonelik iptali); "Abonelik İptali" hem Şirket hem Yasal listesinde. Ödeme alan sitede iptal yolunun görünür olması yasal gereklilik.
+- **Randevu Takvimi işletme seçici:** `<select>` yerine `IsletmeSecici` — her işletme ismiyle listelenir, **Pro / Takvim açık / Takvim kapalı / Ücretsiz** rozetleri ve "Yönetiliyor" işaretiyle. Durumlar tablo başına tek `.in('id', ids)` sorgusuyla topluca çekilir. İşletme değişince `proAktif` **null'a çekilir** (yoksa bir an önceki işletmenin kilit/açık ekranı görünüyordu).
+- **Not:** Stripe portalı, `STRIPE_SECRET_KEY` Vercel'de geçersizse "Stripe anahtarı geçersiz" döner — bu env sorunudur, koddan çözülmez; iptal formu bu durumda yedek yoldur.
+
+### Admin — Pro Aboneliklerin Yönetimi (Ağu 2026)
+- **Liste:** admin panel **Premium Üyeler** sekmesi (`PremiumTab`). `/api/admin/premium` premium=true işletmeleri döndürür; `premium_subscriptions` kaydına ek olarak **Stripe'tan canlı durum** okunur (tek `subscriptions.list({status:'all'})` çağrısı, sayfalı, en fazla 500). `cancel_at_period_end` DB'de tutulmuyor — "dönem sonunda bitecek" bilgisi yalnız buradan gelir. Stripe'a ulaşılamazsa liste DB kaydıyla çalışmaya devam eder ve sekmede kırmızı uyarı çıkar (`stripeHata`).
+- **Aksiyonlar:** `/api/admin/premium-action` (admin oturumu şartı, service-role):
+  - `cancel_period_end` — dönem sonunda iptal (`cancel_at_period_end=true`); premium dönem sonuna kadar açık kalır, webhook kapatır.
+  - `cancel_now` — `subscriptions.cancel` + `premium=false` + kayıt `canceled` (webhook'u beklemez).
+  - `resume` — dönem sonu iptalini geri alır.
+  - `premium_off` — **elle** açılmış premium'u kapatır. Stripe aboneliği hâlâ `active/trialing/past_due/unpaid` ise **409 ile reddeder** — yoksa üyelik kapanır ama kart çekilmeye devam ederdi.
+- **UI kuralı:** yalnız Stripe'ta yaşayan abonelikte (`active|trialing|past_due|unpaid|incomplete`) iptal butonları görünür; `canceled` satırda sadece "Premium'u Kapat" çıkar — zaten iptal edilmiş aboneliğe `cancel` çağrısı Stripe'ta hata verir.
+- **Bildirim:** her iptalde "işletme sahibine mail gönderilsin mi?" sorulur (claim onayıyla aynı desen). Adres önce `premium_subscriptions.email`, yoksa onaylı `claim_requests.email`. `RESEND_API_KEY` yoksa sessizce atlanır.
+- **DDL yok** — mevcut `premium_subscriptions` tablosu yeterli.
+
 ### Bekleyen migration'lar (kullanıcı Supabase SQL Editor'da çalıştırmalı)
 - `supabase/migrations/add_account_activations.sql` — **çalıştırıldı** (aktivasyon akışı için şart).
 - `supabase/migrations/add_premium_column.sql` + `add_premium_subscriptions.sql` — Stripe akışı için **şart**. `add_premium_subscriptions.sql` daha önce çalıştırıldıysa **yeniden çalıştırılmalı**: eski sürümdeki `USING (TRUE)` SELECT politikası abone e-postalarını herkese açıyordu, yeni sürüm onu `DROP` eder.

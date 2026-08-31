@@ -92,8 +92,17 @@ export default function IletisimForm() {
             <option value="hata">Hata Bildirimi</option>
             <option value="sikayet">Yorum / İçerik Şikayeti</option>
             <option value="reklam">Reklam / İş Birliği</option>
+            <option value="abonelik">Pro Abonelik / Fatura</option>
+            <option value="abonelik-iptali">Pro Abonelik İptali</option>
             <option value="diger">Diğer</option>
           </select>
+          {f.konu === 'abonelik-iptali' && (
+            <p style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6, margin: '8px 0 0' }}>
+              İptali kendiniz panelden anında yapabilir ya da{' '}
+              <a href="/abonelik-iptali" style={{ color: 'var(--navy)', fontWeight: 700 }}>abonelik iptal sayfasındaki</a>{' '}
+              formu kullanabilirsiniz — orada işletme adını da alıyoruz, talep daha hızlı işleme girer.
+            </p>
+          )}
         </div>
 
         <div>

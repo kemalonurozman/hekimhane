@@ -32,6 +32,7 @@ export default function Footer() {
     ['Randevu Sistemi', '/randevu-sistemi'],
     ['Değerlendirme Sistemi', '/degerlendirme-sistemi'],
     ['İletişim',     '/iletisim'],
+    ['Abonelik İptali', '/abonelik-iptali'],
   ];
 
   const YASAL = [
@@ -39,6 +40,7 @@ export default function Footer() {
     ['Kullanım Şartları',   '/kullanim'],
     ['KVKK',                '/kvkk'],
     ['Çerez Politikası',    '/cerez'],
+    ['Abonelik İptali',     '/abonelik-iptali'],
   ];
 
   // SEO iç-linkleme: popüler şehirler + diş tedavileri
@@ -156,11 +158,25 @@ export default function Footer() {
                 Abone Ol
               </button>
             </div>
-            {/* İletişim — bize ulaşın (iletişim formu) */}
-            <Link href="/iletisim" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 14, fontSize: 13, fontWeight: 600, color: 'var(--gold)', textDecoration: 'none' }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 5L2 7" /></svg>
-              Bize ulaşın · İletişim formu
-            </Link>
+            {/* İletişim — adres, form ve abonelik iptali tek blokta; ödeme alan
+                site için iletişim ve iptal yolunun görünür olması gerekir. */}
+            <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,.1)' }}>
+              <h4 style={{ color: 'white', fontWeight: 700, marginBottom: 12, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                İletişim
+              </h4>
+              <a href="mailto:info@hekimhane.com.tr" style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13.5, fontWeight: 600, color: 'white', textDecoration: 'none', marginBottom: 10 }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 5L2 7" /></svg>
+                info@hekimhane.com.tr
+              </a>
+              <Link href="/iletisim" style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13, color: 'rgba(255,255,255,.7)', textDecoration: 'none', marginBottom: 8 }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+                İletişim formu · 24 saat içinde yanıt
+              </Link>
+              <Link href="/abonelik-iptali" style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13, color: 'rgba(255,255,255,.7)', textDecoration: 'none' }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="m4.9 4.9 14.2 14.2" /></svg>
+                Pro abonelik iptali
+              </Link>
+            </div>
             {/* Sosyal medya — yalnızca gerçek hesap linki girildiğinde görünür.
                 Hesaplar açıldıkça href'leri doldurun (ör. 'https://instagram.com/hekimhane'). */}
             {SOCIAL.some(s => s.href) && (

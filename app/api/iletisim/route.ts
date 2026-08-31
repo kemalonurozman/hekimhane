@@ -17,13 +17,18 @@ const KONULAR: Record<string, string> = {
   hata: 'Hata Bildirimi',
   sikayet: 'Yorum / İçerik Şikayeti',
   reklam: 'Reklam / İş Birliği',
+  abonelik: 'Pro Abonelik / Fatura',
+  'abonelik-iptali': 'Pro Abonelik İptal Talebi',
   diger: 'Diğer',
 };
+
+/** İptal talebi ayrı e-posta başlığı + acil rozet alır — sıradan mesaj kuyruğunda kaybolmasın. */
+const IPTAL_KONULARI = ['abonelik-iptali'];
 
 export async function POST(req: NextRequest) {
   try {
     const b = await req.json();
-    const { ad, soyad, email, tel, konu, mesaj, website } = b || {};
+    const { ad, soyad, email, tel, konu, mesaj, website, isletme } = b || {};
 
     // Honeypot
     if (website) return NextResponse.json({ ok: true });
@@ -36,12 +41,15 @@ export async function POST(req: NextRequest) {
     if (!mesaj || String(mesaj).trim().length < 10) return NextResponse.json({ error: 'Mesajınız en az 10 karakter olmalı.' }, { status: 400 });
 
     const konuEtiket = KONULAR[konu] || 'Genel';
-    const notlar = `[İLETİŞİM — ${konuEtiket}] ${String(mesaj).trim()}`.slice(0, 2000);
+    const iptalMi = IPTAL_KONULARI.includes(String(konu));
+    const isletmeAdi = String(isletme || '').trim().slice(0, 150);
+    const onek = iptalMi ? 'ABONELİK İPTALİ' : 'İLETİŞİM';
+    const notlar = `[${onek} — ${konuEtiket}]${isletmeAdi ? ` İşletme: ${isletmeAdi} —` : ''} ${String(mesaj).trim()}`.slice(0, 2000);
 
     const admin = adminClient();
     const { error } = await (admin as any).from('cekim_talepleri').insert({
-      isletme_adi: 'İletişim Formu',
-      isletme_turu: 'iletisim',
+      isletme_adi: isletmeAdi || 'İletişim Formu',
+      isletme_turu: iptalMi ? 'abonelik-iptali' : 'iletisim',
       ad_soyad: adSoyad.slice(0, 100),
       tel: String(tel || '').replace(/\D/g, '').slice(0, 15),
       email: String(email).trim().slice(0, 150),
@@ -60,10 +68,11 @@ export async function POST(req: NextRequest) {
       // 1) Admin'e bildirim — yanıtla dediğinde doğrudan kullanıcıya gider
       await sendEmail({
         to: ADMIN_EMAIL,
-        subject: `Yeni iletişim mesajı — ${konuEtiket}`,
+        subject: iptalMi ? `ABONELİK İPTAL TALEBİ — ${isletmeAdi || adSoyad}` : `Yeni iletişim mesajı — ${konuEtiket}`,
         replyTo: kullaniciEmail,
-        html: mailShell('Yeni İletişim Mesajı', `
+        html: mailShell(iptalMi ? 'Abonelik İptal Talebi' : 'Yeni İletişim Mesajı', `
           ${satir('Konu', konuEtiket)}
+          ${isletmeAdi ? satir('İşletme', isletmeAdi) : ''}
           ${satir('Ad Soyad', adSoyad)}
           ${satir('E-posta', kullaniciEmail)}
           ${satirTel('Telefon', String(tel || ''))}
@@ -77,12 +86,15 @@ export async function POST(req: NextRequest) {
       // 2) Kullanıcıya onay
       await sendEmail({
         to: kullaniciEmail,
-        subject: 'Mesajınız alındı — Hekimhane',
-        html: mailShell('Mesajınız Alındı', `
+        subject: iptalMi ? 'İptal talebiniz alındı — Hekimhane' : 'Mesajınız alındı — Hekimhane',
+        html: mailShell(iptalMi ? 'İptal Talebiniz Alındı' : 'Mesajınız Alındı', `
           <p style="margin:0 0 12px;font-size:14px;color:#1c1c1e;line-height:1.6;">Merhaba ${adSoyad.split(' ')[0] || ''},</p>
-          <p style="margin:0 0 12px;font-size:14px;color:#1c1c1e;line-height:1.6;">Bize ulaştığınız için teşekkürler. Mesajınızı aldık ve en geç <strong>24 saat</strong> içinde size dönüş yapacağız.</p>
+          ${iptalMi
+            ? `<p style="margin:0 0 12px;font-size:14px;color:#1c1c1e;line-height:1.6;">Hekimhane-Pro abonelik iptal talebinizi aldık. Talebiniz <strong>1 iş günü</strong> içinde işleme alınır; iptal tamamlandığında bu adrese bilgi e-postası gönderilir. Aboneliğiniz, içinde bulunduğunuz ödeme döneminin sonuna kadar açık kalır ve yeni ödeme alınmaz.</p>`
+            : `<p style="margin:0 0 12px;font-size:14px;color:#1c1c1e;line-height:1.6;">Bize ulaştığınız için teşekkürler. Mesajınızı aldık ve en geç <strong>24 saat</strong> içinde size dönüş yapacağız.</p>`}
           <div style="background:#FBF8F2;border-radius:12px;padding:14px 16px;margin:14px 0;">
             ${satir('Konu', konuEtiket)}
+            ${isletmeAdi ? satir('İşletme', isletmeAdi) : ''}
             <p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">Mesajınız:</strong></p>
             <p style="margin:4px 0 0;font-size:13.5px;color:#6E6E73;line-height:1.6;white-space:pre-wrap;">${String(mesaj).trim().replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c] || c))}</p>
           </div>
