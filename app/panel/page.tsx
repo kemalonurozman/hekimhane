@@ -4850,12 +4850,12 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
               </div>
               <div style={{ fontSize:12, fontWeight:700, color:T.navy, textTransform:'uppercase', letterSpacing:'0.6px', paddingBottom:10, borderBottom:`2px solid #E8F0FE`, marginTop:8 }}>Tanıtım Videosu</div>
               <div>
-                <label style={LBL}>Video — YouTube / Vimeo linki veya embed kodu</label>
+                <label style={LBL}>Video — YouTube / Instagram / Vimeo linki veya embed kodu</label>
                 <textarea rows={4} value={String(formData.video_url||'')}
-                  placeholder={'https://youtube.com/watch?v=...\nveya\nhttps://vimeo.com/123456789\nveya\n<iframe src="https://www.youtube.com/embed/..." ...></iframe>'}
+                  placeholder={'https://youtube.com/watch?v=...\nveya\nhttps://www.instagram.com/reel/...\nveya\n<iframe src="https://www.youtube.com/embed/..." ...></iframe>'}
                   style={{...INP,resize:'vertical',lineHeight:1.6,fontFamily:'monospace',fontSize:12}}
                   onChange={e=>F('video_url',e.target.value)} onFocus={onF} onBlur={offF}/>
-                <p style={{ fontSize:11, color:T.muted, marginTop:5, lineHeight:1.6 }}>YouTube, Vimeo veya diğer platformların video linki ya da embed kodunu yapıştırın.</p>
+                <p style={{ fontSize:11, color:T.muted, marginTop:5, lineHeight:1.6 }}>YouTube (izleme / Shorts), Instagram (Reel veya gönderi linki ya da Instagram&apos;ın &quot;Embed&quot; kodu) veya Vimeo linkini yapıştırmanız yeterli — dönüşümü sistem yapar.</p>
               </div>
             </>)}
 

@@ -165,9 +165,27 @@ function bayesian(reviews: YorumItem[]) {
 }
 
 /** YouTube/Vimeo URL veya iframe embed kodu → embed src'e dönüştürür */
+/**
+ * Instagram reel / gönderi / IGTV linki → resmi /embed/ oynatıcı URL'i.
+ * Instagram'ın "Embed" kodu (blockquote.instagram-media) de kabul edilir —
+ * içindeki data-instgrm-permalink çözülür.
+ */
+function extractInstagramEmbed(v: string): { src: string; acik: string } | null {
+  const perma = v.startsWith('<')
+    ? (v.match(/data-instgrm-permalink=["']([^"']+)["']/i)?.[1] || v.match(/href=["'](https?:\/\/(?:www\.)?instagram\.com\/(?:reel|reels|p|tv)\/[^"'?]+)/i)?.[1] || '')
+    : v;
+  const m = perma.match(/instagram\.com\/(reel|reels|p|tv)\/([A-Za-z0-9_-]+)/i);
+  if (!m) return null;
+  const tip = m[1].toLowerCase() === 'reels' ? 'reel' : m[1].toLowerCase();
+  return { src: `https://www.instagram.com/${tip}/${m[2]}/embed/`, acik: `https://www.instagram.com/${tip}/${m[2]}/` };
+}
+
 function extractVideoSrc(val: string | null | undefined): string | null {
   if (!val) return null;
   const v = val.trim();
+  // Instagram (link veya embed kodu) — iframe dalından önce, çünkü blockquote '<' ile başlar
+  const ig = extractInstagramEmbed(v);
+  if (ig) return ig.src;
   // iframe HTML embed kodu → src'i çıkar
   if (v.startsWith('<')) {
     const match = v.match(/src=["']([^"']+)["']/i);
@@ -389,7 +407,18 @@ function KonumHarita({ lat, lng, name, mapsUrl, adres, il, ilce, entityId, entit
         return;
       }
       const zoom = source === 'city' ? 12 : source === 'address' ? 14 : 15;
-      const map = L.map(mapRef.current!, { scrollWheelZoom: false }).setView([coords!.lat, coords!.lng], zoom);
+      // Kullanıcı isteği: sol çift tık UZAKLAŞTIRIR, hızlı iki sağ tık YAKLAŞTIRIR.
+      // Leaflet'in varsayılanı (çift tık = yakınlaş) kapatılır; sağ tıkta tarayıcı
+      // bağlam menüsü bastırılır ki ikinci sağ tık haritaya ulaşsın.
+      const map = L.map(mapRef.current!, { scrollWheelZoom: false, doubleClickZoom: false }).setView([coords!.lat, coords!.lng], zoom);
+      map.on('dblclick', () => map.zoomOut());
+      let sonSagTik = 0;
+      map.on('contextmenu', (e: any) => {
+        L.DomEvent.preventDefault(e.originalEvent);
+        const simdi = Date.now();
+        if (simdi - sonSagTik < 450) { map.zoomIn(); sonSagTik = 0; }
+        else sonSagTik = simdi;
+      });
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a>', maxZoom: 18,
       }).addTo(map);
@@ -2170,7 +2199,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 380, margin: '0 auto 24px' }}>
                     Bu işletme için henüz tanıtım videosu eklenmemiş.
                     {claimed
-                      ? ' Panel üzerinden YouTube veya Vimeo video linkini ya da embed kodunu ekleyebilirsiniz.'
+                      ? ' Panel üzerinden YouTube, Instagram veya Vimeo video linkini ya da embed kodunu ekleyebilirsiniz.'
                       : ' İşletme sahibi panel üzerinden video ekleyebilir.'}
                   </p>
                   {claimed && (
@@ -2189,7 +2218,11 @@ export default function ProfilSayfasi(props: ProfilProps) {
             // Video embed URL var → oynatıcı göster
             const isYoutube = videoSrc.includes('youtube.com/embed') || videoSrc.includes('youtu.be');
             const isVimeo   = videoSrc.includes('vimeo.com');
-            const platform  = isYoutube ? 'YouTube' : isVimeo ? 'Vimeo' : 'Video';
+            const igBilgi   = extractInstagramEmbed((video_url || '').trim());
+            const isInsta   = !!igBilgi;
+            const platform  = isYoutube ? 'YouTube' : isVimeo ? 'Vimeo' : isInsta ? 'Instagram' : 'Video';
+            // Dış link: blockquote/iframe kodu yapıştırıldıysa ham metin link olamaz → çözülmüş adres
+            const acikUrl   = igBilgi ? igBilgi.acik : (video_url || '').trim().startsWith('<') ? videoSrc : video_url!;
             return (
               <div style={sc}>
                 <div style={scHd}>
@@ -2200,8 +2233,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   </span>
                 </div>
                 <div style={scBody}>
-                  {/* Video player — 16:9 aspect ratio */}
-                  <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', border: '1px solid var(--border)', background: '#000', aspectRatio: '16/9', marginBottom: 16 }}>
+                  {/* Video player — YouTube/Vimeo 16:9; Instagram dikey (9:16, dar kutu) */}
+                  <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', border: '1px solid var(--border)', background: isInsta ? '#fff' : '#000', aspectRatio: isInsta ? '9/16' : '16/9', maxWidth: isInsta ? 420 : undefined, margin: isInsta ? '0 auto 16px' : '0 0 16px' }}>
                     <iframe
                       src={videoSrc}
                       title={`${name} — Tanıtım Videosu`}
@@ -2212,7 +2245,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   </div>
                   {/* Alt buton satırı */}
                   <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                    <a href={video_url!} target="_blank" rel="noopener noreferrer"
+                    <a href={acikUrl} target="_blank" rel="noopener noreferrer"
                       style={{ padding: '10px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, background: 'var(--navy)', color: 'white', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                       <i className="fa-solid fa-arrow-up-right-from-square" /> {platform}'da Aç
                     </a>
