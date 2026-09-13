@@ -603,7 +603,7 @@ export default function PanelPage() {
         {tab === 'randevu'   && <RandevuTalepleriTab key={'rt' + aktifKey} approvedClaims={approvedClaims} aktifEntityId={isletmeler.length > 1 ? aktifClaim?.entity_id || '' : ''} />}
         {tab === 'randevumodul' && <RandevuModulTab key={'rm' + aktifKey} approvedClaims={approvedClaims} profileUrls={profileUrls} aktifEntityId={aktifClaim?.entity_id || ''} />}
         {tab === 'hastalar'  && <HastalarTab key={'ha' + aktifKey} approvedClaims={approvedClaims} aktifEntityId={aktifClaim?.entity_id || ''} />}
-        {tab === 'mcp'       && <McpTab />}
+        {tab === 'mcp'       && <McpTab aktifIsletme={aktifClaim?.entity_id ? { id: aktifClaim.entity_id, ad: aktifClaim.entity_name || '' } : null} isletmeSayisi={isletmeler.length} />}
         {tab === 'makaleler' && <MakalelerimTab hasEntity={approvedClaims.some(c => c.entity_id && c.entity_id !== 'new')} />}
       </main>
 

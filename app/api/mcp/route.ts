@@ -74,6 +74,7 @@ export async function POST(request: NextRequest) {
   catch { return NextResponse.json(hataYanit(null, -32700, 'Geçersiz JSON'), { status: 400, headers: CORS }); }
 
   const email = kim.email;   // kapanış içinde null-daraltma kaybolmasın
+  const kapsam = kim.kapsam;
   let proKontrol: boolean | null = null;
   const proMu = async () => (proKontrol ??= await mcpErisimiVar(email));
 
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
           return sonuc(id, { content: [{ type: 'text', text: 'MCP erişimi Hekimhane-Pro üyeliği gerektirir; hesabınızda aktif Pro işletme bulunamadı. https://www.hekimhane.com.tr/pro' }], isError: true });
         }
         try {
-          const r = await aracCalistir(ad, (m.params?.arguments || {}) as Record<string, any>, email);
+          const r = await aracCalistir(ad, (m.params?.arguments || {}) as Record<string, any>, email, kapsam);
           return sonuc(id, { content: [{ type: 'text', text: r.text }], ...(r.isError ? { isError: true } : {}) });
         } catch (e: any) {
           console.error('mcp araç hatası:', ad, e?.message || e);

@@ -20,6 +20,9 @@ export interface AnahtarKaydi {
   ozet: string;          // sha256 hex
   olusturma: string;     // ISO
   son_kullanim: string | null;
+  /** Doluysa anahtar YALNIZ bu işletmeye erişir (entity_id). Boş/eski anahtar → tüm işletmeler. */
+  isletme_id?: string | null;
+  isletme_ad?: string | null;
 }
 
 export const ozetle = (token: string) => createHash('sha256').update(token).digest('hex');
@@ -44,7 +47,7 @@ export function anahtarlar(appMetadata: unknown): AnahtarKaydi[] {
 }
 
 /** Token → kullanıcı. Geçersizse null. Son kullanım zamanını seyrek günceller. */
-export async function anahtarDogrula(admin: SupabaseClient, token: string): Promise<{ userId: string; email: string } | null> {
+export async function anahtarDogrula(admin: SupabaseClient, token: string): Promise<{ userId: string; email: string; kapsam: string | null } | null> {
   const m = /^hkm_([0-9a-f]{32})_([0-9a-f]{48})$/.exec(token.trim());
   if (!m) return null;
   const h = m[1];
@@ -68,7 +71,7 @@ export async function anahtarDogrula(admin: SupabaseClient, token: string): Prom
     const yeni = liste.map(k => (k.id === kayit.id ? { ...k, son_kullanim: new Date().toISOString() } : k));
     await admin.auth.admin.updateUserById(userId, { app_metadata: { ...user.app_metadata, mcp_anahtarlari: yeni } }).catch(() => {});
   }
-  return { userId, email: user.email };
+  return { userId, email: user.email, kapsam: kayit.isletme_id || null };
 }
 
 const TABLO: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };

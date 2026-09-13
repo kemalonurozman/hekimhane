@@ -5,7 +5,7 @@ import { ARACLAR, kurulumKodu, ISTEMCI_BILGI, YER_TUTUCU, type Istemci } from '@
 
 const NAVY = '#1B3A69', GOLD = '#D4A843', MUTED = '#6E6E73', BORDER = '#E5E5EA', TEXT = '#1D1D1F';
 
-interface Anahtar { id: string; ad: string; onek: string; olusturma: string; son_kullanim: string | null }
+interface Anahtar { id: string; ad: string; onek: string; olusturma: string; son_kullanim: string | null; isletme_id: string | null; isletme_ad: string | null }
 function Kopyala({ metin, etiket = 'Kopyala' }: { metin: string; etiket?: string }) {
   const [ok, setOk] = useState(false);
   return (
@@ -18,7 +18,10 @@ function Kopyala({ metin, etiket = 'Kopyala' }: { metin: string; etiket?: string
 
 const tarih = (s: string | null) => s ? new Date(s).toLocaleString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Henüz kullanılmadı';
 
-export default function McpTab() {
+export default function McpTab({ aktifIsletme, isletmeSayisi }: { aktifIsletme: { id: string; ad: string } | null; isletmeSayisi: number }) {
+  // Birden çok işletmede anahtar varsayılan olarak sol menüde seçili işletmeye özeldir
+  const [tumIsletmeler, setTumIsletmeler] = useState(false);
+  const kapsamli = isletmeSayisi > 1 && !!aktifIsletme && !tumIsletmeler;
   const [yukleniyor, setYukleniyor] = useState(true);
   const [pro, setPro] = useState(false);
   const [anahtarlar, setAnahtarlar] = useState<Anahtar[]>([]);
@@ -43,7 +46,7 @@ export default function McpTab() {
   async function olustur() {
     setCalisiyor(true); setHata('');
     try {
-      const r = await fetch('/api/panel/mcp-anahtar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ad }) });
+      const r = await fetch('/api/panel/mcp-anahtar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ad, isletme_id: kapsamli ? aktifIsletme!.id : undefined }) });
       const j = await r.json();
       if (r.ok && j.anahtar) { setYeniToken(j.anahtar); setAnahtarlar(p => [...p, j.kayit]); setAd(''); }
       else setHata(j.error || 'Anahtar oluşturulamadı.');
@@ -100,6 +103,21 @@ export default function McpTab() {
             ) : anahtarlar.length >= maks ? (
               <p style={{ fontSize: 13, color: MUTED, margin: 0 }}>En fazla {maks} anahtar oluşturabilirsiniz. Yeni anahtar için aşağıdan kullanmadığınız birini iptal edin.</p>
             ) : (
+              <>
+              {/* Kapsam: hangi işletmeye erişecek */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '10px 12px', borderRadius: 11, background: kapsamli ? '#EEF4FF' : '#F8FAFC', border: `1px solid ${kapsamli ? '#C7D7F0' : BORDER}`, marginBottom: 10 }}>
+                <span style={{ fontSize: 12.5, color: MUTED }}>Bu anahtar erişecek:</span>
+                <span style={{ fontSize: 13.5, fontWeight: 800, color: NAVY }}>
+                  {kapsamli ? aktifIsletme!.ad : isletmeSayisi > 1 ? `Tüm işletmelerim (${isletmeSayisi})` : (aktifIsletme?.ad || 'İşletmem')}
+                </span>
+                {isletmeSayisi > 1 && (
+                  <label style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, color: MUTED, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={tumIsletmeler} onChange={e => setTumIsletmeler(e.target.checked)} />
+                    Tüm işletmelerime erişsin
+                  </label>
+                )}
+                {kapsamli && <span style={{ flexBasis: '100%', fontSize: 11.5, color: MUTED }}>Başka işletme için anahtar oluşturmak isterseniz sol menüdeki <strong>Aktif İşletme</strong> seçimini değiştirin.</span>}
+              </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 <input value={ad} onChange={e => setAd(e.target.value)} maxLength={40} placeholder="Anahtara bir ad verin (ör. Claude — ofis bilgisayarı)"
                   style={{ flex: 1, minWidth: 220, padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${BORDER}`, fontSize: 13.5, fontFamily: 'inherit', outline: 'none' }} />
@@ -108,6 +126,7 @@ export default function McpTab() {
                   {calisiyor ? 'Oluşturuluyor…' : 'Anahtar oluştur'}
                 </button>
               </div>
+              </>
             )}
             {hata && <p style={{ fontSize: 12.5, color: '#B91C1C', fontWeight: 600, margin: '10px 0 0' }}>{hata}</p>}
           </div>
@@ -142,6 +161,10 @@ export default function McpTab() {
             ) : anahtarlar.map(a => (
               <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0', borderTop: `1px solid #F1F1F4`, flexWrap: 'wrap' }}>
                 <div style={{ flex: 1, minWidth: 200 }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 9px', borderRadius: 999, marginBottom: 4, background: a.isletme_id ? '#EEF4FF' : '#FDF6E3', color: a.isletme_id ? NAVY : '#9A742A', fontSize: 11, fontWeight: 800, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 21h18M6 21V7l6-4 6 4v14"/></svg>
+                    {a.isletme_ad || 'Tüm işletmeler'}
+                  </div>
                   <div style={{ fontSize: 13.5, fontWeight: 700, color: TEXT }}>{a.ad}</div>
                   <div style={{ fontSize: 11.5, color: MUTED }}><code>{a.onek}</code> · oluşturma {tarih(a.olusturma)} · son kullanım {tarih(a.son_kullanim)}</div>
                 </div>

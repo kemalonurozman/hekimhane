@@ -26,7 +26,7 @@ async function kullanici(request: NextRequest) {
   return data?.user || null;
 }
 
-const disa = (k: AnahtarKaydi) => ({ id: k.id, ad: k.ad, onek: k.onek, olusturma: k.olusturma, son_kullanim: k.son_kullanim });
+const disa = (k: AnahtarKaydi) => ({ id: k.id, ad: k.ad, onek: k.onek, olusturma: k.olusturma, son_kullanim: k.son_kullanim, isletme_id: k.isletme_id || null, isletme_ad: k.isletme_ad || null });
 
 export async function GET(request: NextRequest) {
   const u = await kullanici(request);
@@ -50,10 +50,17 @@ export async function POST(request: NextRequest) {
   if (mevcut.length >= MAKS_ANAHTAR) {
     return NextResponse.json({ error: `En fazla ${MAKS_ANAHTAR} anahtar oluşturabilirsiniz; kullanmadığınız birini iptal edin.` }, { status: 400 });
   }
-  const { ad } = await request.json().catch(() => ({}));
+  const { ad, isletme_id } = await request.json().catch(() => ({}));
+  // İşletmeye özel anahtar: seçilen işletme bu hesabın onaylı işletmesi olmalı
+  let kapsamIsletme: { id: string; ad: string } | null = null;
+  if (typeof isletme_id === 'string' && isletme_id.trim()) {
+    const i = isletmeler.find(x => x.entity_id === isletme_id.trim());
+    if (!i) return NextResponse.json({ error: 'Seçilen işletme bu hesaba ait değil.' }, { status: 403 });
+    kapsamIsletme = { id: i.entity_id, ad: i.entity_name };
+  }
   const temizAd = String(ad || '').replace(/[<>]/g, '').trim().slice(0, 40) || `Anahtar ${mevcut.length + 1}`;
   const { token, kayit } = anahtarUret(u.id);
-  const yeni: AnahtarKaydi = { ...kayit, ad: temizAd };
+  const yeni: AnahtarKaydi = { ...kayit, ad: temizAd, isletme_id: kapsamIsletme?.id || null, isletme_ad: kapsamIsletme?.ad || null };
   const { error } = await admin().auth.admin.updateUserById(u.id, {
     app_metadata: { ...u.app_metadata, mcp_anahtarlari: [...mevcut, yeni] },
   });

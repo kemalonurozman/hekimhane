@@ -79,9 +79,21 @@ async function takvimAyari(db: SupabaseClient, isl: SahipIsletme) {
   };
 }
 
-export async function aracCalistir(ad: string, args: Record<string, any>, email: string): Promise<AracSonucu> {
+export async function aracCalistir(ad: string, args: Record<string, any>, email: string, kapsam: string | null = null): Promise<AracSonucu> {
   const db = admin();
-  const isletmeler = await sahipIsletmeleri(db, email);
+  const tumu = await sahipIsletmeleri(db, email);
+  // İşletmeye özel anahtar: araçlar yalnız o işletmeyi görür
+  const isletmeler = kapsam ? tumu.filter(i => i.entity_id === kapsam) : tumu;
+  if (kapsam && !isletmeler.length) return hata('Bu anahtarın bağlı olduğu işletme artık hesabınızda onaylı değil. Panelden yeni anahtar oluşturun.');
+
+  // Panel rotaları hesabın TÜM işletmelerine yetki verir; kimlikle (talep/yorum id) çalışan araçlarda
+  // kaydın işletmesi bu anahtarın kapsamında mı ayrıca doğrulanır.
+  const kapsamda = async (tablo: 'randevu_talepleri' | 'yorumlar', id: unknown): Promise<boolean> => {
+    if (!kapsam) return true;
+    const { data } = await (db as any).from(tablo).select('entity_id').eq('id', String(id)).maybeSingle();
+    return !!data && String(data.entity_id) === kapsam;
+  };
+  const kapsamDisi = () => hata('Bu kayıt, bu anahtarın bağlı olduğu işletmeye ait değil.');
 
   switch (ad) {
     // ── GENEL ──────────────────────────────────────────────
@@ -134,6 +146,7 @@ export async function aracCalistir(ad: string, args: Record<string, any>, email:
 
     case 'randevu_guncelle': {
       if (!args.talep_id) return hata('talep_id gerekli.');
+      if (!(await kapsamda('randevu_talepleri', args.talep_id))) return kapsamDisi();
       const govde: Record<string, unknown> = { id: String(args.talep_id) };
       if (args.durum) govde.status = args.durum;
       if (typeof args.not === 'string') govde.sahip_notu = args.not;
@@ -264,6 +277,7 @@ export async function aracCalistir(ad: string, args: Record<string, any>, email:
     case 'yoruma_yanit_ver': {
       if (!args.yorum_id) return hata('yorum_id gerekli.');
       if (!args.sil && !String(args.yanit || '').trim()) return hata('yanit metni gerekli (veya sil=true).');
+      if (!(await kapsamda('yorumlar', args.yorum_id))) return kapsamDisi();
       const r = await rota(yorumYanitPost, email, '/api/panel/reply-yorum', 'POST', {
         yorumId: String(args.yorum_id), replyText: String(args.yanit || ''), deleteReply: args.sil === true,
       });
@@ -274,6 +288,7 @@ export async function aracCalistir(ad: string, args: Record<string, any>, email:
     // ── İLETİŞİM ───────────────────────────────────────────
     case 'hastaya_eposta_gonder': {
       if (!args.talep_id || !args.mesaj) return hata('talep_id ve mesaj gerekli.');
+      if (!(await kapsamda('randevu_talepleri', args.talep_id))) return kapsamDisi();
       const r = await rota(hastaMailPost, email, '/api/panel/hasta-mail', 'POST', {
         talepId: String(args.talep_id), konu: args.konu, mesaj: String(args.mesaj),
       });
