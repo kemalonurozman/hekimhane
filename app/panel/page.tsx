@@ -561,7 +561,7 @@ export default function PanelPage() {
         {tab === 'hekimkart' && <HekimKartTab approvedClaims={approvedClaims} profileUrls={profileUrls} user={user} />}
         {tab === 'yorumlar'  && <YorumlarTab approvedClaims={approvedClaims} />}
         {tab === 'randevu'   && <RandevuTalepleriTab approvedClaims={approvedClaims} />}
-        {tab === 'randevumodul' && <RandevuModulTab approvedClaims={approvedClaims} />}
+        {tab === 'randevumodul' && <RandevuModulTab approvedClaims={approvedClaims} profileUrls={profileUrls} />}
         {tab === 'hastalar'  && <HastalarTab approvedClaims={approvedClaims} />}
         {tab === 'makaleler' && <MakalelerimTab hasEntity={approvedClaims.some(c => c.entity_id && c.entity_id !== 'new')} />}
       </main>
@@ -2041,11 +2041,13 @@ function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[
  * <select> hangisinin takviminin açık olduğunu göstermiyordu. Burada her işletme
  * ismiyle listelenir, Pro/takvim durumu rozetle görünür ve tek tıkla geçilir.
  */
-function IsletmeSecici({ entities, idx, onSelect, durum }: {
+function IsletmeSecici({ entities, idx, onSelect, durum, profileUrls }: {
   entities: ClaimRequest[];
   idx: number;
   onSelect: (i: number) => void;
   durum: Record<string, { premium: boolean; aktif: boolean }>;
+  /** claim.id → herkese açık profil URL'i (Genel Bakış'taki "Ziyaretçi Görünümü" ile aynı kaynak) */
+  profileUrls: Record<string, string>;
 }) {
   if (entities.length === 0) return null;
 
@@ -2062,8 +2064,10 @@ function IsletmeSecici({ entities, idx, onSelect, durum }: {
         {entities.map((c, i) => {
           const secili = i === idx;
           const d = durum[c.entity_id || ''] || { premium: false, aktif: false };
+          const url = profileUrls[c.id];
           return (
-            <button key={c.id} onClick={() => onSelect(i)} type="button"
+            <div key={c.id} style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
+            <button onClick={() => onSelect(i)} type="button"
               title={secili ? 'Şu an bu işletmenin takvimini yönetiyorsunuz' : `${c.entity_name} takvimine geç`}
               style={{
                 display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', textAlign: 'left',
@@ -2071,7 +2075,7 @@ function IsletmeSecici({ entities, idx, onSelect, durum }: {
                 background: secili ? '#EEF4FF' : T.white,
                 border: `1.5px solid ${secili ? T.navy : T.border}`,
                 boxShadow: secili ? '0 1px 6px rgba(27,58,105,.12)' : 'none',
-                fontFamily: 'inherit', width: '100%',
+                fontFamily: 'inherit', flex: 1, minWidth: 0,
               }}>
               {/* Seçili göstergesi — radyo görünümü */}
               <span style={{ width: 17, height: 17, borderRadius: '50%', border: `2px solid ${secili ? T.navy : '#C7D2E4'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -2086,6 +2090,17 @@ function IsletmeSecici({ entities, idx, onSelect, durum }: {
                 : rozet('Ücretsiz', '#6B7A99', '#F1F5F9', '#D9E2EC')}
               {secili && <span style={{ fontSize: 11, fontWeight: 800, color: T.navy, letterSpacing: '.5px', textTransform: 'uppercase' }}>Yönetiliyor</span>}
             </button>
+            {/* Hızlı bakış — profil yeni sekmede; yaptığınız değişiklikleri ziyaretçi gözüyle görün */}
+            {url && (
+              <a href={url} target="_blank" rel="noopener"
+                title="Profili ziyaretçi gözüyle yeni sekmede aç"
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', borderRadius: 13, background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', fontSize: 12.5, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                <Ic d={icons.eye} size={14} />
+                Görüntüle
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+            )}
+            </div>
           );
         })}
       </div>
@@ -2093,7 +2108,7 @@ function IsletmeSecici({ entities, idx, onSelect, durum }: {
   );
 }
 
-function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
+function RandevuModulTab({ approvedClaims, profileUrls }: { approvedClaims: ClaimRequest[]; profileUrls: Record<string, string> }) {
   const [idx, setIdx] = useState(0);
   const [copied, setCopied] = useState(false);
   const [notifyMode, setNotifyMode] = useState<'same' | 'custom'>('same');
@@ -2193,7 +2208,7 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
       <div style={{ maxWidth: 760 }}>
         <h1 style={{ fontSize: 26, fontWeight: 700, color: A.text, margin: 0, letterSpacing: '-0.6px' }}>Randevu Takvimi</h1>
         {entities.length > 1
-          ? <div style={{ marginTop: 18 }}><IsletmeSecici entities={entities} idx={idx} onSelect={setIdx} durum={durum} /></div>
+          ? <div style={{ marginTop: 18 }}><IsletmeSecici entities={entities} idx={idx} onSelect={setIdx} durum={durum} profileUrls={profileUrls} /></div>
           : <p style={{ fontSize: 13.5, color: A.muted, margin: '6px 0 22px' }}>{ent.entity_name}</p>}
         {proAktif === null ? (
           <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '40px 24px', textAlign: 'center', color: A.muted, fontSize: 14 }}>Yükleniyor…</div>
@@ -2308,7 +2323,7 @@ function RandevuModulTab({ approvedClaims }: { approvedClaims: ClaimRequest[] })
 
       {/* Birden çok işletmede: hangisinin takvimini düzenlediğiniz açıkça görünsün. */}
       {entities.length > 1
-        ? <IsletmeSecici entities={entities} idx={idx} onSelect={setIdx} durum={durum} />
+        ? <IsletmeSecici entities={entities} idx={idx} onSelect={setIdx} durum={durum} profileUrls={profileUrls} />
         : <p style={{ fontSize: 13.5, color: A.text, fontWeight: 700, margin: '-8px 0 18px' }}>{ent.entity_name}</p>}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr)', gap: 16 }}>
