@@ -3285,12 +3285,14 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
                       <div style={{ borderBottom: `1px solid ${A.line}`, borderRight: `1px solid ${A.line}` }} />
                       {dayIsos.map((iso, i) => {
                         const gunFull = blokeSet.has(iso);
+                        const bugun = iso === todayIso, gecmis = iso < todayIso;
                         return (
-                          <div key={iso} onClick={() => toggleGun(iso)} title={gunFull ? 'Tüm gün kapalı — açmak için tıkla' : 'Tüm günü kapat'}
-                            style={{ borderBottom: `1px solid ${A.line}`, borderRight: i < 6 ? `1px solid ${A.line}` : 'none', padding: '8px 4px', textAlign: 'center', cursor: 'pointer', background: iso === todayIso ? 'rgba(27,58,105,.05)' : 'transparent' }}>
-                            <div style={{ fontSize: 11, fontWeight: 700, color: iso === todayIso ? A.accent : A.muted }}>{gunKisa[i]}</div>
+                          <div key={iso} onClick={() => toggleGun(iso)} title={gunFull ? 'Tüm gün kapalı — açmak için tıkla' : gecmis ? 'Geçmiş gün — yine de düzenlenebilir' : 'Tüm günü kapat'}
+                            style={{ borderBottom: `1px solid ${A.line}`, borderRight: i < 6 ? `1px solid ${A.line}` : 'none', borderLeft: bugun ? `3px solid ${A.accent}` : undefined, padding: '8px 4px', textAlign: 'center', cursor: 'pointer', background: bugun ? 'rgba(27,58,105,.07)' : 'transparent', opacity: gecmis ? .5 : 1 }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: bugun ? A.accent : A.muted }}>{gunKisa[i]}</div>
                             <div style={{ fontSize: 15, fontWeight: 800, color: gunFull ? '#B91C1C' : A.text }}>{days[i].getDate()}</div>
                             {gunFull && <div style={{ fontSize: 9, fontWeight: 700, color: '#B91C1C' }}>KAPALI</div>}
+                            {bugun && !gunFull && <div style={{ fontSize: 9, fontWeight: 800, color: A.accent, letterSpacing: '.6px' }}>BUGÜN</div>}
                           </div>
                         );
                       })}
@@ -3299,7 +3301,13 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
                         <React.Fragment key={time}>
                           <div style={{ borderRight: `1px solid ${A.line}`, borderBottom: `1px solid ${A.line}`, padding: '0 4px', fontSize: 10.5, color: A.muted, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', minHeight: 34 }}>{time}</div>
                           {dayIsos.map((iso, i) => {
-                            const cellBase: React.CSSProperties = { borderRight: i < 6 ? `1px solid ${A.line}` : 'none', borderBottom: `1px solid ${A.line}`, minHeight: 34, fontSize: 11 };
+                            // Bugün: kalın lacivert sol çizgi ile geçmişten ayrılır. Geçmiş günler soluk
+                            // ama etkileşim aynen açık — eski tarihe kayıt girmek serbest.
+                            const cellBase: React.CSSProperties = {
+                              borderRight: i < 6 ? `1px solid ${A.line}` : 'none', borderBottom: `1px solid ${A.line}`, minHeight: 34, fontSize: 11,
+                              ...(iso === todayIso ? { borderLeft: `3px solid ${A.accent}` } : {}),
+                              ...(iso < todayIso ? { opacity: .5 } : {}),
+                            };
                             const active = daySlots[iso].includes(time);
                             if (!active) return <div key={iso} style={{ ...cellBase, background: '#FAFAFB' }} />;
                             const slotKey = iso + ' ' + time;
@@ -3325,6 +3333,7 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: '#F0FDF4', border: `1px solid ${A.line}` }} />Boş (tıkla → kapat)</span>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: '#F1F1F4' }} />Kapalı</span>
                     <span>Gün başlığına tıkla → tüm günü aç/kapat.</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 3, height: 14, borderRadius: 2, background: A.accent }} />Bugün — solundaki günler geçmiş (soluk, yine de düzenlenebilir)</span>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: '#BBF7D0', boxShadow: 'inset 0 0 0 2px #16A34A' }} />Basılı tutup sürükle → uzun işlem (2–3 saat tek seferde)</span>
                   </div>
                 </>
