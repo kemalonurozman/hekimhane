@@ -57,7 +57,8 @@ export async function POST(request: NextRequest) {
       ad_soyad: adSoyad, tel: telDigits,
       email: b.email ? String(b.email).trim().slice(0, 150) : null,
       tercih: slot, randevu_slot: slot, status: 'arandi',
-      mesaj: '[Panelden elle eklendi]',
+      // Uzun işlem (çoklu slot) kayıtlarında panel devam slotunu notla işaretler
+      mesaj: '[Panelden elle eklendi]' + (b.mesaj ? ' ' + String(b.mesaj).replace(/[<>]/g, '').trim().slice(0, 200) : ''),
     };
     const { data, error } = await (admin as any).from('randevu_talepleri').insert(kayit).select('*').single();
     if (error) {

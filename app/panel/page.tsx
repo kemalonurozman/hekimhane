@@ -2686,6 +2686,13 @@ function RandevuModulTab({ approvedClaims, profileUrls }: { approvedClaims: Clai
 /* ═══════════════════════════════════════════════
    HASTALARIM TAB — telefona göre hasta listesi + geçmiş + kalıcı not
 ═══════════════════════════════════════════════ */
+/** 'HH:MM' saatine dakika ekler — çoklu slot bitiş saati için. */
+function artiDk(saat: string, dk: number): string {
+  const [h, m] = saat.split(':').map(Number);
+  const t = (h * 60 + m + dk) % (24 * 60);
+  return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+}
+
 function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   const [talepler, setTalepler] = useState<RandevuTalep[]>([]);
   const [notlar, setNotlar] = useState<Record<string, { entity_id: string; tel: string; notlar: string | null; etiketler?: string[] }>>({}); // key: entity_id|tel
@@ -2704,6 +2711,16 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   const [weekOffset, setWeekOffset] = useState(0);
   const [calSaving, setCalSaving] = useState(false);
   const [addSlot, setAddSlot] = useState<{ iso: string; time: string } | null>(null);
+  // Çoklu slot (uzun işlem): diyalogdaki ardışık saatler; sürükle-seç ve üzerine-gelme vurgusu
+  const [addSlots, setAddSlots] = useState<string[]>([]);
+  const [dragSel, setDragSel] = useState<{ iso: string; from: string; to: string } | null>(null);
+  const [hoverKey, setHoverKey] = useState<string | null>(null);
+  useEffect(() => {
+    // Fare hücrelerin dışında bırakılırsa yarım kalan seçim temizlensin
+    const birak = () => setDragSel(null);
+    window.addEventListener('mouseup', birak);
+    return () => window.removeEventListener('mouseup', birak);
+  }, []);
   const [addAd, setAddAd] = useState('');
   const [addTel, setAddTel] = useState('');
   const [addSaving, setAddSaving] = useState(false);
@@ -2813,14 +2830,26 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
     setAddSaving(true); setAddMsg('');
     try {
       const ent = approvedClaims.find(c => c.entity_id === calEntity);
-      const slot = `${addSlot.iso} ${addSlot.time}`;
-      const res = await fetch('/api/panel/randevu-ekle', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ entityId: calEntity, entityType: ent?.entity_type, entityName: cfgMap[calEntity]?.name, ad_soyad: addAd.trim(), tel: addTel.trim(), randevu_slot: slot }),
-      });
-      const d = await res.json().catch(() => ({}));
-      if (res.ok && d.ok && d.talep) { setTalepler(p => [d.talep, ...p]); setAddSlot(null); setAddAd(''); setAddTel(''); }
-      else setAddMsg(d.error || 'Eklenemedi');
+      // Uzun işlem: her slot ayrı kayıt — böylece herkese açık takvim ve embed
+      // o saatlerin tamamını dolu sayar (ek kolon/DDL gerekmez). Devam slotları notlanır.
+      const saatler = addSlots.length ? addSlots : [addSlot.time];
+      const bitis = artiDk(saatler[saatler.length - 1], cfgMap[calEntity]?.slotDk || 30);
+      const eklenen: RandevuTalep[] = [];
+      for (let i = 0; i < saatler.length; i++) {
+        const not = saatler.length > 1 ? `Uzun işlem ${i + 1}/${saatler.length} (${saatler[0]}–${bitis})` : '';
+        const res = await fetch('/api/panel/randevu-ekle', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entityId: calEntity, entityType: ent?.entity_type, entityName: cfgMap[calEntity]?.name, ad_soyad: addAd.trim(), tel: addTel.trim(), randevu_slot: `${addSlot.iso} ${saatler[i]}`, mesaj: not }),
+        });
+        const d = await res.json().catch(() => ({}));
+        if (!(res.ok && d.ok && d.talep)) {
+          if (eklenen.length) setTalepler(p => [...eklenen, ...p]);
+          setAddMsg((d.error || 'Eklenemedi') + (eklenen.length ? ` — ilk ${eklenen.length} slot eklendi, ${saatler[i]} eklenemedi.` : ''));
+          setAddSaving(false); return;
+        }
+        eklenen.push(d.talep);
+      }
+      setTalepler(p => [...eklenen, ...p]); setAddSlot(null); setAddSlots([]); setAddAd(''); setAddTel('');
     } catch { setAddMsg('Bağlantı hatası'); }
     setAddSaving(false);
   }
@@ -3201,6 +3230,22 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
           const toggleSlot = (iso: string, time: string) => { const key = iso + ' ' + time; const arr = (cfg?.bloke || []).slice(); const i = arr.indexOf(key); if (i >= 0) arr.splice(i, 1); else arr.push(key); saveBlokeCal(calEntity, arr); };
           const toggleGun = (iso: string) => { let arr = (cfg?.bloke || []).slice(); arr = arr.includes(iso) ? arr.filter(x => x !== iso) : [...arr.filter(x => !x.startsWith(iso + ' ')), iso]; saveBlokeCal(calEntity, arr); };
 
+          // Çoklu slot seçimi: aynı günde, boş+açık hücrelerden oluşan ARDIŞIK aralık.
+          // Dolu/kapalı bir hücreye gelince aralık orada kesilir (üstünden atlanmaz).
+          const serbestMi = (iso: string, t: string) => daySlots[iso]?.includes(t) && !bookedMap[iso + ' ' + t] && !blokeSet.has(iso) && !blokeSet.has(iso + ' ' + t);
+          const aralik = (iso: string, a: string, b: string): string[] => {
+            const ia = times.indexOf(a), ib = times.indexOf(b);
+            if (ia < 0 || ib < 0) return [a];
+            const adim = ib >= ia ? 1 : -1; const out: string[] = [];
+            for (let i = ia; adim > 0 ? i <= ib : i >= ib; i += adim) { const t = times[i]; if (!serbestMi(iso, t)) break; out.push(t); }
+            return out.length ? out.sort() : [a];
+          };
+          const dragSet = new Set(dragSel ? aralik(dragSel.iso, dragSel.from, dragSel.to).map(t => dragSel.iso + ' ' + t) : []);
+          const acDialog = (iso: string, slots: string[]) => { setAddSlot({ iso, time: slots[0] }); setAddSlots(slots); setAddAd(''); setAddTel(''); setAddMsg(''); };
+          // Diyalogdaki süre ayarı: sonraki ardışık boş saat varsa uzat, en az 1 slot kalır
+          const slotUzat = () => { if (!addSlot) return; const son = addSlots[addSlots.length - 1] || addSlot.time; const sonraki = times[times.indexOf(son) + 1]; if (sonraki && serbestMi(addSlot.iso, sonraki)) setAddSlots([...(addSlots.length ? addSlots : [addSlot.time]), sonraki]); };
+          const slotKisalt = () => { if (addSlots.length > 1) setAddSlots(addSlots.slice(0, -1)); };
+
           const gunKisa = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 
           return (
@@ -3262,7 +3307,14 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
                             const kapali = blokeSet.has(iso) || blokeSet.has(slotKey);
                             if (hasta) return <div key={iso} title={hasta} style={{ ...cellBase, background: 'rgba(27,58,105,.9)', color: '#fff', padding: '4px 5px', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.3 }}>{hasta}</div>;
                             if (kapali) return <div key={iso} onClick={() => !blokeSet.has(iso) && toggleSlot(iso, time)} title={blokeSet.has(iso) ? 'Gün kapalı' : 'Kapalı — açmak için tıkla'} style={{ ...cellBase, background: '#F1F1F4', color: '#B0B0B5', cursor: blokeSet.has(iso) ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</div>;
-                            return <div key={iso} onClick={() => { setAddSlot({ iso, time }); setAddAd(''); setAddTel(''); setAddMsg(''); }} title="Boş — randevu ekle veya kapat" style={{ ...cellBase, background: '#F0FDF4', cursor: 'pointer' }} />;
+                            const secili = dragSet.has(slotKey); const hover = hoverKey === slotKey && !dragSel;
+                            return <div key={iso}
+                              onMouseDown={e => { if (e.button !== 0) return; e.preventDefault(); setDragSel({ iso, from: time, to: time }); }}
+                              onMouseEnter={() => { setHoverKey(slotKey); if (dragSel && dragSel.iso === iso) setDragSel({ ...dragSel, to: time }); }}
+                              onMouseLeave={() => setHoverKey(null)}
+                              onMouseUp={() => { if (!dragSel || dragSel.iso !== iso) return; const s = aralik(iso, dragSel.from, time); setDragSel(null); acDialog(iso, s); }}
+                              title="Boş — tıkla: randevu ekle / kapat · basılı tutup aşağı sürükle: uzun işlem (2-3 saat)"
+                              style={{ ...cellBase, background: secili ? '#BBF7D0' : hover ? '#DCFCE7' : '#F0FDF4', boxShadow: secili ? 'inset 0 0 0 2px #16A34A' : 'none', cursor: 'pointer', userSelect: 'none', transition: 'background .12s' }} />;
                           })}
                         </React.Fragment>
                       ))}
@@ -3273,28 +3325,51 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: '#F0FDF4', border: `1px solid ${A.line}` }} />Boş (tıkla → kapat)</span>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: '#F1F1F4' }} />Kapalı</span>
                     <span>Gün başlığına tıkla → tüm günü aç/kapat.</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: '#BBF7D0', boxShadow: 'inset 0 0 0 2px #16A34A' }} />Basılı tutup sürükle → uzun işlem (2–3 saat tek seferde)</span>
                   </div>
                 </>
               )}
 
               {/* Elle randevu ekle (boş slota tıklayınca) */}
               {addSlot && (
-                <div onClick={e => { if (e.target === e.currentTarget) setAddSlot(null); }}
+                <div onClick={e => { if (e.target === e.currentTarget) { setAddSlot(null); setAddSlots([]); } }}
                   style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.4)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
                   <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 380, padding: 22, boxShadow: '0 20px 60px rgba(0,0,0,.25)' }}>
                     <div style={{ fontSize: 16, fontWeight: 700, color: A.text }}>Randevu ekle</div>
-                    <div style={{ fontSize: 13, color: A.muted, margin: '3px 0 16px', textTransform: 'capitalize' }}>
-                      {new Date(addSlot.iso + 'T00:00:00').toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })} · {addSlot.time}{cfgMap[calEntity]?.name ? ' · ' + cfgMap[calEntity].name : ''}
-                    </div>
+                    {(() => {
+                      const saatler = addSlots.length ? addSlots : [addSlot.time];
+                      const dk = (cfg?.slotDk || 30) * saatler.length;
+                      const bitis = artiDk(saatler[saatler.length - 1], cfg?.slotDk || 30);
+                      const sure = dk >= 60 ? `${Math.floor(dk / 60)} sa${dk % 60 ? ` ${dk % 60} dk` : ''}` : `${dk} dk`;
+                      const uzatilir = !!times[times.indexOf(saatler[saatler.length - 1]) + 1] && serbestMi(addSlot.iso, times[times.indexOf(saatler[saatler.length - 1]) + 1]);
+                      return (<>
+                        <div style={{ fontSize: 13, color: A.muted, margin: '3px 0 12px', textTransform: 'capitalize' }}>
+                          {new Date(addSlot.iso + 'T00:00:00').toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })} · {saatler[0]}–{bitis}{cfgMap[calEntity]?.name ? ' · ' + cfgMap[calEntity].name : ''}
+                        </div>
+                        {/* Süre: uzun işlemler için slot sayısı — sürüklemeden de ayarlanabilir */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '9px 12px', borderRadius: 11, background: '#F8FAFC', border: `1px solid ${A.line}`, marginBottom: 12 }}>
+                          <div>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: A.muted, textTransform: 'uppercase', letterSpacing: '.5px' }}>Süre</div>
+                            <div style={{ fontSize: 13.5, fontWeight: 700, color: A.text }}>{sure} <span style={{ fontWeight: 500, color: A.muted }}>· {saatler.length} slot</span></div>
+                          </div>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button type="button" onClick={slotKisalt} disabled={saatler.length <= 1} title="Bir slot kısalt"
+                              style={{ width: 34, height: 34, borderRadius: 9, border: `1px solid ${A.line}`, background: '#fff', fontSize: 18, fontWeight: 700, color: saatler.length <= 1 ? '#C7CCD6' : A.text, cursor: saatler.length <= 1 ? 'default' : 'pointer', fontFamily: 'inherit' }}>−</button>
+                            <button type="button" onClick={slotUzat} disabled={!uzatilir} title={uzatilir ? 'Bir slot uzat' : 'Sonraki saat dolu/kapalı'}
+                              style={{ width: 34, height: 34, borderRadius: 9, border: `1px solid ${A.line}`, background: '#fff', fontSize: 18, fontWeight: 700, color: uzatilir ? A.text : '#C7CCD6', cursor: uzatilir ? 'pointer' : 'default', fontFamily: 'inherit' }}>+</button>
+                          </div>
+                        </div>
+                      </>);
+                    })()}
                     <input value={addAd} onChange={e => { setAddAd(e.target.value); setAddMsg(''); }} placeholder="Ad Soyad" style={{ ...inp, marginBottom: 8 }} />
                     <input value={addTel} onChange={e => { setAddTel(e.target.value); setAddMsg(''); }} type="tel" placeholder="Telefon" style={inp} />
                     {addMsg && <div style={{ fontSize: 12.5, color: '#C0392B', marginTop: 8 }}>{addMsg}</div>}
                     <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
                       <button onClick={addRandevu} disabled={addSaving}
                         style={{ flex: 1, padding: '11px', borderRadius: 11, border: 'none', background: A.accent, color: '#fff', fontSize: 14, fontWeight: 600, cursor: addSaving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: addSaving ? .6 : 1 }}>{addSaving ? 'Ekleniyor…' : 'Randevu ekle'}</button>
-                      <button onClick={() => setAddSlot(null)} style={{ padding: '11px 16px', borderRadius: 11, border: `1px solid ${A.line}`, background: '#fff', color: A.muted, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>Vazgeç</button>
+                      <button onClick={() => { setAddSlot(null); setAddSlots([]); }} style={{ padding: '11px 16px', borderRadius: 11, border: `1px solid ${A.line}`, background: '#fff', color: A.muted, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>Vazgeç</button>
                     </div>
-                    <button onClick={() => { toggleSlot(addSlot.iso, addSlot.time); setAddSlot(null); }}
+                    <button onClick={() => { toggleSlot(addSlot.iso, addSlot.time); setAddSlot(null); setAddSlots([]); }}
                       style={{ width: '100%', marginTop: 10, padding: '9px', borderRadius: 10, border: 'none', background: 'transparent', color: '#B91C1C', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Randevu yerine bu saati kapat</button>
                   </div>
                 </div>
