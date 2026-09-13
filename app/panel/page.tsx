@@ -8,7 +8,9 @@ import { SPEC_GRUPLARI } from '@/lib/uzmanlik-data';
 import { HERO_BACKGROUNDS, coverPresetKey } from '@/lib/hero-backgrounds';
 import { IL_LISTE, ILCELER } from '@/lib/tr-il-ilce';
 import { PRO_AYLIK_TL } from '@/lib/pro-plan';
+import { gunSlotlari } from '@/lib/takvim-slot';
 import MakalelerimTab from './MakalelerimTab';
+import McpTab from './McpTab';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
@@ -230,7 +232,7 @@ export default function PanelPage() {
   const router = useRouter();
   const [user,   setUser]   = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart' | 'randevu' | 'randevumodul' | 'hastalar' | 'makaleler'>('dashboard');
+  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart' | 'randevu' | 'randevumodul' | 'hastalar' | 'makaleler' | 'mcp'>('dashboard');
   const [claims, setClaims] = useState<ClaimRequest[]>([]);
   const [claimsLoading, setClaimsLoading] = useState(false);
   const [profileUrls, setProfileUrls] = useState<Record<string, string>>({});
@@ -428,6 +430,7 @@ export default function PanelPage() {
     { key: 'yorumlar'   as const, label: 'Yorumlar',          icon: 'star' },
     { key: 'makaleler'  as const, label: 'Makalelerim',       icon: 'edit' },
     { key: 'profile'    as const, label: 'Hesabım',           icon: 'profile' },
+    { key: 'mcp'        as const, label: 'MCP Bağlantısı',    icon: 'code' },
     { key: 'new'        as const, label: 'Yeni Başvuru',      icon: 'plus' },
   ];
 
@@ -438,7 +441,7 @@ export default function PanelPage() {
     { title: 'Randevu & Hasta', keys: ['randevu', 'randevumodul', 'hastalar'] },
     { title: 'İçerik',    keys: ['makaleler'] },
     { title: 'Başvuru',   keys: ['claims', 'new'] },
-    { title: 'Hesap',     keys: ['profile'] },
+    { title: 'Hesap',     keys: ['profile', 'mcp'] },
   ];
 
   // Sidebar teması — gece (varsayılan) veya açık
@@ -600,6 +603,7 @@ export default function PanelPage() {
         {tab === 'randevu'   && <RandevuTalepleriTab key={'rt' + aktifKey} approvedClaims={approvedClaims} aktifEntityId={isletmeler.length > 1 ? aktifClaim?.entity_id || '' : ''} />}
         {tab === 'randevumodul' && <RandevuModulTab key={'rm' + aktifKey} approvedClaims={approvedClaims} profileUrls={profileUrls} aktifEntityId={aktifClaim?.entity_id || ''} />}
         {tab === 'hastalar'  && <HastalarTab key={'ha' + aktifKey} approvedClaims={approvedClaims} aktifEntityId={aktifClaim?.entity_id || ''} />}
+        {tab === 'mcp'       && <McpTab />}
         {tab === 'makaleler' && <MakalelerimTab hasEntity={approvedClaims.some(c => c.entity_id && c.entity_id !== 'new')} />}
       </main>
 
@@ -2295,20 +2299,7 @@ function RandevuModulTab({ approvedClaims, profileUrls, aktifEntityId }: { appro
 
   // Bir günün TÜM çalışma-saati slotları (bloke bakılmaz) — panelde kapat/aç için
   function gunSaatleri(iso: string): string[] {
-    if (!iso) return [];
-    const dt = new Date(iso + 'T00:00:00'); const gun = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'][dt.getDay()];
-    let o = '09:00', c = '18:00', acikGun = true;
-    if (acik24) { o = '08:00'; c = '22:00'; }
-    else {
-      let sch: Record<string, { acik?: boolean; baslangic?: string; bitis?: string }> = {};
-      try { sch = calismaSaatleri ? JSON.parse(calismaSaatleri) : {}; } catch { sch = {}; }
-      if (sch && sch[gun]) { acikGun = sch[gun].acik !== false; o = sch[gun].baslangic || '09:00'; c = sch[gun].bitis || '18:00'; }
-      else if (calismaSaatleri) { acikGun = false; } else { acikGun = dt.getDay() !== 0; }
-    }
-    if (!acikGun) return [];
-    let t = (+o.split(':')[0]) * 60 + (+o.split(':')[1]); const end = (+c.split(':')[0]) * 60 + (+c.split(':')[1]); const dk = slotDk || 30; const out: string[] = [];
-    while (t + dk <= end) { out.push(String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0')); t += dk; }
-    return out;
+    return gunSlotlari({ calisma: calismaSaatleri, acik24, slotDk }, iso);
   }
   const gunKapali = !!blokeTarih && bloke.includes(blokeTarih);
   const toggleSlot = (slot: string) => { const k = `${blokeTarih} ${slot}`; setBloke(p => p.includes(k) ? p.filter(x => x !== k) : [...p, k]); setBlokeMsg(''); };
@@ -2835,20 +2826,7 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
   const isoOf = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
   const GUN_ADI = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
   function gunSaatleri(cfg: EntCfg | undefined, iso: string): string[] {
-    if (!cfg) return [];
-    const dt = new Date(iso + 'T00:00:00'); const gun = GUN_ADI[dt.getDay()];
-    let o = '09:00', c = '18:00', acikGun = true;
-    if (cfg.acik24) { o = '08:00'; c = '22:00'; }
-    else {
-      let sch: Record<string, { acik?: boolean; baslangic?: string; bitis?: string }> = {};
-      try { sch = cfg.calisma ? JSON.parse(cfg.calisma) : {}; } catch { sch = {}; }
-      if (sch && sch[gun]) { acikGun = sch[gun].acik !== false; o = sch[gun].baslangic || '09:00'; c = sch[gun].bitis || '18:00'; }
-      else if (cfg.calisma) { acikGun = false; } else { acikGun = dt.getDay() !== 0; }
-    }
-    if (!acikGun) return [];
-    let t = (+o.split(':')[0]) * 60 + (+o.split(':')[1]); const end = (+c.split(':')[0]) * 60 + (+c.split(':')[1]); const dk = cfg.slotDk || 30; const out: string[] = [];
-    while (t + dk <= end) { out.push(pad2(Math.floor(t / 60)) + ':' + pad2(t % 60)); t += dk; }
-    return out;
+    return gunSlotlari(cfg ? { calisma: cfg.calisma, acik24: cfg.acik24, slotDk: cfg.slotDk } : undefined, iso);
   }
   async function saveBlokeCal(entityId: string, yeni: string[]) {
     setCfgMap(p => ({ ...p, [entityId]: { ...p[entityId], bloke: yeni } }));   // optimistik

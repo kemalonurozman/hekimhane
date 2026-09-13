@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import { panelOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -26,7 +27,7 @@ async function ownedEntityIds(admin: ReturnType<typeof adminClient>, email: stri
    Sessiz: hastaya/otomatik mail göndermez. Çakışma kontrolü var. */
 export async function POST(request: NextRequest) {
   try {
-    const { data: { session } } = await sessionClient(request).auth.getSession();
+    const session = await panelOturum(request);
     if (!session?.user?.email) return NextResponse.json({ error: 'Oturum yok' }, { status: 401 });
 
     const b = await request.json();

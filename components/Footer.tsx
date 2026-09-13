@@ -30,6 +30,7 @@ export default function Footer() {
     ['Blog',         '/blog'],
     ['Makale Yayınla', '/makale-yayinla'],
     ['Randevu Sistemi', '/randevu-sistemi'],
+    ['MCP Bağlantısı', '/mcp'],
     ['Değerlendirme Sistemi', '/degerlendirme-sistemi'],
     ['İletişim',     '/iletisim'],
     ['Abonelik İptali', '/abonelik-iptali'],

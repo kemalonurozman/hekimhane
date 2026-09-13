@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import { panelOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir } from '@/lib/email';
@@ -40,8 +41,7 @@ async function ownedEntityIds(admin: ReturnType<typeof adminClient>, email: stri
  */
 export async function GET(request: NextRequest) {
   try {
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
+    const session = await panelOturum(request);
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
     }
@@ -70,8 +70,7 @@ const VALID_STATUS = ['yeni', 'arandi', 'tamamlandi', 'iptal'];
  */
 export async function POST(request: NextRequest) {
   try {
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
+    const session = await panelOturum(request);
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
     }

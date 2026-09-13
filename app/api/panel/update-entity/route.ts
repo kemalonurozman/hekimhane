@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import { panelOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath, revalidateTag } from 'next/cache';
@@ -30,8 +31,7 @@ function sessionClient(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // 1. Kullanıcı oturumunu doğrula
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
+    const session = await panelOturum(request);
     if (!session) {
       return NextResponse.json({ error: 'Giriş yapılmamış' }, { status: 401 });
     }

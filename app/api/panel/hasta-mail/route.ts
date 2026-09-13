@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import { panelOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell } from '@/lib/email';
@@ -32,8 +33,7 @@ const esc = (s: string) => String(s || '').replace(/&/g, '&amp;').replace(/</g, 
    onaylı işletmelerinden biri olmalı; hasta e-posta bırakmış olmalı. */
 export async function POST(request: NextRequest) {
   try {
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
+    const session = await panelOturum(request);
     if (!session?.user?.email) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
 
     const { talepId, konu, mesaj } = await request.json() as { talepId?: string; konu?: string; mesaj?: string };

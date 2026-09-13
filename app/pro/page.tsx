@@ -82,6 +82,12 @@ const KARTLAR = [
     maddeler: ['Ana sayfada Premium bölümünde yer alma', 'Hastalık sayfalarında önerilen hekimler', 'Karşılaştırma sayfasında Pro etiketi'],
     ikon: 'M12 19V5|M5 12l7-7 7 7',
   },
+  {
+    baslik: 'Yapay Zeka (MCP) Bağlantısı',
+    aciklama: 'Kliniğinizi Claude gibi asistanlardan yönetin.',
+    maddeler: ['Randevuları konuşarak listele, ekle, taşı', 'Gün/saat kapatma ve yorum yanıtlama', 'Kişisel anahtar, anında iptal — rehber: /mcp'],
+    ikon: 'M16 18l6-6-6-6|M8 6l-6 6 6 6',
+  },
 ];
 
 /* Vitrin maketleri — gerçek panel/profil arayüzünün sadeleştirilmiş temsili */
