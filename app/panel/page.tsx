@@ -239,7 +239,11 @@ export default function PanelPage() {
   const [managingId, setManagingId] = useState<string | null>(null);
   const [subsMap, setSubsMap] = useState<Record<string, SubInfo>>({});
   const [releasingId, setReleasingId] = useState<string | null>(null);
-  const [selectedEditClaim, setSelectedEditClaim] = useState<ClaimRequest | null>(null);
+  // Global aktif işletme — birden çok işletmesi olan sahip sidebar'dan seçer; tüm
+  // sekmeler (profil, randevu, takvim, hastalar, yorumlar, HekimKart) bununla açılır.
+  const [aktifId, setAktifId] = useState('');
+  const [editListe, setEditListe] = useState(false);   // Profilimi Düzenle'de "işletme listesi" görünümü
+  useEffect(() => { try { const v = localStorage.getItem('hk_panel_aktif'); if (v) setAktifId(v); } catch {} }, []);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sbLight, setSbLight] = useState(false);   // sidebar teması: false=gece, true=açık
@@ -403,6 +407,14 @@ export default function PanelPage() {
 
 
   const approvedClaims = claims.filter(c => c.status === 'approved');
+  const isletmeler = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
+  // Kayıtlı seçim artık onaylı değilse (sahiplik bırakıldı vb.) ilk işletmeye düşer
+  const aktifClaim = isletmeler.find(c => c.id === aktifId) || isletmeler[0] || null;
+  const aktifKey = aktifClaim?.id || 'yok';
+  const aktifSec = (id: string) => {
+    setAktifId(id); setEditListe(false);
+    try { localStorage.setItem('hk_panel_aktif', id); } catch {}
+  };
   const pendingClaims  = claims.filter(c => c.status === 'pending');
 
   const navItems = [
@@ -456,7 +468,9 @@ export default function PanelPage() {
           background: T.navy, display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', padding: '0 16px'
         }}>
-          <span style={{ color: 'white', fontWeight: 800, fontSize: 15 }}>İşletme Portalı</span>
+          <span style={{ color: 'white', fontWeight: 800, fontSize: 15, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: 10 }}>
+            {isletmeler.length > 1 && aktifClaim ? aktifClaim.entity_name : 'İşletme Portalı'}
+          </span>
           <button onClick={() => setMobileMenuOpen(o => !o)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'white', padding: 4 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               {mobileMenuOpen
@@ -502,6 +516,29 @@ export default function PanelPage() {
             </div>
           </div>
         </div>
+
+        {/* Aktif işletme seçici — yalnız birden çok onaylı işletme varsa */}
+        {isletmeler.length > 1 && aktifClaim && (
+          <div style={{ padding: '12px 16px 13px', borderBottom: `1px solid ${S.divider}` }}>
+            <label htmlFor="hk-aktif-isletme" style={{ display: 'block', fontSize: 10, fontWeight: 700, color: S.section, letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 6, padding: '0 2px' }}>
+              Aktif İşletme ({isletmeler.length})
+            </label>
+            <div style={{ position: 'relative' }}>
+              <select id="hk-aktif-isletme" value={aktifClaim.id} onChange={e => aktifSec(e.target.value)}
+                title="Seçtiğiniz işletme tüm sekmelerde varsayılan olarak açılır"
+                style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', padding: '9px 30px 9px 11px', borderRadius: 10, fontSize: 13, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', outline: 'none', color: S.userName, background: sbLight ? '#FFFFFF' : 'rgba(255,255,255,.09)', border: `1px solid ${sbLight ? T.border : 'rgba(255,255,255,.16)'}`, textOverflow: 'ellipsis' }}>
+                {isletmeler.map(c => (
+                  <option key={c.id} value={c.id} style={{ color: '#1D1D1F', background: '#FFFFFF' }}>{c.entity_name}</option>
+                ))}
+              </select>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={S.itemText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', right: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, padding: '0 2px' }}>
+              <EntityTypeLabel type={aktifClaim.entity_type} />
+              {premiumMap[aktifClaim.id] && <span style={{ padding: '0 7px', borderRadius: 999, background: 'linear-gradient(135deg,#D4A843,#BE8F2C)', color: 'white', fontSize: 9, fontWeight: 800, letterSpacing: '.6px', lineHeight: '15px' }}>PRO</span>}
+            </div>
+          </div>
+        )}
 
         <nav style={{ flex: 1, padding: '10px 12px 16px', overflowY: 'auto' }}>
           {navGroups.map((g, gi) => (
@@ -553,16 +590,16 @@ export default function PanelPage() {
             <button onClick={() => setPremiumMsg(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'inherit', fontFamily: 'inherit' }}>×</button>
           </div>
         )}
-        {tab === 'dashboard' && <DashboardTab user={user} claims={claims} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { setSelectedEditClaim(c); setTab('edit'); }} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} onRelease={handleRelease} releasingId={releasingId} />}
+        {tab === 'dashboard' && <DashboardTab user={user} claims={claims} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { aktifSec(c.id); setTab('edit'); }} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} onRelease={handleRelease} releasingId={releasingId} />}
         {tab === 'claims'    && <ClaimsTab claims={claims} loading={claimsLoading} onNewClaim={() => setTab('new')} profileUrls={profileUrls} onDeleted={() => loadClaims(user?.email || '')} />}
         {tab === 'profile'   && <ProfileTab user={user} approvedClaims={approvedClaims} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} />}
         {tab === 'new'       && <NewClaimTab user={user} onSuccess={() => { loadClaims(user?.email || ''); setTab('claims'); }} />}
-        {tab === 'edit'      && <EditProfileTab approvedClaims={approvedClaims} selectedClaim={selectedEditClaim} onSelectClaim={setSelectedEditClaim} isMobile={isMobile} />}
-        {tab === 'hekimkart' && <HekimKartTab approvedClaims={approvedClaims} profileUrls={profileUrls} user={user} />}
-        {tab === 'yorumlar'  && <YorumlarTab approvedClaims={approvedClaims} />}
-        {tab === 'randevu'   && <RandevuTalepleriTab approvedClaims={approvedClaims} />}
-        {tab === 'randevumodul' && <RandevuModulTab approvedClaims={approvedClaims} profileUrls={profileUrls} />}
-        {tab === 'hastalar'  && <HastalarTab approvedClaims={approvedClaims} />}
+        {tab === 'edit'      && <EditProfileTab approvedClaims={approvedClaims} selectedClaim={editListe ? null : aktifClaim} onSelectClaim={c => { if (c) aktifSec(c.id); else setEditListe(true); }} isMobile={isMobile} />}
+        {tab === 'hekimkart' && <HekimKartTab key={'hk' + aktifKey} approvedClaims={approvedClaims} profileUrls={profileUrls} user={user} aktifClaimId={aktifClaim?.id || ''} />}
+        {tab === 'yorumlar'  && <YorumlarTab key={'yo' + aktifKey} approvedClaims={approvedClaims} aktifEntityId={isletmeler.length > 1 ? aktifClaim?.entity_id || '' : ''} />}
+        {tab === 'randevu'   && <RandevuTalepleriTab key={'rt' + aktifKey} approvedClaims={approvedClaims} aktifEntityId={isletmeler.length > 1 ? aktifClaim?.entity_id || '' : ''} />}
+        {tab === 'randevumodul' && <RandevuModulTab key={'rm' + aktifKey} approvedClaims={approvedClaims} profileUrls={profileUrls} aktifEntityId={aktifClaim?.entity_id || ''} />}
+        {tab === 'hastalar'  && <HastalarTab key={'ha' + aktifKey} approvedClaims={approvedClaims} aktifEntityId={aktifClaim?.entity_id || ''} />}
         {tab === 'makaleler' && <MakalelerimTab hasEntity={approvedClaims.some(c => c.entity_id && c.entity_id !== 'new')} />}
       </main>
 
@@ -1727,11 +1764,11 @@ const RANDEVU_DURUM: Record<string, { label: string; bg: string; color: string; 
   iptal:      { label: 'İptal',       bg: '#FEF2F2', color: '#991B1B', border: '#FCA5A5' },
 };
 
-function RandevuTalepleriTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
+function RandevuTalepleriTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimRequest[]; aktifEntityId: string }) {
   const [talepler, setTalepler] = useState<RandevuTalep[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
-  const [selectedEntity, setSelectedEntity] = useState<string>('all');
+  const [selectedEntity, setSelectedEntity] = useState<string>(aktifEntityId || 'all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [notDraft, setNotDraft] = useState<Record<string, string>>({});   // id → düzenlenen not
   const [notSaving, setNotSaving] = useState<string | null>(null);
@@ -2108,8 +2145,9 @@ function IsletmeSecici({ entities, idx, onSelect, durum, profileUrls }: {
   );
 }
 
-function RandevuModulTab({ approvedClaims, profileUrls }: { approvedClaims: ClaimRequest[]; profileUrls: Record<string, string> }) {
-  const [idx, setIdx] = useState(0);
+function RandevuModulTab({ approvedClaims, profileUrls, aktifEntityId }: { approvedClaims: ClaimRequest[]; profileUrls: Record<string, string>; aktifEntityId: string }) {
+  const [idx, setIdx] = useState(() =>
+    Math.max(0, approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new').findIndex(c => c.entity_id === aktifEntityId)));
   const [copied, setCopied] = useState(false);
   const [notifyMode, setNotifyMode] = useState<'same' | 'custom'>('same');
   const [notifyEmail, setNotifyEmail] = useState('');
@@ -2693,7 +2731,7 @@ function artiDk(saat: string, dk: number): string {
   return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
 }
 
-function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
+function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimRequest[]; aktifEntityId: string }) {
   const [talepler, setTalepler] = useState<RandevuTalep[]>([]);
   const [notlar, setNotlar] = useState<Record<string, { entity_id: string; tel: string; notlar: string | null; etiketler?: string[] }>>({}); // key: entity_id|tel
   const [draftEtiket, setDraftEtiket] = useState<string[]>([]);
@@ -2781,7 +2819,8 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
           cm[c.entity_id!] = { name: c.entity_name || '', calisma: String(d.calisma_saatleri || ''), slotDk: Number(d.randevu_slot_dk) || 30, acik24: d.acik_24_saat === true, bloke: Array.isArray(d.randevu_bloke) ? d.randevu_bloke.map(String) : [], aktif: d.randevu_aktif === true };
         }));
         setCfgMap(cm);
-        if (ents[0]?.entity_id) setCalEntity(ents[0].entity_id);
+        const aktifVar = !!aktifEntityId && ents.some(e => e.entity_id === aktifEntityId);
+        if (aktifVar) setCalEntity(aktifEntityId); else if (ents[0]?.entity_id) setCalEntity(ents[0].entity_id);
       } catch { setTalepler([]); }
       setLoading(false);
     })();
@@ -3391,7 +3430,7 @@ function HastalarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   );
 }
 
-function YorumlarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
+function YorumlarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimRequest[]; aktifEntityId: string }) {
   const [yorumlar,       setYorumlar]       = useState<Yorum[]>([]);
   const [loadingY,       setLoadingY]       = useState(true);
   const [replyOpen,      setReplyOpen]      = useState<string | null>(null);
@@ -3401,7 +3440,7 @@ function YorumlarTab({ approvedClaims }: { approvedClaims: ClaimRequest[] }) {
   const [errorIds,       setErrorIds]       = useState<Record<string, string>>({});
   const [editId,         setEditId]         = useState<string | null>(null);
   const [filter,         setFilter]         = useState<'all' | 'unanswered' | 'answered'>('all');
-  const [selectedEntity, setSelectedEntity] = useState<string>('all');   // 'all' veya entity_id
+  const [selectedEntity, setSelectedEntity] = useState<string>(aktifEntityId || 'all');   // 'all' veya entity_id — varsayılan: aktif işletme
 
   const entities = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
   const entityIds = entities.map(c => c.entity_id);
@@ -5125,10 +5164,12 @@ const EMPTY_KART: HekimKartData = {
   rezervasyon_url: '', website_url: '', maps_url: '', hekimhane_url: '',
 };
 
-function HekimKartTab({ approvedClaims, profileUrls, user }: {
+function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
   approvedClaims: ClaimRequest[];
   profileUrls: Record<string, string>;
   user: User | null;
+  /** Sidebar'daki aktif işletme — varsa seçim ekranı atlanıp doğrudan bu kart açılır */
+  aktifClaimId: string;
 }) {
   const supa = createSupabaseBrowser();
 
@@ -5160,11 +5201,13 @@ function HekimKartTab({ approvedClaims, profileUrls, user }: {
     }).catch(() => setLoadingK(false));
   }, []);
 
-  // Tek onaylı profil varsa otomatik seç (seçim ekranını atla); birden fazlaysa kullanıcı seçer.
+  // Aktif işletme (sidebar) varsa doğrudan onu aç; tek onaylı profil varsa onu. Diğer
+  // işletmelerin kartlarına "geri" ile seçim ekranından yine ulaşılır.
   useEffect(() => {
-    if (!loadingK && approvedClaims.length === 1 && !activeClaim) {
-      selectClaim(approvedClaims[0]);
-    }
+    if (loadingK || activeClaim) return;
+    const aktif = approvedClaims.find(c => c.id === aktifClaimId);
+    if (aktif) selectClaim(aktif);
+    else if (approvedClaims.length === 1) selectClaim(approvedClaims[0]);
   }, [loadingK, approvedClaims.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Entity verisini çek + form'a doldur

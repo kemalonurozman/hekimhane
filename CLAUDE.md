@@ -478,6 +478,12 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Randevu Takvimi işletme seçici:** `<select>` yerine `IsletmeSecici` — her işletme ismiyle listelenir, **Pro / Takvim açık / Takvim kapalı / Ücretsiz** rozetleri ve "Yönetiliyor" işaretiyle. Durumlar tablo başına tek `.in('id', ids)` sorgusuyla topluca çekilir. İşletme değişince `proAktif` **null'a çekilir** (yoksa bir an önceki işletmenin kilit/açık ekranı görünüyordu).
 - **Not:** Stripe portalı, `STRIPE_SECRET_KEY` Vercel'de geçersizse "Stripe anahtarı geçersiz" döner — bu env sorunudur, koddan çözülmez; iptal formu bu durumda yedek yoldur.
 
+### Panel — Global Aktif İşletme Seçici (Eyl 2026)
+- **Amaç:** bir e-postaya birden çok onaylı işletme bağlıysa her sekmede ayrı ayrı seçmek yerine sidebar'daki **"Aktif İşletme"** seçicisi (Genel Bakış'ın üstü) belirler; tüm sekmeler o işletmeyle açılır. Tek işletmede seçici gizli.
+- **State:** `PanelPage` → `aktifId` (claim.id, `localStorage['hk_panel_aktif']`'te kalıcı) → `aktifClaim` (kayıtlı seçim artık onaylı değilse ilk işletmeye düşer). Genel Bakış "Düzenle" de `aktifSec()` çağırır.
+- **Sekmeler:** `RandevuTalepleriTab`, `YorumlarTab` (`aktifEntityId` → başlangıç filtresi; "Tümü" hâlâ seçilebilir), `RandevuModulTab` (başlangıç `idx`), `HastalarTab` (başlangıç `calEntity`), `HekimKartTab` (`aktifClaimId` → doğrudan o kart, "geri" ile diğerleri), `EditProfileTab` (`selectedClaim = editListe ? null : aktifClaim`). Bu sekmeler `key={... + aktifKey}` ile render edilir — **işletme değişince yeniden kurulur**, iç seçimleri senkronlamak için ayrıca effect yazma.
+- Mobil üst bar birden çok işletmede aktif işletme adını gösterir.
+
 ### Admin — Pro Aboneliklerin Yönetimi (Ağu 2026)
 - **Liste:** admin panel **Premium Üyeler** sekmesi (`PremiumTab`). `/api/admin/premium` premium=true işletmeleri döndürür; `premium_subscriptions` kaydına ek olarak **Stripe'tan canlı durum** okunur (tek `subscriptions.list({status:'all'})` çağrısı, sayfalı, en fazla 500). `cancel_at_period_end` DB'de tutulmuyor — "dönem sonunda bitecek" bilgisi yalnız buradan gelir. Stripe'a ulaşılamazsa liste DB kaydıyla çalışmaya devam eder ve sekmede kırmızı uyarı çıkar (`stripeHata`).
 - **Aksiyonlar:** `/api/admin/premium-action` (admin oturumu şartı, service-role):
@@ -487,7 +493,15 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
   - `premium_off` — **elle** açılmış premium'u kapatır. Stripe aboneliği hâlâ `active/trialing/past_due/unpaid` ise **409 ile reddeder** — yoksa üyelik kapanır ama kart çekilmeye devam ederdi.
 - **UI kuralı:** yalnız Stripe'ta yaşayan abonelikte (`active|trialing|past_due|unpaid|incomplete`) iptal butonları görünür; `canceled` satırda sadece "Premium'u Kapat" çıkar — zaten iptal edilmiş aboneliğe `cancel` çağrısı Stripe'ta hata verir.
 - **Bildirim:** her iptalde "işletme sahibine mail gönderilsin mi?" sorulur (claim onayıyla aynı desen). Adres önce `premium_subscriptions.email`, yoksa onaylı `claim_requests.email`. `RESEND_API_KEY` yoksa sessizce atlanır.
+- **Geçmiş aboneler listede kalır:** liste yalnız `premium=true` çekiyordu, iptal edilen üyelik ekrandan tamamen kayboluyordu. Artık `premium_subscriptions` kaydı olan ama premium'u kapalı işletmeler de çekilir (`premiumAktif:false`, "PRO KAPALI" rozeti) ve **Tüm kayıtlar / Pro aktif / Sona ermiş** durum filtresi eklendi. Geçmiş satırlarda iptal butonu gösterilmez.
 - **DDL yok** — mevcut `premium_subscriptions` tablosu yeterli.
+
+### Abonelik Hareketlerinde Admin Bildirimi (webhook → Resend)
+- **Sorun:** müşteri Stripe portalından aboneliğini iptal ettiğinde admin hiçbir bildirim almıyordu.
+- **Tuzak:** portaldan iptalde Stripe abonelik **durumunu değiştirmez** (hâlâ `active`), yalnız `cancel_at_period_end` true olur. Bu yüzden iptal `event.data.previous_attributes.cancel_at_period_end === false` geçişinden yakalanır — sadece `status`'a bakan kod iptali göremez.
+- **Gönderilen bildirimler** (`app/api/stripe/webhook/route.ts` → `adminBildir()`, hepsi kemalonurozman@gmail.com'a): `checkout.session.completed` → "Yeni Pro üye"; iptal geçişi → "Abonelik iptal edildi" (dönem sonu tarihiyle); iptalin geri alınması → "İptal geri alındı"; `customer.subscription.deleted` → "Pro üyelik sona erdi". Best-effort — mail hatası webhook'u 200'den düşürmez.
+- **Düzeltilen hata:** `applyPremium` upsert'i `email: opts.email ?? null` yazıyordu; her abonelik olayı kayıtlı abone e-postasını **siliyordu**. Artık e-posta yalnız geldiğinde yazılır — yoksa iptal bildirimi de portal fallback'i de adresi bulamıyordu.
+- **Stripe koşulu:** webhook endpoint'i `checkout.session.completed`, `invoice.paid`, `customer.subscription.updated`, `customer.subscription.deleted` olaylarına abone olmalı; `RESEND_API_KEY` Vercel'de tanımlı olmalı.
 
 ### Bekleyen migration'lar (kullanıcı Supabase SQL Editor'da çalıştırmalı)
 - `supabase/migrations/add_account_activations.sql` — **çalıştırıldı** (aktivasyon akışı için şart).
