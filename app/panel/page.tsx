@@ -8,7 +8,7 @@ import { SPEC_GRUPLARI } from '@/lib/uzmanlik-data';
 import { HERO_BACKGROUNDS, coverPresetKey } from '@/lib/hero-backgrounds';
 import { IL_LISTE, ILCELER } from '@/lib/tr-il-ilce';
 import { PRO_AYLIK_TL } from '@/lib/pro-plan';
-import { gunSlotlari } from '@/lib/takvim-slot';
+import { gunSlotlari, type TakvimAyar } from '@/lib/takvim-slot';
 import MakalelerimTab from './MakalelerimTab';
 import McpTab from './McpTab';
 
@@ -1785,8 +1785,31 @@ function RandevuTalepleriTab({ approvedClaims, aktifEntityId }: { approvedClaims
   const [ertelTarih, setErtelTarih] = useState('');
   const [ertelSaat, setErtelSaat] = useState('');
   const [ertelMsg, setErtelMsg] = useState('');
+  // Görünüm: liste (kartlar) veya haftalık takvim (bugün en solda); takvimde tık → ayrıntı penceresi
+  const [gorunum, setGorunum] = useState<'liste' | 'takvim'>('liste');
+  const [haftaOfs, setHaftaOfs] = useState(0);
+  const [detayId, setDetayId] = useState<string | null>(null);
+  const [ayarMap, setAyarMap] = useState<Record<string, TakvimAyar>>({});   // entity_id → çalışma saati ayarı
 
   const hasEntities = approvedClaims.some(c => c.entity_id && c.entity_id !== 'new');
+
+  // Takvim satırları için işletmelerin çalışma saatleri (tablo başına tek sorgu)
+  useEffect(() => {
+    const ents = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
+    if (!ents.length) return;
+    const TM: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
+    const sb = createSupabaseBrowser();
+    (async () => {
+      const m: Record<string, TakvimAyar> = {};
+      await Promise.all(Object.entries(TM).map(async ([tip, tbl]) => {
+        const ids = ents.filter(c => c.entity_type === tip).map(c => c.entity_id!);
+        if (!ids.length) return;
+        const { data } = await sb.from(tbl).select('id,calisma_saatleri,acik_24_saat,randevu_slot_dk').in('id', ids);
+        ((data as any[]) || []).forEach(d => { m[String(d.id)] = { calisma: d.calisma_saatleri ? String(d.calisma_saatleri) : null, acik24: d.acik_24_saat === true, slotDk: Number(d.randevu_slot_dk) || 30 }; });
+      }));
+      setAyarMap(m);
+    })().catch(() => {});
+  }, [approvedClaims.length]);   // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     (async () => {
@@ -1867,10 +1890,9 @@ function RandevuTalepleriTab({ approvedClaims, aktifEntityId }: { approvedClaims
   const telCount: Record<string, number> = {};
   talepler.forEach(t => { const k = (t.tel || '').replace(/\D/g, ''); if (k) telCount[k] = (telCount[k] || 0) + 1; });
 
-  const entityNames = Array.from(new Set(talepler.map(t => t.entity_name)));
-  const shown = talepler
-    .filter(t => selectedEntity === 'all' || t.entity_name === selectedEntity)
-    .filter(t => statusFilter === 'all' || t.status === statusFilter);
+  const entityNames = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new').map(c => ({ id: c.entity_id!, ad: c.entity_name || '' }));
+  const kapsam = talepler.filter(t => selectedEntity === 'all' || t.entity_id === selectedEntity);
+  const shown = kapsam.filter(t => statusFilter === 'all' || t.status === statusFilter);
   const yeniCount = talepler.filter(t => t.status === 'yeni').length;
 
   const fmtDate = (s: string) => { try { return new Date(s).toLocaleString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return s; } };
@@ -1885,61 +1907,8 @@ function RandevuTalepleriTab({ approvedClaims, aktifEntityId }: { approvedClaims
     </svg>
   );
 
-  return (
-    <div style={{ maxWidth: 760 }}>
-      <div style={{ marginBottom: 22 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 700, color: A.text, margin: 0, letterSpacing: '-0.6px' }}>Randevu Talepleri</h1>
-        <p style={{ fontSize: 14, color: A.muted, marginTop: 5, letterSpacing: '-0.1px' }}>İşletmenize gelen randevu taleplerini buradan görüp yönetin.</p>
-      </div>
-
-      {!hasEntities ? (
-        <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '48px 24px', textAlign: 'center' }}>
-          <div style={{ width: 52, height: 52, borderRadius: '50%', background: A.page, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
-            <IcS d={icons.bell} size={24} color={A.muted} />
-          </div>
-          <div style={{ fontSize: 15, color: A.text, fontWeight: 600 }}>Henüz işletmeniz yok</div>
-          <div style={{ fontSize: 13.5, color: A.muted, marginTop: 4 }}>Talepleri görebilmek için önce bir işletmenizin sahipliğini onaylatın.</div>
-        </div>
-      ) : loading ? (
-        <div style={{ padding: 48, textAlign: 'center', color: A.muted, fontSize: 14 }}>Yükleniyor…</div>
-      ) : (
-        <>
-          {/* Segmented filtre + işletme seçici */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18, flexWrap: 'wrap' }}>
-            <div style={{ display: 'inline-flex', background: A.page, borderRadius: 11, padding: 3, gap: 2 }}>
-              {seg.map(f => {
-                const n = f === 'all' ? talepler.length : talepler.filter(t => t.status === f).length;
-                const lbl = f === 'all' ? 'Tümü' : (RANDEVU_DURUM[f]?.label || f);
-                const on = statusFilter === f;
-                return (
-                  <button key={f} onClick={() => setStatusFilter(f)}
-                    style={{ padding: '7px 15px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 500, fontFamily: 'inherit', cursor: 'pointer', border: 'none',
-                      background: on ? A.card : 'transparent', color: on ? A.text : A.muted, boxShadow: on ? '0 1px 3px rgba(0,0,0,.08)' : 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}>
-                    {lbl} <span style={{ color: on ? A.muted : '#B0B0B5', fontWeight: 600 }}>{n}</span>
-                  </button>
-                );
-              })}
-            </div>
-            {entityNames.length > 1 && (
-              <select value={selectedEntity} onChange={e => setSelectedEntity(e.target.value)}
-                style={{ marginLeft: 'auto', padding: '9px 13px', borderRadius: 10, fontSize: 13, fontFamily: 'inherit', border: `1px solid ${A.line}`, background: A.card, color: A.text, outline: 'none' }}>
-                <option value="all">Tüm işletmeler</option>
-                {entityNames.map(n => <option key={n} value={n}>{n}</option>)}
-              </select>
-            )}
-          </div>
-
-          {shown.length === 0 ? (
-            <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '48px 24px', textAlign: 'center' }}>
-              <div style={{ width: 52, height: 52, borderRadius: '50%', background: A.page, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
-                <IcS d="M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" size={23} color={A.muted} />
-              </div>
-              <div style={{ fontSize: 15, color: A.text, fontWeight: 600 }}>{talepler.length === 0 ? 'Henüz randevu talebi yok' : 'Bu filtrede talep yok'}</div>
-              <div style={{ fontSize: 13.5, color: A.muted, marginTop: 4 }}>{talepler.length === 0 ? 'Talepler geldiğinde burada görünecek.' : 'Başka bir filtre deneyin.'}</div>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {shown.map(t => {
+  /** Tek randevu talebi kartı — liste görünümü ve takvimdeki ayrıntı penceresi aynı kartı kullanır. */
+  const talepKarti = (t: RandevuTalep) => {
                 const d = RANDEVU_DURUM[t.status] || RANDEVU_DURUM.yeni;
                 const isYeni = t.status === 'yeni';
                 return (
@@ -2065,9 +2034,209 @@ function RandevuTalepleriTab({ approvedClaims, aktifEntityId }: { approvedClaims
                     </div>
                   </div>
                 );
+  };
+
+  /** Haftalık takvim görünümü — bugün en solda; talepler durum renginde, tık → ayrıntı penceresi. */
+  const takvimGorunumu = () => {
+    const isoGun = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const bugunIso = isoGun(new Date());
+    const bas = new Date(); bas.setHours(0, 0, 0, 0); bas.setDate(bas.getDate() + haftaOfs * 7);
+    const gunler = Array.from({ length: 7 }, (_, i) => { const d = new Date(bas); d.setDate(bas.getDate() + i); return d; });
+    const isolar = gunler.map(isoGun);
+    const kapsamIds = selectedEntity === 'all' ? entityNames.map(e => e.id) : [selectedEntity];
+    const cokIsletme = selectedEntity === 'all' && entityNames.length > 1;
+
+    // İptaller takvimde gösterilmez (saat boşalmıştır); durum filtresi takvime de uygulanır
+    const takvimde = shown.filter(t => t.randevu_slot && t.status !== 'iptal' && isolar.includes(t.randevu_slot.slice(0, 10)));
+    const saatsiz = shown.filter(t => !t.randevu_slot && t.status !== 'iptal');
+    const hucre: Record<string, RandevuTalep[]> = {};
+    takvimde.forEach(t => { (hucre[t.randevu_slot!] ||= []).push(t); });
+
+    // Satırlar: kapsamdaki işletmelerin çalışma slotları + saat dışına düşen randevular
+    const calisma: Record<string, Set<string>> = {}; const saatSet = new Set<string>();
+    isolar.forEach(iso => {
+      const set = new Set<string>();
+      kapsamIds.forEach(id => gunSlotlari(ayarMap[id], iso).forEach(x => { set.add(x); saatSet.add(x); }));
+      calisma[iso] = set;
+    });
+    takvimde.forEach(t => saatSet.add(t.randevu_slot!.slice(11, 16)));
+    const saatler = Array.from(saatSet).sort();
+    const gunKisa = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+    const baslik = `${gunler[0].toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })} – ${gunler[6].toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}`;
+    const navBtn: React.CSSProperties = { height: 32, minWidth: 32, padding: '0 10px', borderRadius: 9, border: `1px solid ${A.line}`, background: A.card, cursor: 'pointer', color: A.accent, fontSize: 14, fontWeight: 600, fontFamily: 'inherit' };
+
+    return (
+      <>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+          <button onClick={() => setHaftaOfs(o => o - 1)} style={navBtn} aria-label="Önceki 7 gün">‹</button>
+          <button onClick={() => setHaftaOfs(0)} style={{ ...navBtn, background: haftaOfs === 0 ? 'rgba(27,58,105,.07)' : A.card }}>Bugün</button>
+          <button onClick={() => setHaftaOfs(o => o + 1)} style={navBtn} aria-label="Sonraki 7 gün">›</button>
+          <span style={{ marginLeft: 'auto', fontSize: 14, fontWeight: 700, color: A.text }}>{baslik}</span>
+        </div>
+
+        {saatler.length === 0 ? (
+          <div style={{ background: A.card, borderRadius: 16, border: `1px solid ${A.line}`, padding: '40px 24px', textAlign: 'center', color: A.muted, fontSize: 13.5 }}>
+            Bu 7 günde çalışma saati tanımlı değil ve randevu yok.
+          </div>
+        ) : (
+          <div style={{ background: A.card, borderRadius: 16, border: `1px solid ${A.line}`, overflowX: 'auto' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '56px repeat(7, minmax(118px, 1fr))', minWidth: 56 + 7 * 118 }}>
+              <div style={{ borderBottom: `1px solid ${A.line}`, borderRight: `1px solid ${A.line}` }} />
+              {gunler.map((g, i) => {
+                const iso = isolar[i]; const bugun = iso === bugunIso; const gecmis = iso < bugunIso;
+                const adet = takvimde.filter(t => t.randevu_slot!.startsWith(iso)).length;
+                return (
+                  <div key={iso} style={{ borderBottom: `1px solid ${A.line}`, borderRight: i < 6 ? `1px solid ${A.line}` : 'none', borderLeft: bugun ? `3px solid ${A.accent}` : undefined, padding: '8px 4px', textAlign: 'center', background: bugun ? 'rgba(27,58,105,.07)' : 'transparent', opacity: gecmis ? .5 : 1 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: bugun ? A.accent : A.muted }}>{gunKisa[g.getDay()]}</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: A.text }}>{g.getDate()}</div>
+                    <div style={{ fontSize: 9.5, fontWeight: 800, color: bugun ? A.accent : A.muted, letterSpacing: '.5px' }}>{bugun ? 'BUGÜN' : adet ? `${adet} RANDEVU` : ' '}</div>
+                  </div>
+                );
+              })}
+              {saatler.map(saat => (
+                <React.Fragment key={saat}>
+                  <div style={{ borderRight: `1px solid ${A.line}`, borderBottom: `1px solid ${A.line}`, padding: '0 6px', fontSize: 10.5, color: A.muted, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', paddingTop: 7, minHeight: 36 }}>{saat}</div>
+                  {isolar.map((iso, i) => {
+                    const liste = hucre[`${iso} ${saat}`] || [];
+                    const acik = calisma[iso]?.has(saat);
+                    return (
+                      <div key={iso} style={{ borderRight: i < 6 ? `1px solid ${A.line}` : 'none', borderBottom: `1px solid ${A.line}`, minHeight: 36, padding: 3, display: 'grid', gap: 3, alignContent: 'start', background: acik ? '#F7FDF9' : '#FAFAFB', borderLeft: iso === bugunIso ? `3px solid ${A.accent}` : undefined, opacity: iso < bugunIso ? .55 : 1 }}>
+                        {liste.map(t => {
+                          const d = RANDEVU_DURUM[t.status] || RANDEVU_DURUM.yeni;
+                          return (
+                            <button key={t.id} type="button" onClick={() => setDetayId(t.id)}
+                              title={`${t.ad_soyad} · ${t.tel}${cokIsletme ? ' · ' + t.entity_name : ''} · ${d.label}`}
+                              style={{ textAlign: 'left', padding: '4px 6px', borderRadius: 7, border: `1px solid ${d.border}`, background: d.bg, color: d.color, fontSize: 11, fontWeight: 700, lineHeight: 1.25, cursor: 'pointer', fontFamily: 'inherit', overflow: 'hidden' }}>
+                              <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.ad_soyad}</div>
+                              {cokIsletme && <div style={{ fontSize: 9.5, fontWeight: 600, opacity: .8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.entity_name}</div>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 10, fontSize: 12, color: A.muted }}>
+          {(['yeni', 'arandi', 'tamamlandi'] as const).map(k => (
+            <span key={k} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: RANDEVU_DURUM[k].bg, border: `1px solid ${RANDEVU_DURUM[k].border}` }} />{RANDEVU_DURUM[k].label}</span>
+          ))}
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: '#F7FDF9', border: `1px solid ${A.line}` }} />Çalışma saati</span>
+          <span>İptal edilenler takvimde gösterilmez. Randevuya tıklayın → ayrıntı ve işlemler.</span>
+        </div>
+
+        {saatsiz.length > 0 && (
+          <div style={{ marginTop: 18, background: A.card, borderRadius: 16, border: `1px solid ${A.line}`, padding: '14px 16px' }}>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: A.text, marginBottom: 2 }}>Saati belirlenmemiş talepler ({saatsiz.length})</div>
+            <div style={{ fontSize: 12, color: A.muted, marginBottom: 8 }}>Hasta serbest tarih/saat tercihi bıraktı; &quot;Ertele&quot; ile saat atayınca takvime yerleşir.</div>
+            {saatsiz.map(t => {
+              const d = RANDEVU_DURUM[t.status] || RANDEVU_DURUM.yeni;
+              return (
+                <button key={t.id} type="button" onClick={() => setDetayId(t.id)}
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '9px 4px', borderTop: `1px solid #F1F1F4`, border: 'none', borderTopStyle: 'solid', borderTopWidth: 1, borderTopColor: '#F1F1F4', background: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+                  <span style={{ fontSize: 13.5, fontWeight: 600, color: A.text, minWidth: 0, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.ad_soyad}{cokIsletme ? <span style={{ color: A.muted, fontWeight: 500 }}> · {t.entity_name}</span> : null}</span>
+                  <span style={{ fontSize: 12, color: A.muted, flexShrink: 0 }}>{t.tercih || fmtDate(t.created_at)}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: d.bg, color: d.color, border: `1px solid ${d.border}`, flexShrink: 0 }}>{d.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </>
+    );
+  };
+
+  return (
+    <div style={{ maxWidth: gorunum === 'takvim' ? 1080 : 760 }}>
+      <div style={{ marginBottom: 22 }}>
+        <h1 style={{ fontSize: 26, fontWeight: 700, color: A.text, margin: 0, letterSpacing: '-0.6px' }}>Randevu Talepleri</h1>
+        <p style={{ fontSize: 14, color: A.muted, marginTop: 5, letterSpacing: '-0.1px' }}>İşletmenize gelen randevu taleplerini buradan görüp yönetin.</p>
+      </div>
+
+      {!hasEntities ? (
+        <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '48px 24px', textAlign: 'center' }}>
+          <div style={{ width: 52, height: 52, borderRadius: '50%', background: A.page, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+            <IcS d={icons.bell} size={24} color={A.muted} />
+          </div>
+          <div style={{ fontSize: 15, color: A.text, fontWeight: 600 }}>Henüz işletmeniz yok</div>
+          <div style={{ fontSize: 13.5, color: A.muted, marginTop: 4 }}>Talepleri görebilmek için önce bir işletmenizin sahipliğini onaylatın.</div>
+        </div>
+      ) : loading ? (
+        <div style={{ padding: 48, textAlign: 'center', color: A.muted, fontSize: 14 }}>Yükleniyor…</div>
+      ) : (
+        <>
+          {/* Görünüm: liste / takvim */}
+          <div style={{ display: 'inline-flex', background: A.page, borderRadius: 11, padding: 3, gap: 2, marginBottom: 12 }}>
+            {([['liste', 'Liste'], ['takvim', 'Takvim']] as const).map(([k, lbl]) => {
+              const on = gorunum === k;
+              return (
+                <button key={k} onClick={() => setGorunum(k)}
+                  style={{ padding: '7px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 500, fontFamily: 'inherit', cursor: 'pointer', border: 'none', background: on ? A.card : 'transparent', color: on ? A.text : A.muted, boxShadow: on ? '0 1px 3px rgba(0,0,0,.08)' : 'none' }}>
+                  {lbl}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Segmented filtre + işletme seçici */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18, flexWrap: 'wrap' }}>
+            <div style={{ display: 'inline-flex', background: A.page, borderRadius: 11, padding: 3, gap: 2 }}>
+              {seg.map(f => {
+                const n = f === 'all' ? kapsam.length : kapsam.filter(t => t.status === f).length;
+                const lbl = f === 'all' ? 'Tümü' : (RANDEVU_DURUM[f]?.label || f);
+                const on = statusFilter === f;
+                return (
+                  <button key={f} onClick={() => setStatusFilter(f)}
+                    style={{ padding: '7px 15px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 500, fontFamily: 'inherit', cursor: 'pointer', border: 'none',
+                      background: on ? A.card : 'transparent', color: on ? A.text : A.muted, boxShadow: on ? '0 1px 3px rgba(0,0,0,.08)' : 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}>
+                    {lbl} <span style={{ color: on ? A.muted : '#B0B0B5', fontWeight: 600 }}>{n}</span>
+                  </button>
+                );
               })}
             </div>
+            {entityNames.length > 1 && (
+              <select value={selectedEntity} onChange={e => setSelectedEntity(e.target.value)}
+                style={{ marginLeft: 'auto', padding: '9px 13px', borderRadius: 10, fontSize: 13, fontFamily: 'inherit', border: `1px solid ${A.line}`, background: A.card, color: A.text, outline: 'none' }}>
+                <option value="all">Tüm işletmeler</option>
+                {entityNames.map(n => <option key={n.id} value={n.id}>{n.ad}</option>)}
+              </select>
+            )}
+          </div>
+
+          {gorunum === 'takvim' ? takvimGorunumu() : shown.length === 0 ? (
+            <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: '48px 24px', textAlign: 'center' }}>
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: A.page, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                <IcS d="M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" size={23} color={A.muted} />
+              </div>
+              <div style={{ fontSize: 15, color: A.text, fontWeight: 600 }}>{talepler.length === 0 ? 'Henüz randevu talebi yok' : 'Bu filtrede talep yok'}</div>
+              <div style={{ fontSize: 13.5, color: A.muted, marginTop: 4 }}>{talepler.length === 0 ? 'Talepler geldiğinde burada görünecek.' : 'Başka bir filtre deneyin.'}</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {shown.map(talepKarti)}
+            </div>
           )}
+
+          {/* Ayrıntı penceresi — takvimden açılır; listedeki kartla aynı işlemler */}
+          {detayId && (() => {
+            const t = talepler.find(x => x.id === detayId);
+            if (!t) return null;
+            return (
+              <div onClick={e => { if (e.target === e.currentTarget) setDetayId(null); }}
+                style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.45)', zIndex: 400, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '80px 16px 24px', overflowY: 'auto' }}>
+                <div style={{ width: '100%', maxWidth: 680 }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+                    <button onClick={() => setDetayId(null)} style={{ padding: '7px 14px', borderRadius: 10, border: 'none', background: '#fff', color: A.text, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>Kapat ✕</button>
+                  </div>
+                  {talepKarti(t)}
+                </div>
+              </div>
+            );
+          })()}
         </>
       )}
     </div>
@@ -2727,6 +2896,9 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
   const [notlar, setNotlar] = useState<Record<string, { entity_id: string; tel: string; notlar: string | null; etiketler?: string[] }>>({}); // key: entity_id|tel
   const [draftEtiket, setDraftEtiket] = useState<string[]>([]);
   const [tagFilter, setTagFilter] = useState('');
+  // İşletme filtresi: '' = tüm hastalar. Birden çok işletmede varsayılan aktif işletme.
+  const [hastaIsletme, setHastaIsletme] = useState(() =>
+    approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new').length > 1 ? aktifEntityId : '');
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState('');
   const [openTel, setOpenTel] = useState<string | null>(null);
@@ -2876,17 +3048,20 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
     const map: Record<string, { tel: string; ad: string; email: string | null; entity_id: string; entity_name: string; kayitlar: RandevuTalep[] }> = {};
     talepler.forEach(t => {
       const tel = (t.tel || '').replace(/\D/g, ''); if (!tel) return;
-      if (!map[tel]) map[tel] = { tel, ad: t.ad_soyad, email: t.email || null, entity_id: t.entity_id, entity_name: t.entity_name, kayitlar: [] };
-      map[tel].kayitlar.push(t);
+      const k = `${t.entity_id}|${tel}`;   // notlar/işlemler/dosyalar da işletme+telefon anahtarlı
+      if (!map[k]) map[k] = { tel, ad: t.ad_soyad, email: t.email || null, entity_id: t.entity_id, entity_name: t.entity_name, kayitlar: [] };
+      map[k].kayitlar.push(t);
       // en güncel bilgiyi tut (talepler zaten created_at desc geliyor → ilk gelen en yeni)
-      if (!map[tel].email && t.email) map[tel].email = t.email;
+      if (!map[k].email && t.email) map[k].email = t.email;
     });
     return Object.values(map)
       .map(h => ({ ...h, kayitlar: h.kayitlar.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)), son: h.kayitlar[0]?.created_at }))
       .sort((a, b) => (a.son! < b.son! ? 1 : -1));
   })();
 
+  const hastaIsletmeleri = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
   const filtered = hastalar.filter(h => {
+    if (hastaIsletme && h.entity_id !== hastaIsletme) return false;
     if (tagFilter) { const tags = notlar[`${h.entity_id}|${h.tel}`]?.etiketler || []; if (!tags.includes(tagFilter)) return false; }
     const s = q.trim().toLowerCase(); if (!s) return true;
     return h.ad.toLowerCase().includes(s) || h.tel.includes(s.replace(/\D/g, ''));
@@ -2894,10 +3069,10 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
 
   function disaAktar() {
     const esc = (v: string) => `"${String(v || '').replace(/"/g, '""')}"`;
-    const head = ['Ad Soyad', 'Telefon', 'E-posta', 'Randevu sayısı', 'Son ziyaret', 'Etiketler', 'Not'];
+    const head = ['Ad Soyad', 'Telefon', 'E-posta', 'İşletme', 'Randevu sayısı', 'Son ziyaret', 'Etiketler', 'Not'];
     const rows = filtered.map(h => {
       const rec = notlar[`${h.entity_id}|${h.tel}`];
-      return [h.ad, h.tel, h.email || '', String(h.kayitlar.length), h.son ? fmt(h.son) : '', (rec?.etiketler || []).join(', '), rec?.notlar || ''].map(esc).join(',');
+      return [h.ad, h.tel, h.email || '', h.entity_name || '', String(h.kayitlar.length), h.son ? fmt(h.son) : '', (rec?.etiketler || []).join(', '), rec?.notlar || ''].map(esc).join(',');
     });
     const csv = '﻿' + [head.map(esc).join(','), ...rows].join('\r\n');   // BOM → Excel Türkçe
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
@@ -2947,23 +3122,24 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
   const tl = (n: number | null) => n == null ? '' : n.toLocaleString('tr-TR') + ' ₺';
 
   // Hastayı sistemden tamamen sil (randevu talepleri + not + işlem + dosyalar). Geri alınamaz.
-  async function silHasta(h: { tel: string; ad: string }) {
-    if (!window.confirm(`"${h.ad || 'Bu hasta'}" sistemden kalıcı olarak silinsin mi?\n\nRandevu talepleri, notlar, işlem/tedavi geçmişi ve dosyalar dahil TÜM kayıtları silinir. Bu işlem geri alınamaz.`)) return;
+  async function silHasta(h: { tel: string; ad: string; entity_id: string; entity_name: string }) {
+    if (!window.confirm(`"${h.ad || 'Bu hasta'}" ${h.entity_name ? h.entity_name + ' için ' : ''}kalıcı olarak silinsin mi?\n\nBu işletmedeki randevu talepleri, notlar, işlem/tedavi geçmişi ve dosyalar dahil TÜM kayıtları silinir. Diğer işletmelerinizdeki kayıtları etkilenmez. Bu işlem geri alınamaz.`)) return;
     setSilTel(h.tel);
     try {
       const res = await fetch('/api/panel/hasta-sil', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tel: h.tel }),
+        body: JSON.stringify({ tel: h.tel, entityId: h.entity_id }),
       });
       const j = await res.json().catch(() => ({}));
       if (res.ok && j.ok) {
         const norm = h.tel.replace(/\D/g, '');
         // Yerel state'i temizle → kart kaybolur
-        setTalepler(p => p.filter(t => String(t.tel || '').replace(/\D/g, '') !== norm));
-        setNotlar(p => { const n = { ...p }; Object.keys(n).forEach(k => { if (k.endsWith('|' + norm)) delete n[k]; }); return n; });
-        setIslemler(p => { const n = { ...p }; Object.keys(n).forEach(k => { if (k.endsWith('|' + norm)) delete n[k]; }); return n; });
-        setDosyalar(p => { const n = { ...p }; Object.keys(n).forEach(k => { if (k.endsWith('|' + norm)) delete n[k]; }); return n; });
-        if (openTel === h.tel) setOpenTel(null);
+        const silKey = `${h.entity_id}|${norm}`;   // yalnız bu işletmedeki kayıt
+        setTalepler(p => p.filter(t => !(t.entity_id === h.entity_id && String(t.tel || '').replace(/\D/g, '') === norm)));
+        setNotlar(p => { const n = { ...p }; delete n[silKey]; return n; });
+        setIslemler(p => { const n = { ...p }; delete n[silKey]; return n; });
+        setDosyalar(p => { const n = { ...p }; delete n[silKey]; return n; });
+        if (openTel === `${h.entity_id}|${h.tel}`) setOpenTel(null);
       } else alert(j.error || 'Hasta silinemedi.');
     } catch { alert('Bağlantı hatası.'); }
     setSilTel('');
@@ -3036,6 +3212,22 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
             <button onClick={disaAktar} title="Görünen hastaları CSV/Excel indir"
               style={{ padding: '11px 16px', borderRadius: 11, border: `1px solid ${A.line}`, background: A.card, color: A.accent, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Excel’e aktar</button>
           </div>
+          {/* İşletme filtresi — birden çok işletmede: tüm hastalar veya işletmeye özel */}
+          {hastaIsletmeleri.length > 1 && (
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', marginBottom: 10 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: A.muted, textTransform: 'uppercase', letterSpacing: '.5px', marginRight: 2 }}>İşletme</span>
+              {[{ id: '', ad: 'Tüm hastalar' }, ...hastaIsletmeleri.map(c => ({ id: c.entity_id || '', ad: c.entity_name || '' }))].map(o => {
+                const on = hastaIsletme === o.id;
+                const sayi = o.id ? hastalar.filter(h => h.entity_id === o.id).length : hastalar.length;
+                return (
+                  <button key={o.id || 'tum'} onClick={() => setHastaIsletme(o.id)}
+                    style={{ padding: '6px 13px', borderRadius: 999, border: `1.5px solid ${on ? A.accent : A.line}`, background: on ? A.accent : A.card, color: on ? '#fff' : A.text, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {o.ad} <span style={{ opacity: .65, fontWeight: 700 }}>{sayi}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
           {/* Etiket filtresi */}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
             <button onClick={() => setTagFilter('')} style={{ padding: '5px 12px', borderRadius: 999, border: `1px solid ${tagFilter === '' ? A.accent : A.line}`, background: tagFilter === '' ? 'rgba(27,58,105,.07)' : A.card, color: tagFilter === '' ? A.accent : A.muted, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Tümü</button>
@@ -3052,12 +3244,12 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={{ fontSize: 12.5, color: A.muted, marginBottom: 2 }}>{filtered.length} hasta</div>
               {filtered.map(h => {
-                const acik = openTel === h.tel;
                 const notKey = `${h.entity_id}|${h.tel}`;
+                const acik = openTel === notKey;
                 const mevcutNot = notlar[notKey]?.notlar || '';
                 return (
-                  <div key={h.tel} style={{ background: A.card, borderRadius: 16, border: `1px solid ${A.line}`, boxShadow: '0 1px 2px rgba(0,0,0,.03)', overflow: 'hidden' }}>
-                    <button onClick={() => { const willOpen = !acik; setOpenTel(willOpen ? h.tel : null); if (willOpen) { setDraftNot(mevcutNot); setDraftEtiket(notlar[notKey]?.etiketler || []); setSavedMsg(''); setIsAd(''); setIsNot(''); setIsUcret(''); setIsTarih(''); } }}
+                  <div key={notKey} style={{ background: A.card, borderRadius: 16, border: `1px solid ${A.line}`, boxShadow: '0 1px 2px rgba(0,0,0,.03)', overflow: 'hidden' }}>
+                    <button onClick={() => { const willOpen = !acik; setOpenTel(willOpen ? notKey : null); if (willOpen) { setDraftNot(mevcutNot); setDraftEtiket(notlar[notKey]?.etiketler || []); setSavedMsg(''); setIsAd(''); setIsNot(''); setIsUcret(''); setIsTarih(''); } }}
                       style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 13, padding: '15px 18px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
                       <div style={{ width: 42, height: 42, borderRadius: '50%', background: A.page, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16, fontWeight: 700, color: A.accent }}>
                         {(h.ad || '?').trim().charAt(0).toLocaleUpperCase('tr')}
@@ -3068,6 +3260,7 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
                           {(notlar[notKey]?.etiketler || []).map(et => { const s = tagStil(et); return <span key={et} style={{ fontSize: 10.5, fontWeight: 700, color: s.fg, background: s.bg, borderRadius: 6, padding: '1px 7px' }}>{et}</span>; })}
                         </div>
                         <div style={{ fontSize: 12.5, color: A.muted, marginTop: 1 }}>{h.tel}{h.email ? ' · ' + h.email : ''}</div>
+                        {!hastaIsletme && hastaIsletmeleri.length > 1 && <div style={{ fontSize: 11.5, color: A.accent, fontWeight: 600, marginTop: 2 }}>{h.entity_name}</div>}
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 700, color: A.accent }}>{h.kayitlar.length} randevu</div>
@@ -3230,8 +3423,8 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
           const todayIso = isoOf(new Date());
           // Haftanın günleri (Pazartesi başlangıç)
           const base = new Date(); base.setHours(0, 0, 0, 0);
-          const dow = (base.getDay() + 6) % 7;
-          base.setDate(base.getDate() - dow + weekOffset * 7);
+          // Bugün en solda: görünüm bugünden başlayan 7 gün; ‹ › 7'şer gün kaydırır (geçmiş ‹ ile)
+          base.setDate(base.getDate() + weekOffset * 7);
           const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(base); d.setDate(base.getDate() + i); return d; });
           const dayIsos = days.map(isoOf);
           // Dolu (bu işletme, iptal değil, slotlu)
@@ -3263,7 +3456,7 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
           const slotUzat = () => { if (!addSlot) return; const son = addSlots[addSlots.length - 1] || addSlot.time; const sonraki = times[times.indexOf(son) + 1]; if (sonraki && serbestMi(addSlot.iso, sonraki)) setAddSlots([...(addSlots.length ? addSlots : [addSlot.time]), sonraki]); };
           const slotKisalt = () => { if (addSlots.length > 1) setAddSlots(addSlots.slice(0, -1)); };
 
-          const gunKisa = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+          const gunKisa = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];   // getDay() sırası
 
           return (
             <>
@@ -3277,7 +3470,7 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
                 )}
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginLeft: ents.length > 1 ? 0 : 'auto' }}>
                   <button onClick={() => setWeekOffset(w => w - 1)} style={{ width: 32, height: 32, borderRadius: 9, border: `1px solid ${A.line}`, background: A.card, cursor: 'pointer', color: A.text, fontSize: 15 }}>‹</button>
-                  <button onClick={() => setWeekOffset(0)} style={{ padding: '0 12px', height: 32, borderRadius: 9, border: `1px solid ${A.line}`, background: weekOffset === 0 ? 'rgba(27,58,105,.07)' : A.card, cursor: 'pointer', color: A.accent, fontSize: 13, fontWeight: 600, fontFamily: 'inherit' }}>Bu hafta</button>
+                  <button onClick={() => setWeekOffset(0)} style={{ padding: '0 12px', height: 32, borderRadius: 9, border: `1px solid ${A.line}`, background: weekOffset === 0 ? 'rgba(27,58,105,.07)' : A.card, cursor: 'pointer', color: A.accent, fontSize: 13, fontWeight: 600, fontFamily: 'inherit' }}>Bugün</button>
                   <button onClick={() => setWeekOffset(w => w + 1)} style={{ width: 32, height: 32, borderRadius: 9, border: `1px solid ${A.line}`, background: A.card, cursor: 'pointer', color: A.text, fontSize: 15 }}>›</button>
                 </div>
                 <span style={{ marginLeft: 'auto', fontSize: 13.5, fontWeight: 600, color: A.text }}>{haftaBaslik}{calSaving ? ' · kaydediliyor…' : ''}</span>
@@ -3306,7 +3499,7 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
                         return (
                           <div key={iso} onClick={() => toggleGun(iso)} title={gunFull ? 'Tüm gün kapalı — açmak için tıkla' : gecmis ? 'Geçmiş gün — yine de düzenlenebilir' : 'Tüm günü kapat'}
                             style={{ borderBottom: `1px solid ${A.line}`, borderRight: i < 6 ? `1px solid ${A.line}` : 'none', borderLeft: bugun ? `3px solid ${A.accent}` : undefined, padding: '8px 4px', textAlign: 'center', cursor: 'pointer', background: bugun ? 'rgba(27,58,105,.07)' : 'transparent', opacity: gecmis ? .5 : 1 }}>
-                            <div style={{ fontSize: 11, fontWeight: 700, color: bugun ? A.accent : A.muted }}>{gunKisa[i]}</div>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: bugun ? A.accent : A.muted }}>{gunKisa[days[i].getDay()]}</div>
                             <div style={{ fontSize: 15, fontWeight: 800, color: gunFull ? '#B91C1C' : A.text }}>{days[i].getDate()}</div>
                             {gunFull && <div style={{ fontSize: 9, fontWeight: 700, color: '#B91C1C' }}>KAPALI</div>}
                             {bugun && !gunFull && <div style={{ fontSize: 9, fontWeight: 800, color: A.accent, letterSpacing: '.6px' }}>BUGÜN</div>}

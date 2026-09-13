@@ -38,8 +38,13 @@ export async function POST(request: NextRequest) {
     if (normTel.length < 10) return NextResponse.json({ error: 'Geçersiz telefon' }, { status: 400 });
 
     const admin = adminClient();
-    const ids = await ownedEntityIds(admin, session.user.email);
-    if (!ids.length) return NextResponse.json({ error: 'Yetkiniz yok' }, { status: 403 });
+    const sahipIds = await ownedEntityIds(admin, session.user.email);
+    if (!sahipIds.length) return NextResponse.json({ error: 'Yetkiniz yok' }, { status: 403 });
+    // entityId verilirse silme yalnız o işletmeyle sınırlı (panel hastaları işletme bazında listeler;
+    // aynı telefon başka klinikte ayrı hasta kaydıdır). Verilmezse eski davranış: tüm işletmeler.
+    const hedefEntity = typeof b.entityId === 'string' && b.entityId.trim() ? b.entityId.trim() : null;
+    if (hedefEntity && !sahipIds.includes(hedefEntity)) return NextResponse.json({ error: 'Yetkiniz yok' }, { status: 403 });
+    const ids = hedefEntity ? [hedefEntity] : sahipIds;
 
     const sonuc = { randevu: 0, islem: 0, dosya: 0, not: 0 };
 
