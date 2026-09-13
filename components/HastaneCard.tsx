@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import type { Hastane } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
+import SafeLogo from '@/components/SafeLogo';
 
 function Stars({ rat }: { rat: number }) {
   return (
@@ -224,13 +225,11 @@ export default function HastaneCard({ hastane: h }: { hastane: Hastane }) {
           {/* Fotoğraf — temiz, overlay yok */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <div className="hc__img-wrap">
-              {h.photos?.[0] || h.logo
-                ? <img src={h.photos?.[0] || h.logo!} alt={h.name} className="hc__img" />
-                : <svg width="52" height="52" viewBox="0 0 24 24" fill="none"
+              <SafeLogo src={h.photos?.[0] || h.logo} alt={h.name} fallback={
+                  <svg width="52" height="52" viewBox="0 0 24 24" fill="none"
                     stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" strokeLinecap="round">
                     <path d="M3 21h18M9 21V7l6-4v18M9 11H3v10M15 11h6v10M9 7h6M12 11v4"/>
-                  </svg>
-              }
+                  </svg>} />
             </div>
             {isPremium && <PremiumBadge />}
           </div>

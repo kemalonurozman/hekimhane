@@ -9,6 +9,7 @@ import AboneWidget from '@/components/AboneWidget';
 import PremiumBadge from '@/components/PremiumBadge';
 import HekimRosterKart from '@/components/HekimRosterKart';
 import { ToothGlyph } from '@/components/Logo';
+import SafeLogo from '@/components/SafeLogo';
 import type { Doktor } from '@/lib/types';
 
 // ── Türkiye İl Merkez Koordinatları ──────────────────────────────
@@ -1312,10 +1313,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
             {/* Logo */}
             <div className="profil-logo-wrap">
               <div style={{ position: 'relative', display: 'inline-block' }}>
-                <div style={{ width: 116, height: 116, borderRadius: '50%', background: (logo || photo) ? 'transparent' : 'var(--navy)', border: `4px solid white`, boxShadow: `0 0 0 3px ${premium ? '#D4A843' : 'rgba(212,168,67,.5)'},0 10px 34px rgba(27,58,105,.25)`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: entityIconSvg ? 0 : 48 }}>
-                  {(logo || photo)
-                    ? <img src={logo || photo!} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    : entityIcon}
+                <div style={{ width: 116, height: 116, borderRadius: '50%', background: 'var(--navy)', border: `4px solid white`, boxShadow: `0 0 0 3px ${premium ? '#D4A843' : 'rgba(212,168,67,.5)'},0 10px 34px rgba(27,58,105,.25)`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: entityIconSvg ? 0 : 48 }}>
+                  <SafeLogo src={logo || photo} alt={name} loading="eager" fallback={entityIcon} />
                 </div>
                 {/* Mühür — üç durum:
                     premium  → altın, doğrulanmış

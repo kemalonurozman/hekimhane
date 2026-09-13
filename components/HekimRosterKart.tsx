@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import SafeLogo from '@/components/SafeLogo';
 import type { Doktor } from '@/lib/types';
 import CompareButton from '@/components/CompareButton';
 
@@ -51,12 +52,11 @@ export default function HekimRosterKart({ doktor: d }: { doktor: Doktor }) {
         <div style={{
           width: 52, height: 52, borderRadius: '50%', overflow: 'hidden',
           border: '2px solid var(--border)', position: 'relative',
-          background: d.photo ? 'transparent' : 'linear-gradient(135deg, var(--navy), var(--navy2))',
+          background: 'linear-gradient(135deg, var(--navy), var(--navy2))',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          {d.photo
-            ? <Image src={d.photo} alt={displayName} fill sizes="52px" style={{ objectFit: 'cover' }} />
-            : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
+          <SafeLogo src={d.photo} alt={displayName} fallback={
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>} />
         </div>
       </div>
 

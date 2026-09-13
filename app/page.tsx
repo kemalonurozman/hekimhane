@@ -95,7 +95,19 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
         href: `/doktorlar/${d.slug}`,
         rat: Number(d.rat) || 0, rev: Number(d.rev) || 0,
       }));
-    return [...klinikler, ...doktorlar];
+    // Ölü görseller (süresi dolan Google Places URL'leri → 403) sunucuda ayıklanır:
+    // SSR standart illüstrasyonu basar, tarayıcıda "?" anı hiç olmaz. Kısa
+    // zaman aşımı — yavaş bir CDN ana sayfayı bekletmesin (o durumda görsel kalır,
+    // istemcideki SafeLogo yine yakalar).
+    const hepsi = [...klinikler, ...doktorlar];
+    await Promise.all(hepsi.map(async it => {
+      if (!it.foto || it.foto.startsWith('/')) return;
+      try {
+        const r = await fetch(it.foto, { method: 'HEAD', redirect: 'follow', signal: AbortSignal.timeout(2500), cache: 'no-store' });
+        if (r.status === 403 || r.status === 404 || r.status === 410) it.foto = null;
+      } catch { /* zaman aşımı/ağ — görseli bırak, istemci yedeği çalışır */ }
+    }));
+    return hepsi;
   } catch { return []; }
 }
 

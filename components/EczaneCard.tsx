@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import type { Eczane } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
+import SafeLogo from '@/components/SafeLogo';
 import { formatTel } from '@/lib/helpers';
 
 function Stars({ rat }: { rat: number }) {
@@ -120,14 +121,12 @@ export default function EczaneCard({ eczane: e }: { eczane: Eczane }) {
           {/* İkon */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <div className="eczane-card__icon"
-              style={{ background: e.logo ? 'transparent' : 'linear-gradient(135deg, #7C3AED, #6D28D9)' }}>
-              {e.logo
-                ? <img src={e.logo} alt={e.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                : <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              style={{ background: 'linear-gradient(135deg, #7C3AED, #6D28D9)' }}>
+              <SafeLogo src={e.photos?.[0]} alt={e.name} fallback={
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
                     <path d="m8.5 8.5 7 7"/>
-                  </svg>
-              }
+                  </svg>} />
             </div>
             {e.premium && <PremiumBadge />}
           </div>

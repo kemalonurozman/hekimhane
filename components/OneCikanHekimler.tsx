@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import SafeLogo from '@/components/SafeLogo';
 
 export type PremiumItem = {
   tip: 'klinik' | 'doktor';
@@ -63,7 +64,9 @@ export default function OneCikanHekimler({ items }: { items: PremiumItem[] }) {
             <Link key={idx} href={it.href} className="ocp-item">
               <div className="ocp-ph">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={it.foto || GENEL_GORSELLER[idx % GENEL_GORSELLER.length]} alt={it.ad} loading="lazy" />
+                <SafeLogo src={it.foto} alt={it.ad} fallback={
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src={GENEL_GORSELLER[idx % GENEL_GORSELLER.length]} alt={it.ad} loading="lazy" />} />
 
                 {/* Altın yıldız mührü (profildeki gibi) — "premium" yazısı yerine */}
                 <span title="Premium üye" style={{ position: 'absolute', top: 11, left: 11, width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg,#EAC86B,#D4A843)', border: '2px solid rgba(255,255,255,.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,.28)' }}>

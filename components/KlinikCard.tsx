@@ -6,6 +6,7 @@ import type { Klinik } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
 import { ToothGlyph } from '@/components/Logo';
+import SafeLogo from '@/components/SafeLogo';
 import { formatTel } from '@/lib/helpers';
 
 function Stars({ rat }: { rat: number }) {
@@ -138,11 +139,8 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
           {/* İkon / Logo — onaylı klinikte Instagram-story tarzı dönen halka */}
           <div className={k.claimed ? 'hk-ring' : undefined} style={{ position: 'relative', flexShrink: 0 }}>
             <div className="klinik-card__icon"
-              style={{ background: k.logo ? 'transparent' : 'linear-gradient(135deg, var(--navy), var(--navy2))', position: 'relative', overflow: 'hidden' }}>
-              {k.logo
-                ? <Image src={k.logo} alt={k.name} fill sizes="72px" style={{ objectFit: 'cover' }} />
-                : <ToothGlyph size={34} fill="rgba(255,255,255,0.9)" />
-              }
+              style={{ background: 'linear-gradient(135deg, var(--navy), var(--navy2))', position: 'relative', overflow: 'hidden' }}>
+              <SafeLogo src={k.logo} alt={k.name} fallback={<ToothGlyph size={34} fill="rgba(255,255,255,0.9)" />} />
             </div>
             {k.premium && <PremiumBadge />}
           </div>
