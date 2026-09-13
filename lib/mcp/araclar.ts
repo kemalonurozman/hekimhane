@@ -159,12 +159,16 @@ export const MCP_SUNUCU_ADI = 'hekimhane';
 export const MCP_URL = 'https://www.hekimhane.com.tr/api/mcp';
 
 // ── Kurulum kodları (panel sekmesi + /mcp sayfası ortak) ──
-export type Istemci = 'claude-code' | 'claude-desktop' | 'cursor' | 'url';
+export type Istemci = 'chatgpt' | 'claude-code' | 'claude-desktop' | 'cursor' | 'url';
 
 export const YER_TUTUCU = 'hkm_ANAHTARINIZ';
 
 /** İstemciye göre kurulum metni — anahtar yeni üretildiyse içine yerleşik gelir. */
 export function kurulumKodu(istemci: Istemci, anahtar: string): string {
+  if (istemci === 'chatgpt') {
+    // ChatGPT bağlayıcı ekranı özel başlık almaz; anahtar adresin içinde gider
+    return MCP_URL + '?key=' + anahtar;
+  }
   if (istemci === 'claude-code') {
     return 'claude mcp add --transport http hekimhane ' + MCP_URL + ' --header "Authorization: Bearer ' + anahtar + '"';
   }
@@ -186,6 +190,7 @@ export function kurulumKodu(istemci: Istemci, anahtar: string): string {
 }
 
 export const ISTEMCI_BILGI: Record<Istemci, { ad: string; nereye: string }> = {
+  'chatgpt': { ad: 'ChatGPT', nereye: 'Ayarlar → Uygulamalar ve Bağlayıcılar → Gelişmiş → Geliştirici modu açın. Sonra Bağlayıcı oluştur: ad Hekimhane, MCP sunucu adresine aşağıdaki adresin tamamını (anahtar dahil) yapıştırın, Kimlik doğrulama: Yok (No authentication). Anahtarı sohbet penceresine yapıştırmayın; yalnızca bu adres alanına girin.' },
   'claude-code': { ad: 'Claude Code', nereye: 'Terminalde bir kez çalıştırın. Sonra "hekimhane" araçları her oturumda hazırdır.' },
   'claude-desktop': { ad: 'Claude Masaüstü', nereye: 'Ayarlar → Geliştirici → Yapılandırmayı düzenle ile açılan claude_desktop_config.json dosyasına ekleyin, uygulamayı yeniden başlatın. Bilgisayarda Node.js kurulu olmalı.' },
   'cursor': { ad: 'Cursor', nereye: 'Proje veya kullanıcı klasöründeki .cursor/mcp.json dosyasına ekleyin.' },
