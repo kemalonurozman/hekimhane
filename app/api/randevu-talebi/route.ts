@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir, satirTel } from '@/lib/email';
+import { isletmeBilgisi, profilSatiri } from '@/lib/entity-link';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
@@ -28,8 +29,32 @@ async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, ka
   tercih: string | null; mesaj: string | null; randevu_slot?: string | null;
 }) {
   try {
-    const detay =
+    // İşletme özeti: profil linki + işletmeye kayıtlı e-posta. Sahip bildirimi
+    // için hedef adres de aynı çözümlemeden çıkar (önce panelden ayarlanan
+    // randevu_email, sonra profil e-postası, sonra onaylı sahip hesabı).
+    const b = await isletmeBilgisi(admin, kayit.entity_type, kayit.entity_id);
+    let sahipEmail: string | null = null;
+    try {
+      const { data: claim } = await (admin as any).from('claim_requests')
+        .select('email').eq('entity_id', kayit.entity_id).eq('status', 'approved')
+        .not('email', 'is', null).limit(1).maybeSingle();
+      sahipEmail = (claim?.email || '').includes('@') ? claim.email : null;
+    } catch { /* sahip bulunamadı — sorun değil */ }
+
+    const isletmeEmail = b.randevuEmail || b.profilEmail || sahipEmail;
+    const emailKaynak = b.randevuEmail ? 'randevu bildirim adresi' : b.profilEmail ? 'profil e-postası' : sahipEmail ? 'sahip hesabı' : null;
+    const isletmeEmailSatiri = isletmeEmail
+      ? `<p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">İşletme E-postası:</strong> <a href="mailto:${isletmeEmail}" style="color:#1B3A69;font-weight:600;">${isletmeEmail}</a> <span style="font-size:12px;color:#6E6E73;">(${emailKaynak})</span></p>`
+      : `<p style="margin:6px 0;font-size:14px;"><strong style="color:#6E6E73;">İşletme E-postası:</strong> <span style="color:#B45309;font-weight:600;">Eklenmemiş</span> <span style="font-size:12px;color:#6E6E73;">— işletmeye kayıtlı e-posta yok, talebi telefonla iletin</span></p>`;
+
+    // Admin'e: işletme bloğu + talep bloğu. Sahibe/hastaya: yalnız talep bloğu.
+    const isletmeBlok =
       satir('İşletme', kayit.entity_name) +
+      (b.konum ? satir('Konum', b.konum) : '') +
+      profilSatiri(b.url) +
+      isletmeEmailSatiri +
+      `<hr style="border:0;border-top:1px solid #E5E5EA;margin:12px 0;">`;
+    const detay =
       satir('Ad Soyad', kayit.ad_soyad) +
       satirTel('Telefon', kayit.tel) +
       satir('E-posta', kayit.email) +
@@ -39,7 +64,7 @@ async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, ka
     const calBtn = calUrl
       ? `<div style="margin:16px 0 4px;"><a href="${calUrl}" style="display:inline-block;background:#D4A843;color:#12294B;font-weight:700;font-size:14px;text-decoration:none;border-radius:10px;padding:11px 20px;">Google Takvim'e Ekle</a></div>`
       : '';
-    const bildirimHtml = mailShell('Yeni Randevu Talebi', detay +
+    const bildirimHtml = mailShell('Yeni Randevu Talebi', isletmeBlok + detay +
       `<p style="margin-top:14px;font-size:12px;color:#6E6E73;">Admin panelindeki Talepler sekmesinden yönetebilirsiniz.</p>`);
 
     // 1) Admin bildirimi (her zaman)
@@ -50,27 +75,9 @@ async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, ka
       replyTo: kayit.email || undefined,
     });
 
-    // 2) İşletme sahibine bildir. Hedef e-posta:
-    //    (a) işletmenin seçtiği randevu_email (varsa) — "farklı adres",
-    //    (b) yoksa onaylı claim e-postası — "hesabımla aynı".
+    // 2) İşletme sahibine bildir — hedef yukarıda çözülen işletme e-postası.
     try {
-      // İşletmenin ayarladığı bildirim adresi (kolon yoksa sessizce geç)
-      let randevuEmail: string | null = null;
-      try {
-        const TBL: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
-        const tbl = TBL[kayit.entity_type];
-        if (tbl) {
-          const { data: ent } = await (admin as any).from(tbl).select('randevu_email').eq('id', kayit.entity_id).maybeSingle();
-          const e = (ent?.randevu_email || '').trim();
-          if (e.includes('@')) randevuEmail = e;
-        }
-      } catch { /* randevu_email kolonu yoksa geç */ }
-
-      const { data: claim } = await (admin as any).from('claim_requests')
-        .select('email').eq('entity_id', kayit.entity_id).eq('status', 'approved')
-        .not('email', 'is', null).limit(1).maybeSingle();
-
-      const hedef = randevuEmail || claim?.email || null;
+      const hedef = isletmeEmail;
       if (hedef && hedef !== ADMIN_EMAIL) {
         const sahipHtml = mailShell('Yeni Randevu Talebiniz Var',
           `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${kayit.entity_name}</strong> işletmeniz için yeni bir randevu talebi geldi. Talep sahibiyle en kısa sürede iletişime geçebilirsiniz:</p>` +
