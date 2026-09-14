@@ -9,6 +9,7 @@ import { HERO_BACKGROUNDS, coverPresetKey } from '@/lib/hero-backgrounds';
 import { IL_LISTE, ILCELER } from '@/lib/tr-il-ilce';
 import { PRO_AYLIK_TL } from '@/lib/pro-plan';
 import { gunSlotlari, type TakvimAyar } from '@/lib/takvim-slot';
+import { yoneticiMi, davetEden } from '@/lib/yonetici';
 import MakalelerimTab from './MakalelerimTab';
 import McpTab from './McpTab';
 
@@ -96,6 +97,7 @@ interface ClaimRequest {
   tel: string;
   unvan: string | null;
   mesaj: string | null;
+  role?: string | null;   // '[yönetici] …' → sahip değil, davetle eklenmiş yönetici
 }
 
 /** Stripe abonelik özeti — /api/stripe/subscription'dan gelir. */
@@ -136,6 +138,17 @@ function ProKilit({ baslik, aciklama, kucuk = false }: { baslik: string; aciklam
         Pro&apos;ya Geç · {PRO_AYLIK_TL} TL/ay
       </a>
     </div>
+  );
+}
+
+/** Davetle eklenmiş yönetici erişimi rozeti. */
+function YoneticiRozeti({ title }: { title?: string }) {
+  return (
+    <span title={title || 'Bu işletmeye yönetici olarak erişiyorsunuz'}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 999, background: '#EEF4FF', border: '1px solid #C7D7F0', color: '#1B3A69', fontSize: 10, fontWeight: 800, letterSpacing: '.7px', textTransform: 'uppercase', flexShrink: 0 }}>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+      Yönetici
+    </span>
   );
 }
 
@@ -357,7 +370,11 @@ export default function PanelPage() {
   }
 
   async function handleRelease(claimId: string, entityName: string) {
-    if (!window.confirm(`"${entityName}" işletmesinin sahipliğini bırakmak istediğinize emin misiniz?\n\nSahiplik kalkacak, işletme "sahiplenilmemiş" duruma dönecek ve premium/online randevu kapanacaktır. Dilerseniz daha sonra yeniden sahiplenebilirsiniz.`)) return;
+    const yon = yoneticiMi(claims.find(c => c.id === claimId)?.role);
+    const onay = yon
+      ? `"${entityName}" işletmesinin yöneticiliğinden ayrılmak istediğinize emin misiniz?\n\nYalnızca sizin erişiminiz kalkar; işletme ve sahibinin hesabı etkilenmez. Tekrar erişim için sahibinin sizi yeniden eklemesi gerekir.`
+      : `"${entityName}" işletmesinin sahipliğini bırakmak istediğinize emin misiniz?\n\nSahiplik kalkacak, işletme "sahiplenilmemiş" duruma dönecek ve premium/online randevu kapanacaktır. Dilerseniz daha sonra yeniden sahiplenebilirsiniz.`;
+    if (!window.confirm(onay)) return;
     setReleasingId(claimId);
     try {
       const res = await fetch('/api/panel/release-claim', {
@@ -538,6 +555,7 @@ export default function PanelPage() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, padding: '0 2px' }}>
               <EntityTypeLabel type={aktifClaim.entity_type} />
+              {yoneticiMi(aktifClaim.role) && <span style={{ padding: '0 7px', borderRadius: 999, background: 'rgba(147,187,255,.18)', color: sbLight ? T.navy : '#BFD4FF', fontSize: 9, fontWeight: 800, letterSpacing: '.6px', lineHeight: '15px' }}>YÖNETİCİ</span>}
               {premiumMap[aktifClaim.id] && <span style={{ padding: '0 7px', borderRadius: 999, background: 'linear-gradient(135deg,#D4A843,#BE8F2C)', color: 'white', fontSize: 9, fontWeight: 800, letterSpacing: '.6px', lineHeight: '15px' }}>PRO</span>}
             </div>
           </div>
@@ -705,6 +723,8 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                       aktif → yönet, yoksa → yükselt. Ödeme sorunlu abonelikte yeni
                       checkout açtırmak mükerrer abonelik doğurur. */}
                   {c.entity_id && c.entity_id !== 'new' && (() => {
+                    // Yönetici: abonelik işlemleri sahibe ait — ödeme butonu gösterilmez
+                    if (yoneticiMi(c.role)) return <YoneticiRozeti title={`Davet eden: ${davetEden(c.role) || 'işletme sahibi'}`} />;
                     const sub = subsMap[c.id];
                     const sorunlu = sub && ODEME_SORUNLU.includes(sub.status);
                     const aktif = proAktifMi(c.id, premiumMap, subsMap);
@@ -736,7 +756,7 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                     <button onClick={() => onRelease(c.id, c.entity_name || 'İşletme')} disabled={releasingId === c.id}
                       title="Bu işletmenin sahipliğini bırak — profil sahiplenilmemiş duruma döner"
                       style={{ padding: '7px 14px', background: 'transparent', color: '#B91C1C', borderRadius: 9, fontSize: 12, fontWeight: 700, border: '1px solid #FCA5A5', cursor: releasingId === c.id ? 'default' : 'pointer', opacity: releasingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
-                      {releasingId === c.id ? '…' : <><Ic d={icons.logout} size={13} /> Sahipliği Bırak</>}
+                      {releasingId === c.id ? '…' : <><Ic d={icons.logout} size={13} /> {yoneticiMi(c.role) ? 'Yöneticilikten Ayrıl' : 'Sahipliği Bırak'}</>}
                     </button>
                   )}
                 </div>
@@ -1000,7 +1020,12 @@ function ProfileTab({ user, approvedClaims, premiumMap, subsMap, onManage, manag
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                        {aktif || sorunlu ? (
+                        {yoneticiMi(c.role) ? (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, color: T.muted }}>
+                            <YoneticiRozeti />
+                            Abonelik işletme sahibinde{davetEden(c.role) ? ` (${davetEden(c.role)})` : ''}
+                          </span>
+                        ) : aktif || sorunlu ? (
                           <button onClick={() => onManage(c.id, c.entity_type, c.entity_id!)} disabled={managingId === c.id}
                             title="Aboneliği iptal et, kartını değiştir veya faturalarını gör"
                             style={{ padding: '8px 15px', background: sorunlu ? '#B91C1C' : T.navy, color: 'white', borderRadius: 9, fontSize: 12.5, fontWeight: 700, border: 'none', cursor: managingId === c.id ? 'default' : 'pointer', opacity: managingId === c.id ? .6 : 1, fontFamily: 'inherit' }}>
@@ -1031,8 +1056,154 @@ function ProfileTab({ user, approvedClaims, premiumMap, subsMap, onManage, manag
             )}
           </div>
 
+          <YoneticilerKarti />
           <HesapDestekFormu userEmail={user?.email || ''} />
         </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Hesabım → Hesap Yöneticileri. Sahip olunan her işletmeye e-postayla yönetici
+ * eklenir/kaldırılır; yöneticiler durumlarıyla listelenir. Hesabı olmayan
+ * e-postaya hesap oluşturma daveti gider (sunucu: /api/panel/yonetici).
+ */
+function YoneticilerKarti() {
+  type Yon = { id: string; email: string; ad: string | null; eklenme: string; durum: 'aktif' | 'davet_bekliyor' };
+  type Sahip = { entity_id: string; entity_type: string; entity_name: string; yoneticiler: Yon[] };
+  type YonOlunan = { claim_id: string; entity_id: string; entity_name: string; davet_eden: string | null };
+  const [yukleniyor, setYukleniyor] = useState(true);
+  const [sahipOlunan, setSahipOlunan] = useState<Sahip[]>([]);
+  const [yoneticiOlunan, setYoneticiOlunan] = useState<YonOlunan[]>([]);
+  const [maks, setMaks] = useState(10);
+  const [form, setForm] = useState<Record<string, { email: string; ad: string }>>({});
+  const [calisan, setCalisan] = useState<string | null>(null);
+  const [mesaj, setMesaj] = useState<Record<string, { ok: boolean; text: string }>>({});
+
+  async function yukle() {
+    try {
+      const r = await fetch('/api/panel/yonetici');
+      const j = await r.json();
+      if (r.ok) { setSahipOlunan(j.sahipOlunan || []); setYoneticiOlunan(j.yoneticiOlunan || []); setMaks(j.maks || 10); }
+    } catch { /* kart sessizce boş kalır */ }
+    setYukleniyor(false);
+  }
+  useEffect(() => { yukle(); }, []);
+
+  async function ekle(entityId: string) {
+    const f = form[entityId] || { email: '', ad: '' };
+    if (!f.email.trim()) { setMesaj(p => ({ ...p, [entityId]: { ok: false, text: 'E-posta adresi girin.' } })); return; }
+    setCalisan(entityId); setMesaj(p => ({ ...p, [entityId]: { ok: true, text: '' } }));
+    try {
+      const r = await fetch('/api/panel/yonetici', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ entity_id: entityId, email: f.email, ad: f.ad }) });
+      const j = await r.json();
+      if (r.ok && j.ok) {
+        setForm(p => ({ ...p, [entityId]: { email: '', ad: '' } }));
+        setMesaj(p => ({ ...p, [entityId]: { ok: true, text: j.yeniHesap
+          ? `Davet gönderildi. ${f.email} hesabını oluşturunca bu işletmeyi yönetebilecek.`
+          : `${f.email} yönetici olarak eklendi ve bilgilendirildi; panelinde hemen görünür.` + (j.mailGitti ? '' : ' (E-posta gönderilemedi.)') } }));
+        await yukle();
+      } else setMesaj(p => ({ ...p, [entityId]: { ok: false, text: j.error || 'Eklenemedi.' } }));
+    } catch { setMesaj(p => ({ ...p, [entityId]: { ok: false, text: 'Bağlantı hatası.' } })); }
+    setCalisan(null);
+  }
+
+  async function kaldir(entityName: string, y: Yon) {
+    if (!window.confirm(`${y.email} adlı yöneticinin "${entityName}" erişimi kaldırılsın mı?\n\nBu kişi işletmenin randevu, hasta ve profil bilgilerine artık erişemez.`)) return;
+    setCalisan(y.id);
+    try {
+      const r = await fetch('/api/panel/yonetici', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: y.id }) });
+      if (r.ok) await yukle(); else { const j = await r.json().catch(() => ({})); alert(j.error || 'Kaldırılamadı.'); }
+    } catch { alert('Bağlantı hatası.'); }
+    setCalisan(null);
+  }
+
+  if (yukleniyor) return null;
+  if (!sahipOlunan.length && !yoneticiOlunan.length) return null;
+
+  const inp: React.CSSProperties = { padding: '9px 11px', borderRadius: 9, border: `1.5px solid ${T.border}`, fontSize: 13, fontFamily: 'inherit', outline: 'none', background: 'white', minWidth: 0 };
+  const tarih = (s: string) => { try { return new Date(s).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' }); } catch { return ''; } };
+
+  return (
+    <div style={{ background: T.white, borderRadius: 16, border: `1px solid ${T.border}`, overflow: 'hidden', marginBottom: 16 }}>
+      <div style={{ padding: '14px 22px', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ color: T.navy }}><Ic d={icons.users} size={16} /></span>
+        <span style={{ fontSize: 13, fontWeight: 800, color: T.text }}>Hesap Yöneticileri</span>
+      </div>
+      <div style={{ padding: '16px 22px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {sahipOlunan.length > 0 && (
+          <p style={{ fontSize: 12.5, color: T.muted, lineHeight: 1.65, margin: 0 }}>
+            İşletmenizi birlikte yönetmek istediğiniz kişileri (ör. sekreter, ortak hekim) e-posta adresiyle ekleyin. Yöneticiler randevu, takvim, hasta, yorum ve profil işlemlerini yapabilir;
+            <strong style={{ color: T.text }}> abonelik/ödeme ve yönetici ekleme yalnızca sizde kalır.</strong> Hekimhane hesabı olmayan kişiye hesap oluşturma daveti gider.
+          </p>
+        )}
+
+        {sahipOlunan.map(isl => {
+          const f = form[isl.entity_id] || { email: '', ad: '' };
+          const m = mesaj[isl.entity_id];
+          return (
+            <div key={isl.entity_id} style={{ border: `1px solid ${T.border}`, borderRadius: 12, padding: '14px 16px', background: T.bg }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+                <span style={{ fontWeight: 700, fontSize: 14.5, color: T.text }}>{isl.entity_name}</span>
+                <span style={{ fontSize: 11.5, color: T.muted }}>· {isl.yoneticiler.length}/{maks} yönetici</span>
+              </div>
+
+              {isl.yoneticiler.length === 0 ? (
+                <div style={{ fontSize: 12.5, color: T.muted, marginBottom: 10 }}>Henüz yönetici eklenmemiş — işletmeyi yalnızca siz yönetiyorsunuz.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 }}>
+                  {isl.yoneticiler.map(y => (
+                    <div key={y.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, background: 'white', border: `1px solid ${T.border}`, flexWrap: 'wrap' }}>
+                      <div style={{ width: 30, height: 30, borderRadius: '50%', background: '#EEF4FF', color: T.navy, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, flexShrink: 0 }}>
+                        {(y.ad || y.email).trim().charAt(0).toLocaleUpperCase('tr')}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 160 }}>
+                        <div style={{ fontSize: 13.5, fontWeight: 700, color: T.text, overflow: 'hidden', textOverflow: 'ellipsis' }}>{y.ad || y.email}</div>
+                        <div style={{ fontSize: 11.5, color: T.muted }}>{y.ad ? `${y.email} · ` : ''}eklendi {tarih(y.eklenme)}</div>
+                      </div>
+                      {y.durum === 'aktif'
+                        ? <span style={{ padding: '2px 9px', borderRadius: 999, background: '#F0FDF4', border: '1px solid #86EFAC', color: '#166534', fontSize: 11, fontWeight: 700 }}>Aktif</span>
+                        : <span title="Kişi davet e-postasındaki bağlantıyla henüz hesabını oluşturmadı" style={{ padding: '2px 9px', borderRadius: 999, background: '#FFFBEB', border: '1px solid #FDE68A', color: '#92400E', fontSize: 11, fontWeight: 700 }}>Davet bekliyor</span>}
+                      <button type="button" onClick={() => kaldir(isl.entity_name, y)} disabled={calisan === y.id}
+                        style={{ padding: '6px 11px', borderRadius: 8, border: '1px solid #FCA5A5', background: 'white', color: '#B91C1C', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', opacity: calisan === y.id ? .6 : 1 }}>
+                        {calisan === y.id ? '…' : 'Kaldır'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {isl.yoneticiler.length < maks && (
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <input type="email" value={f.email} placeholder="yonetici@ornek.com" onChange={e => setForm(p => ({ ...p, [isl.entity_id]: { ...f, email: e.target.value } }))}
+                    onKeyDown={e => { if (e.key === 'Enter') ekle(isl.entity_id); }} style={{ ...inp, flex: '2 1 200px' }} />
+                  <input value={f.ad} placeholder="Ad soyad (isteğe bağlı)" maxLength={80} onChange={e => setForm(p => ({ ...p, [isl.entity_id]: { ...f, ad: e.target.value } }))}
+                    style={{ ...inp, flex: '1 1 150px' }} />
+                  <button type="button" onClick={() => ekle(isl.entity_id)} disabled={calisan === isl.entity_id}
+                    style={{ padding: '9px 16px', borderRadius: 9, border: 'none', background: T.navy, color: 'white', fontSize: 13, fontWeight: 700, cursor: calisan === isl.entity_id ? 'default' : 'pointer', opacity: calisan === isl.entity_id ? .6 : 1, fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                    {calisan === isl.entity_id ? 'Ekleniyor…' : 'Yönetici ekle'}
+                  </button>
+                </div>
+              )}
+              {m?.text && <div style={{ marginTop: 8, fontSize: 12.5, fontWeight: 600, color: m.ok ? '#166534' : '#B91C1C' }}>{m.text}</div>}
+            </div>
+          );
+        })}
+
+        {yoneticiOlunan.length > 0 && (
+          <div>
+            <div style={{ fontSize: 11.5, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '.6px', marginBottom: 8 }}>Yönetici olarak eriştiğiniz işletmeler</div>
+            {yoneticiOlunan.map(y => (
+              <div key={y.claim_id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 0', borderTop: `1px solid ${T.bg}`, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 13.5, fontWeight: 700, color: T.text }}>{y.entity_name}</span>
+                <YoneticiRozeti />
+                {y.davet_eden && <span style={{ fontSize: 12, color: T.muted }}>davet eden: {y.davet_eden}</span>}
+              </div>
+            ))}
+            <div style={{ fontSize: 11.5, color: T.muted, marginTop: 4 }}>Ayrılmak için Genel Bakış&apos;taki &quot;Yöneticilikten Ayrıl&quot; düğmesini kullanın.</div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -2273,7 +2444,9 @@ function IsletmeSecici({ entities, idx, onSelect, durum, profileUrls }: {
       <div style={{ display: 'grid', gap: 8 }}>
         {entities.map((c, i) => {
           const secili = i === idx;
-          const d = durum[c.entity_id || ''] || { premium: false, aktif: false };
+          // Durum henüz yüklenmediyse rozet gösterme — varsayılanı "Ücretsiz" saymak
+          // Pro işletmeyi yükleme sırasında (veya sorgu başarısızsa) ücretsiz gösteriyordu.
+          const d = durum[c.entity_id || ''];
           const url = profileUrls[c.id];
           return (
             <div key={c.id} style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
@@ -2292,12 +2465,12 @@ function IsletmeSecici({ entities, idx, onSelect, durum, profileUrls }: {
                 {secili && <span style={{ width: 8, height: 8, borderRadius: '50%', background: T.navy, display: 'block' }} />}
               </span>
               <span style={{ fontSize: 14.5, fontWeight: secili ? 800 : 600, color: T.text, minWidth: 0, flex: 1 }}>{c.entity_name}</span>
-              {d.premium && rozet('Pro', '#8A6100', '#FDF6E3', '#EBD9A8')}
-              {d.premium
+              {d?.premium && rozet('Pro', '#8A6100', '#FDF6E3', '#EBD9A8')}
+              {d && (d.premium
                 ? (d.aktif
                     ? rozet('Takvim açık', '#065F46', '#ECFDF5', '#A7F3D0')
                     : rozet('Takvim kapalı', '#6B7A99', '#F1F5F9', '#D9E2EC'))
-                : rozet('Ücretsiz', '#6B7A99', '#F1F5F9', '#D9E2EC')}
+                : rozet('Ücretsiz', '#6B7A99', '#F1F5F9', '#D9E2EC'))}
               {secili && <span style={{ fontSize: 11, fontWeight: 800, color: T.navy, letterSpacing: '.5px', textTransform: 'uppercase' }}>Yönetiliyor</span>}
             </button>
             {/* Hızlı bakış — profil yeni sekmede; yaptığınız değişiklikleri ziyaretçi gözüyle görün */}

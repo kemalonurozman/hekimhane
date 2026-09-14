@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import { yoneticiMi } from '@/lib/yonetici';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
@@ -41,11 +42,17 @@ export async function POST(request: NextRequest) {
     // 2. Claim bu kullanıcıya ait ve onaylı mı?
     const admin = adminClient();
     const { data: claim } = await admin.from('claim_requests')
-      .select('id, entity_type, entity_id, email, status')
+      .select('id, entity_type, entity_id, email, status, role')
       .eq('id', claimId).single();
-    const c = claim as { id: string; entity_type: string; entity_id: string | null; email: string | null; status: string } | null;
+    const c = claim as { id: string; entity_type: string; entity_id: string | null; email: string | null; status: string; role: string | null } | null;
     if (!c || c.email !== session.user.email || c.status !== 'approved') {
       return NextResponse.json({ error: 'Bu işletmenin sahipliğini bırakma yetkiniz yok' }, { status: 403 });
+    }
+
+    // 2b. Yönetici ayrılıyor → yalnız kendi erişim kaydı silinir; işletme sahibinde kalır
+    if (yoneticiMi(c.role)) {
+      await admin.from('claim_requests').delete().eq('id', claimId);
+      return NextResponse.json({ success: true, yonetici: true });
     }
 
     // 3. Entity'yi sahiplenilmemiş yap (premium + online randevu da kapanır)

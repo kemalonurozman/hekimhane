@@ -1,4 +1,5 @@
 import { type NextRequest } from 'next/server';
+import { yoneticiMi } from '@/lib/yonetici';
 import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 
@@ -38,17 +39,21 @@ export async function verifyOwner(
     return { ok: false, error: 'Geçersiz işletme.', status: 400 };
   }
 
-  const { data: claim } = await (adminClient() as any)
+  const { data: claims } = await (adminClient() as any)
     .from('claim_requests')
-    .select('id')
+    .select('id,role')
     .eq('email', email)
     .eq('entity_type', entity_type)
     .eq('entity_id', String(entity_id))
-    .eq('status', 'approved')
-    .maybeSingle();
+    .eq('status', 'approved');
+  const liste = (claims as any[]) || [];
 
-  if (!claim) {
+  if (!liste.length) {
     return { ok: false, error: 'Bu işletmeyi yönetme yetkiniz yok (onaylı sahiplik gerekli).', status: 403 };
+  }
+  // Abonelik (ödeme, iptal, kart) yalnız işletme sahibine ait — yönetici erişimi yetmez
+  if (liste.every(c => yoneticiMi(c.role))) {
+    return { ok: false, error: 'Abonelik işlemlerini yalnızca işletme sahibi yapabilir. Yönetici olarak eklendiğiniz işletmede ödeme bilgilerine erişiminiz yok.', status: 403 };
   }
   return { ok: true, email, entity_type, entity_id: String(entity_id) };
 }

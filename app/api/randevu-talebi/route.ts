@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { sahipEpostasi } from '@/lib/yonetici';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir, satirTel } from '@/lib/email';
 import { isletmeBilgisi, profilSatiri } from '@/lib/entity-link';
@@ -35,10 +36,7 @@ async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, ka
     const b = await isletmeBilgisi(admin, kayit.entity_type, kayit.entity_id);
     let sahipEmail: string | null = null;
     try {
-      const { data: claim } = await (admin as any).from('claim_requests')
-        .select('email').eq('entity_id', kayit.entity_id).eq('status', 'approved')
-        .not('email', 'is', null).limit(1).maybeSingle();
-      sahipEmail = (claim?.email || '').includes('@') ? claim.email : null;
+      sahipEmail = await sahipEpostasi(admin as any, kayit.entity_id);
     } catch { /* sahip bulunamadı — sorun değil */ }
 
     const isletmeEmail = b.randevuEmail || b.profilEmail || sahipEmail;

@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { yoneticiMi } from '@/lib/yonetici';
 import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { getStripe, getProPriceId, ENTITY_TABLE } from '@/lib/stripe';
@@ -40,15 +41,16 @@ export async function POST(request: NextRequest) {
     const admin = adminClient();
 
     if (!entity_type || !entity_id) {
-      const { data: first } = await (admin as any)
+      const { data: adaylar } = await (admin as any)
         .from('claim_requests')
-        .select('entity_type,entity_id')
+        .select('entity_type,entity_id,role')
         .eq('email', email)
         .eq('status', 'approved')
         .not('entity_id', 'is', null)
         .neq('entity_id', 'new')
-        .limit(1)
-        .maybeSingle();
+        .limit(50);
+      // Yönetici olunan işletme için ödeme başlatılmaz
+      const first = ((adaylar as any[]) || []).find(c => !yoneticiMi(c.role)) || null;
       if (!first) {
         return NextResponse.json(
           { error: 'no_claim', message: 'Önce işletmenizi sahiplenmeniz gerekiyor.' }, { status: 403 });
@@ -62,16 +64,19 @@ export async function POST(request: NextRequest) {
     }
 
     // 3) Sahiplik — bu işletme için onaylı claim var mı?
-    const { data: claim } = await (admin as any)
+    const { data: claimler } = await (admin as any)
       .from('claim_requests')
-      .select('id')
+      .select('id,role')
       .eq('email', email)
       .eq('entity_type', entity_type)
       .eq('entity_id', String(entity_id))
-      .eq('status', 'approved')
-      .maybeSingle();
-    if (!claim) {
+      .eq('status', 'approved');
+    const erisim = (claimler as any[]) || [];
+    if (!erisim.length) {
       return NextResponse.json({ error: 'Bu işletmeyi yönetme yetkiniz yok (onaylı sahiplik gerekli).' }, { status: 403 });
+    }
+    if (erisim.every(c => yoneticiMi(c.role))) {
+      return NextResponse.json({ error: 'Pro üyeliği yalnızca işletme sahibi başlatabilir.' }, { status: 403 });
     }
 
     // 4) İşletme adı (açıklama için) + zaten Pro ise ikinci abonelik açma

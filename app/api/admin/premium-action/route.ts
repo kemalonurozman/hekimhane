@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { sahipEpostasi } from '@/lib/yonetici';
 import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { getStripe, ENTITY_TABLE } from '@/lib/stripe';
@@ -43,10 +44,7 @@ async function entityAdi(admin: any, entity_type: string, entity_id: string): Pr
 async function aboneEpostasi(admin: any, sub: any, entity_type: string, entity_id: string): Promise<string | null> {
   if (sub?.email) return String(sub.email);
   try {
-    const { data } = await admin.from('claim_requests')
-      .select('email').eq('entity_type', entity_type).eq('entity_id', entity_id)
-      .eq('status', 'approved').limit(1).maybeSingle();
-    return data?.email || null;
+    return await sahipEpostasi(admin, entity_id, entity_type);
   } catch { return null; }
 }
 
