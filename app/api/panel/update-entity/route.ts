@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { epostaListesi, epostaListesiYaz, RANDEVU_EMAIL_MAX_PRO } from '@/lib/randevu-email';
+import { yetkiliEntityIdleri } from '@/lib/erisim';
 
 // Service role client — RLS'yi bypass eder, sadece server-side
 function adminClient() {
@@ -55,8 +56,21 @@ export async function POST(request: NextRequest) {
       .eq('status', 'approved')
       .single();
 
+    // Asistan: yalnız 'randevu_ekle' yetkisiyle ve yalnız takvim kapalı saatlerini
+    // (randevu_bloke) yazabilir — profil, fiyat, iletişim vb. asla.
+    // Not: yukarıdaki .single() aynı işletmeye iki onaylı satırı olan (ör. admin
+    // atamasıyla ikinci kayıt) sahipte null döner; önce tam erişim ayrıca aranır
+    // ki gerçek sahip yanlışlıkla asistan kısıtına düşmesin.
+    let asistanAlanlari: string[] | null = null;
     if (!claim) {
-      return NextResponse.json({ error: 'Bu işletmeyi düzenleme yetkiniz yok' }, { status: 403 });
+      const tam = await yetkiliEntityIdleri(admin, session.user.email!);
+      if (!tam.includes(String(entityId))) {
+        const asistan = await yetkiliEntityIdleri(admin, session.user.email!, ['randevu_ekle']);
+        if (!asistan.includes(String(entityId))) {
+          return NextResponse.json({ error: 'Bu işletmeyi düzenleme yetkiniz yok' }, { status: 403 });
+        }
+        asistanAlanlari = ['randevu_bloke'];
+      }
     }
 
     // 3. İzin verilen alanları filtrele (güvenlik için whitelist)
@@ -81,9 +95,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Geçersiz işletme türü' }, { status: 400 });
     }
 
-    // Sadece izin verilen alanları al
+    // Sadece izin verilen alanları al (asistan için liste ayrıca daraltılır)
     const safeFields: Record<string, unknown> = {};
     for (const key of allowed) {
+      if (asistanAlanlari && !asistanAlanlari.includes(key)) continue;
       if (key in fields) safeFields[key] = fields[key];
     }
 

@@ -3,6 +3,7 @@ import { panelOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir } from '@/lib/email';
+import { yetkiliEntityIdleri } from '@/lib/erisim';
 
 // Service role — RLS'yi bypass eder (yalnızca server-side)
 function adminClient() {
@@ -27,11 +28,11 @@ function sessionClient(request: NextRequest) {
   );
 }
 
-// Kullanıcının onaylı olarak sahiplendiği işletmelerin entity_id listesi.
-async function ownedEntityIds(admin: ReturnType<typeof adminClient>, email: string): Promise<string[]> {
-  const { data } = await (admin as any).from('claim_requests')
-    .select('entity_id').eq('email', email).eq('status', 'approved').not('entity_id', 'is', null);
-  return Array.from(new Set(((data as { entity_id: string }[]) || []).map(c => String(c.entity_id))));
+// Onaylı erişim (sahip/yönetici) + ilgili yetkisi olan asistan — lib/erisim.ts.
+// Okuma: 'randevu' veya 'hastalar' (Hastalarım listesi talepten türetilir).
+// Yazma (durum/erteleme/not/silme): yalnız 'randevu'.
+async function ownedEntityIds(admin: ReturnType<typeof adminClient>, email: string, yazma = false): Promise<string[]> {
+  return yetkiliEntityIdleri(admin, email, yazma ? ['randevu'] : ['randevu', 'hastalar']);
 }
 
 /**
@@ -90,7 +91,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Geçersiz durum' }, { status: 400 });
     }
     const admin = adminClient();
-    const ids = await ownedEntityIds(admin, session.user.email);
+    const ids = await ownedEntityIds(admin, session.user.email, true);
 
     // Talep gerçekten bu kullanıcının işletmesine mi ait? (bildirim için detay da al)
     const { data: talep } = await (admin as any).from('randevu_talepleri')
@@ -164,7 +165,7 @@ export async function DELETE(request: NextRequest) {
     if (!id) return NextResponse.json({ error: 'Geçersiz istek' }, { status: 400 });
 
     const admin = adminClient();
-    const ids = await ownedEntityIds(admin, session.user.email);
+    const ids = await ownedEntityIds(admin, session.user.email, true);
     const { data: talep } = await (admin as any).from('randevu_talepleri')
       .select('entity_id,status').eq('id', id).maybeSingle();
     if (!talep || !ids.includes(String(talep.entity_id))) {

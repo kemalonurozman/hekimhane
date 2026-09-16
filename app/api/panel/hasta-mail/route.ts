@@ -3,6 +3,7 @@ import { panelOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell } from '@/lib/email';
+import { yetkiliEntityIdleri } from '@/lib/erisim';
 
 function adminClient() {
   return createClient(
@@ -20,10 +21,9 @@ function sessionClient(request: NextRequest) {
   );
 }
 
+// Onaylı erişim (sahip/yönetici) + 'randevu' veya 'hastalar' yetkili asistan — lib/erisim.ts
 async function ownedEntityIds(admin: ReturnType<typeof adminClient>, email: string): Promise<string[]> {
-  const { data } = await (admin as any).from('claim_requests')
-    .select('entity_id').eq('email', email).eq('status', 'approved').not('entity_id', 'is', null);
-  return Array.from(new Set(((data as { entity_id: string }[]) || []).map(c => String(c.entity_id))));
+  return yetkiliEntityIdleri(admin, email, ['randevu', 'hastalar']);
 }
 
 const esc = (s: string) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { panelOturum } from '@/lib/panel-oturum';
 import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
+import { yetkiliEntityIdleri } from '@/lib/erisim';
 
 function adminClient() {
   return createClient(
@@ -53,16 +54,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Yorum bulunamadı' }, { status: 404 });
     }
 
-    // 3. Kullanıcının bu işletme için onaylı claim'i olduğunu doğrula
-    const { data: claim } = await (admin as any)
-      .from('claim_requests')
-      .select('id')
-      .eq('email', session.user.email!)
-      .eq('entity_id', yorum.entity_id)
-      .eq('status', 'approved')
-      .maybeSingle();
-
-    if (!claim) {
+    // 3. Onaylı erişim (sahip/yönetici) ya da 'yorumlar' yetkili asistan
+    const yetkili = await yetkiliEntityIdleri(admin, session.user.email!, ['yorumlar']);
+    if (!yetkili.includes(String(yorum.entity_id))) {
       return NextResponse.json({ error: 'Bu işletmeye yanıt verme yetkiniz yok' }, { status: 403 });
     }
 

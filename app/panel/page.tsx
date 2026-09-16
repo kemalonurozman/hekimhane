@@ -12,6 +12,8 @@ import { gunSlotlari, type TakvimAyar } from '@/lib/takvim-slot';
 import { yoneticiMi, davetEden } from '@/lib/yonetici';
 import { kartSlugYaz, kartSlugTemel, bos, entityKartAlanlari, rozetHtml, type RozetTema } from '@/lib/hekimkart';
 import { epostaListesi, gecerliEposta, RANDEVU_EMAIL_MAX_PRO } from '@/lib/randevu-email';
+import { ASISTAN_DURUM, asistanYetkileri, type AsistanYetki } from '@/lib/asistan';
+import AsistanlarTab, { AsistanErisimKarti } from './AsistanlarTab';
 import MakalelerimTab from './MakalelerimTab';
 import McpTab from './McpTab';
 
@@ -92,7 +94,7 @@ interface ClaimRequest {
   entity_type: string;
   entity_name: string;
   entity_id: string | null;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'asistan';
   created_at: string;
   ad_soyad: string;
   email: string;
@@ -247,7 +249,7 @@ export default function PanelPage() {
   const router = useRouter();
   const [user,   setUser]   = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart' | 'randevu' | 'randevumodul' | 'hastalar' | 'makaleler' | 'mcp'>('dashboard');
+  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart' | 'randevu' | 'randevumodul' | 'hastalar' | 'makaleler' | 'mcp' | 'asistanlar'>('dashboard');
   const [claims, setClaims] = useState<ClaimRequest[]>([]);
   const [claimsLoading, setClaimsLoading] = useState(false);
   const [profileUrls, setProfileUrls] = useState<Record<string, string>>({});
@@ -428,7 +430,16 @@ export default function PanelPage() {
 
 
   const approvedClaims = claims.filter(c => c.status === 'approved');
-  const isletmeler = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
+  // Asistan erişimi (status='asistan'): yalnız role'deki yetkilerin açtığı sekmelerde
+  // görünür. Aynı işletmede tam erişim varsa asistan satırı yok sayılır.
+  const tamIds = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new').map(c => String(c.entity_id));
+  const asistanClaims = claims.filter(c => c.status === ASISTAN_DURUM && c.entity_id && c.entity_id !== 'new' && !tamIds.includes(String(c.entity_id)));
+  const yetkiliListe = (y: AsistanYetki) => [...approvedClaims, ...asistanClaims.filter(c => asistanYetkileri(c.role).includes(y))];
+  const sadeceAsistan = tamIds.length === 0 && asistanClaims.length > 0;
+  // Başvuru listeleri/sayaçları asistan erişim kayıtlarını saymaz (başvuru değiller)
+  const basvurular = claims.filter(c => c.status !== ASISTAN_DURUM);
+  const takvimIds = [...tamIds, ...asistanClaims.filter(c => asistanYetkileri(c.role).includes('randevu_ekle')).map(c => String(c.entity_id))];
+  const isletmeler = [...approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new'), ...asistanClaims];
   // Kayıtlı seçim artık onaylı değilse (sahiplik bırakıldı vb.) ilk işletmeye düşer
   const aktifClaim = isletmeler.find(c => c.id === aktifId) || isletmeler[0] || null;
   const aktifKey = aktifClaim?.id || 'yok';
@@ -449,19 +460,32 @@ export default function PanelPage() {
     { key: 'yorumlar'   as const, label: 'Yorumlar',          icon: 'star' },
     { key: 'makaleler'  as const, label: 'Makalelerim',       icon: 'edit' },
     { key: 'profile'    as const, label: 'Hesabım',           icon: 'profile' },
+    { key: 'asistanlar' as const, label: 'Asistanlar',        icon: 'users' },
     { key: 'mcp'        as const, label: 'MCP Bağlantısı',    icon: 'code' },
     { key: 'new'        as const, label: 'Yeni Başvuru',      icon: 'plus' },
   ];
 
   // Sidebar sekmeleri gruplandı (bölüm başlıklarıyla)
-  const navGroups: { title: string; keys: (typeof navItems)[number]['key'][] }[] = [
+  type NavKey = (typeof navItems)[number]['key'];
+  const navGroups: { title: string; keys: NavKey[] }[] = ([
     { title: 'Genel',     keys: ['dashboard'] },
     { title: 'İşletmem',  keys: ['edit', 'hekimkart', 'yorumlar'] },
     { title: 'Randevu & Hasta', keys: ['randevu', 'randevumodul', 'hastalar'] },
     { title: 'İçerik',    keys: ['makaleler'] },
     { title: 'Başvuru',   keys: ['claims', 'new'] },
-    { title: 'Hesap',     keys: ['profile', 'mcp'] },
-  ];
+    { title: 'Hesap',     keys: ['profile', 'asistanlar', 'mcp'] },
+  ] as { title: string; keys: NavKey[] }[]).map(g => {
+    if (!sadeceAsistan) return g;
+    // Yalnız asistan olan kullanıcı: yetkisinin açtığı sekmeler + Genel Bakış + Hesabım
+    const acik = new Set<string>(['dashboard', 'profile']);
+    for (const c of asistanClaims) {
+      const y = asistanYetkileri(c.role);
+      if (y.includes('randevu')) acik.add('randevu');
+      if (y.includes('hastalar')) acik.add('hastalar');
+      if (y.includes('yorumlar')) acik.add('yorumlar');
+    }
+    return { ...g, keys: g.keys.filter(k => acik.has(k)) };
+  }).filter(g => g.keys.length > 0);
 
   // Sidebar teması — gece (varsayılan) veya açık
   const S = sbLight ? {
@@ -567,6 +591,7 @@ export default function PanelPage() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, padding: '0 2px' }}>
               <EntityTypeLabel type={aktifClaim.entity_type} />
+              {aktifClaim.status === ASISTAN_DURUM && <span style={{ padding: '0 7px', borderRadius: 999, background: 'rgba(45,212,191,.18)', color: sbLight ? '#0F766E' : '#99F6E4', fontSize: 9, fontWeight: 800, letterSpacing: '.6px', lineHeight: '15px' }}>ASİSTAN</span>}
               {yoneticiMi(aktifClaim.role) && <span style={{ padding: '0 7px', borderRadius: 999, background: 'rgba(147,187,255,.18)', color: sbLight ? T.navy : '#BFD4FF', fontSize: 9, fontWeight: 800, letterSpacing: '.6px', lineHeight: '15px' }}>YÖNETİCİ</span>}
               {premiumMap[aktifClaim.id] && <span style={{ padding: '0 7px', borderRadius: 999, background: 'linear-gradient(135deg,#D4A843,#BE8F2C)', color: 'white', fontSize: 9, fontWeight: 800, letterSpacing: '.6px', lineHeight: '15px' }}>PRO</span>}
             </div>
@@ -623,16 +648,27 @@ export default function PanelPage() {
             <button onClick={() => setPremiumMsg(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'inherit', fontFamily: 'inherit' }}>×</button>
           </div>
         )}
-        {tab === 'dashboard' && <DashboardTab user={user} claims={claims} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { aktifSec(c.id); setTab('edit'); }} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} onRelease={handleRelease} releasingId={releasingId} />}
-        {tab === 'claims'    && <ClaimsTab claims={claims} loading={claimsLoading} onNewClaim={() => setTab('new')} profileUrls={profileUrls} onDeleted={() => loadClaims(user?.email || '')} />}
+        {tab === 'dashboard' && sadeceAsistan && (
+          <div style={{ maxWidth: 860 }}>
+            <h1 style={{ fontSize: 24, fontWeight: 800, color: T.text, margin: '0 0 4px', letterSpacing: '-0.5px' }}>Hoş Geldiniz</h1>
+            <p style={{ fontSize: 13.5, color: T.muted, margin: '0 0 20px' }}>Bu hesap aşağıdaki işletmelerde asistan olarak yetkilendirildi. Yalnızca listelenen alanlara erişebilirsiniz.</p>
+            <AsistanErisimKarti kayitlar={asistanClaims} onGit={setTab} />
+          </div>
+        )}
+        {tab === 'dashboard' && !sadeceAsistan && asistanClaims.length > 0 && (
+          <AsistanErisimKarti kayitlar={asistanClaims} onGit={setTab} />
+        )}
+        {tab === 'dashboard' && !sadeceAsistan && <DashboardTab user={user} claims={basvurular} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { aktifSec(c.id); setTab('edit'); }} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} onRelease={handleRelease} releasingId={releasingId} />}
+        {tab === 'claims'    && <ClaimsTab claims={basvurular} loading={claimsLoading} onNewClaim={() => setTab('new')} profileUrls={profileUrls} onDeleted={() => loadClaims(user?.email || '')} />}
         {tab === 'profile'   && <ProfileTab user={user} approvedClaims={approvedClaims} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} />}
         {tab === 'new'       && <NewClaimTab user={user} onSuccess={() => { loadClaims(user?.email || ''); setTab('claims'); }} />}
-        {tab === 'edit'      && <EditProfileTab approvedClaims={approvedClaims} selectedClaim={editListe ? null : aktifClaim} onSelectClaim={c => { if (c) aktifSec(c.id); else setEditListe(true); }} isMobile={isMobile} />}
-        {tab === 'hekimkart' && <HekimKartTab key={'hk' + aktifKey} approvedClaims={approvedClaims} profileUrls={profileUrls} user={user} aktifClaimId={aktifClaim?.id || ''} />}
-        {tab === 'yorumlar'  && <YorumlarTab key={'yo' + aktifKey} approvedClaims={approvedClaims} aktifEntityId={isletmeler.length > 1 ? aktifClaim?.entity_id || '' : ''} />}
-        {tab === 'randevu'   && <RandevuTalepleriTab key={'rt' + aktifKey} approvedClaims={approvedClaims} aktifEntityId={isletmeler.length > 1 ? aktifClaim?.entity_id || '' : ''} />}
+        {tab === 'edit'      && <EditProfileTab approvedClaims={approvedClaims} selectedClaim={editListe || aktifClaim?.status !== 'approved' ? null : aktifClaim} onSelectClaim={c => { if (c) aktifSec(c.id); else setEditListe(true); }} isMobile={isMobile} />}
+        {tab === 'hekimkart' && <HekimKartTab key={'hk' + aktifKey} approvedClaims={approvedClaims} profileUrls={profileUrls} user={user} aktifClaimId={aktifClaim?.status === 'approved' ? aktifClaim.id : ''} />}
+        {tab === 'yorumlar'  && <YorumlarTab key={'yo' + aktifKey} approvedClaims={yetkiliListe('yorumlar')} aktifEntityId={isletmeler.length > 1 ? aktifClaim?.entity_id || '' : ''} />}
+        {tab === 'randevu'   && <RandevuTalepleriTab key={'rt' + aktifKey} approvedClaims={yetkiliListe('randevu')} aktifEntityId={isletmeler.length > 1 ? aktifClaim?.entity_id || '' : ''} />}
         {tab === 'randevumodul' && <RandevuModulTab key={'rm' + aktifKey} approvedClaims={approvedClaims} profileUrls={profileUrls} aktifEntityId={aktifClaim?.entity_id || ''} />}
-        {tab === 'hastalar'  && <HastalarTab key={'ha' + aktifKey} approvedClaims={approvedClaims} aktifEntityId={aktifClaim?.entity_id || ''} />}
+        {tab === 'hastalar'  && <HastalarTab key={'ha' + aktifKey} approvedClaims={yetkiliListe('hastalar')} aktifEntityId={aktifClaim?.entity_id || ''} takvimIds={takvimIds} tamIds={tamIds} />}
+        {tab === 'asistanlar' && <AsistanlarTab aktifEntityId={aktifClaim?.entity_id || ''} onGit={setTab} />}
         {tab === 'mcp'       && <McpTab aktifIsletme={aktifClaim?.entity_id ? { id: aktifClaim.entity_id, ad: aktifClaim.entity_name || '' } : null} isletmeSayisi={isletmeler.length} />}
         {tab === 'makaleler' && <MakalelerimTab hasEntity={approvedClaims.some(c => c.entity_id && c.entity_id !== 'new')} />}
       </main>
@@ -644,7 +680,9 @@ export default function PanelPage() {
           background: 'white', borderTop: `1px solid ${T.border}`,
           display: 'flex', alignItems: 'stretch'
         }}>
-          {navItems.filter(n => ['dashboard','randevu','edit','yorumlar','profile'].includes(n.key)).map(item => (
+          {navItems.filter(n => (sadeceAsistan
+              ? navGroups.flatMap(g => g.keys) as string[]
+              : ['dashboard','randevu','edit','yorumlar','profile']).includes(n.key)).map(item => (
             <button key={item.key} onClick={() => { setTab(item.key); setMobileMenuOpen(false); }}
               style={{
                 flex: 1, background: 'none', border: 'none', cursor: 'pointer',
@@ -3144,7 +3182,16 @@ function artiDk(saat: string, dk: number): string {
   return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
 }
 
-function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimRequest[]; aktifEntityId: string }) {
+function HastalarTab({ approvedClaims, aktifEntityId, takvimIds, tamIds }: {
+  approvedClaims: ClaimRequest[]; aktifEntityId: string;
+  /** Takvime randevu ekleyip saat kapatabileceği işletmeler (tam erişim + 'randevu_ekle' asistanı) */
+  takvimIds?: string[];
+  /** Tam erişimli işletmeler — hastayı tamamen silme yalnız bunlarda */
+  tamIds?: string[];
+}) {
+  // Prop verilmezse eski davranış: listedeki tüm işletmelerde tam yetki
+  const takvimYetkili = (id: string) => !takvimIds || takvimIds.includes(String(id));
+  const silebilir = (id: string) => !tamIds || tamIds.includes(String(id));
   const [talepler, setTalepler] = useState<RandevuTalep[]>([]);
   const [notlar, setNotlar] = useState<Record<string, { entity_id: string; tel: string; notlar: string | null; etiketler?: string[] }>>({}); // key: entity_id|tel
   const [draftEtiket, setDraftEtiket] = useState<string[]>([]);
@@ -3212,7 +3259,10 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
           fetch('/api/panel/hasta-islem').then(r => r.ok ? r.json() : { islemler: [] }),
           fetch('/api/panel/hasta-dosya').then(r => r.ok ? r.json() : { dosyalar: [] }),
         ]);
-        setTalepler(r1.talepler || []);
+        // Yalnız bu sekmede yetkili olunan işletmelerin hastaları (asistanın sadece
+        // "Randevu talepleri" yetkisi olduğu işletme Hastalarım'a karışmasın)
+        const hastaIds = new Set(approvedClaims.map(c => String(c.entity_id)));
+        setTalepler(((r1.talepler || []) as RandevuTalep[]).filter(t => hastaIds.has(String(t.entity_id))));
         const nm: Record<string, any> = {};
         (r2.hastalar || []).forEach((h: any) => { nm[`${h.entity_id}|${String(h.tel).replace(/\D/g, '')}`] = h; });
         setNotlar(nm);
@@ -3649,8 +3699,8 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
                           })()}
                         </div>
 
-                        {/* Tehlikeli alan — hastayı sistemden sil */}
-                        <div style={{ borderTop: `1px solid ${A.line}`, paddingTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                        {/* Tehlikeli alan — hastayı sistemden sil (asistan göremez) */}
+                        {silebilir(h.entity_id) && <div style={{ borderTop: `1px solid ${A.line}`, paddingTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
                           <div style={{ fontSize: 11.5, color: A.muted, lineHeight: 1.5, flex: 1, minWidth: 200 }}>
                             Hastayı sistemden silmek tüm randevu, not, işlem ve dosya kayıtlarını kalıcı olarak kaldırır.
                           </div>
@@ -3659,7 +3709,7 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 5v6m4-6v6"/></svg>
                             {silTel === h.tel ? 'Siliniyor…' : 'Hastayı sil'}
                           </button>
-                        </div>
+                        </div>}
                       </div>
                     )}
                   </div>
@@ -3690,8 +3740,8 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
           const times = Array.from(timeSet).sort();
           const haftaBaslik = `${days[0].toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })} – ${days[6].toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}`;
 
-          const toggleSlot = (iso: string, time: string) => { const key = iso + ' ' + time; const arr = (cfg?.bloke || []).slice(); const i = arr.indexOf(key); if (i >= 0) arr.splice(i, 1); else arr.push(key); saveBlokeCal(calEntity, arr); };
-          const toggleGun = (iso: string) => { let arr = (cfg?.bloke || []).slice(); arr = arr.includes(iso) ? arr.filter(x => x !== iso) : [...arr.filter(x => !x.startsWith(iso + ' ')), iso]; saveBlokeCal(calEntity, arr); };
+          const toggleSlot = (iso: string, time: string) => { if (!takvimYetkili(calEntity)) return; const key = iso + ' ' + time; const arr = (cfg?.bloke || []).slice(); const i = arr.indexOf(key); if (i >= 0) arr.splice(i, 1); else arr.push(key); saveBlokeCal(calEntity, arr); };
+          const toggleGun = (iso: string) => { if (!takvimYetkili(calEntity)) return; let arr = (cfg?.bloke || []).slice(); arr = arr.includes(iso) ? arr.filter(x => x !== iso) : [...arr.filter(x => !x.startsWith(iso + ' ')), iso]; saveBlokeCal(calEntity, arr); };
 
           // Çoklu slot seçimi: aynı günde, boş+açık hücrelerden oluşan ARDIŞIK aralık.
           // Dolu/kapalı bir hücreye gelince aralık orada kesilir (üstünden atlanmaz).
@@ -3704,7 +3754,7 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
             return out.length ? out.sort() : [a];
           };
           const dragSet = new Set(dragSel ? aralik(dragSel.iso, dragSel.from, dragSel.to).map(t => dragSel.iso + ' ' + t) : []);
-          const acDialog = (iso: string, slots: string[]) => { setAddSlot({ iso, time: slots[0] }); setAddSlots(slots); setAddAd(''); setAddTel(''); setAddMsg(''); };
+          const acDialog = (iso: string, slots: string[]) => { if (!takvimYetkili(calEntity)) return; setAddSlot({ iso, time: slots[0] }); setAddSlots(slots); setAddAd(''); setAddTel(''); setAddMsg(''); };
           // Diyalogdaki süre ayarı: sonraki ardışık boş saat varsa uzat, en az 1 slot kalır
           const slotUzat = () => { if (!addSlot) return; const son = addSlots[addSlots.length - 1] || addSlot.time; const sonraki = times[times.indexOf(son) + 1]; if (sonraki && serbestMi(addSlot.iso, sonraki)) setAddSlots([...(addSlots.length ? addSlots : [addSlot.time]), sonraki]); };
           const slotKisalt = () => { if (addSlots.length > 1) setAddSlots(addSlots.slice(0, -1)); };
@@ -3713,6 +3763,11 @@ function HastalarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
 
           return (
             <>
+              {!takvimYetkili(calEntity) && (
+                <div style={{ background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: 12, padding: '10px 14px', marginBottom: 12, fontSize: 12.8, color: '#075985', lineHeight: 1.5 }}>
+                  Bu işletmenin takvimini yalnızca görüntüleyebilirsiniz. Randevu girişi ve saat kapatma için işletme sahibinin size <strong>Takvim ve randevu girişi</strong> yetkisi vermesi gerekir.
+                </div>
+              )}
               {/* Üst bar: işletme seçici + hafta nav */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
                 {ents.length > 1 && (

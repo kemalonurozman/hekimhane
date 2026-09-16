@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { yetkiliEntityIdleri } from '@/lib/erisim';
 
 function adminClient() {
   return createClient(
@@ -16,10 +17,9 @@ function sessionClient(request: NextRequest) {
     { cookies: { get(n: string) { return request.cookies.get(n)?.value; }, set() {}, remove() {} } },
   );
 }
+// Onaylı erişim (sahip/yönetici) + 'hastalar' yetkili asistan — lib/erisim.ts
 async function ownedEntityIds(admin: ReturnType<typeof adminClient>, email: string): Promise<string[]> {
-  const { data } = await (admin as any).from('claim_requests')
-    .select('entity_id').eq('email', email).eq('status', 'approved').not('entity_id', 'is', null);
-  return Array.from(new Set(((data as { entity_id: string }[]) || []).map(c => String(c.entity_id))));
+  return yetkiliEntityIdleri(admin, email, ['hastalar']);
 }
 
 /* GET — Sahibin işletmelerine ait tüm hasta kartlarını (kalıcı notları) döndürür. */
