@@ -157,11 +157,13 @@ export default function Navbar() {
   const [user, setUser]               = useState<User | null>(null);
   const [dropOpen, setDropOpen]       = useState(false);
   const [regOpen, setRegOpen]         = useState(false);
+  const [loginOpen, setLoginOpen]     = useState(false);   // Giriş: Doktor / Hasta seçimi
   const [authLoading, setAuthLoading] = useState(true);
   const [mobileOpen, setMobileOpen]   = useState(false);
   const [mobGrp, setMobGrp]           = useState<string | null>(null); // mobil akordeon: açık grup
   const dropRef = useRef<HTMLDivElement>(null);
   const regRef = useRef<HTMLDivElement>(null);
+  const loginRef = useRef<HTMLDivElement>(null);
   const [svcOpen, setSvcOpen] = useState(false);
   const [disOpen, setDisOpen] = useState(false);
   const svcRef = useRef<HTMLDivElement>(null);
@@ -189,6 +191,7 @@ export default function Navbar() {
       if (regRef.current && !regRef.current.contains(e.target as Node)) {
         setRegOpen(false);
       }
+      if (loginRef.current && !loginRef.current.contains(e.target as Node)) setLoginOpen(false);
       if (svcRef.current && !svcRef.current.contains(e.target as Node)) setSvcOpen(false);
       if (disRef.current && !disRef.current.contains(e.target as Node)) setDisOpen(false);
     }
@@ -406,17 +409,49 @@ export default function Navbar() {
                   )}
                 </div>
 
-                {/* Giriş Yap */}
-                <Link href="/giris" style={{
-                  display: 'flex', alignItems: 'center', gap: 7,
-                  padding: '7px 15px', borderRadius: 9,
-                  border: '1px solid rgba(0,0,0,.1)', background: 'white',
-                  fontSize: 13, fontWeight: 600, color: '#3A3A3C',
-                  textDecoration: 'none', letterSpacing: '-.1px',
-                  boxShadow: '0 1px 3px rgba(0,0,0,.05)',
-                }}>
-                  Giriş Yap
-                </Link>
+                {/* Giriş Yap — kim olduğunu seçtiren dropdown (doktor önce) */}
+                <div ref={loginRef} className="nav-user-desktop" style={{ position: 'relative' }}>
+                  <button onClick={() => setLoginOpen(o => !o)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      padding: '7px 15px', borderRadius: 9,
+                      border: '1px solid rgba(0,0,0,.1)', background: 'white',
+                      fontSize: 13, fontWeight: 600, color: '#3A3A3C',
+                      cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '-.1px',
+                      boxShadow: '0 1px 3px rgba(0,0,0,.05)',
+                    }}>
+                    Giriş Yap {loginOpen ? <ChevronUp /> : <ChevronDown />}
+                  </button>
+                  {loginOpen && (
+                    <div style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: 300, background: '#fff', borderRadius: 16, boxShadow: '0 16px 44px rgba(20,30,50,.16)', border: '1px solid #ECECEC', overflow: 'hidden', zIndex: 300 }}>
+                      <Link href="/giris?tip=isletme" onClick={() => setLoginOpen(false)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '15px 17px', textDecoration: 'none', transition: 'background .12s' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
+                        onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
+                        <span style={{ width: 40, height: 40, borderRadius: 11, background: 'linear-gradient(150deg,#1B3A69,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M6 21V7l6-4 6 4v14M10 9h.01M14 9h.01M10 13h.01M14 13h.01M10 17h4" /></svg>
+                        </span>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#1A2744' }}>Doktor / İşletme Girişi</div>
+                          <div style={{ fontSize: 12, color: '#6B7A99', marginTop: 2, lineHeight: 1.4 }}>Randevu, hasta ve profil yönetimi</div>
+                        </div>
+                      </Link>
+                      <div style={{ height: 1, background: '#F0F0F0' }} />
+                      <Link href="/giris?tip=hasta" onClick={() => setLoginOpen(false)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '15px 17px', textDecoration: 'none', transition: 'background .12s' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
+                        onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
+                        <span style={{ width: 40, height: 40, borderRadius: 11, background: 'var(--gold-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20a8 8 0 0 1 16 0" /></svg>
+                        </span>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#1A2744' }}>Hasta / Ziyaretçi Girişi</div>
+                          <div style={{ fontSize: 12, color: '#6B7A99', marginTop: 2, lineHeight: 1.4 }}>Randevularınızı ve yorumlarınızı görün</div>
+                        </div>
+                      </Link>
+                    </div>
+                  )}
+                </div>
 
                 {/* Prominent CTA */}
                 <Link href="/katil" className="nav-cta-desktop" style={{
@@ -662,10 +697,25 @@ export default function Navbar() {
                 İşletmenizi Ekleyin
               </Link>
               <Link
-                href="/giris"
+                href="/giris?tip=isletme"
                 onClick={() => setMobileOpen(false)}
                 style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  minHeight: 48, borderRadius: 12,
+                  border: '1.5px solid #1B3A69',
+                  background: 'white',
+                  fontSize: 15, fontWeight: 700, color: '#1B3A69',
+                  textDecoration: 'none', letterSpacing: '-.1px',
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M6 21V7l6-4 6 4v14M10 9h.01M14 9h.01M10 13h.01M14 13h.01M10 17h4" /></svg>
+                Doktor / İşletme Girişi
+              </Link>
+              <Link
+                href="/giris?tip=hasta"
+                onClick={() => setMobileOpen(false)}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                   minHeight: 48, borderRadius: 12,
                   border: '1px solid rgba(0,0,0,.12)',
                   background: 'white',
@@ -674,7 +724,8 @@ export default function Navbar() {
                   boxShadow: '0 1px 3px rgba(0,0,0,.05)',
                 }}
               >
-                Giriş Yap
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20a8 8 0 0 1 16 0" /></svg>
+                Hasta / Ziyaretçi Girişi
               </Link>
             </div>
           )}

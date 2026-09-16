@@ -83,7 +83,9 @@ function GirisContent() {
   // Mod: 'password' | 'signup' (magic link kaldırıldı — SMTP gerektirir)
   const [mod,        setMod]        = useState<'magic' | 'password' | 'signup' | 'reset'>('password');
   const [resetSent,  setResetSent]  = useState(false);
-  const [kullaniciTip, setKullaniciTip] = useState<'hasta' | 'isletme'>('hasta');
+  // Hangi girişte olduğumuz ilk bakışta belli olmalı; üst menü ?tip= ile buraya yönlendirir.
+  const [kullaniciTip, setKullaniciTip] = useState<'hasta' | 'isletme'>(
+    searchParams.get('tip') === 'hasta' ? 'hasta' : 'isletme');
   const [email,      setEmail]      = useState(searchParams.get('email') || '');
   const [password,   setPassword]   = useState('');
   const [password2,  setPassword2]  = useState('');
@@ -346,10 +348,12 @@ function GirisContent() {
         ) : (
           <>
             <h1 style={{ fontSize: 27, fontWeight: 700, color: 'var(--text)', marginBottom: 8, letterSpacing: '-0.7px' }}>
-              Hoş Geldiniz
+              {kullaniciTip === 'isletme' ? 'Doktor / İşletme Girişi' : 'Hasta Girişi'}
             </h1>
-            <p style={{ color: '#86868B', fontSize: 14.5, marginBottom: 26, lineHeight: 1.5, letterSpacing: '-0.1px' }}>
-              İşletmenizi sahiplenin, yorumlarınızı yönetin, profilinizi güncelleyin.
+            <p style={{ color: '#86868B', fontSize: 14.5, marginBottom: 20, lineHeight: 1.5, letterSpacing: '-0.1px' }}>
+              {kullaniciTip === 'isletme'
+                ? 'İşletmenizi sahiplenin, randevularınızı ve yorumlarınızı yönetin.'
+                : 'Randevu taleplerinizi takip edin, yorumlarınızı yönetin.'}
             </p>
 
             {/* Hata (URL'den gelen) */}
@@ -360,16 +364,49 @@ function GirisContent() {
               </div>
             )}
 
-            {/* Kullanıcı tipi seçici — Apple segmented */}
-            <div style={{ ...segTrack, marginBottom: 10 }}>
+            {/* Kullanıcı tipi seçici — hangi girişte olduğu ilk bakışta anlaşılmalı */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', color: '#8A8A8E', textTransform: 'uppercase' }}>
+                Kim olarak giriyorsunuz?
+              </span>
+              <span style={{ flex: 1, height: 1, background: '#EDEDF0' }} />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 18 }}>
               {([
-                { key: 'hasta',    label: 'Hasta / Ziyaretçi', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg> },
-                { key: 'isletme',  label: 'Doktor / İşletme', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M6 21V7l6-4 6 4v14M10 9h.01M14 9h.01M10 13h.01M14 13h.01M10 17h4"/></svg> },
-              ] as const).map(t => (
-                <button key={t.key} type="button" onClick={() => setKullaniciTip(t.key)} style={segBtn(kullaniciTip === t.key)}>
-                  {t.icon}{t.label}
-                </button>
-              ))}
+                { key: 'isletme', baslik: 'Doktor / İşletme', alt: 'Panel, randevu, profil',
+                  icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M6 21V7l6-4 6 4v14M10 9h.01M14 9h.01M10 13h.01M14 13h.01M10 17h4"/></svg> },
+                { key: 'hasta', baslik: 'Hasta / Ziyaretçi', alt: 'Randevu ve yorumlar',
+                  icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg> },
+              ] as const).map(t => {
+                const aktif = kullaniciTip === t.key;
+                return (
+                  <button key={t.key} type="button" onClick={() => setKullaniciTip(t.key)}
+                    aria-pressed={aktif}
+                    style={{
+                      position: 'relative', padding: '15px 10px 13px', borderRadius: 15, cursor: 'pointer',
+                      fontFamily: 'inherit', textAlign: 'center',
+                      border: aktif ? '2px solid var(--navy)' : '1.5px solid #E4E6EC',
+                      background: aktif ? 'linear-gradient(180deg,#F4F8FF,#EAF1FD)' : '#FBFBFD',
+                      boxShadow: aktif ? '0 6px 18px rgba(27,58,105,.16)' : 'none',
+                      transition: 'all .16s cubic-bezier(.4,0,.2,1)',
+                    }}>
+                    {aktif && (
+                      <span style={{ position: 'absolute', top: 7, right: 7, width: 17, height: 17, borderRadius: 999, background: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </span>
+                    )}
+                    <span style={{ display: 'flex', justifyContent: 'center', color: aktif ? 'var(--navy)' : '#98A2B3', marginBottom: 7 }}>
+                      {t.icon}
+                    </span>
+                    <span style={{ display: 'block', fontSize: 13.5, fontWeight: 700, letterSpacing: '-0.2px', color: aktif ? 'var(--navy)' : '#4B5565' }}>
+                      {t.baslik}
+                    </span>
+                    <span style={{ display: 'block', fontSize: 11, marginTop: 3, lineHeight: 1.35, color: aktif ? '#5B7099' : '#98A2B3' }}>
+                      {t.alt}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
 
             {/* Mod seçici: Giriş Yap / Kayıt Ol — Apple segmented */}

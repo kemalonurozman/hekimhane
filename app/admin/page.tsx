@@ -789,6 +789,10 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
   const orderField = entityType === 'doktorlar' ? 'ad' : 'name';
   const typeKey = entityType.slice(0,-3) as 'klinik' | 'hastane' | 'doktor' | 'eczane';
   const meta = ENTITY_META[typeKey] || { color: C.blue, icon: IC.hastane, label: entityType };
+  // İşlem sütunu: Düzenle + Sahip + Gör + Sil (doktorda ayrıca Gizli/Açık) — dar ekranda
+  // kart yatay kaydırılır, satırlar kesilmez.
+  const KOLONLAR = typeKey === 'doktor' ? '1fr 100px 70px 80px 330px' : '1fr 100px 70px 80px 260px';
+  const TABLO_MIN = typeKey === 'doktor' ? 1000 : 930;
 
   // Arama değişince sayfa sıfırlanır
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -881,9 +885,9 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
       ) : filtered.length === 0 ? (
         <div style={{ background: C.card, borderRadius: 14, border: `1px solid ${C.border}`, padding: 48, textAlign: 'center', color: C.muted, fontSize: 13 }}>Kayıt bulunamadı.</div>
       ) : (
-        <div style={{ background: C.card, borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
+        <div style={{ background: C.card, borderRadius: 14, border: `1px solid ${C.border}`, overflowX: 'auto' }}>
           {/* Tablo başlığı */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 70px 80px 180px', gap: 12, padding: '10px 18px', borderBottom: `1px solid ${C.border}`, background: 'rgba(0,0,0,.2)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: KOLONLAR, gap: 12, minWidth: TABLO_MIN, padding: '10px 18px', borderBottom: `1px solid ${C.border}`, background: 'rgba(0,0,0,.2)' }}>
             {['İşletme / Ad', 'Şehir', 'Puan', 'Sahiplenilmiş', 'İşlemler'].map(h => (
               <div key={h} style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</div>
             ))}
@@ -903,7 +907,7 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
             const url  = getProfileUrl(typeKey, e);
             const isClaimed = e.claimed === true;
             return (
-              <div key={e.id} style={{ display: 'grid', gridTemplateColumns: '1fr 100px 70px 80px 180px', gap: 12, padding: '12px 18px', borderBottom: i < filtered.length - 1 ? `1px solid ${C.border}` : 'none', alignItems: 'center' }}>
+              <div key={e.id} style={{ display: 'grid', gridTemplateColumns: KOLONLAR, gap: 12, minWidth: TABLO_MIN, padding: '12px 18px', borderBottom: i < filtered.length - 1 ? `1px solid ${C.border}` : 'none', alignItems: 'center' }}>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name || <span style={{ color: C.muted, fontStyle: 'italic' }}>İsim yok</span>}</span>
@@ -923,8 +927,8 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
                     </span>
                   ) : <span style={{ fontSize: 11, color: C.muted }}>—</span>}
                 </div>
-                {/* İşlemler: Düzenle + Gör + Sil */}
-                <div style={{ display: 'flex', gap: 5 }}>
+                {/* İşlemler: Düzenle + Sahip + Gör + Sil */}
+                <div style={{ display: 'flex', gap: 5, flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
                   <button onClick={() => setEditEntity(e)}
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 9px', borderRadius: 8, background: 'rgba(212,168,67,.1)', border: `1px solid rgba(212,168,67,.3)`, color: C.gold, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                     <Ic d={IC.edit} size={11} /> Düzenle
