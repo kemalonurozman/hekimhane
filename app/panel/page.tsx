@@ -11,6 +11,7 @@ import { PRO_AYLIK_TL } from '@/lib/pro-plan';
 import { gunSlotlari, type TakvimAyar } from '@/lib/takvim-slot';
 import { yoneticiMi, davetEden } from '@/lib/yonetici';
 import { kartSlugYaz, kartSlugTemel, bos, entityKartAlanlari, rozetHtml, type RozetTema } from '@/lib/hekimkart';
+import { epostaListesi, gecerliEposta, RANDEVU_EMAIL_MAX_PRO } from '@/lib/randevu-email';
 import MakalelerimTab from './MakalelerimTab';
 import McpTab from './McpTab';
 
@@ -2559,6 +2560,7 @@ function RandevuModulTab({ approvedClaims, profileUrls, aktifEntityId }: { appro
   const [copied, setCopied] = useState(false);
   const [notifyMode, setNotifyMode] = useState<'same' | 'custom'>('same');
   const [notifyEmail, setNotifyEmail] = useState('');
+  const [notifyEmail2, setNotifyEmail2] = useState('');   // Pro: ikinci bildirim adresi
   const [notifySaving, setNotifySaving] = useState(false);
   const [notifyMsg, setNotifyMsg] = useState('');
   const [takvimAktif, setTakvimAktif] = useState(false);
@@ -2621,8 +2623,9 @@ function RandevuModulTab({ approvedClaims, profileUrls, aktifEntityId }: { appro
     sb.from(tbl).select('randevu_email,randevu_aktif,randevu_slot_dk,calisma_saatleri,acik_24_saat,randevu_bloke,premium').eq('id', e.entity_id!).maybeSingle().then(({ data }) => {
       const d = (data as any) || {};
       setProAktif(d.premium === true);
-      const v = String(d.randevu_email || '').trim();
-      if (v) { setNotifyMode('custom'); setNotifyEmail(v); } else { setNotifyMode('same'); setNotifyEmail(''); }
+      const adresler = epostaListesi(d.randevu_email);
+      if (adresler.length) { setNotifyMode('custom'); setNotifyEmail(adresler[0]); setNotifyEmail2(adresler[1] || ''); }
+      else { setNotifyMode('same'); setNotifyEmail(''); setNotifyEmail2(''); }
       setTakvimAktif(d.randevu_aktif === true);
       setSlotDk(Number(d.randevu_slot_dk) || 30);
       setCalismaSaatleri(String(d.calisma_saatleri || ''));
@@ -2671,8 +2674,13 @@ function RandevuModulTab({ approvedClaims, profileUrls, aktifEntityId }: { appro
   const kopyala = () => { try { navigator.clipboard.writeText(kod); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch {} };
 
   async function saveNotify() {
-    const val = notifyMode === 'custom' ? notifyEmail.trim() : '';
-    if (notifyMode === 'custom' && !val.includes('@')) { setNotifyMsg('Geçerli bir e-posta girin.'); return; }
+    const a1 = notifyEmail.trim(), a2 = notifyEmail2.trim();
+    if (notifyMode === 'custom') {
+      if (!gecerliEposta(a1)) { setNotifyMsg('Birinci adres geçerli bir e-posta olmalı.'); return; }
+      if (a2 && !gecerliEposta(a2)) { setNotifyMsg('İkinci adres geçerli bir e-posta olmalı.'); return; }
+      if (a2 && a2.toLowerCase() === a1.toLowerCase()) { setNotifyMsg('İki adres aynı olamaz.'); return; }
+    }
+    const val = notifyMode === 'custom' ? [a1, a2].filter(Boolean).slice(0, RANDEVU_EMAIL_MAX_PRO).join(', ') : '';
     setNotifySaving(true); setNotifyMsg('');
     try {
       const res = await fetch('/api/panel/update-entity', {
@@ -3074,7 +3082,7 @@ function RandevuModulTab({ approvedClaims, profileUrls, aktifEntityId }: { appro
         {/* Bildirim e-postası ayarı */}
         <div style={{ background: A.card, borderRadius: 18, border: `1px solid ${A.line}`, padding: 22, boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
           <div style={{ fontSize: 15.5, fontWeight: 600, color: A.text, letterSpacing: '-0.2px' }}>Randevu bildirim e-postası</div>
-          <p style={{ fontSize: 13, color: A.muted, margin: '4px 0 14px', lineHeight: 1.5 }}>Yeni randevu talepleri hangi e-posta adresine gelsin?</p>
+          <p style={{ fontSize: 13, color: A.muted, margin: '4px 0 14px', lineHeight: 1.5 }}>Yeni randevu talepleri hangi e-posta adreslerine gelsin? Pro üyelikte <strong style={{ color: A.text }}>{RANDEVU_EMAIL_MAX_PRO} adres</strong> tanımlayabilirsiniz — ikisine de aynı anda bildirim gider.</p>
           <div style={{ display: 'inline-flex', background: A.page, borderRadius: 11, padding: 3, gap: 2, marginBottom: 14 }}>
             {([['same', 'Hesabımla aynı'], ['custom', 'Farklı adres']] as const).map(([m, lbl]) => {
               const on = notifyMode === m;
@@ -3088,9 +3096,19 @@ function RandevuModulTab({ approvedClaims, profileUrls, aktifEntityId }: { appro
             })}
           </div>
           {notifyMode === 'custom' && (
-            <input type="email" value={notifyEmail} onChange={e => { setNotifyEmail(e.target.value); setNotifyMsg(''); }}
-              placeholder="ornek@mail.com" autoComplete="email"
-              style={{ width: '100%', boxSizing: 'border-box', padding: '12px 14px', borderRadius: 12, border: `1px solid ${A.line}`, fontSize: 14, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none', marginBottom: 12 }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+              {([
+                ['1. adres', notifyEmail, setNotifyEmail, 'ornek@mail.com'],
+                ['2. adres (isteğe bağlı)', notifyEmail2, setNotifyEmail2, 'resepsiyon@mail.com'],
+              ] as const).map(([etiket, deger, ayarla, ph]) => (
+                <label key={etiket} style={{ display: 'block' }}>
+                  <span style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: A.muted, marginBottom: 4 }}>{etiket}</span>
+                  <input type="email" value={deger} onChange={e => { ayarla(e.target.value); setNotifyMsg(''); }}
+                    placeholder={ph} autoComplete="email"
+                    style={{ width: '100%', boxSizing: 'border-box', padding: '12px 14px', borderRadius: 12, border: `1px solid ${A.line}`, fontSize: 14, fontFamily: 'inherit', color: A.text, background: A.card, outline: 'none' }} />
+                </label>
+              ))}
+            </div>
           )}
           {notifyMode === 'same' && (
             <p style={{ fontSize: 12.5, color: A.muted, margin: '0 0 12px', lineHeight: 1.5 }}>Bildirimler, işletmeyi sahiplendiğiniz hesabın e-posta adresine gönderilir.</p>

@@ -9,6 +9,7 @@
 //  seçerek sorgulamak diğer tablolarda 400 verirdi.
 // ─────────────────────────────────────────────────────────────────
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { epostaListesi } from '@/lib/randevu-email';
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.hekimhane.com.tr';
 const TABLO: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
@@ -31,13 +32,15 @@ export interface IsletmeBilgisi {
   konum: string | null;
   /** Mutlak profil URL'i — slug yoksa null */
   url: string | null;
-  /** Panelden ayarlanan randevu bildirim adresi (randevu_email) */
+  /** Panelden ayarlanan randevu bildirim adresi (randevu_email) — ilk adres */
   randevuEmail: string | null;
+  /** Tüm randevu bildirim adresleri (Pro'da en fazla 2) */
+  randevuEmailler: string[];
   /** İşletme kaydındaki e-posta (yalnız doktorlar.email) */
   profilEmail: string | null;
 }
 
-const BOS: IsletmeBilgisi = { ad: null, bolum: null, kurum: null, konum: null, url: null, randevuEmail: null, profilEmail: null };
+const BOS: IsletmeBilgisi = { ad: null, bolum: null, kurum: null, konum: null, url: null, randevuEmail: null, randevuEmailler: [], profilEmail: null };
 
 const temizEmail = (v: unknown): string | null => {
   const s = String(v || '').trim();
@@ -56,7 +59,8 @@ export async function isletmeBilgisi(admin: SupabaseClient, entityType: string, 
     if (!d) return BOS;
 
     const konum = [d.il, d.ilce].filter(Boolean).join(' / ') || null;
-    const ortak = { konum, randevuEmail: temizEmail(d.randevu_email), profilEmail: temizEmail(d.email) };
+    const randevuEmailler = epostaListesi(d.randevu_email);
+    const ortak = { konum, randevuEmail: randevuEmailler[0] || null, randevuEmailler, profilEmail: temizEmail(d.email) };
 
     if (entityType === 'doktor') {
       return {

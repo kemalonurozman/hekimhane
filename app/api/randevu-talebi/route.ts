@@ -39,10 +39,14 @@ async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, ka
       sahipEmail = await sahipEpostasi(admin as any, kayit.entity_id);
     } catch { /* sahip bulunamadı — sorun değil */ }
 
-    const isletmeEmail = b.randevuEmail || b.profilEmail || sahipEmail;
-    const emailKaynak = b.randevuEmail ? 'randevu bildirim adresi' : b.profilEmail ? 'profil e-postası' : sahipEmail ? 'sahip hesabı' : null;
+    // Pro işletme iki bildirim adresi tanımlayabilir — ikisine de gönderilir.
+    const isletmeEmailleri: string[] = b.randevuEmailler.length
+      ? b.randevuEmailler
+      : [b.profilEmail || sahipEmail].filter((x): x is string => !!x);
+    const isletmeEmail = isletmeEmailleri[0] || null;
+    const emailKaynak = b.randevuEmailler.length ? 'randevu bildirim adresi' : b.profilEmail ? 'profil e-postası' : sahipEmail ? 'sahip hesabı' : null;
     const isletmeEmailSatiri = isletmeEmail
-      ? `<p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">İşletme E-postası:</strong> <a href="mailto:${isletmeEmail}" style="color:#1B3A69;font-weight:600;">${isletmeEmail}</a> <span style="font-size:12px;color:#6E6E73;">(${emailKaynak})</span></p>`
+      ? `<p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">İşletme E-postası:</strong> ${isletmeEmailleri.map(a => `<a href="mailto:${a}" style="color:#1B3A69;font-weight:600;">${a}</a>`).join(', ')} <span style="font-size:12px;color:#6E6E73;">(${emailKaynak})</span></p>`
       : `<p style="margin:6px 0;font-size:14px;"><strong style="color:#6E6E73;">İşletme E-postası:</strong> <span style="color:#B45309;font-weight:600;">Eklenmemiş</span> <span style="font-size:12px;color:#6E6E73;">— işletmeye kayıtlı e-posta yok, talebi telefonla iletin</span></p>`;
 
     // Admin'e: işletme bloğu + talep bloğu. Sahibe/hastaya: yalnız talep bloğu.
@@ -75,8 +79,9 @@ async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, ka
 
     // 2) İşletme sahibine bildir — hedef yukarıda çözülen işletme e-postası.
     try {
-      const hedef = isletmeEmail;
-      if (hedef && hedef !== ADMIN_EMAIL) {
+      // Admin zaten yukarıda bildirim aldı; aynı adrese ikinci kez gönderme
+      const hedef = isletmeEmailleri.filter(a => a.toLowerCase() !== ADMIN_EMAIL.toLowerCase());
+      if (hedef.length) {
         const sahipHtml = mailShell('Yeni Randevu Talebiniz Var',
           `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${kayit.entity_name}</strong> işletmeniz için yeni bir randevu talebi geldi. Talep sahibiyle en kısa sürede iletişime geçebilirsiniz:</p>` +
           detay +

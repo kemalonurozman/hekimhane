@@ -502,6 +502,13 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Mobil üst bar:** üç çizgi düğmesi artık etiketli — kapalıyken "Profil & Ayarlar", açıkken "Kapat" (`aria-label` de değişir). Menünün profil/hesap ayarlarını açtığı yazıyla belli olmalı.
 - **Randevu talebi çöp kutusu:** `status='silindi'` (DDL yok, `VALID_STATUS`'a eklendi). Kart üzerindeki **Sil** düğmesi talebi oraya taşır (**hastaya bildirim gitmez** — bildirim yalnız "İptal et"te), "Silinenler" sekmesinde **Geri al** (→ `iptal`) ve **Kalıcı olarak sil** vardır. Kalıcı silme `DELETE /api/panel/randevu-talepleri`, yalnız `status='silindi'` kayıtlarda çalışır (409 ile korur). "Tümü" filtresi ve takvim silinenleri göstermez; erteleme çakışma kontrolü de onları saymaz.
 
+### Randevu Bildirimi — Pro'da 2 adres (Eyl 2026)
+- **DDL yok:** `randevu_email` tek metin kolon; birden çok adres **virgülle** saklanır (`a@x.com, b@y.com`). Tek adresli eski kayıtlar aynen çalışır.
+- **Tek kaynak `lib/randevu-email.ts`:** `epostaListesi()` (böl/küçült/doğrula/tekilleştir), `epostaListesiYaz()`, `gecerliEposta()`, `RANDEVU_EMAIL_MAX_PRO = 2`. Sunucu import'u koyma (panel de kullanıyor).
+- **Sınır sunucuda:** `update-entity` `randevu_email`'i normalize eder — premium ise en fazla 2, değilse 1. **Hata dönmez, sessizce kırpar**: profil formu her kayıtta mevcut değeri de gönderir, Pro'su biten işletmenin iki adresi yüzünden profil kaydı bozulmasın. Panel kendi doğrulamasını (geçersiz/aynı adres) ayrıca yapar.
+- **Gönderim:** `lib/entity-link.ts` → `randevuEmailler: string[]` (+ geriye uyum için ilk adres `randevuEmail`); `randevu-talebi` sahip bildirimini listedeki **tüm** adreslere gönderir (admin adresi hariç — admin zaten ayrıca alıyor), admin mailinde iki adres de listelenir.
+- Randevu Takvimi sekmesi zaten Pro'ya kilitli; "Farklı adres" seçilince 1. adres + 2. adres (isteğe bağlı) alanları çıkar.
+
 ### İşletme Yöneticileri — davetle erişim (Eyl 2026)
 - **Model (DDL yok):** yönetici = `claim_requests`'te `status='approved'` bir satır, `role` alanı `[yönetici] Davet eden: <sahip>` ile başlar (`lib/yonetici.ts` → `YONETICI_ONEK`, `yoneticiMi`, `davetEden`, `sahipEpostasi`). Erişim her yerde onaylı claim eşleşmesi olduğu için panel sekmeleri, randevu/hasta/yorum API'leri ve MCP yönetici için **kendiliğinden** çalışır. `role` serbest metin olduğundan önek köşeli parantezli — form metinleriyle çakışmaz.
 - **Sahibe özel (yönetici yapamaz):** yönetici ekleme/kaldırma (`/api/panel/yonetici` sahip kontrolü), Pro abonelik başlatma/yönetme/iptal (`lib/stripe-owner.ts` `verifyOwner` + checkout — tüm erişim kayıtları yöneticiyse 403), sahipliği bırakma (`release-claim`: yönetici için yalnız kendi kaydını siler, işletmenin `claimed/premium`'una dokunmaz).

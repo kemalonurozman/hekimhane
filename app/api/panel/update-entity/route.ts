@@ -3,6 +3,7 @@ import { panelOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { epostaListesi, epostaListesiYaz, RANDEVU_EMAIL_MAX_PRO } from '@/lib/randevu-email';
 
 // Service role client — RLS'yi bypass eder, sadece server-side
 function adminClient() {
@@ -98,6 +99,16 @@ export async function POST(request: NextRequest) {
         for (const k of PRO_FIELDS) delete safeFields[k];
       }
     }
+    // Randevu bildirim adresleri: Pro'da en fazla 2, ücretsizde 1 (virgülle saklanır).
+    // Hata DÖNÜLMEZ, sessizce normalize edilir: profil formu her kayıtta mevcut
+    // değeri de gönderiyor; Pro'su biten işletmenin iki adresi yüzünden her
+    // profil kaydı bozulmasın. Panel kendi doğrulamasını ayrıca yapar.
+    if ('randevu_email' in safeFields) {
+      const { data: pr } = await (admin as any).from(table).select('premium').eq('id', entityId).maybeSingle();
+      const sinir = pr?.premium === true ? RANDEVU_EMAIL_MAX_PRO : 1;
+      safeFields.randevu_email = epostaListesiYaz(epostaListesi(safeFields.randevu_email).slice(0, sinir));
+    }
+
     // eczaneler tablosunda updated_at kolonu yok
     if (entityType !== 'eczane') safeFields['updated_at'] = new Date().toISOString();
 
