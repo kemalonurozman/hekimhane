@@ -48,6 +48,8 @@ function toUrlSegment(s: string) {
 
 interface EntityInfo {
   url: string | null;
+  /** İşletmenin ham satırı — kartta boş bırakılan alanlar buradan tamamlanır. */
+  satir?: Record<string, any> | null;
   adres?: string | null;
   rat?: number | null;
   rev?: number | null;
@@ -55,34 +57,66 @@ interface EntityInfo {
   premium?: boolean | null;
 }
 
-/** entity_id + entity_type → Hekimhane profil URL'si + adres/puan/onay bilgisi */
+const ENTITY_TABLO: Record<string, string> = {
+  klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler',
+};
+
+/** İşletme satırından profil URL'si (tip başına farklı şema). */
+function entityUrl(entity_type: string, r: any): string | null {
+  if (!r?.slug) return null;
+  if (entity_type === 'klinik' || entity_type === 'hastane') {
+    const kok = entity_type === 'klinik' ? 'klinikler' : 'hastaneler';
+    return `/${kok}/${toUrlSegment(r.il || 'turkiye')}/${toUrlSegment(r.ilce || 'merkez')}/${r.slug}`;
+  }
+  if (entity_type === 'doktor') return `/doktorlar/${r.slug}`;
+  if (entity_type === 'eczane') return `/eczaneler/${r.slug}`;
+  return null;
+}
+
+/** entity_id + entity_type → profil URL'si + işletmenin tüm alanları */
 async function resolveEntity(
   entity_id: string | null | undefined,
   entity_type: string | null | undefined,
 ): Promise<EntityInfo> {
   if (!entity_id || !entity_type) return { url: null };
+  const tablo = ENTITY_TABLO[entity_type];
+  if (!tablo) return { url: null };
   try {
-    if (entity_type === 'klinik') {
-      const { data } = await (supabase as any).from('klinikler').select('il,ilce,slug,adres,rat,rev,verified,premium').eq('id', entity_id).single();
-      if (data) return {
-        url: data.slug ? `/klinikler/${toUrlSegment(data.il || 'turkiye')}/${toUrlSegment(data.ilce || 'merkez')}/${data.slug}` : null,
-        adres: data.adres, rat: data.rat, rev: data.rev, verified: data.verified, premium: data.premium,
-      };
-    } else if (entity_type === 'hastane') {
-      const { data } = await (supabase as any).from('hastaneler').select('il,ilce,slug,adres,rat,rev,premium').eq('id', entity_id).single();
-      if (data) return {
-        url: data.slug ? `/hastaneler/${toUrlSegment(data.il || 'turkiye')}/${toUrlSegment(data.ilce || 'merkez')}/${data.slug}` : null,
-        adres: data.adres, rat: data.rat, rev: data.rev, premium: data.premium,
-      };
-    } else if (entity_type === 'doktor') {
-      const { data } = await (supabase as any).from('doktorlar').select('slug,address,rat,rev,verified,premium').eq('id', entity_id).single();
-      if (data) return { url: data.slug ? `/doktorlar/${data.slug}` : null, adres: data.address, rat: data.rat, rev: data.rev, verified: data.verified, premium: data.premium };
-    } else if (entity_type === 'eczane') {
-      const { data } = await (supabase as any).from('eczaneler').select('slug,adres,premium').eq('id', entity_id).single();
-      if (data) return { url: data.slug ? `/eczaneler/${data.slug}` : null, adres: data.adres, premium: data.premium };
-    }
+    const { data } = await (supabase as any).from(tablo).select('*').eq('id', entity_id).single();
+    if (!data) return { url: null };
+    return {
+      url: entityUrl(entity_type, data),
+      satir: data,
+      adres: data.adres ?? data.address ?? null,
+      rat: data.rat, rev: data.rev, verified: data.verified, premium: data.premium,
+    };
   } catch { /* entity bulunamazsa sessizce geç */ }
   return { url: null };
+}
+
+/** Kartta doldurulmamış alan mı? (boş string de "doldurulmamış" sayılır) */
+function bos(v: unknown): boolean {
+  return v === null || v === undefined || String(v).trim() === '';
+}
+
+/** İşletme satırından kart alanlarının karşılıkları (tip farkları burada toplanır). */
+function entityKartAlanlari(r: Record<string, any> | null | undefined) {
+  if (!r) return {};
+  const foto = r.photo_url || r.photo || r.logo || (Array.isArray(r.photos) ? r.photos[0] : null) || null;
+  return {
+    photo_url:     typeof foto === 'string' && foto.startsWith('preset:') ? null : foto,
+    tel:           r.tel || null,
+    website_url:   r.website || null,
+    maps_url:      r.maps_url || null,
+    instagram_url: r.instagram_url || null,
+    facebook_url:  r.facebook_url || null,
+    linkedin_url:  r.linkedin_url || null,
+    bio:           r.bio || null,
+    spec:          r.spec || (Array.isArray(r.specs) ? r.specs[0] : null) || r.type || null,
+    clinic_name:   r.clinic_name || r.name || null,
+    il:            r.il || null,
+    ilce:          r.ilce || null,
+  } as Record<string, any>;
 }
 
 /**
@@ -123,12 +157,20 @@ async function getKart(slug: string): Promise<KartSonuc> {
     .eq('slug', slug)
     .single();
   if (kart) {
-    // Entity'den adres/puan/onay bilgisini çek (poster + banner için)
+    // Entity'den adres/puan/onay + boş kalan kart alanları (poster + banner için)
     const ent = await resolveEntity(kart.entity_id, kart.entity_type);
     // hekimhane_url: kaydedilmişse kullan, yoksa entity'den otomatik türet
     const savedUrl = kart.hekimhane_url?.trim() || null;
+    // Kartta boş bırakılan alanlar işletme profilinden tamamlanır: sahibi
+    // fotoğrafı/web sitesini profiline girmişse kartı çıplak görünmesin.
+    const profilden = entityKartAlanlari(ent.satir);
+    const tamamla: Record<string, any> = {};
+    for (const [alan, deger] of Object.entries(profilden)) {
+      if (!bos(deger) && bos((kart as any)[alan])) tamamla[alan] = deger;
+    }
     return { kart: {
       ...kart,
+      ...tamamla,
       hekimhane_url: savedUrl || ent.url,
       // kartta yoksa entity değerini kullan (fallback)
       adres:    kart.adres    ?? ent.adres    ?? null,

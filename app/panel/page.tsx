@@ -5772,7 +5772,7 @@ function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
                   <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:18, paddingBottom:14, borderBottom:`1px solid ${T.border}` }}>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:13, fontWeight:700, color:T.navy }}>{activeClaim.entity_name}</div>
-                      <div style={{ fontSize:11, color:T.muted, marginTop:2 }}>Veriler {activeClaim.entity_type} profilinden yüklendi — istediğinizi değiştirin</div>
+                      <div style={{ fontSize:11, color:T.muted, marginTop:2, lineHeight:1.5 }}>Veriler {activeClaim.entity_type} profilinden yüklendi — istediğinizi değiştirin. Boş bıraktığınız fotoğraf, web sitesi, konum ve sosyal medya alanları kartta profilinizdeki değerlerle gösterilir.</div>
                     </div>
                     {kartUrl && (
                       <a href={`/kart/${form.slug}`} target="_blank" rel="noopener"
