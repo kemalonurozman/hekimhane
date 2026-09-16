@@ -10,7 +10,7 @@ import { IL_LISTE, ILCELER } from '@/lib/tr-il-ilce';
 import { PRO_AYLIK_TL } from '@/lib/pro-plan';
 import { gunSlotlari, type TakvimAyar } from '@/lib/takvim-slot';
 import { yoneticiMi, davetEden } from '@/lib/yonetici';
-import { kartSlugYaz, kartSlugTemel, bos, entityKartAlanlari } from '@/lib/hekimkart';
+import { kartSlugYaz, kartSlugTemel, bos, entityKartAlanlari, rozetHtml, type RozetTema } from '@/lib/hekimkart';
 import MakalelerimTab from './MakalelerimTab';
 import McpTab from './McpTab';
 
@@ -5599,6 +5599,10 @@ function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
   const [slugUyari, setSlugUyari] = useState(false);
   const [slugElle,  setSlugElle]  = useState(false);   // kullanıcı adresi elle yazdı mı?
   const [adresNotu, setAdresNotu] = useState<{ eski: string; yeni: string } | null>(null);
+  // Önizleme iframe'i her kayıttan sonra yeniden yüklensin (tarayıcı önbelleği eski kartı göstermesin)
+  const [onizlemeAnahtar, setOnizlemeAnahtar] = useState(0);
+  const [rozetTema, setRozetTema] = useState<RozetTema>('acik');
+  const [rozetKopyalandi, setRozetKopyalandi] = useState(false);
 
   // Kartları yükle
   useEffect(() => {
@@ -5704,6 +5708,7 @@ function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
       setAdresNotu(data.slugDegisti && data.eskiSlug
         ? { eski: data.eskiSlug, yeni: saved_kart.slug } : null);
       setSlugKilit(true); setSlugElle(false);
+      setOnizlemeAnahtar(Date.now());
       if (saved_kart.entity_id) {
         setKartlar(p => ({ ...p, [saved_kart.entity_id!]: saved_kart }));
       }
@@ -5938,34 +5943,32 @@ function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
 
               {view === 'preview' && (
                 <div style={{ display:'flex', gap:14, flexWrap:'wrap' }}>
-                  {/* Kart önizleme */}
-                  <div className="hk-preview-col" style={{ flex:'1 1 220px', minWidth:200 }}>
-                    <div style={{ background:'linear-gradient(160deg,#0F2A55,#1B3A69)', borderRadius:'20px 20px 0 0', padding:'20px 18px 18px', display:'flex', flexDirection:'column', alignItems:'center', gap:10 }}>
-                      {form.photo_url
-                        ? <img src={form.photo_url} alt="" style={{ width:72, height:72, borderRadius:'50%', border:'3px solid #D4A843', objectFit:'cover' }} />
-                        : <div style={{ width:72, height:72, borderRadius:'50%', border:'3px solid rgba(212,168,67,.5)', background:'rgba(255,255,255,.12)', display:'flex', alignItems:'center', justifyContent:'center', color:'white', fontSize:24, fontWeight:700 }}>
-                            {form.ad?.[0]?.toUpperCase()||'H'}
-                          </div>
-                      }
-                      <div style={{ textAlign:'center' }}>
-                        <div style={{ fontWeight:800, fontSize:15, color:'white' }}>
-                          {[form.unvan,form.ad,form.soyad].filter(Boolean).join(' ') || 'Ad Soyad'}
-                        </div>
-                        {form.spec && <div style={{ fontSize:11.5, color:'rgba(255,255,255,.7)', marginTop:2 }}>{form.spec}</div>}
-                        {form.clinic_name && <div style={{ fontSize:11, color:'rgba(255,255,255,.5)', marginTop:1 }}>{form.clinic_name}</div>}
+                  {/* Kart önizleme — gerçek kart sayfası (profilden gelen foto, web sitesi,
+                      konum, yorumlar dahil). Elle çizilen kopya eksik kalıyordu. */}
+                  <div className="hk-preview-col" style={{ flex:'0 1 380px', minWidth:280 }}>
+                    {form.id && form.slug ? (
+                      <div style={{ background:'#0F172A', borderRadius:30, padding:9, boxShadow:'0 18px 44px rgba(15,23,42,.22)' }}>
+                        <iframe
+                          key={`${form.slug}-${onizlemeAnahtar}`}
+                          src={`/kart/${form.slug}?onizleme=1&t=${onizlemeAnahtar}`}
+                          title="HekimKart önizleme"
+                          loading="lazy"
+                          style={{ display:'block', width:'100%', height:700, border:'none', borderRadius:22, background:'#1B3A69' }}
+                        />
                       </div>
-                      {(form.il||form.ilce) && <span style={{ fontSize:10.5, color:'rgba(255,255,255,.7)', background:'rgba(255,255,255,.1)', padding:'2px 9px', borderRadius:20 }}>{[form.ilce,form.il].filter(Boolean).join(', ')}</span>}
-                    </div>
-                    <div style={{ background:'white', borderRadius:'0 0 20px 20px', border:`1px solid ${T.border}`, borderTop:'none', padding:'12px 14px', display:'flex', flexDirection:'column', gap:7 }}>
-                      {form.tel && <div style={{ padding:'10px 12px', borderRadius:10, background:'#1B3A69', color:'white', fontSize:12.5, fontWeight:600, display:'flex', alignItems:'center', gap:8 }}><Ic d={icons.phone} size={14} color="white"/>{form.tel}</div>}
-                      {form.instagram_url && <div style={{ padding:'10px 12px', borderRadius:10, background:'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)', color:'white', fontSize:12.5, fontWeight:600 }}>Instagram</div>}
-                      {form.facebook_url  && <div style={{ padding:'10px 12px', borderRadius:10, background:'#1877F2', color:'white', fontSize:12.5, fontWeight:600 }}>Facebook</div>}
-                    </div>
+                    ) : (
+                      <div style={{ background:'white', borderRadius:16, border:`1px solid ${T.border}`, padding:'28px 20px', textAlign:'center', color:T.muted, fontSize:13, lineHeight:1.6 }}>
+                        Önizleme için kartı önce kaydedin.
+                      </div>
+                    )}
+                    <p style={{ fontSize:11, color:T.muted, textAlign:'center', marginTop:8 }}>
+                      Ziyaretçilerin gördüğü kartın birebir aynısı.
+                    </p>
                   </div>
 
                   {/* Paylaşım araçları */}
                   {kartUrl ? (
-                    <div className="hk-preview-col" style={{ flex:'1 1 200px', display:'flex', flexDirection:'column', gap:12 }}>
+                    <div className="hk-preview-col" style={{ flex:'1 1 300px', minWidth:260, display:'flex', flexDirection:'column', gap:12 }}>
                       <div style={{ background:'white', borderRadius:16, border:`1px solid ${T.border}`, padding:'16px 16px 14px' }}>
                         <p style={{ fontSize:10.5, fontWeight:700, color:T.muted, letterSpacing:'.5px', textTransform:'uppercase', marginBottom:8 }}>Kart Linkiniz</p>
                         <div style={{ background:T.bg, borderRadius:9, padding:'8px 11px', marginBottom:10, fontSize:12, color:T.navy, fontWeight:600, wordBreak:'break-all' }}>{kartUrl}</div>
@@ -5993,6 +5996,51 @@ function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
                           Büyük Göster
                         </button>
                       </div>
+
+                      {/* Web sitesi footer rozeti */}
+                      {(() => {
+                        const kod = rozetHtml({
+                          kartUrl,
+                          ad: [form.unvan, form.ad, form.soyad].filter(Boolean).join(' ') || form.clinic_name,
+                          tema: rozetTema,
+                        });
+                        return (
+                          <div style={{ background:'white', borderRadius:16, border:`1px solid ${T.border}`, padding:'16px' }}>
+                            <p style={{ fontSize:10.5, fontWeight:700, color:T.muted, letterSpacing:'.5px', textTransform:'uppercase', marginBottom:4 }}>Web Sitenize Ekleyin</p>
+                            <p style={{ fontSize:12.2, color:T.muted, lineHeight:1.55, margin:'0 0 12px' }}>
+                              Sitenizin alt bilgisine (footer) &quot;Hekimhane onaylı üye&quot; rozeti ekleyin — ziyaretçiye güven verir, tıklayan HekimKart&apos;ınıza gelir.
+                            </p>
+
+                            <div style={{ display:'inline-flex', background:T.bg, borderRadius:10, padding:3, gap:2, marginBottom:12 }}>
+                              {([['acik','Açık'],['koyu','Koyu']] as const).map(([k, l]) => (
+                                <button key={k} onClick={() => { setRozetTema(k); setRozetKopyalandi(false); }}
+                                  style={{ padding:'6px 14px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:700,
+                                    background: rozetTema === k ? 'white' : 'transparent', color: rozetTema === k ? T.navy : T.muted,
+                                    boxShadow: rozetTema === k ? '0 1px 3px rgba(0,0,0,.1)' : 'none' }}>
+                                  {l}
+                                </button>
+                              ))}
+                            </div>
+
+                            {/* Canlı önizleme — kopyalanacak kodun kendisi render edilir */}
+                            <div style={{ background: rozetTema === 'koyu' ? '#0F172A' : '#F5F5F7', borderRadius:12, padding:'18px 12px', display:'flex', justifyContent:'center', marginBottom:12, overflow:'hidden' }}
+                              dangerouslySetInnerHTML={{ __html: kod }} />
+
+                            <textarea readOnly value={kod} rows={4}
+                              onFocus={e => e.currentTarget.select()}
+                              style={{ width:'100%', boxSizing:'border-box', fontFamily:'ui-monospace,SFMono-Regular,Menlo,monospace', fontSize:10.5, lineHeight:1.45, color:'#334155', background:T.bg, border:`1px solid ${T.border}`, borderRadius:10, padding:'9px 10px', resize:'vertical', marginBottom:8 }} />
+                            <button onClick={() => navigator.clipboard.writeText(kod).then(() => { setRozetKopyalandi(true); setTimeout(() => setRozetKopyalandi(false), 2200); })}
+                              style={{ width:'100%', padding:'10px', borderRadius:10, border:'none', background: rozetKopyalandi ? '#16A34A' : T.navy, color:'white', fontSize:12.5, fontWeight:700, cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
+                              <Ic d={rozetKopyalandi ? icons.check : icons.link} size={13} color="white" />
+                              {rozetKopyalandi ? 'Kod kopyalandı' : 'Rozet kodunu kopyala'}
+                            </button>
+                            <p style={{ fontSize:11, color:T.muted, lineHeight:1.55, margin:'10px 0 0' }}>
+                              <strong style={{ color:T.text }}>Nereye yapıştırılır?</strong> WordPress: Görünüm → Widget&apos;lar → Özel HTML ·
+                              Wix: Ekle → Gömülü Kod · Diğer siteler: footer HTML&apos;ine. Kod dış dosya yüklemez, sitenizin tasarımını bozmaz.
+                            </p>
+                          </div>
+                        );
+                      })()}
 
                       <button onClick={() => setView('form')}
                         style={{ padding:'11px', borderRadius:12, background:'white', border:`1px solid ${T.border}`, color:T.muted, fontSize:13, fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>

@@ -71,7 +71,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer style={{
+    <footer className="site-footer" style={{
       background: 'var(--navy)',
       color: 'rgba(255,255,255,0.7)',
       padding: '52px 0 24px',

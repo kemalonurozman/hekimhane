@@ -229,7 +229,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav style={{
+      <nav className="site-nav" style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
         height: 64,
         background: 'rgba(255,255,255,0.88)',

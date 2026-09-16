@@ -144,8 +144,11 @@ async function getKart(slug: string): Promise<KartSonuc> {
     for (const [alan, deger] of Object.entries(profilden)) {
       if (!bos(deger) && bos((kart as any)[alan])) tamamla[alan] = deger;
     }
+    // Herkese açık sayfaya gitmemesi gereken alanlar: kart sahibinin e-postası
+    // (kişisel veri) ve adres geçmişi. KartClient'a verilen her şey HTML'e gömülür.
+    const { user_email: _eposta, eski_sluglar: _gecmis, ...acikKart } = kart as any;
     return { kart: {
-      ...kart,
+      ...acikKart,
       ...tamamla,
       hekimhane_url: savedUrl || ent.url,
       // kartta yoksa entity değerini kullan (fallback)
@@ -272,11 +275,24 @@ async function getReviews(entity_type?: string | null, entity_id?: string | null
   }
 }
 
-export default async function HekimKartPage({ params }: { params: { slug: string } }) {
+/** Panel önizlemesinde (iframe) site menüsü ve footer gizlenir — yalnız kart görünsün. */
+const ONIZLEME_CSS = '.site-nav,.site-footer{display:none!important}';
+
+export default async function HekimKartPage({ params, searchParams }: {
+  params: { slug: string };
+  searchParams?: Record<string, string | string[] | undefined>;
+}) {
   const { kart: d, yonlendir } = await getKart(params.slug);
   // Adres değişmiş: eski bağlantı kalıcı olarak yenisine taşınır (308)
   if (yonlendir) permanentRedirect(`/kart/${yonlendir}`);
   if (!d) notFound();
   const reviews = await getReviews(d.entity_type, d.entity_id);
-  return <KartClient kart={d} reviews={reviews} />;
+  const onizleme = searchParams?.onizleme === '1';
+  return (
+    <>
+      {/* dangerouslySetInnerHTML: <style> metin çocuğu hidrasyon uyumsuzluğu yapıyor (proje tuzağı) */}
+      {onizleme && <style dangerouslySetInnerHTML={{ __html: ONIZLEME_CSS }} />}
+      <KartClient kart={d} reviews={reviews} />
+    </>
+  );
 }
