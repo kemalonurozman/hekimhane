@@ -40,12 +40,6 @@ export default function HekimRosterKart({ doktor: d }: { doktor: Doktor }) {
       onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 22px rgba(0,0,0,.09)'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = '#D8DEE9'; }}
       onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,.04)'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'var(--border)'; }}
     >
-      <CompareButton item={{
-        type: 'doktor', id: d.id, name: displayName, url,
-        rat: d.rat, rev: d.rev, il: d.il, ilce: d.ilce, tel: d.tel, image: d.photo,
-        premium: d.premium, online: d.online, verified: d.verified,
-        spec: d.spec, fee: d.fee, exp: d.exp, clinic_name: d.clinic_name,
-      }} />
 
       {/* Avatar — onaylı hekimde dönen halka */}
       <div className={d.verified ? 'hk-ring' : undefined} style={{ flexShrink: 0 }}>
@@ -62,10 +56,10 @@ export default function HekimRosterKart({ doktor: d }: { doktor: Doktor }) {
 
       {/* Bilgi */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', lineHeight: 1.3, letterSpacing: '-.2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div title={displayName} style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', lineHeight: 1.3, letterSpacing: '-.2px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflowWrap: 'anywhere' }}>
           {displayName}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 4, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 6, minWidth: 0, flexWrap: 'wrap' }}>
           {hasRating ? (
             <>
               <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--navy)', lineHeight: 1 }}>{(d.rat || 0).toFixed(1)}</span>
@@ -78,6 +72,15 @@ export default function HekimRosterKart({ doktor: d }: { doktor: Doktor }) {
               Profili görüntüle
             </span>
           )}
+          {/* Karşılaştır — akış içinde, ismin üstüne binmez */}
+          <span style={{ marginLeft: 'auto' }}>
+            <CompareButton variant="inline" item={{
+              type: 'doktor', id: d.id, name: displayName, url,
+              rat: d.rat, rev: d.rev, il: d.il, ilce: d.ilce, tel: d.tel, image: d.photo,
+              premium: d.premium, online: d.online, verified: d.verified,
+              spec: d.spec, fee: d.fee, exp: d.exp, clinic_name: d.clinic_name,
+            }} />
+          </span>
         </div>
       </div>
 
