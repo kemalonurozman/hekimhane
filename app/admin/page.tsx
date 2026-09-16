@@ -645,12 +645,142 @@ function EditModal({ entity, entityType, onClose, onSaved }: {
 /* ═══════════════════════════════════════════════
    İŞLETME LİSTE SEKMESİ (klinik/hastane/doktor/eczane)
 ═══════════════════════════════════════════════ */
+/**
+ * Admin — işletmenin erişim listesi + e-postayla SAHİPLİK atama.
+ * Hesabı olmayan adrese şifre belirleme daveti gider (sahiplenme onayıyla aynı akış).
+ */
+function SahiplikModal({ entity, entityType, onClose, onChanged }: {
+  entity: Entity;
+  entityType: 'klinik' | 'hastane' | 'doktor' | 'eczane';
+  onClose: () => void;
+  onChanged: () => void;
+}) {
+  type Erisim = { id: string; email: string; ad: string | null; created_at: string; tip: 'sahip' | 'yonetici'; davet_eden: string | null };
+  const [erisimler, setErisimler] = useState<Erisim[]>([]);
+  const [yukleniyor, setYukleniyor] = useState(true);
+  const [email, setEmail] = useState('');
+  const [ad, setAd] = useState('');
+  const [mailGonder, setMailGonder] = useState(true);
+  const [calisan, setCalisan] = useState(false);
+  const [msj, setMsj] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const ad_ = entityType === 'doktor'
+    ? [entity.unvan, entity.ad, entity.soyad].filter(Boolean).join(' ')
+    : (entity.name || 'İşletme');
+
+  const yukle = useCallback(async () => {
+    try {
+      const r = await fetch(`/api/admin/sahiplik?entity_id=${encodeURIComponent(entity.id)}`, { cache: 'no-store' });
+      const j = await r.json();
+      if (r.ok) setErisimler(j.erisimler || []);
+      else setMsj({ ok: false, text: j.error || 'Liste alınamadı.' });
+    } catch { setMsj({ ok: false, text: 'Bağlantı hatası.' }); }
+    setYukleniyor(false);
+  }, [entity.id]);
+  useEffect(() => { yukle(); }, [yukle]);
+
+  async function ata() {
+    if (!email.trim()) { setMsj({ ok: false, text: 'E-posta girin.' }); return; }
+    setCalisan(true); setMsj(null);
+    try {
+      const r = await fetch('/api/admin/sahiplik', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entity_type: entityType, entity_id: entity.id, email, ad, notify: mailGonder }),
+      });
+      const j = await r.json();
+      if (r.ok && j.ok) {
+        setMsj({ ok: true, text: !mailGonder ? 'Sahiplik atandı (e-posta gönderilmedi).'
+          : j.yeniHesap ? `Sahiplik atandı. ${email} adresine hesap oluşturma daveti gönderildi.`
+          : `Sahiplik atandı. ${email} bilgilendirildi; işletme panelinde görünüyor.` + (j.mailGitti ? '' : ' (E-posta gönderilemedi.)') });
+        setEmail(''); setAd('');
+        await yukle(); onChanged();
+      } else setMsj({ ok: false, text: j.error || 'Atanamadı.' });
+    } catch { setMsj({ ok: false, text: 'Bağlantı hatası.' }); }
+    setCalisan(false);
+  }
+
+  async function kaldir(e: Erisim) {
+    if (!window.confirm(`${e.email} adresinin "${ad_}" erişimi kaldırılsın mı?\n\n${e.tip === 'sahip' ? 'Başka sahip kalmazsa profil "sahiplenilmemiş" duruma döner. Varsa Stripe aboneliği kendiliğinden iptal OLMAZ — gerekirse Premium Üyeler sekmesinden iptal edin.' : 'Yalnızca bu yöneticinin erişimi kalkar.'}`)) return;
+    setCalisan(true);
+    try {
+      const r = await fetch('/api/admin/sahiplik', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: e.id }) });
+      const j = await r.json();
+      if (r.ok) { setMsj({ ok: true, text: j.sahipsiz ? 'Erişim kaldırıldı — profil sahiplenilmemiş duruma döndü.' : 'Erişim kaldırıldı.' }); await yukle(); onChanged(); }
+      else setMsj({ ok: false, text: j.error || 'Kaldırılamadı.' });
+    } catch { setMsj({ ok: false, text: 'Bağlantı hatası.' }); }
+    setCalisan(false);
+  }
+
+  const inp: React.CSSProperties = { padding: '10px 12px', borderRadius: 9, border: `1px solid ${C.border}`, background: 'rgba(255,255,255,.04)', color: C.text, fontSize: 13, fontFamily: 'inherit', outline: 'none', minWidth: 0 };
+  const tarih = (t: string) => { try { return new Date(t).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' }); } catch { return ''; } };
+
+  return (
+    <div onClick={ev => { if (ev.target === ev.currentTarget) onClose(); }}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', zIndex: 500, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '70px 16px 24px', overflowY: 'auto' }}>
+      <div style={{ width: '100%', maxWidth: 560, background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ color: C.gold }}><Ic d={IC.users} size={16} /></span>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ad_}</div>
+            <div style={{ fontSize: 11.5, color: C.muted }}>Sahiplik ve erişim yönetimi</div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: C.muted, fontSize: 18, cursor: 'pointer', fontFamily: 'inherit' }}>✕</button>
+        </div>
+
+        <div style={{ padding: '16px 20px' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '.6px', marginBottom: 8 }}>Mevcut erişimler</div>
+          {yukleniyor ? (
+            <div style={{ fontSize: 13, color: C.muted, padding: '8px 0' }}>Yükleniyor…</div>
+          ) : erisimler.length === 0 ? (
+            <div style={{ fontSize: 13, color: C.muted, padding: '10px 12px', borderRadius: 9, background: 'rgba(255,255,255,.03)', border: `1px dashed ${C.border}` }}>
+              Bu işletme sahiplenilmemiş — aşağıdan bir e-postaya sahiplik atayabilirsiniz.
+            </div>
+          ) : erisimler.map(e => (
+            <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, background: 'rgba(255,255,255,.03)', border: `1px solid ${C.border}`, marginBottom: 6, flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 160 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.email}</div>
+                <div style={{ fontSize: 11, color: C.muted }}>{e.ad ? e.ad + ' · ' : ''}{tarih(e.created_at)}{e.davet_eden ? ` · davet: ${e.davet_eden}` : ''}</div>
+              </div>
+              <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 8px', borderRadius: 7, background: e.tip === 'sahip' ? 'rgba(16,185,129,.12)' : 'rgba(59,130,246,.12)', color: e.tip === 'sahip' ? C.green : C.blue, border: `1px solid ${e.tip === 'sahip' ? 'rgba(16,185,129,.3)' : 'rgba(59,130,246,.3)'}`, textTransform: 'uppercase', letterSpacing: '.4px' }}>
+                {e.tip === 'sahip' ? 'Sahip' : 'Yönetici'}
+              </span>
+              <button onClick={() => kaldir(e)} disabled={calisan}
+                style={{ padding: '5px 10px', borderRadius: 8, background: 'rgba(239,68,68,.12)', border: '1px solid rgba(239,68,68,.35)', color: '#F87171', fontSize: 11, fontWeight: 600, cursor: calisan ? 'default' : 'pointer', fontFamily: 'inherit' }}>Kaldır</button>
+            </div>
+          ))}
+
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '.6px', margin: '16px 0 8px' }}>E-postayla sahiplik ata</div>
+          <div style={{ display: 'grid', gap: 8 }}>
+            <input type="email" value={email} onChange={ev => { setEmail(ev.target.value); setMsj(null); }} placeholder="sahip@ornek.com"
+              onKeyDown={ev => { if (ev.key === 'Enter') ata(); }} style={inp} />
+            <input value={ad} onChange={ev => setAd(ev.target.value)} placeholder="Ad soyad (isteğe bağlı)" maxLength={120} style={inp} />
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: C.dim, cursor: 'pointer' }}>
+              <input type="checkbox" checked={mailGonder} onChange={ev => setMailGonder(ev.target.checked)} />
+              Bilgilendirme / hesap oluşturma daveti gönder
+            </label>
+            <button onClick={ata} disabled={calisan}
+              style={{ justifySelf: 'start', padding: '10px 20px', borderRadius: 9, border: 'none', background: C.gold, color: '#12294B', fontSize: 13, fontWeight: 700, cursor: calisan ? 'default' : 'pointer', opacity: calisan ? .6 : 1, fontFamily: 'inherit' }}>
+              {calisan ? 'İşleniyor…' : 'Sahiplik Ata'}
+            </button>
+          </div>
+          {msj && <div style={{ marginTop: 10, fontSize: 12.5, fontWeight: 600, color: msj.ok ? C.green : '#F87171' }}>{msj.text}</div>}
+          <p style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.6, marginTop: 12 }}>
+            Atanan kişi panelde bu işletmenin sahibi olur: randevu, takvim, hasta, yorum, profil ve Pro abonelik işlemlerini yapabilir.
+            Hekimhane hesabı yoksa şifre belirleyip hesabını oluşturacağı bir davet bağlantısı gönderilir.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' }) {
   const [items,        setItems]        = useState<Entity[]>([]);
   const [loading,      setLoading]      = useState(true);
   const [search,       setSearch]       = useState('');
   const [page,         setPage]         = useState(0);
   const [editEntity,   setEditEntity]   = useState<Entity | null>(null);
+  const [sahipEntity,  setSahipEntity]  = useState<Entity | null>(null);   // sahiplik atama penceresi
   const [deleteId,     setDeleteId]     = useState<string | null>(null); // 1. tık: id
   const [deleting,     setDeleting]     = useState(false);
   const PAGE_SIZE = 20;
@@ -799,6 +929,11 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 9px', borderRadius: 8, background: 'rgba(212,168,67,.1)', border: `1px solid rgba(212,168,67,.3)`, color: C.gold, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                     <Ic d={IC.edit} size={11} /> Düzenle
                   </button>
+                  {/* Sahiplik: e-postayla ata / kaldır */}
+                  <button onClick={() => setSahipEntity(e)} title="Sahiplik ata veya kaldır"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 9px', borderRadius: 8, background: isClaimed ? 'rgba(16,185,129,.12)' : 'rgba(255,255,255,.04)', border: `1px solid ${isClaimed ? 'rgba(16,185,129,.3)' : C.border}`, color: isClaimed ? C.green : C.dim, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                    <Ic d={IC.users} size={11} /> Sahip
+                  </button>
                   {/* İletişim gizle/aç — yalnız e-postası olan doktorlar (ör. Bobath) */}
                   {typeKey === 'doktor' && e.email && (
                     <button onClick={() => toggleContact(e.id, e.contact_hidden !== false)}
@@ -864,6 +999,16 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
           Sonraki →
         </button>
       </div>
+
+      {/* Sahiplik Modali */}
+      {sahipEntity && (
+        <SahiplikModal
+          entity={sahipEntity}
+          entityType={typeKey}
+          onClose={() => setSahipEntity(null)}
+          onChanged={load}
+        />
+      )}
 
       {/* Düzenleme Modali */}
       {editEntity && (
@@ -1802,7 +1947,7 @@ interface PremiumSub {
   cancel_at_period_end: boolean | null;   // yalnız Stripe'a ulaşıldığında dolu
   stripe_canli?: boolean;
 }
-interface PremiumItem { type: string; id: string; name: string; il: string; ilce: string; slug: string | null; spec: string | null; rat: number; rev: number; claimed: boolean; tel: string | null; sub: PremiumSub | null; }
+interface PremiumItem { type: string; id: string; name: string; il: string; ilce: string; slug: string | null; spec: string | null; rat: number; rev: number; claimed: boolean; tel: string | null; premiumAktif: boolean; sub: PremiumSub | null; }
 const TYPE_META: Record<string, { label: string; color: string }> = {
   klinik:  { label: 'Klinik',  color: C.cyan },
   hastane: { label: 'Hastane', color: C.purple },
@@ -1815,6 +1960,7 @@ function PremiumTab() {
   const [counts, setCounts] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  const [durum, setDurum] = useState<'all' | 'aktif' | 'gecmis'>('all');
   const [busy, setBusy] = useState<string | null>(null);        // işlem yapılan satır anahtarı
   const [stripeHata, setStripeHata] = useState<string | null>(null);
 
@@ -1866,7 +2012,11 @@ function PremiumTab() {
     setBusy(null);
   }
 
-  const shown = filter === 'all' ? items : items.filter(i => i.type === filter);
+  const shown = items
+    .filter(i => filter === 'all' || i.type === filter)
+    .filter(i => durum === 'all' || (durum === 'aktif' ? i.premiumAktif : !i.premiumAktif))
+    // Aktif üyeler üstte; geçmiş aboneler altta.
+    .sort((a, b) => Number(b.premiumAktif) - Number(a.premiumAktif));
   const profilHref = (it: PremiumItem) => {
     if (!it.slug) return null;
     if (it.type === 'klinik')  return `/klinikler/${it.slug}`;
@@ -1910,11 +2060,30 @@ function PremiumTab() {
         })}
       </div>
 
+      {/* Durum filtresi — iptal edilen üyelikler listeden kaybolmasın diye
+          geçmiş aboneler de çekiliyor; buradan ayrıştırılır. */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+        {([
+          { k: 'all'    as const, label: 'Tüm kayıtlar', n: counts?.toplam },
+          { k: 'aktif'  as const, label: 'Pro aktif',    n: counts?.aktif },
+          { k: 'gecmis' as const, label: 'Sona ermiş',   n: counts?.gecmis },
+        ]).map(t => {
+          const active = durum === t.k;
+          return (
+            <button key={t.k} onClick={() => setDurum(t.k)}
+              style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '7px 13px', borderRadius: 10, border: `1px solid ${active ? C.green : C.border}`, background: active ? 'rgba(16,185,129,.12)' : 'transparent', color: active ? C.green : C.muted, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              {t.label}
+              <span style={{ background: active ? C.green : C.border, color: active ? '#0B1120' : C.muted, borderRadius: 8, padding: '1px 7px', fontSize: 11, fontWeight: 800 }}>{t.n ?? '·'}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {loading ? (
         <div style={{ padding: 40, textAlign: 'center', color: C.muted, fontSize: 13 }}>Yükleniyor…</div>
       ) : shown.length === 0 ? (
         <div style={{ padding: 40, textAlign: 'center', color: C.muted, fontSize: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
-          Henüz premium üye yok. İşletme sekmelerinden bir kaydın “👑 Premium Hesap” alanını true yaparak veya self-servis abonelikle premium açılır.
+          Bu filtrede kayıt yok. Premium, işletme sekmelerinden “👑 Premium Hesap” alanı true yapılarak veya self-servis abonelikle açılır.
         </div>
       ) : (
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: 'hidden' }}>
@@ -1925,7 +2094,7 @@ function PremiumTab() {
               <div key={`${it.type}:${it.id}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', flexWrap: 'wrap', borderBottom: i < shown.length - 1 ? `1px solid ${C.border}` : 'none' }}>
                 <span style={{ fontSize: 10, fontWeight: 800, color: m.color, background: `${m.color}22`, border: `1px solid ${m.color}44`, borderRadius: 20, padding: '3px 9px', flexShrink: 0, minWidth: 58, textAlign: 'center' }}>{m.label}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.name || '—'}</div>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: it.premiumAktif ? C.text : C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.name || '—'}</div>
                   <div style={{ fontSize: 11.5, color: C.muted }}>
                     {[it.ilce, it.il].filter(Boolean).join(', ')}{it.spec ? ` · ${it.spec}` : ''}{it.rat > 0 ? ` · ★ ${it.rat.toFixed(1)} (${it.rev})` : ''}
                   </div>
@@ -1942,6 +2111,7 @@ function PremiumTab() {
                   // o satırda yalnızca elle "Premium'u Kapat" gösterilir.
                   const yonetilebilir = !!sub?.stripe_subscription_id
                     && ['active', 'trialing', 'past_due', 'unpaid', 'incomplete'].includes(sub.status);
+                  const gecmis = !it.premiumAktif;   // premium kapalı — eski abone
                   const bitis = sub?.current_period_end
                     ? new Date(sub.current_period_end).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' })
                     : null;
@@ -1957,6 +2127,9 @@ function PremiumTab() {
                     <>
                       {/* Abonelik durumu */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3, flexShrink: 0, minWidth: 132 }}>
+                        {gecmis && (
+                          <span style={{ fontSize: 10.5, fontWeight: 800, color: C.dim, background: C.border, borderRadius: 8, padding: '3px 9px' }}>PRO KAPALI</span>
+                        )}
                         {sub ? (
                           <span style={{ fontSize: 10.5, fontWeight: 700, borderRadius: 8, padding: '3px 9px',
                             color: donemSonu ? C.amber : (aktif ? C.green : (sorunlu ? C.red : C.muted)),
@@ -1986,12 +2159,12 @@ function PremiumTab() {
                               {calisiyor ? '…' : 'İptal Et'}
                             </button>
                           )
-                        ) : (
+                        ) : (!gecmis && (
                           <button disabled={calisiyor} onClick={() => aksiyon(it, 'premium_off')} style={btn(C.red, false)}
                             title="Stripe aboneliği olmayan elle premium'u kapat">
                             {calisiyor ? '…' : 'Premium’u Kapat'}
                           </button>
-                        )}
+                        ))}
                         {yonetilebilir && (
                           <button disabled={calisiyor} onClick={() => aksiyon(it, 'cancel_now')} style={btn(C.red, false)}
                             title="Aboneliği hemen iptal et ve premium'u anında kapat">
