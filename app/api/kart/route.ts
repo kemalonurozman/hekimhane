@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { kartSlugify, kartSlugTemel, kisalt } from '@/lib/hekimkart';
+import { kartSlugify, kartSlugTemel, kisalt, bos, entityKartAlanlari } from '@/lib/hekimkart';
 
 function adminClient() {
   return createClient(
@@ -32,6 +32,37 @@ const MAX_ESKI_SLUG = 20;
 
 /** İşletme tabloları — kart adresi bu slug'larla da çakışmamalı. */
 const ENTITY_TABLOLARI = ['klinikler', 'hastaneler', 'doktorlar', 'eczaneler'];
+const ENTITY_TABLO: Record<string, string> = {
+  klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler',
+};
+
+/**
+ * Profildekiyle **birebir aynı** olan kart alanlarını boşaltır.
+ *
+ * Panel formu kartı açarken alanları işletme profilinden ön-doldurur; bunlar
+ * olduğu gibi kaydedilseydi kart o anın fotoğrafını dondurur, profil sonradan
+ * güncellendiğinde kart eski bilgiyi göstermeye devam ederdi. Boş kaydedilen
+ * alan kart sayfasında profilden okunur → profil güncellenince kart da güncellenir.
+ * Kullanıcı bir alanı profilden FARKLI yazdıysa o değer korunur.
+ */
+async function profildenDevralinanlariBosalt(
+  admin: any, fields: Record<string, unknown>, entityType: unknown, entityId: unknown,
+) {
+  const tablo = ENTITY_TABLO[String(entityType || '')];
+  if (!tablo || !entityId) return;
+  let satir: any = null;
+  try {
+    const { data } = await admin.from(tablo).select('*').eq('id', String(entityId)).maybeSingle();
+    satir = data;
+  } catch { return; }
+  if (!satir) return;
+
+  const profil = entityKartAlanlari(satir);
+  for (const [alan, deger] of Object.entries(profil)) {
+    if (bos(deger) || !(alan in fields)) continue;
+    if (String(fields[alan] ?? '').trim() === String(deger).trim()) fields[alan] = '';
+  }
+}
 
 /**
  * Bu adres başka biri tarafından tutuluyor mu?
@@ -218,6 +249,14 @@ export async function POST(request: NextRequest) {
     const temiz = mevcut.eski_sluglar.filter((s: string) => s !== fields.slug);
     if (temiz.length !== mevcut.eski_sluglar.length) fields.eski_sluglar = temiz;
   }
+
+  // Profilden gelen ve kullanıcının değiştirmediği alanlar boş kaydedilir →
+  // kart sayfası onları profilden canlı okur (profil değişince kart da değişir).
+  await profildenDevralinanlariBosalt(
+    admin, fields,
+    fields.entity_type ?? mevcut?.entity_type,
+    fields.entity_id ?? mevcut?.entity_id,
+  );
 
   async function saveFields(f: Record<string, unknown>) {
     if (mevcut?.id) {

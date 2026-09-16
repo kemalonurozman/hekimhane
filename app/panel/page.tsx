@@ -10,7 +10,7 @@ import { IL_LISTE, ILCELER } from '@/lib/tr-il-ilce';
 import { PRO_AYLIK_TL } from '@/lib/pro-plan';
 import { gunSlotlari, type TakvimAyar } from '@/lib/takvim-slot';
 import { yoneticiMi, davetEden } from '@/lib/yonetici';
-import { kartSlugYaz, kartSlugTemel } from '@/lib/hekimkart';
+import { kartSlugYaz, kartSlugTemel, bos, entityKartAlanlari } from '@/lib/hekimkart';
 import MakalelerimTab from './MakalelerimTab';
 import McpTab from './McpTab';
 
@@ -652,12 +652,18 @@ export default function PanelPage() {
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         * { box-sizing: border-box; }
+        @media (max-width: 980px) {
+          .panel-approved-row { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
+          .panel-approved-name { flex: none !important; }
+          .panel-approved-actions { flex-wrap: wrap !important; justify-content: flex-start !important; }
+        }
         @media (max-width: 767px) {
           .panel-grid-2 { flex-direction: column !important; }
           .panel-stat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
           .panel-2col { grid-template-columns: 1fr !important; }
           .panel-form-grid { grid-template-columns: 1fr !important; }
           .panel-approved-row { flex-direction: column !important; align-items: stretch !important; }
+          .panel-approved-actions { flex-wrap: wrap !important; justify-content: flex-start !important; }
         }
       `}</style>
     </div>
@@ -695,19 +701,20 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
           </div>
           <div style={{ padding: '16px 22px' }}>
             {approvedClaims.map(c => (
-              <div key={c.id} className="panel-approved-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '14px 18px', background: '#F0FDF4', borderRadius: 12, marginBottom: 10, border: '1px solid #86EFAC' }}>
-                <div style={{ minWidth: 0 }}>
+              <div key={c.id} className="panel-approved-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, padding: '13px 18px', background: '#F0FDF4', borderRadius: 12, marginBottom: 10, border: '1px solid #86EFAC' }}>
+                {/* İsim sütunu esner; uzun isim alt satıra iner, butonlar kaymaz */}
+                <div className="panel-approved-name" style={{ flex: '1 1 200px', minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 3 }}>
-                    <span style={{ fontWeight: 700, fontSize: 15, color: T.text }}>{c.entity_name}</span>
+                    <span style={{ fontWeight: 700, fontSize: 15, color: T.text, lineHeight: 1.35, overflowWrap: 'anywhere' }}>{c.entity_name}</span>
                     {proAktifMi(c.id, premiumMap, subsMap) && <ProBadge />}
                   </div>
                   <EntityTypeLabel type={c.entity_type} />
                 </div>
-                <div className="panel-approved-actions" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <div className="panel-approved-actions" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'nowrap', flexShrink: 0, justifyContent: 'flex-end' }}>
                   <Badge status="approved" />
                   {profileUrls[c.id] && (
                     <a href={profileUrls[c.id]} target="_blank" rel="noopener"
-                      style={{ padding: '7px 14px', background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', borderRadius: 9, fontSize: 12, fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5 }}
+                      style={{ padding: '7px 14px', background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', borderRadius: 9, fontSize: 12, fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}
                       title="Profilinizin ziyaretçilere nasıl göründüğünü yeni sekmede görün">
                       <Ic d={icons.eye} size={13} />
                       Ziyaretçi Görünümü
@@ -716,7 +723,7 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                   )}
                   {c.entity_id && c.entity_id !== 'new' && (
                     <button onClick={() => onEditClaim(c)}
-                      style={{ padding: '7px 14px', background: T.gold, color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
+                      style={{ padding: '7px 14px', background: T.gold, color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                       <Ic d={icons.edit} size={13} /> Düzenle
                     </button>
                   )}
@@ -733,7 +740,7 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                     if (sorunlu) return (
                       <button onClick={() => onManage(c.id, c.entity_type, c.entity_id!)} disabled={managingId === c.id}
                         title="Son ödeme alınamadı — kart bilgilerinizi güncelleyin"
-                        style={{ padding: '7px 14px', background: '#FEF2F2', color: '#B91C1C', borderRadius: 9, fontSize: 12, fontWeight: 700, border: '1.5px solid #FCA5A5', cursor: managingId === c.id ? 'default' : 'pointer', opacity: managingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
+                        style={{ padding: '7px 14px', background: '#FEF2F2', color: '#B91C1C', borderRadius: 9, fontSize: 12, fontWeight: 700, border: '1.5px solid #FCA5A5', cursor: managingId === c.id ? 'default' : 'pointer', opacity: managingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                         {managingId === c.id ? '…' : 'Ödeme Sorunu · Kartı Güncelle'}
                       </button>
                     );
@@ -741,14 +748,14 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                     if (aktif) return (
                       <button onClick={() => onManage(c.id, c.entity_type, c.entity_id!)} disabled={managingId === c.id}
                         title="Aboneliği iptal et, kartını değiştir veya faturalarını gör"
-                        style={{ padding: '7px 14px', background: 'white', color: T.navy, borderRadius: 9, fontSize: 12, fontWeight: 700, border: `1.5px solid ${T.navy}`, cursor: managingId === c.id ? 'default' : 'pointer', opacity: managingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
+                        style={{ padding: '7px 14px', background: 'white', color: T.navy, borderRadius: 9, fontSize: 12, fontWeight: 700, border: `1.5px solid ${T.navy}`, cursor: managingId === c.id ? 'default' : 'pointer', opacity: managingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                         {managingId === c.id ? '…' : 'Aboneliği Yönet · İptal'}
                       </button>
                     );
 
                     return (
                       <a href="/pro" title="Pro hesabın tüm özelliklerini görün ve yükseltin"
-                        style={{ padding: '7px 14px', background: 'linear-gradient(135deg,#1B3A69,#0F2A55)', color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
+                        style={{ padding: '7px 14px', background: 'linear-gradient(135deg,#1B3A69,#0F2A55)', color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                         Pro&apos;ya Yükseltin (Aylık {PRO_AYLIK_TL} TL)
                       </a>
                     );
@@ -756,7 +763,7 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
                   {c.entity_id && c.entity_id !== 'new' && (
                     <button onClick={() => onRelease(c.id, c.entity_name || 'İşletme')} disabled={releasingId === c.id}
                       title="Bu işletmenin sahipliğini bırak — profil sahiplenilmemiş duruma döner"
-                      style={{ padding: '7px 14px', background: 'transparent', color: '#B91C1C', borderRadius: 9, fontSize: 12, fontWeight: 700, border: '1px solid #FCA5A5', cursor: releasingId === c.id ? 'default' : 'pointer', opacity: releasingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
+                      style={{ padding: '7px 14px', background: 'transparent', color: '#B91C1C', borderRadius: 9, fontSize: 12, fontWeight: 700, border: '1px solid #FCA5A5', cursor: releasingId === c.id ? 'default' : 'pointer', opacity: releasingId === c.id ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                       {releasingId === c.id ? '…' : <><Ic d={icons.logout} size={13} /> {yoneticiMi(c.role) ? 'Yöneticilikten Ayrıl' : 'Sahipliği Bırak'}</>}
                     </button>
                   )}
@@ -5561,76 +5568,72 @@ function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
   }, [loadingK, approvedClaims.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Entity verisini çek + form'a doldur
+  //
+  // Kayıtlı kart olsa bile işletme profili çekilir: kartta BOŞ bırakılan
+  // alanlar kart sayfasında profilden gösterildiği için formda da profil
+  // değeri görünmeli. Kullanıcı bir alanı profilden farklı yazdıysa onun
+  // değeri kazanır (kaydederken de yalnız farklı olanlar saklanır).
   async function selectClaim(claim: ClaimRequest) {
     setActiveClaim(claim);
     setView('form');
     setError('');
     setSaved(false);
+    setSlugKilit(true); setSlugElle(false); setAdresNotu(null);
 
-    // Zaten kayıtlı kart varsa onu yükle
-    // 1. entity_id ile ara (yeni format)
-    // 2. allKartlar içinde entity_id eşleşeni ara (kolon var ama haritada değil)
-    // 3. Kullanıcının tek kartı varsa ve entity_id null ise onu kullan (eski format)
     const hekimhaneUrl = profileUrls[claim.id] || '';
-
     const existing =
       kartlar[claim.entity_id!] ||
       allKartlar.find(k => k.entity_id === claim.entity_id) ||
       (allKartlar.length === 1 && !allKartlar[0].entity_id ? allKartlar[0] : null);
-    setSlugKilit(true); setSlugElle(false); setAdresNotu(null);
-    if (existing) {
-      // hekimhane_url'yi her seferinde taze URL ile güncelle
-      setForm({ ...EMPTY_KART, ...existing, hekimhane_url: hekimhaneUrl || existing.hekimhane_url });
-      return;
-    }
 
-    // Yoksa entity'den veri çek
-    setLoadingE(true);
+    const temel: HekimKartData = {
+      ...EMPTY_KART,
+      entity_id: claim.entity_id!, entity_type: claim.entity_type,
+      hekimhane_url: hekimhaneUrl,
+    };
+    // Kartın kendi değerlerinden yalnız DOLU olanlar profilin üzerine yazılır
+    const kartDolu = existing
+      ? Object.fromEntries(Object.entries(existing).filter(([, v]) => !bos(v)))
+      : {};
+
     const TABLE: Record<string, string> = {
       doktor: 'doktorlar', klinik: 'klinikler', hastane: 'hastaneler', eczane: 'eczaneler'
     };
     const table = TABLE[claim.entity_type];
-    if (!table) { setForm({ ...EMPTY_KART, entity_id: claim.entity_id!, entity_type: claim.entity_type }); setLoadingE(false); return; }
+    if (!table) {
+      setForm({ ...temel, ...kartDolu, hekimhane_url: hekimhaneUrl || (existing?.hekimhane_url ?? '') } as HekimKartData);
+      return;
+    }
 
+    setLoadingE(true);
     const { data } = await (supa as any).from(table).select('*').eq('id', claim.entity_id).single();
     setLoadingE(false);
-    if (!data) { setForm({ ...EMPTY_KART, entity_id: claim.entity_id!, entity_type: claim.entity_type }); return; }
-
-    // Entity tipine göre alanları eşle
-    let mapped: HekimKartData = { ...EMPTY_KART, entity_id: claim.entity_id!, entity_type: claim.entity_type, hekimhane_url: hekimhaneUrl };
-    if (claim.entity_type === 'doktor') {
-      mapped = { ...mapped,
-        ad: data.ad || '', soyad: data.soyad || '', unvan: data.unvan || '',
-        spec: data.spec || '', tel: data.tel || '',
-        instagram_url: data.instagram_url || '', facebook_url: data.facebook_url || '',
-        photo_url: data.photo || '', il: data.il || '', ilce: data.ilce || '',
-        clinic_name: data.clinic_name || '', bio: data.bio || '',
-      };
-    } else if (claim.entity_type === 'klinik' || claim.entity_type === 'hastane') {
-      mapped = { ...mapped,
-        ad: data.name || '', soyad: '', unvan: '', spec: data.type || '',
-        tel: data.tel || '', instagram_url: data.instagram_url || '',
-        facebook_url: data.facebook_url || '', photo_url: data.logo || data.photos?.[0] || '',
-        il: data.il || '', ilce: data.ilce || '', clinic_name: data.name || '', bio: '',
-      };
-    } else if (claim.entity_type === 'eczane') {
-      mapped = { ...mapped,
-        ad: data.name || '', soyad: data.pharmacist || '', unvan: 'Ecz.',
-        spec: 'Eczane', tel: data.tel || '',
-        instagram_url: data.instagram_url || '', facebook_url: data.facebook_url || '',
-        photo_url: data.photos?.[0] || '', il: data.il || '', ilce: data.ilce || '',
-        clinic_name: data.name || '', bio: '',
-      };
+    if (!data) {
+      setForm({ ...temel, ...kartDolu, hekimhane_url: hekimhaneUrl || (existing?.hekimhane_url ?? '') } as HekimKartData);
+      return;
     }
-    setForm(mapped);
-  }
 
-  // Yeni kartta adres kişinin tam adından üretilir (kullanıcı elle yazana kadar).
-  useEffect(() => {
-    if (form.id || slugElle) return;
-    const oneri = kartSlugTemel(form.ad, form.soyad);
-    setForm(p => (p.slug === oneri ? p : { ...p, slug: oneri }));
-  }, [form.ad, form.soyad, form.id, slugElle]);
+    // Ortak eşleme (foto/tel/web/konum/sosyal/bio/uzmanlık/kurum/il-ilçe) —
+    // kart sayfasıyla aynı kaynaktan, yalnız formda karşılığı olan alanlar.
+    const profil: Record<string, string> = {};
+    for (const [alan, deger] of Object.entries(entityKartAlanlari(data))) {
+      if (alan in EMPTY_KART && !bos(deger)) profil[alan] = String(deger);
+    }
+    // Kişi adı: kart sayfasında değil, yalnız formda üretilir (tipine göre)
+    if (claim.entity_type === 'doktor') {
+      Object.assign(profil, { ad: data.ad || '', soyad: data.soyad || '', unvan: data.unvan || '' });
+    } else if (claim.entity_type === 'eczane') {
+      Object.assign(profil, { ad: data.name || '', soyad: data.pharmacist || '', unvan: 'Ecz.', spec: 'Eczane' });
+    } else {
+      Object.assign(profil, { ad: data.name || '', soyad: '', unvan: '' });
+    }
+    for (const k of Object.keys(profil)) if (bos(profil[k])) delete profil[k];
+
+    setForm({
+      ...temel, ...profil, ...kartDolu,
+      hekimhane_url: hekimhaneUrl || (existing?.hekimhane_url ?? ''),
+    } as HekimKartData);
+  }
 
   async function handleSave() {
     if (!form.ad.trim()) { setError('Ad alanı zorunludur.'); return; }

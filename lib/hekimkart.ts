@@ -46,3 +46,35 @@ export function kisalt(slug: string): string {
   const son = kesik.lastIndexOf('-');
   return (son > 20 ? kesik.slice(0, son) : kesik).replace(/-+$/, '');
 }
+
+/** Kartta doldurulmamış alan mı? (boş string de "doldurulmamış" sayılır) */
+export function bos(v: unknown): boolean {
+  return v === null || v === undefined || String(v).trim() === '';
+}
+
+/**
+ * İşletme satırından kart alanlarının karşılıkları — tip farkları
+ * (logo/photo/photos, adres/address, spec/specs/type) burada toplanır.
+ *
+ * İki yerde kullanılır: kart sayfası boş alanları bununla tamamlar,
+ * `/api/kart` kaydederken profildekiyle **aynı** olan değeri boş bırakır
+ * (böylece profil güncellenince kart da kendiliğinden güncellenir).
+ */
+export function entityKartAlanlari(r: Record<string, any> | null | undefined): Record<string, any> {
+  if (!r) return {};
+  const foto = r.photo_url || r.photo || r.logo || (Array.isArray(r.photos) ? r.photos[0] : null) || null;
+  return {
+    photo_url:     typeof foto === 'string' && foto.startsWith('preset:') ? null : foto,
+    tel:           r.tel || null,
+    website_url:   r.website || null,
+    maps_url:      r.maps_url || null,
+    instagram_url: r.instagram_url || null,
+    facebook_url:  r.facebook_url || null,
+    linkedin_url:  r.linkedin_url || null,
+    bio:           r.bio || null,
+    spec:          r.spec || (Array.isArray(r.specs) ? r.specs[0] : null) || r.type || null,
+    clinic_name:   r.clinic_name || r.name || null,
+    il:            r.il || null,
+    ilce:          r.ilce || null,
+  };
+}

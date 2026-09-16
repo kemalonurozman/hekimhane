@@ -6,6 +6,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import KartClient from './KartClient';
+import { bos, entityKartAlanlari } from '@/lib/hekimkart';
 
 export interface KartData {
   slug: string;
@@ -92,31 +93,6 @@ async function resolveEntity(
     };
   } catch { /* entity bulunamazsa sessizce geç */ }
   return { url: null };
-}
-
-/** Kartta doldurulmamış alan mı? (boş string de "doldurulmamış" sayılır) */
-function bos(v: unknown): boolean {
-  return v === null || v === undefined || String(v).trim() === '';
-}
-
-/** İşletme satırından kart alanlarının karşılıkları (tip farkları burada toplanır). */
-function entityKartAlanlari(r: Record<string, any> | null | undefined) {
-  if (!r) return {};
-  const foto = r.photo_url || r.photo || r.logo || (Array.isArray(r.photos) ? r.photos[0] : null) || null;
-  return {
-    photo_url:     typeof foto === 'string' && foto.startsWith('preset:') ? null : foto,
-    tel:           r.tel || null,
-    website_url:   r.website || null,
-    maps_url:      r.maps_url || null,
-    instagram_url: r.instagram_url || null,
-    facebook_url:  r.facebook_url || null,
-    linkedin_url:  r.linkedin_url || null,
-    bio:           r.bio || null,
-    spec:          r.spec || (Array.isArray(r.specs) ? r.specs[0] : null) || r.type || null,
-    clinic_name:   r.clinic_name || r.name || null,
-    il:            r.il || null,
-    ilce:          r.ilce || null,
-  } as Record<string, any>;
 }
 
 /**
