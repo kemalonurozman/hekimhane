@@ -61,7 +61,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-const VALID_STATUS = ['yeni', 'arandi', 'tamamlandi', 'iptal'];
+// 'silindi' = sahibin listeden kaldırdığı talep (çöp kutusu). Kayıt durur,
+// yalnız "Silinenler" filtresinde görünür; oradan geri alınır ya da DELETE
+// ile kalıcı silinir.
+const VALID_STATUS = ['yeni', 'arandi', 'tamamlandi', 'iptal', 'silindi'];
 
 /**
  * POST — Sahip, kendi işletmesine gelen bir randevu talebinin durumunu
@@ -101,7 +104,7 @@ export async function POST(request: NextRequest) {
       try {
         const { data: cak } = await (admin as any).from('randevu_talepleri')
           .select('id').eq('entity_id', String(talep.entity_id)).eq('randevu_slot', yeniSlot)
-          .neq('status', 'iptal').neq('id', id).limit(1).maybeSingle();
+          .neq('status', 'iptal').neq('status', 'silindi').neq('id', id).limit(1).maybeSingle();
         if (cak) return NextResponse.json({ error: 'Seçtiğiniz saat dolu. Başka bir saat seçin.' }, { status: 409 });
       } catch { /* kolon yoksa geç */ }
     }
@@ -140,6 +143,40 @@ export async function POST(request: NextRequest) {
       }
     } catch { /* bildirim ana akışı bozmaz */ }
 
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: 'Geçersiz istek' }, { status: 400 });
+  }
+}
+
+/**
+ * DELETE — Talebi veritabanından **kalıcı** siler. Yalnızca çöp kutusundaki
+ * ('silindi') kayıtlar için kullanılır; panel bunu iki aşamalı onayla çağırır.
+ * Sahiplik kontrolü POST ile aynı (onaylı claim eşleşmesi).
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await panelOturum(request);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
+    }
+    const { id } = await request.json().catch(() => ({ id: null })) as { id?: string };
+    if (!id) return NextResponse.json({ error: 'Geçersiz istek' }, { status: 400 });
+
+    const admin = adminClient();
+    const ids = await ownedEntityIds(admin, session.user.email);
+    const { data: talep } = await (admin as any).from('randevu_talepleri')
+      .select('entity_id,status').eq('id', id).maybeSingle();
+    if (!talep || !ids.includes(String(talep.entity_id))) {
+      return NextResponse.json({ error: 'Bu talep üzerinde yetkiniz yok' }, { status: 403 });
+    }
+    // Kazara kalıcı silmeyi önle: önce çöp kutusuna taşınmış olmalı
+    if (talep.status !== 'silindi') {
+      return NextResponse.json({ error: 'Önce talebi silinenlere taşıyın.' }, { status: 409 });
+    }
+
+    const { error } = await (admin as any).from('randevu_talepleri').delete().eq('id', id);
+    if (error) return NextResponse.json({ error: 'Silinemedi' }, { status: 500 });
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: 'Geçersiz istek' }, { status: 400 });

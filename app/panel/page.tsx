@@ -492,13 +492,23 @@ export default function PanelPage() {
           <span style={{ color: 'white', fontWeight: 800, fontSize: 15, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: 10 }}>
             {isletmeler.length > 1 && aktifClaim ? aktifClaim.entity_name : 'İşletme Portalı'}
           </span>
-          <button onClick={() => setMobileMenuOpen(o => !o)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'white', padding: 4 }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          {/* Menünün ne açtığı yazıyla belli olsun — telefonda üç çizgi tek başına
+              "profil/ayarlar burada" demiyordu. */}
+          <button onClick={() => setMobileMenuOpen(o => !o)}
+            aria-label={mobileMenuOpen ? 'Menüyü kapat' : 'Profil ve ayarlar menüsünü aç'}
+            style={{
+              flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 7,
+              background: 'rgba(255,255,255,.13)', border: '1px solid rgba(255,255,255,.22)',
+              borderRadius: 9, cursor: 'pointer', color: 'white', padding: '6px 11px',
+              fontFamily: 'inherit', fontSize: 12.5, fontWeight: 700, letterSpacing: '-0.1px',
+            }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
               {mobileMenuOpen
                 ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
                 : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>
               }
             </svg>
+            {mobileMenuOpen ? 'Kapat' : 'Profil & Ayarlar'}
           </button>
         </div>
       )}
@@ -1945,6 +1955,7 @@ const RANDEVU_DURUM: Record<string, { label: string; bg: string; color: string; 
   arandi:     { label: 'Arandı',      bg: '#EFF6FF', color: '#1D4ED8', border: '#BFDBFE' },
   tamamlandi: { label: 'Tamamlandı',  bg: '#F0FDF4', color: '#166534', border: '#86EFAC' },
   iptal:      { label: 'İptal',       bg: '#FEF2F2', color: '#991B1B', border: '#FCA5A5' },
+  silindi:    { label: 'Silinenler',  bg: '#F5F5F7', color: '#6E6E73', border: '#E5E5EA' },
 };
 
 function RandevuTalepleriTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimRequest[]; aktifEntityId: string }) {
@@ -2014,6 +2025,23 @@ function RandevuTalepleriTab({ approvedClaims, aktifEntityId }: { approvedClaims
     setUpdating(null);
   }
 
+  /** Talebi kalıcı siler (yalnız çöp kutusundaki kayıtlar için). */
+  async function kaliciSil(id: string) {
+    setUpdating(id);
+    try {
+      const res = await fetch('/api/panel/randevu-talepleri', {
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (res.ok && d.ok) {
+        setTalepler(prev => prev.filter(t => t.id !== id));
+        setDetayId(null);
+      } else alert(d.error || 'Silinemedi.');
+    } catch { alert('Bağlantı hatası.'); }
+    setUpdating(null);
+  }
+
   async function saveNot(id: string) {
     const not = notDraft[id] ?? '';
     setNotSaving(id);
@@ -2071,14 +2099,17 @@ function RandevuTalepleriTab({ approvedClaims, aktifEntityId }: { approvedClaims
 
   const entityNames = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new').map(c => ({ id: c.entity_id!, ad: c.entity_name || '' }));
   const kapsam = talepler.filter(t => selectedEntity === 'all' || t.entity_id === selectedEntity);
-  const shown = kapsam.filter(t => statusFilter === 'all' || t.status === statusFilter);
+  // 'Tümü' çöp kutusunu göstermez — silinenler yalnız kendi sekmesinde
+  const shown = statusFilter === 'all'
+    ? kapsam.filter(t => t.status !== 'silindi')
+    : kapsam.filter(t => t.status === statusFilter);
   const yeniCount = talepler.filter(t => t.status === 'yeni').length;
 
   const fmtDate = (s: string) => { try { return new Date(s).toLocaleString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return s; } };
 
   // Apple tarzı sade palet (yalnızca bu sayfa)
   const A = { page: '#F5F5F7', card: '#FFFFFF', text: '#1D1D1F', muted: '#86868B', line: '#E5E5EA', accent: T.navy, green: '#34C759' };
-  const seg = (['all', 'yeni', 'arandi', 'tamamlandi'] as const);
+  const seg = (['all', 'yeni', 'arandi', 'tamamlandi', 'silindi'] as const);
 
   const IcS = ({ d, size = 15, color = A.muted, sw = 1.8 }: { d: string; size?: number; color?: string; sw?: number }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
@@ -2129,6 +2160,19 @@ function RandevuTalepleriTab({ approvedClaims, aktifEntityId }: { approvedClaims
                       </div>
                     )}
 
+                    {t.status === 'silindi' ? (
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                        <span style={{ fontSize: 12.5, color: A.muted }}>Bu talep silinenlere taşındı.</span>
+                        <button onClick={() => setStatus(t.id, 'iptal')} disabled={updating === t.id}
+                          style={{ padding: '8px 15px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', background: A.page, color: A.accent, border: 'none' }}>
+                          Geri al
+                        </button>
+                        <button onClick={() => { if (confirm('Bu talep veritabanından KALICI olarak silinecek. Bu işlem geri alınamaz. Devam edilsin mi?')) kaliciSil(t.id); }} disabled={updating === t.id}
+                          style={{ padding: '8px 15px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', background: 'transparent', color: '#C0392B', border: '1px solid #F3C9C4' }}>
+                          Kalıcı olarak sil
+                        </button>
+                      </div>
+                    ) : (
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                       {t.status !== 'arandi' && (
                         <button onClick={() => setStatus(t.id, 'arandi')} disabled={updating === t.id}
@@ -2154,7 +2198,15 @@ function RandevuTalepleriTab({ approvedClaims, aktifEntityId }: { approvedClaims
                         <button onClick={() => { if (confirm('Bu randevuyu iptal etmek istiyor musunuz? Hastaya e-posta bırakmışsa bilgilendirilir.')) setStatus(t.id, 'iptal'); }} disabled={updating === t.id}
                           style={{ padding: '8px 15px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', background: 'transparent', color: '#C0392B', border: '1px solid #F3C9C4' }}>İptal et</button>
                       )}
+                      {/* Listeden kaldır → Silinenler sekmesi. Hastaya bildirim GİTMEZ;
+                          iptal bildirimi ayrı bir işlem (İptal et). */}
+                      <button onClick={() => { if (confirm('Bu talep "Silinenler" sekmesine taşınacak. Hastaya bildirim gitmez; istediğinizde geri alabilirsiniz.')) setStatus(t.id, 'silindi'); }} disabled={updating === t.id}
+                        title="Talebi listeden kaldır (silinenlere taşı)"
+                        style={{ padding: '8px 13px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', background: 'transparent', color: A.muted, border: `1px solid ${A.line}`, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                        <IcS d="M3 6h18 M8 6V4h8v2 M6 6l1 14h10l1-14" size={13} />Sil
+                      </button>
                     </div>
+                    )}
 
                     {/* Erteleme formu */}
                     {ertelId === t.id && (
@@ -2226,8 +2278,8 @@ function RandevuTalepleriTab({ approvedClaims, aktifEntityId }: { approvedClaims
     const cokIsletme = selectedEntity === 'all' && entityNames.length > 1;
 
     // İptaller takvimde gösterilmez (saat boşalmıştır); durum filtresi takvime de uygulanır
-    const takvimde = shown.filter(t => t.randevu_slot && t.status !== 'iptal' && isolar.includes(t.randevu_slot.slice(0, 10)));
-    const saatsiz = shown.filter(t => !t.randevu_slot && t.status !== 'iptal');
+    const takvimde = shown.filter(t => t.randevu_slot && t.status !== 'iptal' && t.status !== 'silindi' && isolar.includes(t.randevu_slot.slice(0, 10)));
+    const saatsiz = shown.filter(t => !t.randevu_slot && t.status !== 'iptal' && t.status !== 'silindi');
     const hucre: Record<string, RandevuTalep[]> = {};
     takvimde.forEach(t => { (hucre[t.randevu_slot!] ||= []).push(t); });
 
@@ -2365,7 +2417,9 @@ function RandevuTalepleriTab({ approvedClaims, aktifEntityId }: { approvedClaims
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18, flexWrap: 'wrap' }}>
             <div style={{ display: 'inline-flex', background: A.page, borderRadius: 11, padding: 3, gap: 2 }}>
               {seg.map(f => {
-                const n = f === 'all' ? kapsam.length : kapsam.filter(t => t.status === f).length;
+                const n = f === 'all'
+                  ? kapsam.filter(t => t.status !== 'silindi').length
+                  : kapsam.filter(t => t.status === f).length;
                 const lbl = f === 'all' ? 'Tümü' : (RANDEVU_DURUM[f]?.label || f);
                 const on = statusFilter === f;
                 return (
