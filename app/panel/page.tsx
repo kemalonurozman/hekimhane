@@ -10,6 +10,7 @@ import { IL_LISTE, ILCELER } from '@/lib/tr-il-ilce';
 import { PRO_AYLIK_TL } from '@/lib/pro-plan';
 import { gunSlotlari, type TakvimAyar } from '@/lib/takvim-slot';
 import { yoneticiMi, davetEden } from '@/lib/yonetici';
+import { kartSlugYaz, kartSlugTemel } from '@/lib/hekimkart';
 import MakalelerimTab from './MakalelerimTab';
 import McpTab from './McpTab';
 
@@ -5532,6 +5533,11 @@ function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
   const [copied,    setCopied]    = useState(false);
   const [showQr,    setShowQr]    = useState(false);
   const [view,      setView]      = useState<'form'|'preview'>('form');
+  // Kart adresi: kayıtlı kartta kilitli açılır; değiştirmek uyarı penceresinden geçer.
+  const [slugKilit, setSlugKilit] = useState(true);
+  const [slugUyari, setSlugUyari] = useState(false);
+  const [slugElle,  setSlugElle]  = useState(false);   // kullanıcı adresi elle yazdı mı?
+  const [adresNotu, setAdresNotu] = useState<{ eski: string; yeni: string } | null>(null);
 
   // Kartları yükle
   useEffect(() => {
@@ -5571,6 +5577,7 @@ function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
       kartlar[claim.entity_id!] ||
       allKartlar.find(k => k.entity_id === claim.entity_id) ||
       (allKartlar.length === 1 && !allKartlar[0].entity_id ? allKartlar[0] : null);
+    setSlugKilit(true); setSlugElle(false); setAdresNotu(null);
     if (existing) {
       // hekimhane_url'yi her seferinde taze URL ile güncelle
       setForm({ ...EMPTY_KART, ...existing, hekimhane_url: hekimhaneUrl || existing.hekimhane_url });
@@ -5618,6 +5625,13 @@ function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
     setForm(mapped);
   }
 
+  // Yeni kartta adres kişinin tam adından üretilir (kullanıcı elle yazana kadar).
+  useEffect(() => {
+    if (form.id || slugElle) return;
+    const oneri = kartSlugTemel(form.ad, form.soyad);
+    setForm(p => (p.slug === oneri ? p : { ...p, slug: oneri }));
+  }, [form.ad, form.soyad, form.id, slugElle]);
+
   async function handleSave() {
     if (!form.ad.trim()) { setError('Ad alanı zorunludur.'); return; }
     setSaving(true); setError('');
@@ -5630,6 +5644,9 @@ function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
       const data = await r.json();
       if (!r.ok) { setError(data.error || 'Kayıt başarısız.'); setSaving(false); return; }
       const saved_kart = data.kart as HekimKartData;
+      setAdresNotu(data.slugDegisti && data.eskiSlug
+        ? { eski: data.eskiSlug, yeni: saved_kart.slug } : null);
+      setSlugKilit(true); setSlugElle(false);
       if (saved_kart.entity_id) {
         setKartlar(p => ({ ...p, [saved_kart.entity_id!]: saved_kart }));
       }
@@ -5815,14 +5832,39 @@ function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
 
                   {/* Kart adresi */}
                   <p style={{ fontSize:10.5, fontWeight:700, color:T.muted, letterSpacing:'1px', textTransform:'uppercase', marginBottom:8 }}>Kart Adresi</p>
-                  <div style={{ display:'flex', alignItems:'center', gap:8, background:T.bg, borderRadius:12, padding:'10px 14px', marginBottom:4 }}>
-                    <span style={{ fontSize:12.5, color:T.muted, whiteSpace:'nowrap' }}>hekimhane.com/kart/</span>
-                    <input value={form.slug}
-                      onChange={e => setForm(p=>({...p, slug:e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,'')}))}
-                      placeholder="dr-mehmet-yilmaz"
-                      style={{ flex:1, border:'none', background:'transparent', fontSize:13, fontFamily:'inherit', color:T.navy, fontWeight:700, outline:'none', minWidth:0 }} />
+                  <div style={{ display:'flex', alignItems:'center', gap:8, background:T.bg, borderRadius:12, padding:'10px 14px', marginBottom:4,
+                    border: (form.id && slugKilit) ? `1px solid ${T.border}` : `1.5px solid ${T.navy}` }}>
+                    <span style={{ fontSize:12.5, color:T.muted, whiteSpace:'nowrap' }}>hekimhane.com.tr/kart/</span>
+                    {form.id && slugKilit ? (
+                      <>
+                        <span style={{ flex:1, fontSize:13, color:T.navy, fontWeight:700, wordBreak:'break-all', minWidth:0 }}>
+                          {form.slug || '—'}
+                        </span>
+                        <button type="button" onClick={() => setSlugUyari(true)}
+                          style={{ padding:'5px 10px', borderRadius:8, border:`1px solid ${T.border}`, background:'white', color:T.navy, fontSize:11.5, fontWeight:700, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap' }}>
+                          Değiştir
+                        </button>
+                      </>
+                    ) : (
+                      <input value={form.slug}
+                        onChange={e => { setSlugElle(true); setForm(p=>({...p, slug: kartSlugYaz(e.target.value) })); }}
+                        placeholder="mehmet-yilmaz"
+                        style={{ flex:1, border:'none', background:'transparent', fontSize:13, fontFamily:'inherit', color:T.navy, fontWeight:700, outline:'none', minWidth:0 }} />
+                    )}
                   </div>
-                  <p style={{ fontSize:11, color:T.muted, marginBottom:18 }}>Boş bırakırsanız adınızdan otomatik oluşturulur.</p>
+                  <p style={{ fontSize:11, color:T.muted, marginBottom: adresNotu ? 10 : 18, lineHeight:1.55 }}>
+                    {form.id && slugKilit
+                      ? 'Kartınızın kalıcı adresi. Değiştirirseniz eski adres yeni adrese yönlendirilir.'
+                      : 'Boş bırakırsanız kartın adresi ad–soyadınızdan oluşturulur.'}
+                  </p>
+
+                  {adresNotu && (
+                    <div style={{ background:'#F0FDF4', border:'1px solid #86EFAC', borderRadius:11, padding:'11px 14px', marginBottom:16, fontSize:12.2, color:'#166534', lineHeight:1.6 }}>
+                      Kart adresi güncellendi. <strong>/kart/{adresNotu.eski}</strong> adresini kullananlar
+                      otomatik olarak <strong>/kart/{adresNotu.yeni}</strong> adresine yönlendirilir; eski QR kodlarınız
+                      ve paylaştığınız bağlantılar çalışmaya devam eder.
+                    </div>
+                  )}
 
                   {error && <div style={{ background:'#FEF2F2', border:'1px solid #FCA5A5', borderRadius:10, padding:'10px 14px', color:'#991B1B', fontSize:13, marginBottom:14 }}>{error}</div>}
 
@@ -5914,6 +5956,40 @@ function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
       </div>
 
       {/* QR Büyük Modal */}
+      {/* Adres değiştirme uyarısı */}
+      {slugUyari && (
+        <div onClick={() => setSlugUyari(false)}
+          style={{ position:'fixed', inset:0, background:'rgba(12,20,38,.55)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:400, padding:16 }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ background:'white', borderRadius:18, padding:'24px 22px', maxWidth:430, width:'100%', boxShadow:'0 24px 60px rgba(10,20,40,.3)' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+              <span style={{ width:34, height:34, borderRadius:10, background:'#FEF3C7', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+              </span>
+              <h3 style={{ fontSize:16.5, fontWeight:800, color:T.navy, margin:0, letterSpacing:'-0.3px' }}>Kart adresini değiştir</h3>
+            </div>
+            <p style={{ fontSize:13.2, color:T.text, lineHeight:1.65, margin:'0 0 10px' }}>
+              Kartınızın adresi şu an <strong>{form.slug}</strong>. Değiştirdiğinizde:
+            </p>
+            <ul style={{ margin:'0 0 14px', paddingLeft:18, fontSize:12.8, color:T.muted, lineHeight:1.7 }}>
+              <li>Daha önce paylaştığınız bağlantılar ve bastırdığınız QR kodlar <strong>yeni adrese yönlendirilir</strong> — çalışmaya devam eder.</li>
+              <li>Ancak yönlendirme, eski adresi <strong>başka bir kart almadığı sürece</strong> geçerlidir; adresi sık değiştirmeyin.</li>
+              <li>Sosyal medya profillerinizde, kartvizitlerinizde ve Google sonuçlarında eski adres bir süre daha görünebilir.</li>
+            </ul>
+            <div style={{ display:'flex', gap:9 }}>
+              <button onClick={() => setSlugUyari(false)}
+                style={{ flex:1, padding:'11px', borderRadius:11, border:`1px solid ${T.border}`, background:'white', color:T.muted, fontSize:13.5, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>
+                Vazgeç
+              </button>
+              <button onClick={() => { setSlugKilit(false); setSlugElle(true); setSlugUyari(false); }}
+                style={{ flex:1, padding:'11px', borderRadius:11, border:'none', background:T.navy, color:'white', fontSize:13.5, fontWeight:800, cursor:'pointer', fontFamily:'inherit' }}>
+                Anladım, değiştir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showQr && kartUrl && (
         <div onClick={() => setShowQr(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.6)', backdropFilter:'blur(6px)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
           <div onClick={e => e.stopPropagation()} style={{ background:'white', borderRadius:24, padding:'28px 24px 22px', maxWidth:320, width:'100%', textAlign:'center', boxShadow:'0 24px 80px rgba(0,0,0,.4)' }}>

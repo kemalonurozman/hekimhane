@@ -8,6 +8,7 @@ import ProfilSayfasi from '@/components/ProfilSayfasi';
 import { maskReviewName } from '@/lib/helpers';
 import { bookedSlots } from '@/lib/randevu-booked';
 import { buildEczaneFaq } from '@/lib/faq';
+import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
 
 export const dynamic = 'force-dynamic';
 
@@ -104,6 +105,9 @@ export default async function EczaneProfilPage({ params }: Props) {
 
   const jsonLd = { '@context': 'https://schema.org', '@graph': [pharmacy, breadcrumb, ...(faqPage ? [faqPage] : [])] };
   const rvBooked = (e as any).randevu_aktif ? [...await bookedSlots(e.id), ...(Array.isArray((e as any).randevu_bloke) ? (e as any).randevu_bloke.map(String) : [])] : [];
+  // HekimKart bağlantısı: kayıtlı kart varsa onun adresi (sahip panelden
+  // adresi değiştirdiyse site içindeki bağlantı da onunla birlikte değişsin).
+  const kartSlug = await kartSlugCoz(e.id, e.slug);
 
   return (
     <>
@@ -127,7 +131,7 @@ export default async function EczaneProfilPage({ params }: Props) {
       randevuAktif={(e as any).randevu_aktif} randevuSlotDk={(e as any).randevu_slot_dk} bookedSlots={rvBooked}
       faq={faq}
       yorumlar={yorumlar}
-      kartSlug={e.slug}
+      kartSlug={kartSlug}
       listHref="/eczaneler"
       breadcrumb={[
         { label: 'Ana Sayfa', href: '/' },

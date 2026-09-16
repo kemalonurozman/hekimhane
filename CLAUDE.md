@@ -510,6 +510,15 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **DELETE kuralı:** son sahip kalkarsa `claimed=false` (`sahipsiz:true`), **`premium`'a dokunulmaz** — Stripe aboneliği sürüyor olabilir; iptal admin Premium sekmesinden yapılır (aynı gerekçe `premium_off` guard'ında).
 - **Test notu:** admin rotaları çerez oturumu ister; imzalı iç başlık (MCP) admin'e **açılmadı**. Test ederken `adminMi`'ye geçici kanca eklenip sonra geri alındı — commit'te kanca olmamalı (`grep panelOturum app/api/admin/sahiplik/route.ts` boş dönmeli).
 
+### HekimKart Adresi — kalıcı bağlantı ve adres geçmişi (Eyl 2026)
+- **Sorun:** kartın adresi (slug) değişince daha önce paylaşılmış bağlantılar ve basılı QR kodlar 404 veriyordu; ayrıca profil sayfasındaki "HekimKart" düğmesi **işletme slug'ına** gidiyordu, sahip adresi değiştirince site içi bağlantı ile kartın gerçek adresi ayrışıyordu.
+- **Adres geçmişi (migration ŞART):** `supabase/migrations/add_hekimkart_slug_gecmisi.sql` → `hekimkartlar.eski_sluglar text[]` + GIN index. Adres değişince eskisi bu diziye eklenir (en fazla 20), `/kart/<eski>` **308 ile** yeni adrese gider (`app/kart/[slug]/page.tsx` → `eskiAdrestenCoz`). Kolon yoksa her iki taraf da sessizce eski davranışa düşer (`unknownCols` listesinde `eski_sluglar` var).
+- **Kanonik adres:** `/kart/<işletme-slug>` isteği, o işletmenin kayıtlı kartı varsa kartın adresine yönlendirilir (`isletmeninKarti`). Profil sayfaları da `lib/hekimkart-sunucu.ts` → `kartSlugCoz(entityId, entitySlug)` ile **kartın gerçek adresini** bağlar — 4 detay sayfasında `kartSlug={kartSlug}`.
+- **Varsayılan adres = tam ad:** `lib/hekimkart.ts` (client+server ortak, sunucu importu KOYMA) → `kartSlugify`, `kartSlugTemel(ad,soyad)`, `kartSlugYaz` (elle yazarken sondaki tireyi korur), `kisalt` (70 karakter, kelime ortasından kesmez). Rastgele ek **yalnızca çakışmada** eklenir (eskiden her karta `-ab12` geliyordu).
+- **Panel (`HekimKartTab`):** kayıtlı kartta adres **kilitli** görünür; "Değiştir" uyarı penceresi açar (eski bağlantılar yönlendirilir · yönlendirme eski adresi başkası almadığı sürece geçerli · sık değiştirmeyin). Kaydedince yeşil bilgi kutusu eski→yeni adresi gösterir. Yeni kartta adres ad–soyaddan **canlı** üretilir (`slugElle` ile kullanıcı yazınca durur).
+- **`/api/kart` yetki modeli değişti:** GET artık kendi kartları + **onaylı sahipliği olan işletmelerin kartlarını** döndürür (eskiden yalnız `user_email`; aynı işletmenin ikinci sahibi "kart yok" görüp mükerrer kart açıyordu). POST kaydı `id` yoksa `entity_id` ile bulup **günceller**; kart yoksa yeni işletme kartı için onaylı sahiplik şart (403). Kartı başkası oluşturduysa `user_email` satırı korunur.
+- **Tuzak:** adresi bu tarihten **önce** değişmiş kartların geçmişi yok — eski bağlantı hâlâ ölü. Kurtarmak için ilgili kartın `eski_sluglar` dizisine elle eklemek yeterli.
+
 ### Admin — Pro Aboneliklerin Yönetimi (Ağu 2026)
 - **Liste:** admin panel **Premium Üyeler** sekmesi (`PremiumTab`). `/api/admin/premium` premium=true işletmeleri döndürür; `premium_subscriptions` kaydına ek olarak **Stripe'tan canlı durum** okunur (tek `subscriptions.list({status:'all'})` çağrısı, sayfalı, en fazla 500). `cancel_at_period_end` DB'de tutulmuyor — "dönem sonunda bitecek" bilgisi yalnız buradan gelir. Stripe'a ulaşılamazsa liste DB kaydıyla çalışmaya devam eder ve sekmede kırmızı uyarı çıkar (`stripeHata`).
 - **Aksiyonlar:** `/api/admin/premium-action` (admin oturumu şartı, service-role):
@@ -545,6 +554,7 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Otomatik açılma:** `/api/admin/claim-action` onayında entity_type='doktor' ise `contact_hidden=false` (best-effort). **Admin elle toggle:** admin doktor listesinde e-postası olan satırlarda "Gizli/Açık" butonu → `/api/admin/toggle-contact`.
 - `supabase/migrations/add_makale_gonderim.sql` — `blog_posts` onay akışı kolonları (panelden makale gönderimi için **şart**).
 - `supabase/migrations/add_makale_placement.sql` — `blog_posts.show_homepage` kolonu (admin "Anasayfada öne çıkar" için **şart**; yoksa anasayfa öne çıkan bölümü boş kalır, graceful).
+- `supabase/migrations/add_hekimkart_slug_gecmisi.sql` — `hekimkartlar.eski_sluglar text[]` (HekimKart adresi değişince eski bağlantıların yönlendirilmesi için **şart**; yoksa adres değişir ama eski link 404 verir — graceful).
 - `supabase/migrations/add_doktor_meslek.sql` — `doktorlar`'a `uzmanlik_kurum`, `deneyim_baslangic`, `deneyimler jsonb`, `sertifikalar jsonb` (doktor "Mesleki Bilgiler" paneli + profil bölümü için **şart**; yoksa bölüm gizli kalır, graceful).
 
 ### DB Tabloları (Ağustos eki)

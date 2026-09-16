@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import KartClient from './KartClient';
@@ -85,7 +85,36 @@ async function resolveEntity(
   return { url: null };
 }
 
-async function getKart(slug: string): Promise<KartData | null> {
+/**
+ * Kart araması sonucu. `yonlendir` doluysa istenen adres artık geçerli değil
+ * ama kartın yeni adresi biliniyor — çağıran taraf 308 ile oraya gönderir.
+ */
+interface KartSonuc { kart: KartData | null; yonlendir?: string }
+
+/**
+ * Bu işletmenin kayıtlı kartı var mı? (otomatik karta düşmeden önce bakılır —
+ * sahip panelden adres değiştirdiyse işletme slug'ı yerine kartın gerçek
+ * adresi kanonik olmalı.)
+ */
+async function isletmeninKarti(entityId: string | null | undefined): Promise<string | null> {
+  if (!entityId) return null;
+  try {
+    const { data } = await (supabase as any)
+      .from('hekimkartlar').select('slug').eq('entity_id', String(entityId)).limit(1).maybeSingle();
+    return data?.slug || null;
+  } catch { return null; }
+}
+
+/** Kartın eski adreslerinden biri mi? Kolon yoksa sessizce null döner. */
+async function eskiAdrestenCoz(slug: string): Promise<string | null> {
+  try {
+    const { data } = await (supabase as any)
+      .from('hekimkartlar').select('slug').contains('eski_sluglar', [slug]).limit(1).maybeSingle();
+    return data?.slug || null;
+  } catch { return null; }
+}
+
+async function getKart(slug: string): Promise<KartSonuc> {
   noStore();
   // 1. Önce hekimkartlar tablosuna bak
   const { data: kart } = await (supabase as any)
@@ -98,7 +127,7 @@ async function getKart(slug: string): Promise<KartData | null> {
     const ent = await resolveEntity(kart.entity_id, kart.entity_type);
     // hekimhane_url: kaydedilmişse kullan, yoksa entity'den otomatik türet
     const savedUrl = kart.hekimhane_url?.trim() || null;
-    return {
+    return { kart: {
       ...kart,
       hekimhane_url: savedUrl || ent.url,
       // kartta yoksa entity değerini kullan (fallback)
@@ -107,8 +136,13 @@ async function getKart(slug: string): Promise<KartData | null> {
       rev:      kart.rev      ?? ent.rev      ?? undefined,
       verified: kart.verified ?? ent.verified ?? undefined,
       premium:  kart.premium  ?? ent.premium  ?? undefined,
-    } as KartData;
+    } as KartData };
   }
+
+  // 1b. Kartın eski adresi mi? → yeni adrese yönlendir (basılı QR / paylaşılmış
+  //     bağlantı ölmesin). Adres geçmişi `hekimkartlar.eski_sluglar`'da.
+  const yeniAdres = await eskiAdrestenCoz(slug);
+  if (yeniAdres) return { kart: null, yonlendir: yeniAdres };
 
   // 2. Fallback: doktorlar tablosu (eski sistem kartları)
   const { data: dok } = await supabase
@@ -117,13 +151,15 @@ async function getKart(slug: string): Promise<KartData | null> {
     .eq('slug', slug)
     .single();
   if (dok) {
-    return {
+    const kayitli = await isletmeninKarti((dok as any).id);
+    if (kayitli && kayitli !== slug) return { kart: null, yonlendir: kayitli };
+    return { kart: {
       ...(dok as any),
       photo_url: (dok as any).photo,
       hekimhane_url: `/doktorlar/${slug}`,
       entity_id: (dok as any).id,
       entity_type: 'doktor',
-    } as KartData;
+    } as KartData };
   }
 
   // 3. Fallback: klinik / hastane (slug ile) → otomatik HekimKart
@@ -133,7 +169,9 @@ async function getKart(slug: string): Promise<KartData | null> {
   ]) {
     const { data: e } = await (supabase as any).from(t.table).select('*').eq('slug', slug).single();
     if (e) {
-      return {
+      const kayitli = await isletmeninKarti(e.id);
+      if (kayitli && kayitli !== slug) return { kart: null, yonlendir: kayitli };
+      return { kart: {
         ad: e.name || '', soyad: '',
         unvan: null,
         spec: (Array.isArray(e.specs) && e.specs[0]) || e.type || null,
@@ -151,14 +189,16 @@ async function getKart(slug: string): Promise<KartData | null> {
         slug: e.slug,
         entity_id: e.id, entity_type: t.type,
         hekimhane_url: t.base(e),
-      } as KartData;
+      } as KartData };
     }
   }
 
   // 4. Fallback: eczane
   const { data: ecz } = await (supabase as any).from('eczaneler').select('*').eq('slug', slug).single();
   if (ecz) {
-    return {
+    const kayitli = await isletmeninKarti(ecz.id);
+    if (kayitli && kayitli !== slug) return { kart: null, yonlendir: kayitli };
+    return { kart: {
       ad: ecz.name || '', soyad: '', spec: 'Eczane',
       tel: ecz.tel || null, il: ecz.il || null, ilce: ecz.ilce || null,
       adres: ecz.address || ecz.adres || null, clinic_name: null,
@@ -166,14 +206,14 @@ async function getKart(slug: string): Promise<KartData | null> {
       premium: ecz.premium,
       slug: ecz.slug, entity_id: ecz.id, entity_type: 'eczane',
       hekimhane_url: `/eczaneler/${ecz.slug}`,
-    } as KartData;
+    } as KartData };
   }
 
-  return null;
+  return { kart: null };
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const d = await getKart(params.slug);
+  const { kart: d } = await getKart(params.slug);
   if (!d) return { title: 'Kart Bulunamadı' };
   const name = `${d.unvan ? d.unvan + ' ' : ''}${d.ad} ${d.soyad}`.trim();
   const photo = d.photo_url || d.photo;
@@ -215,7 +255,9 @@ async function getReviews(entity_type?: string | null, entity_id?: string | null
 }
 
 export default async function HekimKartPage({ params }: { params: { slug: string } }) {
-  const d = await getKart(params.slug);
+  const { kart: d, yonlendir } = await getKart(params.slug);
+  // Adres değişmiş: eski bağlantı kalıcı olarak yenisine taşınır (308)
+  if (yonlendir) permanentRedirect(`/kart/${yonlendir}`);
   if (!d) notFound();
   const reviews = await getReviews(d.entity_type, d.entity_id);
   return <KartClient kart={d} reviews={reviews} />;

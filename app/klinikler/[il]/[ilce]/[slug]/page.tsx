@@ -8,6 +8,7 @@ import { maskReviewName } from '@/lib/helpers';
 import { bookedSlots } from '@/lib/randevu-booked';
 import { buildKlinikFaq } from '@/lib/faq';
 import { openingHoursSpec } from '@/lib/seo';
+import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
 
 export const dynamic = 'force-dynamic';
 
@@ -134,6 +135,9 @@ export default async function KlinikProfilPage({ params }: Props) {
 
   const jsonLd = { '@context': 'https://schema.org', '@graph': [business, breadcrumb, ...(faqPage ? [faqPage] : [])] };
   const rvBooked = (k as any).randevu_aktif ? [...await bookedSlots(k.id), ...(Array.isArray((k as any).randevu_bloke) ? (k as any).randevu_bloke.map(String) : [])] : [];
+  // HekimKart bağlantısı: kayıtlı kart varsa onun adresi (sahip panelden
+  // adresi değiştirdiyse site içindeki bağlantı da onunla birlikte değişsin).
+  const kartSlug = await kartSlugCoz(k.id, k.slug);
 
   return (
     <>
@@ -165,7 +169,7 @@ export default async function KlinikProfilPage({ params }: Props) {
       randevuAktif={(k as any).randevu_aktif} randevuSlotDk={(k as any).randevu_slot_dk} bookedSlots={rvBooked}
       faq={faq}
       yorumlar={yorumlar}
-      kartSlug={k.slug}
+      kartSlug={kartSlug}
       listHref="/klinikler"
       breadcrumb={[
         { label: 'Ana Sayfa', href: '/' },

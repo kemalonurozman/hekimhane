@@ -8,6 +8,7 @@ import { maskReviewName } from '@/lib/helpers';
 import { bookedSlots } from '@/lib/randevu-booked';
 import { buildDoktorFaq } from '@/lib/faq';
 import { openingHoursSpec } from '@/lib/seo';
+import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
 
 export const dynamic = 'force-dynamic';
 
@@ -133,6 +134,9 @@ export default async function DoktorProfilPage({ params }: Props) {
 
   const jsonLd = { '@context': 'https://schema.org', '@graph': [physician, breadcrumb, ...(faqPage ? [faqPage] : [])] };
   const rvBooked = (d as any).randevu_aktif ? [...await bookedSlots(d.id), ...(Array.isArray((d as any).randevu_bloke) ? (d as any).randevu_bloke.map(String) : [])] : [];
+  // HekimKart bağlantısı: kayıtlı kart varsa onun adresi (sahip panelden
+  // adresi değiştirdiyse site içindeki bağlantı da onunla birlikte değişsin).
+  const kartSlug = await kartSlugCoz(d.id, d.slug);
 
   return (
     <>
@@ -174,7 +178,7 @@ export default async function DoktorProfilPage({ params }: Props) {
       randevuAktif={(d as any).randevu_aktif} randevuSlotDk={(d as any).randevu_slot_dk} bookedSlots={rvBooked}
       faq={faq}
       yorumlar={yorumlar}
-      kartSlug={d.slug}
+      kartSlug={kartSlug}
       listHref="/doktorlar"
       breadcrumb={[
         { label: 'Ana Sayfa', href: '/' },

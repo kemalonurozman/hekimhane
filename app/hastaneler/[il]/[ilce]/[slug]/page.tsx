@@ -7,6 +7,7 @@ import type { Hastane, Yorum, Doktor } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
 import { maskReviewName } from '@/lib/helpers';
 import { bookedSlots } from '@/lib/randevu-booked';
+import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
 
 export const dynamic = 'force-dynamic';
 
@@ -110,6 +111,9 @@ export default async function HastaneProfilPage({ params }: Props) {
 
   const jsonLd = { '@context': 'https://schema.org', '@graph': [hospital, breadcrumb] };
   const rvBooked = (h as any).randevu_aktif ? [...await bookedSlots(h.id), ...(Array.isArray((h as any).randevu_bloke) ? (h as any).randevu_bloke.map(String) : [])] : [];
+  // HekimKart bağlantısı: kayıtlı kart varsa onun adresi (sahip panelden
+  // adresi değiştirdiyse site içindeki bağlantı da onunla birlikte değişsin).
+  const kartSlug = await kartSlugCoz(h.id, h.slug);
 
   return (
     <>
@@ -135,7 +139,7 @@ export default async function HastaneProfilPage({ params }: Props) {
       randevuAktif={(h as any).randevu_aktif} randevuSlotDk={(h as any).randevu_slot_dk} bookedSlots={rvBooked}
       yorumlar={yorumlar}
       hospitalDoctors={hospitalDoctors}
-      kartSlug={h.slug}
+      kartSlug={kartSlug}
       listHref="/hastaneler"
       breadcrumb={[
         { label: 'Ana Sayfa', href: '/' },
