@@ -127,7 +127,7 @@ export interface ProfilProps {
   breadcrumb: Array<{ label: string; href: string }>;
   listHref: string; // geri dön linki
   kartSlug?: string | null; // /kart/<slug> — HekimKart dijital kartvizit
-  hospitalDoctors?: Doktor[]; // hastane profilinde bünyedeki hekimler (clinic_name eşleşmesi)
+  hospitalDoctors?: Doktor[]; // hastane/klinik profilinde bünyedeki hekimler (clinic_name eşleşmesi)
   clinicHref?: string | null; // doktorun çalıştığı hastane sistemde kayıtlıysa → hastane sayfası linki
 }
 
@@ -1101,7 +1101,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
   const randevuGizli = entityType === 'eczane';
   const gorunenTabs = TABS.filter(t =>
     t === 'meslek'   ? hasMeslek :
-    t === 'hekimler' ? (entityType === 'hastane' && hekimSayisi > 0) :
+    t === 'hekimler' ? ((entityType === 'hastane' || entityType === 'klinik') && hekimSayisi > 0) :
     t === 'randevu'  ? !randevuGizli :
     true);
   useEffect(() => {
@@ -1912,7 +1912,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
           )}
 
           {/* ── HEKİMLER TAB (hastane) — bünyedeki doktorlar, bölüm bölüm ── */}
-          {activeTab === 'hekimler' && entityType === 'hastane' && !!hospitalDoctors?.length && (() => {
+          {activeTab === 'hekimler' && (entityType === 'hastane' || entityType === 'klinik') && !!hospitalDoctors?.length && (() => {
             const byBolum: Record<string, Doktor[]> = {};
             hospitalDoctors.forEach(d => { const k = d.spec || 'Diğer'; (byBolum[k] || (byBolum[k] = [])).push(d); });
             const bolumler = Object.keys(byBolum).sort((a, b) => a.localeCompare(b, 'tr'));

@@ -577,6 +577,13 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - `supabase/migrations/add_yorum_moderation.sql` — yorum şikayet/moderasyon kolonları (yukarıdaki akış için **şart**; çalıştırılmadan şikayet/gizleme çalışmaz).
 - `supabase/migrations/add_bobath_contact.sql` — `doktorlar.email` + `doktorlar.contact_hidden` kolonları. Bobath terapistleri importu (`scripts/import-bobath.js`) ve gizli-iletişim akışı için **şart**. Çalıştırılmadan import commit edilemez.
 
+### Özel Hastane Kadrosu — Özel Ömür Hastanesi (Eyl 2026)
+- **Kayıt:** `klinikler` **k1270** "Özel Ömür Hastanesi" (Adana/Seyhan; slug eski İngilizce çeviri `adana-seyhan-special-lifetime-medical-center`, sahiplenilmiş). Hastane olduğu halde `klinikler`'de — taşınmadı (URL, sahiplik ve yorum bağları kırılırdı).
+- **Kadro:** 27 hekim `doktorlar`'a (d4688–d4714), `clinic_name='Özel Ömür Hastanesi'`, kurumun il/ilçe/tel/konumu, `verified=false`. Kaynak: hastanenin kendi "Hekim Kadromuz" sayfası (yalnız isim/unvan/branş — **fotoğraflar kopyalanmadı/bağlanmadı**). Script: `node scripts/import-omur-hastanesi.js [--commit]` (idempotent: kurum+isim eşleşeni atlar). Bölüm adları sitedeki yerleşik branş yazımına eşlendi (ör. Dahiliye → İç Hastalıkları, KBB → Kulak Burun Boğaz Hastalıkları); diş hekimleri `Diş Hekimliği` → `/doktorlar` genel aramasında gizli, kadroda görünür.
+- **Klinik profilinde kadro:** `/klinikler/[il]/[ilce]/[slug]` artık hastane sayfasıyla aynı sorguyla (`doktorlar.clinic_name = k.name`) "Hekimler" sekmesini gösterir (`ProfilSayfasi` sekmesi `hastane || klinik`). O an eşleşen tek diğer klinik k174 Bartın Şehit Cem Kanbur ADSM (30 devlet diş hekimi — doğru).
+- **Hekim → kurum bağlantısı:** `app/doktorlar/[slug]` önce `hastaneler`, bulamazsa `klinikler`'de **ad + il** eşleşmesi arar; birden çok eşleşmede bağlantı verilmez.
+- **Yeni bir hastane kadrosu eklerken** bu script'i şablon al: kurum id'si, `KADRO` listesi ve `BRANS` eşlemesi değişir.
+
 ### Bobath Terapistleri (fizyoterapist kategorisi + gizli iletişim)
 - **Amaç:** ~379 Bobath (fizyoterapist) terapisti; her biri kendi ilinde, ayrı kategori. E-posta/telefon **kayıtlı ama varsayılan gizli** (`contact_hidden=true`); kişi profilini sahiplenince otomatik açılır, admin de elle açıp kapatabilir.
 - **Veri modeli:** `doktorlar`'a `spec='Fizyoterapist'`, `tags=['bobath-terapisti','Fizyoterapist']`, `email`, `contact_hidden=true`, `verified=false`, `clinic_name=null`. Standart `/doktorlar` aramasında **tag ile gizli** (4 sorguya `.not('tags','cs','{bobath-terapisti}')` eklendi — devlet/üniversite gibi).

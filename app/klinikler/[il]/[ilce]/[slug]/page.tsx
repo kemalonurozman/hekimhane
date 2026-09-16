@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
-import type { Klinik, Yorum } from '@/lib/types';
+import type { Klinik, Yorum, Doktor } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
 import { maskReviewName } from '@/lib/helpers';
 import { bookedSlots } from '@/lib/randevu-booked';
@@ -27,7 +27,12 @@ async function getData(slug: string) {
     .eq('entity_type', 'klinik').eq('entity_id', k.id)
     .order('created_at', { ascending: false }).limit(50);
   const yorumlar = ((rawYorumlar || []) as Yorum[]).filter((y: any) => !y.hidden);
-  return { k, yorumlar };
+  // Bünyedeki hekimler — hastane profiliyle aynı model: doktorlar.clinic_name = kurum adı.
+  // (Bazı hastaneler klinikler tablosunda kayıtlı, ör. Özel Ömür Hastanesi k1270.)
+  const { data: rawDocs } = await supabase.from('doktorlar').select('*')
+    .eq('clinic_name', k.name).limit(500);
+  const hospitalDoctors = ((rawDocs || []) as Doktor[]);
+  return { k, yorumlar, hospitalDoctors };
 }
 
 export async function generateStaticParams() {
@@ -68,7 +73,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function KlinikProfilPage({ params }: Props) {
   const res = await getData(params.slug);
   if (!res) notFound();
-  const { k, yorumlar } = res;
+  const { k, yorumlar, hospitalDoctors } = res;
 
   const trFn = (s: string) => (s||'').toLowerCase()
     .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
@@ -170,6 +175,7 @@ export default async function KlinikProfilPage({ params }: Props) {
       faq={faq}
       yorumlar={yorumlar}
       kartSlug={kartSlug}
+      hospitalDoctors={hospitalDoctors}
       listHref="/klinikler"
       breadcrumb={[
         { label: 'Ana Sayfa', href: '/' },

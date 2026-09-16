@@ -34,6 +34,16 @@ async function getData(slug: string) {
       .select('il,ilce,slug').eq('name', d.clinic_name).maybeSingle();
     const h = hosp as { il: string | null; ilce: string | null; slug: string | null } | null;
     if (h?.slug) clinicHref = `/hastaneler/${tr(h.il||'turkiye')}/${tr(h.ilce||'merkez')}/${h.slug}`;
+    else {
+      // Bazı hastaneler klinikler tablosunda kayıtlı (ör. Özel Ömür Hastanesi)
+      // Aynı adlı başka ildeki kliniğe yanlış bağlanmasın: il de eşleşmeli.
+      // Birden çok eşleşmede maybeSingle null döner → bağlantı verilmez.
+      let kq = supabase.from('klinikler').select('il,ilce,slug').eq('name', d.clinic_name);
+      if (d.il) kq = kq.eq('il', d.il);
+      const { data: kl } = await kq.maybeSingle();
+      const k = kl as { il: string | null; ilce: string | null; slug: string | null } | null;
+      if (k?.slug) clinicHref = `/klinikler/${tr(k.il||'turkiye')}/${tr(k.ilce||'merkez')}/${k.slug}`;
+    }
   }
   return { d, yorumlar, clinicHref };
 }
