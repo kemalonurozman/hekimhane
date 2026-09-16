@@ -5973,8 +5973,8 @@ function HekimKartTab({ approvedClaims, profileUrls, user, aktifClaimId }: {
             </p>
             <ul style={{ margin:'0 0 14px', paddingLeft:18, fontSize:12.8, color:T.muted, lineHeight:1.7 }}>
               <li>Daha önce paylaştığınız bağlantılar ve bastırdığınız QR kodlar <strong>yeni adrese yönlendirilir</strong> — çalışmaya devam eder.</li>
-              <li>Ancak yönlendirme, eski adresi <strong>başka bir kart almadığı sürece</strong> geçerlidir; adresi sık değiştirmeyin.</li>
-              <li>Sosyal medya profillerinizde, kartvizitlerinizde ve Google sonuçlarında eski adres bir süre daha görünebilir.</li>
+              <li>Eski adresiniz size <strong>ayrılmış kalır</strong> — başka bir kart ya da işletme onu alamaz. (Son 20 adres saklanır.)</li>
+              <li>Yine de sosyal medya profillerinizdeki, kartvizitlerinizdeki ve Google sonuçlarındaki bağlantıyı güncellemeniz, adresi sık değiştirmemeniz önerilir.</li>
             </ul>
             <div style={{ display:'flex', gap:9 }}>
               <button onClick={() => setSlugUyari(false)}

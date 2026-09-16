@@ -30,6 +30,46 @@ function rand4() { return Math.random().toString(36).slice(2, 6); }
 /** En fazla kaç eski adres saklanır (yönlendirme zinciri sonsuz büyümesin). */
 const MAX_ESKI_SLUG = 20;
 
+/** İşletme tabloları — kart adresi bu slug'larla da çakışmamalı. */
+const ENTITY_TABLOLARI = ['klinikler', 'hastaneler', 'doktorlar', 'eczaneler'];
+
+/**
+ * Bu adres başka biri tarafından tutuluyor mu?
+ *
+ * Üç şey kontrol edilir:
+ *  1. Başka bir kartın **güncel** adresi,
+ *  2. Başka bir kartın **eski** adresi — yönlendirme için ayrılmıştır; serbest
+ *     bırakılırsa o kartın basılı QR kodları yabancı bir karta düşer,
+ *  3. Başka bir işletmenin slug'ı — `/kart/<işletme-slug>` o işletmenin
+ *     otomatik kartını açar; aynı adresi bir kart alırsa o işletmenin
+ *     kartvizit bağlantısı yabancı bir kişiyi gösterir.
+ *
+ * Dönen değer: null = müsait, aksi halde kısa sebep.
+ */
+async function adresSahibi(
+  admin: any, slug: string, kartId: string | null, entityId: string | null,
+): Promise<'kart' | 'gecmis' | 'isletme' | null> {
+  const q = admin.from('hekimkartlar').select('id').eq('slug', slug);
+  if (kartId) q.neq('id', kartId);
+  const { data: kart } = await q.limit(1).maybeSingle();
+  if (kart) return 'kart';
+
+  try {
+    const g = admin.from('hekimkartlar').select('id').contains('eski_sluglar', [slug]);
+    if (kartId) g.neq('id', kartId);
+    const { data: gecmis } = await g.limit(1).maybeSingle();
+    if (gecmis) return 'gecmis';
+  } catch { /* eski_sluglar kolonu yoksa atla */ }
+
+  for (const t of ENTITY_TABLOLARI) {
+    try {
+      const { data: e } = await admin.from(t).select('id').eq('slug', slug).limit(1).maybeSingle();
+      if (e && String(e.id) !== String(entityId || '')) return 'isletme';
+    } catch { /* tablo/kolon sorunu akışı bozmasın */ }
+  }
+  return null;
+}
+
 /** Kullanıcının onaylı sahiplik/yöneticilik kurduğu işletme kimlikleri. */
 async function erisilenEntityIdleri(admin: any, email: string): Promise<Set<string>> {
   try {
@@ -142,12 +182,28 @@ export async function POST(request: NextRequest) {
   }
   if (!fields.slug) fields.slug = `kart-${rand4()}`;
 
-  // Aynı adres başka bir kartta mı?
-  const cakismaSorgu = (admin as any)
-    .from('hekimkartlar').select('id').eq('slug', fields.slug);
-  if (mevcut?.id) cakismaSorgu.neq('id', mevcut.id);
-  const { data: cakisan } = await cakismaSorgu.limit(1).maybeSingle();
-  if (cakisan) fields.slug = `${fields.slug}-${rand4()}`;
+  // Adres müsait mi? Kullanıcı adresi ELLE yazdıysa sessizce değiştirmek
+  // yanıltıcı olur (paylaşacağı adres başka çıkar) → net hata döndürülür.
+  // Otomatik üretilen adreste ek koyup devam edilir.
+  const entityIdStr = fields.entity_id ? String(fields.entity_id) : (mevcut?.entity_id ? String(mevcut.entity_id) : null);
+  // Adres değişmiyorsa hiç sorgulama: mevcut adres sonradan bir işletme slug'ı
+  // ile çakışmış olsa bile sahibi kendi kartını kaydedememezlik etmesin.
+  const adresDegisti = !mevcut || String(fields.slug) !== mevcut.slug;
+  let sahip = adresDegisti
+    ? await adresSahibi(admin, String(fields.slug), mevcut?.id || null, entityIdStr)
+    : null;
+  if (sahip && istenen) {
+    const mesaj = sahip === 'gecmis'
+      ? 'Bu adres daha önce başka bir kartın adresiydi ve eski bağlantıları yönlendirmek için ayrılmış durumda. Lütfen farklı bir adres seçin.'
+      : sahip === 'isletme'
+        ? 'Bu adres Hekimhane\'deki başka bir işletmenin sayfa adresiyle aynı. Lütfen farklı bir adres seçin.'
+        : 'Bu kart adresi kullanımda. Lütfen farklı bir adres seçin.';
+    return NextResponse.json({ error: mesaj, adresCakismasi: sahip }, { status: 409 });
+  }
+  for (let i = 0; sahip && i < 5; i++) {
+    fields.slug = `${kisalt(String(fields.slug))}-${rand4()}`;
+    sahip = await adresSahibi(admin, String(fields.slug), mevcut?.id || null, entityIdStr);
+  }
 
   // ── Adres geçmişi ─────────────────────────────────────────────────────
   // Adres değiştiyse eskisi saklanır; /kart/<eski> yeni adrese yönlenir.
