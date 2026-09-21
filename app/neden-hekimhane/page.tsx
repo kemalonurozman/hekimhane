@@ -82,7 +82,7 @@ const yuvarla = (n: number) => {
   return `${Math.floor(n / basamak) * basamak}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '+';
 };
 
-const NAVY = '#1B3A69', GOLD = '#D4A843', TEXT = '#1c1c1e', MUTED = '#6E6E73', BORDER = '#E5E5EA';
+const NAVY = '#1B3A69', TEXT = '#1c1c1e', MUTED = '#6E6E73', BORDER = '#E5E5EA';
 
 const trSayi = (n: number) => n.toLocaleString('tr-TR');
 
@@ -92,12 +92,11 @@ export default async function NedenHekimhanePage() {
     <div style={{ paddingTop: 64, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif', color: TEXT, background: '#fff' }}>
       <style>{`
         .nh-wrap{max-width:1120px;margin:0 auto;padding:0 24px;}
-        .nh-hero{position:relative;overflow:hidden;background:linear-gradient(155deg,#0F2A55 0%,#1B3A69 55%,#163D6E 100%);color:#fff;}
-        .nh-hero-glow{position:absolute;border-radius:50%;filter:blur(10px);opacity:.5;}
-        .nh-cta{display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border-radius:14px;font-size:15px;font-weight:700;text-decoration:none;letter-spacing:-.2px;transition:transform .16s ease, box-shadow .16s ease;}
+        .nh-hero{position:relative;overflow:hidden;background:radial-gradient(900px 460px at 50% -12%,#E9F0FB 0%,rgba(233,240,251,0) 70%),#FBFBFD;border-bottom:1px solid #E5E5EA;color:#1c1c1e;}
+                .nh-cta{display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border-radius:14px;font-size:15px;font-weight:700;text-decoration:none;letter-spacing:-.2px;transition:transform .16s ease, box-shadow .16s ease;}
         .nh-cta:hover{transform:translateY(-2px);}
-        .nh-cta-gold{background:linear-gradient(135deg,#EBC65D,#D4A843);color:#0F2A55;box-shadow:0 10px 26px rgba(212,168,67,.4);}
-        .nh-cta-ghost{background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(255,255,255,.28);}
+        .nh-cta-gold{background:#1B3A69;color:#fff;box-shadow:0 2px 8px rgba(27,58,105,.22);}
+        .nh-cta-ghost{background:#fff;color:#1B3A69;border:1.5px solid #D9DCE3;}
         .nh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
         .nh-card{background:#fff;border:1px solid ${BORDER};border-radius:20px;padding:26px 24px;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;}
         .nh-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(15,42,85,.1);border-color:#D6DEEC;}
@@ -116,17 +115,15 @@ export default async function NedenHekimhanePage() {
 
       {/* ── HERO ─────────────────────────────────────────── */}
       <section className="nh-hero">
-        <span className="nh-hero-glow" style={{ width: 360, height: 360, right: -80, top: -120, background: 'rgba(212,168,67,.22)' }} />
-        <span className="nh-hero-glow" style={{ width: 300, height: 300, left: -100, bottom: -140, background: 'rgba(78,123,192,.28)' }} />
         <div className="nh-wrap" style={{ position: 'relative', zIndex: 1, padding: '84px 24px 92px', textAlign: 'center' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 15px', borderRadius: 999, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.2)', fontSize: 12.5, fontWeight: 700, letterSpacing: '.4px', marginBottom: 24 }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#4ADE80', display: 'inline-block' }} />
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 15px', borderRadius: 999, background: 'rgba(27,58,105,.06)', border: '1px solid rgba(27,58,105,.12)', color: NAVY, fontSize: 12, fontWeight: 700, letterSpacing: '.4px', marginBottom: 24 }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1E8E5A', display: 'inline-block' }} />
             ŞU AN TAMAMEN ÜCRETSİZ
           </span>
-          <h1 style={{ fontSize: 'clamp(34px, 5.4vw, 58px)', fontWeight: 800, letterSpacing: '-1.6px', lineHeight: 1.05, margin: '0 0 20px' }}>
+          <h1 style={{ fontSize: 'clamp(34px, 5.4vw, 58px)', fontWeight: 700, letterSpacing: '-1.8px', lineHeight: 1.05, margin: '0 0 20px', color: NAVY }}>
             Neden Hekimhane?
           </h1>
-          <p style={{ fontSize: 'clamp(16px, 2.2vw, 20px)', lineHeight: 1.6, color: 'rgba(255,255,255,.82)', maxWidth: 720, margin: '0 auto 34px', fontWeight: 400 }}>
+          <p style={{ fontSize: 'clamp(16px, 2.2vw, 20px)', lineHeight: 1.6, color: MUTED, maxWidth: 720, margin: '0 auto 34px', fontWeight: 400 }}>
             Türkiye’nin diş sağlığı rehberinde işletmeniz için ihtiyacınız olan her şey tek çatı altında:
             ücretsiz profil, ücretsiz HekimKart, randevu sistemi, blog ile görünürlük ve bölgeye özel SEO — bugün tamamen ücretsiz.
           </p>
@@ -142,7 +139,7 @@ export default async function NedenHekimhanePage() {
 
       {/* ── PROFİLİN ZATEN BURADA — SAHİPLEN / EKLE ─────────── */}
       <section className="nh-wrap" style={{ padding: '56px 24px 8px', textAlign: 'center' }}>
-        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: GOLD, margin: '0 0 12px' }}>Profiliniz İçin</p>
+        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: NAVY, margin: '0 0 12px' }}>Profiliniz İçin</p>
         <h2 style={{ fontSize: 'clamp(24px, 3.4vw, 34px)', fontWeight: 800, letterSpacing: '-1px', color: NAVY, margin: '0 0 10px' }}>
           Profiliniz çoktan burada olabilir
         </h2>
@@ -186,7 +183,7 @@ export default async function NedenHekimhanePage() {
 
         {/* CTA: Sahiplen / Ekle */}
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/klinikler" className="nh-cta nh-cta-gold" style={{ boxShadow: '0 8px 22px rgba(212,168,67,.32)' }}>
+          <Link href="/klinikler" className="nh-cta nh-cta-gold">
             Profilinizi Sahiplenin
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
           </Link>
@@ -218,7 +215,7 @@ export default async function NedenHekimhanePage() {
       {/* ── ÖZELLİK KARTLARI ─────────────────────────────── */}
       <section className="nh-wrap" style={{ padding: '72px 24px 20px' }}>
         <div style={{ textAlign: 'center', marginBottom: 44 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: GOLD, margin: '0 0 12px' }}>İşletmeniz İçin</p>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: NAVY, margin: '0 0 12px' }}>İşletmeniz İçin</p>
           <h2 style={{ fontSize: 'clamp(26px, 3.6vw, 36px)', fontWeight: 800, letterSpacing: '-1px', color: NAVY, margin: 0 }}>Hekimhane ile neler kazanırsınız?</h2>
         </div>
         <div className="nh-grid">
@@ -236,7 +233,7 @@ export default async function NedenHekimhanePage() {
       <section style={{ background: '#F5F5F7', marginTop: 40 }}>
         <div className="nh-wrap" style={{ padding: '72px 24px' }}>
           <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 44px' }}>
-            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: GOLD, margin: '0 0 12px' }}>Güven Bir Tercihtir</p>
+            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: NAVY, margin: '0 0 12px' }}>Güven Bir Tercihtir</p>
             <h2 style={{ fontSize: 'clamp(26px, 3.6vw, 36px)', fontWeight: 800, letterSpacing: '-1px', color: NAVY, margin: '0 0 14px' }}>Neden bize güvenebilirsiniz?</h2>
             <p style={{ fontSize: 15.5, color: MUTED, lineHeight: 1.7, margin: 0 }}>
               Sağlık, güven ister. Hastaların doğru bilgiye ulaşması ve işletmelerin hastaların ihtiyacını anlaması için
@@ -254,23 +251,22 @@ export default async function NedenHekimhanePage() {
           </div>
 
           {/* Etkimiz — gerçek sayılar */}
-          <div style={{ marginTop: 40, background: 'linear-gradient(150deg,#0F2A55,#1B3A69)', borderRadius: 24, padding: 'clamp(28px, 4vw, 44px)', color: '#fff', position: 'relative', overflow: 'hidden' }}>
-            <span className="nh-hero-glow" style={{ width: 260, height: 260, right: -70, top: -120, background: 'rgba(212,168,67,.18)' }} />
+          <div style={{ marginTop: 40, background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 24, padding: 'clamp(28px, 4vw, 44px)', color: TEXT, position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.2px', textTransform: 'uppercase', color: '#EBC65D', margin: '0 0 10px' }}>Etkimiz</p>
+              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.2px', textTransform: 'uppercase', color: NAVY, margin: '0 0 10px' }}>Etkimiz</p>
               <h3 style={{ fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 800, letterSpacing: '-.6px', margin: '0 0 26px' }}>Türkiye genelinde büyüyen bir sağlık rehberi</h3>
               <div className="nh-stat">
                 <div>
-                  <div style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, letterSpacing: '-1px', color: '#EBC65D' }}>{sayilar.klinik > 0 ? `${trSayi(sayilar.klinik)}+` : '—'}</div>
-                  <div style={{ fontSize: 14, color: 'rgba(255,255,255,.72)', marginTop: 4 }}>Diş kliniği ve muayenehane</div>
+                  <div style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 700, letterSpacing: '-1px', color: NAVY, fontVariantNumeric: 'tabular-nums' }}>{sayilar.klinik > 0 ? `${trSayi(sayilar.klinik)}+` : '—'}</div>
+                  <div style={{ fontSize: 14, color: MUTED, marginTop: 4 }}>Diş kliniği ve muayenehane</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, letterSpacing: '-1px', color: '#EBC65D' }}>{sayilar.disHekimi > 0 ? `${trSayi(sayilar.disHekimi)}+` : '—'}</div>
-                  <div style={{ fontSize: 14, color: 'rgba(255,255,255,.72)', marginTop: 4 }}>Uzman diş hekimi</div>
+                  <div style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 700, letterSpacing: '-1px', color: NAVY, fontVariantNumeric: 'tabular-nums' }}>{sayilar.disHekimi > 0 ? `${trSayi(sayilar.disHekimi)}+` : '—'}</div>
+                  <div style={{ fontSize: 14, color: MUTED, marginTop: 4 }}>Uzman diş hekimi</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, letterSpacing: '-1px', color: '#EBC65D' }}>81 il</div>
-                  <div style={{ fontSize: 14, color: 'rgba(255,255,255,.72)', marginTop: 4 }}>Bölgeye özel sayfalarla kapsam</div>
+                  <div style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 700, letterSpacing: '-1px', color: NAVY, fontVariantNumeric: 'tabular-nums' }}>81 il</div>
+                  <div style={{ fontSize: 14, color: MUTED, marginTop: 4 }}>Bölgeye özel sayfalarla kapsam</div>
                 </div>
               </div>
             </div>
@@ -282,8 +278,8 @@ export default async function NedenHekimhanePage() {
       <section className="nh-wrap" style={{ padding: '64px 24px 8px' }}>
         <div style={{ border: `1px solid ${BORDER}`, borderRadius: 26, padding: 'clamp(28px, 4vw, 44px)', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 999, background: 'linear-gradient(135deg,#EBC65D,#D4A843)', color: '#0F2A55', fontSize: 12, fontWeight: 800, letterSpacing: '.5px' }}>
-              <Icon name="gift" size={14} color="#0F2A55" /> ÜCRETSİZ BAŞLANGIÇ PAKETİ
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 999, background: 'rgba(27,58,105,.07)', border: '1px solid rgba(27,58,105,.14)', color: NAVY, fontSize: 12, fontWeight: 700, letterSpacing: '.5px' }}>
+              <Icon name="gift" size={14} color={NAVY} /> ÜCRETSİZ BAŞLANGIÇ PAKETİ
             </span>
           </div>
           <h2 style={{ fontSize: 'clamp(24px, 3.4vw, 32px)', fontWeight: 800, letterSpacing: '-.9px', color: NAVY, textAlign: 'center', margin: '0 0 8px' }}>Bugün hiçbir ücret ödemeden başlayın</h2>
@@ -309,7 +305,7 @@ export default async function NedenHekimhanePage() {
             ))}
           </div>
           <div style={{ textAlign: 'center', marginTop: 32 }}>
-            <Link href="/katil" className="nh-cta nh-cta-gold" style={{ boxShadow: '0 10px 26px rgba(212,168,67,.35)' }}>
+            <Link href="/katil" className="nh-cta nh-cta-gold">
               Ücretsiz Başlayın
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
             </Link>
@@ -319,16 +315,15 @@ export default async function NedenHekimhanePage() {
 
       {/* ── HEKİMKART SPOTLIGHT ──────────────────────────── */}
       <section className="nh-wrap" style={{ padding: '56px 24px' }}>
-        <div style={{ background: 'linear-gradient(150deg,#0F2A55,#1B3A69)', borderRadius: 28, padding: 'clamp(28px, 4vw, 52px)', color: '#fff', position: 'relative', overflow: 'hidden' }}>
-          <span className="nh-hero-glow" style={{ width: 260, height: 260, right: -60, bottom: -100, background: 'rgba(212,168,67,.2)' }} />
+        <div style={{ background: '#F5F5F7', border: `1px solid ${BORDER}`, borderRadius: 28, padding: 'clamp(28px, 4vw, 52px)', color: TEXT, position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: '1fr', gap: 20, maxWidth: 760 }}>
-            <span style={{ display: 'inline-flex', width: 'fit-content', alignItems: 'center', gap: 8, padding: '6px 13px', borderRadius: 999, background: 'rgba(212,168,67,.18)', border: '1px solid rgba(212,168,67,.4)', color: '#EBC65D', fontSize: 12, fontWeight: 800, letterSpacing: '.5px' }}>
-              <Icon name="card" size={14} color="#EBC65D" /> HEKİMKART
+            <span style={{ display: 'inline-flex', width: 'fit-content', alignItems: 'center', gap: 8, padding: '6px 13px', borderRadius: 999, background: 'rgba(27,58,105,.07)', border: '1px solid rgba(27,58,105,.14)', color: NAVY, fontSize: 12, fontWeight: 700, letterSpacing: '.5px' }}>
+              <Icon name="card" size={14} color={NAVY} /> HEKİMKART
             </span>
             <h2 style={{ fontSize: 'clamp(24px, 3.4vw, 34px)', fontWeight: 800, letterSpacing: '-.9px', lineHeight: 1.15, margin: 0 }}>
               Web sitenizin profesyonel hâli — ücretsiz.
             </h2>
-            <p style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(255,255,255,.8)', margin: 0 }}>
+            <p style={{ fontSize: 16, lineHeight: 1.7, color: MUTED, margin: 0 }}>
               Size özel, kaliteli ve hızlı HekimKart’ınızı web siteniz olarak kullanın. Ayrı bir site yaptırma
               maliyeti ve teknik uğraş olmadan; iletişim bilgileriniz, uzmanlıklarınız, fotoğraflarınız,
               çalışma saatleriniz ve randevu talebi tek profesyonel sayfada. QR ile paylaşın, kartvizite basın.
@@ -336,7 +331,7 @@ export default async function NedenHekimhanePage() {
             <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginTop: 4 }}>
               {['Profesyonel tasarım', 'Mobil uyumlu', 'QR ile paylaşım', 'SEO uyumlu'].map(x => (
                 <span key={x} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600 }}>
-                  <Icon name="check" size={16} color="#4ADE80" stroke={3} />{x}
+                  <Icon name="check" size={16} color="#1E8E5A" stroke={3} />{x}
                 </span>
               ))}
             </div>
@@ -349,11 +344,11 @@ export default async function NedenHekimhanePage() {
         <div style={{ border: `1px solid ${BORDER}`, borderRadius: 26, padding: 'clamp(28px, 4vw, 44px)', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.05)', display: 'grid', gridTemplateColumns: '1fr', gap: 22, textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap', color: MUTED, fontSize: 14, fontWeight: 600 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#F5F5F7', border: `1px solid ${BORDER}`, borderRadius: 999, padding: '8px 14px' }}><Icon name="globe" size={15} /> Kendi siteniz</span>
-            <span style={{ color: GOLD, fontWeight: 800 }}>+</span>
+            <span style={{ color: NAVY, fontWeight: 800 }}>+</span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#F5F5F7', border: `1px solid ${BORDER}`, borderRadius: 999, padding: '8px 14px' }}><Icon name="card" size={15} /> HekimKart</span>
-            <span style={{ color: GOLD, fontWeight: 800 }}>+</span>
+            <span style={{ color: NAVY, fontWeight: 800 }}>+</span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#F5F5F7', border: `1px solid ${BORDER}`, borderRadius: 999, padding: '8px 14px' }}>Hekimhane</span>
-            <span style={{ color: GOLD, fontWeight: 800 }}>→</span>
+            <span style={{ color: NAVY, fontWeight: 800 }}>→</span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'rgba(27,58,105,.08)', border: '1px solid rgba(27,58,105,.2)', color: NAVY, borderRadius: 999, padding: '8px 14px', fontWeight: 800 }}>Tek panel</span>
           </div>
           <h2 style={{ fontSize: 'clamp(23px, 3.3vw, 32px)', fontWeight: 800, letterSpacing: '-.9px', color: NAVY, margin: 0 }}>
@@ -364,7 +359,7 @@ export default async function NedenHekimhanePage() {
             ister Hekimhane profilinizden gelsin, tüm talepler panelinizde tek yerde toplanır ve size e-posta gider.
           </p>
           <div>
-            <Link href="/randevu-modulu" className="nh-cta nh-cta-gold" style={{ boxShadow: '0 10px 26px rgba(212,168,67,.3)' }}>
+            <Link href="/randevu-modulu" className="nh-cta nh-cta-gold">
               Randevu Modülünü Keşfedin
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
             </Link>
@@ -377,8 +372,8 @@ export default async function NedenHekimhanePage() {
         <div className="nh-compare">
           <div style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 22, padding: '28px 26px' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 9, marginBottom: 16 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg,#EBC65D,#D4A843)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="bolt" size={20} color="#0F2A55" />
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(27,58,105,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="bolt" size={20} color={NAVY} />
               </div>
               <h3 style={{ fontSize: 19, fontWeight: 800, color: NAVY, margin: 0, letterSpacing: '-.4px' }}>Hekimhane ile</h3>
             </div>
@@ -412,11 +407,10 @@ export default async function NedenHekimhanePage() {
       {/* ── KAPANIŞ CTA ──────────────────────────────────── */}
       <section style={{ background: '#F5F5F7' }}>
         <div className="nh-wrap" style={{ padding: '64px 24px' }}>
-          <div style={{ background: 'linear-gradient(150deg,#0F2A55,#163D6E)', borderRadius: 26, padding: 'clamp(30px, 4vw, 52px)', textAlign: 'center', color: '#fff', position: 'relative', overflow: 'hidden' }}>
-            <span className="nh-hero-glow" style={{ width: 280, height: 280, left: '50%', top: -160, transform: 'translateX(-50%)', background: 'rgba(212,168,67,.16)' }} />
+          <div style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 26, padding: 'clamp(30px, 4vw, 52px)', textAlign: 'center', color: TEXT, position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <h2 style={{ fontSize: 'clamp(24px, 3.6vw, 36px)', fontWeight: 800, letterSpacing: '-1px', margin: '0 0 14px' }}>Bugün ücretsiz başlayın</h2>
-              <p style={{ fontSize: 16, color: 'rgba(255,255,255,.78)', lineHeight: 1.6, maxWidth: 560, margin: '0 auto 30px' }}>
+              <h2 style={{ fontSize: 'clamp(24px, 3.6vw, 36px)', fontWeight: 700, letterSpacing: '-1px', margin: '0 0 14px', color: NAVY }}>Bugün ücretsiz başlayın</h2>
+              <p style={{ fontSize: 16, color: MUTED, lineHeight: 1.6, maxWidth: 560, margin: '0 auto 30px' }}>
                 Profilinizi ekleyin veya sahiplenin; HekimKart’ınızı oluşturun, randevu almaya ve markanızı büyütmeye hemen başlayın.
               </p>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>

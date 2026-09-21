@@ -355,26 +355,48 @@ export default function ListingLayout(props: ListingLayoutProps) {
             margin-bottom: 12px;
           }
           .listing-hero-container {
-            padding: 20px 16px 0;
+            padding: 18px 16px 0;
           }
           .listing-hero-title {
-            font-size: 22px !important;
-          }
-          .listing-stat-number {
-            font-size: 20px !important;
+            font-size: 21px !important;
+            letter-spacing: -0.5px !important;
           }
           .listing-icon-box {
-            width: 48px !important;
-            height: 48px !important;
-            border-radius: 14px !important;
+            width: 44px !important;
+            height: 44px !important;
+            border-radius: 13px !important;
           }
+          .listing-icon-box svg {
+            width: 22px !important;
+            height: 22px !important;
+          }
+          /* Sayaçlar: büyük kutular yerine tek satır, sade */
           .listing-stat-strip {
-            margin-left: -16px !important;
-            margin-right: -16px !important;
-            padding-left: 16px !important;
+            margin: 0 !important;
+            padding: 0 0 14px !important;
+            border-top: none !important;
+            gap: 0 !important;
+            align-items: center;
           }
           .listing-stat-item {
-            padding: 10px 20px 10px 0 !important;
+            padding: 0 !important;
+            border-right: none !important;
+            display: flex !important;
+            align-items: baseline;
+            gap: 5px;
+          }
+          .listing-stat-item + .listing-stat-item {
+            border-left: 1px solid var(--border) !important;
+            margin-left: 12px;
+            padding-left: 12px !important;
+          }
+          .listing-stat-number {
+            font-size: 15px !important;
+            letter-spacing: -0.3px !important;
+          }
+          .listing-stat-label {
+            margin-top: 0 !important;
+            font-size: 12px !important;
           }
           .listing-breadcrumb {
             padding: 9px 0 !important;
@@ -476,14 +498,14 @@ export default function ListingLayout(props: ListingLayoutProps) {
               <div className="listing-stat-number" style={{ fontWeight: 700, color: 'var(--text)', lineHeight: 1, letterSpacing: '-0.5px', fontVariantNumeric: 'tabular-nums' }}>
                 {count.toLocaleString('tr')}
               </div>
-              <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 3, fontWeight: 500 }}>
+              <div className="listing-stat-label" style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 3, fontWeight: 500 }}>
                 {entityLabelPlural} listelendi
               </div>
             </div>
             {cityCount !== undefined && (
               <div className="listing-stat-item" style={{ padding: '14px 28px' }}>
                 <div className="listing-stat-number" style={{ fontWeight: 700, color: 'var(--text)', lineHeight: 1, letterSpacing: '-0.5px', fontVariantNumeric: 'tabular-nums' }}>{cityCount}</div>
-                <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 3, fontWeight: 500 }}>şehir</div>
+                <div className="listing-stat-label" style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 3, fontWeight: 500 }}>şehir</div>
               </div>
             )}
           </div>

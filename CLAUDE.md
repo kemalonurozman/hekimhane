@@ -539,6 +539,8 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 ### Listeleme Sayfaları Başlığı — Açık, Sade (Eyl 2026)
 - `components/ListingLayout.tsx` üst bandı: koyu gradyan + `HeroParticles` canvas'ı + dekoratif daireler **kaldırıldı**. Beyaz zemin, `var(--border)` hairline'lar, başlık `var(--text)` 700, breadcrumb gri. İkon kutusu düz `color` (sayfanın marka rengi) üstünde beyaz glif — sayfaların `icon` SVG'leri `stroke="white"` olduğu için bu şart. Aktif filtre çipleri `${color}12` tint.
 - `gradient` prop'u artık **kullanılmıyor** (opsiyonel bırakıldı; 4 liste sayfası hâlâ geçiyor, kaldırmak isteğe bağlı).
+- **Mobil sayaçlar (≤768px):** stat şeridi büyük kutular yerine tek satır (`4 klinik listelendi | 4 şehir`): `.listing-stat-item` flex satır, ikinci öğe `border-left` ile ayrılır (`content:'·'` KULLANILMADI — `<style>` metin çocuğunda tırnak hidrasyon tuzağı). Etiketlere `.listing-stat-label` sınıfı verildi. İkon 44px, başlık 21px.
+- **`/neden-hekimhane`** de aynı dile çekildi: koyu lacivert hero/kartlar (Etkimiz, HekimKart spotlight, kapanış CTA) beyaz/açık gri kart + hairline; altın gradyan CTA'lar düz lacivert (`.nh-cta-gold` adı kaldı, rengi lacivert), `.nh-cta-ghost` beyaz kenarlıklı; parlama süsleri (`nh-hero-glow`) kaldırıldı; bölüm üst yazıları altın yerine lacivert.
 - **Tuzak:** dış kapsayıcıdaki `overflow: hidden` **kalmalı** — stat şeridi negatif marjla (`-32px`/mobilde `-16px`) taşar, kaldırınca mobilde yatay kaydırma çıkıyor (ölçüldü: 375px'te scrollWidth > innerWidth).
 
 ### Admin Paneli — Açık Tema (Eyl 2026)
