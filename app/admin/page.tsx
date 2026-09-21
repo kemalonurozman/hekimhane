@@ -4,30 +4,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import type { User } from '@supabase/supabase-js';
 import MakalelerTab from './MakalelerTab';
+import { C } from './tema';
+import { LogoMark } from '@/components/Logo';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
 /* ═══════════════════════════════════════════════
    Renk & İkon sistemi
 ═══════════════════════════════════════════════ */
-const C = {
-  bg:     '#080F1E',
-  panel:  '#0D1526',
-  card:   '#111B2E',
-  border: 'rgba(255,255,255,.07)',
-  text:   'rgba(255,255,255,.92)',
-  muted:  'rgba(255,255,255,.42)',
-  dim:    'rgba(255,255,255,.2)',
-  gold:   '#D4A843',
-  navy:   '#1B3A69',
-  green:  '#10B981',
-  amber:  '#F59E0B',
-  red:    '#EF4444',
-  blue:   '#3B82F6',
-  cyan:   '#06B6D4',
-  purple: '#8B5CF6',
-  orange: '#EA580C',
-};
 
 function Ic({ d, size = 16 }: { d: string; size?: number }) {
   return (
@@ -112,7 +96,7 @@ function StatusBadge({ status }: { status: string }) {
     pending:  { label: 'Bekliyor',   bg: 'rgba(245,158,11,.12)',  color: '#F59E0B', border: 'rgba(245,158,11,.25)' },
     approved: { label: 'Onaylandı', bg: 'rgba(16,185,129,.12)',  color: '#10B981', border: 'rgba(16,185,129,.25)' },
     rejected: { label: 'Reddedildi',bg: 'rgba(239,68,68,.12)',   color: '#EF4444', border: 'rgba(239,68,68,.25)' },
-  }[status] || { label: status, bg: 'rgba(255,255,255,.06)', color: C.muted, border: C.border };
+  }[status] || { label: status, bg: C.soft, color: C.muted, border: C.border };
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
       <span style={{ width: 5, height: 5, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
@@ -194,88 +178,97 @@ type TabKey = 'dashboard' | 'claims' | 'cekim' | 'sikayetler' | 'emailler' | 'pr
    DASHBOARD SEKMESİ
 ═══════════════════════════════════════════════ */
 function DashboardTab({ stats, onTabChange }: { stats: Stats | null; onTabChange: (t: TabKey) => void }) {
+  const bugun = new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' });
+
   if (!stats) return (
-    <div style={{ textAlign: 'center', padding: 60, color: C.muted, fontSize: 14 }}>İstatistikler yükleniyor...</div>
+    <div style={{ padding: '80px 0', textAlign: 'center', color: C.muted, fontSize: 14 }}>İstatistikler yükleniyor…</div>
   );
 
   const statCards = [
-    { label: 'Toplam Klinik',   value: stats.entities.klinik,  sub: `${stats.entities.klinikClaimed} sahiplenilmiş`,  color: C.cyan,   icon: IC.klinik,  tab: 'klinikler' as TabKey },
-    { label: 'Toplam Hastane',  value: stats.entities.hastane, sub: `${stats.entities.hastaneClaimed} sahiplenilmiş`, color: C.purple, icon: IC.hastane, tab: 'hastaneler' as TabKey },
-    { label: 'Toplam Doktor',   value: stats.entities.doktor,  sub: 'kayıtlı uzman',                                  color: C.green,  icon: IC.doktor,  tab: 'doktorlar' as TabKey },
-    { label: 'Toplam Eczane',   value: stats.entities.eczane,  sub: 'ağımızdaki eczane',                              color: C.orange, icon: IC.eczane,  tab: 'eczaneler' as TabKey },
+    { label: 'Klinik',   value: stats.entities.klinik,  sub: `${stats.entities.klinikClaimed.toLocaleString('tr-TR')} sahiplenilmiş`,  icon: IC.klinik,  tab: 'klinikler'  as TabKey },
+    { label: 'Hastane',  value: stats.entities.hastane, sub: `${stats.entities.hastaneClaimed.toLocaleString('tr-TR')} sahiplenilmiş`, icon: IC.hastane, tab: 'hastaneler' as TabKey },
+    { label: 'Doktor',   value: stats.entities.doktor,  sub: 'kayıtlı uzman',                                                            icon: IC.doktor,  tab: 'doktorlar'  as TabKey },
+    { label: 'Eczane',   value: stats.entities.eczane,  sub: 'ağdaki eczane',                                                            icon: IC.eczane,  tab: 'eczaneler'  as TabKey },
   ];
 
   const claimCards = [
-    { label: 'Bekleyen', value: stats.claims.pending,  color: C.amber,  icon: IC.clock },
-    { label: 'Onaylı',   value: stats.claims.approved, color: C.green,  icon: IC.check },
-    { label: 'Reddedilen',value: stats.claims.rejected,color: C.red,    icon: IC.x },
-    { label: 'Toplam',   value: stats.claims.total,    color: C.blue,   icon: IC.claims },
+    { label: 'Bekleyen',   value: stats.claims.pending,  color: C.amber },
+    { label: 'Onaylı',     value: stats.claims.approved, color: C.green },
+    { label: 'Reddedilen', value: stats.claims.rejected, color: C.red   },
+    { label: 'Toplam',     value: stats.claims.total,    color: C.navy  },
   ];
 
+  const bolum: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: C.muted, marginBottom: 10 };
+  const kart: React.CSSProperties = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden' };
+
   return (
-    <div>
-      <div style={{ marginBottom: 28 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 800, color: C.text, letterSpacing: '-0.4px', margin: 0 }}>Genel Bakış</h2>
-        <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>Hekimhane veri özeti</p>
+    <div style={{ maxWidth: 1120 }}>
+      <header style={{ marginBottom: 30 }}>
+        <h1 style={{ fontSize: 28, fontWeight: 700, color: C.text, letterSpacing: '-0.8px', margin: 0, lineHeight: 1.15 }}>Genel Bakış</h1>
+        <p style={{ fontSize: 14, color: C.muted, margin: '6px 0 0' }}>{bugun}</p>
+      </header>
+
+      {/* İşletmeler — tek kart, ince çizgilerle bölünmüş dört sütun */}
+      <div style={bolum}>İşletmeler</div>
+      <div style={{ ...kart, marginBottom: 26 }}>
+        <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, background: C.border }}>
+          {statCards.map(s => (
+            <button key={s.label} onClick={() => onTabChange(s.tab)} className="adm-stat"
+              style={{ background: C.card, padding: '20px 22px 18px', border: 'none', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', display: 'flex', flexDirection: 'column', gap: 0, transition: 'background .12s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: C.muted, marginBottom: 14 }}>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{s.label}</span>
+                <span style={{ display: 'flex', color: C.dim }}><Ic d={s.icon} size={16} /></span>
+              </div>
+              <div style={{ fontSize: 32, fontWeight: 700, color: C.text, lineHeight: 1, letterSpacing: '-1px', fontVariantNumeric: 'tabular-nums' }}>
+                {s.value.toLocaleString('tr-TR')}
+              </div>
+              <div style={{ fontSize: 12.5, color: C.muted, marginTop: 8 }}>{s.sub}</div>
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Entity istatistikleri */}
-      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 12 }}>İşletmeler</div>
-      <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
-        {statCards.map(s => (
-          <button key={s.label} onClick={() => onTabChange(s.tab)} style={{ background: C.card, borderRadius: 14, padding: '20px 20px 16px', border: `1px solid ${C.border}`, cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'border-color .15s' }}
-            onMouseEnter={e => (e.currentTarget.style.borderColor = s.color + '55')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = C.border)}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: s.color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.color, marginBottom: 14 }}>
-              <Ic d={s.icon} size={17} />
+      {/* Sahiplenme talepleri — durum rengi yalnız küçük bir nokta */}
+      <div style={bolum}>Sahiplenme Talepleri</div>
+      <div style={{ ...kart, marginBottom: 26 }}>
+        <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, background: C.border }}>
+          {claimCards.map(s => (
+            <div key={s.label} style={{ background: C.card, padding: '16px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13, fontWeight: 600, color: C.muted }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, flexShrink: 0 }} />{s.label}
+              </div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: C.text, letterSpacing: '-0.5px', fontVariantNumeric: 'tabular-nums' }}>{s.value}</div>
             </div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: C.text, lineHeight: 1, marginBottom: 5 }}>{s.value.toLocaleString('tr-TR')}</div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: C.muted }}>{s.label}</div>
-            <div style={{ fontSize: 11, color: s.color, marginTop: 3 }}>{s.sub}</div>
-          </button>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {/* Talep istatistikleri */}
-      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 12 }}>Sahiplenme Talepleri</div>
-      <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
-        {claimCards.map(s => (
-          <div key={s.label} style={{ background: C.card, borderRadius: 14, padding: '20px', border: `1px solid ${C.border}` }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <span style={{ color: s.color }}><Ic d={s.icon} size={16} /></span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>{s.label}</span>
-            </div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: s.color }}>{s.value}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Son talepler */}
+      {/* Son başvurular */}
       {stats.recentClaims.length > 0 && (
         <>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.8px' }}>Son Başvurular</div>
-            <button onClick={() => onTabChange('claims')} style={{ fontSize: 12, fontWeight: 700, color: C.gold, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
-              Tümünü Gör →
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ ...bolum, marginBottom: 0 }}>Son Başvurular</div>
+            <button onClick={() => onTabChange('claims')} style={{ fontSize: 13, fontWeight: 600, color: C.navy, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
+              Tümünü gör →
             </button>
           </div>
-          <div style={{ background: C.card, borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
+          <div style={kart}>
             {stats.recentClaims.map((c, i) => (
-              <div key={c.id} style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: i < stats.recentClaims.length - 1 ? `1px solid ${C.border}` : 'none' }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: (ENTITY_META[c.entity_type]?.color || C.blue) + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', color: ENTITY_META[c.entity_type]?.color || C.blue, flexShrink: 0 }}>
-                  <Ic d={ENTITY_META[c.entity_type]?.icon || IC.hastane} size={16} />
+              <button key={c.id} onClick={() => onTabChange('claims')} className="adm-satir"
+                style={{ width: '100%', padding: '13px 20px', display: 'flex', alignItems: 'center', gap: 14, background: 'transparent', border: 'none', borderBottom: i < stats.recentClaims.length - 1 ? `1px solid ${C.border}` : 'none', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'background .12s' }}>
+                <div style={{ width: 34, height: 34, borderRadius: 10, background: C.soft, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.muted, flexShrink: 0 }}>
+                  <Ic d={ENTITY_META[c.entity_type]?.icon || IC.hastane} size={15} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {c.entity_name || 'Yeni İşletme'}
                   </div>
-                  <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
-                    {c.ad_soyad || c.claimant_name} · {new Date(c.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
+                  <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>
+                    {c.ad_soyad || c.claimant_name} · {ENTITY_META[c.entity_type]?.label || c.entity_type} · {new Date(c.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
                   </div>
                 </div>
-                <TypeBadge type={c.entity_type} />
                 <StatusBadge status={c.status} />
-              </div>
+              </button>
             ))}
           </div>
         </>
@@ -393,7 +386,7 @@ function ClaimsTab({ claims, loading, onAction, actionId }: {
 
                 {/* Detay */}
                 {isExpanded && (
-                  <div style={{ borderTop: `1px solid ${C.border}`, padding: '16px 18px', background: 'rgba(0,0,0,.15)', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
+                  <div style={{ borderTop: `1px solid ${C.border}`, padding: '16px 18px', background: C.soft, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
                     <div>
                       <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>İşletme</div>
                       <DR label="Ad" value={c.entity_name || '—'} />
@@ -410,7 +403,7 @@ function ClaimsTab({ claims, loading, onAction, actionId }: {
                     <div>
                       <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>Mesaj</div>
                       {c.mesaj ? (
-                        <div style={{ fontSize: 12, color: C.text, background: 'rgba(255,255,255,.04)', border: `1px solid ${C.border}`, borderRadius: 9, padding: '10px 12px', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{c.mesaj}</div>
+                        <div style={{ fontSize: 12, color: C.text, background: C.soft, border: `1px solid ${C.border}`, borderRadius: 9, padding: '10px 12px', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{c.mesaj}</div>
                       ) : <span style={{ fontSize: 12, color: C.muted }}>—</span>}
                     </div>
 
@@ -575,16 +568,16 @@ function EditModal({ entity, entityType, onClose, onSaved }: {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 9000, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
       {/* Backdrop */}
-      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.55)', backdropFilter: 'blur(3px)' }} />
+      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(29,29,31,.32)', backdropFilter: 'blur(3px)' }} />
       {/* Panel */}
-      <div style={{ position: 'relative', width: 440, height: '100vh', background: '#0D1526', borderLeft: `1px solid rgba(255,255,255,.1)`, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ position: 'relative', width: 440, height: '100vh', background: C.card, borderLeft: `1px solid ${C.border}`, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
         {/* Başlık */}
-        <div style={{ padding: '20px 24px', borderBottom: `1px solid rgba(255,255,255,.07)`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#0D1526', zIndex: 1 }}>
+        <div style={{ padding: '20px 24px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: C.card, zIndex: 1 }}>
           <div>
             <div style={{ fontSize: 16, fontWeight: 800, color: C.text }}>Kaydı Düzenle</div>
             <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{entity.name || `${entity.ad||''} ${entity.soyad||''}`.trim()}</div>
           </div>
-          <button onClick={onClose} style={{ background: 'rgba(255,255,255,.06)', border: `1px solid rgba(255,255,255,.1)`, color: C.muted, borderRadius: 8, padding: '6px 10px', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13 }}>✕</button>
+          <button onClick={onClose} style={{ background: C.soft, border: `1px solid ${C.border}`, color: C.muted, borderRadius: 8, padding: '6px 10px', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13 }}>✕</button>
         </div>
 
         {/* Form */}
@@ -596,12 +589,12 @@ function EditModal({ entity, entityType, onClose, onSaved }: {
                 <>
                   <textarea value={form[f.key] || ''} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))} rows={4}
                     placeholder={'https://example.com/foto1.jpg\nhttps://example.com/foto2.jpg'}
-                    style={{ width: '100%', padding: '9px 11px', borderRadius: 9, border: `1px solid rgba(255,255,255,.12)`, background: 'rgba(255,255,255,.04)', color: C.text, fontSize: 12, fontFamily: 'monospace', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '9px 11px', borderRadius: 9, border: `1px solid ${C.border}`, background: C.soft, color: C.text, fontSize: 12, fontFamily: 'monospace', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
                   {/* Önizleme */}
                   {form[f.key] && (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginTop: 8 }}>
                       {form[f.key].split('\n').filter((u: string) => u.trim()).map((url: string, i: number) => (
-                        <div key={i} style={{ aspectRatio: '4/3', borderRadius: 8, overflow: 'hidden', border: `1px solid rgba(255,255,255,.12)`, background: 'rgba(255,255,255,.04)' }}>
+                        <div key={i} style={{ aspectRatio: '4/3', borderRadius: 8, overflow: 'hidden', border: `1px solid ${C.border}`, background: C.soft }}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={url.trim()} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                         </div>
@@ -611,16 +604,16 @@ function EditModal({ entity, entityType, onClose, onSaved }: {
                 </>
               ) : f.type === 'textarea' ? (
                 <textarea value={form[f.key] || ''} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))} rows={3}
-                  style={{ width: '100%', padding: '9px 11px', borderRadius: 9, border: `1px solid rgba(255,255,255,.12)`, background: 'rgba(255,255,255,.04)', color: C.text, fontSize: 13, fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '9px 11px', borderRadius: 9, border: `1px solid ${C.border}`, background: C.soft, color: C.text, fontSize: 13, fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
               ) : f.type === 'select' ? (
                 <select value={form[f.key] || ''} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
-                  style={{ width: '100%', padding: '9px 11px', borderRadius: 9, border: `1px solid rgba(255,255,255,.12)`, background: '#0D1526', color: C.text, fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}>
+                  style={{ width: '100%', padding: '9px 11px', borderRadius: 9, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}>
                   <option value="">Seçin</option>
                   {f.options?.map(o => <option key={o} value={o}>{o}</option>)}
                 </select>
               ) : (
                 <input type={f.type || 'text'} value={form[f.key] || ''} onChange={e => setForm(p => ({ ...p, [f.key]: f.type === 'number' ? Number(e.target.value) : e.target.value }))}
-                  style={{ width: '100%', padding: '9px 11px', borderRadius: 9, border: `1px solid rgba(255,255,255,.12)`, background: 'rgba(255,255,255,.04)', color: C.text, fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '9px 11px', borderRadius: 9, border: `1px solid ${C.border}`, background: C.soft, color: C.text, fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
               )}
             </div>
           ))}
@@ -629,7 +622,7 @@ function EditModal({ entity, entityType, onClose, onSaved }: {
         </div>
 
         {/* Kaydet */}
-        <div style={{ padding: '16px 24px', borderTop: `1px solid rgba(255,255,255,.07)`, position: 'sticky', bottom: 0, background: '#0D1526' }}>
+        <div style={{ padding: '16px 24px', borderTop: `1px solid ${C.border}`, position: 'sticky', bottom: 0, background: C.card }}>
           <button onClick={handleSave} disabled={saving}
             style={{ width: '100%', padding: '12px', borderRadius: 10, border: 'none', background: saving ? 'rgba(212,168,67,.5)' : C.gold, color: 'white', fontSize: 14, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
             {saving ? (
@@ -711,12 +704,12 @@ function SahiplikModal({ entity, entityType, onClose, onChanged }: {
     setCalisan(false);
   }
 
-  const inp: React.CSSProperties = { padding: '10px 12px', borderRadius: 9, border: `1px solid ${C.border}`, background: 'rgba(255,255,255,.04)', color: C.text, fontSize: 13, fontFamily: 'inherit', outline: 'none', minWidth: 0 };
+  const inp: React.CSSProperties = { padding: '10px 12px', borderRadius: 9, border: `1px solid ${C.border}`, background: C.soft, color: C.text, fontSize: 13, fontFamily: 'inherit', outline: 'none', minWidth: 0 };
   const tarih = (t: string) => { try { return new Date(t).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' }); } catch { return ''; } };
 
   return (
     <div onClick={ev => { if (ev.target === ev.currentTarget) onClose(); }}
-      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', zIndex: 500, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '70px 16px 24px', overflowY: 'auto' }}>
+      style={{ position: 'fixed', inset: 0, background: 'rgba(29,29,31,.32)', zIndex: 500, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '70px 16px 24px', overflowY: 'auto' }}>
       <div style={{ width: '100%', maxWidth: 560, background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden' }}>
         <div style={{ padding: '16px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ color: C.gold }}><Ic d={IC.users} size={16} /></span>
@@ -732,11 +725,11 @@ function SahiplikModal({ entity, entityType, onClose, onChanged }: {
           {yukleniyor ? (
             <div style={{ fontSize: 13, color: C.muted, padding: '8px 0' }}>Yükleniyor…</div>
           ) : erisimler.length === 0 ? (
-            <div style={{ fontSize: 13, color: C.muted, padding: '10px 12px', borderRadius: 9, background: 'rgba(255,255,255,.03)', border: `1px dashed ${C.border}` }}>
+            <div style={{ fontSize: 13, color: C.muted, padding: '10px 12px', borderRadius: 9, background: C.soft, border: `1px dashed ${C.border}` }}>
               Bu işletme sahiplenilmemiş — aşağıdan bir e-postaya sahiplik atayabilirsiniz.
             </div>
           ) : erisimler.map(e => (
-            <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, background: 'rgba(255,255,255,.03)', border: `1px solid ${C.border}`, marginBottom: 6, flexWrap: 'wrap' }}>
+            <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, background: C.soft, border: `1px solid ${C.border}`, marginBottom: 6, flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: 160 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.email}</div>
                 <div style={{ fontSize: 11, color: C.muted }}>{e.ad ? e.ad + ' · ' : ''}{tarih(e.created_at)}{e.davet_eden ? ` · davet: ${e.davet_eden}` : ''}</div>
@@ -887,7 +880,7 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
       ) : (
         <div style={{ background: C.card, borderRadius: 14, border: `1px solid ${C.border}`, overflowX: 'auto' }}>
           {/* Tablo başlığı */}
-          <div style={{ display: 'grid', gridTemplateColumns: KOLONLAR, gap: 12, minWidth: TABLO_MIN, padding: '10px 18px', borderBottom: `1px solid ${C.border}`, background: 'rgba(0,0,0,.2)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: KOLONLAR, gap: 12, minWidth: TABLO_MIN, padding: '10px 18px', borderBottom: `1px solid ${C.border}`, background: C.soft }}>
             {['İşletme / Ad', 'Şehir', 'Puan', 'Sahiplenilmiş', 'İşlemler'].map(h => (
               <div key={h} style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</div>
             ))}
@@ -922,7 +915,7 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
                 </div>
                 <div>
                   {typeKey !== 'doktor' ? (
-                    <span style={{ fontSize: 11, fontWeight: 700, color: isClaimed ? C.green : C.muted, background: isClaimed ? 'rgba(16,185,129,.12)' : 'rgba(255,255,255,.05)', padding: '2px 9px', borderRadius: 8, border: `1px solid ${isClaimed ? 'rgba(16,185,129,.3)' : C.border}` }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: isClaimed ? C.green : C.muted, background: isClaimed ? 'rgba(16,185,129,.12)' : C.soft, padding: '2px 9px', borderRadius: 8, border: `1px solid ${isClaimed ? 'rgba(16,185,129,.3)' : C.border}` }}>
                       {isClaimed ? 'Evet' : 'Hayır'}
                     </span>
                   ) : <span style={{ fontSize: 11, color: C.muted }}>—</span>}
@@ -935,20 +928,20 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
                   </button>
                   {/* Sahiplik: e-postayla ata / kaldır */}
                   <button onClick={() => setSahipEntity(e)} title="Sahiplik ata veya kaldır"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 9px', borderRadius: 8, background: isClaimed ? 'rgba(16,185,129,.12)' : 'rgba(255,255,255,.04)', border: `1px solid ${isClaimed ? 'rgba(16,185,129,.3)' : C.border}`, color: isClaimed ? C.green : C.dim, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 9px', borderRadius: 8, background: isClaimed ? 'rgba(16,185,129,.12)' : C.soft, border: `1px solid ${isClaimed ? 'rgba(16,185,129,.3)' : C.border}`, color: isClaimed ? C.green : C.muted, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                     <Ic d={IC.users} size={11} /> Sahip
                   </button>
                   {/* İletişim gizle/aç — yalnız e-postası olan doktorlar (ör. Bobath) */}
                   {typeKey === 'doktor' && e.email && (
                     <button onClick={() => toggleContact(e.id, e.contact_hidden !== false)}
                       title={e.contact_hidden !== false ? 'İletişim gizli — açmak için tıklayın' : 'İletişim açık — gizlemek için tıklayın'}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 8px', borderRadius: 8, background: e.contact_hidden !== false ? 'rgba(255,255,255,.05)' : 'rgba(16,185,129,.12)', border: `1px solid ${e.contact_hidden !== false ? C.border : 'rgba(16,185,129,.3)'}`, color: e.contact_hidden !== false ? C.muted : C.green, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 8px', borderRadius: 8, background: e.contact_hidden !== false ? C.soft : 'rgba(16,185,129,.12)', border: `1px solid ${e.contact_hidden !== false ? C.border : 'rgba(16,185,129,.3)'}`, color: e.contact_hidden !== false ? C.muted : C.green, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                       <Ic d={e.contact_hidden !== false ? 'M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z M7 11V7a5 5 0 0 1 10 0v4' : 'M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z M7 11V7a5 5 0 0 1 9.9-1'} size={11} />
                       {e.contact_hidden !== false ? 'Gizli' : 'Açık'}
                     </button>
                   )}
                   {url && (
-                    <a href={url} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 8px', borderRadius: 8, background: 'rgba(255,255,255,.06)', border: `1px solid ${C.border}`, color: C.dim, fontSize: 11, fontWeight: 600, textDecoration: 'none' }}>
+                    <a href={url} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 8px', borderRadius: 8, background: C.soft, border: `1px solid ${C.border}`, color: C.muted, fontSize: 11, fontWeight: 600, textDecoration: 'none' }}>
                       <Ic d={IC.eye} size={11} />
                     </a>
                   )}
@@ -961,7 +954,7 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
                       display: 'inline-flex', alignItems: 'center', gap: 4,
                       padding: deleteId === e.id ? '5px 8px' : '5px 8px',
                       borderRadius: 8,
-                      background: deleteId === e.id ? 'rgba(239,68,68,.18)' : 'rgba(255,255,255,.04)',
+                      background: deleteId === e.id ? 'rgba(239,68,68,.18)' : C.soft,
                       border: `1px solid ${deleteId === e.id ? 'rgba(239,68,68,.5)' : C.border}`,
                       color: deleteId === e.id ? '#EF4444' : C.dim,
                       fontSize: 11, fontWeight: deleteId === e.id ? 700 : 600,
@@ -979,7 +972,7 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
                   {deleteId === e.id && (
                     <button
                       onClick={() => setDeleteId(null)}
-                      style={{ display: 'inline-flex', alignItems: 'center', padding: '5px 7px', borderRadius: 8, background: 'rgba(255,255,255,.04)', border: `1px solid ${C.border}`, color: C.muted, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}
+                      style={{ display: 'inline-flex', alignItems: 'center', padding: '5px 7px', borderRadius: 8, background: C.soft, border: `1px solid ${C.border}`, color: C.muted, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}
                       title="İptal">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
                     </button>
@@ -1274,7 +1267,7 @@ function CekimTalepleriTab() {
                       </span>
                     </div>
                     {t.notlar && (
-                      <div style={{ marginTop: 10, padding: '8px 12px', background: 'rgba(255,255,255,.04)', borderRadius: 8, fontSize: 12, color: C.muted, borderLeft: `3px solid ${C.border}` }}>
+                      <div style={{ marginTop: 10, padding: '8px 12px', background: C.soft, borderRadius: 8, fontSize: 12, color: C.muted, borderLeft: `3px solid ${C.border}` }}>
                         {t.notlar}
                       </div>
                     )}
@@ -1397,7 +1390,7 @@ function EmailListesiTab() {
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300, color: C.muted, gap: 10 }}>
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ animation: 'spin .9s linear infinite' }}>
-        <circle cx="10" cy="10" r="8" stroke="rgba(255,255,255,.15)" strokeWidth="2.5"/>
+        <circle cx="10" cy="10" r="8" stroke="${C.border}" strokeWidth="2.5"/>
         <path d="M10 2a8 8 0 0 1 8 8" stroke={C.gold} strokeWidth="2.5" strokeLinecap="round"/>
       </svg>
       <span style={{ fontSize: 14 }}>Yükleniyor...</span>
@@ -1433,7 +1426,7 @@ function EmailListesiTab() {
           <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 12 }}>En Fazla Abone Toplayan İşletmeler</div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {topEntities.map((e, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.04)', borderRadius: 10, padding: '8px 14px', border: `1px solid ${C.border}` }}>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.soft, borderRadius: 10, padding: '8px 14px', border: `1px solid ${C.border}` }}>
                 <div style={{ width: 24, height: 24, borderRadius: 7, background: C.navy + '66', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ fontSize: 10, fontWeight: 800, color: C.gold }}>{i + 1}</span>
                 </div>
@@ -1450,7 +1443,7 @@ function EmailListesiTab() {
       {/* Filtre + Arama + Export */}
       <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
         {/* Segment filtre */}
-        <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,.04)', borderRadius: 10, padding: 4 }}>
+        <div style={{ display: 'flex', gap: 4, background: C.soft, borderRadius: 10, padding: 4 }}>
           {(['hepsi', 'hasta', 'isletme'] as const).map(t => (
             <button key={t} onClick={() => { setTipFilter(t); setPage(0); }}
               style={{ padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, fontWeight: tipFilter === t ? 700 : 500, background: tipFilter === t ? C.navy : 'transparent', color: tipFilter === t ? 'white' : C.muted, transition: 'all .15s' }}>
@@ -1508,7 +1501,7 @@ function EmailListesiTab() {
           </div>
         ) : paged.map((a, i) => (
           <div key={a.id} style={{ display: 'grid', gridTemplateColumns: '1fr 120px 100px 100px 140px 80px', gap: 12, padding: '12px 18px', alignItems: 'center', borderBottom: i < paged.length - 1 ? `1px solid ${C.border}` : 'none', transition: 'background .12s' }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,.02)')}
+            onMouseEnter={e => (e.currentTarget.style.background = C.soft)}
             onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
 
             {/* E-posta + isim */}
@@ -1643,15 +1636,15 @@ function SistemTab() {
             </div>
           </div>
           <button onClick={copySql}
-            style={{ padding: '9px 18px', borderRadius: 10, border: `1px solid ${copied ? C.green : C.border}`, background: copied ? 'rgba(16,185,129,.1)' : 'rgba(255,255,255,.05)', color: copied ? C.green : C.text, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6, transition: 'all .2s' }}>
+            style={{ padding: '9px 18px', borderRadius: 10, border: `1px solid ${copied ? C.green : C.border}`, background: copied ? 'rgba(16,185,129,.1)' : C.soft, color: copied ? C.green : C.text, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6, transition: 'all .2s' }}>
             {copied ? <><Ic d={IC.check} size={13}/>Kopyalandı!</> : <><Ic d={IC.link} size={13}/>SQL&apos;i Kopyala</>}
           </button>
         </div>
-        <pre style={{ background: 'rgba(0,0,0,.4)', borderRadius: 10, padding: '14px 16px', fontSize: 11.5, color: 'rgba(255,255,255,.7)', fontFamily: 'monospace', lineHeight: 1.7, overflow: 'auto', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+        <pre style={{ background: C.soft, borderRadius: 10, padding: '14px 16px', fontSize: 11.5, color: C.text, fontFamily: 'monospace', lineHeight: 1.7, overflow: 'auto', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
           {MIGRATION_SQL}
         </pre>
 
-        <div style={{ marginTop: 14, padding: '12px 14px', background: 'rgba(255,255,255,.03)', borderRadius: 10, border: `1px solid ${C.border}` }}>
+        <div style={{ marginTop: 14, padding: '12px 14px', background: C.soft, borderRadius: 10, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, marginBottom: 6 }}>📋 Adım adım:</div>
           <ol style={{ margin: 0, padding: '0 0 0 16px', fontSize: 12, color: C.muted, lineHeight: 1.8 }}>
             <li><strong style={{ color: C.text }}>Supabase</strong> dashboard&apos;a gidin</li>
@@ -1790,7 +1783,7 @@ function GeocodeTab() {
                 disabled={isRunning || !cnt}
                 style={{
                   width: '100%', padding: '8px 10px', borderRadius: 9, border: 'none',
-                  background: isMe ? card.color : (isDone ? '#1A2A1A' : card.color),
+                  background: isMe ? card.color : (isDone ? '#E6F4EC' : card.color),
                   color: 'white', fontSize: 12, fontWeight: 700,
                   cursor: (isRunning || !cnt) ? 'not-allowed' : 'pointer',
                   opacity: (!isRunning && !cnt) ? 0.4 : 1,
@@ -1819,7 +1812,7 @@ function GeocodeTab() {
             </div>
           </div>
           {/* Progress bar */}
-          <div style={{ height: 8, background: 'rgba(255,255,255,.08)', borderRadius: 6, overflow: 'hidden' }}>
+          <div style={{ height: 8, background: C.border, borderRadius: 6, overflow: 'hidden' }}>
             <div style={{ height: '100%', width: `${progress}%`, background: `linear-gradient(90deg, ${C.blue}, ${C.cyan})`, borderRadius: 6, transition: 'width .4s' }} />
           </div>
           {totalAll > 0 && (
@@ -1863,7 +1856,7 @@ function GeocodeTab() {
           </div>
           <div style={{ maxHeight: 420, overflowY: 'auto', fontFamily: 'monospace' }}>
             {log.map((r, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 18px', borderBottom: `1px solid rgba(255,255,255,.04)`, fontSize: 12 }}>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 18px', borderBottom: `1px solid ${C.soft}`, fontSize: 12 }}>
                 <span style={{ color: r.ok ? C.green : C.amber, flexShrink: 0 }}>{r.ok ? '✓' : '✗'}</span>
                 <span style={{ flex: 1, color: r.ok ? C.text : C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
                 {r.ok && r.lat != null && (
@@ -1910,7 +1903,7 @@ function UsersTab() {
         <div style={{ background: C.card, borderRadius: 14, border: `1px solid ${C.border}`, padding: 48, textAlign: 'center', color: C.muted }}>Henüz kayıtlı kullanıcı yok.</div>
       ) : (
         <div style={{ background: C.card, borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px 100px 100px', gap: 12, padding: '10px 18px', borderBottom: `1px solid ${C.border}`, background: 'rgba(0,0,0,.2)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px 100px 100px', gap: 12, padding: '10px 18px', borderBottom: `1px solid ${C.border}`, background: C.soft }}>
             {['Kullanıcı', 'E-posta', 'İşletme Türü', 'Rol'].map(h => (
               <div key={h} style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</div>
             ))}
@@ -1926,7 +1919,7 @@ function UsersTab() {
                 {u.entity_type ? <TypeBadge type={u.entity_type} /> : <span style={{ fontSize: 11, color: C.muted }}>—</span>}
               </div>
               <div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: u.role === 'admin' ? C.gold : C.muted, background: u.role === 'admin' ? 'rgba(212,168,67,.12)' : 'rgba(255,255,255,.05)', padding: '2px 9px', borderRadius: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: u.role === 'admin' ? C.gold : C.muted, background: u.role === 'admin' ? 'rgba(212,168,67,.12)' : C.soft, padding: '2px 9px', borderRadius: 8 }}>
                   {u.role || 'owner'}
                 </span>
               </div>
@@ -2289,7 +2282,7 @@ function SikayetlerTab({ onChanged }: { onChanged: () => void }) {
               ? <span style={{ fontSize: 10.5, fontWeight: 800, color: C.amber, background: 'rgba(245,158,11,.12)', borderRadius: 8, padding: '3px 9px' }}>BEKLİYOR</span>
               : r.hidden
                 ? <span style={{ fontSize: 10.5, fontWeight: 800, color: C.green, background: 'rgba(16,185,129,.12)', borderRadius: 8, padding: '3px 9px' }}>GİZLENDİ</span>
-                : <span style={{ fontSize: 10.5, fontWeight: 800, color: C.muted, background: 'rgba(255,255,255,.06)', borderRadius: 8, padding: '3px 9px' }}>REDDEDİLDİ</span>}
+                : <span style={{ fontSize: 10.5, fontWeight: 800, color: C.muted, background: C.soft, borderRadius: 8, padding: '3px 9px' }}>REDDEDİLDİ</span>}
           </div>
         </div>
 
@@ -2527,7 +2520,7 @@ export default function AdminPage() {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.bg }}>
         <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ animation: 'spin .9s linear infinite' }}>
-          <circle cx="16" cy="16" r="13" stroke="rgba(255,255,255,.1)" strokeWidth="3"/>
+          <circle cx="16" cy="16" r="13" stroke="${C.border}" strokeWidth="3"/>
           <path d="M16 3a13 13 0 0 1 13 13" stroke={C.gold} strokeWidth="3" strokeLinecap="round"/>
         </svg>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -2571,46 +2564,43 @@ export default function AdminPage() {
           background: C.panel, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', padding: '0 16px'
         }}>
-          <span style={{ color: C.gold, fontWeight: 800, fontSize: 13, letterSpacing: '0.5px' }}>ADMİN PANELİ</span>
-          <button onClick={() => setMobileMenuOpen(o => !o)} aria-label="Menü" style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.text, padding: 6 }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <span style={{ color: C.text, fontWeight: 600, fontSize: 14 }}>Yönetim</span>
+          <button onClick={() => setMobileMenuOpen(o => !o)} aria-label="Menü"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.soft, border: `1px solid ${C.border}`, borderRadius: 9, cursor: 'pointer', color: C.text, padding: '6px 11px', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 600 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               {mobileMenuOpen
                 ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
                 : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>
               }
             </svg>
+            {mobileMenuOpen ? 'Kapat' : 'Menü'}
           </button>
         </div>
       )}
 
       {/* ── MOBİL BACKDROP ── */}
       {isMobile && mobileMenuOpen && (
-        <div onClick={() => setMobileMenuOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 190 }} />
+        <div onClick={() => setMobileMenuOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(29,29,31,.32)', zIndex: 190 }} />
       )}
 
       {/* ── SIDEBAR ── */}
-      <aside style={{ position: 'fixed', top: isMobile ? 112 : 64, left: 0, bottom: 0, width: isMobile ? 264 : 224, background: C.panel, borderRight: `1px solid ${C.border}`, display: isMobile ? (mobileMenuOpen ? 'flex' : 'none') : 'flex', flexDirection: 'column', zIndex: isMobile ? 200 : 100 }}>
+      <aside style={{ position: 'fixed', top: isMobile ? 112 : 64, left: 0, bottom: 0, width: isMobile ? 264 : 236, background: C.panel, borderRight: `1px solid ${C.border}`, display: isMobile ? (mobileMenuOpen ? 'flex' : 'none') : 'flex', flexDirection: 'column', zIndex: isMobile ? 200 : 100 }}>
 
-        {/* Logo */}
-        <div style={{ padding: '22px 18px 18px', borderBottom: `1px solid ${C.border}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 10 }}>
-            <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg,#1B3A69,#0F2A55)', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontWeight: 900, fontSize: 14, color: 'white' }}>H</span>
-            </div>
-            <span style={{ fontWeight: 800, fontSize: 15, color: C.text, letterSpacing: '-0.3px' }}>Hekimhane</span>
-          </div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(212,168,67,.1)', border: '1px solid rgba(212,168,67,.2)', borderRadius: 6, padding: '3px 8px' }}>
-            <Ic d={IC.shield} size={10} />
-            <span style={{ fontSize: 10, fontWeight: 800, color: C.gold, letterSpacing: '0.5px' }}>ADMİN PANELİ</span>
+        {/* Marka */}
+        <div style={{ padding: '22px 20px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <LogoMark size={30} />
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: C.text, letterSpacing: '-0.3px', lineHeight: 1.1 }}>Hekimhane</div>
+            <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>Yönetim</div>
           </div>
         </div>
 
         {/* Nav — gruplu */}
-        <nav style={{ flex: 1, padding: '10px 10px 16px', overflowY: 'auto' }}>
+        <nav style={{ flex: 1, padding: '4px 12px 16px', overflowY: 'auto' }}>
           {SIDEBAR_GROUPS.map((group, gi) => (
-            <div key={gi} style={{ marginBottom: gi < SIDEBAR_GROUPS.length - 1 ? 12 : 0 }}>
+            <div key={gi} style={{ marginBottom: gi < SIDEBAR_GROUPS.length - 1 ? 14 : 0 }}>
               {group.title && (
-                <div style={{ padding: '10px 12px 6px', fontSize: 10, fontWeight: 700, letterSpacing: '0.7px', textTransform: 'uppercase', color: 'rgba(255,255,255,.32)' }}>
+                <div style={{ padding: '10px 10px 5px', fontSize: 11, fontWeight: 600, letterSpacing: '.5px', textTransform: 'uppercase', color: C.dim }}>
                   {group.title}
                 </div>
               )}
@@ -2620,16 +2610,15 @@ export default function AdminPage() {
                   : item.key === 'claims' ? pendingCount
                   : item.key === 'sikayetler' ? reportPending
                   : item.key === 'blog' ? makalePending : 0;
-                const badgeColor = item.key === 'cekim' ? '#059669' : item.key === 'sikayetler' ? C.red : C.amber;
+                const badgeColor = item.key === 'cekim' ? C.green : item.key === 'sikayetler' ? C.red : C.amber;
                 return (
                   <button key={item.key} onClick={() => { setTab(item.key as TabKey); setMobileMenuOpen(false); }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 11px', marginBottom: 1, borderRadius: 9, background: active ? 'rgba(212,168,67,.12)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', color: active ? C.text : C.muted, fontSize: 13, fontWeight: active ? 700 : 500, fontFamily: 'inherit', transition: 'background .12s, color .12s' }}
-                    onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,.04)'; }}
-                    onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}>
-                    <span style={{ flexShrink: 0, color: active ? C.gold : C.muted, display: 'flex' }}><Ic d={item.icon} size={16} /></span>
+                    className={active ? '' : 'adm-nav'}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '7px 10px', marginBottom: 1, borderRadius: 8, background: active ? 'rgba(27,58,105,.08)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', color: active ? C.navy : C.text, fontSize: 13.5, fontWeight: active ? 600 : 500, fontFamily: 'inherit', transition: 'background .12s' }}>
+                    <span style={{ flexShrink: 0, color: active ? C.navy : C.muted, display: 'flex' }}><Ic d={item.icon} size={16} /></span>
                     <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
                     {badge > 0 && (
-                      <span style={{ flexShrink: 0, background: badgeColor, color: 'white', borderRadius: 20, minWidth: 18, height: 18, padding: '0 6px', fontSize: 10, fontWeight: 800, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{badge}</span>
+                      <span style={{ flexShrink: 0, background: badgeColor, color: 'white', borderRadius: 20, minWidth: 18, height: 18, padding: '0 6px', fontSize: 10.5, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontVariantNumeric: 'tabular-nums' }}>{badge}</span>
                     )}
                   </button>
                 );
@@ -2639,27 +2628,24 @@ export default function AdminPage() {
         </nav>
 
         {/* Profil + Çıkış */}
-        <div style={{ padding: '14px 18px', borderTop: `1px solid ${C.border}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 12 }}>
-            {avatar
-              ? <img src={avatar} alt="" style={{ width: 30, height: 30, borderRadius: '50%', flexShrink: 0 }} />
-              : <div style={{ width: 30, height: 30, borderRadius: '50%', background: C.gold, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: 12, flexShrink: 0 }}>{name.charAt(0)}</div>
-            }
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name.split(' ')[0]}</div>
-              <div style={{ fontSize: 10, color: C.muted }}>Yönetici</div>
-            </div>
+        <div style={{ padding: '12px 14px 16px', borderTop: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+          {avatar
+            ? <img src={avatar} alt="" style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0 }} />
+            : <div style={{ width: 32, height: 32, borderRadius: '50%', background: C.navy, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{name.charAt(0).toLocaleUpperCase('tr')}</div>
+          }
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name.split(' ')[0]}</div>
+            <div style={{ fontSize: 11.5, color: C.muted }}>Yönetici</div>
           </div>
-          <button onClick={handleLogout} style={{ width: '100%', padding: '8px', borderRadius: 9, border: `1px solid ${C.border}`, background: 'transparent', color: C.muted, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all .15s' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = C.red; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,.3)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = C.muted; (e.currentTarget as HTMLButtonElement).style.borderColor = C.border; }}>
-            <Ic d={IC.logout} size={13} /> Çıkış Yap
+          <button onClick={handleLogout} title="Çıkış yap" aria-label="Çıkış yap" className="adm-nav"
+            style={{ width: 32, height: 32, borderRadius: 8, border: 'none', background: 'transparent', color: C.muted, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Ic d={IC.logout} size={15} />
           </button>
         </div>
       </aside>
 
       {/* ── MAIN ── */}
-      <main style={{ marginLeft: isMobile ? 0 : 224, flex: 1, minWidth: 0, padding: isMobile ? '128px 14px 48px' : '96px 36px 32px', minHeight: '100vh', overflowX: 'auto' }}>
+      <main style={{ marginLeft: isMobile ? 0 : 236, flex: 1, minWidth: 0, padding: isMobile ? '128px 16px 48px' : '96px 40px 48px', minHeight: '100vh', overflowX: 'auto' }}>
         {tab === 'dashboard'  && <DashboardTab stats={stats} onTabChange={setTab} />}
         {tab === 'claims'     && <ClaimsTab claims={claims} loading={claimsLoading} onAction={handleClaimAction} actionId={actionId} />}
         {tab === 'cekim'      && <CekimTalepleriTab />}
@@ -2681,7 +2667,7 @@ export default function AdminPage() {
         {toast}
       </div>
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } } * { box-sizing: border-box; }`}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } } * { box-sizing: border-box; } .adm-nav:hover { background: #F2F2F4 !important; } .adm-stat:hover, .adm-satir:hover { background: #FAFAFB !important; }`}</style>
     </div>
   );
 }

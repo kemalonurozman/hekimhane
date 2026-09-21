@@ -4,13 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { MAKALE_KATEGORILERI, ICERIK_IPUCU, parseGovde, okumaSuresi } from '@/lib/makale-icerik';
 import MakaleGorselYukle from '@/components/MakaleGorselYukle';
 import MakaleGovde from '@/components/MakaleGovde';
+import { C } from './tema';
 
-/* Admin paneli koyu tema — app/admin/page.tsx ile aynı palet */
-const C = {
-  panel: '#0D1526', card: '#111B2E', border: 'rgba(255,255,255,.07)',
-  text: 'rgba(255,255,255,.92)', muted: 'rgba(255,255,255,.42)',
-  gold: '#D4A843', green: '#10B981', amber: '#F59E0B', red: '#EF4444', blue: '#3B82F6',
-};
 
 export interface AdminMakale {
   id: string;
@@ -145,7 +140,7 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
 
   const inp: React.CSSProperties = {
     width: '100%', padding: '10px 13px', borderRadius: 9, border: `1px solid ${C.border}`,
-    background: 'rgba(255,255,255,.03)', color: C.text, fontSize: 13.5, fontFamily: 'inherit',
+    background: C.soft, color: C.text, fontSize: 13.5, fontFamily: 'inherit',
     outline: 'none', boxSizing: 'border-box', resize: 'vertical',
   };
   const lbl: React.CSSProperties = {
