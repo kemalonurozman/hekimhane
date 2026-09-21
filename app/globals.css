@@ -477,15 +477,15 @@ button {
 .hero-konum { max-width: 640px; margin: 0 auto 46px; }
 .hero-konum-label {
   display: flex; align-items: center; gap: 7px; justify-content: center;
-  font-size: 12.5px; color: rgba(255,255,255,.62); margin-bottom: 12px; letter-spacing: -.1px;
+  font-size: 12.5px; color: #6E6E73; margin-bottom: 12px; letter-spacing: -.1px;
 }
 .hero-konum-row { display: grid; grid-template-columns: 1fr 1fr 1.25fr auto; gap: 9px; }
 .hero-konum-field { position: relative; min-width: 0; }
 .hero-konum-btn {
   padding: 13px 20px; border-radius: 12px; border: none;
-  background: linear-gradient(135deg,#D4A843,#E8BE5A); color: #fff;
-  font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
-  white-space: nowrap; letter-spacing: -.1px; box-shadow: 0 4px 20px rgba(212,168,67,.35);
+  background: #1B3A69; color: #fff;
+  font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
+  white-space: nowrap; letter-spacing: -.1px; box-shadow: 0 2px 8px rgba(27,58,105,.22);
 }
 @media (max-width: 720px) {
   .hero-konum-row { grid-template-columns: 1fr 1fr; }

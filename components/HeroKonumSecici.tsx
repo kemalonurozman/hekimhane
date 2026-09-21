@@ -8,16 +8,16 @@ import { DENTAL_SPECIALTIES } from '@/lib/uzmanlik-data';
 const selStyle: React.CSSProperties = {
   appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none',
   width: '100%', padding: '13px 34px 13px 14px', borderRadius: 12,
-  border: '1px solid rgba(255,255,255,.18)',
-  background: 'rgba(255,255,255,.09)',
-  color: 'white', fontSize: 14, fontFamily: 'inherit', outline: 'none',
+  border: '1px solid #D9DCE3',
+  background: '#FFFFFF',
+  color: '#1D1D1F', fontSize: 14, fontFamily: 'inherit', outline: 'none',
   cursor: 'pointer', letterSpacing: '-.1px', boxSizing: 'border-box',
-  boxShadow: 'inset 0 1px 0 rgba(255,255,255,.06)',
+  boxShadow: '0 1px 2px rgba(27,58,105,.04)',
 };
 
 function Chevron() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
       style={{ position: 'absolute', right: 13, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
       <path d="m6 9 6 6 6-6" />
     </svg>
@@ -48,7 +48,7 @@ export default function HeroKonumSecici({ mounted }: { mounted: boolean }) {
       transition: 'opacity .7s ease .34s, transform .7s ease .34s',
     }}>
       <div className="hero-konum-label">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1B3A69" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
         Konumdan seç — şehir ve ilçe seçip hekimleri listele
       </div>
       <div className="hero-konum-row">

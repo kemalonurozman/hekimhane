@@ -5,152 +5,6 @@ import { useRouter } from 'next/navigation';
 import type { SearchResults } from '@/app/api/search/route';
 import HeroKonumSecici from '@/components/HeroKonumSecici';
 
-// ── Partikül canvas ──────────────────────────────────────────────────────────
-interface Particle {
-  x: number; y: number;
-  vx: number; vy: number;
-  size: number; opacity: number;
-  pulse: number; pulseSpeed: number;
-}
-
-function ParticleCanvas() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mouseRef  = useRef({ x: -999, y: -999 });
-  const rafRef    = useRef<number>(0);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d')!;
-
-    let particles: Particle[] = [];
-    let W = 0, H = 0;
-
-    function resize() {
-      W = canvas!.offsetWidth;
-      H = canvas!.offsetHeight;
-      canvas!.width  = W;
-      canvas!.height = H;
-      init();
-    }
-
-    function init() {
-      const count = Math.floor((W * H) / 12000);
-      particles = Array.from({ length: count }, () => ({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        vx: (Math.random() - .5) * .4,
-        vy: (Math.random() - .5) * .4,
-        size: Math.random() * 2.5 + .8,
-        opacity: Math.random() * .35 + .08,
-        pulse: Math.random() * Math.PI * 2,
-        pulseSpeed: Math.random() * .012 + .004,
-      }));
-    }
-
-    function drawCross(x: number, y: number, size: number, alpha: number) {
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth   = size * .45;
-      ctx.lineCap     = 'round';
-      ctx.beginPath();
-      ctx.moveTo(x - size, y); ctx.lineTo(x + size, y);
-      ctx.moveTo(x, y - size); ctx.lineTo(x, y + size);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    function loop() {
-      ctx.clearRect(0, 0, W, H);
-      const mx = mouseRef.current.x;
-      const my = mouseRef.current.y;
-
-      particles.forEach((p, i) => {
-        const dx   = mx - p.x;
-        const dy   = my - p.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 180 && dist > 0) {
-          const force = (180 - dist) / 180 * .018;
-          p.vx += dx / dist * force;
-          p.vy += dy / dist * force;
-        }
-
-        p.vx *= .978; p.vy *= .978;
-        p.x  += p.vx; p.y  += p.vy;
-        p.pulse += p.pulseSpeed;
-
-        if (p.x < -20) p.x = W + 20;
-        if (p.x > W + 20) p.x = -20;
-        if (p.y < -20) p.y = H + 20;
-        if (p.y > H + 20) p.y = -20;
-
-        const ao = p.opacity + Math.sin(p.pulse) * .06;
-
-        for (let j = i + 1; j < particles.length; j++) {
-          const q  = particles[j];
-          const ex = p.x - q.x;
-          const ey = p.y - q.y;
-          const ed = Math.sqrt(ex * ex + ey * ey);
-          if (ed < 110) {
-            ctx.save();
-            ctx.globalAlpha = (1 - ed / 110) * .12;
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth   = .6;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(q.x, q.y);
-            ctx.stroke();
-            ctx.restore();
-          }
-        }
-
-        if (i % 4 === 0) {
-          drawCross(p.x, p.y, p.size * 1.8, ao);
-        } else {
-          ctx.save();
-          ctx.globalAlpha = ao;
-          ctx.fillStyle   = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        }
-      });
-
-      rafRef.current = requestAnimationFrame(loop);
-    }
-
-    resize();
-    loop();
-
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-
-    function onMove(e: MouseEvent) {
-      const r = canvas!.getBoundingClientRect();
-      mouseRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
-    }
-    function onLeave() { mouseRef.current = { x: -999, y: -999 }; }
-    canvas.addEventListener('mousemove', onMove);
-    canvas.addEventListener('mouseleave', onLeave);
-
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-      ro.disconnect();
-      canvas.removeEventListener('mousemove', onMove);
-      canvas.removeEventListener('mouseleave', onLeave);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 1, overflow: 'hidden' }}
-    />
-  );
-}
-
 // ── Sayaç animasyonu ─────────────────────────────────────────────────────────
 function AnimatedCount({ target, suffix = '+' }: { target: number; suffix?: string }) {
   const [val, setVal] = useState(0);
@@ -177,54 +31,6 @@ function AnimatedCount({ target, suffix = '+' }: { target: number; suffix?: stri
   }, [target]);
 
   return <span ref={ref}>{val.toLocaleString('tr')}{suffix}</span>;
-}
-
-// ── Mouse takip gradyanı ─────────────────────────────────────────────────────
-function MouseGradient() {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current; if (!el) return;
-    const section = el.parentElement; if (!section) return;
-
-    let tx = section.offsetWidth * .75;
-    let ty = section.offsetHeight * .2;
-    let cx = tx; let cy = ty;
-    let rafId = 0;
-
-    function animate() {
-      cx += (tx - cx) * .18;
-      cy += (ty - cy) * .18;
-      el!.style.transform = `translate(${cx}px, ${cy}px)`;
-      rafId = requestAnimationFrame(animate);
-    }
-    animate();
-
-    function onMove(ev: MouseEvent) {
-      const r = section!.getBoundingClientRect();
-      tx = ev.clientX - r.left;
-      ty = ev.clientY - r.top;
-    }
-
-    section.addEventListener('mousemove', onMove);
-    return () => {
-      cancelAnimationFrame(rafId);
-      section.removeEventListener('mousemove', onMove);
-    };
-  }, []);
-
-  return (
-    <div ref={ref} style={{
-      position: 'absolute',
-      top: 0, left: 0,
-      width: 560, height: 560,
-      marginTop: -280, marginLeft: -280,
-      borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(212,168,67,.06) 0%, rgba(212,168,67,.018) 42%, transparent 68%)',
-      zIndex: 2, pointerEvents: 'none',
-      willChange: 'transform',
-    }} />
-  );
 }
 
 // ── İkonlar ───────────────────────────────────────────────────────────────────
@@ -348,7 +154,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
           {/* İkon */}
           <div style={{
             position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)',
-            color: yukleniyor ? '#D4A843' : 'rgba(255,255,255,.4)',
+            color: yukleniyor ? '#1B3A69' : '#8E8E93',
             display: 'flex', pointerEvents: 'none',
             transition: 'color .2s',
           }}>
@@ -366,17 +172,15 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
             style={{
               width: '100%',
               padding: '16px 20px 16px 50px',
-              borderRadius: dropdownAcik ? '16px 16px 0 0' : '16px',
-              border: '1px solid rgba(255,255,255,.15)',
-              borderBottom: dropdownAcik ? '1px solid rgba(255,255,255,.06)' : '1px solid rgba(255,255,255,.15)',
-              background: 'rgba(255,255,255,.09)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              color: 'white',
+              borderRadius: dropdownAcik ? '14px 14px 0 0' : '14px',
+              border: '1px solid #D9DCE3',
+              borderBottom: dropdownAcik ? '1px solid #EEF0F4' : '1px solid #D9DCE3',
+              background: '#FFFFFF',
+              color: '#1D1D1F',
               fontSize: 15, outline: 'none',
               boxSizing: 'border-box', fontFamily: 'inherit',
               letterSpacing: '-.1px',
-              boxShadow: '0 8px 32px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.08)',
+              boxShadow: '0 6px 24px rgba(27,58,105,.08)',
               transition: 'border-radius .15s, border-bottom .15s',
             }}
           />
@@ -388,8 +192,9 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
               top: '100%',
               left: 0, right: 0,
               background: 'white',
-              borderRadius: '0 0 16px 16px',
-              boxShadow: '0 20px 60px rgba(0,0,0,.28)',
+              borderRadius: '0 0 14px 14px',
+              border: '1px solid #D9DCE3', borderTop: 'none',
+              boxShadow: '0 20px 50px rgba(27,58,105,.14)',
               zIndex: 9999,
               overflow: 'hidden',
               maxHeight: 400,
@@ -552,12 +357,12 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
 
         {/* Ara butonu */}
         <button type="submit" style={{
-          padding: '16px 28px', borderRadius: 16, border: 'none',
-          background: 'linear-gradient(135deg, #D4A843 0%, #E8BE5A 100%)',
-          color: 'white', fontSize: 15, fontWeight: 700,
+          padding: '16px 28px', borderRadius: 14, border: 'none',
+          background: '#1B3A69',
+          color: 'white', fontSize: 15, fontWeight: 600,
           cursor: 'pointer', letterSpacing: '-.1px',
           flexShrink: 0, fontFamily: 'inherit',
-          boxShadow: '0 4px 20px rgba(212,168,67,.4)',
+          boxShadow: '0 2px 8px rgba(27,58,105,.22)',
           alignSelf: 'flex-start',
         }}>
           Ara
@@ -576,9 +381,9 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
         ] as [string, string][]).map(([label, href]) => (
           <a key={href} href={href}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 15px', borderRadius: 999,
-              background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.18)', color: 'rgba(255,255,255,.92)',
+              background: '#FFFFFF', border: '1px solid #E0E3E9', color: '#1B3A69',
               fontSize: 13, fontWeight: 600, textDecoration: 'none', letterSpacing: '-.1px',
-              backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', whiteSpace: 'nowrap', transition: 'background .15s' }}>
+              whiteSpace: 'nowrap', transition: 'background .15s, border-color .15s' }}>
             {label}
           </a>
         ))}
@@ -604,16 +409,18 @@ export default function HeroAnimated({ stats }: Props) {
   return (
     <section style={{
       position: 'relative',
-      background: 'linear-gradient(160deg, #071A2E 0%, #0E2D55 40%, #163D6E 70%, #1B3A69 100%)',
-      padding: '100px 0 108px',
+      background: 'radial-gradient(900px 480px at 50% -12%, #E9F0FB 0%, rgba(233,240,251,0) 70%), #FBFBFD',
+      borderBottom: '1px solid #E5E5EA',
+      padding: '92px 0 88px',
       /* overflow: hidden kaldırıldı — dropdown'ın section dışına çıkmasına izin ver */
     }}>
       {/* dangerouslySetInnerHTML: children olarak verilen CSS'teki ">" sunucuda
           escape edilip hydration hatasına yol açıyordu */}
       <style dangerouslySetInnerHTML={{ __html: `
         .hero-section {
-          padding: 100px 0 108px;
+          padding: 92px 0 88px;
         }
+        .hero-chips a:hover { background: #F2F4F8 !important; border-color: #CBD2DE !important; }
         .hero-search-form {
           max-width: 560px;
           margin: 0 auto 26px;
@@ -634,16 +441,6 @@ export default function HeroAnimated({ stats }: Props) {
         }
       ` }} />
 
-      {/* Arka plan katmanları */}
-      <ParticleCanvas />
-      <MouseGradient />
-
-      {/* Alt gradient geçiş */}
-      <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0, height: 120, zIndex: 3,
-        background: 'linear-gradient(to bottom, transparent, rgba(7,26,46,.35))',
-        pointerEvents: 'none',
-      }} />
 
       {/* İçerik */}
       <div className="container" style={{ position: 'relative', zIndex: 4, textAlign: 'center' }}>
@@ -651,12 +448,12 @@ export default function HeroAnimated({ stats }: Props) {
         {/* Etiket */}
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
-          background: 'rgba(212,168,67,.12)',
-          border: '1px solid rgba(212,168,67,.3)',
-          borderRadius: 20, padding: '5px 16px',
-          fontSize: 11, fontWeight: 600, color: '#D4A843',
-          letterSpacing: '1.2px', textTransform: 'uppercase',
-          marginBottom: 32,
+          background: 'rgba(27,58,105,.06)',
+          border: '1px solid rgba(27,58,105,.12)',
+          borderRadius: 20, padding: '5px 14px',
+          fontSize: 11, fontWeight: 600, color: '#1B3A69',
+          letterSpacing: '1px', textTransform: 'uppercase',
+          marginBottom: 26,
           opacity: mounted ? 1 : 0,
           transform: mounted ? 'translateY(0)' : 'translateY(12px)',
           transition: 'opacity .6s ease, transform .6s ease',
@@ -667,28 +464,23 @@ export default function HeroAnimated({ stats }: Props) {
         {/* Başlık */}
         <h1 style={{
           fontSize: 'clamp(38px, 6vw, 72px)',
-          fontWeight: 800,
-          color: 'white',
+          fontWeight: 700,
+          color: '#1B3A69',
           lineHeight: 1.06,
-          letterSpacing: '-2.5px',
-          margin: '0 0 22px',
+          letterSpacing: '-2.2px',
+          margin: '0 0 18px',
           opacity: mounted ? 1 : 0,
           transform: mounted ? 'translateY(0)' : 'translateY(20px)',
           transition: 'opacity .7s ease .1s, transform .7s ease .1s',
         }}>
           Size En Yakın Diş Hekimini<br />
-          <span style={{
-            color: '#D4A843',
-            textShadow: '0 0 60px rgba(212,168,67,.35)',
-          }}>
-            Hızlıca Bulun
-          </span>
+          <span style={{ color: '#4A6A9A' }}>Hızlıca Bulun</span>
         </h1>
 
         {/* Alt yazı */}
         <p style={{
-          fontSize: 17, color: 'rgba(255,255,255,.58)',
-          maxWidth: 520, margin: '0 auto 48px',
+          fontSize: 17, color: '#6E6E73',
+          maxWidth: 520, margin: '0 auto 40px',
           lineHeight: 1.7, fontWeight: 400, letterSpacing: '.1px',
           opacity: mounted ? 1 : 0,
           transform: mounted ? 'translateY(0)' : 'translateY(16px)',
@@ -721,13 +513,13 @@ export default function HeroAnimated({ stats }: Props) {
             }}>
               <div style={{
                 fontSize: 'clamp(26px, 3.5vw, 38px)',
-                fontWeight: 800, color: 'white',
-                letterSpacing: '-1.5px', lineHeight: 1,
+                fontWeight: 700, color: '#1B3A69',
+                letterSpacing: '-1.5px', lineHeight: 1, fontVariantNumeric: 'tabular-nums',
               }}>
                 <AnimatedCount target={s.val} suffix={s.suffix} />
               </div>
               <div style={{
-                fontSize: 12, color: 'rgba(255,255,255,.45)',
+                fontSize: 12, color: '#6E6E73',
                 letterSpacing: '.8px', textTransform: 'uppercase',
                 fontWeight: 500, marginTop: 6,
               }}>
