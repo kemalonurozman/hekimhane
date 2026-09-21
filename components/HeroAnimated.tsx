@@ -393,6 +393,33 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
 }
 
 // ── Ana bileşen ───────────────────────────────────────────────────────────────
+// ── Dönen başlık ─────────────────────────────────────────────────────────────
+// Her açılışta rastgele bir ifadeyle başlar, ~3.2 sn'de bir sonrakine geçer;
+// yazının içinden altın-mavi bir parıltı süzülür. Hareketi azalt tercihinde sabit kalır.
+const DONEN_IFADELER = [
+  'Hızlıca Bulun',
+  'Güvenle Seçin',
+  'Hemen Randevu Alın',
+  'Yorumlarla Seçin',
+  'Kolayca Karşılaştırın',
+  'Tek Tıkla Arayın',
+];
+
+function DonenBaslik() {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    setI(Math.floor(Math.random() * DONEN_IFADELER.length));
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const t = setInterval(() => setI(n => (n + 1) % DONEN_IFADELER.length), 3200);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <span className="hero-donen" aria-live="polite">
+      <span key={i} className="hero-donen-ic">{DONEN_IFADELER[i]}</span>
+    </span>
+  );
+}
+
 interface Props {
   stats: { klinik: number; disHekimi: number };
 }
@@ -421,6 +448,29 @@ export default function HeroAnimated({ stats }: Props) {
           padding: 92px 0 88px;
         }
         .hero-chips a:hover { background: #F2F4F8 !important; border-color: #CBD2DE !important; }
+        /* Dönen başlık: satır yüksekliği sabit (sayfa zıplamasın), metin gradyanla boyanır
+           ve içinden parlak bir şerit süzülür */
+        .hero-donen { display: inline-block; min-height: 1.12em; padding: 0 .06em .08em; white-space: nowrap; }
+        @media (max-width: 360px) { .hero-donen { font-size: .88em; } }
+        .hero-donen-ic {
+          display: inline-block;
+          background: linear-gradient(100deg, #2F5591 0%, #4A6A9A 30%, #D4A843 45%, #FFF3C4 50%, #D4A843 55%, #4A6A9A 70%, #2F5591 100%);
+          background-size: 250% 100%;
+          -webkit-background-clip: text; background-clip: text;
+          -webkit-text-fill-color: transparent; color: transparent;
+          animation: heroGir .7s cubic-bezier(.2,.8,.2,1) both, heroParilti 3.2s ease-in-out infinite;
+        }
+        @keyframes heroGir {
+          from { opacity: 0; transform: translateY(.35em); filter: blur(8px); }
+          to   { opacity: 1; transform: none;             filter: blur(0); }
+        }
+        @keyframes heroParilti {
+          0%   { background-position: 100% 0; }
+          100% { background-position: 0% 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-donen-ic { animation: none; background-position: 60% 0; }
+        }
         .hero-search-form {
           max-width: 560px;
           margin: 0 auto 26px;
@@ -474,7 +524,7 @@ export default function HeroAnimated({ stats }: Props) {
           transition: 'opacity .7s ease .1s, transform .7s ease .1s',
         }}>
           Size En Yakın Diş Hekimini<br />
-          <span style={{ color: '#4A6A9A' }}>Hızlıca Bulun</span>
+          <DonenBaslik />
         </h1>
 
         {/* Alt yazı */}

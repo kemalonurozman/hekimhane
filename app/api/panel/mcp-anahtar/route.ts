@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
   const isletmeler = await sahipIsletmeleri(admin(), u.email!);
   return NextResponse.json({
     pro: isletmeler.some(i => i.premium),
+    pro_isletmeler: isletmeler.filter(i => i.premium).map(i => i.entity_id),
     anahtarlar: anahtarlar(u.app_metadata).map(disa),
     maks: MAKS_ANAHTAR,
   });
@@ -56,6 +57,7 @@ export async function POST(request: NextRequest) {
   if (typeof isletme_id === 'string' && isletme_id.trim()) {
     const i = isletmeler.find(x => x.entity_id === isletme_id.trim());
     if (!i) return NextResponse.json({ error: 'Seçilen işletme bu hesaba ait değil.' }, { status: 403 });
+    if (!i.premium) return NextResponse.json({ error: `${i.entity_name} Hekimhane-Pro değil; anahtar yalnız Pro işletmeler için oluşturulabilir.` }, { status: 403 });
     kapsamIsletme = { id: i.entity_id, ad: i.entity_name };
   }
   const temizAd = String(ad || '').replace(/[<>]/g, '').trim().slice(0, 40) || `Anahtar ${mevcut.length + 1}`;

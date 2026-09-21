@@ -81,24 +81,25 @@ async function takvimAyari(db: SupabaseClient, isl: SahipIsletme) {
 
 export async function aracCalistir(ad: string, args: Record<string, any>, email: string, kapsam: string | null = null): Promise<AracSonucu> {
   const db = admin();
-  const tumu = await sahipIsletmeleri(db, email);
+  // MCP yalnız Pro işletmeleri yönetir — "tüm işletmeler" anahtarı da ücretsiz işletmelere erişemez
+  const tumu = (await sahipIsletmeleri(db, email)).filter(i => i.premium);
   // İşletmeye özel anahtar: araçlar yalnız o işletmeyi görür
   const isletmeler = kapsam ? tumu.filter(i => i.entity_id === kapsam) : tumu;
-  if (kapsam && !isletmeler.length) return hata('Bu anahtarın bağlı olduğu işletme artık hesabınızda onaylı değil. Panelden yeni anahtar oluşturun.');
+  if (kapsam && !isletmeler.length) return hata(`Bu anahtarın bağlı olduğu işletme onaylı bir Hekimhane-Pro işletmesi değil. Pro'ya geçin veya Pro işletmeniz için yeni anahtar oluşturun (${SITE}/pro).`);
 
   // Panel rotaları hesabın TÜM işletmelerine yetki verir; kimlikle (talep/yorum id) çalışan araçlarda
-  // kaydın işletmesi bu anahtarın kapsamında mı ayrıca doğrulanır.
+  // kaydın işletmesi bu anahtarın erişebildiği (Pro + kapsam) işletmelerden mi ayrıca doğrulanır.
+  const izinli = new Set(isletmeler.map(i => i.entity_id));
   const kapsamda = async (tablo: 'randevu_talepleri' | 'yorumlar', id: unknown): Promise<boolean> => {
-    if (!kapsam) return true;
     const { data } = await (db as any).from(tablo).select('entity_id').eq('id', String(id)).maybeSingle();
-    return !!data && String(data.entity_id) === kapsam;
+    return !!data && izinli.has(String(data.entity_id));
   };
   const kapsamDisi = () => hata('Bu kayıt, bu anahtarın bağlı olduğu işletmeye ait değil.');
 
   switch (ad) {
     // ── GENEL ──────────────────────────────────────────────
     case 'isletmelerim': {
-      if (!isletmeler.length) return json({ isletmeler: [], not: 'Bu hesaba bağlı onaylı işletme yok. hekimhane.com.tr/sahiplen üzerinden sahiplenme başvurusu yapılabilir.' });
+      if (!isletmeler.length) return json({ isletmeler: [], not: `Bu hesapta MCP ile yönetilebilecek Hekimhane-Pro işletme yok (${SITE}/pro).` });
       const sonuc = await Promise.all(isletmeler.map(async i => {
         const b = await isletmeBilgisi(db, i.entity_type, i.entity_id);
         const t = await takvimAyari(db, i);
