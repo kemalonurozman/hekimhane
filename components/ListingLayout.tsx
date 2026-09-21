@@ -39,7 +39,8 @@ export interface ListingLayoutProps {
 
   // Görünüm
   color: string;
-  gradient: string;
+  /** Eski koyu başlık gradyanı — artık kullanılmıyor (başlık beyaz). Sayfalar geçmeye devam edebilir. */
+  gradient?: string;
   icon: ReactNode;
   iconBg: string;
 
@@ -400,23 +401,18 @@ export default function ListingLayout(props: ListingLayoutProps) {
         }
       `}</style>
 
-      {/* ── HERO ─────────────────────────────────────────── */}
-      <div style={{ background: gradient, position: 'relative', overflow: 'hidden' }}>
-        {/* Parçacık canvas animasyonu */}
-        <HeroParticles />
-        {/* Dekoratif daireler */}
-        <div style={{ position: 'absolute', right: -80, top: -80, width: 360, height: 360, borderRadius: '50%', background: 'rgba(255,255,255,.05)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', right: 60, bottom: -120, width: 240, height: 240, borderRadius: '50%', background: 'rgba(255,255,255,.04)', pointerEvents: 'none' }} />
-
+      {/* ── ÜST BAŞLIK — açık, sade (koyu gradyan + partikül kaldırıldı) ── */}
+      {/* overflow:hidden — stat şeridinin negatif marj taşmasını kırpar (mobilde yatay kaydırma olmasın) */}
+      <div style={{ background: '#FFFFFF', borderBottom: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>
         {/* Breadcrumb */}
-        <div className="listing-breadcrumb" style={{ borderBottom: '1px solid rgba(255,255,255,.12)', padding: '11px 0' }}>
-          <div className="container" style={{ display: 'flex', gap: 6, fontSize: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div className="listing-breadcrumb" style={{ borderBottom: '1px solid var(--border)', padding: '11px 0' }}>
+          <div className="container" style={{ display: 'flex', gap: 6, fontSize: 12.5, flexWrap: 'wrap', alignItems: 'center' }}>
             {breadcrumb.map((b, i) => (
               <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                {i > 0 && <span style={{ color: 'rgba(255,255,255,.35)', display: 'flex' }}><IcChevronRight /></span>}
+                {i > 0 && <span style={{ color: '#C7C7CC', display: 'flex' }}><IcChevronRight /></span>}
                 {i === breadcrumb.length - 1
-                  ? <span style={{ color: 'rgba(255,255,255,.9)', fontWeight: 600 }}>{b.label}</span>
-                  : <Link href={b.href} style={{ color: 'rgba(255,255,255,.65)', fontWeight: 500 }}>{b.label}</Link>}
+                  ? <span style={{ color: 'var(--text)', fontWeight: 600 }}>{b.label}</span>
+                  : <Link href={b.href} style={{ color: 'var(--muted)', fontWeight: 500 }}>{b.label}</Link>}
               </span>
             ))}
           </div>
@@ -424,23 +420,22 @@ export default function ListingLayout(props: ListingLayoutProps) {
 
         {/* Başlık ve istatistikler */}
         <div className="container listing-hero-container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap', marginBottom: 28 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-              {/* İkon */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap', marginBottom: 22 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              {/* İkon — düz marka rengi, beyaz glif */}
               <div className="listing-icon-box" style={{
-                width: 64, height: 64, borderRadius: 18,
-                background: 'rgba(255,255,255,.15)',
-                border: '1.5px solid rgba(255,255,255,.2)',
+                width: 56, height: 56, borderRadius: 16,
+                background: color,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0, backdropFilter: 'blur(4px)',
+                flexShrink: 0,
               }}>
                 {icon}
               </div>
               <div>
                 <h1 className="listing-hero-title" style={{
-                  fontWeight: 800, color: 'white',
+                  fontWeight: 700, color: 'var(--text)',
                   lineHeight: 1.15, marginBottom: 6,
-                  letterSpacing: '-0.5px',
+                  letterSpacing: '-0.7px',
                   fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
                 }}>
                   {title}
@@ -451,21 +446,21 @@ export default function ListingLayout(props: ListingLayoutProps) {
                     {activeChips.map(c => (
                       <span key={c.key} style={{
                         display: 'inline-flex', alignItems: 'center', gap: 5,
-                        padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
-                        background: 'rgba(255,255,255,.15)', color: 'white',
-                        border: '1px solid rgba(255,255,255,.25)', backdropFilter: 'blur(4px)',
+                        padding: '3px 10px', borderRadius: 20, fontSize: 11.5, fontWeight: 600,
+                        background: `${color}12`, color,
+                        border: `1px solid ${color}30`,
                       }}>
                         {c.label}
-                        <button onClick={() => updateFilter(c.key, null)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,.7)', cursor: 'pointer', fontSize: 10, padding: 0, lineHeight: 1, display: 'flex' }}>
+                        <button onClick={() => updateFilter(c.key, null)} style={{ background: 'none', border: 'none', color, opacity: .7, cursor: 'pointer', fontSize: 10, padding: 0, lineHeight: 1, display: 'flex' }}>
                           <IcX />
                         </button>
                       </span>
                     ))}
                     <button onClick={clearAll} style={{
                       display: 'inline-flex', alignItems: 'center', gap: 4,
-                      padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
-                      background: 'rgba(255,255,255,.1)', color: 'rgba(255,255,255,.7)',
-                      border: '1px solid rgba(255,255,255,.18)', cursor: 'pointer',
+                      padding: '3px 10px', borderRadius: 20, fontSize: 11.5, fontWeight: 600,
+                      background: '#F5F5F7', color: 'var(--muted)',
+                      border: '1px solid var(--border)', cursor: 'pointer', fontFamily: 'inherit',
                     }}>
                       <IcX />Filtreleri Temizle
                     </button>
@@ -476,19 +471,19 @@ export default function ListingLayout(props: ListingLayoutProps) {
           </div>
 
           {/* Stat strip */}
-          <div className="listing-stat-strip" style={{ display: 'flex', gap: 0, borderTop: '1px solid rgba(255,255,255,.12)', marginLeft: -32, marginRight: -32, paddingLeft: 32 }}>
-            <div className="listing-stat-item" style={{ padding: '14px 28px 14px 0', borderRight: '1px solid rgba(255,255,255,.12)' }}>
-              <div className="listing-stat-number" style={{ fontWeight: 800, color: 'white', lineHeight: 1 }}>
+          <div className="listing-stat-strip" style={{ display: 'flex', gap: 0, borderTop: '1px solid var(--border)', marginLeft: -32, marginRight: -32, paddingLeft: 32 }}>
+            <div className="listing-stat-item" style={{ padding: '14px 28px 14px 0', borderRight: '1px solid var(--border)' }}>
+              <div className="listing-stat-number" style={{ fontWeight: 700, color: 'var(--text)', lineHeight: 1, letterSpacing: '-0.5px', fontVariantNumeric: 'tabular-nums' }}>
                 {count.toLocaleString('tr')}
               </div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,.6)', marginTop: 2, fontWeight: 500 }}>
+              <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 3, fontWeight: 500 }}>
                 {entityLabelPlural} listelendi
               </div>
             </div>
             {cityCount !== undefined && (
               <div className="listing-stat-item" style={{ padding: '14px 28px' }}>
-                <div className="listing-stat-number" style={{ fontWeight: 800, color: 'white', lineHeight: 1 }}>{cityCount}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,.6)', marginTop: 2, fontWeight: 500 }}>şehir</div>
+                <div className="listing-stat-number" style={{ fontWeight: 700, color: 'var(--text)', lineHeight: 1, letterSpacing: '-0.5px', fontVariantNumeric: 'tabular-nums' }}>{cityCount}</div>
+                <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 3, fontWeight: 500 }}>şehir</div>
               </div>
             )}
           </div>
@@ -860,106 +855,6 @@ function Pagination({ totalPages, currentPage, basePath, searchParams }: {
         </span>
       )}
     </div>
-  );
-}
-
-// ── HeroParticles ───────────────────────────────────────────────────────────
-
-function HeroParticles() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let rafId: number;
-
-    type Dot = { x: number; y: number; vx: number; vy: number; r: number; cross: boolean };
-    let dots: Dot[] = [];
-
-    const init = () => {
-      canvas.width  = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-      const N = Math.floor((canvas.width * canvas.height) / 14000);
-      dots = Array.from({ length: Math.min(N, 55) }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - .5) * .45,
-        vy: (Math.random() - .5) * .45,
-        r: Math.random() * 1.8 + .8,
-        cross: Math.random() < .28,
-      }));
-    };
-
-    const drawCross = (x: number, y: number, size: number) => {
-      const h = size * 1.6;
-      ctx.lineWidth = .9;
-      ctx.beginPath(); ctx.moveTo(x - h, y); ctx.lineTo(x + h, y); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x, y - h); ctx.lineTo(x, y + h); ctx.stroke();
-    };
-
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Bağlantı çizgileri
-      for (let i = 0; i < dots.length; i++) {
-        for (let j = i + 1; j < dots.length; j++) {
-          const dx = dots[i].x - dots[j].x;
-          const dy = dots[i].y - dots[j].y;
-          const d  = Math.sqrt(dx * dx + dy * dy);
-          if (d < 110) {
-            ctx.beginPath();
-            ctx.moveTo(dots[i].x, dots[i].y);
-            ctx.lineTo(dots[j].x, dots[j].y);
-            ctx.strokeStyle = `rgba(255,255,255,${.13 * (1 - d / 110)})`;
-            ctx.lineWidth = .5;
-            ctx.stroke();
-          }
-        }
-      }
-
-      // Noktalar ve çarpılar
-      dots.forEach(d => {
-        ctx.strokeStyle = 'rgba(255,255,255,.3)';
-        ctx.fillStyle   = 'rgba(255,255,255,.22)';
-        if (d.cross) {
-          drawCross(d.x, d.y, d.r);
-        } else {
-          ctx.beginPath();
-          ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        d.x += d.vx;
-        d.y += d.vy;
-        if (d.x < 0 || d.x > canvas.width)  d.vx *= -1;
-        if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
-      });
-
-      rafId = requestAnimationFrame(draw);
-    };
-
-    init();
-    draw();
-
-    const ro = new ResizeObserver(init);
-    ro.observe(canvas);
-
-    return () => { cancelAnimationFrame(rafId); ro.disconnect(); };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: 'absolute', inset: 0,
-        width: '100%', height: '100%',
-        pointerEvents: 'none',
-        opacity: .85,
-      }}
-    />
   );
 }
 

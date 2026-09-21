@@ -536,6 +536,11 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - `HeroKonumSecici.tsx` + `globals.css .hero-konum-*` aynı palete çekildi. Altın (`--gold`) ana sayfada yalnız navbar CTA'sında kaldı.
 - Hero `<style>` `dangerouslySetInnerHTML` ile — içinde `>` var (hidrasyon tuzağı), metin çocuğuna çevirme.
 
+### Listeleme Sayfaları Başlığı — Açık, Sade (Eyl 2026)
+- `components/ListingLayout.tsx` üst bandı: koyu gradyan + `HeroParticles` canvas'ı + dekoratif daireler **kaldırıldı**. Beyaz zemin, `var(--border)` hairline'lar, başlık `var(--text)` 700, breadcrumb gri. İkon kutusu düz `color` (sayfanın marka rengi) üstünde beyaz glif — sayfaların `icon` SVG'leri `stroke="white"` olduğu için bu şart. Aktif filtre çipleri `${color}12` tint.
+- `gradient` prop'u artık **kullanılmıyor** (opsiyonel bırakıldı; 4 liste sayfası hâlâ geçiyor, kaldırmak isteğe bağlı).
+- **Tuzak:** dış kapsayıcıdaki `overflow: hidden` **kalmalı** — stat şeridi negatif marjla (`-32px`/mobilde `-16px`) taşar, kaldırınca mobilde yatay kaydırma çıkıyor (ölçüldü: 375px'te scrollWidth > innerWidth).
+
 ### Admin Paneli — Açık Tema (Eyl 2026)
 - **Tek kaynak `app/admin/tema.ts`** (`C`): Apple sadeliği — `#F5F5F7` zemin, beyaz kartlar, `#E5E5EA` hairline, `#1D1D1F/#6E6E73/#AEAEB2` metin kademeleri, tek vurgu **lacivert** (aktif menü, bağlantı), durum renkleri 600 tonları (beyaz zeminde metin olarak okunur). `page.tsx` ve `MakalelerTab.tsx` yerel `C` tanımlarını bıraktı, buradan import eder.
 - **Koyu temadan kalan sabitler dönüştürüldü:** `rgba(255,255,255,.0x)` dolgular → `C.soft`, `.07–.15` kenarlıklar → `C.border`, `rgba(0,0,0,.2)` tablo başlıkları → `C.soft`, `#0D1526` → `C.card`, karartmalar `rgba(29,29,31,.32)`. Kalan `rgba(255,255,255,…)` yalnız **renkli düğme üstündeki** spinner/sayaçlarda (doğru). Yeni admin bileşeni yazarken **token dışına çıkma**; `C.dim` eylem metni için değil, yalnız ikincil süs için.
