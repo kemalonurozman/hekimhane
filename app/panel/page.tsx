@@ -265,9 +265,10 @@ export default function PanelPage() {
   useEffect(() => { try { const v = localStorage.getItem('hk_panel_aktif'); if (v) setAktifId(v); } catch {} }, []);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [sbLight, setSbLight] = useState(false);   // sidebar teması: false=gece, true=açık
+  // Sidebar teması: varsayılan AÇIK (beyaz); kullanıcı isterse gece moduna çevirir, seçim localStorage'da kalır
+  const [sbLight, setSbLight] = useState(true);
 
-  useEffect(() => { try { setSbLight(localStorage.getItem('hk_panel_theme') === 'light'); } catch {} }, []);
+  useEffect(() => { try { if (localStorage.getItem('hk_panel_theme') === 'dark') setSbLight(false); } catch {} }, []);
   const toggleTheme = () => setSbLight(v => { const n = !v; try { localStorage.setItem('hk_panel_theme', n ? 'light' : 'dark'); } catch {} return n; });
 
   useEffect(() => {
