@@ -1,10 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { isAdminRequest } from '@/lib/admin-auth';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 import { sendEmail, mailShell, satir } from '@/lib/email';
-
-const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
 // Güçlü, okunabilir geçici şifre (harf + rakam, 12 karakter)
 function genPassword(): string {
@@ -20,19 +18,6 @@ function adminClient() {
   );
 }
 
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) { return request.cookies.get(name)?.value; },
-        set() {},
-        remove() {},
-      },
-    },
-  );
-}
 
 const TABLE_MAP: Record<string, string> = {
   klinik:  'klinikler',
@@ -44,9 +29,7 @@ const TABLE_MAP: Record<string, string> = {
 export async function POST(request: NextRequest) {
   try {
     // 1. Oturum doğrula
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
-    if (!session || session.user.email !== ADMIN_EMAIL) {
+    if (!(await isAdminRequest(request))) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
     }
 
@@ -81,10 +64,16 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Onaylandıysa → işletmeyi "claimed = true" yap
+    //    Hata yutulmaz: kolon yoksa (doktorlar'da yoktu) admin bunu görmeli.
+    let warning: string | null = null;
     if (action === 'approve' && claim.entity_id && claim.entity_id !== 'new') {
       const table = TABLE_MAP[claim.entity_type];
       if (table) {
-        await admin.from(table).update({ claimed: true }).eq('id', claim.entity_id);
+        const { error: claimedErr } = await admin.from(table).update({ claimed: true }).eq('id', claim.entity_id);
+        if (claimedErr) {
+          console.error('claim-action claimed update:', claimedErr.message);
+          warning = `Talep onaylandı ama işletme "sahiplenildi" olarak işaretlenemedi: ${claimedErr.message}`;
+        }
         // Doktor sahiplenince gizli iletişimi (Bobath vb.) otomatik aç — best-effort
         if (claim.entity_type === 'doktor') {
           try { await admin.from(table).update({ contact_hidden: false }).eq('id', claim.entity_id); }
@@ -148,7 +137,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true, status: newStatus, mail });
+    return NextResponse.json({ success: true, status: newStatus, mail, warning });
   } catch (err) {
     console.error('claim-action error:', err);
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import type { User } from '@supabase/supabase-js';
 import MakalelerTab from './MakalelerTab';
@@ -557,7 +557,10 @@ function EditModal({ entity, entityType, onClose, onSaved }: {
     });
     setSaving(false);
     if (res.ok) {
-      onSaved({ ...entity, ...form });
+      // payload (dönüştürülmüş) ile birleştir — ham form yazılırsa photos "\n"'li
+      // metin, claimed 'true' string olarak listeye döner; kayıt ikinci kez
+      // açıldığında fotoğraflar boş gelir ve kaydedince [] yazılırdı.
+      onSaved({ ...entity, ...payload });
       onClose();
     } else {
       const d = await res.json();
@@ -914,11 +917,10 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
                   <span style={{ fontSize: 12, color: C.text }}>{e.rat?.toFixed(1) || '—'}</span>
                 </div>
                 <div>
-                  {typeKey !== 'doktor' ? (
-                    <span style={{ fontSize: 11, fontWeight: 700, color: isClaimed ? C.green : C.muted, background: isClaimed ? 'rgba(16,185,129,.12)' : C.soft, padding: '2px 9px', borderRadius: 8, border: `1px solid ${isClaimed ? 'rgba(16,185,129,.3)' : C.border}` }}>
-                      {isClaimed ? 'Evet' : 'Hayır'}
-                    </span>
-                  ) : <span style={{ fontSize: 11, color: C.muted }}>—</span>}
+                  {/* doktorlar.claimed kolonu migration ile eklendi — rozet artık her türde */}
+                  <span style={{ fontSize: 11, fontWeight: 700, color: isClaimed ? C.green : C.muted, background: isClaimed ? 'rgba(16,185,129,.12)' : C.soft, padding: '2px 9px', borderRadius: 8, border: `1px solid ${isClaimed ? 'rgba(16,185,129,.3)' : C.border}` }}>
+                    {isClaimed ? 'Evet' : 'Hayır'}
+                  </span>
                 </div>
                 {/* İşlemler: Düzenle + Sahip + Gör + Sil */}
                 <div style={{ display: 'flex', gap: 5, flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
@@ -1039,6 +1041,12 @@ ALTER TABLE eczaneler  ADD COLUMN IF NOT EXISTS photos     TEXT[];
 ALTER TABLE yorumlar   ADD COLUMN IF NOT EXISTS reply_text TEXT;
 ALTER TABLE yorumlar   ADD COLUMN IF NOT EXISTS reply_at   TIMESTAMPTZ;
 
+-- Admin düzeltmeleri: eczane düzenleme + doktor sahiplenme işareti
+ALTER TABLE eczaneler  ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE doktorlar  ADD COLUMN IF NOT EXISTS claimed    BOOLEAN DEFAULT FALSE;
+UPDATE doktorlar d SET claimed = TRUE WHERE claimed IS DISTINCT FROM TRUE
+  AND EXISTS (SELECT 1 FROM claim_requests c WHERE c.entity_type='doktor' AND c.entity_id=d.id AND c.status='approved');
+
 -- Makale gönderim / onay akışı (panel → admin → blog)
 ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS status       TEXT DEFAULT 'published';
 ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS author_email TEXT;
@@ -1098,56 +1106,42 @@ function CekimTalepleriTab() {
   const [srcFilter, setSrcFilter] = useState<'all' | 'randevu' | 'cekim'>('all');
   const [updating, setUpdating]   = useState<string | null>(null);
 
-  const sb = createSupabaseBrowser();
-
+  // Talepler service-role rotadan gelir (/api/admin/talepler). Tarayıcıdan
+  // doğrudan okumak, hasta verisi taşıyan tablolarda herkese açık SELECT
+  // politikası gerektiriyordu.
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await (sb as any).from('cekim_talepleri')
-      .select('*')
-      .order('created_at', { ascending: false });
-    const cekim: CekimTalebi[] = ((data as CekimTalebi[]) || []).map(t => ({ ...t, _source: 'cekim' as const }));
-
-    // Randevu talepleri (tablo henüz oluşturulmadıysa sessizce atla)
-    let randevu: CekimTalebi[] = [];
     try {
-      const { data: rData, error: rErr } = await (sb as any).from('randevu_talepleri')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (!rErr && rData) {
-        randevu = rData.map((r: any) => ({
-          id: r.id,
-          isletme_adi: r.entity_name,
-          isletme_turu: `randevu-${r.entity_type}`,
-          il: null, ilce: null,
-          ad_soyad: r.ad_soyad,
-          tel: r.tel,
-          email: r.email,
-          notlar: [r.tercih ? `Tercih: ${r.tercih}` : null, r.mesaj ? `Not: ${r.mesaj}` : null].filter(Boolean).join(' | ') || null,
-          durum: RANDEVU_TO_DURUM[r.status] || 'beklemede',
-          created_at: r.created_at,
-          _source: 'randevu' as const,
-        }));
-      }
-    } catch { /* tablo yok — fallback kayıtları zaten cekim_talepleri'nde */ }
-
-    const hepsi = [...cekim, ...randevu]
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    setTalepler(hepsi);
+      const res = await fetch('/api/admin/talepler', { cache: 'no-store' });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error || `HTTP ${res.status}`);
+      setTalepler((j.talepler || []) as CekimTalebi[]);
+    } catch (e: any) {
+      alert('Talepler yüklenemedi: ' + (e?.message || 'bilinmeyen hata'));
+      setTalepler([]);
+    }
     setLoading(false);
-  }, [sb]);
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
   const updateDurum = async (id: string, durum: string) => {
     setUpdating(id);
-    const talep = talepler.find(t => t.id === id);
-    if (talep?._source === 'randevu') {
-      await (sb as any).from('randevu_talepleri')
-        .update({ status: DURUM_TO_RANDEVU[durum] || 'yeni' }).eq('id', id);
-    } else {
-      await (sb as any).from('cekim_talepleri').update({ durum }).eq('id', id);
-    }
+    const talep  = talepler.find(t => t.id === id);
+    const onceki = talep?.durum;
+    // İyimser güncelle; sunucu reddederse geri al (eski sürüm hatayı hiç kontrol etmiyordu)
     setTalepler(prev => prev.map(t => t.id === id ? { ...t, durum } : t));
+    try {
+      const res = await fetch('/api/admin/talepler', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, source: talep?._source || 'cekim', durum }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error || `HTTP ${res.status}`);
+    } catch (e: any) {
+      setTalepler(prev => prev.map(t => t.id === id ? { ...t, durum: onceki || t.durum } : t));
+      alert('Durum güncellenemedi: ' + (e?.message || 'bilinmeyen hata'));
+    }
     setUpdating(null);
   };
 
@@ -1331,11 +1325,17 @@ function EmailListesiTab() {
 
   async function loadData() {
     setLoading(true);
-    const { data } = await (sb as any).from('email_aboneleri')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(2000);
-    setAboneler(data || []);
+    // Service-role rota: RLS'e takılmaz ve 1000 satır tavanına takılmaz
+    // (sunucu sayfalayıp hepsini getirir; eski .limit(2000) 1000'de kesiliyordu).
+    try {
+      const res = await fetch('/api/admin/aboneler', { cache: 'no-store' });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error || `HTTP ${res.status}`);
+      setAboneler(j.aboneler || []);
+    } catch (e: any) {
+      alert('Abone listesi yüklenemedi: ' + (e?.message || 'bilinmeyen hata'));
+      setAboneler([]);
+    }
     setLoading(false);
   }
 
@@ -1676,8 +1676,9 @@ function GeocodeTab() {
   const [batchNum,  setBatchNum]  = useState(0);
   const [error,     setError]     = useState<string | null>(null);
   const [done,      setDone]      = useState(false);
-  const stopRef = useCallback(() => {}, []); // stopFlag ref
-  const [stopFlag, setStopFlag]   = useState(false);
+  // "Durdur": döngü async çalıştığı için state bayat kalır — ref'ten okunur
+  const stopRef = useRef(false);
+  const [stopFlag, setStopFlag]   = useState(false); // yalnız buton görünümü için
 
   useEffect(() => { loadCounts(); }, []);
 
@@ -1696,8 +1697,10 @@ function GeocodeTab() {
     setActiveKey(key);
     setLog([]); setTotalDone(0); setTotalFail(0); setTotalAll(counts?.[key] || 0);
     setBatchNum(0); setError(null); setDone(false); setStopFlag(false);
+    stopRef.current = false;
 
     let cumDone = 0, cumFail = 0, batch = 0;
+    let cursor: string | null = null;   // son işlenen id — sunucu buradan devam eder
     let keepGoing = true;
 
     while (keepGoing) {
@@ -1708,6 +1711,7 @@ function GeocodeTab() {
       try {
         const body: Record<string, string> = { table };
         if (typeFilter) body.typeFilter = typeFilter;
+        if (cursor)     body.cursor = cursor;
         res = await fetch('/api/admin/geocode', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1724,17 +1728,16 @@ function GeocodeTab() {
       const results: { name: string; ok: boolean; lat?: number; lng?: number }[] = json.results || [];
       cumDone += json.success || 0;
       cumFail += json.failed  || 0;
+      cursor   = json.nextCursor || cursor;
 
       setLog(prev => [...results, ...prev]); // yeni sonuçlar üste
       setTotalDone(cumDone);
       setTotalFail(cumFail);
 
-      // Bitiş koşulları
-      if (json.remaining === 0 || results.length === 0) {
-        keepGoing = false;
-      }
-      // Kullanıcı durdurdu mu?
-      if (stopFlag) { keepGoing = false; }
+      // Bitiş: sunucu "bitti" dedi, sonuç gelmedi ya da kullanıcı durdurdu.
+      // (Eski sürüm bulunamayan kayıtları her turda yeniden seçtiği için burası
+      //  hiç bitmiyordu; stopFlag da closure'da bayat kaldığından Durdur çalışmıyordu.)
+      if (json.done || results.length === 0 || stopRef.current) keepGoing = false;
     }
 
     setActiveKey(null);
@@ -1819,7 +1822,7 @@ function GeocodeTab() {
             <div style={{ fontSize: 11, color: C.muted, marginTop: 6 }}>{totalDone + totalFail} / {totalAll} kayıt işlendi ({progress}%)</div>
           )}
           <button
-            onClick={() => setStopFlag(true)}
+            onClick={() => { stopRef.current = true; setStopFlag(true); }}
             style={{ marginTop: 12, padding: '6px 14px', borderRadius: 8, border: '1px solid rgba(239,68,68,.4)', background: 'transparent', color: C.red, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
             Durdur
           </button>

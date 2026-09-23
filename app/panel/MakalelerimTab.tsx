@@ -66,6 +66,8 @@ function vurgulaGovde(text: string) {
 
 const MK_HL_CSS = `
 .mk-wrap { position: relative; }
+/* Telefonda global kural textarea'yı 16px'e zorlar; renkli katman da 16px olmalı, yoksa imleç ile yazı kayar */
+@media (max-width: 820px) { .mk-back, .mk-ta { font-size: 16px !important; } }
 .mk-back, .mk-ta {
   margin: 0; font-family: inherit; font-size: 14px; line-height: 1.7;
   padding: 11px 14px; border: 1.5px solid transparent; border-radius: 10px;
@@ -428,7 +430,7 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
       )}
 
       {/* Toast */}
-      <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: `translateX(-50%) translateY(${toast ? '0' : '12px'})`, background: T.navy, color: 'white', padding: '11px 22px', borderRadius: 50, fontSize: 13, fontWeight: 600, opacity: toast ? 1 : 0, transition: 'all .3s', zIndex: 9999, pointerEvents: 'none', whiteSpace: 'nowrap' }}>
+      <div style={{ position: 'fixed', bottom: 84, left: '50%', transform: `translateX(-50%) translateY(${toast ? '0' : '12px'})`, background: T.navy, color: 'white', padding: '11px 22px', borderRadius: 50, fontSize: 13, fontWeight: 600, opacity: toast ? 1 : 0, transition: 'all .3s', zIndex: 9999, pointerEvents: 'none', whiteSpace: 'nowrap' }}>
         {toast}
       </div>
     </div>

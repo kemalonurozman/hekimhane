@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { isAdminRequest } from '@/lib/admin-auth';
 import { sahipEpostasi } from '@/lib/yonetici';
-import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { getStripe, ENTITY_TABLE } from '@/lib/stripe';
 import { sendEmail, mailShell, satir } from '@/lib/email';
@@ -16,13 +16,6 @@ function adminClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } },
-  );
-}
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get: (n: string) => request.cookies.get(n)?.value, set() {}, remove() {} } },
   );
 }
 
@@ -61,9 +54,7 @@ async function aboneEpostasi(admin: any, sub: any, entity_type: string, entity_i
  */
 export async function POST(request: NextRequest) {
   try {
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
-    if (!session || session.user.email !== ADMIN_EMAIL) {
+    if (!(await isAdminRequest(request))) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
     }
 

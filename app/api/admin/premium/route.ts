@@ -1,13 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { isAdminRequest } from '@/lib/admin-auth';
 import { createClient } from '@supabase/supabase-js';
 import { getStripe } from '@/lib/stripe';
 
 // Her istekte taze — premium üye listesi cache'lenmesin
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-
-const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
 function adminClient() {
   return createClient(
@@ -16,19 +14,10 @@ function adminClient() {
     { auth: { autoRefreshToken: false, persistSession: false } },
   );
 }
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get: (n: string) => request.cookies.get(n)?.value, set() {}, remove() {} } },
-  );
-}
 
 export async function GET(request: NextRequest) {
   try {
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
-    if (!session || session.user.email !== ADMIN_EMAIL) {
+    if (!(await isAdminRequest(request))) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
     }
     const admin = adminClient();
@@ -58,7 +47,7 @@ export async function GET(request: NextRequest) {
       ...map(hastane.data, 'hastane'),
       ...map(doktor.data, 'doktor'),
       ...map(eczane.data, 'eczane'),
-    ];
+    ].map(it => ({ ...it, premiumAktif: true }));
 
     // Stripe abonelik bilgisi (tablo varsa) — entity_id ile eşle
     let subsByEntity: Record<string, any> = {};
@@ -68,6 +57,29 @@ export async function GET(request: NextRequest) {
         .select('entity_type,entity_id,email,status,current_period_end,stripe_customer_id,stripe_subscription_id');
       if (subs) subs.forEach((s: any) => { subsByEntity[`${s.entity_type}:${s.entity_id}`] = s; });
     } catch { /* tablo yoksa geç */ }
+
+    // Geçmiş aboneler: premium=false olduğu için yukarıdaki sorgulara düşmezler.
+    // İptal edilen üyelik listeden tamamen kaybolmasın diye abonelik kaydı olan
+    // ama premium'u kapalı işletmeler de çekilir (admin geçmişi görebilsin).
+    const varOlan = new Set(items.map(it => `${it.type}:${it.id}`));
+    const eksik: Record<string, string[]> = {};
+    Object.values(subsByEntity).forEach((sub: any) => {
+      const k = `${sub.entity_type}:${sub.entity_id}`;
+      if (!varOlan.has(k)) (eksik[sub.entity_type] ||= []).push(String(sub.entity_id));
+    });
+    const TBL: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
+    const gecmis: any[] = [];
+    await Promise.all(Object.entries(eksik).map(async ([tur, ids]) => {
+      const tbl = TBL[tur]; if (!tbl || !ids.length) return;
+      try {
+        const alanlar = tur === 'doktor'
+          ? 'id,ad,soyad,unvan,spec,il,ilce,slug,rat,rev,verified,tel'
+          : 'id,name,il,ilce,slug,type,rat,rev,claimed,tel';
+        const { data } = await (admin as any).from(tbl).select(alanlar).in('id', ids);
+        gecmis.push(...map(data, tur).map(it => ({ ...it, premiumAktif: false })));
+      } catch { /* kayıt silinmişse atla */ }
+    }));
+    items.push(...gecmis);
 
     // Stripe'tan canlı durum — tek liste çağrısı, abonelik id'siyle eşlenir.
     // `cancel_at_period_end` DB'de tutulmuyor; "dönem sonunda bitecek" bilgisi
@@ -119,6 +131,8 @@ export async function GET(request: NextRequest) {
       hastane: hastane.data?.length || 0,
       doktor: doktor.data?.length || 0,
       eczane: eczane.data?.length || 0,
+      aktif: items.filter(i => i.premiumAktif).length,
+      gecmis: gecmis.length,
       toplam: items.length,
     };
 

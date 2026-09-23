@@ -209,6 +209,24 @@ button {
 }
 .profil-tab-bar::-webkit-scrollbar { display: none; }
 
+/* ================================================================
+   PANEL — Profilimi Düzenle (app/panel/page.tsx › EditProfileTab)
+   ================================================================ */
+
+/* Bölüm sekmeleri: sığmazsa yatay kaydırılır, scrollbar gizli */
+.panel-sec-tabs {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.panel-sec-tabs::-webkit-scrollbar { display: none; }
+
+/* Formdaki 2 sütunlu ızgaralar mobilde tek sütuna iner.
+   (inline style'ı ezmek için !important gerekir) */
+@media (max-width: 767px) {
+  .panel-form-grid { grid-template-columns: 1fr !important; }
+}
+
 /* Hero header: 3-col grid on desktop, stacked on mobile */
 .profil-hero-header {
   display: grid;

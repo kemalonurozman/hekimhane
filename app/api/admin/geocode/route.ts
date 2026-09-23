@@ -1,35 +1,29 @@
 /**
  * Admin Geocoding API
  * Koordinatı eksik işletmeleri Nominatim (OpenStreetMap) ile geocode eder.
- * Her çağrıda en fazla BATCH_SIZE kayıt işler — progress için tekrar tekrar çağrılabilir.
+ *
+ * İMLEÇ (cursor) TABANLI: her çağrı `cursor`'dan (son işlenen id) SONRAKİ
+ * BATCH_SIZE kaydı işler ve `nextCursor` döner. Eski sürüm her çağrıda
+ * "koordinatsız ilk 30" kaydı yeniden seçiyordu; Nominatim'in bulamadığı
+ * kayıtlar hiç ilerlemediği için döngü sonsuza gidiyordu.
  */
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
+import { isAdminRequest } from '@/lib/admin-auth';
 
-const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
-const BATCH_SIZE  = 30;   // Her çağrıda işlenecek max kayıt
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // Nominatim 1 istek/sn → tek çağrı uzun sürer
+
+const BATCH_SIZE  = 8;    // kayıt başına en kötü ~6 sn → 8 × 6 ≈ 48 sn < maxDuration
 const DELAY_MS    = 1100; // Nominatim rate limit: max 1 req/sn
+const KOORDINATSIZ = 'lat.is.null,lat.eq.0,lng.is.null,lng.eq.0';
 
 function adminClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } }
-  );
-}
-
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) { return request.cookies.get(name)?.value; },
-        set() {},
-        remove() {},
-      },
-    }
   );
 }
 
@@ -75,37 +69,28 @@ const TABLE_CONFIG: Record<string, { adresAlan: string | null; nameAlan: string;
 
 export async function POST(request: NextRequest) {
   try {
-    // Auth kontrolü
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
-    if (!session || session.user.email !== ADMIN_EMAIL) {
+    if (!(await isAdminRequest(request))) {
       return NextResponse.json({ error: 'Yetkisiz' }, { status: 403 });
     }
 
-    const { table, typeFilter } = await request.json();
+    const { table, typeFilter, cursor } = await request.json();
     const config = TABLE_CONFIG[table];
     if (!config) {
       return NextResponse.json({ error: 'Geçersiz tablo' }, { status: 400 });
     }
 
-    const admin = adminClient();
+    const admin = adminClient() as any;
 
-    // Koordinatsız kayıtları çek
-    let q = (admin as any)
-      .from(table)
-      .select(config.select)
-      .or('lat.is.null,lat.eq.0,lng.is.null,lng.eq.0');
+    // İmleçten sonraki koordinatsız kayıtlar — id sırasıyla, sabit parti
+    let q = admin.from(table).select(config.select).or(KOORDINATSIZ)
+      .order('id', { ascending: true }).limit(BATCH_SIZE);
+    if (typeFilter) q = q.ilike('type', `%${typeFilter}%`);
+    if (cursor)     q = q.gt('id', String(cursor));
 
-    if (typeFilter) {
-      q = q.ilike('type', `%${typeFilter}%`);
-    }
-
-    const { data: rows, error: fetchErr } = await q.limit(BATCH_SIZE + 200);
-
+    const { data: rows, error: fetchErr } = await q;
     if (fetchErr) return NextResponse.json({ error: fetchErr.message }, { status: 500 });
 
-    const total   = (rows || []).length;
-    const batch   = (rows || []).slice(0, BATCH_SIZE);
+    const batch: any[] = rows || [];
     const results: { id: string; name: string; ok: boolean; lat?: number; lng?: number }[] = [];
 
     for (const row of batch) {
@@ -118,18 +103,26 @@ export async function POST(request: NextRequest) {
       await sleep(DELAY_MS);
 
       if (coords) {
-        await (admin as any).from(table).update({ lat: coords.lat, lng: coords.lng }).eq('id', row.id);
-        results.push({ id: row.id, name: name.slice(0, 50), ok: true, lat: coords.lat, lng: coords.lng });
+        const { error: updErr } = await admin.from(table).update({ lat: coords.lat, lng: coords.lng }).eq('id', row.id);
+        results.push({ id: row.id, name: name.slice(0, 50), ok: !updErr, lat: coords.lat, lng: coords.lng });
       } else {
         results.push({ id: row.id, name: name.slice(0, 50), ok: false });
       }
     }
 
-    const remaining = Math.max(0, total - BATCH_SIZE);
-    const success   = results.filter(r => r.ok).length;
-    const failed    = results.filter(r => !r.ok).length;
+    // Kalan = imleçten SONRA hâlâ koordinatsız olan kayıt sayısı (bulunamayanlar dahil değil)
+    const nextCursor: string | null = batch.length ? String(batch[batch.length - 1].id) : (cursor ? String(cursor) : null);
+    let cq = admin.from(table).select('id', { count: 'exact', head: true }).or(KOORDINATSIZ);
+    if (typeFilter) cq = cq.ilike('type', `%${typeFilter}%`);
+    if (nextCursor) cq = cq.gt('id', nextCursor);
+    const { count } = await cq;
+    const remaining = count || 0;
 
-    return NextResponse.json({ success, failed, remaining, results });
+    const success = results.filter(r => r.ok).length;
+    const failed  = results.filter(r => !r.ok).length;
+    const done    = batch.length < BATCH_SIZE || remaining === 0;
+
+    return NextResponse.json({ success, failed, remaining, results, nextCursor, done });
   } catch (err) {
     console.error('geocode error:', err);
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
@@ -139,29 +132,25 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   // Her tablo için koordinatsız kayıt sayısını döndür
   try {
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
-    if (!session || session.user.email !== ADMIN_EMAIL) {
+    if (!(await isAdminRequest(request))) {
       return NextResponse.json({ error: 'Yetkisiz' }, { status: 403 });
     }
 
-    const admin = adminClient();
+    const admin = adminClient() as any;
     const counts: Record<string, number> = {};
 
     await Promise.all(Object.keys(TABLE_CONFIG).map(async (table) => {
-      const { count } = await (admin as any)
-        .from(table)
+      const { count } = await admin.from(table)
         .select('id', { count: 'exact', head: true })
-        .or('lat.is.null,lat.eq.0,lng.is.null,lng.eq.0');
+        .or(KOORDINATSIZ);
       counts[table] = count || 0;
     }));
 
     // Diş klinikleri özel sayısı
-    const { count: disCount } = await (admin as any)
-      .from('klinikler')
+    const { count: disCount } = await admin.from('klinikler')
       .select('id', { count: 'exact', head: true })
       .ilike('type', '%diş%')
-      .or('lat.is.null,lat.eq.0,lng.is.null,lng.eq.0');
+      .or(KOORDINATSIZ);
     counts['klinikler_dis'] = disCount || 0;
 
     return NextResponse.json({ counts });

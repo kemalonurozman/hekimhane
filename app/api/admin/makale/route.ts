@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { isAdminRequest } from '@/lib/admin-auth';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir } from '@/lib/email';
 import { makaleSlug, okumaSuresi, icerikGecerli } from '@/lib/makale-icerik';
@@ -17,23 +17,9 @@ function adminClient() {
   );
 }
 
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) { return request.cookies.get(name)?.value; },
-        set() {}, remove() {},
-      },
-    },
-  );
-}
 
-async function adminMi(request: NextRequest) {
-  const sess = sessionClient(request);
-  const { data: { session } } = await sess.auth.getSession();
-  return session?.user?.email === ADMIN_EMAIL;
+async function adminMi(request: NextRequest): Promise<boolean> {
+  return isAdminRequest(request);
 }
 
 const SELECT = 'id,title,slug,summary,category,content,cover_image,author,author_email,entity_name,website,sponsorlu,kaynak,status,published,red_notu,okuma_dk,views,created_at,show_homepage';

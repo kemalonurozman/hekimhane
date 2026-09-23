@@ -1,8 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { isAdminRequest } from '@/lib/admin-auth';
 import { createClient } from '@supabase/supabase-js';
-
-const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
 function adminClient() {
   return createClient(
@@ -12,19 +10,6 @@ function adminClient() {
   );
 }
 
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) { return request.cookies.get(name)?.value; },
-        set() {},
-        remove() {},
-      },
-    },
-  );
-}
 
 // Bir tabloda kolonun varlığını SELECT ile test et
 async function colExists(admin: ReturnType<typeof adminClient>, table: string, col: string): Promise<boolean> {
@@ -36,9 +21,7 @@ async function colExists(admin: ReturnType<typeof adminClient>, table: string, c
 
 export async function GET(request: NextRequest) {
   try {
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
-    if (!session || session.user.email !== ADMIN_EMAIL) {
+    if (!(await isAdminRequest(request))) {
       return NextResponse.json({ error: 'Yetkisiz' }, { status: 403 });
     }
 
@@ -54,6 +37,9 @@ export async function GET(request: NextRequest) {
       colExists(admin, 'doktorlar',  'photos').then(ok    => ({ table: 'doktorlar',  col: 'photos',     ok })),
       colExists(admin, 'eczaneler',  'tour360url').then(ok => ({ table: 'eczaneler',  col: 'tour360url', ok })),
       colExists(admin, 'yorumlar',   'reply_text').then(ok => ({ table: 'yorumlar',   col: 'reply_text', ok })),
+      // Admin düzeltmeleri: bunlar yoksa eczane düzenleme ve doktor sahiplenme işareti çalışmaz
+      colExists(admin, 'eczaneler',  'updated_at').then(ok => ({ table: 'eczaneler',  col: 'updated_at', ok })),
+      colExists(admin, 'doktorlar',  'claimed').then(ok    => ({ table: 'doktorlar',  col: 'claimed',    ok })),
     ]);
 
     const missing = checks.filter(c => !c.ok);

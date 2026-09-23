@@ -78,7 +78,7 @@ export default async function YorumlarPage() {
         </div>
       </div>
 
-      <div className="container" style={{ padding: '32px', maxWidth: '860px' }}>
+      <div className="container" style={{ padding: '24px 16px', maxWidth: '860px' }}>
 
         {reviews.length === 0 ? (
           <div style={{ background: 'white', borderRadius: '20px', border: '1px solid var(--border)', padding: '64px 32px', textAlign: 'center' }}>

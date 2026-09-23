@@ -93,9 +93,16 @@ export async function GET(req: NextRequest) {
   let booked: string[] = [];
   if (konf.aktif) {
     try {
-      const { data } = await (supabase as any).from('randevu_talepleri')
-        .select('randevu_slot').eq('entity_id', id).not('randevu_slot', 'is', null).neq('status', 'iptal');
-      booked = ((data as any[]) || []).map(r => String(r.randevu_slot)).filter(Boolean);
+      // Yalnızca slot döndüren SECURITY DEFINER fonksiyon (tabloda public SELECT yok);
+      // fonksiyon henüz yoksa eski doğrudan sorguya düş.
+      const { data: rpc, error: rpcErr } = await (supabase as any).rpc('dolu_slotlar', { p_entity_id: String(id) });
+      if (!rpcErr && Array.isArray(rpc)) {
+        booked = rpc.map((r: any) => String(typeof r === 'string' ? r : r?.dolu_slotlar ?? r?.slot ?? '')).filter(Boolean);
+      } else {
+        const { data } = await (supabase as any).from('randevu_talepleri')
+          .select('randevu_slot').eq('entity_id', id).not('randevu_slot', 'is', null).neq('status', 'iptal');
+        booked = ((data as any[]) || []).map(r => String(r.randevu_slot)).filter(Boolean);
+      }
     } catch { booked = []; }
     booked = booked.concat(konf.bloke || []);   // elle kapatılan gün/slotları da ekle
   }

@@ -1,12 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { isAdminRequest } from '@/lib/admin-auth';
 import { createClient } from '@supabase/supabase-js';
 
 // Her istekte taze veri — yeni şikayetler anında görünsün
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-
-const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
 const TABLE_MAP: Record<string, string> = {
   klinik:  'klinikler',
@@ -23,19 +21,6 @@ function adminClient() {
   );
 }
 
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) { return request.cookies.get(name)?.value; },
-        set() {},
-        remove() {},
-      },
-    },
-  );
-}
 
 // entity_type + id listesinden { "doktor:d12": "Dr. Ali Veli" } isim haritası kur
 async function resolveNames(
@@ -68,9 +53,7 @@ async function resolveNames(
 
 export async function GET(request: NextRequest) {
   try {
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
-    if (!session || session.user.email !== ADMIN_EMAIL) {
+    if (!(await isAdminRequest(request))) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
     }
 

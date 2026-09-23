@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { isAdminRequest } from '@/lib/admin-auth';
 import { createClient } from '@supabase/supabase-js';
 import { randomBytes } from 'crypto';
 import { revalidatePath } from 'next/cache';
@@ -26,13 +26,8 @@ function adminClient() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } });
 }
-function sessionClient(request: NextRequest) {
-  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get: (n: string) => request.cookies.get(n)?.value, set() {}, remove() {} } });
-}
 async function adminMi(request: NextRequest): Promise<boolean> {
-  const { data: { session } } = await sessionClient(request).auth.getSession();
-  return session?.user?.email === ADMIN_EMAIL;
+  return isAdminRequest(request);
 }
 const esc = (s: string) => String(s || '').replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c] || c));
 

@@ -1,8 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { isAdminRequest } from '@/lib/admin-auth';
 import { createClient } from '@supabase/supabase-js';
-
-const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
 function adminClient() {
   return createClient(
@@ -12,19 +10,6 @@ function adminClient() {
   );
 }
 
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) { return request.cookies.get(name)?.value; },
-        set() {},
-        remove() {},
-      },
-    },
-  );
-}
 
 const TABLE_MAP: Record<string, string> = {
   klinik:  'klinikler',
@@ -42,9 +27,7 @@ const ALLOWED_FIELDS: Record<string, string[]> = {
 
 export async function POST(request: NextRequest) {
   try {
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
-    if (!session || session.user.email !== ADMIN_EMAIL) {
+    if (!(await isAdminRequest(request))) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
     }
 
@@ -68,7 +51,13 @@ export async function POST(request: NextRequest) {
     }
 
     const admin = adminClient();
-    const { error } = await admin.from(table).update(safeFields).eq('id', entityId);
+    let { error } = await admin.from(table).update(safeFields).eq('id', entityId);
+    // Tabloda updated_at kolonu yoksa (ör. eczaneler) o alan olmadan tekrar dene —
+    // yoksa o türün hiçbir kaydı düzenlenemiyordu.
+    if (error && /updated_at/.test(error.message)) {
+      delete safeFields['updated_at'];
+      ({ error } = await admin.from(table).update(safeFields).eq('id', entityId));
+    }
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     return NextResponse.json({ success: true });
