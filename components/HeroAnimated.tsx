@@ -393,30 +393,42 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
 }
 
 // ── Ana bileşen ───────────────────────────────────────────────────────────────
-// ── Dönen başlık ─────────────────────────────────────────────────────────────
-// Her açılışta rastgele bir ifadeyle başlar, ~3.2 sn'de bir sonrakine geçer;
-// yazının içinden altın-mavi bir parıltı süzülür. Hareketi azalt tercihinde sabit kalır.
-const DONEN_IFADELER = [
-  'Hızlıca Bulun',
-  'Güvenle Seçin',
-  'Hemen Randevu Alın',
-  'Yorumlarla Seçin',
-  'Kolayca Karşılaştırın',
-  'Tek Tıkla Arayın',
+// ── Hekimlere seslenen dönen şerit ───────────────────────────────────────────
+// Başlık hastalara yönelik kalır; bu şerit arama alanının altında işletme
+// sahiplerine panelin sunduklarını sırayla anlatır ve /katil sayfasına götürür.
+// Her açılışta farklı bir madde ile başlar; hareketi azalt tercihinde sabit kalır.
+const HEKIM_OZELLIKLERI = [
+  'Randevularınızı tüm platformlardan yönetin',
+  'Randevu öncesi hastanıza hatırlatma e-postası',
+  'Gelir ve giderinizi tek ekrandan takip edin',
+  'Rezervasyon sistemini sitenize ücretsiz ekleyin',
+  'Yapay zeka asistanınızla günlük planınızı yönetin',
+  'HekimKart ile dijital kartvizitinizi paylaşın',
 ];
 
-function DonenBaslik() {
+function HekimSerit({ mounted }: { mounted: boolean }) {
   const [i, setI] = useState(0);
   useEffect(() => {
-    setI(Math.floor(Math.random() * DONEN_IFADELER.length));
+    setI(Math.floor(Math.random() * HEKIM_OZELLIKLERI.length));
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    const t = setInterval(() => setI(n => (n + 1) % DONEN_IFADELER.length), 3200);
+    const t = setInterval(() => setI(n => (n + 1) % HEKIM_OZELLIKLERI.length), 3600);
     return () => clearInterval(t);
   }, []);
+
   return (
-    <span className="hero-donen" aria-live="polite">
-      <span key={i} className="hero-donen-ic">{DONEN_IFADELER[i]}</span>
-    </span>
+    <a href="/katil" className="hekim-serit" style={{
+      opacity: mounted ? 1 : 0,
+      transform: mounted ? 'translateY(0)' : 'translateY(12px)',
+      transition: 'opacity .8s ease .45s, transform .8s ease .45s',
+    }}>
+      <span className="hekim-serit-etiket">Diş hekimleri için</span>
+      <span className="hekim-serit-metin" aria-live="polite">
+        <span key={i} className="hekim-serit-ic">{HEKIM_OZELLIKLERI[i]}</span>
+      </span>
+      <span className="hekim-serit-ok" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
   );
 }
 
@@ -471,6 +483,52 @@ export default function HeroAnimated({ stats }: Props) {
         @media (prefers-reduced-motion: reduce) {
           .hero-donen-ic { animation: none; background-position: 60% 0; }
         }
+        /* Hekimlere seslenen dönen şerit — arama alanının altında, /katil'e götürür */
+        .hekim-serit {
+          display: inline-flex; align-items: center; gap: 10px;
+          max-width: 100%; margin: 22px auto 0;
+          padding: 9px 16px 9px 10px; border-radius: 999px;
+          background: #FFFFFF; border: 1px solid #E2E7F0;
+          box-shadow: 0 4px 16px rgba(27,58,105,.07);
+          text-decoration: none; color: #1B3A69;
+          transition: border-color .18s, box-shadow .18s, transform .18s;
+        }
+        .hekim-serit:hover {
+          border-color: #C9D4E6; box-shadow: 0 8px 26px rgba(27,58,105,.13); transform: translateY(-1px);
+        }
+        .hekim-serit-etiket {
+          flex-shrink: 0; padding: 3px 10px; border-radius: 999px;
+          background: linear-gradient(135deg,#D4A843,#BE8F2C); color: #fff;
+          font-size: 10.5px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase;
+        }
+        .hekim-serit-metin {
+          position: relative; display: block; overflow: hidden;
+          min-width: 0; height: 1.5em; line-height: 1.5em;
+          font-size: 14px; font-weight: 600; color: #3C4A61; text-align: left;
+        }
+        .hekim-serit-ic {
+          display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+          animation: seritGir .55s cubic-bezier(.2,.8,.2,1) both;
+        }
+        .hekim-serit-ok { flex-shrink: 0; display: flex; color: #7C8AA3; }
+        .hekim-serit:hover .hekim-serit-ok { color: #1B3A69; }
+        @keyframes seritGir {
+          from { opacity: 0; transform: translateY(1.1em); }
+          to   { opacity: 1; transform: none; }
+        }
+        /* Telefon: rozet kendi satırında, metin tam genişlikte iki satıra kadar */
+        @media (max-width: 560px) {
+          .hekim-serit {
+            display: flex; width: 100%; flex-direction: column; align-items: center;
+            gap: 7px; padding: 12px 16px; border-radius: 16px; text-align: center;
+          }
+          .hekim-serit-metin { width: 100%; font-size: 13px; height: 2.9em; line-height: 1.45em; text-align: center; }
+          .hekim-serit-ic { white-space: normal; }
+          .hekim-serit-ok { display: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hekim-serit-ic { animation: none; }
+        }
         .hero-search-form {
           max-width: 560px;
           margin: 0 auto 26px;
@@ -524,7 +582,7 @@ export default function HeroAnimated({ stats }: Props) {
           transition: 'opacity .7s ease .1s, transform .7s ease .1s',
         }}>
           Size En Yakın Diş Hekimini<br />
-          <DonenBaslik />
+          <span className="hero-donen"><span className="hero-donen-ic">Hızlıca Bulun</span></span>
         </h1>
 
         {/* Alt yazı */}
@@ -544,6 +602,9 @@ export default function HeroAnimated({ stats }: Props) {
 
         {/* ── Konumdan seç: İl / İlçe / Sorun → Diş Hekimlerini Listele ── */}
         <HeroKonumSecici mounted={mounted} />
+
+        {/* ── Hekimlere seslenen dönen şerit ── */}
+        <HekimSerit mounted={mounted} />
 
         {/* İstatistik sayaçları */}
         <div style={{
