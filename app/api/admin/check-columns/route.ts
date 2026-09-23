@@ -2,6 +2,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { isAdminRequest } from '@/lib/admin-auth';
 import { createClient } from '@supabase/supabase-js';
 
+// request.cookies okur → statik derlenemez; build'deki "Dynamic server usage" uyarısını susturur
+export const dynamic = 'force-dynamic';
+
 function adminClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
