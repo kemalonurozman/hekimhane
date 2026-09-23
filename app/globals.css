@@ -220,6 +220,12 @@ button {
   scrollbar-width: none;
 }
 .panel-sec-tabs::-webkit-scrollbar { display: none; }
+/* Telefonda yatay kaydırmaya güvenme (keşfedilmiyor / bazı durumlarda kaymıyor):
+   çubuk satırlara sarılır, tüm seçenekler görünür kalır */
+@media (max-width: 767px) {
+  .panel-sec-tabs { flex-wrap: wrap; }
+  .panel-sec-tabs > * { flex: 1 1 auto !important; }
+}
 
 /* Formdaki 2 sütunlu ızgaralar mobilde tek sütuna iner.
    (inline style'ı ezmek için !important gerekir) */

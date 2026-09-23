@@ -4776,12 +4776,15 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
         <div style={{ display:'flex', flexDirection:'column', gap:12, minWidth:0 }}>
 
           {/* Section tabs */}
-          {/* Sekmeler yer varsa eşit yayılır, sığmazsa yatay kaydırılır (küçülüp üst üste binmez) */}
-          <div className="panel-sec-tabs" style={{ background:T.white, borderRadius:14, border:`1px solid ${T.border}`, padding:5, display:'flex', gap:3 }}>
+          {/* Masaüstü: tek sıra, sığmazsa yatay kaydırma. Telefon: yatay kaydırmaya
+              güvenilmez (keşfedilmiyor, bazı durumlarda kaymıyor) → sekmeler satırlara
+              SARILIR, 7'si de görünür ve dokunulabilir. */}
+          <div className={isMobile ? undefined : 'panel-sec-tabs'}
+            style={{ background:T.white, borderRadius:14, border:`1px solid ${T.border}`, padding:5, display:'flex', gap:isMobile ? 4 : 3, flexWrap: isMobile ? 'wrap' : 'nowrap', maxWidth:'100%' }}>
             {SECS.map(s=>(
               <button key={s.key} onClick={()=>setSec(s.key)}
-                style={{ flex:'1 0 auto', minWidth:74, padding:'9px 10px', whiteSpace:'nowrap', borderRadius:10, border:'none', cursor:'pointer', fontFamily:'inherit', fontSize:11, fontWeight:sec===s.key?700:500, color:sec===s.key?'white':T.muted, background:sec===s.key?T.navy:'transparent', transition:'all .15s', display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-                <Ic d={s.icon} size={14}/>{s.label}
+                style={{ flex: isMobile ? '1 1 30%' : '1 0 auto', minWidth: isMobile ? 0 : 74, padding: isMobile ? '10px 6px' : '9px 10px', whiteSpace:'nowrap', borderRadius:10, border:'none', cursor:'pointer', fontFamily:'inherit', fontSize: isMobile ? 11.5 : 11, fontWeight:sec===s.key?700:500, color:sec===s.key?'white':T.muted, background:sec===s.key?T.navy:'transparent', transition:'all .15s', display:'flex', flexDirection:'column', alignItems:'center', gap:4, minHeight: isMobile ? 48 : undefined }}>
+                <Ic d={s.icon} size={isMobile ? 16 : 14}/>{s.label}
               </button>
             ))}
           </div>
