@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
+import { toSlug } from '@/lib/helpers';
 
 export default function Footer() {
   const PLATFORM = [
@@ -19,6 +20,8 @@ export default function Footer() {
   const DIGER_SAGLIK = [
     ['Devlet Diş Hastaneleri', '/devlet-dis-hastaneleri'],
     ['Bobath Terapistleri', '/bobath-terapistleri'],
+    ['Fizik Tedavi & Rehabilitasyon', '/doktorlar?spec=Fiziksel%20T%C4%B1p%20ve%20Rehabilitasyon'],
+    ['Psikiyatri & Psikoloji', '/doktorlar?spec=Psikiyatri'],
     ['Diğer Doktorlar', '/doktorlar'],
     ['Hastaneler',      '/hastaneler'],
     ['Eczaneler',       '/eczaneler'],
@@ -55,6 +58,23 @@ export default function Footer() {
     ['Kanal Tedavisi', 'Endodonti (Kanal Tedavisi)'],
     ['Diş Dolgusu', 'Restoratif Diş Tedavisi (Dolgu)'],
     ['Genel Diş Hekimliği', 'Genel Diş Hekimliği'],
+  ];
+  // Diş dışı iki alan — footer'da SEO iç-linkleme. Hedefler mevcut sayfalar:
+  // /doktorlar?spec=…&il=… (FTR uzmanı, psikiyatri, psikolog) ve /bobath-terapistleri[/il]
+  // (379 fizyoterapistin tamamı bobath etiketli; standart /doktorlar aramasında görünmezler).
+  // Şehir listeleri canlı veriye göre (2026-09): kayıt olmayan şehre link verilmez.
+  const spec = (s: string) => `/doktorlar?spec=${encodeURIComponent(s)}`;
+  const FTR = 'Fiziksel Tıp ve Rehabilitasyon';
+  const FIZIK_TEDAVI: [string, string][] = [
+    ['Fizyoterapistler (Bobath)', '/bobath-terapistleri'],
+    ['Fizik Tedavi Uzmanları', spec(FTR)],
+    ...['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Adana'].map((il): [string, string] => [`${il} Fizyoterapist`, `/bobath-terapistleri/${toSlug(il)}`]),
+    ...['Ankara', 'İzmir', 'İstanbul', 'Adana', 'Balıkesir'].map((il): [string, string] => [`${il} Fizik Tedavi`, `${spec(FTR)}&il=${encodeURIComponent(il)}`]),
+  ];
+  const PSIKOLOJI: [string, string][] = [
+    ['Psikiyatri Uzmanları', spec('Psikiyatri')],
+    ['Psikologlar', spec('Psikoloji')],
+    ...['İstanbul', 'Ankara', 'İzmir', 'Adana', 'Balıkesir', 'Muğla'].map((il): [string, string] => [`${il} Psikiyatri`, `${spec('Psikiyatri')}&il=${encodeURIComponent(il)}`]),
   ];
   const chip = {
     fontSize: '12px', color: 'rgba(255,255,255,.6)', textDecoration: 'none',
@@ -124,9 +144,25 @@ export default function Footer() {
           <h4 style={{ color: 'white', fontWeight: 700, marginBottom: 14, fontSize: 13, textTransform: 'uppercase', letterSpacing: '.8px' }}>
             Diş Tedavileri
           </h4>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
             {POPULER_TEDAVILER.map(([label, spec]) => (
               <Link key={spec} href={`/klinikler?uzmanlik=${encodeURIComponent(spec)}`} style={chip}>{label}</Link>
+            ))}
+          </div>
+          <h4 style={{ color: 'white', fontWeight: 700, marginBottom: 14, fontSize: 13, textTransform: 'uppercase', letterSpacing: '.8px' }}>
+            Fizik Tedavi &amp; Rehabilitasyon
+          </h4>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
+            {FIZIK_TEDAVI.map(([label, href]) => (
+              <Link key={href} href={href} style={chip}>{label}</Link>
+            ))}
+          </div>
+          <h4 style={{ color: 'white', fontWeight: 700, marginBottom: 14, fontSize: 13, textTransform: 'uppercase', letterSpacing: '.8px' }}>
+            Psikiyatri &amp; Psikoloji
+          </h4>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {PSIKOLOJI.map(([label, href]) => (
+              <Link key={href} href={href} style={chip}>{label}</Link>
             ))}
           </div>
         </div>
