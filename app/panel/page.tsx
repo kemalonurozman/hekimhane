@@ -5536,6 +5536,24 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                   placeholder={'https://youtube.com/watch?v=...\nveya\nhttps://www.instagram.com/reel/...\nveya\n<iframe src="https://www.youtube.com/embed/..." ...></iframe>'}
                   style={{...INP,resize:'vertical',lineHeight:1.6,fontFamily:'monospace',fontSize:12}}
                   onChange={e=>F('video_url',e.target.value)} onFocus={onF} onBlur={offF}/>
+                {(()=>{
+                  // Kanal / profil linki profilde OYNATILAMAZ (YouTube/Instagram çerçevelenmeye izin vermez) —
+                  // girişte uyar, ziyaretçiye siyah kutu gitmesin. Profil bunu yine "Kanalı Aç" kartı olarak gösterir.
+                  const v = String(formData.video_url||'').trim();
+                  const kanal = /youtube\.com\/(@|channel\/|c\/|user\/)/i.test(v);
+                  const igProfil = /instagram\.com\//i.test(v) && !/instagram\.com\/(reel|reels|p|tv)\//i.test(v) && !v.startsWith('<');
+                  if (!kanal && !igProfil) return null;
+                  return (
+                    <div style={{ display:'flex', gap:9, padding:'10px 13px', background:'#FFFBEB', borderRadius:10, border:'1px solid #FDE68A', marginTop:8 }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0, marginTop:1 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                      <p style={{ fontSize:12, color:'#92400E', lineHeight:1.55, margin:0 }}>
+                        Bu bir <strong>{kanal ? 'YouTube kanalı' : 'Instagram profili'}</strong> bağlantısı — profilinizde oynatılamaz, yalnızca &quot;{kanal ? 'Kanalı' : 'Profili'} Aç&quot; düğmesi görünür.
+                        Videonun profilinizde oynaması için tek bir videonun linkini yapıştırın
+                        ({kanal ? <>ör. <code>youtube.com/watch?v=…</code> veya Shorts</> : <>ör. <code>instagram.com/reel/…</code></>}).
+                      </p>
+                    </div>
+                  );
+                })()}
                 <p style={{ fontSize:11, color:T.muted, marginTop:5, lineHeight:1.6 }}>YouTube (izleme / Shorts), Instagram (Reel veya gönderi linki ya da Instagram&apos;ın &quot;Embed&quot; kodu) veya Vimeo linkini yapıştırmanız yeterli — dönüşümü sistem yapar.</p>
               </div>
             </>)}

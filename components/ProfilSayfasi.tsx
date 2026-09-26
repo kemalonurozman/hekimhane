@@ -203,8 +203,27 @@ function extractVideoSrc(val: string | null | undefined): string | null {
   const vimeoMatch = v.match(/(?:^|vimeo\.com\/)(\d+)(?:$|[/?#])/);
   if (vimeoMatch && !v.includes('player.vimeo.com')) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
   if (v.includes('player.vimeo.com')) return v;
-  // Genel HTTP URL
+  // YouTube oynatma listesi → liste oynatıcısı
+  const ytList = /youtube\.com\//i.test(v) ? v.match(/[?&]list=([A-Za-z0-9_-]+)/) : null;
+  if (ytList) return `https://www.youtube.com/embed/videoseries?list=${ytList[1]}`;
+  // Kanal / profil / sayfa adresleri başka sitede çerçevelenemez (X-Frame-Options) →
+  // iframe'e koymak siyah kutu verir. Bunları oynatıcı yerine bağlantı kartı gösteririz.
+  if (videoDisBaglanti(v)) return null;
+  // Genel HTTP URL (Wistia, Dailymotion embed vb.)
   if (v.startsWith('http')) return v;
+  return null;
+}
+
+/** Oynatılamayan ama anlamlı bağlantı: YouTube kanalı, Instagram/TikTok/Facebook profili…
+ *  Profilde siyah iframe yerine "…'da Aç" kartı gösterilir. */
+function videoDisBaglanti(val: string | null | undefined): { platform: string; tur: string; url: string } | null {
+  const v = (val || '').trim();
+  if (!/^https?:\/\//i.test(v)) return null;
+  if (/youtube\.com\/(@|channel\/|c\/|user\/)|youtube\.com\/?$/i.test(v)) return { platform: 'YouTube', tur: 'kanal', url: v };
+  if (/instagram\.com\//i.test(v) && !/instagram\.com\/(reel|reels|p|tv)\//i.test(v)) return { platform: 'Instagram', tur: 'profil', url: v };
+  if (/tiktok\.com\//i.test(v)) return { platform: 'TikTok', tur: /\/video\//.test(v) ? 'video' : 'profil', url: v };
+  if (/facebook\.com\/|fb\.watch\//i.test(v)) return { platform: 'Facebook', tur: /\/videos?\/|fb\.watch/.test(v) ? 'video' : 'sayfa', url: v };
+  if (/(^|\.)(x|twitter)\.com\//i.test(v.replace(/^https?:\/\//, ''))) return { platform: 'X', tur: 'gönderi', url: v };
   return null;
 }
 
@@ -2181,6 +2200,42 @@ export default function ProfilSayfasi(props: ProfilProps) {
           {/* ── VİDEO TAB ── */}
           {activeTab === 'video' && (() => {
             const videoSrc = extractVideoSrc(video_url);
+            const disLink  = !videoSrc ? videoDisBaglanti(video_url) : null;
+            if (disLink) {
+              const ek = disLink.platform === 'X' ? "'te" : disLink.platform === 'TikTok' ? "'ta" : "'da";
+              // Türkçe ek türe göre değişir (Kanalı→Kanalını, Profili→Profilini…) — sabit ek yanlış olurdu
+              const TUR: Record<string, [string, string]> = {
+                kanal: ['Kanalı', 'Kanalını'], profil: ['Profili', 'Profilini'], sayfa: ['Sayfası', 'Sayfasını'],
+                video: ['Videosu', 'Videosunu'], 'gönderi': ['Gönderisi', 'Gönderisini'],
+              };
+              const [adT, belirtme] = TUR[disLink.tur] || TUR.video;
+              const baslik = `${disLink.platform} ${adT}`;
+              const dugme  = `${disLink.platform} ${belirtme} Aç`;
+              return (
+                <div style={sc}>
+                  <div style={scHd}>
+                    <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Videolar</h3>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.25)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 700, color: '#DC2626' }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="#DC2626"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                      {disLink.platform}
+                    </span>
+                  </div>
+                  <div style={{ ...scBody, textAlign: 'center', padding: '44px 24px' }}>
+                    <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
+                      <svg width="30" height="30" viewBox="0 0 24 24" fill="#DC2626"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                    </div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{name} — {baslik}</div>
+                    <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 400, margin: '0 auto 22px' }}>
+                      İşletmenin tanıtım ve bilgilendirme videolarını {disLink.platform}{ek} izleyebilirsiniz.
+                    </p>
+                    <a href={disLink.url} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                      <i className="fa-solid fa-arrow-up-right-from-square" /> {dugme}
+                    </a>
+                  </div>
+                </div>
+              );
+            }
             if (!videoSrc) return (
               <div style={sc}>
                 <div style={scHd}>
