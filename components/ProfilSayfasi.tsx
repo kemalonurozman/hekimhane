@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
-import { specToHref, dentalComboHref } from '@/lib/uzmanlik-data';
+import { normalizeSpecList, specLinkHref } from '@/lib/uzmanlik-data';
 import { heroBgByKey, coverPresetKey, HERO_BG_CSS, HERO_WAVE_PATHS } from '@/lib/hero-backgrounds';
 import AboneWidget from '@/components/AboneWidget';
 import PremiumBadge from '@/components/PremiumBadge';
@@ -1228,6 +1228,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
   // İç etiketleri (ör. devlet-dis-hastanesi) uzmanlık listesinden gizle
   const INTERNAL_SPEC_TAGS = new Set(['devlet-dis-hastanesi', 'universite-dis-hastanesi', 'bobath-terapisti']);
   const visibleSpecs = (specs || []).filter(s => s && !INTERNAL_SPEC_TAGS.has(s));
+  // Kanonik yazım + tekrarsız ("implant" ile "İmplantoloji (İmplant)" tek çip olur)
+  const specChips = normalizeSpecList(visibleSpecs);
 
   // Devlet hastanesine bağlı hekim → randevu formu yerine "hastaneyi arayın" uyarısı
   const isDevletDoktor = entityType === 'doktor' && (specs || []).includes('devlet-dis-hastanesi');
@@ -1579,15 +1581,23 @@ export default function ProfilSayfasi(props: ProfilProps) {
               </div>
 
               {/* Uzmanlık alanları */}
-              {visibleSpecs.length > 0 && (
+              {specChips.length > 0 && (
                 <div style={sc}>
                   <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Uzmanlık Alanları</h3></div>
                   <div style={scBody}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {visibleSpecs.map(s => (
+                      {specChips.map(s => {
+                        const href = specLinkHref(s, { entityType, il });
+                        const cipStil: React.CSSProperties = {
+                          display: 'inline-block', padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
+                          background: 'var(--gold-light)', color: 'var(--navy)', border: '1px solid rgba(212,168,67,.3)',
+                        };
+                        // Bilinmeyen (serbest yazılmış) etiket: düz metin — yeni/boş arama sayfasına link YOK
+                        if (!href) return <span key={s} style={cipStil}>{s}</span>;
+                        return (
                         <Link
                           key={s}
-                          href={(entityType === 'klinik' && (dentalComboHref(il, s))) || specToHref(s)}
+                          href={href}
                           style={{
                             display: 'inline-block',
                             padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
@@ -1601,7 +1611,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         >
                           {s}
                         </Link>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

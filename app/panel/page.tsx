@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import type { User } from '@supabase/supabase-js';
-import { SPEC_GRUPLARI } from '@/lib/uzmanlik-data';
+import { SPEC_GRUPLARI, kanonikEtiket } from '@/lib/uzmanlik-data';
+import { toSlug as etiketAnahtari } from '@/lib/helpers';
 import { HERO_BACKGROUNDS, coverPresetKey } from '@/lib/hero-backgrounds';
 import { IL_LISTE, ILCELER } from '@/lib/tr-il-ilce';
 import { PRO_AYLIK_TL } from '@/lib/pro-plan';
@@ -1757,6 +1758,7 @@ function SpecPicker({
 }) {
   const [openGroup, setOpenGroup]     = useState<string | null>(null);
   const [manualInput, setManualInput] = useState('');
+  const [manualNot, setManualNot]     = useState('');
 
   // String veya dizi her iki formattan da başlatılabilir
   const selected: string[] = Array.isArray(value)
@@ -1778,10 +1780,16 @@ function SpecPicker({
   }
 
   function addManual() {
-    const trimmed = manualInput.trim();
-    if (trimmed && !selected.includes(trimmed)) {
-      onChange([...selected, trimmed]);
-    }
+    const trimmed = manualInput.replace(/\s+/g, ' ').trim();
+    if (!trimmed) return;
+    // Hazır listedeki karşılığı varsa onu kullan ("implant" → "İmplantoloji (İmplant)").
+    // Serbest etiketler profilde görünür ama arama sayfası/bağlantı üretmez (SEO: boş sayfa yok).
+    const kanon = kanonikEtiket(trimmed);
+    const label = kanon || trimmed;
+    if (!selected.some(s => etiketAnahtari(s) === etiketAnahtari(label))) onChange([...selected, label]);
+    setManualNot(kanon
+      ? (kanon !== trimmed ? `“${trimmed}” listedeki “${kanon}” olarak eklendi.` : '')
+      : `“${trimmed}” hazır listede yok — profilinizde etiket olarak görünür, ancak bağlantı veya arama sayfası oluşturmaz. Mümkünse listeden seçin.`);
     setManualInput('');
   }
 
@@ -1911,6 +1919,9 @@ function SpecPicker({
           + Ekle
         </button>
       </div>
+      {manualNot && (
+        <p style={{ fontSize: 11.5, color: '#92400E', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 8, padding: '7px 10px', margin: '8px 0 0', lineHeight: 1.5 }}>{manualNot}</p>
+      )}
     </div>
   );
 }

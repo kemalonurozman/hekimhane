@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { isAdminRequest } from '@/lib/admin-auth';
+import { normalizeSpecList } from '@/lib/uzmanlik-data';
 import { createClient } from '@supabase/supabase-js';
 
 function adminClient() {
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
     for (const key of allowed) {
       if (key in fields) safeFields[key] = fields[key];
     }
+    if ('specs' in safeFields) safeFields.specs = normalizeSpecList(safeFields.specs);
     safeFields['updated_at'] = new Date().toISOString();
 
     if (Object.keys(safeFields).length <= 1) {

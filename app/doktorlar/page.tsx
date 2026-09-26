@@ -19,7 +19,23 @@ export async function generateMetadata(
   if (spec) parts.push(spec); if (il) parts.push(il);
   if (parts.length) title = parts.join(', ') + ' — Doktorlar';
   const desc = `${parts.join(', ')} bölgesindeki doktorlar, yorumlar ve randevu bilgileri. Hekimhane'de bulun.`;
-  return { title, description: desc, openGraph: { title: `${title} | Hekimhane`, description: desc } };
+  // SEO: ?spec= kullanıcı girdisinden türeyebilir → yalnızca sonucu OLAN gerçek uzmanlıklar indekslenir.
+  // Arama/dil/online/sayfa varyantları ve boş sonuç → noindex,follow (ince/kopya sayfa = spam sinyali).
+  const ilce = searchParams.ilce || '';
+  const varyant = !!(searchParams.q || searchParams.dil || searchParams.online || (searchParams.page && searchParams.page !== '1'));
+  let bos = false;
+  if (spec) {
+    try { const u = await getUzmanliklar(il || undefined); bos = !u.some(x => x.value === spec && x.count > 0); } catch { /* sayaç yoksa indeksi bozma */ }
+  }
+  const qs = new URLSearchParams();
+  if (spec) qs.set('spec', spec); if (il) qs.set('il', il); if (ilce) qs.set('ilce', ilce);
+  const canonical = `https://www.hekimhane.com.tr/doktorlar${qs.toString() ? `?${qs.toString()}` : ''}`;
+  return {
+    title, description: desc,
+    alternates: { canonical },
+    ...((varyant || bos) ? { robots: { index: false, follow: true } } : {}),
+    openGraph: { title: `${title} | Hekimhane`, description: desc, url: canonical },
+  };
 }
 
 // Diş Hekimleri Klinikler bölümünde yer aldığı için Doktorlar'dan hariç tutulur

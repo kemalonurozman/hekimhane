@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { epostaListesi, epostaListesiYaz, RANDEVU_EMAIL_MAX_PRO } from '@/lib/randevu-email';
 import { yetkiliEntityIdleri } from '@/lib/erisim';
+import { normalizeSpecList } from '@/lib/uzmanlik-data';
 
 // Service role client — RLS'yi bypass eder, sadece server-side
 function adminClient() {
@@ -101,6 +102,8 @@ export async function POST(request: NextRequest) {
       if (asistanAlanlari && !asistanAlanlari.includes(key)) continue;
       if (key in fields) safeFields[key] = fields[key];
     }
+    // Uzmanlık etiketleri kanonik yazımla saklanır (serbest yazım varyantları → hazır liste)
+    if ('specs' in safeFields) safeFields.specs = normalizeSpecList(safeFields.specs);
 
     // Pro'ya kilitli alanlar — panel bunları zaten devre dışı gösterir ama
     // API doğrudan çağrılırsa da yazılamamalı. Premium değilse sessizce

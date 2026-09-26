@@ -8,7 +8,8 @@ import KlinikCard from '@/components/KlinikCard';
 import DoktorCard from '@/components/DoktorCard';
 import ListingLayout from '@/components/ListingLayout';
 import { resolveKonum, IL_KONUM } from '@/lib/il-koordinatlari';
-import { synonymsForSpec, specFilterValues } from '@/lib/uzmanlik-data';
+import { synonymsForSpec, specFilterValues, canonicalDentalSpec, kanonikEtiket } from '@/lib/uzmanlik-data';
+import { toSlug } from '@/lib/helpers';
 
 const PAGE_SIZE = 20;
 
@@ -49,7 +50,17 @@ export async function generateMetadata(
   // Kanonik: yalnızca anlamlı filtreler (arama/sayfa hariç) → duplike içerik önlenir
   const qs = new URLSearchParams();
   if (il) qs.set('il', il); if (ilce) qs.set('ilce', ilce); if (tip) qs.set('tip', tip); if (uzmanlik) qs.set('uzmanlik', uzmanlik);
-  const canonical = `https://www.hekimhane.com.tr/klinikler${qs.toString() ? `?${qs.toString()}` : ''}`;
+  let canonical = `https://www.hekimhane.com.tr/klinikler${qs.toString() ? `?${qs.toString()}` : ''}`;
+  // SEO: ?uzmanlik= serbest metin olabilir. Bilinen diş uzmanlığı değilse indeksleme;
+  // il+uzmanlık için asıl sayfa statik /dis-tedavileri/<il>/<uzmanlik> → oraya canonical (kopya içerik önlenir).
+  let noindex = !!q;
+  if (uzmanlik) {
+    const k = kanonikEtiket(uzmanlik);
+    const c = canonicalDentalSpec(uzmanlik) || (k ? canonicalDentalSpec(k) : null);
+    if (!c) noindex = true;
+    else if (il && !ilce && !tip) canonical = `https://www.hekimhane.com.tr/dis-tedavileri/${toSlug(il)}/${toSlug(c)}`;
+    else { qs.set('uzmanlik', c); canonical = `https://www.hekimhane.com.tr/klinikler?${qs.toString()}`; }
+  }
 
   return {
     title,
@@ -57,7 +68,7 @@ export async function generateMetadata(
     keywords: [konum + ' diş kliniği', konum + ' diş hekimi', 'diş hekimi ara', 'diş kliniği', uzmanlik].filter(Boolean),
     alternates: { canonical },
     // İç arama sonuçlarını indeksleme (thin/duplicate)
-    ...(q ? { robots: { index: false, follow: true } } : {}),
+    ...(noindex ? { robots: { index: false, follow: true } } : {}),
     openGraph: { title: `${title} | Hekimhane`, description: desc, url: canonical, type: 'website' },
   };
 }
@@ -84,13 +95,33 @@ async function getKlinikler(filters: KlinikFilters) {
       if (r.il && !ilByNorm.has(norm(r.il))) ilByNorm.set(norm(r.il), r.il);
       if (r.ilce && !ilceByNorm.has(norm(r.ilce))) ilceByNorm.set(norm(r.ilce), r.ilce);
     }
-    const match = (m: Map<string, string>) =>
-      m.get(nq) || (nq.length >= 3 ? Array.from(m.entries()).find(([n]) => n.startsWith(nq))?.[1] : undefined);
-    const mIl = match(ilByNorm);
-    const mIlce = mIl ? undefined : match(ilceByNorm);
+    const match = (m: Map<string, string>, key: string) =>
+      m.get(key) || (key.length >= 3 ? Array.from(m.entries()).find(([n]) => n.startsWith(key))?.[1] : undefined);
+    const geoOf = (s: string): { col: 'il' | 'ilce'; val: string } | null => {
+      const t = norm(s);
+      const gi = match(ilByNorm, t);   if (gi) return { col: 'il', val: gi };
+      const gc = match(ilceByNorm, t); if (gc) return { col: 'ilce', val: gc };
+      return null;
+    };
+    const mIl = match(ilByNorm, nq);
+    const mIlce = mIl ? undefined : match(ilceByNorm, nq);
     if (mIl)        query = query.eq('il', mIl);
     else if (mIlce) query = query.eq('ilce', mIlce);
-    else            query = query.or(`name.ilike.%${filters.q}%,adres.ilike.%${filters.q}%`);
+    else {
+      // İsim + konum birlikte: "şahan çanakkale" → konum = il/ilçe, name ~ isim
+      const words = filters.q.trim().split(/\s+/).filter(Boolean);
+      let split: { col: 'il' | 'ilce'; val: string; name: string } | null = null;
+      for (let i = 1; i < words.length && !split; i++) {
+        const head = words.slice(0, i).join(' ');
+        const tail = words.slice(i).join(' ');
+        const gTail = geoOf(tail); // doğal sıra "isim yer" → önce sonu dene
+        const gHead = geoOf(head);
+        if (gTail)      split = { ...gTail, name: head };
+        else if (gHead) split = { ...gHead, name: tail };
+      }
+      if (split) query = query.eq(split.col, split.val).or(`name.ilike.%${split.name}%,adres.ilike.%${split.name}%`);
+      else       query = query.or(`name.ilike.%${filters.q}%,adres.ilike.%${filters.q}%`);
+    }
   }
   const { data, count, error } = await query;
   if (error) console.error(error);

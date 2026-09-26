@@ -413,6 +413,62 @@ export function canonicalDentalSpec(spec: string): string | null {
   return null;
 }
 
+// ─────────────────────────────────────────────────────────────
+// Etiket normalleştirme — panelde serbest yazılan / içe aktarılan etiketleri
+// hazır listedeki KANONİK yazıma çevirir ("ağız diş ve çene cerrahisi" →
+// "Ağız Diş ve Çene Cerrahisi", "implant" → "İmplantoloji (İmplant)").
+// Amaç: kullanıcı girdisinden yeni URL/sayfa ÜRETMEMEK. Google'da boş/ince,
+// birbirinin kopyası filtre sayfaları spam sinyalidir. Profil çipleri yalnızca
+// bilinen etiketlere link verir; bilinmeyenler düz metin kalır.
+// ─────────────────────────────────────────────────────────────
+const EK_ESLEME: Record<string, string> = {
+  'Diş Hekimi': 'Genel Diş Hekimliği', 'Diş Hekimliği': 'Genel Diş Hekimliği', 'Dişçi': 'Genel Diş Hekimliği',
+  'Invisalign': 'Şeffaf Plak (Invisalign)', 'Şeffaf Plak': 'Şeffaf Plak (Invisalign)',
+  'Lamina': 'Lamina (Laminate Veneer)', 'Laminate Veneer': 'Lamina (Laminate Veneer)', 'Lamina (Yaprak Porselen)': 'Lamina (Laminate Veneer)',
+  'Diş Eti': 'Periodontoloji (Diş Eti)', 'Diş Eti Tedavisi': 'Periodontoloji (Diş Eti)',
+};
+let _etiketHaritasi: Map<string, string> | null = null;
+function etiketHaritasi(): Map<string, string> {
+  if (_etiketHaritasi) return _etiketHaritasi;
+  const m = new Map<string, string>();
+  const ekle = (varyant: string, kanonik: string) => { const k = toSlug(varyant); if (k && !m.has(k)) m.set(k, kanonik); };
+  for (const g of SPEC_GRUPLARI) for (const it of g.items) ekle(it, it);            // 1) hazır liste — en öncelikli
+  for (const [v, k] of Object.entries(EK_ESLEME)) ekle(v, k);                        // 2) elle eşlemeler
+  for (const [k, syns] of Object.entries(DENTAL_SYNONYMS)) for (const s of syns) ekle(s, k); // 3) diş eş anlamlıları
+  _etiketHaritasi = m;
+  return m;
+}
+
+/** Etiketin kanonik yazımı (büyük/küçük harf, Türkçe karakter, noktalama farkı tolere edilir); bilinmiyorsa null */
+export function kanonikEtiket(etiket: string): string | null {
+  return etiketHaritasi().get(toSlug(etiket || '')) || null;
+}
+
+/** Etiket listesini kanonikleştirir + tekrarları atar. Bilinmeyen etiket korunur (anlamı değiştirilmez). */
+export function normalizeSpecList(list: unknown): string[] {
+  const arr: unknown[] = Array.isArray(list) ? list : typeof list === 'string' ? list.split(',') : [];
+  const out: string[] = []; const seen = new Set<string>();
+  for (const raw of arr) {
+    const t = String(raw ?? '').replace(/\s+/g, ' ').trim();
+    if (!t) continue;
+    const label = kanonikEtiket(t) || t;
+    const key = toSlug(label);
+    if (!key || seen.has(key)) continue;
+    seen.add(key); out.push(label);
+  }
+  return out;
+}
+
+/** Profil çipi bağlantısı — YALNIZCA bilinen etiketler için; bilinmeyen/serbest etiket → null (link yok, yeni sayfa yok) */
+export function specLinkHref(spec: string, opts: { entityType?: string; il?: string | null }): string | null {
+  const k = kanonikEtiket(spec);
+  if (!k) return null;
+  if (opts.entityType === 'klinik') { const d = dentalComboHref(opts.il, k); if (d) return d; }
+  for (const g of SPEC_GRUPLARI) if (g.hastalikSlug && (g.ad === k || g.items.includes(k))) return `/hastaliklar/${g.hastalikSlug}`;
+  if (opts.entityType === 'doktor') return `/doktorlar?spec=${encodeURIComponent(k)}`;
+  return null;
+}
+
 /** il + spec → /dis-tedavileri/<il>/<uzmanlik> (spec diş uzmanlığı değilse null) */
 export function dentalComboHref(il: string | null | undefined, spec: string): string | null {
   const c = canonicalDentalSpec(spec);
