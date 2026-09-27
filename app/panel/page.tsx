@@ -11,6 +11,7 @@ import { IL_LISTE, ILCELER } from '@/lib/tr-il-ilce';
 import { PRO_AYLIK_TL } from '@/lib/pro-plan';
 import { gunSlotlari, type TakvimAyar } from '@/lib/takvim-slot';
 import { yoneticiMi, davetEden } from '@/lib/yonetici';
+import YorumSikayet from './yorumlar/YorumSikayet';
 import { kartSlugYaz, kartSlugTemel, bos, entityKartAlanlari, rozetHtml, type RozetTema } from '@/lib/hekimkart';
 import { epostaListesi, gecerliEposta, RANDEVU_EMAIL_MAX_PRO } from '@/lib/randevu-email';
 import { ASISTAN_DURUM, asistanYetkileri, type AsistanYetki } from '@/lib/asistan';
@@ -2012,7 +2013,7 @@ function arrayToTags(val: unknown): string {
 /* ═══════════════════════════════════════════════
    YORUMLAR TAB
 ═══════════════════════════════════════════════ */
-interface Yorum { id: string; entity_id: string; entity_type: string; author: string; rating: number; text: string; created_at: string; reply_text?: string | null; reply_at?: string | null; }
+interface Yorum { id: string; entity_id: string; entity_type: string; author: string; rating: number; text: string; created_at: string; reply_text?: string | null; reply_at?: string | null; hidden?: boolean | null; report_status?: string | null; report_reason?: string | null; admin_note?: string | null; }
 
 // ── Randevu Talepleri (işletme sahibi görünümü) ──────────────────
 interface RandevuTalep {
@@ -4200,6 +4201,9 @@ function YorumlarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
                     }
                   </div>
                 )}
+
+                {/* Şikayet — işletme yorumu yöneticiye bildirir; karar + yönetici notu burada görünür */}
+                <YorumSikayet reviewId={yorum.id} reportStatus={yorum.report_status} reportReason={yorum.report_reason} adminNote={yorum.admin_note} />
               </div>
             );
           })}

@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir } from '@/lib/email';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
+const esc = (s: unknown) => String(s ?? '').replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c] || c));
 
 function adminClient() {
   return createClient(
@@ -31,11 +32,13 @@ function sessionClient(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // 1. Oturum kontrolü
+    // getUser: çerezdeki token Auth sunucusunda doğrulanır (getSession sunucuda imzayı doğrulamaz)
     const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
-    if (!session) {
+    const { data: { user } } = await sess.auth.getUser();
+    if (!user?.email) {
       return NextResponse.json({ error: 'Giriş yapılmamış' }, { status: 401 });
     }
+    const session = { user };
 
     const body = await request.json();
     const { yorumId, reason } = body as { yorumId?: string; reason?: string };
@@ -73,7 +76,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Bu işletmeye ait yorumu şikayet etme yetkiniz yok' }, { status: 403 });
     }
 
-    // 4. Zaten sonuçlanmış şikayeti tekrar açma; bekleyeni güncelle
+    // 4. Zaten kaldırılmış yorumu tekrar şikayet etme; bekleyen/reddedilmiş güncellenir
+    if (yorum.report_status === 'resolved') {
+      return NextResponse.json({ error: 'Bu yorum zaten kaldırıldı.' }, { status: 409 });
+    }
     const { error: updateErr } = await (admin as any)
       .from('yorumlar')
       .update({
@@ -99,12 +105,12 @@ export async function POST(request: NextRequest) {
       replyTo: session.user.email || undefined,
       html: mailShell('Yeni yorum şikayeti', `
         <p style="font-size:14px;color:#1c1c1e;margin:0 0 12px;">Bir işletme sahibi bir yorumu şikayet etti. Admin panelinden inceleyin.</p>
-        ${satir('İşletme', entityName)}
-        ${satir('Şikayet eden', session.user.email)}
-        ${satir('Yorum sahibi', yorum.author)}
+        ${satir('İşletme', esc(entityName))}
+        ${satir('Şikayet eden', esc(session.user.email))}
+        ${satir('Yorum sahibi', esc(yorum.author))}
         ${satir('Puan', `${yorum.rating}/5`)}
-        ${satir('Yorum', yorum.text)}
-        ${satir('Gerekçe', String(reason).trim())}
+        ${satir('Yorum', esc(yorum.text))}
+        ${satir('Gerekçe', esc(String(reason).trim()))}
         <p style="margin:16px 0 0;"><a href="https://www.hekimhane.com.tr/admin" style="color:#1B3A69;font-weight:700;">Admin → Şikayetler</a></p>
       `),
     });

@@ -6,6 +6,7 @@ interface Props {
   reviewId: string;
   reportStatus?: string | null;   // null | 'pending' | 'resolved' | 'dismissed'
   reportReason?: string | null;
+  adminNote?: string | null;      // yöneticinin işletmeye notu (karar sonrası)
 }
 
 // Şikayet durumuna göre rozet
@@ -25,7 +26,18 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export default function YorumSikayet({ reviewId, reportStatus, reportReason }: Props) {
+// Yöneticinin karar notu — işletmeye e-postayla da gider
+function YoneticiNotu({ not }: { not?: string | null }) {
+  if (!not) return null;
+  return (
+    <div style={{ marginTop: 8, padding: '9px 12px', background: '#F8FAFF', borderLeft: '3px solid #1B3A69', borderRadius: 8 }}>
+      <div style={{ fontSize: 10.5, fontWeight: 700, color: '#6B7A99', letterSpacing: '.4px', marginBottom: 3 }}>YÖNETİCİ NOTU</div>
+      <div style={{ fontSize: 13, color: '#1A2744', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>{not}</div>
+    </div>
+  );
+}
+
+export default function YorumSikayet({ reviewId, reportStatus, reportReason, adminNote }: Props) {
   const [open, setOpen]     = useState(false);
   const [reason, setReason] = useState('');
   const [saving, setSaving] = useState(false);
@@ -36,6 +48,12 @@ export default function YorumSikayet({ reviewId, reportStatus, reportReason }: P
     return (
       <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border)' }}>
         <StatusBadge status={reportStatus} />
+        <p style={{ fontSize: 12, color: 'var(--muted)', margin: '8px 0 0', lineHeight: 1.5 }}>
+          {reportStatus === 'resolved'
+            ? 'Yönetici şikayetinizi haklı buldu; yorum yayından kaldırıldı ve ziyaretçilere görünmüyor.'
+            : 'Yönetici yorumu yayın kurallarına aykırı bulmadı; yorum yayında kalıyor. Yoruma herkese açık yanıt yazabilirsiniz.'}
+        </p>
+        <YoneticiNotu not={adminNote} />
       </div>
     );
   }

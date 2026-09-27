@@ -122,7 +122,7 @@ export default async function YorumlarPage() {
                       <YorumYanitla reviewId={r.id} />
 
                       {/* Şikayet et */}
-                      <YorumSikayet reviewId={r.id} reportStatus={r.report_status} reportReason={r.report_reason} />
+                      <YorumSikayet reviewId={r.id} reportStatus={r.report_status} reportReason={r.report_reason} adminNote={(r as any).admin_note} />
                     </div>
                   ))}
                 </div>
@@ -149,7 +149,7 @@ export default async function YorumlarPage() {
                         <p style={{ fontSize: '13px', color: '#15803D', margin: 0, lineHeight: 1.6 }}>{r.reply_text}</p>
                       </div>
                       <div style={{ marginTop: '12px', marginLeft: '-20px', marginRight: '-20px', marginBottom: '-16px' }}>
-                        <YorumSikayet reviewId={r.id} reportStatus={r.report_status} reportReason={r.report_reason} />
+                        <YorumSikayet reviewId={r.id} reportStatus={r.report_status} reportReason={r.report_reason} adminNote={(r as any).admin_note} />
                       </div>
                     </div>
                   ))}

@@ -2222,6 +2222,9 @@ function SikayetlerTab({ onChanged }: { onChanged: () => void }) {
   const [loading, setLoading] = useState(true);
   const [needsMigration, setNeedsMigration] = useState(false);
   const [actionId, setActionId] = useState<string | null>(null);
+  const [notlar, setNotlar]     = useState<Record<string, string>>({});   // yorumId → işletmeye not
+  const [mailYok, setMailYok]   = useState<Record<string, boolean>>({});  // yorumId → e-posta gönderme
+  const [sonuc, setSonuc]       = useState<{ ok: boolean; text: string } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -2246,10 +2249,15 @@ function SikayetlerTab({ onChanged }: { onChanged: () => void }) {
       const res = await fetch('/api/admin/yorum-action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ yorumId: id, action }),
+        body: JSON.stringify({ yorumId: id, action, note: notlar[id] || '', notify: !mailYok[id] }),
       });
       const data = await res.json();
       if (!res.ok) { alert(data.error || 'İşlem başarısız'); setActionId(null); return; }
+      const KARAR_ADI: Record<string, string> = { hide: 'Yorum kaldırıldı', delete: 'Yorum silindi', dismiss: 'Şikayet reddedildi', unhide: 'Yorum yeniden yayında' };
+      setSonuc(data.mail?.sent
+        ? { ok: true,  text: `${KARAR_ADI[action]} · İşletmeye e-posta gönderildi: ${data.mail.to}` }
+        : { ok: !mailYok[id] ? false : true, text: `${KARAR_ADI[action]}${mailYok[id] ? ' · e-posta gönderilmedi (seçiminiz)' : ` · e-posta GÖNDERİLEMEDİ: ${data.mail?.reason || 'bilinmeyen hata'}`}` });
+      setNotlar(p => { const n = { ...p }; delete n[id]; return n; });
       await load();
       onChanged();
     } catch {
@@ -2302,12 +2310,29 @@ function SikayetlerTab({ onChanged }: { onChanged: () => void }) {
             </div>
           )}
 
+          {/* Önceki karar notu */}
+          {r.report_status !== 'pending' && r.admin_note && (
+            <div style={{ background: C.soft, border: `1px solid ${C.border}`, borderRadius: 10, padding: '9px 12px', marginBottom: 12 }}>
+              <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, letterSpacing: '0.4px', marginBottom: 3 }}>İŞLETMEYE NOTUNUZ</div>
+              <p style={{ fontSize: 13, color: C.text, margin: 0, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{r.admin_note}</p>
+            </div>
+          )}
+
+          {/* İşletmeye not + e-posta seçeneği — karar düğmelerinden önce */}
+          <textarea value={notlar[r.id] || ''} onChange={e => setNotlar(p => ({ ...p, [r.id]: e.target.value }))} rows={2}
+            placeholder="İşletmeye not (isteğe bağlı) — e-postada ve işletme panelinde görünür. Örn. “Yorum kişisel veri içerdiği için kaldırıldı.”"
+            style={{ width: '100%', boxSizing: 'border-box', padding: '9px 11px', borderRadius: 9, border: `1px solid ${C.border}`, background: C.soft, color: C.text, fontSize: 13, fontFamily: 'inherit', lineHeight: 1.5, resize: 'vertical', outline: 'none', marginBottom: 8 }} />
+          <label style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: C.muted, marginBottom: 10, cursor: 'pointer' }}>
+            <input type="checkbox" checked={!mailYok[r.id]} onChange={e => setMailYok(p => ({ ...p, [r.id]: !e.target.checked }))} />
+            İşletmeye karar e-postası gönder ({r.reported_by || 'onaylı sahip'})
+          </label>
+
           {/* Aksiyonlar */}
           {r.report_status === 'pending' ? (
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <button disabled={busy} onClick={() => act(r.id, 'hide')}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 700, padding: '8px 14px', borderRadius: 9, border: 'none', background: C.amber, color: '#1c1c1e', cursor: 'pointer', opacity: busy ? 0.6 : 1 }}>
-                <Ic d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24 M1 1l22 22" size={13} /> Yorumu Gizle
+                <Ic d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24 M1 1l22 22" size={13} /> Yorumu Kaldır
               </button>
               <button disabled={busy} onClick={() => act(r.id, 'delete')}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 700, padding: '8px 14px', borderRadius: 9, border: 'none', background: C.red, color: 'white', cursor: 'pointer', opacity: busy ? 0.6 : 1 }}>
@@ -2339,6 +2364,14 @@ function SikayetlerTab({ onChanged }: { onChanged: () => void }) {
 
   return (
     <div>
+      {/* Son kararın sonucu — işletmeye e-posta gitti mi */}
+      {sonuc && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 14, padding: '10px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+          background: sonuc.ok ? 'rgba(16,185,129,.12)' : 'rgba(239,68,68,.12)', color: sonuc.ok ? C.green : C.red, border: `1px solid ${sonuc.ok ? 'rgba(16,185,129,.3)' : 'rgba(239,68,68,.3)'}` }}>
+          <span>{sonuc.text}</span>
+          <button onClick={() => setSonuc(null)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: 16, lineHeight: 1 }} aria-label="Kapat">×</button>
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: 0 }}>Yorum Şikayetleri</h1>
