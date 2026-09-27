@@ -171,6 +171,41 @@ export default function Navbar() {
 
   const isActive = (link: { base: string }) => pathname.startsWith(link.base);
 
+  // Giriş yapan kişinin ONAYLI işletmeleri (+ profil slug'ları) — "Profili Düzenle" kısayolu için.
+  // Kendi işletmesinin sayfasındaysa düğme doğrudan o işletmenin düzenleme ekranını açar.
+  const [sahipOlunan, setSahipOlunan] = useState<{ id: string; slug: string }[]>([]);
+  useEffect(() => {
+    if (!user) { setSahipOlunan([]); return; }
+    let iptal = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/panel/my-claims', { cache: 'no-store' });
+        if (!res.ok) return;
+        const { claims } = await res.json();
+        const onayli = ((claims || []) as any[]).filter(c => c.status === 'approved' && c.entity_id && c.entity_id !== 'new').slice(0, 20);
+        if (!onayli.length) { if (!iptal) setSahipOlunan([]); return; }
+        const TBL: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
+        const sb = createSupabaseBrowser();
+        const out: { id: string; slug: string }[] = [];
+        for (const tur of Object.keys(TBL)) {
+          const ids = onayli.filter(c => c.entity_type === tur).map(c => String(c.entity_id));
+          if (!ids.length) continue;
+          const { data } = await (sb as any).from(TBL[tur]).select('id,slug').in('id', ids);
+          (data || []).forEach((d: any) => out.push({ id: String(d.id), slug: String(d.slug || '') }));
+        }
+        if (!iptal) setSahipOlunan(out.length ? out : onayli.map(c => ({ id: String(c.entity_id), slug: '' })));
+      } catch { /* kısayol isteğe bağlı — sessiz geç */ }
+    })();
+    return () => { iptal = true; };
+  }, [user]);
+  const sonSegment = pathname.split('/').filter(Boolean).pop() || '';
+  const buSayfa = sahipOlunan.find(s => s.slug && s.slug === sonSegment) || null;
+  const duzenleHref = buSayfa ? `/panel?sekme=duzenle&isletme=${encodeURIComponent(buSayfa.id)}` : '/panel?sekme=duzenle';
+  const duzenleEtiket = buSayfa ? 'Bu Profili Düzenle' : 'Profili Düzenle';
+  const kalemIkon = (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+  );
+
   useEffect(() => {
     const supabase = createSupabaseBrowser();
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -275,6 +310,13 @@ export default function Navbar() {
 
           {/* ── Right section: Auth + Hamburger ──────────────────────── */}
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {/* Onaylı işletmesi olan kullanıcıya hesap düğmesinin hemen yanında belirgin kısayol */}
+            {!authLoading && user && sahipOlunan.length > 0 && (
+              <Link href={duzenleHref} className="nav-user-desktop" title={buSayfa ? 'Bu işletmenin profilini düzenle' : 'İşletme profilini düzenle'}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 50, background: '#1B3A69', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(27,58,105,.25)' }}>
+                {kalemIkon}{duzenleEtiket}
+              </Link>
+            )}
             {authLoading ? (
               <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#F2F2F7' }} />
             ) : user ? (
@@ -642,6 +684,14 @@ export default function Navbar() {
                   <div style={{ fontSize: 12, color: '#8E8E93', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
                 </div>
               </div>
+
+              {/* Profili Düzenle — mobil menünün en üstünde, belirgin */}
+              {sahipOlunan.length > 0 && (
+                <Link href={duzenleHref} onClick={() => setMobileOpen(false)}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, borderRadius: 12, background: '#1B3A69', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', marginBottom: 8 }}>
+                  {kalemIkon}{duzenleEtiket}
+                </Link>
+              )}
 
               {/* Panel links */}
               {[

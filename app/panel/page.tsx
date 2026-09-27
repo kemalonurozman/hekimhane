@@ -448,6 +448,25 @@ export default function PanelPage() {
     } catch { /* noop */ }
   }, []);
 
+  // Derin bağlantı — site başlığındaki "Profili Düzenle" düğmesi:
+  // /panel?sekme=duzenle[&isletme=<entity_id>] → ilgili işletmenin düzenleme ekranı açılır.
+  // (Hook, `if (loading) return` erken dönüşünden ÖNCE olmalı.)
+  const derinLinkRef = useRef(false);
+  useEffect(() => {
+    if (derinLinkRef.current || claimsLoading) return;
+    let p: URLSearchParams;
+    try { p = new URLSearchParams(window.location.search); } catch { return; }
+    if (p.get('sekme') !== 'duzenle') return;
+    const onayli = claims.filter(c => c.status === 'approved' && c.entity_id && c.entity_id !== 'new');
+    if (!onayli.length) return;                       // talepler henüz yüklenmedi
+    derinLinkRef.current = true;
+    const eid = p.get('isletme');
+    const c = eid ? onayli.find(x => String(x.entity_id) === eid) : null;
+    if (c) { setAktifId(c.id); setEditListe(false); try { localStorage.setItem('hk_panel_aktif', c.id); } catch {} }
+    setTab('edit');
+    window.history.replaceState(null, '', '/panel');
+  }, [claims, claimsLoading]);
+
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: T.bg }}>
