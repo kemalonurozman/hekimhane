@@ -1033,55 +1033,66 @@ function ProfileTab({ user, approvedClaims, premiumMap, subsMap, onManage, manag
   const meta = user.user_metadata || {};
   const isletmeler = approvedClaims.filter(c => c.entity_id && c.entity_id !== 'new');
   const proVar = isletmeler.some(c => proAktifMi(c.id, premiumMap, subsMap));
+  // Hesap başlığı: e-posta sayfanın en üstünde, tek bir profesyonel kart (boş sol sütun ve
+  // e-postayı tekrarlayan "Hesap Bilgileri" kartı kaldırıldı).
+  const ad = String(meta.full_name || meta.name || '').trim();
+  const basHarf = ad
+    ? ad.split(/\s+/).map((x: string) => x[0]).slice(0, 2).join('').toLocaleUpperCase('tr')
+    : (user.email || '?')[0].toLocaleUpperCase('tr');
+  const tarihYaz = (d: string | null | undefined, saat = false) => d
+    ? new Date(d).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', ...(saat ? { hour: '2-digit', minute: '2-digit' } : {}) })
+    : '—';
+  const rozet: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 20, fontSize: 11.5, fontWeight: 700 };
+  const metaKutu: React.CSSProperties = { flex: '1 1 180px', minWidth: 0, padding: '11px 14px', borderRadius: 12, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.16)' };
   return (
     <div>
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: T.text, letterSpacing: '-0.4px' }}>Hesabım</h1>
-        <p style={{ fontSize: 13, color: T.muted, marginTop: 3 }}>Hesap bilgilerinizi görüntüleyin.</p>
-      </div>
+      <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 18, padding: '24px 26px', marginBottom: 20, color: 'white',
+        background: 'linear-gradient(135deg, #1B3A69 0%, #2A4F8C 100%)', boxShadow: '0 10px 28px rgba(27,58,105,.18)',
+        display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+        <div aria-hidden="true" style={{ position: 'absolute', right: -70, top: -90, width: 260, height: 260, borderRadius: '50%', background: 'rgba(255,255,255,.05)' }} />
+        <div aria-hidden="true" style={{ position: 'absolute', right: 120, bottom: -110, width: 200, height: 200, borderRadius: '50%', background: 'rgba(212,168,67,.08)' }} />
 
-      <div className="panel-2col" style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 20 }}>
-        <div style={{ background: T.white, borderRadius: 16, border: `1px solid ${T.border}`, padding: '28px', textAlign: 'center' }}>
-          {meta.avatar_url ? (
-            <img src={meta.avatar_url} alt="" style={{ width: 80, height: 80, borderRadius: '50%', border: `3px solid ${T.border}`, margin: '0 auto 14px', display: 'block' }} />
-          ) : (
-            <div style={{ width: 80, height: 80, borderRadius: '50%', background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', color: T.navy }}>
-              <Ic d={icons.profile} size={32} />
-            </div>
-          )}
-          <div style={{ fontWeight: 800, fontSize: 16, color: T.text }}>{meta.full_name || meta.name || '—'}</div>
-          <div style={{ fontSize: 12, color: T.muted, marginTop: 4 }}>{user.email}</div>
-          <div style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 20, background: '#F0FDF4', border: '1px solid #86EFAC', fontSize: 11, fontWeight: 700, color: '#166534' }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#16A34A', display: 'inline-block' }} />
-            Aktif Hesap
+        {/* Avatar */}
+        {meta.avatar_url ? (
+          <img src={meta.avatar_url} alt="" style={{ position: 'relative', width: 68, height: 68, borderRadius: '50%', border: '3px solid rgba(255,255,255,.85)', flexShrink: 0, objectFit: 'cover' }} />
+        ) : (
+          <div style={{ position: 'relative', width: 68, height: 68, borderRadius: '50%', background: 'white', color: T.navy, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, flexShrink: 0, boxShadow: '0 4px 14px rgba(0,0,0,.18)' }}>
+            {basHarf}
           </div>
-          {proVar && <div style={{ marginTop: 10 }}><ProBadge /></div>}
+        )}
+
+        {/* Kimlik */}
+        <div style={{ position: 'relative', flex: '1 1 260px', minWidth: 0 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.9px', textTransform: 'uppercase', color: 'rgba(255,255,255,.65)' }}>Hesabım</div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.3px', margin: '3px 0 0', lineHeight: 1.25, overflowWrap: 'anywhere' }}>{ad || user.email}</h1>
+          {ad && <div style={{ fontSize: 13.5, color: 'rgba(255,255,255,.8)', marginTop: 2, overflowWrap: 'anywhere' }}>{user.email}</div>}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginTop: 11 }}>
+            <span style={{ ...rozet, background: 'rgba(22,163,74,.2)', color: '#BBF7D0', border: '1px solid rgba(134,239,172,.35)' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80' }} /> Aktif Hesap
+            </span>
+            {proVar && <ProBadge />}
+            {isletmeler.length > 0 && (
+              <span style={{ ...rozet, background: 'rgba(255,255,255,.12)', color: 'white', border: '1px solid rgba(255,255,255,.2)' }}>
+                <Ic d={icons.building} size={12} /> {isletmeler.length} işletme
+              </span>
+            )}
+          </div>
         </div>
 
-        <div>
-          <div style={{ background: T.white, borderRadius: 16, border: `1px solid ${T.border}`, overflow: 'hidden', marginBottom: 16 }}>
-            <div style={{ padding: '14px 22px', borderBottom: `1px solid ${T.border}` }}>
-              <span style={{ fontSize: 13, fontWeight: 800, color: T.text }}>Hesap Bilgileri</span>
-            </div>
-            <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {[
-                { label: 'Ad Soyad',   value: meta.full_name || meta.name || '—', icon: 'profile' },
-                { label: 'E-posta',    value: user.email || '—',                  icon: 'mail' },
-                { label: 'Üye Olundu', value: new Date(user.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }), icon: 'clock' },
-                { label: 'Son Giriş',  value: user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—', icon: 'shield' },
-              ].map(row => (
-                <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: `1px solid ${T.bg}` }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.navy, flexShrink: 0 }}>
-                    <Ic d={icons[row.icon as keyof typeof icons]} size={14} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 11, color: T.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{row.label}</div>
-                    <div style={{ fontSize: 14, color: T.text, fontWeight: 600, marginTop: 1 }}>{row.value}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+        {/* Hesap bilgileri */}
+        <div style={{ position: 'relative', flex: '1 1 300px', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <div style={metaKutu}>
+            <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: 'rgba(255,255,255,.6)' }}>Üye olundu</div>
+            <div style={{ fontSize: 14, fontWeight: 700, marginTop: 3 }}>{tarihYaz(user.created_at)}</div>
           </div>
+          <div style={metaKutu}>
+            <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: 'rgba(255,255,255,.6)' }}>Son giriş</div>
+            <div style={{ fontSize: 14, fontWeight: 700, marginTop: 3 }}>{tarihYaz(user.last_sign_in_at, true)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
           {/* ── Pro üyelik & abonelik yönetimi ──
               Abonelik durumu ve iptal yolu Hesabım'da da görünür olmalı; kullanıcı
               iptali burada arıyor, Genel Bakış'ta değil. */}
@@ -1166,7 +1177,6 @@ function ProfileTab({ user, approvedClaims, premiumMap, subsMap, onManage, manag
 
           <YoneticilerKarti />
           <HesapDestekFormu userEmail={user?.email || ''} />
-        </div>
       </div>
     </div>
   );
