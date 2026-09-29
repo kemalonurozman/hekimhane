@@ -201,6 +201,23 @@ export async function POST(req: NextRequest) {
 
     const admin = adminClient();
 
+    // Kamu hastaneleri (Devlet/Üniversite, sahiplenilmemiş) ve devlet hastanesine bağlı hekimler
+    // randevuyu MHRS üzerinden verir → talep alınmaz (arayan kimse yok, hasta boşuna bekler).
+    const MHRS_MESAJ = 'Bu kurum kamu hastanesidir; randevular MHRS (mhrs.gov.tr veya ALO 182) üzerinden alınır.';
+    try {
+      if (entity_type === 'hastane') {
+        const { data: hs } = await (admin as any).from('hastaneler').select('type,claimed').eq('id', String(entity_id)).maybeSingle();
+        if (hs && ['Devlet', 'Üniversite'].includes(String(hs.type || '')) && !hs.claimed) {
+          return NextResponse.json({ error: MHRS_MESAJ }, { status: 400 });
+        }
+      } else if (entity_type === 'doktor') {
+        const { data: dk } = await (admin as any).from('doktorlar').select('tags').eq('id', String(entity_id)).maybeSingle();
+        if (dk && Array.isArray(dk.tags) && dk.tags.includes('devlet-dis-hastanesi')) {
+          return NextResponse.json({ error: MHRS_MESAJ }, { status: 400 });
+        }
+      }
+    } catch { /* kontrol yapılamazsa talebi engelleme */ }
+
     // Slot bazlı ise: aynı işletme + aynı slot zaten alınmış mı? (çakışma)
     if (slot) {
       try {

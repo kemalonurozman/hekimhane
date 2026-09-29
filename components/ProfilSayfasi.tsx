@@ -818,9 +818,23 @@ function hesaplaGunSlotlari(iso: string, opts: { calismaSaatleri?: string | null
   return out;
 }
 
-function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospital, hospitalTel, aktif, slotDk, calismaSaatleri, acik24, booked, initialDate }: {
+/** Kamu hastanesi / devlet hekimi: randevu MHRS üzerinden — hastaneyi ara (varsa) + MHRS + ALO 182 */
+function MhrsDugmeleri({ tel }: { tel?: string | null }) {
+  const temel: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 22px', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' };
+  const birincil: React.CSSProperties = { ...temel, background: 'var(--navy)', color: 'white' };
+  const ikincil: React.CSSProperties = { ...temel, background: 'white', color: 'var(--navy)', border: '1.5px solid var(--border)' };
+  return (
+    <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginTop: 18 }}>
+      {tel && <a href={`tel:${String(tel).replace(/\s/g, '')}`} style={birincil}><i className="fa-solid fa-phone" /> Hastaneyi Ara · {tel}</a>}
+      <a href="https://www.mhrs.gov.tr" target="_blank" rel="noopener noreferrer" style={tel ? ikincil : birincil}><i className="fa-solid fa-arrow-up-right-from-square" /> MHRS&apos;den Randevu Al</a>
+      <a href="tel:182" style={ikincil}><i className="fa-solid fa-headset" /> ALO 182</a>
+    </div>
+  );
+}
+
+function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuHastane, hospital, hospitalTel, aktif, slotDk, calismaSaatleri, acik24, booked, initialDate }: {
   name: string; entityType: string; entityId: string | number; open: boolean; onClose: () => void;
-  devlet?: boolean; hospital?: string | null; hospitalTel?: string | null;
+  devlet?: boolean; kamuHastane?: boolean; hospital?: string | null; hospitalTel?: string | null;
   aktif?: boolean; slotDk?: number; calismaSaatleri?: string | null; acik24?: boolean; booked?: string[];
   initialDate?: string;
 }) {
@@ -922,21 +936,19 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, hospi
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B45309" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
             </div>
             <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 800, marginBottom: 10, paddingRight: 28, lineHeight: 1.25 }}>
-              Randevu Sistemi Kapalı
+              Online Randevu Kapalı
             </h2>
             <p style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.75, margin: 0 }}>
-              <strong style={{ color: 'var(--text)' }}>{name}</strong> hekimi
-              {hospital ? <> <strong style={{ color: 'var(--text)' }}>{hospital}</strong></> : ''} bünyesinde bir <strong>devlet hastanesine</strong> kayıtlıdır.
-              Randevu almak için lütfen hastaneyi <strong>doğrudan arayın</strong>. Mail / online randevu sistemleri şu an için kapalıdır.
+              {kamuHastane ? (<>
+                <strong style={{ color: 'var(--text)' }}>{name}</strong> bir <strong>kamu hastanesidir</strong>. Randevular Sağlık Bakanlığı
+                <strong> MHRS</strong> sistemi üzerinden alınır; Hekimhane üzerinden randevu talebi iletilemez.
+              </>) : (<>
+                <strong style={{ color: 'var(--text)' }}>{name}</strong> hekimi
+                {hospital ? <> <strong style={{ color: 'var(--text)' }}>{hospital}</strong></> : ''} bünyesinde bir <strong>devlet hastanesine</strong> kayıtlıdır.
+                Randevu için hastaneyi arayın veya <strong>MHRS</strong>&apos;yi kullanın.
+              </>)}
             </p>
-            {hospitalTel ? (
-              <a href={`tel:${String(hospitalTel).replace(/\s/g, '')}`}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 18, padding: '12px 26px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
-                <i className="fa-solid fa-phone" /> Hastaneyi Ara · {hospitalTel}
-              </a>
-            ) : (
-              <button onClick={onClose} style={{ marginTop: 18, padding: '11px 26px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Anladım</button>
-            )}
+            <MhrsDugmeleri tel={hospitalTel} />
           </div>
         ) : done ? (
           <div style={{ textAlign: 'center', padding: '16px 0' }}>
@@ -1234,6 +1246,10 @@ export default function ProfilSayfasi(props: ProfilProps) {
   // Devlet hastanesine bağlı hekim → randevu formu yerine "hastaneyi arayın" uyarısı
   const isDevletDoktor = entityType === 'doktor' && (specs || []).includes('devlet-dis-hastanesi');
   const devletHospital = isDevletDoktor ? (adres || '') : '';
+  // Kamu hastanesi (Devlet/Üniversite, sahiplenilmemiş) → randevular MHRS'den; talep formu kapalı.
+  // (Önceden kural yalnız hekimleri kapsıyordu; hastanelere gelen talepleri kimse aramıyordu.)
+  const isKamuHastane = entityType === 'hastane' && ['Devlet', 'Üniversite'].includes(String(type || '')) && !claimed;
+  const randevuKapali = isDevletDoktor || isKamuHastane;
 
   const typeLabel = entityType === 'klinik'  ? (type || 'Diş Kliniği')
     : entityType === 'hastane' ? (type || 'Hastane')
@@ -2389,7 +2405,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
             <div style={sc}>
               <div style={scHd}>
                 <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Randevu Talebi</h3>
-                {isDevletDoktor ? (
+                {randevuKapali ? (
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: '#92400E' }}>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#B45309', display: 'inline-block' }} />
                     Randevu Kapalı
@@ -2402,20 +2418,20 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 )}
               </div>
               <div style={{ ...scBody, textAlign: 'center', padding: '40px 24px' }}>
-                {isDevletDoktor ? (<>
+                {randevuKapali ? (<>
                   <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 48, color: '#B45309', display: 'block', marginBottom: 16 }} />
-                  <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Randevu Sistemi Kapalı</div>
-                  <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 460, margin: '0 auto 20px' }}>
-                    <strong style={{ color: 'var(--text)' }}>{name}</strong> hekimi
-                    {devletHospital ? <> <strong style={{ color: 'var(--text)' }}>{devletHospital}</strong></> : ''} bünyesinde bir <strong>devlet hastanesine</strong> kayıtlıdır.
-                    Randevu almak için lütfen hastaneyi <strong>doğrudan arayın</strong>. Mail / online randevu sistemleri şu an için kapalıdır.
+                  <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Online Randevu Kapalı</div>
+                  <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 480, margin: '0 auto' }}>
+                    {isKamuHastane ? (<>
+                      <strong style={{ color: 'var(--text)' }}>{name}</strong> bir <strong>kamu hastanesidir</strong>. Randevular Sağlık Bakanlığı
+                      <strong> MHRS</strong> (Merkezi Hekim Randevu Sistemi) üzerinden alınır; Hekimhane üzerinden randevu talebi iletilemez.
+                    </>) : (<>
+                      <strong style={{ color: 'var(--text)' }}>{name}</strong> hekimi
+                      {devletHospital ? <> <strong style={{ color: 'var(--text)' }}>{devletHospital}</strong></> : ''} bünyesinde bir <strong>devlet hastanesine</strong> kayıtlıdır.
+                      Randevu için hastaneyi arayın veya <strong>MHRS</strong>&apos;yi kullanın.
+                    </>)}
                   </p>
-                  {tel && (
-                    <a href={`tel:${tel.replace(/\s/g, '')}`}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none', marginBottom: 24 }}>
-                      <i className="fa-solid fa-phone" /> Hastaneyi Ara · {tel}
-                    </a>
-                  )}
+                  <MhrsDugmeleri tel={tel} />
                 </>) : (<>
                   <i className="fa-regular fa-calendar-check" style={{ fontSize: 48, color: '#059669', display: 'block', marginBottom: 16 }} />
                   <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Sizi Arayalım, Randevunuzu Oluşturalım</div>
@@ -2546,6 +2562,19 @@ export default function ProfilSayfasi(props: ProfilProps) {
               </div>
             </div>
             <div style={{ padding: '20px 22px' }}>
+              {randevuKapali ? (
+                /* Kamu hastanesi / devlet hekimi: tarih şeridi ve "yine de talep gönderin" yanıltıcı → MHRS yönlendirmesi */
+                <div style={{ textAlign: 'center', padding: '2px 2px 0' }}>
+                  <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 28, color: '#B45309', display: 'block', marginBottom: 8 }} />
+                  <div style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--text)' }}>Online randevu kapalı</div>
+                  <p style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6, margin: '6px 0 0' }}>
+                    {isKamuHastane
+                      ? 'Kamu hastanesi — randevular Sağlık Bakanlığı MHRS sistemi üzerinden alınır.'
+                      : 'Devlet hastanesine bağlı hekim — randevu için hastaneyi arayın veya MHRS’yi kullanın.'}
+                  </p>
+                  <MhrsDugmeleri tel={tel} />
+                </div>
+              ) : (<>
               {randevuAktif ? (
                 <>
                   {/* Canlı tarih şeridi — açık günler tıklanabilir, doğrudan saat seçimine götürür */}
@@ -2604,6 +2633,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}>
                 <i className={`fa-solid ${randevuAktif ? 'fa-calendar-check' : 'fa-calendar-plus'}`} /> {randevuAktif ? 'Randevu Al' : 'Randevu Talep Et'}
               </button>
+              </>)}
             </div>
           </div>
           )}
@@ -2651,7 +2681,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
       {/* Randevu modal */}
       <RandevuModal name={name} entityType={entityType} entityId={id} open={randevuModal} onClose={() => { setRandevuModal(false); setPreselectDate(''); }}
-        devlet={isDevletDoktor} hospital={devletHospital} hospitalTel={tel}
+        devlet={randevuKapali} kamuHastane={isKamuHastane} hospital={devletHospital} hospitalTel={tel}
         aktif={randevuAktif} slotDk={randevuSlotDk} calismaSaatleri={calisma_saatleri} acik24={acik_24_saat} booked={bookedSlots} initialDate={preselectDate} />
 
       {/* ── Lightbox ── */}
