@@ -818,6 +818,20 @@ function hesaplaGunSlotlari(iso: string, opts: { calismaSaatleri?: string | null
   return out;
 }
 
+/** Talep modu notu — bu kesinleşmiş randevu değildir; işletmeye ulaşabilirsek talebi iletiriz.
+ *  (Sahiplenilmemiş / iletişim bilgisi olmayan kayıtlarda "sizi arayacaklar" sözü verilemez.) */
+function TalepNotu({ style }: { style?: React.CSSProperties }) {
+  return (
+    <p style={{ display: 'flex', gap: 8, alignItems: 'flex-start', textAlign: 'left', fontSize: 12, lineHeight: 1.55, color: 'var(--muted)', background: '#F8FAFC', border: '1px solid var(--border)', borderRadius: 10, padding: '9px 11px', margin: '12px 0 0', ...style }}>
+      <i className="fa-solid fa-circle-info" style={{ color: '#6B7A99', marginTop: 2, flexShrink: 0 }} />
+      <span>
+        Bu bir <strong>randevu talebidir</strong>, kesinleşmiş randevu değildir. Hekimin veya kliniğin iletişim bilgileri sistemimizde
+        kayıtlıysa talebinizi en kısa sürede kendilerine iletiriz; randevunuz, sizi aradıklarında kesinleşir.
+      </span>
+    </p>
+  );
+}
+
 /** Kamu hastanesi / devlet hekimi: randevu MHRS üzerinden — hastaneyi ara (varsa) + MHRS + ALO 182 */
 function MhrsDugmeleri({ tel }: { tel?: string | null }) {
   const temel: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 22px', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' };
@@ -959,9 +973,16 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
             </div>
             <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Randevu Talebiniz Alındı</h3>
-            <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6 }}>
-              {name} yetkilisi en kısa sürede <strong>{tel}</strong> numarasından sizinle iletişime geçecek.
-            </p>
+            {aktif ? (
+              <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6 }}>
+                {name} yetkilisi en kısa sürede <strong>{tel}</strong> numarasından sizinle iletişime geçecek.
+              </p>
+            ) : (<>
+              <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6 }}>
+                Talebiniz <strong>{name}</strong> için kaydedildi. İletişim numaranız: <strong>{tel}</strong>
+              </p>
+              <TalepNotu />
+            </>)}
             <button onClick={onClose} style={{ marginTop: 16, padding: '10px 24px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Kapat</button>
           </div>
         ) : (
@@ -1066,6 +1087,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
               style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1, transition: '.2s' }}>
               {saving ? 'Gönderiliyor…' : 'Randevu Talebi Gönder'}
             </button>
+            {!aktif && <TalepNotu />}
           </>
         )}
       </div>
@@ -2443,6 +2465,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 24 }}>
                     <i className="fa-solid fa-calendar-plus" /> Randevu Talebi Bırak
                   </button>
+                  {!randevuAktif && <TalepNotu style={{ maxWidth: 460, margin: '14px auto 18px' }} />}
                 </>)}
                 <div style={{ maxWidth: 500, margin: '0 auto', textAlign: 'left' }}>
                   <AboneWidget
@@ -2633,6 +2656,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}>
                 <i className={`fa-solid ${randevuAktif ? 'fa-calendar-check' : 'fa-calendar-plus'}`} /> {randevuAktif ? 'Randevu Al' : 'Randevu Talep Et'}
               </button>
+              {!randevuAktif && <TalepNotu />}
               </>)}
             </div>
           </div>
