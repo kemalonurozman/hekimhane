@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function UzmanlikIndexPage() {
   return (
     <main style={{ background: 'var(--cream)', minHeight: '100vh', paddingTop: 66 }}>
-      <div style={{ background: 'linear-gradient(135deg, #1B3A69 0%, #163D6E 100%)', padding: '48px 0 44px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'linear-gradient(135deg, #1A335E 0%, #163D6E 100%)', padding: '48px 0 44px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', right: -60, top: -60, width: 280, height: 280, borderRadius: '50%', background: 'rgba(255,255,255,.04)' }} />
         <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: 960 }}>
           <nav style={{ display: 'flex', gap: 6, fontSize: 12, color: 'rgba(255,255,255,.55)', marginBottom: 16 }}>

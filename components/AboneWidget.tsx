@@ -88,7 +88,7 @@ export default function AboneWidget({
       <input value={email} onChange={e => { setEmail(e.target.value); setErr(''); }}
         placeholder="E-posta adresiniz" type="email" style={{ ...inp, minWidth: 200 }} />
       <button type="submit" disabled={sending}
-        style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: '#1B3A69', color: 'white', fontSize: 13, fontWeight: 700, cursor: sending ? 'not-allowed' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+        style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: '#1A335E', color: 'white', fontSize: 13, fontWeight: 700, cursor: sending ? 'not-allowed' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
         {sending ? 'Kaydediliyor…' : 'Haberdar Ol'}
       </button>
       {err && <span style={{ fontSize: 12, color: '#DC2626', width: '100%' }}>{err}</span>}
@@ -99,7 +99,7 @@ export default function AboneWidget({
   return (
     <div style={{ background: 'linear-gradient(135deg,#F0F4FF,#E8EEFF)', border: '1px solid #C7D2FE', borderRadius: 16, padding: '20px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 14 }}>
-        <div style={{ width: 40, height: 40, borderRadius: 11, background: '#1B3A69', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ width: 40, height: 40, borderRadius: 11, background: '#1A335E', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         </div>
         <div>
@@ -122,7 +122,7 @@ export default function AboneWidget({
         <input value={email} onChange={e => { setEmail(e.target.value); setErr(''); }}
           placeholder="E-posta adresiniz *" type="email" required style={{ ...inp }} />
         <button type="submit" disabled={sending}
-          style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: '#1B3A69', color: 'white', fontSize: 13, fontWeight: 700, cursor: sending ? 'not-allowed' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}>
+          style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: '#1A335E', color: 'white', fontSize: 13, fontWeight: 700, cursor: sending ? 'not-allowed' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}>
           {sending
             ? <><svg width="13" height="13" viewBox="0 0 18 18" fill="none" style={{ animation: 'abone-spin .9s linear infinite' }}><circle cx="9" cy="9" r="7" stroke="rgba(255,255,255,.3)" strokeWidth="2"/><path d="M9 2a7 7 0 0 1 7 7" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg> Kaydediliyor…</>
             : <>

@@ -24,8 +24,8 @@ export default function MakaleGorselYukle({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const T = dark
-    ? { border: 'rgba(255,255,255,.12)', bg: 'rgba(255,255,255,.03)', text: 'rgba(255,255,255,.92)', muted: 'rgba(255,255,255,.42)', aksan: '#D4A843' }
-    : { border: '#E2E8F4', bg: '#F8FAFF', text: '#1A2744', muted: '#6B7A99', aksan: '#1B3A69' };
+    ? { border: 'rgba(255,255,255,.12)', bg: 'rgba(255,255,255,.03)', text: 'rgba(255,255,255,.92)', muted: 'rgba(255,255,255,.42)', aksan: '#B8892F' }
+    : { border: '#E2E8F4', bg: '#F8FAFF', text: '#111C2E', muted: '#4A5568', aksan: '#1A335E' };
 
   async function yukle(file: File) {
     setHata('');
@@ -78,7 +78,7 @@ export default function MakaleGorselYukle({
           onDrop={e => { e.preventDefault(); setSurukle(false); const f = e.dataTransfer.files?.[0]; if (f) yukle(f); }}
           style={{
             border: `1.5px dashed ${surukle ? T.aksan : T.border}`, borderRadius: 12,
-            background: surukle ? (dark ? 'rgba(212,168,67,.08)' : '#EEF3FF') : T.bg,
+            background: surukle ? (dark ? 'rgba(184,137,47,.08)' : '#EEF3FF') : T.bg,
             padding: '26px 18px', textAlign: 'center', cursor: 'pointer', transition: 'border-color .15s, background .15s',
           }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={T.muted} strokeWidth="1.6" strokeLinecap="round" style={{ marginBottom: 8 }}>

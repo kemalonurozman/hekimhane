@@ -119,7 +119,7 @@ interface FormData {
 
 // Yerleşim: diş kliniği üstte tam genişlik, altında hastane + doktor yan yana, en altta eczane tam genişlik
 const KATEGORILER: { type: BusinessType; label: string; desc: string; renk: string; bg: string; icon: React.ReactNode; soon?: boolean; tamGenislik?: boolean }[] = [
-  { type: 'klinik',  label: 'Diş Kliniği / Diş Hekimi', desc: 'Diş hekimi, ortodontist, implant', renk: '#1B3A69', bg: '#EEF2FF', icon: <IcTooth />, tamGenislik: true },
+  { type: 'klinik',  label: 'Diş Kliniği / Diş Hekimi', desc: 'Diş hekimi, ortodontist, implant', renk: '#1A335E', bg: '#EEF2FF', icon: <IcTooth />, tamGenislik: true },
   { type: 'hastane', label: 'Hastane',      desc: 'Özel, devlet veya dal hastanesi',       renk: '#065F46', bg: '#ECFDF5', icon: <IcHospital /> },
   { type: 'doktor',  label: 'Doktor',       desc: 'Her uzmanlık dalından bireysel hekim', renk: '#92400E', bg: '#FEF3C7', icon: <IcDoctor /> },
   { type: 'eczane',  label: 'Eczane',       desc: 'Eczane ve nöbetçi eczane bilgisi',     renk: '#6D28D9', bg: '#F5F3FF', icon: <IcPill />,     tamGenislik: true },
@@ -170,7 +170,7 @@ function DocSlot({ slotKey, label, sub, file, onFile }: { slotKey: string; label
         background: loaded ? '#F0FDF4' : 'white',
         position: 'relative',
       }}
-      onMouseEnter={e => { if (!loaded) { (e.currentTarget as HTMLDivElement).style.borderColor = '#1B3A69'; (e.currentTarget as HTMLDivElement).style.background = '#F0F7FF'; }}}
+      onMouseEnter={e => { if (!loaded) { (e.currentTarget as HTMLDivElement).style.borderColor = '#1A335E'; (e.currentTarget as HTMLDivElement).style.background = '#F0F7FF'; }}}
       onMouseLeave={e => { if (!loaded) { (e.currentTarget as HTMLDivElement).style.borderColor = '#C7DCFF'; (e.currentTarget as HTMLDivElement).style.background = 'white'; }}}
     >
       <input
@@ -198,8 +198,8 @@ function DocSlot({ slotKey, label, sub, file, onFile }: { slotKey: string; label
           : <IcFile />
         }
       </div>
-      <div style={{ fontSize: 12, fontWeight: 700, color: loaded ? '#15803D' : '#1A2744', marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: 10, color: loaded ? '#16A34A' : '#6B7A99' }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: loaded ? '#15803D' : '#111C2E', marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: 10, color: loaded ? '#16A34A' : '#4A5568' }}>
         {loaded ? (file!.name.length > 22 ? file!.name.slice(0, 20) + '…' : file!.name) : sub}
       </div>
     </div>
@@ -241,7 +241,7 @@ function PhotoSlot({ index, preview, onFile, onRemove }: { index: number; previe
         gap: 4,
         transition: 'all .18s',
       }}
-      onMouseEnter={e => { if (!preview) { (e.currentTarget as HTMLDivElement).style.borderColor = '#1B3A69'; }}}
+      onMouseEnter={e => { if (!preview) { (e.currentTarget as HTMLDivElement).style.borderColor = '#1A335E'; }}}
       onMouseLeave={e => { if (!preview) { (e.currentTarget as HTMLDivElement).style.borderColor = '#C7DCFF'; }}}
     >
       <input
@@ -406,7 +406,7 @@ export default function KatilPage() {
       <div style={{ background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%)', padding: '48px 0 40px', position: 'relative', overflow: 'hidden', textAlign: 'center' }}>
         <div style={{ position: 'absolute', right: -100, top: -100, width: 400, height: 400, borderRadius: '50%', background: 'rgba(255,255,255,.04)', pointerEvents: 'none' }} />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 20, background: 'rgba(212,168,67,.2)', border: '1px solid rgba(212,168,67,.35)', fontSize: 12, fontWeight: 700, color: '#F0C060', marginBottom: 16 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 20, background: 'rgba(184,137,47,.2)', border: '1px solid rgba(184,137,47,.35)', fontSize: 12, fontWeight: 700, color: '#F0C060', marginBottom: 16 }}>
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1l1 3h3l-2.5 1.8 1 3L5 7l-2.5 1.8 1-3L1 4h3z" fill="#F0C060"/></svg>
             ÜCRETSİZ LİSTELEME
           </div>

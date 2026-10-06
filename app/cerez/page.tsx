@@ -32,7 +32,7 @@ export default function CerezPage() {
             <span style={{ color: 'rgba(255,255,255,.85)' }}>Çerez Politikası</span>
           </nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
-            <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(212,168,67,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>🍪</div>
+            <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(184,137,47,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>🍪</div>
             <div>
               <h1 style={{ fontSize: 'clamp(24px,4vw,36px)', fontWeight: 800, margin: 0 }}>Çerez Politikası</h1>
               <p style={{ margin: '6px 0 0', color: 'rgba(255,255,255,.7)', fontSize: 15 }}>Hekimhane'nin çerez kullanımı hakkında bilgiler</p>

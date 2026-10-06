@@ -93,5 +93,5 @@ export async function isletmeBilgisi(admin: SupabaseClient, entityType: string, 
 export function profilSatiri(url: string | null): string {
   if (!url) return '';
   const kisa = url.replace(/^https?:\/\/(www\.)?/, '');
-  return `<p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">Profil:</strong> <a href="${url}" style="color:#1B3A69;font-weight:600;">${kisa}</a></p>`;
+  return `<p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">Profil:</strong> <a href="${url}" style="color:#1A335E;font-weight:600;">${kisa}</a></p>`;
 }

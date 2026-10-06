@@ -25,7 +25,7 @@ const IcBell = (
   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
 );
 
-const STEP_COLORS = ['#1B3A69', '#2563EB', '#059669', '#D4A843'];
+const STEP_COLORS = ['#1A335E', '#2563EB', '#059669', '#B8892F'];
 
 export default function RandevuSistemiPage() {
   const adimlar = [
@@ -51,15 +51,15 @@ export default function RandevuSistemiPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Hero */}
-      <div style={{ background: 'linear-gradient(135deg, #1B3A69 0%, #163D6E 100%)', padding: '52px 0 48px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'linear-gradient(135deg, #1A335E 0%, #163D6E 100%)', padding: '52px 0 48px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', right: -70, top: -70, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,.04)' }} />
-        <div style={{ position: 'absolute', left: -50, bottom: -90, width: 240, height: 240, borderRadius: '50%', background: 'rgba(212,168,67,.06)' }} />
+        <div style={{ position: 'absolute', left: -50, bottom: -90, width: 240, height: 240, borderRadius: '50%', background: 'rgba(184,137,47,.06)' }} />
         <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: 860 }}>
           <nav style={{ display: 'flex', gap: 6, fontSize: 12, color: 'rgba(255,255,255,.55)', marginBottom: 16 }}>
             <Link href="/" style={{ color: 'rgba(255,255,255,.7)', textDecoration: 'none' }}>Ana Sayfa</Link>
             <span>›</span><span style={{ color: 'white' }}>Randevu Sistemi</span>
           </nav>
-          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--gold)', background: 'rgba(212,168,67,.12)', border: '1px solid rgba(212,168,67,.3)', borderRadius: 20, padding: '5px 13px', marginBottom: 16 }}>
+          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--on-deep-heading)', background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '5px 13px', marginBottom: 16 }}>
             Doktor Randevu Sistemi
           </span>
           <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(28px,4.4vw,42px)', fontWeight: 800, color: 'white', lineHeight: 1.15, margin: '0 0 14px', letterSpacing: '-0.6px' }}>
@@ -109,7 +109,7 @@ export default function RandevuSistemiPage() {
             </div>
             {/* Bağlantı */}
             <div style={{ flex: '0 0 64px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
-              <svg width="56" height="24" viewBox="0 0 56 24" fill="none"><path d="M2 12h48" stroke="#D4A843" strokeWidth="2" strokeDasharray="4 4" /><path d="m44 6 8 6-8 6" stroke="#D4A843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /><path d="m12 6-8 6 8 6" stroke="#D4A843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+              <svg width="56" height="24" viewBox="0 0 56 24" fill="none"><path d="M2 12h48" stroke="#B8892F" strokeWidth="2" strokeDasharray="4 4" /><path d="m44 6 8 6-8 6" stroke="#B8892F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /><path d="m12 6-8 6 8 6" stroke="#B8892F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
             </div>
             {/* Hekimhane */}
             <div style={{ flex: '1 1 130px', minWidth: 130, textAlign: 'center', background: 'var(--navy)', borderRadius: 14, padding: '18px 12px' }}>
@@ -119,7 +119,7 @@ export default function RandevuSistemiPage() {
             </div>
             {/* Bağlantı */}
             <div style={{ flex: '0 0 64px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
-              <svg width="56" height="24" viewBox="0 0 56 24" fill="none"><path d="M2 12h48" stroke="#D4A843" strokeWidth="2" strokeDasharray="4 4" /><path d="m44 6 8 6-8 6" stroke="#D4A843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /><path d="m12 6-8 6 8 6" stroke="#D4A843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+              <svg width="56" height="24" viewBox="0 0 56 24" fill="none"><path d="M2 12h48" stroke="#B8892F" strokeWidth="2" strokeDasharray="4 4" /><path d="m44 6 8 6-8 6" stroke="#B8892F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /><path d="m12 6-8 6 8 6" stroke="#B8892F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
             </div>
             {/* Hekim */}
             <div style={{ flex: '1 1 130px', minWidth: 130, textAlign: 'center', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 14, padding: '18px 12px' }}>
@@ -139,12 +139,12 @@ export default function RandevuSistemiPage() {
           </p>
           {/* Zaman çizelgesi */}
           <div style={{ position: 'relative', margin: '22px 0 4px', padding: '0 8px' }}>
-            <div style={{ position: 'absolute', left: 20, right: 20, top: 15, height: 3, background: 'linear-gradient(90deg,#2563EB,#059669,#D4A843)', borderRadius: 3 }} />
+            <div style={{ position: 'absolute', left: 20, right: 20, top: 15, height: 3, background: 'linear-gradient(90deg,#2563EB,#059669,#B8892F)', borderRadius: 3 }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative' }}>
               {[
                 { t: 'Randevu oluşturuldu', d: 'Anında onay maili', c: '#2563EB' },
                 { t: 'Randevudan önce', d: 'Hatırlatma maili', c: '#059669' },
-                { t: 'Randevu günü', d: 'Hasta hekimde', c: '#D4A843' },
+                { t: 'Randevu günü', d: 'Hasta hekimde', c: '#B8892F' },
               ].map((s, i) => (
                 <div key={i} style={{ flex: 1, textAlign: 'center', position: 'relative' }}>
                   <div style={{ width: 14, height: 14, borderRadius: '50%', background: s.c, border: '3px solid white', boxShadow: '0 0 0 1px ' + s.c, margin: '9px auto 10px' }} />
@@ -224,7 +224,7 @@ export default function RandevuSistemiPage() {
             ücretsiz katılıp randevu sistemini kullanmaya başlayın.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/doktorlar" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--gold)', color: 'var(--navy)', fontSize: 14.5, fontWeight: 700, borderRadius: 12, padding: '13px 24px', textDecoration: 'none' }}>
+            <Link href="/doktorlar" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--gold-fill)', color: 'var(--navy)', fontSize: 14.5, fontWeight: 700, borderRadius: 12, padding: '13px 24px', textDecoration: 'none' }}>
               Hekimlerden randevu al →
             </Link>
             <Link href="/katil" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.1)', color: 'white', fontSize: 14.5, fontWeight: 700, borderRadius: 12, padding: '13px 24px', textDecoration: 'none', border: '1px solid rgba(255,255,255,.2)' }}>

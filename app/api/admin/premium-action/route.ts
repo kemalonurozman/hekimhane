@@ -147,14 +147,14 @@ export async function POST(request: NextRequest) {
                   ? 'Üyelik hemen sonlandırıldı ve bundan sonra ödeme alınmayacaktır.'
                   : 'Ödemesi yapılmış dönemin sonuna kadar Pro özellikleriniz açık kalacak, sonrasında yeni ödeme alınmayacaktır.'}
               </p>
-              <div style="background:#FBF8F2;border-radius:12px;padding:14px 16px;margin:14px 0;">
+              <div style="background:#F6F8FB;border-radius:12px;padding:14px 16px;margin:14px 0;">
                 ${satir('İşletme', ad)}
                 ${satir('Durum', hemen ? 'Üyelik sonlandırıldı' : 'Dönem sonunda sonlanacak')}
               </div>
               <p style="margin:0 0 12px;font-size:14px;color:#1c1c1e;line-height:1.6;">
                 İşletme profiliniz yayında kalmaya devam eder; yalnızca Pro özellikleri (web sitesi, sosyal medya bağlantıları,
                 rezervasyon modülü) kapanır. Dilediğiniz an
-                <a href="${SITE}/panel" style="color:#1B3A69;font-weight:600;">panelinizden</a> yeniden abone olabilirsiniz.
+                <a href="${SITE}/panel" style="color:#1A335E;font-weight:600;">panelinizden</a> yeniden abone olabilirsiniz.
               </p>
               <p style="margin:0;font-size:13px;color:#6E6E73;line-height:1.6;">
                 Bir yanlışlık olduğunu düşünüyorsanız bu e-postayı yanıtlamanız yeterli.

@@ -122,7 +122,7 @@ export default function SaglikBul() {
           <div>
             <p style={{
               fontSize: 11, fontWeight: 700, letterSpacing: '1.4px',
-              textTransform: 'uppercase', color: '#D4A843', margin: '0 0 16px',
+              textTransform: 'uppercase', color: 'var(--gold-text)', margin: '0 0 16px',
             }}>
               AI Destekli Diş Hekimi Eşleştirme
             </p>
@@ -132,7 +132,7 @@ export default function SaglikBul() {
               margin: '0 0 16px',
             }}>
               Şikayetinizi Anlatın,<br />
-              <span style={{ color: '#1B3A69' }}>Diş Hekiminizi Bulun</span>
+              <span style={{ color: '#1A335E' }}>Diş Hekiminizi Bulun</span>
             </h2>
             <p style={{
               color: '#6E6E73', fontSize: 16, lineHeight: 1.65,
@@ -150,7 +150,7 @@ export default function SaglikBul() {
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
                   <div style={{
                     width: 28, height: 28, borderRadius: '50%',
-                    background: adim === ['belirti', 'sehir', 'sonuc'][i] ? '#1B3A69' : '#F2F2F7',
+                    background: adim === ['belirti', 'sehir', 'sonuc'][i] ? '#1A335E' : '#F2F2F7',
                     color: adim === ['belirti', 'sehir', 'sonuc'][i] ? 'white' : '#AEAEB2',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 12, fontWeight: 700, flexShrink: 0, marginTop: 2,
@@ -191,8 +191,8 @@ export default function SaglikBul() {
                       onClick={() => setBelirti(b)}
                       style={{
                         padding: '6px 14px', borderRadius: 20,
-                        border: `1.5px solid ${belirti === b ? '#1B3A69' : '#E5E5EA'}`,
-                        background: belirti === b ? '#1B3A69' : 'white',
+                        border: `1.5px solid ${belirti === b ? '#1A335E' : '#E5E5EA'}`,
+                        background: belirti === b ? '#1A335E' : 'white',
                         color: belirti === b ? 'white' : '#3A3A3C',
                         fontSize: 13, fontWeight: 500, cursor: 'pointer',
                         transition: 'all .15s', letterSpacing: '-.1px',
@@ -216,7 +216,7 @@ export default function SaglikBul() {
                     resize: 'none', outline: 'none', boxSizing: 'border-box',
                     color: '#1D1D1F', lineHeight: 1.5,
                   }}
-                  onFocus={e => { e.target.style.borderColor = '#1B3A69'; }}
+                  onFocus={e => { e.target.style.borderColor = '#1A335E'; }}
                   onBlur={e => { e.target.style.borderColor = '#E5E5EA'; }}
                 />
 
@@ -226,7 +226,7 @@ export default function SaglikBul() {
                   style={{
                     width: '100%', marginTop: 14,
                     padding: '13px 0', borderRadius: 12,
-                    background: belirti.trim() ? '#1B3A69' : '#E5E5EA',
+                    background: belirti.trim() ? '#1A335E' : '#E5E5EA',
                     color: belirti.trim() ? 'white' : '#AEAEB2',
                     fontWeight: 600, fontSize: 15, border: 'none',
                     cursor: belirti.trim() ? 'pointer' : 'not-allowed',
@@ -256,8 +256,8 @@ export default function SaglikBul() {
                       onClick={() => setSehir(il)}
                       style={{
                         padding: '6px 14px', borderRadius: 20,
-                        border: `1.5px solid ${sehir === il ? '#1B3A69' : '#E5E5EA'}`,
-                        background: sehir === il ? '#1B3A69' : 'white',
+                        border: `1.5px solid ${sehir === il ? '#1A335E' : '#E5E5EA'}`,
+                        background: sehir === il ? '#1A335E' : 'white',
                         color: sehir === il ? 'white' : '#3A3A3C',
                         fontSize: 13, fontWeight: 500, cursor: 'pointer',
                         transition: 'all .15s', letterSpacing: '-.1px',
@@ -289,7 +289,7 @@ export default function SaglikBul() {
                     disabled={!sehir || yukleniyor}
                     style={{
                       flex: 2, padding: '12px 0', borderRadius: 12,
-                      background: sehir && !yukleniyor ? '#1B3A69' : '#E5E5EA',
+                      background: sehir && !yukleniyor ? '#1A335E' : '#E5E5EA',
                       color: sehir && !yukleniyor ? 'white' : '#AEAEB2',
                       fontWeight: 600, fontSize: 15, border: 'none',
                       cursor: sehir && !yukleniyor ? 'pointer' : 'not-allowed',
@@ -347,7 +347,7 @@ export default function SaglikBul() {
                         padding: '14px 16px', textDecoration: 'none',
                         transition: 'border-color .15s',
                       }}
-                      onMouseEnter={e => (e.currentTarget.style.borderColor = '#1B3A69')}
+                      onMouseEnter={e => (e.currentTarget.style.borderColor = '#1A335E')}
                       onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E5EA')}
                     >
                       <div>
@@ -360,7 +360,7 @@ export default function SaglikBul() {
                           </div>
                         )}
                       </div>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B3A69" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginLeft: 12 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A335E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginLeft: 12 }}>
                         <path d="M5 12h14M12 5l7 7-7 7" />
                       </svg>
                     </a>
@@ -372,7 +372,7 @@ export default function SaglikBul() {
                   style={{
                     display: 'block', textAlign: 'center',
                     padding: '11px 0', borderRadius: 12,
-                    background: '#F2F2F7', color: '#1B3A69',
+                    background: '#F2F2F7', color: '#1A335E',
                     fontWeight: 600, fontSize: 14, textDecoration: 'none',
                     letterSpacing: '-.1px',
                   }}

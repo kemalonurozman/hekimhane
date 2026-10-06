@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
             belirlemek için aşağıdaki butona tıklayın.
           </p>
           <p style="text-align:center;margin:22px 0;">
-            <a href="${link}" style="display:inline-block;background:#1B3A69;color:#fff;text-decoration:none;padding:13px 30px;border-radius:12px;font-size:14px;font-weight:700;">
+            <a href="${link}" style="display:inline-block;background:#1A335E;color:#fff;text-decoration:none;padding:13px 30px;border-radius:12px;font-size:14px;font-weight:700;">
               Yeni Şifre Belirle
             </a>
           </p>

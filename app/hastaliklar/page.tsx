@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 // Diş odaklı öne çıkan konular — blog yazılarına yönlendirir
 const sağlıkKonuları = [
   { başlık: 'Diş Eti Kanaması', özet: 'Fırçalarken diş etiniz kanıyorsa nedenleri ve ne zaman doktora gidilmeli?', renk: '#DC2626', href: '/blog/dis-eti-kanamasi-nedenleri' },
-  { başlık: 'İmplant Tedavisi', özet: 'İmplant nedir, kimlere uygulanır, ne kadar sürer ve dayanır?', renk: '#1B3A69', href: '/blog/implant-tedavisi-hakkinda-merak-edilenler' },
+  { başlık: 'İmplant Tedavisi', özet: 'İmplant nedir, kimlere uygulanır, ne kadar sürer ve dayanır?', renk: '#1A335E', href: '/blog/implant-tedavisi-hakkinda-merak-edilenler' },
   { başlık: 'Diş Beyazlatma', özet: 'Klinikte beyazlatma, evde jel, macun... Hangisi güvenli ve kalıcı?', renk: '#0E7490', href: '/blog/dis-beyazlatma-yontemleri-guvenli-mi' },
   { başlık: 'Ağız Kokusu (Halitozis)', özet: 'Ağız kokusunun kaynakları ve kalıcı çözüm için yapılması gerekenler', renk: '#065F46', href: '/blog/agiz-kokusu-halitozis-neden-olur' },
   { başlık: 'Çocuklarda İlk Ziyaret', özet: 'Çocuğunuzun ilk diş hekimi ziyareti ne zaman olmalı?', renk: '#7C3AED', href: '/blog/cocuklarda-ilk-dis-hekimi-ziyareti' },
@@ -82,7 +82,7 @@ export default function HastalıklarPage() {
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <section style={{
-        background: 'linear-gradient(160deg, #0A2540 0%, #163D6E 60%, #1B3A69 100%)',
+        background: 'linear-gradient(160deg, #0A2540 0%, #163D6E 60%, #1A335E 100%)',
         padding: '72px 0 64px',
         color: 'white',
       }}>
@@ -99,7 +99,7 @@ export default function HastalıklarPage() {
           <div style={{ maxWidth: 640, marginBottom: 44 }}>
             <p style={{
               fontSize: 12, fontWeight: 600, letterSpacing: '1.4px', textTransform: 'uppercase',
-              color: '#D4A843', margin: '0 0 16px',
+              color: 'var(--on-deep-heading)', margin: '0 0 16px',
             }}>
               Güvenilir Sağlık Bilgisi
             </p>
@@ -176,7 +176,7 @@ export default function HastalıklarPage() {
           display: 'flex', alignItems: 'center', gap: 10,
           fontSize: 12.5, color: '#6E6E73', letterSpacing: '.1px',
         }}>
-          <span style={{ color: '#D4A843', flexShrink: 0 }}><IconShield /></span>
+          <span style={{ color: '#B8892F', flexShrink: 0 }}><IconShield /></span>
           <span>
             <strong style={{ color: '#3A3A3C', fontWeight: 600 }}>Önemli Uyarı:</strong>{' '}
             Bu sayfadaki bilgiler yalnızca genel sağlık bilgisi amaçlıdır ve tıbbi tavsiye yerine geçmez.
@@ -330,7 +330,7 @@ export default function HastalıklarPage() {
             <div>
               <p style={{
                 fontSize: 11, fontWeight: 600, letterSpacing: '1.2px',
-                textTransform: 'uppercase', color: '#D4A843', margin: '0 0 12px',
+                textTransform: 'uppercase', color: 'var(--on-deep-heading)', margin: '0 0 12px',
               }}>
                 Hekimhane Ağı
               </p>
@@ -347,7 +347,7 @@ export default function HastalıklarPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 180 }}>
               <Link href="/doktorlar" style={{
-                background: '#D4A843', color: 'white', fontWeight: 600,
+                background: 'var(--gold-fill)', color: 'var(--on-gold)', fontWeight: 600,
                 padding: '13px 24px', borderRadius: 12, textDecoration: 'none',
                 textAlign: 'center', fontSize: 14.5, letterSpacing: '-.1px',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,

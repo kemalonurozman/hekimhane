@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
           ${iptalMi
             ? `<p style="margin:0 0 12px;font-size:14px;color:#1c1c1e;line-height:1.6;">Hekimhane-Pro abonelik iptal talebinizi aldık. Talebiniz <strong>1 iş günü</strong> içinde işleme alınır; iptal tamamlandığında bu adrese bilgi e-postası gönderilir. Aboneliğiniz, içinde bulunduğunuz ödeme döneminin sonuna kadar açık kalır ve yeni ödeme alınmaz.</p>`
             : `<p style="margin:0 0 12px;font-size:14px;color:#1c1c1e;line-height:1.6;">Bize ulaştığınız için teşekkürler. Mesajınızı aldık ve en geç <strong>24 saat</strong> içinde size dönüş yapacağız.</p>`}
-          <div style="background:#FBF8F2;border-radius:12px;padding:14px 16px;margin:14px 0;">
+          <div style="background:#F6F8FB;border-radius:12px;padding:14px 16px;margin:14px 0;">
             ${satir('Konu', konuEtiket)}
             ${isletmeAdi ? satir('İşletme', isletmeAdi) : ''}
             <p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">Mesajınız:</strong></p>

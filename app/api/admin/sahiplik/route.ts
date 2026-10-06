@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
           html: mailShell('İşletmeniz hesabınıza tanımlandı', `
             <p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${esc(isletme)}</strong> profilinin yönetimi Hekimhane tarafından bu e-posta adresine tanımlandı.</p>
             <p style="font-size:14px;color:#1c1c1e;line-height:1.6;">Randevu taleplerini, takvimi, hastaları, yorumları ve profil bilgilerinizi yönetmek için hesabınızı oluşturun: e-postanız hazır gelir, yalnızca şifrenizi belirlersiniz.</p>
-            <p style="margin:18px 0;"><a href="${link}" style="display:inline-block;background:#1B3A69;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Hesabımı Oluştur ve Panele Gir</a></p>
+            <p style="margin:18px 0;"><a href="${link}" style="display:inline-block;background:#1A335E;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Hesabımı Oluştur ve Panele Gir</a></p>
             <p style="font-size:12px;color:#6E6E73;line-height:1.6;">Bu bağlantı size özeldir ve 7 gün geçerlidir. Beklemiyorsanız bu e-postayı yanıtlayarak bize bildirin.</p>`),
         });
         mailGitti = r.ok;
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
           html: mailShell('İşletmeniz hesabınıza tanımlandı', `
             <p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${esc(isletme)}</strong> profilinin yönetimi Hekimhane hesabınıza tanımlandı.</p>
             <p style="font-size:14px;color:#1c1c1e;line-height:1.6;">Panelinizde görünüyor; randevu, takvim, hasta ve profil işlemlerini oradan yapabilirsiniz.</p>
-            <p style="margin:18px 0;"><a href="${SITE}/giris?redirect=/panel" style="display:inline-block;background:#1B3A69;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Panele Git</a></p>
+            <p style="margin:18px 0;"><a href="${SITE}/giris?redirect=/panel" style="display:inline-block;background:#1A335E;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Panele Git</a></p>
             <p style="font-size:12px;color:#6E6E73;line-height:1.6;">Şifrenizi hatırlamıyorsanız giriş sayfasındaki "Şifremi unuttum" bağlantısını kullanın.</p>`),
         });
         mailGitti = r.ok;

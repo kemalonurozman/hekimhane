@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ARACLAR, kurulumKodu, ISTEMCI_BILGI, YER_TUTUCU, type Istemci } from '@/lib/mcp/araclar';
 
-const NAVY = '#1B3A69', GOLD = '#D4A843', MUTED = '#6E6E73', BORDER = '#E5E5EA', TEXT = '#1D1D1F';
+const NAVY = '#1A335E', GOLD = '#B8892F', MUTED = '#6E6E73', BORDER = '#E5E5EA', TEXT = '#1D1D1F';
 
 interface Anahtar { id: string; ad: string; onek: string; olusturma: string; son_kullanim: string | null; isletme_id: string | null; isletme_ad: string | null }
 function Kopyala({ metin, etiket = 'Kopyala' }: { metin: string; etiket?: string }) {
@@ -85,7 +85,7 @@ export default function McpTab({ aktifIsletme, isletmeSayisi }: { aktifIsletme: 
             <div style={{ fontSize: 13.5, fontWeight: 700, color: TEXT }}>
               {a.ad}
               {a.isletme_id && !proIds.includes(a.isletme_id) && (
-                <span title="Bu işletme Pro değil; anahtar çalışmaz" style={{ marginLeft: 8, padding: '1px 8px', borderRadius: 999, fontSize: 10.5, fontWeight: 800, letterSpacing: '.4px', textTransform: 'uppercase', background: '#F1F5F9', color: '#6B7A99', border: '1px solid #D9E2EC', verticalAlign: 'middle' }}>Kapalı</span>
+                <span title="Bu işletme Pro değil; anahtar çalışmaz" style={{ marginLeft: 8, padding: '1px 8px', borderRadius: 999, fontSize: 10.5, fontWeight: 800, letterSpacing: '.4px', textTransform: 'uppercase', background: '#F1F5F9', color: '#4A5568', border: '1px solid #D9E2EC', verticalAlign: 'middle' }}>Kapalı</span>
               )}
             </div>
             <div style={{ fontSize: 11.5, color: MUTED }}><code>{a.onek}</code> · oluşturma {tarih(a.olusturma)} · son kullanım {tarih(a.son_kullanim)}</div>
@@ -144,7 +144,7 @@ export default function McpTab({ aktifIsletme, isletmeSayisi }: { aktifIsletme: 
       ) : !hedefPro ? (
         <>
           <div style={{ border: `1.5px dashed ${GOLD}`, borderRadius: 14, background: 'linear-gradient(135deg,#FDFAF3,#FBF6E9)', padding: '26px 24px', textAlign: 'center', marginBottom: 16 }}>
-            <div style={{ width: 42, height: 42, borderRadius: '50%', background: `linear-gradient(145deg,${GOLD},#BE8F2C)`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', boxShadow: '0 3px 10px rgba(190,143,44,.35)' }}>
+            <div style={{ width: 42, height: 42, borderRadius: '50%', background: `linear-gradient(145deg,${GOLD},#B8892F)`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', boxShadow: '0 3px 10px rgba(190,143,44,.35)' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
             <div style={{ fontSize: 15, fontWeight: 800, color: TEXT, marginBottom: 6 }}>MCP Bağlantısı kilitli</div>
@@ -153,7 +153,7 @@ export default function McpTab({ aktifIsletme, isletmeSayisi }: { aktifIsletme: 
                 ? <><strong style={{ color: TEXT }}>{aktifIsletme.ad}</strong> Hekimhane-Pro değil. Yapay zeka entegrasyonu yalnız Pro işletmelerde açılır. Pro işletmeniz için sol menüdeki <strong style={{ color: TEXT }}>Aktif İşletme</strong> seçimini değiştirin ya da bu işletmeyi Pro&apos;ya yükseltin.</>
                 : <>Yapay zeka entegrasyonu Hekimhane-Pro&apos;ya dahildir. Pro&apos;ya geçtiğinizde anahtarınızı oluşturup ChatGPT, Claude gibi asistanlara bağlayabilirsiniz.</>}
             </p>
-            <a href="/pro" style={{ display: 'inline-block', padding: '9px 20px', borderRadius: 10, background: `linear-gradient(135deg,${GOLD},#BE8F2C)`, color: 'white', fontSize: 13, fontWeight: 800, textDecoration: 'none' }}>Pro&apos;yu incele</a>
+            <a href="/pro" style={{ display: 'inline-block', padding: '9px 20px', borderRadius: 10, background: `linear-gradient(135deg,${GOLD},#B8892F)`, color: 'white', fontSize: 13, fontWeight: 800, textDecoration: 'none' }}>Pro&apos;yu incele</a>
             {pro && isletmeSayisi > 1 && (
               <label style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 12, fontSize: 12.5, color: MUTED, cursor: 'pointer' }}>
                 <input type="checkbox" checked={tumIsletmeler} onChange={e => setTumIsletmeler(e.target.checked)} />
@@ -200,7 +200,7 @@ export default function McpTab({ aktifIsletme, isletmeSayisi }: { aktifIsletme: 
                   {kapsamli ? aktifIsletme!.ad : isletmeSayisi > 1 ? `Tüm Pro işletmelerim (${proIds.length})` : (aktifIsletme?.ad || 'İşletmem')}
                 </span>
                 {kapsamli && (
-                  <span style={{ padding: '1px 8px', borderRadius: 999, fontSize: 10.5, fontWeight: 800, letterSpacing: '.4px', textTransform: 'uppercase', background: hedefPro ? '#FDF6E3' : '#F1F5F9', color: hedefPro ? '#8A6100' : '#6B7A99', border: `1px solid ${hedefPro ? '#EBD9A8' : '#D9E2EC'}` }}>{hedefPro ? 'Pro' : 'Ücretsiz'}</span>
+                  <span style={{ padding: '1px 8px', borderRadius: 999, fontSize: 10.5, fontWeight: 800, letterSpacing: '.4px', textTransform: 'uppercase', background: hedefPro ? '#FDF6E3' : '#F1F5F9', color: hedefPro ? '#8A6100' : '#4A5568', border: `1px solid ${hedefPro ? '#EBD9A8' : '#D9E2EC'}` }}>{hedefPro ? 'Pro' : 'Ücretsiz'}</span>
                 )}
                 {isletmeSayisi > 1 && (
                   <label style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, color: MUTED, cursor: 'pointer' }}>

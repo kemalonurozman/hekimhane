@@ -54,9 +54,9 @@ async function getCfg(type: EntityType, id: string) {
 /** Dış sitelere gömülen modül — Pro üyelik yoksa kilit ekranı. */
 function proKilitHtml(ad: string, accent: string): Response {
   const html = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Randevu</title></head>
-<body style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#FBF8F2;">
+<body style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F6F8FB;">
 <div style="text-align:center;padding:32px 24px;max-width:340px;">
-  <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(145deg,#D4A843,#BE8F2C);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+  <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(145deg,#B8892F,#B8892F);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
   </div>
   <div style="font-size:15px;font-weight:700;color:#1D1D1F;margin-bottom:6px;">${esc(ad)}</div>
@@ -68,7 +68,7 @@ function proKilitHtml(ad: string, accent: string): Response {
 
 function hata(mesaj: string): Response {
   const html = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Randevu</title></head>
-<body style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#FBF8F2;color:#6E6E73;">
+<body style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F6F8FB;color:#6E6E73;">
 <div style="text-align:center;padding:24px;font-size:14px;">${esc(mesaj)}</div></body></html>`;
   return new Response(html, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8' } });
 }
@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
   const type = String(sp.get('type') || '') as EntityType;
   const id = String(sp.get('id') || '').trim();
   // İsteğe bağlı görünüm ayarları
-  const accent = /^#?[0-9a-fA-F]{6}$/.test(sp.get('accent') || '') ? ('#' + (sp.get('accent') as string).replace('#', '')) : '#1B3A69';
+  const accent = /^#?[0-9a-fA-F]{6}$/.test(sp.get('accent') || '') ? ('#' + (sp.get('accent') as string).replace('#', '')) : '#1A335E';
 
   if (!VALID.includes(type) || !id) return hata('Geçersiz randevu bağlantısı. type ve id gereklidir.');
 
@@ -134,7 +134,7 @@ export async function GET(req: NextRequest) {
   .hk-sub{font-size:12px;color:var(--muted);margin:2px 0 16px;}
   label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 5px;}
   input,select,textarea{width:100%;padding:11px 13px;border:1.5px solid var(--bd);border-radius:11px;font-size:14px;font-family:inherit;color:var(--text);outline:none;background:#fff;}
-  input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(27,58,105,.08);}
+  input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(26,51,94,.08);}
   .hk-row{display:flex;gap:8px;}
   .hk-row>div{flex:1;}
   .hk-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;}

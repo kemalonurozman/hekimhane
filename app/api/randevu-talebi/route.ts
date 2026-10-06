@@ -46,7 +46,7 @@ async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, ka
     const isletmeEmail = isletmeEmailleri[0] || null;
     const emailKaynak = b.randevuEmailler.length ? 'randevu bildirim adresi' : b.profilEmail ? 'profil e-postası' : sahipEmail ? 'sahip hesabı' : null;
     const isletmeEmailSatiri = isletmeEmail
-      ? `<p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">İşletme E-postası:</strong> ${isletmeEmailleri.map(a => `<a href="mailto:${a}" style="color:#1B3A69;font-weight:600;">${a}</a>`).join(', ')} <span style="font-size:12px;color:#6E6E73;">(${emailKaynak})</span></p>`
+      ? `<p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">İşletme E-postası:</strong> ${isletmeEmailleri.map(a => `<a href="mailto:${a}" style="color:#1A335E;font-weight:600;">${a}</a>`).join(', ')} <span style="font-size:12px;color:#6E6E73;">(${emailKaynak})</span></p>`
       : `<p style="margin:6px 0;font-size:14px;"><strong style="color:#6E6E73;">İşletme E-postası:</strong> <span style="color:#B45309;font-weight:600;">Eklenmemiş</span> <span style="font-size:12px;color:#6E6E73;">— işletmeye kayıtlı e-posta yok, talebi telefonla iletin</span></p>`;
 
     // Admin'e: işletme bloğu + talep bloğu. Sahibe/hastaya: yalnız talep bloğu.
@@ -64,7 +64,7 @@ async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, ka
       satir('Mesaj', kayit.mesaj);
     const calUrl = googleTakvimUrl(kayit);
     const calBtn = calUrl
-      ? `<div style="margin:16px 0 4px;"><a href="${calUrl}" style="display:inline-block;background:#D4A843;color:#12294B;font-weight:700;font-size:14px;text-decoration:none;border-radius:10px;padding:11px 20px;">Google Takvim'e Ekle</a></div>`
+      ? `<div style="margin:16px 0 4px;"><a href="${calUrl}" style="display:inline-block;background:#B8892F;color:#12294B;font-weight:700;font-size:14px;text-decoration:none;border-radius:10px;padding:11px 20px;">Google Takvim'e Ekle</a></div>`
       : '';
     const bildirimHtml = mailShell('Yeni Randevu Talebi', isletmeBlok + detay +
       `<p style="margin-top:14px;font-size:12px;color:#6E6E73;">Admin panelindeki Talepler sekmesinden yönetebilirsiniz.</p>`);

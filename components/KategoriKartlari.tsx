@@ -104,7 +104,7 @@ export default function KategoriKartlari({ stats }: { stats: { klinik: number; d
       label: 'Diş Klinikleri',
       desc: 'Diş klinikleri ve özel muayenehaneler',
       count: stats.klinik,
-      accent: '#1B3A69',
+      accent: '#1A335E',
       bg: '#EEF2FF',
     },
     {

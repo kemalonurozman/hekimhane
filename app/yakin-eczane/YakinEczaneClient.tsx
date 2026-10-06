@@ -215,7 +215,7 @@ export default function YakinEczaneClient() {
                       <a href={`tel:${e.tel.replace(/\D/g, '')}`} style={{
                         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                         padding: '9px 0', borderRadius: 10,
-                        background: '#1B3A69', color: 'white',
+                        background: '#1A335E', color: 'white',
                         fontSize: 13, fontWeight: 600, textDecoration: 'none', letterSpacing: '-.1px',
                       }}>
                         <IconPhone /> {formatTel(e.tel)}

@@ -50,7 +50,7 @@ const puanSatiri: Satir = {
   best: items => enYuksek(items, 'rat'),
   render: it => it.rat && it.rat > 0
     ? <span><strong style={{ fontSize: 16, color: 'var(--navy)' }}>{it.rat.toFixed(1)}</strong>
-        <span style={{ color: '#D4A843' }}> ★</span>
+        <span style={{ color: '#B8892F' }}> ★</span>
         {it.rev ? <span style={{ color: 'var(--muted)', fontSize: 12 }}> ({it.rev})</span> : null}</span>
     : bosDeger,
 };

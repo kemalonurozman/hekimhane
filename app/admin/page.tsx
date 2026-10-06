@@ -627,7 +627,7 @@ function EditModal({ entity, entityType, onClose, onSaved }: {
         {/* Kaydet */}
         <div style={{ padding: '16px 24px', borderTop: `1px solid ${C.border}`, position: 'sticky', bottom: 0, background: C.card }}>
           <button onClick={handleSave} disabled={saving}
-            style={{ width: '100%', padding: '12px', borderRadius: 10, border: 'none', background: saving ? 'rgba(212,168,67,.5)' : C.gold, color: 'white', fontSize: 14, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            style={{ width: '100%', padding: '12px', borderRadius: 10, border: 'none', background: saving ? 'rgba(184,137,47,.5)' : C.gold, color: 'white', fontSize: 14, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
             {saving ? (
               <><svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ animation: 'spin .9s linear infinite' }}><circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,.3)" strokeWidth="2"/><path d="M8 2a6 6 0 0 1 6 6" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg> Kaydediliyor...</>
             ) : <><Ic d={IC.check} size={15} /> Kaydet</>}
@@ -925,7 +925,7 @@ function EntityTab({ entityType }: { entityType: 'klinikler' | 'hastaneler' | 'd
                 {/* İşlemler: Düzenle + Sahip + Gör + Sil */}
                 <div style={{ display: 'flex', gap: 5, flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
                   <button onClick={() => setEditEntity(e)}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 9px', borderRadius: 8, background: 'rgba(212,168,67,.1)', border: `1px solid rgba(212,168,67,.3)`, color: C.gold, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 9px', borderRadius: 8, background: 'rgba(184,137,47,.1)', border: `1px solid rgba(184,137,47,.3)`, color: C.gold, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                     <Ic d={IC.edit} size={11} /> Düzenle
                   </button>
                   {/* Sahiplik: e-postayla ata / kaldır */}
@@ -1168,7 +1168,7 @@ function CekimTalepleriTab() {
           </p>
         </div>
         <a href="/360-fotograf" target="_blank" rel="noopener"
-          style={{ padding: '9px 18px', borderRadius: 10, background: 'rgba(212,168,67,.15)', border: '1px solid rgba(212,168,67,.3)', color: C.gold, fontSize: 12, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          style={{ padding: '9px 18px', borderRadius: 10, background: 'rgba(184,137,47,.15)', border: '1px solid rgba(184,137,47,.3)', color: C.gold, fontSize: 12, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           Çekim Sayfasını Görüntüle
         </a>
@@ -1229,7 +1229,7 @@ function CekimTalepleriTab() {
                       )}
                       <span style={{ fontSize: 16, fontWeight: 800, color: C.text }}>{t.isletme_adi}</span>
                       {t.isletme_turu && (
-                        <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, background: 'rgba(212,168,67,.12)', border: '1px solid rgba(212,168,67,.25)', borderRadius: 6, padding: '2px 8px', textTransform: 'uppercase' }}>{t._source === 'randevu' ? t.isletme_turu.replace('randevu-', '') : t.isletme_turu}</span>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.25)', borderRadius: 6, padding: '2px 8px', textTransform: 'uppercase' }}>{t._source === 'randevu' ? t.isletme_turu.replace('randevu-', '') : t.isletme_turu}</span>
                       )}
                       <span style={{ fontSize: 10, fontWeight: 700, color: durum.color, background: `${durum.color}18`, border: `1px solid ${durum.color}40`, borderRadius: 6, padding: '2px 8px' }}>
                         {durum.label}
@@ -1512,7 +1512,7 @@ function EmailListesiTab() {
 
             {/* Segment */}
             <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 8,
-              background: a.tip === 'isletme' ? 'rgba(212,168,67,.12)' : 'rgba(16,185,129,.12)',
+              background: a.tip === 'isletme' ? 'rgba(184,137,47,.12)' : 'rgba(16,185,129,.12)',
               color:      a.tip === 'isletme' ? C.gold : C.green, whiteSpace: 'nowrap' }}>
               {a.tip === 'isletme' ? 'İşletme' : 'Hasta'}
             </span>
@@ -1922,7 +1922,7 @@ function UsersTab() {
                 {u.entity_type ? <TypeBadge type={u.entity_type} /> : <span style={{ fontSize: 11, color: C.muted }}>—</span>}
               </div>
               <div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: u.role === 'admin' ? C.gold : C.muted, background: u.role === 'admin' ? 'rgba(212,168,67,.12)' : C.soft, padding: '2px 9px', borderRadius: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: u.role === 'admin' ? C.gold : C.muted, background: u.role === 'admin' ? 'rgba(184,137,47,.12)' : C.soft, padding: '2px 9px', borderRadius: 8 }}>
                   {u.role || 'owner'}
                 </span>
               </div>
@@ -2052,7 +2052,7 @@ function PremiumTab() {
           const active = filter === t.k;
           return (
             <button key={t.k} onClick={() => setFilter(t.k)}
-              style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 10, border: `1px solid ${active ? C.gold : C.border}`, background: active ? 'rgba(212,168,67,.12)' : C.card, color: active ? C.gold : C.muted, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 10, border: `1px solid ${active ? C.gold : C.border}`, background: active ? 'rgba(184,137,47,.12)' : C.card, color: active ? C.gold : C.muted, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
               {t.label}
               <span style={{ background: active ? C.gold : C.border, color: active ? '#1B1B1F' : C.muted, borderRadius: 8, padding: '1px 7px', fontSize: 11, fontWeight: 800 }}>{t.n ?? '·'}</span>
             </button>
@@ -2650,7 +2650,7 @@ export default function AdminPage() {
                 return (
                   <button key={item.key} onClick={() => { setTab(item.key as TabKey); setMobileMenuOpen(false); }}
                     className={active ? '' : 'adm-nav'}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '7px 10px', marginBottom: 1, borderRadius: 8, background: active ? 'rgba(27,58,105,.08)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', color: active ? C.navy : C.text, fontSize: 13.5, fontWeight: active ? 600 : 500, fontFamily: 'inherit', transition: 'background .12s' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '7px 10px', marginBottom: 1, borderRadius: 8, background: active ? 'rgba(26,51,94,.08)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', color: active ? C.navy : C.text, fontSize: 13.5, fontWeight: active ? 600 : 500, fontFamily: 'inherit', transition: 'background .12s' }}>
                     <span style={{ flexShrink: 0, color: active ? C.navy : C.muted, display: 'flex' }}><Ic d={item.icon} size={16} /></span>
                     <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
                     {badge > 0 && (
@@ -2699,7 +2699,7 @@ export default function AdminPage() {
       </main>
 
       {/* ── TOAST ── */}
-      <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: `translateX(-50%) translateY(${toast ? '0' : '12px'})`, background: '#1A2744', color: 'white', padding: '10px 24px', borderRadius: 50, fontSize: 13, fontWeight: 600, opacity: toast ? 1 : 0, transition: 'all .3s', zIndex: 9999, pointerEvents: 'none', whiteSpace: 'nowrap' }}>
+      <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: `translateX(-50%) translateY(${toast ? '0' : '12px'})`, background: '#111C2E', color: 'white', padding: '10px 24px', borderRadius: 50, fontSize: 13, fontWeight: 600, opacity: toast ? 1 : 0, transition: 'all .3s', zIndex: 9999, pointerEvents: 'none', whiteSpace: 'nowrap' }}>
         {toast}
       </div>
 

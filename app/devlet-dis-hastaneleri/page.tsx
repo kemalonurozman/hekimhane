@@ -60,7 +60,7 @@ export default async function DevletDisPage({ searchParams }: { searchParams: Re
     <div style={{ background: 'var(--cream)', minHeight: '100vh' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <div style={{ background: 'linear-gradient(150deg,#0F2A55 0%,#1B3A69 55%,#163D6E 100%)', color: 'white', padding: '86px 16px 30px' }}>
+      <div style={{ background: 'linear-gradient(150deg,#152A4E 0%,#1A335E 55%,#163D6E 100%)', color: 'white', padding: '86px 16px 30px' }}>
         <div className="container" style={{ maxWidth: 1100, margin: '0 auto' }}>
           <nav style={{ fontSize: 13, color: 'rgba(255,255,255,.7)', marginBottom: 16, display: 'flex', gap: 8 }}>
             <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>Ana Sayfa</Link><span>›</span>
@@ -75,7 +75,7 @@ export default async function DevletDisPage({ searchParams }: { searchParams: Re
           <form style={{ marginTop: 16, display: 'flex', gap: 8, maxWidth: 460 }}>
             <input name="q" defaultValue={q} placeholder="Hastane, il veya hekim adı ara…"
               style={{ flex: 1, padding: '11px 14px', borderRadius: 11, border: '1px solid rgba(255,255,255,.25)', background: 'rgba(255,255,255,.12)', color: 'white', fontSize: 14, outline: 'none', minWidth: 0 }} />
-            <button style={{ padding: '11px 18px', borderRadius: 11, background: 'var(--gold)', color: 'white', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>Ara</button>
+            <button style={{ padding: '11px 18px', borderRadius: 11, background: 'var(--gold-fill)', color: 'var(--on-gold)', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>Ara</button>
           </form>
         </div>
       </div>

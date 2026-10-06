@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
         html: mailShell('İşletme yöneticiliği daveti', `
           <p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${esc(sahip)}</strong> sizi Hekimhane'de <strong>${isletme}</strong> işletmesinin yöneticisi olarak ekledi.</p>
           <p style="font-size:14px;color:#1c1c1e;line-height:1.6;">Yönetici olarak randevu taleplerini, takvimi, hastaları, yorumları ve işletme profilini yönetebilirsiniz. Başlamak için hesabınızı oluşturun: e-postanız hazır gelir, yalnızca şifrenizi belirlersiniz.</p>
-          <p style="margin:18px 0;"><a href="${link}" style="display:inline-block;background:#1B3A69;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Hesabımı Oluştur ve Panele Gir</a></p>
+          <p style="margin:18px 0;"><a href="${link}" style="display:inline-block;background:#1A335E;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Hesabımı Oluştur ve Panele Gir</a></p>
           <p style="font-size:12px;color:#6E6E73;line-height:1.6;">Bu bağlantı size özeldir ve 7 gün geçerlidir. Bu daveti beklemiyorsanız e-postayı yok sayabilirsiniz; sorularınızı bu e-postayı yanıtlayarak davet edene iletebilirsiniz.</p>`),
       });
       mailGitti = r.ok;
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
       html: mailShell('Yönetici olarak eklendiniz', `
         <p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${esc(sahip)}</strong> sizi Hekimhane'de <strong>${isletme}</strong> işletmesinin yöneticisi olarak ekledi.</p>
         <p style="font-size:14px;color:#1c1c1e;line-height:1.6;">İşletme panelinizde artık görünüyor. Birden çok işletmeniz varsa sol menüdeki <strong>Aktif İşletme</strong> seçiminden geçebilirsiniz.</p>
-        <p style="margin:18px 0;"><a href="${SITE}/giris?redirect=/panel" style="display:inline-block;background:#1B3A69;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Panele Git</a></p>
+        <p style="margin:18px 0;"><a href="${SITE}/giris?redirect=/panel" style="display:inline-block;background:#1A335E;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Panele Git</a></p>
         <p style="font-size:12px;color:#6E6E73;line-height:1.6;">Şifrenizi hatırlamıyorsanız giriş sayfasındaki "Şifremi unuttum" bağlantısını kullanın.</p>`),
     });
     mailGitti = r.ok;

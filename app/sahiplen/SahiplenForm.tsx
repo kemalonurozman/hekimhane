@@ -197,9 +197,9 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
   // Yan yana input satırı — telefonda bile paralel; yalnızca çok dar ekranda alt alta
   const row2: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(136px, 1fr))', gap: 12 };
   const focus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    e.currentTarget.style.borderColor = '#1B3A69';
+    e.currentTarget.style.borderColor = '#1A335E';
     e.currentTarget.style.background  = '#fff';
-    e.currentTarget.style.boxShadow   = '0 0 0 3px rgba(27,58,105,.12)';
+    e.currentTarget.style.boxShadow   = '0 0 0 3px rgba(26,51,94,.12)';
   };
   const blur  = (hasErr: boolean) => (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     e.currentTarget.style.borderColor = hasErr ? '#F3B4B4' : 'transparent';
@@ -213,7 +213,7 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
       <div style={{ padding: '48px', textAlign: 'center', color: 'var(--muted)' }}>
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ animation: 'spin .9s linear infinite', display: 'inline-block' }}>
           <circle cx="10" cy="10" r="8" stroke="#E5E7EB" strokeWidth="2.5"/>
-          <path d="M10 2a8 8 0 0 1 8 8" stroke="#1B3A69" strokeWidth="2.5" strokeLinecap="round"/>
+          <path d="M10 2a8 8 0 0 1 8 8" stroke="#1A335E" strokeWidth="2.5" strokeLinecap="round"/>
         </svg>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -246,14 +246,14 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
 
         {/* İşletme kartı */}
         <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 14, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: '#1B3A69', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: '#1A335E', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round">
               <circle cx="10" cy="7" r="3.5"/><path d="M3 19v-.5a7 7 0 0 1 14 0v.5"/>
             </svg>
           </div>
           <div>
-            <div style={{ fontSize: 11, color: '#1B3A69', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 2 }}>Sahiplenilecek İşletme</div>
-            <div style={{ fontWeight: 800, color: '#1B3A69', fontSize: 16 }}>{entityName}</div>
+            <div style={{ fontSize: 11, color: '#1A335E', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 2 }}>Sahiplenilecek İşletme</div>
+            <div style={{ fontWeight: 800, color: '#1A335E', fontSize: 16 }}>{entityName}</div>
             <div style={{ fontSize: 12, color: '#3B82F6', marginTop: 1 }}>{ENTITY_LABEL[entityType] || entityType}</div>
           </div>
         </div>
@@ -350,7 +350,7 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
   /* ── İşletme başlığı (her iki formda ortak) — sade nötr ── */
   const entityCard = (
     <div style={{ background: '#F7F5F0', border: '1px solid #EAE6DE', borderRadius: 16, padding: '15px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
-      <div style={{ width: 46, height: 46, borderRadius: 13, background: 'linear-gradient(150deg,#1B3A69,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <div style={{ width: 46, height: 46, borderRadius: 13, background: 'linear-gradient(150deg,#1A335E,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 21h18" /><path d="M5 21V7l7-4 7 4v14" /><path d="M9 21v-6h6v6" />
         </svg>
@@ -386,7 +386,7 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
       <div style={{ background: '#fff', border: '1px solid #EAE6DE', borderRadius: 16, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 13 }}>
         {avatar
           ? <img src={avatar} alt="" style={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0 }} /> // eslint-disable-line @next/next/no-img-element
-          : <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'linear-gradient(150deg,#1B3A69,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'white', fontSize: 17, fontWeight: 700 }}>{name.charAt(0).toUpperCase()}</div>
+          : <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'linear-gradient(150deg,#1A335E,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'white', fontSize: 17, fontWeight: 700 }}>{name.charAt(0).toUpperCase()}</div>
         }
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontWeight: 700, fontSize: 14.5, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
@@ -413,9 +413,9 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
             {/* Kendi adıma */}
             <button type="button" onClick={() => setMod('self')}
               style={{ padding: '18px 16px', borderRadius: 16, border: '1.5px solid #EAE6DE', background: '#fff', cursor: 'pointer', textAlign: 'left', transition: 'border-color .15s, box-shadow .15s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#1B3A69'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 18px rgba(27,58,105,.10)'; }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#1A335E'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 18px rgba(26,51,94,.10)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#EAE6DE'; (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'; }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(150deg,#1B3A69,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(150deg,#1A335E,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round"><circle cx="10" cy="7" r="3.5"/><path d="M3 18v-.5a7 7 0 0 1 14 0v.5"/></svg>
               </div>
               <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--text)', marginBottom: 4 }}>Benim Adıma</div>
@@ -425,7 +425,7 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
             {/* Başkası adına */}
             <button type="button" onClick={() => setMod('other')}
               style={{ padding: '18px 16px', borderRadius: 16, border: '1.5px solid #EAE6DE', background: '#fff', cursor: 'pointer', textAlign: 'left', transition: 'border-color .15s, box-shadow .15s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#C7A24A'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 18px rgba(212,168,67,.14)'; }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#C7A24A'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 18px rgba(184,137,47,.14)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#EAE6DE'; (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'; }}>
               <div style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--gold-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--gold)" strokeWidth="1.7" strokeLinecap="round"><circle cx="7" cy="7" r="3"/><circle cx="14" cy="7" r="3"/><path d="M1 17v-.5a6 6 0 0 1 11.3-2.8"/><path d="M13 13l2 2 4-4"/></svg>
@@ -481,7 +481,7 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
           {errorBox}
 
           <button type="submit" disabled={saving}
-            style={{ padding: '16px', borderRadius: 13, border: 'none', background: saving ? '#6B7280' : '#1B3A69', color: 'white', fontSize: 15, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9 }}>
+            style={{ padding: '16px', borderRadius: 13, border: 'none', background: saving ? '#6B7280' : '#1A335E', color: 'white', fontSize: 15, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9 }}>
             {saving ? <><IcSpin />Gönderiliyor...</> : <><IcSend />{isClaimed ? 'İtiraz Talebini Gönder' : 'Sahiplenme Talebini Gönder'}</>}
           </button>
           <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.7 }}>
@@ -553,7 +553,7 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
         {errorBox}
 
         <button type="submit" disabled={saving}
-          style={{ padding: '16px', borderRadius: 13, border: 'none', background: saving ? '#6B7280' : '#1B3A69', color: 'white', fontSize: 15, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9 }}>
+          style={{ padding: '16px', borderRadius: 13, border: 'none', background: saving ? '#6B7280' : '#1A335E', color: 'white', fontSize: 15, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9 }}>
           {saving ? <><IcSpin />Gönderiliyor...</> : <><IcSend />Sahiplenme Talebini Gönder</>}
         </button>
         <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.7 }}>
@@ -618,7 +618,7 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
       {errorBox}
 
       <button type="submit" disabled={saving}
-        style={{ padding: '16px', borderRadius: 13, border: 'none', background: saving ? '#6B7280' : '#1B3A69', color: 'white', fontSize: 15, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, transition: 'background .15s' }}>
+        style={{ padding: '16px', borderRadius: 13, border: 'none', background: saving ? '#6B7280' : '#1A335E', color: 'white', fontSize: 15, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, transition: 'background .15s' }}>
         {saving ? <><IcSpin />Gönderiliyor...</> : <><IcSend />Sahiplenme Talebini Gönder</>}
       </button>
 

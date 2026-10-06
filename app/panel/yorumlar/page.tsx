@@ -49,7 +49,7 @@ export default async function YorumlarPage() {
   const answered   = reviews.filter((r: any) =>  r.reply_text);
 
   const stars = (n: number) => Array.from({ length: 5 }, (_, i) => (
-    <svg key={i} width="13" height="13" viewBox="0 0 24 24" fill={i < n ? '#D4A843' : 'none'} stroke={i < n ? '#D4A843' : '#D1D5DB'} strokeWidth="2">
+    <svg key={i} width="13" height="13" viewBox="0 0 24 24" fill={i < n ? '#B8892F' : 'none'} stroke={i < n ? '#B8892F' : '#D1D5DB'} strokeWidth="2">
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
     </svg>
   ));
@@ -67,7 +67,7 @@ export default async function YorumlarPage() {
       </div>
 
       {/* Başlık */}
-      <div style={{ background: 'linear-gradient(135deg, #1B3A69 0%, #163D6E 100%)', padding: '28px 0' }}>
+      <div style={{ background: 'linear-gradient(135deg, #1A335E 0%, #163D6E 100%)', padding: '28px 0' }}>
         <div className="container">
           <h1 style={{ fontFamily: 'var(--font-playfair, serif)', fontSize: '24px', fontWeight: 800, color: 'white', marginBottom: '4px' }}>
             Yorum Inbox
@@ -94,7 +94,7 @@ export default async function YorumlarPage() {
             {unanswered.length > 0 && (
               <div style={{ marginBottom: '32px' }}>
                 <h2 style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ background: '#D4A843', color: 'white', borderRadius: '12px', padding: '2px 10px', fontSize: '12px' }}>{unanswered.length}</span>
+                  <span style={{ background: 'var(--gold-fill)', color: 'var(--on-gold)', borderRadius: '12px', padding: '2px 10px', fontSize: '12px' }}>{unanswered.length}</span>
                   Yanıt Bekliyor
                 </h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

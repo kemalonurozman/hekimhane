@@ -103,19 +103,19 @@ export function rozetHtml(opts: { kartUrl: string; ad: string; tema: RozetTema }
   const url = `${opts.kartUrl}${opts.kartUrl.includes('?') ? '&' : '?'}utm_source=rozet&utm_medium=footer`;
   const ad = htmlKacis(opts.ad || 'İşletmemiz');
 
-  const zemin   = koyu ? '#1B3A69' : '#FFFFFF';
+  const zemin   = koyu ? '#1A335E' : '#FFFFFF';
   const kenar   = koyu ? 'rgba(255,255,255,.18)' : '#E5E5EA';
-  const baslik  = koyu ? '#FFFFFF' : '#1B3A69';
+  const baslik  = koyu ? '#FFFFFF' : '#1A335E';
   const ikincil = koyu ? 'rgba(255,255,255,.72)' : '#6E6E73';
-  const logoZem = koyu ? '#FFFFFF' : '#1B3A69';
-  const logoDis = koyu ? '#1B3A69' : '#FFFFFF';
+  const logoZem = koyu ? '#FFFFFF' : '#1A335E';
+  const logoDis = koyu ? '#1A335E' : '#FFFFFF';
 
   return [
     `<!-- Hekimhane Onaylı Üye Rozeti -->`,
     `<a href="${htmlKacis(url)}" target="_blank" rel="noopener" title="${ad} — Hekimhane dijital kartviziti" aria-label="${ad} Hekimhane onaylı üyesidir — dijital kartviziti görüntüle" style="display:inline-flex;align-items:center;gap:11px;padding:9px 16px 9px 9px;border-radius:13px;border:1px solid ${kenar};background:${zemin};text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.25;box-shadow:0 1px 3px rgba(0,0,0,.08);max-width:100%;box-sizing:border-box">`,
     `<svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true" style="flex-shrink:0;display:block"><rect width="40" height="40" rx="11" fill="${logoZem}"/><path d="${ROZET_DIS}" fill="${logoDis}"/></svg>`,
     `<span style="display:flex;flex-direction:column;text-align:left;min-width:0">`,
-    `<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#D4A843"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#D4A843" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Onaylı Üye</span>`,
+    `<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#B8892F"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#B8892F" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Onaylı Üye</span>`,
     `<span style="font-size:13px;font-weight:700;color:${baslik};margin-top:1px">Bu işletme hekimhane.com.tr üyesidir</span>`,
     `<span style="font-size:11px;color:${ikincil};margin-top:1px">Dijital kartvizitimizi görüntüleyin &#8594;</span>`,
     `</span>`,

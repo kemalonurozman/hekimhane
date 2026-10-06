@@ -29,7 +29,7 @@ function TypingDots() {
       {[0, 1, 2].map(i => (
         <span key={i} style={{
           width: 7, height: 7, borderRadius: '50%',
-          background: '#1B3A69',
+          background: '#1A335E',
           animation: `aiDot 1.2s ease-in-out ${i * 0.2}s infinite`,
         }} />
       ))}
@@ -59,8 +59,8 @@ function renderInline(metin: string): React.ReactNode[] {
           target="_blank"
           rel="noopener noreferrer"
           style={{
-            color: '#1B3A69', fontWeight: 600, textDecoration: 'underline',
-            textDecorationColor: 'rgba(27,58,105,.35)',
+            color: '#1A335E', fontWeight: 600, textDecoration: 'underline',
+            textDecorationColor: 'rgba(26,51,94,.35)',
             textUnderlineOffset: 2,
           }}
         >
@@ -145,7 +145,7 @@ function MesajIcerik({ icerik }: { icerik: string }) {
           return (
             <div key={i} style={{ display: 'flex', gap: 8, margin: '4px 0', alignItems: 'flex-start' }}>
               <span style={{
-                color: isCheckmark ? '#2D6A4F' : '#1B3A69',
+                color: isCheckmark ? '#2D6A4F' : '#1A335E',
                 flexShrink: 0, marginTop: 3, fontSize: 11, lineHeight: 1,
               }}>
                 {isCheckmark ? '✓' : '●'}
@@ -160,7 +160,7 @@ function MesajIcerik({ icerik }: { icerik: string }) {
           return (
             <div key={i} style={{
               fontWeight: 700, fontSize: 13, letterSpacing: '.2px',
-              color: '#1B3A69', margin: '12px 0 6px',
+              color: '#1A335E', margin: '12px 0 6px',
               paddingBottom: 4, borderBottom: '1px solid #EEF2FF',
             }}>
               {renderInline(t)}
@@ -292,16 +292,16 @@ export default function HekimhaneAI() {
           to   { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes aiPulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(27,58,105,.35); }
-          50%       { box-shadow: 0 0 0 10px rgba(27,58,105,0); }
+          0%, 100% { box-shadow: 0 0 0 0 rgba(26,51,94,.35); }
+          50%       { box-shadow: 0 0 0 10px rgba(26,51,94,0); }
         }
         .ai-panel {
           animation: aiSlideIn .22s ease-out;
         }
         .ai-ornek-chip:hover {
           background: #EEF2FF !important;
-          border-color: #1B3A69 !important;
-          color: #1B3A69 !important;
+          border-color: #1A335E !important;
+          color: #1A335E !important;
         }
         .ai-gonder-btn:hover:not(:disabled) {
           background: #163060 !important;
@@ -324,7 +324,7 @@ export default function HekimhaneAI() {
           onClick={() => setAcik(true)}
           style={{
             cursor: 'pointer',
-            background: 'linear-gradient(135deg, #1B3A69 0%, #0F2347 60%, #1B3A69 100%)',
+            background: 'linear-gradient(135deg, #1A335E 0%, #0F2347 60%, #1A335E 100%)',
             borderRadius: 20,
             padding: '28px 32px',
             display: 'flex',
@@ -335,34 +335,34 @@ export default function HekimhaneAI() {
             position: 'relative',
             overflow: 'hidden',
             transition: 'transform .15s, box-shadow .15s',
-            boxShadow: '0 4px 24px rgba(27,58,105,.25)',
+            boxShadow: '0 4px 24px rgba(26,51,94,.25)',
           }}
           onMouseEnter={e => {
             (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
-            (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 40px rgba(27,58,105,.35)';
+            (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 40px rgba(26,51,94,.35)';
           }}
           onMouseLeave={e => {
             (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
-            (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 24px rgba(27,58,105,.25)';
+            (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 24px rgba(26,51,94,.25)';
           }}
         >
           {/* Dekor daire */}
           <div style={{ position: 'absolute', right: -40, top: -40, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,.04)', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', right: 80, bottom: -60, width: 160, height: 160, borderRadius: '50%', background: 'rgba(212,168,67,.07)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', right: 80, bottom: -60, width: 160, height: 160, borderRadius: '50%', background: 'rgba(184,137,47,.07)', pointerEvents: 'none' }} />
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 18, zIndex: 1 }}>
             {/* AI ikonu */}
             <div style={{
               width: 56, height: 56, borderRadius: 16,
-              background: 'linear-gradient(145deg, #D4A843, #B8902E)',
+              background: 'linear-gradient(145deg, #B8892F, #B8902E)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0, boxShadow: '0 4px 16px rgba(212,168,67,.4)',
+              flexShrink: 0, boxShadow: '0 4px 16px rgba(184,137,47,.4)',
             }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2a10 10 0 1 0 10 10" />
                 <path d="M12 6v6l4 2" />
                 <circle cx="18" cy="6" r="3" fill="white" stroke="none" />
-                <path d="M16.5 6h3M18 4.5v3" stroke="#D4A843" strokeWidth="1.5" />
+                <path d="M16.5 6h3M18 4.5v3" stroke="#B8892F" strokeWidth="1.5" />
               </svg>
             </div>
             <div>
@@ -373,7 +373,7 @@ export default function HekimhaneAI() {
                 <span style={{
                   fontSize: 10, fontWeight: 700, letterSpacing: '.8px',
                   padding: '2px 7px', borderRadius: 6,
-                  background: 'rgba(212,168,67,.25)', color: '#D4A843',
+                  background: 'rgba(184,137,47,.25)', color: 'var(--on-deep-heading)',
                   textTransform: 'uppercase',
                 }}>
                   BETA
@@ -409,7 +409,7 @@ export default function HekimhaneAI() {
           <div style={{
             display: 'flex', alignItems: 'center', gap: 8,
             padding: '10px 20px', borderRadius: 12,
-            background: '#D4A843', color: 'white',
+            background: 'var(--gold-fill)', color: 'var(--on-gold)',
             fontSize: 13.5, fontWeight: 700,
             whiteSpace: 'nowrap', zIndex: 1, flexShrink: 0,
           }}>
@@ -436,14 +436,14 @@ export default function HekimhaneAI() {
         >
           {/* Header */}
           <div style={{
-            background: 'linear-gradient(135deg, #1B3A69 0%, #0F2347 100%)',
+            background: 'linear-gradient(135deg, #1A335E 0%, #0F2347 100%)',
             padding: '16px 20px',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{
                 width: 40, height: 40, borderRadius: 12,
-                background: 'linear-gradient(145deg, #D4A843, #B8902E)',
+                background: 'linear-gradient(145deg, #B8892F, #B8902E)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0,
               }}>
@@ -524,7 +524,7 @@ export default function HekimhaneAI() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   margin: '0 auto 16px',
                 }}>
-                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1B3A69" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1A335E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                   </svg>
                 </div>
@@ -566,7 +566,7 @@ export default function HekimhaneAI() {
                 {m.rol === 'asistan' && (
                   <div style={{
                     width: 32, height: 32, borderRadius: 10, flexShrink: 0,
-                    background: 'linear-gradient(145deg, #1B3A69, #0F2347)',
+                    background: 'linear-gradient(145deg, #1A335E, #0F2347)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -580,7 +580,7 @@ export default function HekimhaneAI() {
                   padding: '11px 14px',
                   borderRadius: m.rol === 'kullanici' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
                   background: m.rol === 'kullanici'
-                    ? 'linear-gradient(135deg, #1B3A69, #0F2347)'
+                    ? 'linear-gradient(135deg, #1A335E, #0F2347)'
                     : 'white',
                   color: m.rol === 'kullanici' ? 'white' : '#1D1D1F',
                   boxShadow: '0 1px 4px rgba(0,0,0,.07)',
@@ -599,7 +599,7 @@ export default function HekimhaneAI() {
               <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                 <div style={{
                   width: 32, height: 32, borderRadius: 10, flexShrink: 0,
-                  background: 'linear-gradient(145deg, #1B3A69, #0F2347)',
+                  background: 'linear-gradient(145deg, #1A335E, #0F2347)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -656,7 +656,7 @@ export default function HekimhaneAI() {
                 transition: 'border-color .15s',
                 background: yukleniyor ? '#F5F5F7' : 'white',
               }}
-              onFocus={e => e.target.style.borderColor = '#1B3A69'}
+              onFocus={e => e.target.style.borderColor = '#1A335E'}
               onBlur={e => e.target.style.borderColor = '#E5E5EA'}
             />
             <button
@@ -665,7 +665,7 @@ export default function HekimhaneAI() {
               className="ai-gonder-btn"
               style={{
                 width: 42, height: 42, borderRadius: 12, border: 'none',
-                background: '#1B3A69', color: 'white', cursor: 'pointer',
+                background: '#1A335E', color: 'white', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0, transition: 'background .15s',
               }}
@@ -689,7 +689,7 @@ export default function HekimhaneAI() {
               { href: '/hastaliklar/dis-sagligi', label: 'Ağız & Diş Sağlığı' },
             ].map(link => (
               <Link key={link.href} href={link.href} style={{
-                fontSize: 12, color: '#1B3A69', fontWeight: 600,
+                fontSize: 12, color: '#1A335E', fontWeight: 600,
                 textDecoration: 'none', letterSpacing: '-.1px',
                 display: 'flex', alignItems: 'center', gap: 4,
               }}>

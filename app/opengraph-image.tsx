@@ -30,7 +30,7 @@ export default function OgImage() {
           }}
         >
           <svg width="76" height="76" viewBox="0 0 40 40" fill="none">
-            <rect width="40" height="40" rx="11" fill="#1B3A69" />
+            <rect width="40" height="40" rx="11" fill="#1A335E" />
             <path
               d="M20 8.2c-2.9 0-4.3-1.5-6.9-1.5-2.4 0-4.2 1.9-4.2 4.9 0 2.3.9 4.3 1.5 6.4.5 1.9.7 3.6.9 5.6.2 2 .5 4.1 1.1 5.8.5 1.4 1.2 2.4 2.2 2.4 1.1 0 1.6-1.2 1.9-2.9.3-1.7.5-3.6 1.1-5.1.2-.6.6-1.1 1.3-1.1s1.1.5 1.3 1.1c.6 1.5.8 3.4 1.1 5.1.3 1.7.8 2.9 1.9 2.9 1 0 1.7-1 2.2-2.4.6-1.7.9-3.8 1.1-5.8.2-2 .4-3.7.9-5.6.6-2.1 1.5-4.1 1.5-6.4 0-3-1.8-4.9-4.2-4.9C24.3 6.7 22.9 8.2 20 8.2Z"
               fill="#FFFFFF"
@@ -38,7 +38,7 @@ export default function OgImage() {
           </svg>
           <div style={{ display: 'flex', alignItems: 'baseline', letterSpacing: -2 }}>
             <span style={{ color: 'white', fontSize: 56, fontWeight: 700 }}>hekimhane</span>
-            <span style={{ color: '#D4A843', fontSize: 34, fontWeight: 600, marginLeft: 3 }}>.com.tr</span>
+            <span style={{ color: '#B8892F', fontSize: 34, fontWeight: 600, marginLeft: 3 }}>.com.tr</span>
           </div>
         </div>
 
@@ -62,7 +62,7 @@ export default function OgImage() {
             marginTop: 44,
             padding: '14px 36px',
             borderRadius: 14,
-            background: '#D4A843',
+            background: '#B8892F',
             color: 'white',
             fontSize: 26,
             fontWeight: 700,

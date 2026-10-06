@@ -173,7 +173,7 @@ export async function PATCH(request: NextRequest) {
         html: mailShell(yayinda ? 'Makaleniz Yayınlandı' : 'Makaleniz Yayınlanmadı',
           yayinda
             ? `<p style="font-size:14px;color:#1c1c1e;line-height:1.7;"><strong>${post.title}</strong> başlıklı makaleniz incelendi ve Hekimhane blogunda yayına alındı.</p>` +
-              `<p style="margin:14px 0 0;"><a href="${SITE}/blog/${post.slug}" style="color:#1B3A69;font-weight:700;">Makaleyi görüntüle</a></p>`
+              `<p style="margin:14px 0 0;"><a href="${SITE}/blog/${post.slug}" style="color:#1A335E;font-weight:700;">Makaleyi görüntüle</a></p>`
             : `<p style="font-size:14px;color:#1c1c1e;line-height:1.7;"><strong>${post.title}</strong> başlıklı makaleniz şu haliyle yayınlanmadı.</p>` +
               (not ? satir('Gerekçe', not) : '') +
               '<p style="font-size:13px;color:#6E6E73;line-height:1.7;margin-top:12px;">Panelinizdeki <strong>Makalelerim</strong> sekmesinden düzenleyip yeniden gönderebilirsiniz.</p>'),

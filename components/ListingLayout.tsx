@@ -211,7 +211,8 @@ export default function ListingLayout(props: ListingLayoutProps) {
 
   const activeChips = filterSections
     .filter(s => activeFilters[s.key])
-    .map(s => ({ key: s.key, label: activeFilters[s.key]! }));
+    // Çipte ham değer ("ozel") değil seçeneğin görünen adı ("Özel") yazılır
+    .map(s => ({ key: s.key, label: (s as any).options?.find((o: any) => o.value === activeFilters[s.key])?.label || activeFilters[s.key]! }));
 
   // Shared aside content (used in both sidebar and drawer)
   const filterAsideContent = (
@@ -440,74 +441,16 @@ export default function ListingLayout(props: ListingLayoutProps) {
           </div>
         </div>
 
-        {/* Başlık ve istatistikler */}
-        <div className="container listing-hero-container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap', marginBottom: 22 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              {/* İkon — düz marka rengi, beyaz glif */}
-              <div className="listing-icon-box" style={{
-                width: 56, height: 56, borderRadius: 16,
-                background: color,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
-              }}>
-                {icon}
-              </div>
-              <div>
-                <h1 className="listing-hero-title" style={{
-                  fontWeight: 700, color: 'var(--text)',
-                  lineHeight: 1.15, marginBottom: 6,
-                  letterSpacing: '-0.7px',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
-                }}>
-                  {title}
-                </h1>
-                {/* Aktif filtre chips */}
-                {activeChips.length > 0 && (
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    {activeChips.map(c => (
-                      <span key={c.key} style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 5,
-                        padding: '3px 10px', borderRadius: 20, fontSize: 11.5, fontWeight: 600,
-                        background: `${color}12`, color,
-                        border: `1px solid ${color}30`,
-                      }}>
-                        {c.label}
-                        <button onClick={() => updateFilter(c.key, null)} style={{ background: 'none', border: 'none', color, opacity: .7, cursor: 'pointer', fontSize: 10, padding: 0, lineHeight: 1, display: 'flex' }}>
-                          <IcX />
-                        </button>
-                      </span>
-                    ))}
-                    <button onClick={clearAll} style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 4,
-                      padding: '3px 10px', borderRadius: 20, fontSize: 11.5, fontWeight: 600,
-                      background: '#F5F5F7', color: 'var(--muted)',
-                      border: '1px solid var(--border)', cursor: 'pointer', fontFamily: 'inherit',
-                    }}>
-                      <IcX />Filtreleri Temizle
-                    </button>
-                  </div>
-                )}
+        {/* Başlık paneli — tek CategoryHero: başlık + sayı kapsülleri */}
+        <div className="container listing-hero-container">
+          <div className="hk-cathero">
+            <div className="hk-cathero__body">
+              <h1 className="hk-cathero__title hk-cathero__title--sm">{title}</h1>
+              <div className="hk-cathero__stats">
+                <span className="hk-pill"><b>{count.toLocaleString('tr')}</b> {entityLabelPlural}</span>
+                {cityCount !== undefined && <span className="hk-pill"><b>{cityCount}</b> şehir</span>}
               </div>
             </div>
-          </div>
-
-          {/* Stat strip */}
-          <div className="listing-stat-strip" style={{ display: 'flex', gap: 0, borderTop: '1px solid var(--border)', marginLeft: -32, marginRight: -32, paddingLeft: 32 }}>
-            <div className="listing-stat-item" style={{ padding: '14px 28px 14px 0', borderRight: '1px solid var(--border)' }}>
-              <div className="listing-stat-number" style={{ fontWeight: 700, color: 'var(--text)', lineHeight: 1, letterSpacing: '-0.5px', fontVariantNumeric: 'tabular-nums' }}>
-                {count.toLocaleString('tr')}
-              </div>
-              <div className="listing-stat-label" style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 3, fontWeight: 500 }}>
-                {entityLabelPlural} listelendi
-              </div>
-            </div>
-            {cityCount !== undefined && (
-              <div className="listing-stat-item" style={{ padding: '14px 28px' }}>
-                <div className="listing-stat-number" style={{ fontWeight: 700, color: 'var(--text)', lineHeight: 1, letterSpacing: '-0.5px', fontVariantNumeric: 'tabular-nums' }}>{cityCount}</div>
-                <div className="listing-stat-label" style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 3, fontWeight: 500 }}>şehir</div>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -577,29 +520,24 @@ export default function ListingLayout(props: ListingLayoutProps) {
             padding: '12px 18px', marginBottom: 16, flexWrap: 'wrap', gap: 10,
             boxShadow: '0 1px 8px rgba(0,0,0,.04)',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div className="listing-result-icon" style={{ width: 38, height: 38, borderRadius: 10, background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {icon}
-              </div>
-              <div>
-                <span className="listing-result-count" style={{ fontSize: 20, fontWeight: 800, color: 'var(--navy)', letterSpacing: '-0.3px' }}>{count.toLocaleString('tr')}</span>
-                <span style={{ fontSize: 13, color: 'var(--muted)', marginLeft: 6 }}>{entityLabelPlural} bulundu</span>
-              </div>
+            <div>
+              <span className="listing-result-count" style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--ink)' }}>{count.toLocaleString('tr')}</span>
+              <span style={{ fontSize: 15, color: 'var(--ink-secondary)', marginLeft: 6 }}>{entityLabelPlural} bulundu</span>
             </div>
             {activeChips.length > 0 && (
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                 {activeChips.map(c => (
-                  <span key={c.key} style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 5,
-                    padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
-                    background: `${color}12`, color, border: `1px solid ${color}30`,
-                  }}>
+                  <span key={c.key} className="hk-tag" style={{ gap: 6 }}>
                     {c.label}
-                    <button onClick={() => updateFilter(c.key, null)} style={{ background: 'none', border: 'none', color, cursor: 'pointer', fontSize: 10, padding: 0, display: 'flex' }}>
+                    <button onClick={() => updateFilter(c.key, null)} aria-label={`${c.label} filtresini kaldır`}
+                      style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, display: 'flex' }}>
                       <IcX />
                     </button>
                   </span>
                 ))}
+                <button onClick={clearAll} style={{ border: 0, background: 'none', color: 'var(--link)', font: '600 13px var(--font-sans)', cursor: 'pointer' }}>
+                  Temizle
+                </button>
               </div>
             )}
           </div>
@@ -759,21 +697,21 @@ function FilterSectionBlock({
                   <button onClick={() => onUpdate(null)}
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '6px 8px', borderRadius: 8, fontSize: 13,
-                      fontWeight: !activeValue ? 700 : 400,
-                      background: !activeValue ? `${color}12` : 'transparent',
-                      color: !activeValue ? color : 'var(--text)',
+                      minHeight: 36, padding: '0 8px', borderRadius: 'var(--radius-md)', fontSize: 14, fontFamily: 'inherit',
+                      fontWeight: !activeValue ? 600 : 400,
+                      background: !activeValue ? 'var(--tint-50)' : 'transparent',
+                      color: 'var(--ink)',
                       border: 'none', cursor: 'pointer', textAlign: 'left',
                     }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      {!activeValue && <IcCheck />}
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <FiltreKutu secili={!activeValue} />
                       Tümü
                     </span>
                     {toplam > 0 && (
                       <span style={{
-                        fontSize: 11, fontWeight: 600, padding: '1px 7px', borderRadius: 10,
-                        background: !activeValue ? `${color}20` : '#F3F4F6',
-                        color: !activeValue ? color : '#6B7280', flexShrink: 0,
+                        fontSize: 12, fontWeight: 600, minWidth: 28, height: 20, padding: '0 6px', borderRadius: 999, display: 'inline-grid', placeItems: 'center',
+                        background: !activeValue ? 'var(--tint-200)' : 'var(--canvas)',
+                        color: !activeValue ? 'var(--brand)' : 'var(--ink-secondary)', flexShrink: 0,
                       }}>
                         {toplam.toLocaleString('tr')}
                       </span>
@@ -789,22 +727,22 @@ function FilterSectionBlock({
                     onClick={() => onUpdate(isActive ? null : opt.value)}
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '6px 8px', borderRadius: 8, fontSize: 13,
-                      fontWeight: isActive ? 700 : 400,
-                      background: isActive ? `${color}12` : 'transparent',
-                      color: isActive ? color : 'var(--text)',
+                      minHeight: 36, padding: '0 8px', borderRadius: 'var(--radius-md)', fontSize: 14, fontFamily: 'inherit',
+                      fontWeight: isActive ? 600 : 400,
+                      background: isActive ? 'var(--tint-50)' : 'transparent',
+                      color: 'var(--ink)',
                       border: 'none', cursor: 'pointer', textAlign: 'left',
                       transition: 'background .15s', gap: 6,
                     }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden' }}>
-                      {isActive && <span style={{ flexShrink: 0 }}><IcCheck /></span>}
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden' }}>
+                      <FiltreKutu secili={isActive} />
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opt.label}</span>
                     </span>
                     {opt.count !== undefined && (
                       <span style={{
-                        fontSize: 11, fontWeight: 600, padding: '1px 7px', borderRadius: 10, flexShrink: 0,
-                        background: isActive ? `${color}20` : '#F3F4F6',
-                        color: isActive ? color : '#6B7280',
+                        fontSize: 12, fontWeight: 600, minWidth: 28, height: 20, padding: '0 6px', borderRadius: 999, display: 'inline-grid', placeItems: 'center', flexShrink: 0,
+                        background: isActive ? 'var(--tint-200)' : 'var(--canvas)',
+                        color: isActive ? 'var(--brand)' : 'var(--ink-secondary)',
                       }}>
                         {opt.count.toLocaleString('tr')}
                       </span>
@@ -817,6 +755,19 @@ function FilterSectionBlock({
         </div>
       )}
     </div>
+  );
+}
+
+// Filtre satırı onay kutusu (tasarım sistemi FilterPanel)
+function FiltreKutu({ secili }: { secili: boolean }) {
+  return (
+    <span aria-hidden="true" style={{
+      display: 'grid', placeItems: 'center', width: 18, height: 18, flex: 'none', borderRadius: 5,
+      border: `1.5px solid ${secili ? 'var(--brand)' : 'var(--border-strong)'}`,
+      background: secili ? 'var(--brand)' : 'transparent',
+    }}>
+      {secili && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>}
+    </span>
   );
 }
 

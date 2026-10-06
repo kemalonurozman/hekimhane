@@ -76,11 +76,21 @@ export default function Footer() {
     ['Psikologlar', spec('Psikoloji')],
     ...['İstanbul', 'Ankara', 'İzmir', 'Adana', 'Balıkesir', 'Muğla'].map((il): [string, string] => [`${il} Psikiyatri`, `${spec('Psikiyatri')}&il=${encodeURIComponent(il)}`]),
   ];
-  const chip = {
-    fontSize: '12px', color: 'rgba(255,255,255,.6)', textDecoration: 'none',
-    padding: '5px 12px', borderRadius: 20, background: 'rgba(255,255,255,.06)',
-    border: '1px solid rgba(255,255,255,.1)', whiteSpace: 'nowrap' as const,
-  };
+  // Tasarım sistemi F1: link bulutları düz metin sütunları, grup başına en fazla 12 + "Tümü →"
+  const SEO_GRUPLARI: { baslik: string; linkler: [string, string][]; tumu: string }[] = [
+    { baslik: 'ŞEHRE GÖRE DİŞ KLİNİKLERİ', tumu: '/klinikler',
+      linkler: POPULER_SEHIRLER.map((c): [string, string] => [`${c} diş klinikleri`, `/klinikler?il=${encodeURIComponent(c)}`]) },
+    { baslik: 'DİŞ TEDAVİLERİ', tumu: '/klinikler',
+      linkler: POPULER_TEDAVILER.map(([label, sp]): [string, string] => [label, `/klinikler?uzmanlik=${encodeURIComponent(sp)}`]) },
+    { baslik: 'FİZİK TEDAVİ VE REHABİLİTASYON', tumu: '/bobath-terapistleri', linkler: FIZIK_TEDAVI },
+    { baslik: 'PSİKİYATRİ VE PSİKOLOJİ', tumu: spec('Psikiyatri'), linkler: PSIKOLOJI },
+  ];
+  const SUTUNLAR: { baslik: string; linkler: string[][] }[] = [
+    { baslik: 'PLATFORM', linkler: PLATFORM },
+    { baslik: 'DİĞER SAĞLIK', linkler: DIGER_SAGLIK },
+    { baslik: 'ŞİRKET', linkler: [...SIRKET, ['Site Haritası', '/site-haritasi'], ['RSS', '/rss.xml']] },
+    { baslik: 'YASAL', linkler: YASAL },
+  ];
 
   // Sosyal hesaplar — href boşken ilgili ikon gizlenir. Hesap açıldıkça doldurun.
   const SOCIAL = [
@@ -91,229 +101,89 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="site-footer" style={{
-      background: 'var(--navy)',
-      color: 'rgba(255,255,255,0.7)',
-      padding: '52px 0 24px',
-      marginTop: '80px',
-    }}>
+    <footer className="site-footer hk-footer" style={{ marginTop: 80 }}>
       <style>{`
-        .footer-grid {
-          display: grid;
-          grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr;
-          gap: 36px;
-          margin-bottom: 48px;
-        }
-        @media (max-width: 1024px) {
-          .footer-grid {
-            grid-template-columns: 1.4fr 1fr 1fr;
-            gap: 32px;
-          }
-        }
-        @media (max-width: 768px) {
-          .footer-grid {
-            grid-template-columns: 1fr 1fr;
-            gap: 32px;
-          }
-          .footer-brand-col {
-            grid-column: 1 / -1;
-          }
-        }
-        @media (max-width: 480px) {
-          .footer-grid {
-            grid-template-columns: 1fr;
-            gap: 28px;
-          }
-          .footer-brand-col {
-            grid-column: 1 / -1;
-          }
-        }
+        .hk-footer__seo { display:grid; grid-template-columns:repeat(4, 1fr); gap:var(--space-6); padding-bottom:var(--space-7); margin-bottom:var(--space-7); border-bottom:1px solid rgba(255,255,255,.12); }
+        .hk-footer__grid--site { grid-template-columns:1.3fr repeat(4, 1fr); }
+        .hk-footer__bulten { display:flex; gap:8px; margin-top:var(--space-4); max-width:340px; }
+        .hk-footer__bulten input { flex:1; min-width:0; height:44px; padding:0 12px; border-radius:var(--radius-md); border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.08); color:var(--on-deep); font:inherit; font-size:15px; }
+        .hk-footer__bulten input::placeholder { color:var(--on-deep-muted); }
+        .hk-footer__bulten button { height:44px; padding:0 16px; border:0; border-radius:var(--radius-md); background:var(--gold-fill); color:var(--on-gold); font:inherit; font-size:14px; font-weight:700; cursor:pointer; white-space:nowrap; }
+        .hk-footer__iletisim { display:flex; flex-direction:column; gap:10px; margin-top:var(--space-5); }
+        .hk-footer a.hk-footer__tumu { color:var(--on-deep); font-weight:600; }
+        @media (max-width: 1080px) { .hk-footer__seo { grid-template-columns:1fr 1fr; } .hk-footer__grid--site { grid-template-columns:1fr 1fr 1fr; } .hk-footer__grid--site .hk-footer__brand { grid-column:1 / -1; } }
+        @media (max-width: 520px) { .hk-footer__seo, .hk-footer__grid--site { grid-template-columns:1fr 1fr; gap:var(--space-5); } }
       `}</style>
-      <div className="container">
+      <div className="hk-footer__in">
 
-        {/* SEO iç-linkleme bandı: popüler şehirler + diş tedavileri */}
-        <div style={{ marginBottom: 40, paddingBottom: 36, borderBottom: '1px solid rgba(255,255,255,.1)' }}>
-          <h4 style={{ color: 'white', fontWeight: 700, marginBottom: 14, fontSize: 13, textTransform: 'uppercase', letterSpacing: '.8px' }}>
-            Şehre Göre Diş Klinikleri
-          </h4>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
-            {POPULER_SEHIRLER.map(c => (
-              <Link key={c} href={`/klinikler?il=${encodeURIComponent(c)}`} style={chip}>{c} Diş Klinikleri</Link>
-            ))}
-          </div>
-          <h4 style={{ color: 'white', fontWeight: 700, marginBottom: 14, fontSize: 13, textTransform: 'uppercase', letterSpacing: '.8px' }}>
-            Diş Tedavileri
-          </h4>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
-            {POPULER_TEDAVILER.map(([label, spec]) => (
-              <Link key={spec} href={`/klinikler?uzmanlik=${encodeURIComponent(spec)}`} style={chip}>{label}</Link>
-            ))}
-          </div>
-          <h4 style={{ color: 'white', fontWeight: 700, marginBottom: 14, fontSize: 13, textTransform: 'uppercase', letterSpacing: '.8px' }}>
-            Fizik Tedavi &amp; Rehabilitasyon
-          </h4>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
-            {FIZIK_TEDAVI.map(([label, href]) => (
-              <Link key={href} href={href} style={chip}>{label}</Link>
-            ))}
-          </div>
-          <h4 style={{ color: 'white', fontWeight: 700, marginBottom: 14, fontSize: 13, textTransform: 'uppercase', letterSpacing: '.8px' }}>
-            Psikiyatri &amp; Psikoloji
-          </h4>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {PSIKOLOJI.map(([label, href]) => (
-              <Link key={href} href={href} style={chip}>{label}</Link>
-            ))}
-          </div>
+        {/* SEO iç-linkleme: düz metin link sütunları */}
+        <div className="hk-footer__seo">
+          {SEO_GRUPLARI.map(g => (
+            <div key={g.baslik} className="hk-footer__col">
+              <h4>{g.baslik}</h4>
+              <ul>
+                {g.linkler.slice(0, 12).map(([label, href]) => (
+                  <li key={href}><Link href={href}>{label}</Link></li>
+                ))}
+                <li><Link href={g.tumu} className="hk-footer__tumu">Tümü →</Link></li>
+              </ul>
+            </div>
+          ))}
         </div>
 
-        <div className="footer-grid">
+        <div className="hk-footer__grid hk-footer__grid--site">
 
-          {/* Marka + bülten */}
-          <div className="footer-brand-col">
-            <div style={{ marginBottom: '14px' }}>
-              <Logo size={38} dark />
+          {/* Marka + tanıtım + bülten + iletişim */}
+          <div className="hk-footer__brand">
+            <Logo size={38} dark />
+            <p>Türkiye'nin diş sağlığı rehberi. Size en yakın diş kliniğini ve uzman diş hekimini tek platformda bulun.</p>
+            <div className="hk-footer__bulten">
+              <input type="email" placeholder="E-posta adresiniz" aria-label="E-posta adresiniz" />
+              <button type="button">Abone ol</button>
             </div>
-            <p style={{ fontSize: '13px', lineHeight: 1.7, marginBottom: 20, maxWidth: 240 }}>
-              Türkiye'nin diş sağlığı rehberi. Size en yakın diş kliniğini ve uzman diş hekimini tek platformda bulun.
-            </p>
-            {/* Bülten */}
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input
-                type="email"
-                placeholder="E-posta adresiniz"
-                style={{
-                  flex: 1, padding: '9px 12px', borderRadius: 9, border: '1px solid rgba(255,255,255,.15)',
-                  background: 'rgba(255,255,255,.08)', color: 'white', fontSize: 12,
-                  fontFamily: 'inherit', outline: 'none', minWidth: 0,
-                }}
-              />
-              <button style={{
-                padding: '9px 14px', borderRadius: 9, background: 'var(--gold)',
-                color: 'white', border: 'none', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
-              }}>
-                Abone Ol
-              </button>
+            {/* İletişim — ödeme alan site için iletişim ve iptal yolu görünür olmalı */}
+            <div className="hk-footer__iletisim">
+              <a href="mailto:info@hekimhane.com.tr" style={{ color: 'var(--on-deep)', fontWeight: 600 }}>info@hekimhane.com.tr</a>
+              <Link href="/iletisim">İletişim formu · 24 saat içinde yanıt</Link>
+              <Link href="/abonelik-iptali">Pro abonelik iptali</Link>
             </div>
-            {/* İletişim — adres, form ve abonelik iptali tek blokta; ödeme alan
-                site için iletişim ve iptal yolunun görünür olması gerekir. */}
-            <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,.1)' }}>
-              <h4 style={{ color: 'white', fontWeight: 700, marginBottom: 12, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                İletişim
-              </h4>
-              <a href="mailto:info@hekimhane.com.tr" style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13.5, fontWeight: 600, color: 'white', textDecoration: 'none', marginBottom: 10 }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 5L2 7" /></svg>
-                info@hekimhane.com.tr
-              </a>
-              <Link href="/iletisim" style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13, color: 'rgba(255,255,255,.7)', textDecoration: 'none', marginBottom: 8 }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-                İletişim formu · 24 saat içinde yanıt
-              </Link>
-              <Link href="/abonelik-iptali" style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13, color: 'rgba(255,255,255,.7)', textDecoration: 'none' }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="m4.9 4.9 14.2 14.2" /></svg>
-                Pro abonelik iptali
-              </Link>
-            </div>
-            {/* Sosyal medya — yalnızca gerçek hesap linki girildiğinde görünür.
-                Hesaplar açıldıkça href'leri doldurun (ör. 'https://instagram.com/hekimhane'). */}
+            {/* Sosyal medya — yalnızca gerçek hesap linki girildiğinde görünür */}
             {SOCIAL.some(s => s.href) && (
               <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
                 {SOCIAL.filter(s => s.href).map(s => (
                   <a key={s.icon} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
-                    style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,.7)', textDecoration: 'none' }}>
-                    <i className={`fab ${s.icon}`} style={{ fontSize: 14 }} />
+                    style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className={`fab ${s.icon}`} style={{ fontSize: 16 }} />
                   </a>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Platform */}
-          <div>
-            <h4 style={{ color: 'white', fontWeight: 700, marginBottom: '16px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-              Platform
-            </h4>
-            {PLATFORM.map(([label, href]) => (
-              <Link key={href} href={href} style={{
-                display: 'flex', alignItems: 'center', gap: 7, fontSize: '13px', marginBottom: '9px',
-                color: 'rgba(255,255,255,0.6)', textDecoration: 'none',
-              }}>
-                {label}
-              </Link>
-            ))}
-          </div>
-
-          {/* Diğer sağlık — diş dışı branşlar */}
-          <div>
-            <h4 style={{ color: 'white', fontWeight: 700, marginBottom: '16px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-              Diğer Sağlık
-            </h4>
-            {DIGER_SAGLIK.map(([label, href]) => (
-              <Link key={href} href={href} style={{
-                display: 'block', fontSize: '13px', marginBottom: '9px',
-                color: 'rgba(255,255,255,0.6)', textDecoration: 'none',
-              }}>
-                {label}
-              </Link>
-            ))}
-          </div>
-
-          {/* Şirket */}
-          <div>
-            <h4 style={{ color: 'white', fontWeight: 700, marginBottom: '16px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-              Şirket
-            </h4>
-            {SIRKET.map(([label, href]) => (
-              <Link key={href} href={href} style={{
-                display: 'block', fontSize: '13px', marginBottom: '9px',
-                color: 'rgba(255,255,255,0.6)', textDecoration: 'none',
-              }}>
-                {label}
-              </Link>
-            ))}
-            <Link href="/site-haritasi" style={{ display: 'block', fontSize: '13px', marginBottom: '9px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
-              Site Haritası
-            </Link>
-            <a href="/rss.xml" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '13px', marginBottom: '9px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
-              <i className="fa-solid fa-rss" style={{ fontSize: 11, color: 'var(--gold)' }} /> RSS
-            </a>
-          </div>
-
-          {/* Yasal */}
-          <div>
-            <h4 style={{ color: 'white', fontWeight: 700, marginBottom: '16px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-              Yasal
-            </h4>
-            {YASAL.map(([label, href]) => (
-              <Link key={href} href={href} style={{
-                display: 'block', fontSize: '13px', marginBottom: '9px',
-                color: 'rgba(255,255,255,0.6)', textDecoration: 'none',
-              }}>
-                {label}
-              </Link>
-            ))}
-          </div>
-
+          {SUTUNLAR.map(col => (
+            <div key={col.baslik} className="hk-footer__col">
+              <h4>{col.baslik}</h4>
+              <ul>
+                {col.linkler.map(([label, href]) => (
+                  <li key={href}>
+                    {href.endsWith('.xml') ? <a href={href}>{label}</a> : <Link href={href}>{label}</Link>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        {/* Alt çizgi */}
-        <div style={{
-          borderTop: '1px solid rgba(255,255,255,0.1)',
-          paddingTop: '20px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px',
-        }}>
-          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,.45)' }}>
-            © {new Date().getFullYear()} Hekimhane — hekimhane.com.tr — Tüm hakları saklıdır.
-          </span>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '11px', color: 'rgba(255,255,255,.3)' }}>
-            <span>Türkiye</span>
-            <span>•</span>
-            <span>Diş Sağlığında Güvenilir Rehber</span>
-          </div>
+        {/* Acil durum bandı */}
+        <div className="hk-footer__sos" style={{ marginTop: 'var(--space-7)' }}>
+          <span>Hayati tehlike durumunda</span>
+          <a href="tel:112" className="hk-footer__num">112</a>
+          <span>numaralı acil çağrı hattını arayın.</span>
+        </div>
+
+        <div className="hk-footer__legal" style={{ marginTop: 'var(--space-5)' }}>
+          <p>© {new Date().getFullYear()} Hekimhane — hekimhane.com.tr — Tüm hakları saklıdır.</p>
+          <p>Türkiye · Diş sağlığında güvenilir rehber</p>
         </div>
       </div>
     </footer>

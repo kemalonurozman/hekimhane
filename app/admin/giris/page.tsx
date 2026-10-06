@@ -99,8 +99,8 @@ function AdminGirisContent() {
       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
     }}>
       <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-        <div style={{ position: 'absolute', top: '15%', left: '10%', width: 300, height: 300, borderRadius: '50%', background: 'rgba(212,168,67,.04)', filter: 'blur(60px)' }} />
-        <div style={{ position: 'absolute', bottom: '20%', right: '8%', width: 250, height: 250, borderRadius: '50%', background: 'rgba(27,58,105,.15)', filter: 'blur(50px)' }} />
+        <div style={{ position: 'absolute', top: '15%', left: '10%', width: 300, height: 300, borderRadius: '50%', background: 'rgba(184,137,47,.04)', filter: 'blur(60px)' }} />
+        <div style={{ position: 'absolute', bottom: '20%', right: '8%', width: 250, height: 250, borderRadius: '50%', background: 'rgba(26,51,94,.15)', filter: 'blur(50px)' }} />
       </div>
 
       <div style={{ width: '100%', maxWidth: 380, position: 'relative', zIndex: 1 }}>
@@ -108,10 +108,10 @@ function AdminGirisContent() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-            <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #1B3A69, #0F2A55)', borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(0,0,0,.4)' }}>
+            <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #1A335E, #152A4E)', borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(0,0,0,.4)' }}>
               <svg width="22" height="22" viewBox="0 0 34 34" fill="none">
                 <path d="M10 17h14M17 10v14" stroke="white" strokeWidth="2.8" strokeLinecap="round"/>
-                <rect x="7" y="20" width="20" height="4" rx="2" fill="#D4A843"/>
+                <rect x="7" y="20" width="20" height="4" rx="2" fill="#B8892F"/>
               </svg>
             </div>
             <div style={{ textAlign: 'left' }}>
@@ -119,9 +119,9 @@ function AdminGirisContent() {
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,.35)', fontWeight: 500 }}>Admin Yönetim Sistemi</div>
             </div>
           </div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(212,168,67,.12)', border: '1px solid rgba(212,168,67,.25)', borderRadius: 20, padding: '5px 14px' }}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#D4A843', letterSpacing: '0.5px' }}>YÖNETİCİ GİRİŞİ</span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.25)', borderRadius: 20, padding: '5px 14px' }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#B8892F" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold-text)', letterSpacing: '0.5px' }}>YÖNETİCİ GİRİŞİ</span>
           </div>
         </div>
 
@@ -153,7 +153,7 @@ function AdminGirisContent() {
               onChange={e => { setEmail(e.target.value); setError(''); }}
               placeholder="admin@email.com"
               style={{ width: '100%', padding: '11px 13px', borderRadius: 10, border: '1px solid rgba(255,255,255,.12)', background: 'rgba(255,255,255,.05)', color: 'white', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 12 }}
-              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(212,168,67,.5)')}
+              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(184,137,47,.5)')}
               onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,.12)')}
             />
 
@@ -165,7 +165,7 @@ function AdminGirisContent() {
                 onChange={e => { setPassword(e.target.value); setError(''); }}
                 placeholder="••••••••"
                 style={{ width: '100%', padding: '11px 40px 11px 13px', borderRadius: 10, border: '1px solid rgba(255,255,255,.12)', background: 'rgba(255,255,255,.05)', color: 'white', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
-                onFocus={e => (e.currentTarget.style.borderColor = 'rgba(212,168,67,.5)')}
+                onFocus={e => (e.currentTarget.style.borderColor = 'rgba(184,137,47,.5)')}
                 onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,.12)')}
               />
               <button type="button" onClick={() => setShowPw(!showPw)}
@@ -180,7 +180,7 @@ function AdminGirisContent() {
               </div>
             )}
 
-            <button type="submit" disabled={loading} style={{ width: '100%', padding: '13px', borderRadius: 11, border: 'none', background: loading ? 'rgba(212,168,67,.5)' : '#D4A843', color: 'white', fontSize: 14, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'opacity .15s' }}>
+            <button type="submit" disabled={loading} style={{ width: '100%', padding: '13px', borderRadius: 11, border: 'none', background: loading ? 'rgba(184,137,47,.5)' : '#B8892F', color: 'white', fontSize: 14, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'opacity .15s' }}>
               {loading ? (
                 <>
                   <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style={{ animation: 'spin 1s linear infinite' }}>

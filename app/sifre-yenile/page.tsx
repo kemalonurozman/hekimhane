@@ -65,9 +65,9 @@ function SifreYenileContent() {
 
   return (
     <div style={{ minHeight: '100vh', paddingTop: 66, background: '#EEF2F9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
-      <div style={{ background: 'white', borderRadius: 28, boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 12px 44px rgba(27,58,105,.13)', padding: '40px 34px', width: '100%', maxWidth: 400, textAlign: 'center', margin: '24px 16px' }}>
+      <div style={{ background: 'white', borderRadius: 28, boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 12px 44px rgba(26,51,94,.13)', padding: '40px 34px', width: '100%', maxWidth: 400, textAlign: 'center', margin: '24px 16px' }}>
 
-        <div style={{ width: 52, height: 52, borderRadius: 15, background: '#1B3A69', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
+        <div style={{ width: 52, height: 52, borderRadius: 15, background: '#1A335E', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </div>
 
@@ -77,7 +77,7 @@ function SifreYenileContent() {
             <p style={{ color: '#86868B', fontSize: 14, lineHeight: 1.6, margin: '0 0 22px' }}>
               Bu sayfaya e-postanızdaki şifre sıfırlama bağlantısıyla ulaşmanız gerekiyor.
             </p>
-            <a href="/giris" style={{ display: 'inline-block', padding: '12px 26px', borderRadius: 12, background: '#1B3A69', color: 'white', fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>Giriş sayfasına dön</a>
+            <a href="/giris" style={{ display: 'inline-block', padding: '12px 26px', borderRadius: 12, background: '#1A335E', color: 'white', fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>Giriş sayfasına dön</a>
           </>
         ) : durum === 'tamam' ? (
           <>
@@ -127,13 +127,13 @@ function SifreYenileContent() {
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 12 }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 2 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                   <span style={{ fontSize: 12.5, color: '#DC2626', lineHeight: 1.5 }}>
-                    {hata}{hata.includes('geçersiz') && <>{' '}<a href="/giris" style={{ color: '#1B3A69', fontWeight: 700 }}>Yeni bağlantı iste</a></>}
+                    {hata}{hata.includes('geçersiz') && <>{' '}<a href="/giris" style={{ color: '#1A335E', fontWeight: 700 }}>Yeni bağlantı iste</a></>}
                   </span>
                 </div>
               )}
 
               <button type="submit" disabled={durum === 'calisiyor'}
-                style={{ width: '100%', padding: '13px 20px', borderRadius: 13, border: 'none', background: '#1B3A69', color: 'white', fontSize: 15, fontWeight: 700, cursor: durum === 'calisiyor' ? 'not-allowed' : 'pointer', opacity: durum === 'calisiyor' ? 0.65 : 1, fontFamily: 'inherit', marginTop: 4 }}>
+                style={{ width: '100%', padding: '13px 20px', borderRadius: 13, border: 'none', background: '#1A335E', color: 'white', fontSize: 15, fontWeight: 700, cursor: durum === 'calisiyor' ? 'not-allowed' : 'pointer', opacity: durum === 'calisiyor' ? 0.65 : 1, fontFamily: 'inherit', marginTop: 4 }}>
                 {durum === 'calisiyor' ? 'Güncelleniyor…' : 'Şifreyi Güncelle'}
               </button>
             </form>

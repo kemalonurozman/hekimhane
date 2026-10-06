@@ -1,25 +1,18 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import Link from 'next/link';
 import type { Klinik } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
-import { ToothGlyph } from '@/components/Logo';
-import SafeLogo from '@/components/SafeLogo';
-import { formatTel } from '@/lib/helpers';
+import HkAvatar from '@/components/HkAvatar';
+import { puanYaz, AZ_DEGERLENDIRME_SINIRI } from '@/lib/hk';
 
-function Stars({ rat }: { rat: number }) {
-  return (
-    <span style={{ display: 'inline-flex', gap: 2 }}>
-      {[1, 2, 3, 4, 5].map(i => (
-        <i key={i} className={`fa-${i <= Math.round(rat) ? 'solid' : 'regular'} fa-star`}
-          style={{ fontSize: '12px', color: i <= Math.round(rat) ? '#D4A843' : '#D1D5DB' }} />
-      ))}
-    </span>
-  );
-}
-
+/**
+ * Klinik liste satırı — tasarım sistemi `DoctorRow`:
+ * baş harfli avatar (veya logo) · ad · branş etiketleri (tek stil) · meta satırı
+ * (konum, kurum türü, puan + değerlendirme sayısı) · "Profili gör" + "Ara".
+ */
 export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
   const router = useRouter();
 
@@ -27,174 +20,70 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
     ? `/klinikler/${encodeURIComponent(k.il || '').toLowerCase().replace(/%../g, s => s.toLowerCase())}/${encodeURIComponent(k.ilce || '').toLowerCase().replace(/%../g, s => s.toLowerCase())}/${k.slug}`
     : `/klinikler/${k.id}`;
 
+  const specs = (k.specs || []).filter(Boolean);
+  const konum = [k.ilce, k.il].filter(Boolean).join(', ');
+  const adres = k.adres ? `${k.adres.slice(0, 60)}${k.adres.length > 60 ? '…' : ''}` : '';
+
   return (
-    <>
-      <style>{`
-        .klinik-card {
-          position: relative;
-          background: white;
-          border-radius: 16px;
-          border: 1px solid var(--border);
-          box-shadow: 0 1px 4px rgba(0,0,0,.05);
-          cursor: pointer;
-          transition: box-shadow .18s, transform .18s;
-          overflow: hidden;
-          display: flex;
-          flex-direction: column;
-        }
-        .klinik-card:hover {
-          box-shadow: 0 8px 28px rgba(0,0,0,.1);
-          transform: translateY(-2px);
-        }
-        .klinik-card__body {
-          display: flex;
-          gap: 16px;
-          padding: 18px 20px 14px;
-          align-items: flex-start;
-        }
-        .klinik-card__icon {
-          width: 72px;
-          height: 72px;
-          flex-shrink: 0;
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          border: 1px solid rgba(0,0,0,.07);
-        }
-        .klinik-card__info { flex: 1; min-width: 0; }
-        .klinik-card__name {
-          font-weight: 700;
-          font-size: 15px;
-          color: var(--text);
-          line-height: 1.3;
-          margin-bottom: 5px;
-        }
-        /* Sağ üstteki Karşılaştır butonuna yer aç — metin altına girmesin */
-        .klinik-card__name-shim {
-          float: right;
-          width: 116px;
-          height: 30px;
-        }
-        .klinik-card__rating-row {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          margin-bottom: 7px;
-        }
-        .klinik-card__rat-num {
-          font-size: 15px;
-          font-weight: 800;
-          color: var(--navy);
-          line-height: 1;
-        }
-        .klinik-card__rev { font-size: 11px; color: var(--muted); }
-        .klinik-card__badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 7px; }
-        .klinik-card__address {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          font-size: 12px;
-          color: var(--muted);
-          margin-bottom: 7px;
-        }
-        .klinik-card__specs { display: flex; gap: 5px; flex-wrap: wrap; }
-        .klinik-card__footer { border-top: 1px solid var(--border); }
-        .klinik-card__tel {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 7px;
-          width: 100%;
-          padding: 10px 20px;
-          font-size: 13px;
-          font-weight: 600;
-          color: var(--navy);
-          background: transparent;
-          border: none;
-          cursor: pointer;
-          text-decoration: none;
-          transition: background .15s;
-          font-family: inherit;
-        }
-        .klinik-card__tel:hover { background: rgba(27,58,105,.04); }
-        @media (max-width: 480px) {
-          .klinik-card__body { padding: 14px 14px 12px; gap: 12px; }
-          .klinik-card__icon { width: 60px; height: 60px; border-radius: 14px; }
-          .klinik-card__name { font-size: 14px; }
-        }
-      `}</style>
+    <article className={`hk-doctor hk-satir${k.premium ? ' hk-doctor--featured' : ''}`} onClick={() => router.push(profileUrl)}>
+      <CompareButton item={{
+        type: 'klinik', id: k.id, name: k.name, url: profileUrl,
+        rat: k.rat, rev: k.rev, il: k.il, ilce: k.ilce, tel: k.tel, image: k.logo,
+        premium: k.premium, online: k.online, acil: k.acil, claimed: k.claimed,
+        typeLabel: k.type, specs: k.specs,
+      }} />
 
-      <div className="klinik-card" onClick={() => router.push(profileUrl)}>
+      {/* Logo veya baş harfler — onaylı klinikte dönen halka */}
+      <div className={k.claimed ? 'hk-ring' : undefined} style={{ position: 'relative', flexShrink: 0, borderRadius: '50%' }}>
+        <HkAvatar src={k.logo} name={k.name} />
+        {k.premium && <PremiumBadge />}
+      </div>
 
-        <CompareButton item={{
-          type: 'klinik', id: k.id, name: k.name, url: profileUrl,
-          rat: k.rat, rev: k.rev, il: k.il, ilce: k.ilce, tel: k.tel, image: k.logo,
-          premium: k.premium, online: k.online, acil: k.acil, claimed: k.claimed,
-          typeLabel: k.type, specs: k.specs,
-        }} />
-
-        <div className="klinik-card__body">
-          {/* İkon / Logo — onaylı klinikte Instagram-story tarzı dönen halka */}
-          <div className={k.claimed ? 'hk-ring' : undefined} style={{ position: 'relative', flexShrink: 0 }}>
-            <div className="klinik-card__icon"
-              style={{ background: 'linear-gradient(135deg, var(--navy), var(--navy2))', position: 'relative', overflow: 'hidden' }}>
-              <SafeLogo src={k.logo} alt={k.name} fallback={<ToothGlyph size={34} fill="rgba(255,255,255,0.9)" />} />
-            </div>
-            {k.premium && <PremiumBadge />}
-          </div>
-
-          <div className="klinik-card__info">
-            <div className="klinik-card__name"><span className="klinik-card__name-shim" aria-hidden="true" />{k.name}</div>
-
-            {k.rev > 0 && (
-              <div className="klinik-card__rating-row">
-                <span className="klinik-card__rat-num">{k.rat.toFixed(1)}</span>
-                <Stars rat={k.rat} />
-                {k.rev > 0 && <span className="klinik-card__rev">({k.rev})</span>}
-              </div>
-            )}
-
-            <div className="klinik-card__badges">
-              {k.type   && <span className="badge badge-gold"  style={{ fontSize: '10px' }}>{k.type}</span>}
-              {k.online && <span className="badge badge-green" style={{ fontSize: '10px' }}>Online Randevu</span>}
-              {k.acil   && <span className="badge badge-red"   style={{ fontSize: '10px' }}>Acil</span>}
-              {k.claimed && <span className="badge" style={{ fontSize: '10px', background: '#F0FDF4', color: '#166534', border: '1px solid #BBF7D0' }}>✓ Onaylı</span>}
-            </div>
-
-            {(k.il || k.adres) && (
-              <div className="klinik-card__address">
-                <i className="fa-solid fa-location-dot" style={{ color: 'var(--gold)', fontSize: '11px', flexShrink: 0 }} />
-                <span>
-                  {[k.ilce, k.il].filter(Boolean).join(', ')}
-                  {k.adres && <><span style={{ color: 'var(--border)' }}> · </span>{k.adres.slice(0,50)}{k.adres.length>50?'…':''}</>}
-                </span>
-              </div>
-            )}
-
-            {k.specs && k.specs.length > 0 && (
-              <div className="klinik-card__specs">
-                {k.specs.slice(0, 3).map(s => (
-                  <span key={s} className="badge badge-navy" style={{ fontSize: '10px', padding: '2px 8px' }}>{s}</span>
-                ))}
-                {k.specs.length > 3 && <span style={{ fontSize: '11px', color: 'var(--muted)' }}>+{k.specs.length - 3}</span>}
-              </div>
-            )}
-          </div>
+      <div className="hk-doctor__body">
+        <div className="hk-doctor__head hk-satir__head">
+          <h3 className="hk-doctor__name">
+            <Link href={profileUrl} onClick={e => e.stopPropagation()} style={{ color: 'inherit' }}>{k.name}</Link>
+          </h3>
+          {k.premium && <span className="hk-badge hk-badge--premium">PREMIUM</span>}
         </div>
 
-        {k.tel && (
-          <div className="klinik-card__footer">
-            <a href={`tel:${k.tel.replace(/\s/g,'')}`}
-              onClick={e => e.stopPropagation()}
-              className="klinik-card__tel">
-              <i className="fa-solid fa-phone" style={{ fontSize: '11px', color: 'var(--gold)' }} />
-              {formatTel(k.tel)}
-            </a>
+        {specs.length > 0 && (
+          <div className="hk-doctor__tags">
+            {specs.slice(0, 3).map(s => <span key={s} className="hk-tag">{s}</span>)}
+            {specs.length > 3 && <span className="hk-tag hk-tag--muted">+{specs.length - 3}</span>}
           </div>
         )}
+
+        <div className="hk-doctor__meta">
+          {(konum || adres) && (
+            <span className="hk-doctor__loc">
+              <i className="fa-solid fa-location-dot hk-icon" style={{ fontSize: 14 }} />
+              {[konum, adres].filter(Boolean).join(' · ')}
+            </span>
+          )}
+          {/* Kurum türü etiket değil, meta satırında */}
+          {k.type && <span>{k.type}</span>}
+          {k.rev > 0 && (
+            <span className="hk-doctor__rating">
+              <i className="fa-solid fa-star hk-icon" style={{ fontSize: 14 }} />
+              <b>{puanYaz(k.rat)}</b> ({k.rev} değerlendirme)
+            </span>
+          )}
+          {k.rev > 0 && k.rev < AZ_DEGERLENDIRME_SINIRI && <span className="hk-doctor__few">Az değerlendirme</span>}
+          {k.claimed && <span style={{ color: 'var(--success)', fontWeight: 600 }}><i className="fa-solid fa-circle-check" style={{ fontSize: 13 }} /> Onaylı</span>}
+          {k.online && <span style={{ color: 'var(--success)', fontWeight: 600 }}><i className="fa-solid fa-calendar-check" style={{ fontSize: 13 }} /> Online randevu</span>}
+          {k.acil && <span style={{ color: 'var(--danger)', fontWeight: 600 }}><i className="fa-solid fa-truck-medical" style={{ fontSize: 13 }} /> Acil</span>}
+        </div>
+
+        <div className="hk-doctor__act">
+          <Link href={profileUrl} onClick={e => e.stopPropagation()} className="hk-btn hk-btn--sm hk-btn--primary">Profili gör</Link>
+          {k.tel && (
+            <a href={`tel:${k.tel.replace(/\s/g, '')}`} onClick={e => e.stopPropagation()} className="hk-btn hk-btn--sm hk-btn--secondary" aria-label={`${k.name} — telefonla ara`}>
+              <i className="fa-solid fa-phone" style={{ fontSize: 12 }} /> Ara
+            </a>
+          )}
+        </div>
       </div>
-    </>
+    </article>
   );
 }

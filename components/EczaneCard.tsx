@@ -12,7 +12,7 @@ function Stars({ rat }: { rat: number }) {
     <span style={{ display: 'inline-flex', gap: 2 }}>
       {[1, 2, 3, 4, 5].map(i => (
         <i key={i} className={`fa-${i <= Math.round(rat) ? 'solid' : 'regular'} fa-star`}
-          style={{ fontSize: '12px', color: i <= Math.round(rat) ? '#D4A843' : '#D1D5DB' }} />
+          style={{ fontSize: '12px', color: i <= Math.round(rat) ? '#B8892F' : '#D1D5DB' }} />
       ))}
     </span>
   );
@@ -100,7 +100,7 @@ export default function EczaneCard({ eczane: e }: { eczane: Eczane }) {
           transition: background .15s;
           font-family: inherit;
         }
-        .eczane-card__tel:hover { background: rgba(27,58,105,.04); }
+        .eczane-card__tel:hover { background: rgba(26,51,94,.04); }
         @media (max-width: 480px) {
           .eczane-card__body { padding: 14px 14px 12px; gap: 12px; }
           .eczane-card__icon { width: 60px; height: 60px; border-radius: 14px; }

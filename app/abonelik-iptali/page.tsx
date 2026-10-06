@@ -84,7 +84,7 @@ export default function AbonelikIptaliPage() {
 
           {[
             { icon: 'fa-ban', color: '#065F46', bg: '#ECFDF5', label: 'Taahhüt', value: 'Yok — istediğiniz an iptal' },
-            { icon: 'fa-clock', color: '#1B3A69', bg: '#EEF2FF', label: 'Form Yanıt Süresi', value: '1 iş günü içinde' },
+            { icon: 'fa-clock', color: '#1A335E', bg: '#EEF2FF', label: 'Form Yanıt Süresi', value: '1 iş günü içinde' },
             { icon: 'fa-credit-card', color: '#92400E', bg: '#FFFBEB', label: 'Üyelik Ücreti', value: `Aylık ${PRO_AYLIK_TL} TL` },
           ].map(item => (
             <div key={item.label} style={{ ...kart, display: 'flex', alignItems: 'flex-start', gap: 14 }}>

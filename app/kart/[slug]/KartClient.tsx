@@ -76,12 +76,12 @@ function LinkedInIcon({ size = 20 }: { size?: number }) {
 function HekimhaneLogo() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-      <div style={{ width: 26, height: 26, background: '#1B3A69', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: 26, height: 26, background: '#1A335E', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round">
           <path d="M3 21h18M9 21V7l6-4v18M9 11H3v10M15 11h6v10M9 7h6M12 11v4"/>
         </svg>
       </div>
-      <span style={{ fontWeight: 800, fontSize: 15, color: '#1B3A69', letterSpacing: '-0.3px' }}>Hekimhane</span>
+      <span style={{ fontWeight: 800, fontSize: 15, color: '#1A335E', letterSpacing: '-0.3px' }}>Hekimhane</span>
     </div>
   );
 }
@@ -100,8 +100,8 @@ function StarRating({ value, onChange }: { value: number; onChange: (n: number) 
           onMouseLeave={() => setHover(0)}
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
         >
-          <svg width="32" height="32" viewBox="0 0 24 24" fill={(hover || value) >= n ? '#D4A843' : 'none'}
-            stroke={(hover || value) >= n ? '#D4A843' : '#CBD5E1'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill={(hover || value) >= n ? '#B8892F' : 'none'}
+            stroke={(hover || value) >= n ? '#B8892F' : '#CBD5E1'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
           </svg>
         </button>
@@ -236,7 +236,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         if (qrImg && !(qrImg as HTMLImageElement).complete) {
           await new Promise(res => { (qrImg as HTMLImageElement).onload = res; (qrImg as HTMLImageElement).onerror = res; setTimeout(res, 3000); });
         }
-        const canvas = await html2canvas(sheet, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#0F2A55', logging: false });
+        const canvas = await html2canvas(sheet, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#152A4E', logging: false });
         sheet.style.display = 'none';
         sheet.style.height = '738px';  // eski haline döndür
         const { jsPDF } = await import('jspdf');
@@ -325,19 +325,19 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
     <>
       <style dangerouslySetInnerHTML={{ __html: `
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #0F2A55; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif; }
+        body { background: #152A4E; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif; }
 
-        .kp { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 20px 16px 48px; background: linear-gradient(160deg,#0F2A55 0%,#1B3A69 50%,#163D6E 100%); }
+        .kp { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 20px 16px 48px; background: linear-gradient(160deg,#152A4E 0%,#1A335E 50%,#163D6E 100%); }
         .kp-top { width:100%; max-width:420px; display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
         .kp-card { width:100%; max-width:420px; background:white; border-radius:28px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,.4); }
 
         /* Hero */
-        .kp-hero { background:linear-gradient(135deg,#0F2A55,#1B3A69 60%,#2d5496); padding:32px 24px 22px; display:flex; flex-direction:column; align-items:center; gap:12px; position:relative; overflow:hidden; }
-        .kp-hero::before { content:''; position:absolute; top:-40px; right:-40px; width:140px; height:140px; border-radius:50%; background:rgba(212,168,67,.12); }
+        .kp-hero { background:linear-gradient(135deg,#152A4E,#1A335E 60%,#2d5496); padding:32px 24px 22px; display:flex; flex-direction:column; align-items:center; gap:12px; position:relative; overflow:hidden; }
+        .kp-hero::before { content:''; position:absolute; top:-40px; right:-40px; width:140px; height:140px; border-radius:50%; background:rgba(184,137,47,.12); }
         .kp-hero::after  { content:''; position:absolute; bottom:-25px; left:-25px; width:90px; height:90px; border-radius:50%; background:rgba(255,255,255,.05); }
 
-        .kp-avatar { width:108px; height:108px; border-radius:50%; border:3px solid #D4A843; position:relative; z-index:1; background-color:rgba(255,255,255,.12); background-size:cover; background-position:center; object-fit:cover; }
-        .kp-avatar-ph { width:108px; height:108px; border-radius:50%; border:3px solid rgba(212,168,67,.5); background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; color:white; font-size:38px; font-weight:700; position:relative; z-index:1; }
+        .kp-avatar { width:108px; height:108px; border-radius:50%; border:3px solid #B8892F; position:relative; z-index:1; background-color:rgba(255,255,255,.12); background-size:cover; background-position:center; object-fit:cover; }
+        .kp-avatar-ph { width:108px; height:108px; border-radius:50%; border:3px solid rgba(184,137,47,.5); background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; color:white; font-size:38px; font-weight:700; position:relative; z-index:1; }
 
         .kp-name { font-size:20px; font-weight:800; color:white; text-align:center; letter-spacing:-0.3px; line-height:1.2; position:relative; z-index:1; }
         .kp-spec { font-size:13px; color:rgba(255,255,255,.72); text-align:center; position:relative; z-index:1; }
@@ -347,7 +347,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         .kp-badges { display:flex; align-items:center; gap:7px; flex-wrap:wrap; justify-content:center; position:relative; z-index:1; }
         .kp-b-verified { display:flex; align-items:center; gap:4px; background:rgba(5,150,105,.85); color:white; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; }
         .kp-b-loc { display:flex; align-items:center; gap:4px; background:rgba(255,255,255,.12); color:rgba(255,255,255,.8); font-size:11px; padding:3px 10px; border-radius:20px; }
-        .kp-b-rat { display:flex; align-items:center; gap:4px; background:rgba(212,168,67,.2); color:#D4A843; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; border:1px solid rgba(212,168,67,.3); }
+        .kp-b-rat { display:flex; align-items:center; gap:4px; background:rgba(184,137,47,.2); color:#B8892F; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; border:1px solid rgba(184,137,47,.3); }
 
         /* Linkler */
         .kp-links { padding:18px 18px 6px; display:flex; flex-direction:column; gap:9px; }
@@ -357,7 +357,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         .kp-lbl { display:flex; flex-direction:column; }
         .kp-lbl-sub { font-size:10.5px; opacity:.72; font-weight:500; margin-bottom:1px; }
 
-        .kp-btn--phone   { background:linear-gradient(135deg,#1B3A69,#2d5496); color:white; box-shadow:0 4px 16px rgba(27,58,105,.3); }
+        .kp-btn--phone   { background:linear-gradient(135deg,#1A335E,#2d5496); color:white; box-shadow:0 4px 16px rgba(26,51,94,.3); }
         .kp-btn--ig      { background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045); color:white; box-shadow:0 4px 16px rgba(131,58,180,.25); }
         .kp-btn--fb      { background:linear-gradient(135deg,#1877F2,#0D5EC7); color:white; box-shadow:0 4px 16px rgba(24,119,242,.25); }
         .kp-btn--linkedin { background:linear-gradient(135deg,#0A66C2,#004182); color:white; box-shadow:0 4px 16px rgba(10,102,194,.25); }
@@ -376,7 +376,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         /* Web + Konum — yan yana pro tile */
         .kp-duo { display:flex; gap:9px; }
         .kp-tile { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; padding:17px 14px 15px; border-radius:16px; text-decoration:none; transition:transform .15s, box-shadow .15s; }
-        .kp-tile:hover { transform:translateY(-2px); box-shadow:0 10px 26px rgba(27,58,105,.13); }
+        .kp-tile:hover { transform:translateY(-2px); box-shadow:0 10px 26px rgba(26,51,94,.13); }
         .kp-tile:active { transform:scale(.98); }
         .kp-tile-ic { width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 8px rgba(0,0,0,.08); }
         .kp-tile-lbl { display:flex; flex-direction:column; align-items:center; gap:2px; min-width:0; max-width:100%; }
@@ -389,7 +389,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
 
         /* Alt araçlar */
         .kp-footer { padding:10px 18px 18px; display:flex; gap:9px; }
-        .kp-tool { flex:1; display:flex; align-items:center; justify-content:center; gap:7px; padding:11px; border-radius:13px; background:#F5F7FF; border:1px solid #E2E8F0; color:#1B3A69; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; transition:background .15s; }
+        .kp-tool { flex:1; display:flex; align-items:center; justify-content:center; gap:7px; padding:11px; border-radius:13px; background:#F5F7FF; border:1px solid #E2E8F0; color:#1A335E; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; transition:background .15s; }
 
         /* Ofis değerlendirme posteri */
         .kp-review-poster { margin:12px 18px 0; padding:14px; border-radius:16px; background:#ECFDF5; border:1px solid #A7F3D0; }
@@ -403,46 +403,46 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         /* QR modal mod seçici */
         .qr-tabs { display:flex; gap:6px; margin-bottom:14px; background:#F1F5F9; padding:4px; border-radius:12px; }
         .qr-tab { flex:1; padding:8px; border-radius:9px; border:none; background:transparent; color:#64748B; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; }
-        .qr-tab--on { background:#fff; color:#1B3A69; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+        .qr-tab--on { background:#fff; color:#1A335E; box-shadow:0 1px 4px rgba(0,0,0,.08); }
         .kp-tool:hover { background:#EEF2FF; }
         .kp-tool--ok  { background:#F0FDF4; border-color:#86EFAC; color:#166534; }
 
         /* QR Modal */
         .qr-bd { position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; z-index:1000; padding:24px; }
         .qr-box { background:white; border-radius:24px; padding:28px 24px 22px; max-width:320px; width:100%; text-align:center; box-shadow:0 24px 80px rgba(0,0,0,.4); }
-        .qr-box h3 { font-size:17px; font-weight:800; color:#1B3A69; margin-bottom:5px; }
-        .qr-box p  { font-size:12px; color:#6B7A99; margin-bottom:15px; line-height:1.5; }
+        .qr-box h3 { font-size:17px; font-weight:800; color:#1A335E; margin-bottom:5px; }
+        .qr-box p  { font-size:12px; color:#4A5568; margin-bottom:15px; line-height:1.5; }
         .qr-img  { border:1px solid #E2E8F0; border-radius:14px; padding:10px; display:inline-flex; margin-bottom:12px; }
         .qr-url  { font-size:10.5px; color:#8B9CC0; word-break:break-all; margin-bottom:14px; }
-        .qr-close { width:100%; padding:11px; border-radius:12px; background:#1B3A69; border:none; color:white; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+        .qr-close { width:100%; padding:11px; border-radius:12px; background:#1A335E; border:none; color:white; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
 
         /* Yorum Modal */
         .rev-bd  { position:fixed; inset:0; background:rgba(0,0,0,.55); backdrop-filter:blur(8px); display:flex; align-items:flex-end; justify-content:center; z-index:1000; padding:0; }
         @media (min-width:480px) { .rev-bd { align-items:center; padding:24px; } }
         .rev-box { background:white; border-radius:28px 28px 0 0; padding:28px 22px 36px; width:100%; max-width:460px; box-shadow:0 -12px 60px rgba(0,0,0,.25); }
         @media (min-width:480px) { .rev-box { border-radius:24px; } }
-        .rev-box h3 { font-size:18px; font-weight:800; color:#1B3A69; margin-bottom:4px; text-align:center; }
-        .rev-box .rev-sub { font-size:12.5px; color:#6B7A99; text-align:center; margin-bottom:20px; }
-        .rev-inp { width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid #E2E8F0; font-size:14px; font-family:inherit; color:#1B3A69; outline:none; resize:none; }
-        .rev-inp:focus { border-color:#1B3A69; }
-        .rev-submit { width:100%; padding:14px; border-radius:14px; background:#1B3A69; border:none; color:white; font-size:14.5px; font-weight:800; cursor:pointer; font-family:inherit; margin-top:14px; }
+        .rev-box h3 { font-size:18px; font-weight:800; color:#1A335E; margin-bottom:4px; text-align:center; }
+        .rev-box .rev-sub { font-size:12.5px; color:#4A5568; text-align:center; margin-bottom:20px; }
+        .rev-inp { width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid #E2E8F0; font-size:14px; font-family:inherit; color:#1A335E; outline:none; resize:none; }
+        .rev-inp:focus { border-color:#1A335E; }
+        .rev-submit { width:100%; padding:14px; border-radius:14px; background:#1A335E; border:none; color:white; font-size:14.5px; font-weight:800; cursor:pointer; font-family:inherit; margin-top:14px; }
         .rev-submit:disabled { opacity:.5; cursor:not-allowed; }
 
         /* QR Bölümü — her zaman görünür */
         .kp-reviews { border-top:1px solid #F0F2F8; padding:16px 18px 4px; }
         .kp-reviews-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; }
-        .kp-reviews-title { font-size:14px; font-weight:800; color:#1B3A69; letter-spacing:-.2px; }
+        .kp-reviews-title { font-size:14px; font-weight:800; color:#1A335E; letter-spacing:-.2px; }
         .kp-reviews-count { font-size:11.5px; font-weight:600; color:#9BA8C0; }
         .kp-reviews-list { display:flex; flex-direction:column; gap:12px; }
         .kp-review { background:#FAFBFF; border:1px solid #EEF1F7; border-radius:14px; padding:12px 13px; }
         .kp-review-top { display:flex; align-items:center; gap:10px; }
-        .kp-review-av { width:34px; height:34px; border-radius:50%; background:#1B3A69; color:white; font-size:14px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .kp-review-av { width:34px; height:34px; border-radius:50%; background:#1A335E; color:white; font-size:14px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .kp-review-name { font-size:13px; font-weight:700; color:#243B5E; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .kp-review-stars { display:flex; gap:1px; margin-top:2px; }
         .kp-review-date { font-size:10.5px; font-weight:600; color:#A0AABA; flex-shrink:0; white-space:nowrap; }
         .kp-review-text { font-size:12.8px; color:#4A5468; line-height:1.55; margin-top:9px; word-break:break-word; }
-        .kp-review-reply { font-size:12px; color:#475569; line-height:1.5; margin-top:10px; padding:9px 11px; background:#F1F5F9; border-radius:10px; border-left:3px solid #1B3A69; }
-        .kp-review-reply-lbl { display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:#1B3A69; margin-right:6px; }
+        .kp-review-reply { font-size:12px; color:#475569; line-height:1.5; margin-top:10px; padding:9px 11px; background:#F1F5F9; border-radius:10px; border-left:3px solid #1A335E; }
+        .kp-review-reply-lbl { display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:#1A335E; margin-right:6px; }
         .kp-qr-section { border-top:1px solid #F0F2F8; padding:18px 18px 16px; display:flex; flex-direction:column; align-items:center; gap:10px; background:#FAFBFF; }
         .kp-qr-label { font-size:10px; font-weight:700; letter-spacing:.9px; text-transform:uppercase; color:#9BA8C0; }
         .kp-qr-wrap { border:1.5px solid #E2E8F0; border-radius:14px; padding:10px; background:white; display:inline-flex; }
@@ -452,15 +452,15 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         .kp-dl { padding:10px 18px 18px; display:flex; gap:9px; }
         .kp-dl-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:11px; border-radius:13px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; border:none; transition:opacity .15s; }
         .kp-dl-btn:disabled { opacity:.5; cursor:not-allowed; }
-        .kp-dl-btn--jpg { background:#1B3A69; color:white; }
-        .kp-dl-btn--pdf { background:#D4A843; color:white; }
+        .kp-dl-btn--jpg { background:#1A335E; color:white; }
+        .kp-dl-btn--pdf { background:#B8892F; color:white; }
         .kp-dl-btn--jpg:hover:not(:disabled) { opacity:.88; }
         .kp-dl-btn--pdf:hover:not(:disabled) { opacity:.88; }
 
         /* Hekimhane Banner */
-        .kp-hh-banner { margin:6px 18px 14px; border-radius:16px; overflow:hidden; background:linear-gradient(135deg,#0F2A55 0%,#1B3A69 60%,#2d5496 100%); text-decoration:none; display:flex; align-items:center; gap:12px; padding:14px 16px; transition:opacity .15s; }
+        .kp-hh-banner { margin:6px 18px 14px; border-radius:16px; overflow:hidden; background:linear-gradient(135deg,#152A4E 0%,#1A335E 60%,#2d5496 100%); text-decoration:none; display:flex; align-items:center; gap:12px; padding:14px 16px; transition:opacity .15s; }
         .kp-hh-banner:hover { opacity:.88; }
-        .kp-hh-icon { width:40px; height:40px; border-radius:10px; background:rgba(212,168,67,.18); border:1px solid rgba(212,168,67,.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .kp-hh-icon { width:40px; height:40px; border-radius:10px; background:rgba(184,137,47,.18); border:1px solid rgba(184,137,47,.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .kp-hh-text { flex:1; min-width:0; }
         .kp-hh-sub  { font-size:10px; color:rgba(255,255,255,.55); text-transform:uppercase; letter-spacing:.8px; font-weight:600; margin-bottom:2px; }
         .kp-hh-main { font-size:13.5px; font-weight:700; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -518,7 +518,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
               )}
               {d.rat && d.rat > 0 ? (
                 <span className="kp-b-rat">
-                  <Ic d={ICONS.star} size={10} color="#D4A843" />
+                  <Ic d={ICONS.star} size={10} color="#B8892F" />
                   {d.rat.toFixed(1)}
                   {d.rev && d.rev > 0 && <span style={{ fontWeight: 400, opacity: .8 }}>({d.rev})</span>}
                 </span>
@@ -659,7 +659,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
           {profilePath ? (
             <a href={profilePath} className="kp-hh-banner" target="_self">
               <span className="kp-hh-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2" strokeLinecap="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B8892F" strokeWidth="2" strokeLinecap="round">
                   <path d="M3 21h18M9 21V7l6-4v18M9 11H3v10M15 11h6v10M9 7h6M12 11v4"/>
                 </svg>
               </span>
@@ -679,7 +679,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
           ) : (
             <div className="kp-hh-banner" style={{ cursor: 'default' }}>
               <span className="kp-hh-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2" strokeLinecap="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B8892F" strokeWidth="2" strokeLinecap="round">
                   <path d="M3 21h18M9 21V7l6-4v18M9 11H3v10M15 11h6v10M9 7h6M12 11v4"/>
                 </svg>
               </span>
@@ -734,7 +734,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
             <div className="kp-qr-wrap">
               {pageUrl
                 ? <img src={qrUrl} alt="QR Kod" width={150} height={150} style={{ borderRadius: 6, display: 'block' }} />
-                : <div style={{ width: 150, height: 150, background: '#F0F4FF', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7A99', fontSize: 11 }}>Yükleniyor…</div>
+                : <div style={{ width: 150, height: 150, background: '#F0F4FF', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A5568', fontSize: 11 }}>Yükleniyor…</div>
               }
             </div>
             <div className="kp-qr-url">{pageUrl || `hekimhane.com.tr/kart/${d.slug}`}</div>
@@ -807,7 +807,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
       <div id="kp-a5-sheet" style={{
         display: 'none', position: 'absolute', left: -9999, top: 0,
         width: 520, height: 738, boxSizing: 'border-box',
-        background: 'linear-gradient(165deg,#0F2A55 0%,#1B3A69 55%,#163D6E 100%)',
+        background: 'linear-gradient(165deg,#152A4E 0%,#1A335E 55%,#163D6E 100%)',
         fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
         color: 'white', overflow: 'hidden',
         flexDirection: 'column', alignItems: 'center',
@@ -816,7 +816,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         {/* Marka */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
           <span style={{ display: 'inline-flex' }}>
-            <svg width="30" height="30" viewBox="0 0 40 40"><rect width="40" height="40" rx="11" fill="#fff" /><path d="M20 8.2c-2.9 0-4.3-1.5-6.9-1.5-2.4 0-4.2 1.9-4.2 4.9 0 2.3.9 4.3 1.5 6.4.5 1.9.7 3.6.9 5.6.2 2 .5 4.1 1.1 5.8.5 1.4 1.2 2.4 2.2 2.4 1.1 0 1.6-1.2 1.9-2.9.3-1.7.5-3.6 1.1-5.1.2-.6.6-1.1 1.3-1.1s1.1.5 1.3 1.1c.6 1.5.8 3.4 1.1 5.1.3 1.7.8 2.9 1.9 2.9 1 0 1.7-1 2.2-2.4.6-1.7.9-3.8 1.1-5.8.2-2 .4-3.7.9-5.6.6-2.1 1.5-4.1 1.5-6.4 0-3-1.8-4.9-4.2-4.9C24.3 6.7 22.9 8.2 20 8.2Z" fill="#1B3A69" /></svg>
+            <svg width="30" height="30" viewBox="0 0 40 40"><rect width="40" height="40" rx="11" fill="#fff" /><path d="M20 8.2c-2.9 0-4.3-1.5-6.9-1.5-2.4 0-4.2 1.9-4.2 4.9 0 2.3.9 4.3 1.5 6.4.5 1.9.7 3.6.9 5.6.2 2 .5 4.1 1.1 5.8.5 1.4 1.2 2.4 2.2 2.4 1.1 0 1.6-1.2 1.9-2.9.3-1.7.5-3.6 1.1-5.1.2-.6.6-1.1 1.3-1.1s1.1.5 1.3 1.1c.6 1.5.8 3.4 1.1 5.1.3 1.7.8 2.9 1.9 2.9 1 0 1.7-1 2.2-2.4.6-1.7.9-3.8 1.1-5.8.2-2 .4-3.7.9-5.6.6-2.1 1.5-4.1 1.5-6.4 0-3-1.8-4.9-4.2-4.9C24.3 6.7 22.9 8.2 20 8.2Z" fill="#1A335E" /></svg>
           </span>
           <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.8px' }}>hekimhane<span style={{ color: '#E7BE5C' }}>.com.tr</span></span>
         </div>
@@ -866,8 +866,8 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         <div style={{ background: 'white', borderRadius: 20, padding: '14px 18px 11px', marginTop: 14, boxShadow: '0 10px 40px rgba(0,0,0,.25)' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={qrUrlLarge} alt="QR" style={{ width: 176, height: 176, display: 'block' }} />
-          <div style={{ fontSize: 12.5, fontWeight: 700, color: '#1B3A69', marginTop: 11, letterSpacing: '.2px' }}>Karekodu okutun</div>
-          <div style={{ fontSize: 10.5, color: '#6B7A99', marginTop: 3 }}>Randevu · İletişim · Değerlendirme</div>
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: '#1A335E', marginTop: 11, letterSpacing: '.2px' }}>Karekodu okutun</div>
+          <div style={{ fontSize: 10.5, color: '#4A5568', marginTop: 3 }}>Randevu · İletişim · Değerlendirme</div>
         </div>
 
         {/* Telefon — doğrudan iletişim */}
@@ -937,7 +937,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={qrReviewLarge} alt="Yorum QR" style={{ width: 210, height: 210, display: 'block' }} />
           <div style={{ fontSize: 13, fontWeight: 800, color: '#047857', marginTop: 12 }}>Karekodu Okutun</div>
-          <div style={{ fontSize: 10.5, color: '#6B7A99', marginTop: 3 }}>Doğrudan yorum ekranı açılır</div>
+          <div style={{ fontSize: 10.5, color: '#4A5568', marginTop: 3 }}>Doğrudan yorum ekranı açılır</div>
         </div>
 
         <div style={{ flex: 1, minHeight: 12 }} />
@@ -987,8 +987,8 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                   <Ic d={ICONS.check} size={28} color="#059669" />
                 </div>
-                <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1B3A69', marginBottom: 8 }}>Yorumunuz Alındı!</h3>
-                <p style={{ fontSize: 13.5, color: '#6B7A99', lineHeight: 1.6 }}>
+                <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1A335E', marginBottom: 8 }}>Yorumunuz Alındı!</h3>
+                <p style={{ fontSize: 13.5, color: '#4A5568', lineHeight: 1.6 }}>
                   Değerlendirmeniz için teşekkürler.<br />
                   Yorumunuz incelendikten sonra yayınlanacak.
                 </p>
@@ -1005,18 +1005,18 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
                       </div>
                     </div>
                     <a href={googleTarget} target="_blank" rel="noopener noreferrer"
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 14, padding: '13px 24px', borderRadius: 12, background: '#fff', border: '1.5px solid #E2E8F0', color: '#1B3A69', fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none' }}>
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 14, padding: '13px 24px', borderRadius: 12, background: '#fff', border: '1.5px solid #E2E8F0', color: '#1A335E', fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none' }}>
                       <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1Z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84Z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38Z"/></svg>
                       Google&apos;da Değerlendir
                     </a>
                     <button onClick={() => setShowReview(false)}
-                      style={{ marginTop: 10, padding: '10px 24px', borderRadius: 12, background: 'transparent', border: 'none', color: '#6B7A99', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      style={{ marginTop: 10, padding: '10px 24px', borderRadius: 12, background: 'transparent', border: 'none', color: '#4A5568', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                       Şimdilik geç
                     </button>
                   </>
                 ) : (
                   <button onClick={() => setShowReview(false)}
-                    style={{ marginTop: 22, padding: '12px 32px', borderRadius: 12, background: '#1B3A69', border: 'none', color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    style={{ marginTop: 22, padding: '12px 32px', borderRadius: 12, background: '#1A335E', border: 'none', color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
                     Kapat
                   </button>
                 )}
@@ -1030,14 +1030,14 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
                 {/* Yıldız puanlama — etiket alanı sabit yükseklikte (kayma olmaz) */}
                 <div style={{ marginBottom: 18 }}>
                   <StarRating value={revRating} onChange={setRevRating} />
-                  <div style={{ textAlign: 'center', marginTop: 6, fontSize: 12.5, color: '#D4A843', fontWeight: 700, minHeight: 18, lineHeight: '18px' }}>
+                  <div style={{ textAlign: 'center', marginTop: 6, fontSize: 12.5, color: 'var(--gold-text)', fontWeight: 700, minHeight: 18, lineHeight: '18px' }}>
                     {revRating > 0 ? ['', 'Çok Kötü', 'Kötü', 'Orta', 'İyi', 'Mükemmel'][revRating] : ''}
                   </div>
                 </div>
 
                 {/* Ad Soyad (zorunlu — sayfada maskelenir, tam adı yalnızca hekim görür) */}
                 <div style={{ marginBottom: 10 }}>
-                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: '#6B7A99', letterSpacing: '.3px', textTransform: 'uppercase', marginBottom: 5 }}>Ad Soyad *</label>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: '#4A5568', letterSpacing: '.3px', textTransform: 'uppercase', marginBottom: 5 }}>Ad Soyad *</label>
                   <input
                     className="rev-inp"
                     value={revName}
@@ -1046,7 +1046,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
                   />
                   <div style={{ display: 'flex', gap: 7, alignItems: 'flex-start', marginTop: 7 }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    <div style={{ fontSize: 11, color: '#6B7A99', lineHeight: 1.5 }}>
+                    <div style={{ fontSize: 11, color: '#4A5568', lineHeight: 1.5 }}>
                       Adınız sayfada <strong>tam ve açık gösterilmez</strong> (ör. “Elif K.”). Tam adınızı yalnızca değerlendirdiğiniz hekim görür; yorumun gerçek bir hastadan geldiğinin doğrulanması için gereklidir.
                     </div>
                   </div>
@@ -1054,14 +1054,14 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
 
                 {/* Ziyaret tarihi */}
                 <div style={{ marginBottom: 10 }}>
-                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: '#6B7A99', letterSpacing: '.3px', textTransform: 'uppercase', marginBottom: 5 }}>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: '#4A5568', letterSpacing: '.3px', textTransform: 'uppercase', marginBottom: 5 }}>
                     Ziyaret Tarihi <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(opsiyonel)</span>
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                     <select
                       value={revMonth}
                       onChange={e => setRevMonth(e.target.value)}
-                      style={{ padding: '11px 12px', borderRadius: 11, border: '1.5px solid #E2E8F0', fontSize: 13.5, fontFamily: 'inherit', color: revMonth ? '#1B3A69' : '#94A3B8', background: 'white', outline: 'none' }}
+                      style={{ padding: '11px 12px', borderRadius: 11, border: '1.5px solid #E2E8F0', fontSize: 13.5, fontFamily: 'inherit', color: revMonth ? '#1A335E' : '#94A3B8', background: 'white', outline: 'none' }}
                     >
                       <option value="">Ay seçin</option>
                       {TR_MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
@@ -1069,7 +1069,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
                     <select
                       value={revYear}
                       onChange={e => setRevYear(e.target.value)}
-                      style={{ padding: '11px 12px', borderRadius: 11, border: '1.5px solid #E2E8F0', fontSize: 13.5, fontFamily: 'inherit', color: revYear ? '#1B3A69' : '#94A3B8', background: 'white', outline: 'none' }}
+                      style={{ padding: '11px 12px', borderRadius: 11, border: '1.5px solid #E2E8F0', fontSize: 13.5, fontFamily: 'inherit', color: revYear ? '#1A335E' : '#94A3B8', background: 'white', outline: 'none' }}
                     >
                       <option value="">Yıl seçin</option>
                       {REV_YEARS.map(y => <option key={y} value={String(y)}>{y}</option>)}
@@ -1079,7 +1079,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
 
                 {/* Yorum metni */}
                 <div style={{ marginBottom: 10 }}>
-                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: '#6B7A99', letterSpacing: '.3px', textTransform: 'uppercase', marginBottom: 5 }}>Yorumunuz *</label>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: '#4A5568', letterSpacing: '.3px', textTransform: 'uppercase', marginBottom: 5 }}>Yorumunuz *</label>
                   <textarea
                     className="rev-inp"
                     value={revText}

@@ -205,18 +205,16 @@ export default async function HomePage() {
       {premiumler.length > 0 && <OneCikanHekimler items={premiumler} />}
 
       {/* ── KATEGORİLER ─────────────────────────────────────────────── */}
-      <section style={{ padding: '72px 0', background: '#F5F5F7' }}>
+      <section style={{ padding: '64px 0', background: 'var(--canvas)' }}>
         <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <h2 style={{
-              fontSize: 30, fontWeight: 700, letterSpacing: '-0.8px',
-              color: '#1D1D1F', margin: '0 0 10px',
-            }}>
-              Diş Sağlığında Ne Arıyorsunuz?
-            </h2>
-            <p style={{ color: '#6E6E73', fontSize: 15, margin: 0 }}>
-              Türkiye genelinde arama yapın, size en yakın diş hekimini bulun.
-            </p>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 32 }}>
+            <div>
+              <h2 className="section-title" style={{ margin: '0 0 8px' }}>Diş sağlığında ne arıyorsunuz?</h2>
+              <p style={{ color: 'var(--ink-secondary)', fontSize: 16, margin: 0 }}>
+                Türkiye genelinde arama yapın, size en yakın diş hekimini bulun.
+              </p>
+            </div>
+            <Link href="/klinikler" className="hk-btn hk-btn--ghost">Tüm klinikler →</Link>
           </div>
           {/* Client component — hover etkileşimi burada */}
           <KategoriKartlari stats={stats} />
@@ -233,8 +231,8 @@ export default async function HomePage() {
         <div className="container">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
             <span style={{ color: '#6E6E73', display: 'flex' }}><IconMapPin /></span>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1D1D1F', letterSpacing: '-.4px', margin: 0 }}>
-              Şehre Göre Diş Kliniği Ara
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>
+              Şehre göre diş kliniği ara
             </h2>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -242,12 +240,7 @@ export default async function HomePage() {
               <Link
                 key={il}
                 href={`/klinikler?il=${encodeURIComponent(il)}`}
-                style={{
-                  padding: '7px 16px', borderRadius: 20,
-                  border: '1px solid #E5E5EA', background: 'white',
-                  fontSize: 13.5, fontWeight: 500, color: '#3A3A3C',
-                  textDecoration: 'none', letterSpacing: '-.1px',
-                }}
+                className="hk-tag"
               >
                 {il}
               </Link>
@@ -265,21 +258,21 @@ export default async function HomePage() {
           <div className="container">
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 28 }}>
               <div>
-                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '1.2px', textTransform: 'uppercase', color: '#D4A843', margin: '0 0 10px' }}>
+                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '1.2px', textTransform: 'uppercase', color: 'var(--gold-text)', margin: '0 0 10px' }}>
                   Uzmanlardan
                 </p>
-                <h2 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-0.8px', color: '#1B3A69', margin: 0 }}>
+                <h2 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-0.8px', color: '#1A335E', margin: 0 }}>
                   Öne Çıkan Makaleler
                 </h2>
               </div>
-              <Link href="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600, color: '#1B3A69', textDecoration: 'none', flexShrink: 0 }}>
+              <Link href="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600, color: '#1A335E', textDecoration: 'none', flexShrink: 0 }}>
                 Tüm yazılar <IconArrow />
               </Link>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
               {oneCikanlar.map(m => (
                 <Link key={m.slug} href={`/blog/${m.slug}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', background: '#fff', border: '1px solid #E5E5EA', borderRadius: 18, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
-                  <div style={{ position: 'relative', aspectRatio: '16 / 9', background: m.cover_image ? '#F5F5F7' : 'linear-gradient(135deg,#1B3A69,#163D6E)' }}>
+                  <div style={{ position: 'relative', aspectRatio: '16 / 9', background: m.cover_image ? '#F5F5F7' : 'linear-gradient(135deg,#1A335E,#163D6E)' }}>
                     {m.cover_image
                       // eslint-disable-next-line @next/next/no-img-element
                       ? <img src={m.cover_image} alt={m.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -289,7 +282,7 @@ export default async function HomePage() {
                     )}
                   </div>
                   <div style={{ padding: '18px 20px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#D4A843', textTransform: 'uppercase', letterSpacing: '.5px' }}>{m.category}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold-text)', textTransform: 'uppercase', letterSpacing: '.5px' }}>{m.category}</span>
                     <div style={{ fontWeight: 700, fontSize: 16, color: '#1c1c1e', margin: '8px 0 8px', lineHeight: 1.35 }}>{m.title}</div>
                     <div style={{ fontSize: 13.5, color: '#6E6E73', lineHeight: 1.55, flex: 1 }}>{m.summary.slice(0, 110)}{m.summary.length > 110 ? '…' : ''}</div>
                     {m.okuma_dk ? <div style={{ fontSize: 12, color: '#8E8E93', marginTop: 12 }}>{m.okuma_dk} dk okuma</div> : null}
@@ -308,7 +301,7 @@ export default async function HomePage() {
             <div style={{ maxWidth: 500 }}>
               <p style={{
                 fontSize: 11, fontWeight: 600, letterSpacing: '1.2px',
-                textTransform: 'uppercase', color: '#D4A843', margin: '0 0 12px',
+                textTransform: 'uppercase', color: 'var(--on-deep-heading)', margin: '0 0 12px',
               }}>
                 Diş Hekimleri İçin
               </p>
@@ -325,7 +318,7 @@ export default async function HomePage() {
             <Link href="/katil" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '14px 28px', borderRadius: 13,
-              background: '#D4A843', color: 'white',
+              background: 'var(--gold-fill)', color: 'var(--on-gold)',
               fontSize: 15, fontWeight: 600, textDecoration: 'none',
               letterSpacing: '-.2px', flexShrink: 0,
             }}>

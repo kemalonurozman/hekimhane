@@ -100,28 +100,28 @@ export default async function SiteHaritasi() {
   ];
 
   return (
-    <div style={{ paddingTop: 64, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif', background: '#FBF8F2', minHeight: '100vh' }}>
+    <div style={{ paddingTop: 64, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif', background: '#F6F8FB', minHeight: '100vh' }}>
       <style dangerouslySetInnerHTML={{ __html: `
         .sh-wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
-        .sh-hero { background: linear-gradient(160deg,#0E2D55,#1B3A69); padding: 56px 0 40px; }
+        .sh-hero { background: linear-gradient(160deg,#0E2D55,#1A335E); padding: 56px 0 40px; }
         .sh-tree { margin: 40px 0 72px; position: relative; }
         /* Kök düğüm */
-        .sh-root { display:inline-flex; align-items:center; gap:10px; background:#1B3A69; color:#fff; font-weight:800; font-size:15px; letter-spacing:-.3px; padding:11px 20px; border-radius:14px; box-shadow:0 6px 20px rgba(27,58,105,.25); }
+        .sh-root { display:inline-flex; align-items:center; gap:10px; background:#1A335E; color:#fff; font-weight:800; font-size:15px; letter-spacing:-.3px; padding:11px 20px; border-radius:14px; box-shadow:0 6px 20px rgba(26,51,94,.25); }
         .sh-branches { margin-top: 10px; margin-left: 26px; padding-left: 26px; border-left: 2px solid #E2DED2; }
         .sh-branch { position: relative; padding: 22px 0 4px; }
         .sh-branch::before { content:''; position:absolute; left:-26px; top:40px; width:22px; height:2px; background:#E2DED2; }
-        .sh-btitle { display:inline-flex; align-items:center; gap:8px; font-size:16px; font-weight:800; color:#1B3A69; letter-spacing:-.3px; }
-        .sh-btitle a { color:#1B3A69; text-decoration:none; }
-        .sh-btitle .dot { width:9px; height:9px; border-radius:3px; background:#D4A843; flex-shrink:0; }
+        .sh-btitle { display:inline-flex; align-items:center; gap:8px; font-size:16px; font-weight:800; color:#1A335E; letter-spacing:-.3px; }
+        .sh-btitle a { color:#1A335E; text-decoration:none; }
+        .sh-btitle .dot { width:9px; height:9px; border-radius:3px; background:#B8892F; flex-shrink:0; }
         .sh-links { margin-top: 12px; display:grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 4px 22px; }
         .sh-link { font-size:13.5px; color:#41526b; text-decoration:none; padding:5px 0 5px 16px; position:relative; border-radius:6px; line-height:1.4; }
         .sh-link::before { content:''; position:absolute; left:2px; top:13px; width:7px; height:1px; background:#C9CFDA; }
-        .sh-link:hover { color:#1B3A69; text-decoration:underline; }
+        .sh-link:hover { color:#1A335E; text-decoration:underline; }
       ` }} />
 
       <section className="sh-hero">
         <div className="sh-wrap">
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.2px', textTransform: 'uppercase', color: '#D4A843', marginBottom: 12 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.2px', textTransform: 'uppercase', color: 'var(--gold-text)', marginBottom: 12 }}>
             Tüm Sayfalar Tek Ağaçta
           </div>
           <h1 style={{ fontSize: 'clamp(28px,4vw,42px)', fontWeight: 800, color: '#fff', letterSpacing: '-1.2px', margin: '0 0 10px' }}>
@@ -137,7 +137,7 @@ export default async function SiteHaritasi() {
       <div className="sh-wrap">
         <div className="sh-tree">
           <span className="sh-root">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M9 21V7l6-4v18M9 11H3v10M15 11h6v10M9 7h6M12 11v4" /></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B8892F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M9 21V7l6-4v18M9 11H3v10M15 11h6v10M9 7h6M12 11v4" /></svg>
             hekimhane.com.tr
           </span>
           <div className="sh-branches">

@@ -116,8 +116,8 @@ export async function POST(request: NextRequest) {
             `<p style="font-size:14px;color:#1c1c1e;">Merhaba <strong>${claim.claimant_name || ''}</strong>,</p>` +
             `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${claim.entity_name}</strong> için sahiplenme talebiniz <strong style="color:#059669;">onaylandı</strong> 🎉</p>` +
             `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;">Hesabınızı etkinleştirip <strong>şifrenizi belirlemek</strong> için butona tıklayın. E-postanız (<strong>${email}</strong>) otomatik dolu gelir; yeni şifrenizi <strong>iki kez</strong> girip doğrudan panele giriş yaparsınız.</p>` +
-            `<p style="margin:18px 0;"><a href="${aktivUrl}" style="display:inline-block;background:#1B3A69;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Hesabımı Etkinleştir &amp; Şifre Belirle</a></p>` +
-            `<p style="font-size:12px;color:#6E6E73;line-height:1.6;">Bu bağlantı yalnızca size özeldir ve 7 gün geçerlidir. Buton çalışmazsa şu adresi tarayıcıya yapıştırın:<br><span style="color:#1B3A69;word-break:break-all;">${aktivUrl}</span></p>`);
+            `<p style="margin:18px 0;"><a href="${aktivUrl}" style="display:inline-block;background:#1A335E;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Hesabımı Etkinleştir &amp; Şifre Belirle</a></p>` +
+            `<p style="font-size:12px;color:#6E6E73;line-height:1.6;">Bu bağlantı yalnızca size özeldir ve 7 gün geçerlidir. Buton çalışmazsa şu adresi tarayıcıya yapıştırın:<br><span style="color:#1A335E;word-break:break-all;">${aktivUrl}</span></p>`);
 
           await sendEmail({ to: email, subject: `İşletmeniz onaylandı — ${claim.entity_name}`, html });
           mail = { sent: true, accountCreated: !!created?.user };

@@ -116,7 +116,7 @@ export const KATEGORILER: Kategori[] = [
     slug: 'dis-sagligi',
     ad: 'Diş Sağlığı',
     icon: '🦷',
-    renk: '#1B3A69',
+    renk: '#1A335E',
     bg: '#EFF6FF',
     aciklama: 'Ağız ve diş sağlığı hastalıkları',
     altKategoriler: [

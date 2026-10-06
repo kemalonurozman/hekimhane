@@ -217,7 +217,7 @@ export default async function DisTedaviPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Hero */}
-      <div style={{ background: 'linear-gradient(150deg,#0F2A55 0%,#1B3A69 55%,#163D6E 100%)', color: 'white', padding: '86px 16px 30px' }}>
+      <div style={{ background: 'linear-gradient(150deg,#152A4E 0%,#1A335E 55%,#163D6E 100%)', color: 'white', padding: '86px 16px 30px' }}>
         <div className="container" style={{ maxWidth: 1100, margin: '0 auto' }}>
           <nav style={{ fontSize: 13, color: 'rgba(255,255,255,.7)', marginBottom: 18, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>Ana Sayfa</Link><span>›</span>
@@ -244,12 +244,12 @@ export default async function DisTedaviPage({ params }: Props) {
               <i className="fa-solid fa-tooth" style={{ color: 'var(--gold)' }} /> {sorted.length} sonuç
             </span>
             {problem?.hastalikSlug && (
-              <Link href={`/hastaliklar/dis-sagligi/${problem.hastalikSlug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'var(--gold)', color: 'var(--navy)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+              <Link href={`/hastaliklar/dis-sagligi/${problem.hastalikSlug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'var(--gold-fill)', color: 'var(--navy)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
                 <i className="fa-solid fa-book-medical" /> {label} nedir? Rehber →
               </Link>
             )}
             {(() => { const rb = rehberBySpec(spec); return rb ? (
-              <Link href={`/uzmanlik/${rb.slug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'var(--gold)', color: 'var(--navy)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+              <Link href={`/uzmanlik/${rb.slug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'var(--gold-fill)', color: 'var(--navy)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
                 <i className="fa-solid fa-book-medical" /> {rb.kisaAd} rehberi →
               </Link>
             ) : null; })()}
@@ -290,7 +290,7 @@ export default async function DisTedaviPage({ params }: Props) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {yakin.map(y => (
                 <div key={y.klinik.id}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 6, background: 'var(--gold-light,#FDF6E3)', border: '1px solid rgba(212,168,67,.35)', borderRadius: 20, padding: '3px 11px', fontSize: 12, fontWeight: 700, color: 'var(--navy)' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 6, background: 'var(--gold-light,#FDF6E3)', border: '1px solid rgba(184,137,47,.35)', borderRadius: 20, padding: '3px 11px', fontSize: 12, fontWeight: 700, color: 'var(--navy)' }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
                     </svg>

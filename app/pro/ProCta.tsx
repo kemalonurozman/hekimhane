@@ -51,7 +51,7 @@ export default function ProCta({ boyut = 'md' }: { boyut?: 'md' | 'lg' }) {
       <button onClick={tikla} disabled={durum === 'calisiyor'}
         style={{
           padding: lg ? '15px 34px' : '13px 28px', borderRadius: 13, border: 'none',
-          background: 'linear-gradient(135deg, #D4A843, #BE8F2C)', color: 'white',
+          background: 'var(--gold-fill)', color: 'var(--on-gold)',
           fontSize: lg ? 16 : 14.5, fontWeight: 800, letterSpacing: '.2px',
           cursor: durum === 'calisiyor' ? 'default' : 'pointer',
           opacity: durum === 'calisiyor' ? 0.7 : 1,

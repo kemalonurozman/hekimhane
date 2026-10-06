@@ -148,7 +148,7 @@ export default async function BlogDetayPage({ params }: Props) {
             <span style={{ fontSize: 8 }}>›</span>
             <span style={{ color: 'rgba(255,255,255,.9)' }}>{y.category}</span>
           </nav>
-          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--navy)', background: 'var(--gold)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>
+          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--navy)', background: 'var(--gold-fill)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>
             {y.category}
           </span>
           <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 800, color: 'white', lineHeight: 1.2, marginBottom: 14 }}>

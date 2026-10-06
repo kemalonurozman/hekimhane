@@ -239,7 +239,7 @@ function GirisContent() {
   /* Ortak stil nesneleri */
   const card: React.CSSProperties = {
     background: 'white', borderRadius: 28,
-    boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 12px 44px rgba(27,58,105,.13)',
+    boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 12px 44px rgba(26,51,94,.13)',
     padding: '40px 34px', width: '100%', maxWidth: 400,
     textAlign: 'center',
   };
@@ -248,7 +248,7 @@ function GirisContent() {
     border: '1px solid #E2E8F0', background: 'white',
     cursor: 'pointer', display: 'flex', alignItems: 'center',
     justifyContent: 'center', gap: 10,
-    fontSize: 15, fontWeight: 600, color: '#1A2744',
+    fontSize: 15, fontWeight: 600, color: '#111C2E',
     transition: 'all .15s',
   };
   // Apple-tarzı segmented control
@@ -268,14 +268,14 @@ function GirisContent() {
     background: '#F5F5F7', border: `1px solid ${err ? '#FF8080' : 'transparent'}`,
     outline: 'none', boxSizing: 'border-box', transition: 'background .15s, border-color .15s, box-shadow .15s',
   });
-  const inpFocus = (e: React.FocusEvent<HTMLInputElement>) => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#1B3A69'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(27,58,105,.10)'; };
+  const inpFocus = (e: React.FocusEvent<HTMLInputElement>) => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#1A335E'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(26,51,94,.10)'; };
   const inpBlur = (err?: boolean) => (e: React.FocusEvent<HTMLInputElement>) => { e.currentTarget.style.background = '#F5F5F7'; e.currentTarget.style.borderColor = err ? '#FF8080' : 'transparent'; e.currentTarget.style.boxShadow = 'none'; };
   const primaryBtn: React.CSSProperties = {
     width: '100%', padding: '15px 20px', borderRadius: 14, border: 'none',
-    background: 'linear-gradient(180deg,#234A80,#1B3A69)', color: 'white',
+    background: 'linear-gradient(180deg,#234A80,#1A335E)', color: 'white',
     fontSize: 16, fontWeight: 600, letterSpacing: '-0.2px', fontFamily: 'inherit',
     cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
-    boxShadow: '0 8px 20px rgba(27,58,105,.28)', transition: 'transform .1s, box-shadow .15s, opacity .15s',
+    boxShadow: '0 8px 20px rgba(26,51,94,.28)', transition: 'transform .1s, box-shadow .15s, opacity .15s',
   };
 
   return (
@@ -290,7 +290,7 @@ function GirisContent() {
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 24 }}>
           <LogoMark size={34} />
-          <span style={{ fontWeight: 800, fontSize: 20, color: 'var(--navy)', letterSpacing: '-0.3px' }}>Hekim<span style={{ color: '#D4A843' }}>hane</span></span>
+          <span style={{ fontWeight: 800, fontSize: 20, color: 'var(--navy)', letterSpacing: '-0.3px' }}>Hekim<span style={{ color: 'var(--gold-text)' }}>hane</span></span>
         </div>
 
         {/* --- Hesap oluşturma başarılı --- */}
@@ -387,7 +387,7 @@ function GirisContent() {
                       fontFamily: 'inherit', textAlign: 'center',
                       border: aktif ? '2px solid var(--navy)' : '1.5px solid #E4E6EC',
                       background: aktif ? 'linear-gradient(180deg,#F4F8FF,#EAF1FD)' : '#FBFBFD',
-                      boxShadow: aktif ? '0 6px 18px rgba(27,58,105,.16)' : 'none',
+                      boxShadow: aktif ? '0 6px 18px rgba(26,51,94,.16)' : 'none',
                       transition: 'all .16s cubic-bezier(.4,0,.2,1)',
                     }}>
                     {aktif && (
@@ -488,7 +488,7 @@ function GirisContent() {
                     <div style={{ textAlign: 'right', marginTop: -4, marginBottom: 12 }}>
                       <button type="button"
                         onClick={() => { setMod('reset'); setEmailError(''); setPassword(''); setResetSent(false); }}
-                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12.5, fontWeight: 600, color: '#1B3A69', fontFamily: 'inherit' }}>
+                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12.5, fontWeight: 600, color: '#1A335E', fontFamily: 'inherit' }}>
                         Şifremi unuttum
                       </button>
                     </div>
@@ -573,7 +573,7 @@ function GirisContent() {
             {mod === 'reset' && (
               <button type="button"
                 onClick={() => { setMod('password'); setEmailError(''); setResetSent(false); }}
-                style={{ background: 'none', border: 'none', padding: 0, marginTop: 16, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#1B3A69', fontFamily: 'inherit' }}>
+                style={{ background: 'none', border: 'none', padding: 0, marginTop: 16, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#1A335E', fontFamily: 'inherit' }}>
                 ← Girişe geri dön
               </button>
             )}

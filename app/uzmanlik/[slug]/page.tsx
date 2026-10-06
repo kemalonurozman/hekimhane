@@ -64,7 +64,7 @@ export default function UzmanlikRehberPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Hero */}
-      <div style={{ background: 'linear-gradient(135deg, #1B3A69 0%, #163D6E 100%)', padding: '48px 0 44px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'linear-gradient(135deg, #1A335E 0%, #163D6E 100%)', padding: '48px 0 44px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', right: -60, top: -60, width: 280, height: 280, borderRadius: '50%', background: 'rgba(255,255,255,.04)' }} />
         <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: 820 }}>
           <nav style={{ display: 'flex', gap: 6, fontSize: 12, color: 'rgba(255,255,255,.55)', marginBottom: 16, flexWrap: 'wrap' }}>
@@ -72,8 +72,8 @@ export default function UzmanlikRehberPage({ params }: Props) {
             <Link href="/uzmanlik" style={{ color: 'rgba(255,255,255,.7)', textDecoration: 'none' }}>Uzmanlık Rehberleri</Link><span>›</span>
             <span style={{ color: 'white' }}>{r.kisaAd}</span>
           </nav>
-          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--navy)', background: 'var(--gold)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>Uzmanlık Rehberi</span>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px,4vw,38px)', fontWeight: 800, color: 'white', lineHeight: 1.2, margin: '0 0 12px' }}>{r.ad}</h1>
+          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--navy)', background: 'var(--gold-fill)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>Uzmanlık Rehberi</span>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px,4vw,38px)', fontWeight: 800, color: 'var(--on-gold)', lineHeight: 1.2, margin: '0 0 12px' }}>{r.ad}</h1>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,.85)', lineHeight: 1.6, maxWidth: 700, margin: 0 }}>{r.ozet}</p>
         </div>
       </div>

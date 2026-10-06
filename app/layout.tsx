@@ -1,21 +1,24 @@
 import type { Metadata } from 'next';
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
+import './styles/hk-components.css';
 import Navbar from '@/components/Navbar';
 import SiteFooter from '@/components/SiteFooter';
 import CompareBar from '@/components/CompareBar';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
+// Tasarım sistemi v3: gövde Inter, başlık Plus Jakarta Sans. latin-ext: Türkçe harfler (İ ş ğ ı) önden yüklenir.
 const inter = Inter({
-  subsets: ['latin'],
+  subsets: ['latin', 'latin-ext'],
   variable: '--font-inter',
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-playfair',
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-jakarta',
   weight: ['600', '700', '800'],
   display: 'swap',
 });
@@ -62,7 +65,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="tr" className={`${inter.variable} ${jakarta.variable}`}>
       <head>
         <link
           rel="stylesheet"

@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
         satir('E-posta', k.email) +
         satir('Kategori', kayit.category) +
         satir('Özet', summary) +
-        '<p style="margin:16px 0 0;"><a href="https://www.hekimhane.com.tr/admin" style="color:#1B3A69;font-weight:700;">Admin → Makaleler</a></p>'),
+        '<p style="margin:16px 0 0;"><a href="https://www.hekimhane.com.tr/admin" style="color:#1A335E;font-weight:700;">Admin → Makaleler</a></p>'),
     });
 
     return NextResponse.json({ ok: true, id: data?.id, slug: data?.slug });

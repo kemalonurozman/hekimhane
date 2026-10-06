@@ -5,23 +5,23 @@ import { MAKALE_FIYAT, KDV_ORANI, KDV_TUTAR, TOPLAM, PAKET_ICERIK, tl } from '@/
 
 /* ── İkonlar (emoji yok, hepsi inline SVG) ── */
 const IcoLink = (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B3A69" strokeWidth="1.6" strokeLinecap="round">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A335E" strokeWidth="1.6" strokeLinecap="round">
     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
   </svg>
 );
 const IcoTarget = (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B3A69" strokeWidth="1.6" strokeLinecap="round">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A335E" strokeWidth="1.6" strokeLinecap="round">
     <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" />
   </svg>
 );
 const IcoBadge = (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B3A69" strokeWidth="1.6" strokeLinecap="round">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A335E" strokeWidth="1.6" strokeLinecap="round">
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 11 11 13 15 9" />
   </svg>
 );
 const IcoInfinity = (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B3A69" strokeWidth="1.6" strokeLinecap="round">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A335E" strokeWidth="1.6" strokeLinecap="round">
     <path d="M6.5 8.5a3.5 3.5 0 1 0 0 7c2.5 0 3.5-3.5 5.5-3.5s3 3.5 5.5 3.5a3.5 3.5 0 1 0 0-7c-2.5 0-3.5 3.5-5.5 3.5S9 8.5 6.5 8.5z" />
   </svg>
 );
@@ -286,17 +286,17 @@ export default function MakaleYayinlaClient({
     <>
       <style>{`
         * { box-sizing: border-box; }
-        body { background: #FBF8F2; }
+        body { background: #F6F8FB; }
         .mky-container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
 
-        .mky-hero { background: linear-gradient(135deg, #0F2348 0%, #1B3A69 60%, #0D3B5E 100%); color: white; padding: 76px 0 68px; text-align: center; }
-        .mky-badge { display: inline-flex; align-items: center; gap: 7px; background: rgba(212,168,67,.18); border: 1px solid rgba(212,168,67,.35); border-radius: 50px; padding: 5px 16px; font-size: 11.5px; font-weight: 700; color: #D4A843; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 22px; }
+        .mky-hero { background: linear-gradient(135deg, #0F2348 0%, #1A335E 60%, #0D3B5E 100%); color: white; padding: 76px 0 68px; text-align: center; }
+        .mky-badge { display: inline-flex; align-items: center; gap: 7px; background: rgba(184,137,47,.18); border: 1px solid rgba(184,137,47,.35); border-radius: 50px; padding: 5px 16px; font-size: 11.5px; font-weight: 700; color: #B8892F; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 22px; }
         .mky-h1 { font-size: clamp(28px,5vw,50px); font-weight: 900; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 18px; }
         .mky-sub { font-size: clamp(15px,2vw,18px); color: rgba(255,255,255,.72); line-height: 1.7; max-width: 560px; margin: 0 auto 34px; }
-        .mky-cta { display: inline-flex; align-items: center; gap: 10px; padding: 16px 36px; background: linear-gradient(135deg,#D4A843,#B8860B); color: white; border-radius: 14px; font-size: 16px; font-weight: 800; border: none; cursor: pointer; font-family: inherit; transition: opacity .2s, transform .15s; box-shadow: 0 4px 20px rgba(212,168,67,.4); }
+        .mky-cta { display: inline-flex; align-items: center; gap: 10px; padding: 16px 36px; background: linear-gradient(135deg,#B8892F,#B8860B); color: white; border-radius: 14px; font-size: 16px; font-weight: 800; border: none; cursor: pointer; font-family: inherit; transition: opacity .2s, transform .15s; box-shadow: 0 4px 20px rgba(184,137,47,.4); }
         .mky-cta:hover { opacity: .92; transform: translateY(-1px); }
         .mky-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; max-width: 700px; margin: 46px auto 0; }
-        .mky-stat-n { font-size: clamp(24px,3.6vw,34px); font-weight: 900; color: #D4A843; letter-spacing: -1px; }
+        .mky-stat-n { font-size: clamp(24px,3.6vw,34px); font-weight: 900; color: #B8892F; letter-spacing: -1px; }
         .mky-stat-l { font-size: 12.5px; color: rgba(255,255,255,.6); margin-top: 4px; letter-spacing: .3px; }
 
         .mky-section { padding: 72px 0; }
@@ -312,16 +312,16 @@ export default function MakaleYayinlaClient({
 
         .mky-steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; margin-top: 40px; }
         .mky-step { text-align: center; padding: 0 10px; }
-        .mky-step-n { width: 44px; height: 44px; border-radius: 50%; background: #1B3A69; color: white; font-size: 17px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+        .mky-step-n { width: 44px; height: 44px; border-radius: 50%; background: #1A335E; color: white; font-size: 17px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
         .mky-step-t { font-size: 14.5px; font-weight: 800; color: #1C2B4A; margin-bottom: 6px; }
         .mky-step-m { font-size: 13px; color: #6E6E73; line-height: 1.65; }
 
         .mky-price-wrap { max-width: 620px; margin: 40px auto 0; }
-        .mky-price-card { background: white; border: 2px solid #1B3A69; border-radius: 22px; padding: 34px 32px; box-shadow: 0 8px 32px rgba(27,58,105,.10); position: relative; }
-        .mky-price-tag { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg,#D4A843,#B8860B); color: white; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 6px 18px; border-radius: 50px; white-space: nowrap; }
+        .mky-price-card { background: white; border: 2px solid #1A335E; border-radius: 22px; padding: 34px 32px; box-shadow: 0 8px 32px rgba(26,51,94,.10); position: relative; }
+        .mky-price-tag { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg,#B8892F,#B8860B); color: white; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 6px 18px; border-radius: 50px; white-space: nowrap; }
         .mky-price-name { font-size: 19px; font-weight: 900; color: #1C2B4A; text-align: center; letter-spacing: -.4px; }
         .mky-price-desc { font-size: 13.5px; color: #6E6E73; text-align: center; line-height: 1.7; margin-top: 8px; }
-        .mky-price-big { font-size: 46px; font-weight: 900; color: #1B3A69; letter-spacing: -2px; text-align: center; margin-top: 20px; line-height: 1; }
+        .mky-price-big { font-size: 46px; font-weight: 900; color: #1A335E; letter-spacing: -2px; text-align: center; margin-top: 20px; line-height: 1; }
         .mky-price-kdv { font-size: 13px; color: #6E6E73; text-align: center; margin-top: 8px; }
         .mky-price-list { list-style: none; padding: 0; margin: 26px 0 0; border-top: 1px solid #E5E5EA; padding-top: 22px; }
         .mky-price-list li { display: flex; gap: 10px; font-size: 14px; color: #3A3A3C; line-height: 1.6; margin-bottom: 11px; }
@@ -337,26 +337,26 @@ export default function MakaleYayinlaClient({
         .mky-prev-h { font-size: 25px; font-weight: 900; color: #1C2B4A; letter-spacing: -.8px; line-height: 1.25; }
         .mky-prev-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12.5px; color: #6E6E73; margin-top: 12px; }
         .mky-prev-line { height: 9px; border-radius: 5px; background: #F0F0F3; margin-top: 14px; }
-        .mky-prev-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 20px; font-size: 13.5px; font-weight: 700; color: #1B3A69; background: #EFF6FF; border: 1px solid #DBEAFE; border-radius: 10px; padding: 9px 14px; }
+        .mky-prev-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 20px; font-size: 13.5px; font-weight: 700; color: #1A335E; background: #EFF6FF; border: 1px solid #DBEAFE; border-radius: 10px; padding: 9px 14px; }
 
-        .mky-order { background: linear-gradient(135deg,#0F2348,#1B3A69); padding: 76px 0; }
+        .mky-order { background: linear-gradient(135deg,#0F2348,#1A335E); padding: 76px 0; }
         .mky-order-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; margin-top: 38px; }
         .mky-box { background: white; border-radius: 20px; padding: 32px; position: relative; }
         .mky-summary { background: white; border-radius: 20px; padding: 26px 24px; position: sticky; top: 90px; }
         .mky-sum-t { font-size: 12px; font-weight: 800; color: #6E6E73; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
         .mky-sum-row { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: #3A3A3C; margin-bottom: 10px; }
-        .mky-sum-total { display: flex; justify-content: space-between; gap: 12px; font-size: 17px; font-weight: 900; color: #1B3A69; border-top: 1px solid #E5E5EA; padding-top: 14px; margin-top: 14px; letter-spacing: -.4px; }
+        .mky-sum-total { display: flex; justify-content: space-between; gap: 12px; font-size: 17px; font-weight: 900; color: #1A335E; border-top: 1px solid #E5E5EA; padding-top: 14px; margin-top: 14px; letter-spacing: -.4px; }
 
-        .mky-fieldset-title { font-size: 12px; font-weight: 800; color: #1B3A69; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+        .mky-fieldset-title { font-size: 12px; font-weight: 800; color: #1A335E; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
         .mky-form { position: relative; }
         .mky-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .mky-full { grid-column: 1 / -1; }
         .mky-lbl { font-size: 12px; font-weight: 700; color: #6E6E73; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; display: block; }
         .mky-inp { width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #E5E5EA; font-size: 14px; font-family: inherit; background: white; color: #1C2B4A; outline: none; resize: vertical; }
-        .mky-inp:focus { border-color: #1B3A69; }
+        .mky-inp:focus { border-color: #1A335E; }
         .mky-hint { font-size: 12px; color: #6E6E73; margin-top: 5px; }
         .mky-err { background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C; font-size: 13.5px; border-radius: 10px; padding: 11px 14px; margin-top: 16px; }
-        .mky-submit { width: 100%; margin-top: 20px; padding: 15px 24px; border-radius: 13px; border: none; background: linear-gradient(135deg,#D4A843,#B8860B); color: white; font-size: 15.5px; font-weight: 800; font-family: inherit; cursor: pointer; transition: opacity .2s; }
+        .mky-submit { width: 100%; margin-top: 20px; padding: 15px 24px; border-radius: 13px; border: none; background: linear-gradient(135deg,#B8892F,#B8860B); color: white; font-size: 15.5px; font-weight: 800; font-family: inherit; cursor: pointer; transition: opacity .2s; }
         .mky-submit:hover { opacity: .92; }
         .mky-submit:disabled { opacity: .55; cursor: default; }
         .mky-legal { font-size: 12px; color: #6E6E73; line-height: 1.6; margin-top: 14px; text-align: center; }
@@ -364,7 +364,7 @@ export default function MakaleYayinlaClient({
 
         .mky-contact { max-width: 620px; margin: 38px auto 0; }
         .mky-mail { text-align: center; font-size: 14px; color: #6E6E73; margin-top: 20px; }
-        .mky-mail a { color: #1B3A69; font-weight: 700; text-decoration: none; }
+        .mky-mail a { color: #1A335E; font-weight: 700; text-decoration: none; }
 
         @media (max-width: 900px) {
           .mky-neden-grid { grid-template-columns: 1fr 1fr; }
@@ -386,7 +386,7 @@ export default function MakaleYayinlaClient({
           <div className="mky-badge">İş Ortağı İçeriği</div>
           <h1 className="mky-h1">
             Hekimhane&apos;de<br />
-            <span style={{ color: '#D4A843' }}>makale yayınlayın</span>
+            <span style={{ color: 'var(--on-deep-heading)' }}>makale yayınlayın</span>
           </h1>
           <p className="mky-sub">
             Her ay sağlık bilgisi arayan on binlerce hastaya ulaşın.
@@ -511,7 +511,7 @@ export default function MakaleYayinlaClient({
               <div className="mky-prev-line" style={{ width: '94%' }} />
               <div className="mky-prev-line" style={{ width: '88%' }} />
               <div className="mky-prev-link">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1B3A69" strokeWidth="2.2" strokeLinecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1A335E" strokeWidth="2.2" strokeLinecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
                 www.klinigim.com — metin içinden doğrudan bağlantı
               </div>
             </div>
@@ -551,7 +551,7 @@ export default function MakaleYayinlaClient({
               <ul style={{ listStyle: 'none', padding: 0, margin: '18px 0 0' }}>
                 {dahil.slice(0, 5).map((d, i) => (
                   <li key={i} style={{ display: 'flex', gap: 8, fontSize: 12.5, color: '#6E6E73', lineHeight: 1.55, marginBottom: 8 }}>
-                    <Check c="#1B3A69" />{d}
+                    <Check c="#1A335E" />{d}
                   </li>
                 ))}
                 <li style={{ fontSize: 12.5, color: '#6E6E73', paddingLeft: 24 }}>ve dahası — hepsi fiyata dahil.</li>

@@ -10,6 +10,7 @@ import PremiumBadge from '@/components/PremiumBadge';
 import HekimRosterKart from '@/components/HekimRosterKart';
 import { ToothGlyph } from '@/components/Logo';
 import SafeLogo from '@/components/SafeLogo';
+import { basHarfler } from '@/lib/hk';
 import type { Doktor } from '@/lib/types';
 
 // ── Türkiye İl Merkez Koordinatları ──────────────────────────────
@@ -149,7 +150,7 @@ function Stars({ rat, size = 13 }: { rat: number; size?: number }) {
       {[1,2,3,4,5].map(i => (
         <i key={i}
           className={`fa-${i <= rounded ? 'solid' : 'regular'} fa-star`}
-          style={{ color: i <= rounded ? '#D4A843' : '#D1D5DB', fontSize: size, marginRight: 1 }}
+          style={{ color: i <= rounded ? '#B8892F' : '#D1D5DB', fontSize: size, marginRight: 1 }}
         />
       ))}
     </span>
@@ -312,7 +313,7 @@ function Panorama360({ url, name }: { url: string; name: string }) {
   return (
     <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', border: '1px solid var(--border)' }}>
       <div ref={containerRef} style={{ width: '100%', height: 400 }} />
-      <div style={{ position: 'absolute', top: 10, left: 12, background: 'rgba(27,58,105,.85)', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none', zIndex: 10 }}>
+      <div style={{ position: 'absolute', top: 10, left: 12, background: 'rgba(26,51,94,.85)', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none', zIndex: 10 }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         360° Panorama
       </div>
@@ -443,11 +444,11 @@ function KonumHarita({ lat, lng, name, mapsUrl, adres, il, ilce, entityId, entit
       }).addTo(map);
       const icon = L.divIcon({
         className: '',
-        html: `<div style="background:#1B3A69;width:44px;height:44px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 3px 14px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;"><span style="transform:rotate(45deg);font-size:18px;">📍</span></div>`,
+        html: `<div style="background:#1A335E;width:44px;height:44px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 3px 14px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;"><span style="transform:rotate(45deg);font-size:18px;">📍</span></div>`,
         iconSize: [44, 44], iconAnchor: [22, 44], popupAnchor: [0, -48],
       });
       L.marker([coords!.lat, coords!.lng], { icon }).addTo(map)
-        .bindPopup(`<strong style="font-size:13px;">${name}</strong>${mapsUrl ? `<br><a href="${mapsUrl}" target="_blank" style="font-size:12px;color:#1B3A69;">📍 Google Maps</a>` : ''}`).openPopup();
+        .bindPopup(`<strong style="font-size:13px;">${name}</strong>${mapsUrl ? `<br><a href="${mapsUrl}" target="_blank" style="font-size:12px;color:#1A335E;">📍 Google Maps</a>` : ''}`).openPopup();
       setTimeout(() => map.invalidateSize(), 100);
       mapObj.current = map;
     }
@@ -555,7 +556,7 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
   return (
     <>
       {toast && (
-        <div style={{ position: 'fixed', bottom: 28, right: 28, background: '#1B3A69', color: 'white', padding: '12px 20px', borderRadius: 12, fontSize: 13, fontWeight: 600, zIndex: 9999, boxShadow: '0 8px 24px rgba(0,0,0,.2)' }}>
+        <div style={{ position: 'fixed', bottom: 28, right: 28, background: '#1A335E', color: 'white', padding: '12px 20px', borderRadius: 12, fontSize: 13, fontWeight: 600, zIndex: 9999, boxShadow: '0 8px 24px rgba(0,0,0,.2)' }}>
           {toast}
         </div>
       )}
@@ -580,7 +581,7 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
             <div style={{ fontSize: 13, fontWeight: 700, color: '#065F46', marginBottom: 8 }}>Puanınız</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
               {[1,2,3,4,5].map(v => (
-                <span key={v} onClick={() => setStar(v)} style={{ fontSize: 34, cursor: 'pointer', color: v <= star ? '#D4A843' : '#D1D5DB', transition: 'color .15s' }}>★</span>
+                <span key={v} onClick={() => setStar(v)} style={{ fontSize: 34, cursor: 'pointer', color: v <= star ? '#B8892F' : '#D1D5DB', transition: 'color .15s' }}>★</span>
               ))}
             </div>
             <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>{star ? starLabels[star] : 'Puanlamak için yıldıza tıklayın'}</div>
@@ -711,13 +712,13 @@ const SEAL_CSS = `
 .hk-seal-wrap:hover .hk-seal{transform:scale(1.08);}
 /* Sahiplenilmemiş mühür — soluk değil, davetkâr */
 .hk-seal-open{cursor:pointer;text-decoration:none;}
-.hk-seal-open .hk-seal{filter:drop-shadow(0 3px 9px rgba(27,58,105,.28));animation:hkSealPulse 2.8s ease-in-out infinite;}
+.hk-seal-open .hk-seal{filter:drop-shadow(0 3px 9px rgba(26,51,94,.28));animation:hkSealPulse 2.8s ease-in-out infinite;}
 .hk-seal-open:hover .hk-seal{animation:none;}
 @keyframes hkSealPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
 /* İpucu balonu — hero overflow:hidden içinde kalmasın diye position:fixed,
    konumu JS ile mühürün ekran koordinatından hesaplanır. */
 .hk-tip{position:fixed;width:270px;max-width:calc(100vw - 24px);
-  background:linear-gradient(150deg,#1B3A69,#0F2A55);color:#fff;border-radius:16px;padding:14px 16px;
+  background:linear-gradient(150deg,#1A335E,#152A4E);color:#fff;border-radius:16px;padding:14px 16px;
   box-shadow:0 18px 44px rgba(15,42,85,.34);pointer-events:auto;cursor:pointer;z-index:1200;text-align:left;
   transform:translate(-50%,-100%);animation:hkTipIn .16s ease both;}
 .hk-tip--alt{transform:translate(-50%,0);}
@@ -729,7 +730,7 @@ const SEAL_CSS = `
 .hk-tip-kicker{display:block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#E8C567;line-height:1.4;margin-bottom:6px;}
 .hk-tip-title{display:block;font-size:13.5px;font-weight:800;line-height:1.4;margin-bottom:6px;}
 .hk-tip-text{display:block;font-size:12px;line-height:1.6;color:rgba(255,255,255,.74);}
-.hk-tip-cta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;font-weight:800;color:#0F2A55;background:linear-gradient(135deg,#EBC65D,#D4A843);border-radius:999px;padding:6px 12px;line-height:1.2;}
+.hk-tip-cta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;font-weight:800;color:#152A4E;background:linear-gradient(135deg,#EBC65D,#B8892F);border-radius:999px;padding:6px 12px;line-height:1.2;}
 .hk-tip-dismiss{display:block;margin-top:10px;font-size:10.5px;font-weight:700;letter-spacing:.3px;color:rgba(255,255,255,.5);}
 `;
 
@@ -741,7 +742,7 @@ const RANDEVU_MODAL_CSS = `
 .randevu-modal-card input:focus, .randevu-modal-card select:focus, .randevu-modal-card textarea:focus {
   border-color: var(--navy);
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(27,58,105,.14);
+  box-shadow: 0 0 0 3px rgba(26,51,94,.14);
 }
 /* Apple-tarzı gün seçici — yatay kaydırılabilir */
 .rnd-days{display:flex;gap:8px;overflow-x:auto;padding:1px 1px 7px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;}
@@ -751,7 +752,7 @@ const RANDEVU_MODAL_CSS = `
 .rnd-day .d-dow{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
 .rnd-day .d-num{font-size:19px;font-weight:800;color:var(--text);line-height:1.15;}
 .rnd-day .d-mon{font-size:10px;color:var(--muted);}
-.rnd-day.sel{background:var(--navy);border-color:var(--navy);box-shadow:0 6px 16px rgba(27,58,105,.28);}
+.rnd-day.sel{background:var(--navy);border-color:var(--navy);box-shadow:0 6px 16px rgba(26,51,94,.28);}
 .rnd-day.sel .d-dow,.rnd-day.sel .d-num,.rnd-day.sel .d-mon{color:#fff;}
 .rnd-day.any{min-width:76px;display:flex;flex-direction:column;justify-content:center;}
 .rnd-day.any .d-num{font-size:13px;font-weight:700;}
@@ -761,7 +762,7 @@ const RANDEVU_MODAL_CSS = `
 .rnd-slot:active{transform:scale(.95);}
 .rnd-slot .s-l{font-size:12.5px;font-weight:700;color:var(--text);}
 .rnd-slot .s-s{font-size:10px;color:var(--muted);margin-top:1px;}
-.rnd-slot.sel{background:var(--navy);border-color:var(--navy);box-shadow:0 6px 16px rgba(27,58,105,.28);}
+.rnd-slot.sel{background:var(--navy);border-color:var(--navy);box-shadow:0 6px 16px rgba(26,51,94,.28);}
 .rnd-slot.sel .s-l,.rnd-slot.sel .s-s{color:#fff;}
 .rnd-slot.kapali{cursor:not-allowed;background:#F7F7F9;border-color:var(--border);}
 .rnd-slot.kapali:active{transform:none;}
@@ -823,7 +824,7 @@ function hesaplaGunSlotlari(iso: string, opts: { calismaSaatleri?: string | null
 function TalepNotu({ style }: { style?: React.CSSProperties }) {
   return (
     <p style={{ display: 'flex', gap: 8, alignItems: 'flex-start', textAlign: 'left', fontSize: 12, lineHeight: 1.55, color: 'var(--muted)', background: '#F8FAFC', border: '1px solid var(--border)', borderRadius: 10, padding: '9px 11px', margin: '12px 0 0', ...style }}>
-      <i className="fa-solid fa-circle-info" style={{ color: '#6B7A99', marginTop: 2, flexShrink: 0 }} />
+      <i className="fa-solid fa-circle-info" style={{ color: '#4A5568', marginTop: 2, flexShrink: 0 }} />
       <span>
         Bu bir <strong>randevu talebidir</strong>, kesinleşmiş randevu değildir. Hekimin veya kliniğin iletişim bilgileri sistemimizde
         kayıtlıysa talebinizi en kısa sürede kendilerine iletiriz; randevunuz, sizi aradıklarında kesinleşir.
@@ -1256,7 +1257,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
     padding: '11px 8px', borderRadius: 12, fontSize: 12.5, fontWeight: 700,
     background: '#fff', color: 'var(--navy)', border: '1.5px solid var(--border)',
     textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
-    gap: 7, boxShadow: '0 2px 8px rgba(27,58,105,.08)', whiteSpace: 'nowrap',
+    gap: 7, boxShadow: '0 2px 8px rgba(26,51,94,.08)', whiteSpace: 'nowrap',
   };
 
   // İç etiketleri (ör. devlet-dis-hastanesi) uzmanlık listesinden gizle
@@ -1359,7 +1360,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
           ? undefined
           : (cover && !coverPresetKey(cover))
           ? `linear-gradient(180deg, rgba(10,22,40,.40) 0%, rgba(12,31,60,.72) 52%, rgba(8,18,34,.95) 100%), url(${cover}) center/cover`
-          : 'linear-gradient(150deg,#0F2A55 0%,#1B3A69 55%,#163D6E 100%)',
+          : 'linear-gradient(150deg,#152A4E 0%,#1A335E 55%,#163D6E 100%)',
         backgroundColor: 'var(--navy)',
         borderBottom: '1px solid var(--border)',
         position: 'relative', overflow: 'hidden',
@@ -1392,7 +1393,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
           )
         ) : (
           /* Derinlik için ince ışıltı — fotolu/fotosuz hero'da */
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 120% at 100% 0%,rgba(212,168,67,.10),transparent 55%),radial-gradient(ellipse 45% 80% at 0% 100%,rgba(255,255,255,.05),transparent 60%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 120% at 100% 0%,rgba(184,137,47,.10),transparent 55%),radial-gradient(ellipse 45% 80% at 0% 100%,rgba(255,255,255,.05),transparent 60%)', pointerEvents: 'none' }} />
         )}
 
         <div className="container" style={{ padding: '28px 16px 0', position: 'relative', zIndex: 1 }}>
@@ -1401,8 +1402,10 @@ export default function ProfilSayfasi(props: ProfilProps) {
             {/* Logo */}
             <div className="profil-logo-wrap">
               <div style={{ position: 'relative', display: 'inline-block' }}>
-                <div style={{ width: 116, height: 116, borderRadius: '50%', background: 'var(--navy)', border: `4px solid white`, boxShadow: `0 0 0 3px ${premium ? '#D4A843' : 'rgba(212,168,67,.5)'},0 10px 34px rgba(27,58,105,.25)`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: entityIconSvg ? 0 : 48 }}>
-                  <SafeLogo src={logo || photo} alt={name} loading="eager" fallback={entityIcon} />
+                <div style={{ width: 116, height: 116, borderRadius: '50%', background: 'var(--tint-50)', border: `4px solid white`, boxShadow: `0 0 0 3px ${premium ? 'var(--gold-fill)' : 'var(--tint-200)'},var(--shadow-md)`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {/* Fotoğraf yoksa diş ikonu değil baş harfler */}
+                  <SafeLogo src={logo || photo} alt={name} loading="eager" fallback={
+                    <span aria-hidden="true" style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 36, letterSpacing: '-.02em', color: 'var(--brand)' }}>{basHarfler(name)}</span>} />
                 </div>
                 {/* Mühür — üç durum:
                     premium  → altın, doğrulanmış
@@ -1411,10 +1414,10 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 {(() => {
                   const durum = premium ? 'premium' : claimed ? 'claimed' : 'open';
                   const renk = durum === 'premium' ? ['#F4D479', '#C6902B']
-                    : durum === 'claimed' ? ['#4E7BC0', '#1B3A69']
+                    : durum === 'claimed' ? ['#4E7BC0', '#1A335E']
                     : ['#9DB0CC', '#5B7399'];
                   const golge = durum === 'premium' ? 'drop-shadow(0 3px 9px rgba(198,144,43,.55))'
-                    : 'drop-shadow(0 3px 9px rgba(27,58,105,.32))';
+                    : 'drop-shadow(0 3px 9px rgba(26,51,94,.32))';
                   const etiket = durum === 'premium' ? 'Doğrulanmış premium işletme'
                     : durum === 'claimed' ? 'Sahibi tarafından yönetilen profil'
                     : 'Bu profil henüz sahiplenilmemiş — sahiplenmek için tıklayın';
@@ -1469,7 +1472,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
             <div className="profil-info-col" style={{ paddingBottom: 28 }}>
               {/* Badges */}
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
-                <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'var(--gold-light)', color: 'var(--gold2)', border: '1px solid rgba(212,168,67,.3)' }}>{typeLabel}</span>
+                <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'var(--gold-light)', color: 'var(--gold2)', border: '1px solid rgba(184,137,47,.3)' }}>{typeLabel}</span>
                 {acil   && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>Acil</span>}
                 {online && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0' }}>Online Randevu</span>}
                 {nobetci && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#EDE9FE', color: '#6D28D9', border: '1px solid #DDD6FE' }}>Nöbetçi</span>}
@@ -1477,12 +1480,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 {claimed
                   ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: 'linear-gradient(135deg,var(--navy),var(--navy2))', color: 'white' }}>✓ Sahiplenildi</span>
                   : <Link href={`/sahiplen?id=${id}&type=${entityType}`}
-                      style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 0, borderRadius: 999, fontSize: 11, fontWeight: 700, overflow: 'hidden', textDecoration: 'none', border: '1px solid rgba(212,168,67,.65)', boxShadow: '0 4px 14px rgba(212,168,67,.4)' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px', background: 'linear-gradient(135deg,#EBC65D,#D4A843)', color: '#1B3A69', fontWeight: 900, letterSpacing: '0.4px' }}>
+                      style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 0, borderRadius: 999, fontSize: 11, fontWeight: 700, overflow: 'hidden', textDecoration: 'none', border: '1px solid rgba(184,137,47,.65)', boxShadow: '0 4px 14px rgba(184,137,47,.4)' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px', background: 'linear-gradient(135deg,#EBC65D,#B8892F)', color: '#1A335E', fontWeight: 900, letterSpacing: '0.4px' }}>
                         <i className="fa-solid fa-flag" style={{ fontSize: 9 }} />ÜCRETSİZ
                       </span>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 13px', background: 'white', color: '#1B3A69', fontWeight: 800 }}>
-                        Sahiplenin <i className="fa-solid fa-arrow-right" style={{ fontSize: 9, color: '#D4A843' }} />
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 13px', background: 'white', color: '#1A335E', fontWeight: 800 }}>
+                        Sahiplenin <i className="fa-solid fa-arrow-right" style={{ fontSize: 9, color: '#B8892F' }} />
                       </span>
                     </Link>
                 }
@@ -1530,7 +1533,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               ) : randevuGizli ? null : (
               /* Randevu Al — birincil (eczanede gizli) */
               <button onClick={() => setRandevuModal(true)}
-                style={{ padding: '13px 20px', borderRadius: 12, fontSize: 14, fontWeight: 800, background: 'var(--gold)', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 6px 18px rgba(212,168,67,.35)' }}>
+                style={{ padding: '13px 20px', borderRadius: 12, fontSize: 14, fontWeight: 800, background: 'var(--gold-fill)', color: 'var(--on-gold)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 6px 18px rgba(184,137,47,.35)' }}>
                 <i className="fa-solid fa-calendar-check" /> Randevu Al
               </button>
               )}
@@ -1584,7 +1587,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <span style={{ background: heroLight ? 'rgba(19,43,82,.12)' : 'rgba(255,255,255,.2)', color: hName, padding: '2px 7px', borderRadius: 10, fontSize: 11, marginLeft: 2 }}>{hekimSayisi}</span>
                 )}
                 {tab === 'tur' && (
-                  <span style={{ background: 'rgba(212,168,67,.2)', color: 'var(--gold)', padding: '2px 7px', borderRadius: 10, fontSize: 10, fontWeight: 700, marginLeft: 2 }}>YENİ</span>
+                  <span style={{ background: 'var(--gold-soft)', color: 'var(--gold-text)', padding: '2px 7px', borderRadius: 10, fontSize: 10, fontWeight: 700, marginLeft: 2 }}>YENİ</span>
                 )}
               </button>
             ))}
@@ -1628,7 +1631,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         const href = specLinkHref(s, { entityType, il });
                         const cipStil: React.CSSProperties = {
                           display: 'inline-block', padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
-                          background: 'var(--gold-light)', color: 'var(--navy)', border: '1px solid rgba(212,168,67,.3)',
+                          background: 'var(--gold-light)', color: 'var(--navy)', border: '1px solid rgba(184,137,47,.3)',
                         };
                         // Bilinmeyen (serbest yazılmış) etiket: düz metin — yeni/boş arama sayfasına link YOK
                         if (!href) return <span key={s} style={cipStil}>{s}</span>;
@@ -1640,12 +1643,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
                             display: 'inline-block',
                             padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
                             background: 'var(--gold-light)', color: 'var(--navy)',
-                            border: '1px solid rgba(212,168,67,.3)',
+                            border: '1px solid rgba(184,137,47,.3)',
                             textDecoration: 'none',
                             transition: 'background .15s, border-color .15s',
                           }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(212,168,67,.25)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(212,168,67,.6)'; }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--gold-light)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(212,168,67,.3)'; }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(184,137,47,.25)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(184,137,47,.6)'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--gold-light)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(184,137,47,.3)'; }}
                         >
                           {s}
                         </Link>
@@ -1663,7 +1666,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <div style={scBody}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                       {konusulanDiller.map((dil, i) => (
-                        <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--navy)', background: 'rgba(27,58,105,.06)', border: '1px solid var(--border)', borderRadius: 10, padding: '8px 13px' }}>
+                        <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'var(--navy)', background: 'rgba(26,51,94,.06)', border: '1px solid var(--border)', borderRadius: 10, padding: '8px 13px' }}>
                           <i className="fa-solid fa-globe" style={{ fontSize: 12, opacity: .7 }} />{dil}
                         </span>
                       ))}
@@ -1763,7 +1766,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         allowFullScreen
                         allow="xr-spatial-tracking; fullscreen"
                       />
-                      <div style={{ position: 'absolute', top: 10, left: 12, background: 'rgba(27,58,105,.85)', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none', zIndex: 10 }}>
+                      <div style={{ position: 'absolute', top: 10, left: 12, background: 'rgba(26,51,94,.85)', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none', zIndex: 10 }}>
                         <i className="fa-solid fa-vr-cardboard" style={{ fontSize: 11 }} /> {label}
                       </div>
                     </div>
@@ -1774,7 +1777,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <div style={sc}>
                     <div style={scHd}>
                       <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>360° Görünüm</h3>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(212,168,67,.15)', border: '1px solid rgba(212,168,67,.3)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 700, color: 'var(--gold)' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(184,137,47,.15)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 700, color: 'var(--on-deep-heading)' }}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                         360°
                       </span>
@@ -1859,15 +1862,15 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {/* Sahiplen CTA */}
               {!claimed && (
                 <div className="profil-sahiplen-cta" style={{ background: 'linear-gradient(135deg,#EEF2FF,#E0E7FF)', border: '1.5px solid #C7D2FE', borderRadius: 20, padding: '24px 28px' }}>
-                  <div style={{ width: 52, height: 52, background: 'linear-gradient(135deg,var(--navy),var(--navy2))', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 14px rgba(27,58,105,.25)' }}>
+                  <div style={{ width: 52, height: 52, background: 'linear-gradient(135deg,var(--navy),var(--navy2))', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 14px rgba(26,51,94,.25)' }}>
                     <i className="fa-solid fa-flag" style={{ color: 'white', fontSize: 20 }} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--navy)', marginBottom: 4 }}>Bu işletmenin sahibi misiniz?</div>
                     <div style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.5 }}>Sayfayı sahiplenerek bilgileri güncelleyin, fotoğraf ekleyin ve müşterilerinize daha kolay ulaşın.</div>
                   </div>
-                  <Link href={`/sahiplen?id=${id}&type=${entityType}`} style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 0, borderRadius: 12, overflow: 'hidden', border: '2px solid #D4A843', textDecoration: 'none' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 14px', background: '#D4A843', color: '#1B3A69', fontSize: 12, fontWeight: 900, letterSpacing: '0.5px' }}>
+                  <Link href={`/sahiplen?id=${id}&type=${entityType}`} style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 0, borderRadius: 12, overflow: 'hidden', border: '2px solid #B8892F', textDecoration: 'none' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 14px', background: '#B8892F', color: '#1A335E', fontSize: 12, fontWeight: 900, letterSpacing: '0.5px' }}>
                       <i className="fa-solid fa-flag" style={{ fontSize: 11 }} />ÜCRETSİZ
                     </span>
                     <span style={{ padding: '10px 16px', background: 'var(--navy)', color: 'white', fontSize: 13, fontWeight: 700 }}>Sahiplenin</span>
@@ -1908,9 +1911,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         return (
                           <div key={star} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                             <div style={{ fontSize: 12.5, fontWeight: 700, width: 10, textAlign: 'right', color: 'var(--muted)' }}>{star}</div>
-                            <i className="fa-solid fa-star" style={{ fontSize: 10, color: '#D4A843' }} />
+                            <i className="fa-solid fa-star" style={{ fontSize: 10, color: '#B8892F' }} />
                             <div style={{ flex: 1, height: 8, background: '#EEF0F3', borderRadius: 999, overflow: 'hidden' }}>
-                              <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg,#E0B84E,#D4A843)', borderRadius: 999, transition: 'width .5s cubic-bezier(.2,.7,.2,1)' }} />
+                              <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg,#E0B84E,#B8892F)', borderRadius: 999, transition: 'width .5s cubic-bezier(.2,.7,.2,1)' }} />
                             </div>
                             <div style={{ fontSize: 11.5, color: cnt ? 'var(--navy)' : 'var(--muted)', fontWeight: cnt ? 700 : 500, width: 20, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{cnt}</div>
                           </div>
@@ -1998,7 +2001,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                       <button type="button"
                         onClick={() => setKapaliBolum(p => ({ ...p, [bolum]: !p[bolum] }))}
                         aria-expanded={!kapali}
-                        style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '13px 16px', background: kapali ? '#fff' : 'var(--cream,#FBF8F2)', border: 'none', borderBottom: kapali ? 'none' : '1px solid var(--border)', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+                        style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '13px 16px', background: kapali ? '#fff' : 'var(--cream,#F6F8FB)', border: 'none', borderBottom: kapali ? 'none' : '1px solid var(--border)', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
                         <i className="fa-solid fa-stethoscope" style={{ color: 'var(--gold)', fontSize: 14 }} />
                         <h4 style={{ fontSize: 15, fontWeight: 700, color: 'var(--navy)', margin: 0 }}>{bolum}</h4>
                         <span style={{ fontSize: 12, color: 'var(--muted)' }}>({byBolum[bolum].length})</span>
@@ -2029,15 +2032,15 @@ export default function ProfilSayfasi(props: ProfilProps) {
             const okulListe = okul ? okul.split('·').map(s => s.trim()).filter(Boolean) : [];
 
             const bilgiKart = (ikon: string, etiket: string, deger: React.ReactNode, rozet?: string) => (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '13px 15px', borderRadius: 14, background: 'var(--cream,#FBF8F2)', border: '1px solid var(--border)' }}>
-                <div style={{ width: 38, height: 38, borderRadius: 11, background: 'rgba(27,58,105,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '13px 15px', borderRadius: 14, background: 'var(--cream,#F6F8FB)', border: '1px solid var(--border)' }}>
+                <div style={{ width: 38, height: 38, borderRadius: 11, background: 'rgba(26,51,94,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <i className={`fa-solid ${ikon}`} style={{ color: 'var(--navy)', fontSize: 15 }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 2 }}>{etiket}</div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', lineHeight: 1.4 }}>{deger}</div>
                 </div>
-                {rozet && <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, color: 'var(--navy)', background: 'rgba(27,58,105,.08)', borderRadius: 8, padding: '4px 9px' }}>{rozet}</span>}
+                {rozet && <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, color: 'var(--navy)', background: 'rgba(26,51,94,.08)', borderRadius: 8, padding: '4px 9px' }}>{rozet}</span>}
               </div>
             );
 
@@ -2061,7 +2064,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         {denList.map((d, i) => (
                           <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'stretch' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 14, flexShrink: 0 }}>
-                              <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--navy)', marginTop: 4, flexShrink: 0, boxShadow: '0 0 0 4px rgba(27,58,105,.1)' }} />
+                              <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--navy)', marginTop: 4, flexShrink: 0, boxShadow: '0 0 0 4px rgba(26,51,94,.1)' }} />
                               {i < denList.length - 1 && <div style={{ flex: 1, width: 2, background: 'var(--border)', marginTop: 2 }} />}
                             </div>
                             <div style={{ paddingBottom: i < denList.length - 1 ? 18 : 0, minWidth: 0, flex: 1 }}>
@@ -2097,7 +2100,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img src={c.url} alt={c.ad || 'Sertifika'} style={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', display: 'block' }} />
                               ) : (
-                                <div style={{ width: '100%', aspectRatio: '4 / 3', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(27,58,105,.05)' }}>
+                                <div style={{ width: '100%', aspectRatio: '4 / 3', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(26,51,94,.05)' }}>
                                   <i className="fa-solid fa-certificate" style={{ color: 'var(--navy)', fontSize: 22, opacity: .5 }} />
                                 </div>
                               )}
@@ -2200,7 +2203,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               <div style={sc}>
                 <div style={scHd}>
                   <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>360° Sanal Tur</h3>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(212,168,67,.15)', border: '1px solid rgba(212,168,67,.3)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 700, color: 'var(--gold)' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(184,137,47,.15)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 700, color: 'var(--on-deep-heading)' }}>
                     <i className="fa-solid fa-vr-cardboard" style={{ fontSize: 11 }} /> Sanal Tur
                   </span>
                 </div>
@@ -2218,7 +2221,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                       </div>
                       <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                         <a href={tourInfo.src} target="_blank" rel="noopener"
-                          style={{ padding: '10px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, background: '#1B3A69', color: 'white', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                          style={{ padding: '10px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, background: '#1A335E', color: 'white', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                           <i className="fa-solid fa-arrow-up-right-from-square" /> Tam Ekran Aç
                         </a>
                         <div style={{ padding: '10px 18px', borderRadius: 10, fontSize: 13, background: '#F0F4FF', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 8 }}>

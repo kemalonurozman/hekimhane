@@ -32,7 +32,7 @@ const IC: Record<string, React.ReactNode> = {
   check:  <path d="M20 6L9 17l-5-5" />,
 };
 
-function Icon({ name, size = 22, color = '#1B3A69', stroke = 2 }: { name: string; size?: number; color?: string; stroke?: number }) {
+function Icon({ name, size = 22, color = '#1A335E', stroke = 2 }: { name: string; size?: number; color?: string; stroke?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
       {IC[name]}
@@ -82,7 +82,7 @@ const yuvarla = (n: number) => {
   return `${Math.floor(n / basamak) * basamak}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '+';
 };
 
-const NAVY = '#1B3A69', TEXT = '#1c1c1e', MUTED = '#6E6E73', BORDER = '#E5E5EA';
+const NAVY = '#1A335E', TEXT = '#1c1c1e', MUTED = '#6E6E73', BORDER = '#E5E5EA';
 
 const trSayi = (n: number) => n.toLocaleString('tr-TR');
 
@@ -95,8 +95,8 @@ export default async function NedenHekimhanePage() {
         .nh-hero{position:relative;overflow:hidden;background:radial-gradient(900px 460px at 50% -12%,#E9F0FB 0%,rgba(233,240,251,0) 70%),#FBFBFD;border-bottom:1px solid #E5E5EA;color:#1c1c1e;}
                 .nh-cta{display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border-radius:14px;font-size:15px;font-weight:700;text-decoration:none;letter-spacing:-.2px;transition:transform .16s ease, box-shadow .16s ease;}
         .nh-cta:hover{transform:translateY(-2px);}
-        .nh-cta-gold{background:#1B3A69;color:#fff;box-shadow:0 2px 8px rgba(27,58,105,.22);}
-        .nh-cta-ghost{background:#fff;color:#1B3A69;border:1.5px solid #D9DCE3;}
+        .nh-cta-gold{background:#1A335E;color:#fff;box-shadow:0 2px 8px rgba(26,51,94,.22);}
+        .nh-cta-ghost{background:#fff;color:#1A335E;border:1.5px solid #D9DCE3;}
         .nh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
         .nh-card{background:#fff;border:1px solid ${BORDER};border-radius:20px;padding:26px 24px;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;}
         .nh-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(15,42,85,.1);border-color:#D6DEEC;}
@@ -116,7 +116,7 @@ export default async function NedenHekimhanePage() {
       {/* ── HERO ─────────────────────────────────────────── */}
       <section className="nh-hero">
         <div className="nh-wrap" style={{ position: 'relative', zIndex: 1, padding: '84px 24px 92px', textAlign: 'center' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 15px', borderRadius: 999, background: 'rgba(27,58,105,.06)', border: '1px solid rgba(27,58,105,.12)', color: NAVY, fontSize: 12, fontWeight: 700, letterSpacing: '.4px', marginBottom: 24 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 15px', borderRadius: 999, background: 'rgba(26,51,94,.06)', border: '1px solid rgba(26,51,94,.12)', color: NAVY, fontSize: 12, fontWeight: 700, letterSpacing: '.4px', marginBottom: 24 }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1E8E5A', display: 'inline-block' }} />
             ŞU AN TAMAMEN ÜCRETSİZ
           </span>
@@ -278,7 +278,7 @@ export default async function NedenHekimhanePage() {
       <section className="nh-wrap" style={{ padding: '64px 24px 8px' }}>
         <div style={{ border: `1px solid ${BORDER}`, borderRadius: 26, padding: 'clamp(28px, 4vw, 44px)', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 999, background: 'rgba(27,58,105,.07)', border: '1px solid rgba(27,58,105,.14)', color: NAVY, fontSize: 12, fontWeight: 700, letterSpacing: '.5px' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 999, background: 'rgba(26,51,94,.07)', border: '1px solid rgba(26,51,94,.14)', color: NAVY, fontSize: 12, fontWeight: 700, letterSpacing: '.5px' }}>
               <Icon name="gift" size={14} color={NAVY} /> ÜCRETSİZ BAŞLANGIÇ PAKETİ
             </span>
           </div>
@@ -317,7 +317,7 @@ export default async function NedenHekimhanePage() {
       <section className="nh-wrap" style={{ padding: '56px 24px' }}>
         <div style={{ background: '#F5F5F7', border: `1px solid ${BORDER}`, borderRadius: 28, padding: 'clamp(28px, 4vw, 52px)', color: TEXT, position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: '1fr', gap: 20, maxWidth: 760 }}>
-            <span style={{ display: 'inline-flex', width: 'fit-content', alignItems: 'center', gap: 8, padding: '6px 13px', borderRadius: 999, background: 'rgba(27,58,105,.07)', border: '1px solid rgba(27,58,105,.14)', color: NAVY, fontSize: 12, fontWeight: 700, letterSpacing: '.5px' }}>
+            <span style={{ display: 'inline-flex', width: 'fit-content', alignItems: 'center', gap: 8, padding: '6px 13px', borderRadius: 999, background: 'rgba(26,51,94,.07)', border: '1px solid rgba(26,51,94,.14)', color: NAVY, fontSize: 12, fontWeight: 700, letterSpacing: '.5px' }}>
               <Icon name="card" size={14} color={NAVY} /> HEKİMKART
             </span>
             <h2 style={{ fontSize: 'clamp(24px, 3.4vw, 34px)', fontWeight: 800, letterSpacing: '-.9px', lineHeight: 1.15, margin: 0 }}>
@@ -349,7 +349,7 @@ export default async function NedenHekimhanePage() {
             <span style={{ color: NAVY, fontWeight: 800 }}>+</span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#F5F5F7', border: `1px solid ${BORDER}`, borderRadius: 999, padding: '8px 14px' }}>Hekimhane</span>
             <span style={{ color: NAVY, fontWeight: 800 }}>→</span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'rgba(27,58,105,.08)', border: '1px solid rgba(27,58,105,.2)', color: NAVY, borderRadius: 999, padding: '8px 14px', fontWeight: 800 }}>Tek panel</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'rgba(26,51,94,.08)', border: '1px solid rgba(26,51,94,.2)', color: NAVY, borderRadius: 999, padding: '8px 14px', fontWeight: 800 }}>Tek panel</span>
           </div>
           <h2 style={{ fontSize: 'clamp(23px, 3.3vw, 32px)', fontWeight: 800, letterSpacing: '-.9px', color: NAVY, margin: 0 }}>
             Kendi sitenizden ve Hekimhane’den gelen randevular aynı sistemde
@@ -372,7 +372,7 @@ export default async function NedenHekimhanePage() {
         <div className="nh-compare">
           <div style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 22, padding: '28px 26px' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 9, marginBottom: 16 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(27,58,105,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(26,51,94,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name="bolt" size={20} color={NAVY} />
               </div>
               <h3 style={{ fontSize: 19, fontWeight: 800, color: NAVY, margin: 0, letterSpacing: '-.4px' }}>Hekimhane ile</h3>

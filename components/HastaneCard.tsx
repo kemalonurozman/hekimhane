@@ -12,7 +12,7 @@ function Stars({ rat }: { rat: number }) {
       {[1, 2, 3, 4, 5].map(i => (
         <i key={i}
           className={`fa-${i <= Math.round(rat) ? 'solid' : 'regular'} fa-star`}
-          style={{ fontSize: 13, color: i <= Math.round(rat) ? '#D4A843' : '#D1D5DB' }} />
+          style={{ fontSize: 13, color: i <= Math.round(rat) ? '#B8892F' : '#D1D5DB' }} />
       ))}
     </span>
   );
@@ -41,7 +41,7 @@ export default function HastaneCard({ hastane: h }: { hastane: Hastane }) {
           flex-direction: column;
         }
         .hc:hover { box-shadow: 0 10px 36px rgba(0,0,0,.12); transform: translateY(-2px); }
-        .hc.hc--premium { border-color: #D4A843; box-shadow: 0 2px 16px rgba(212,168,67,.18); }
+        .hc.hc--premium { border-color: #B8892F; box-shadow: 0 2px 16px rgba(184,137,47,.18); }
 
         /* ── Üst gövde: fotoğraf + içerik ── */
         .hc__top {
@@ -200,7 +200,7 @@ export default function HastaneCard({ hastane: h }: { hastane: Hastane }) {
           color: var(--navy);
         }
         .hc__btn:last-child { border-right: none; }
-        .hc__btn:hover { background: rgba(27,58,105,.05); }
+        .hc__btn:hover { background: rgba(26,51,94,.05); }
         .hc__btn--primary {
           background: var(--navy);
           color: white;

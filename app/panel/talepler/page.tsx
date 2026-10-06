@@ -116,21 +116,21 @@ export default function TaleplerPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <Link href="/panel" style={{ fontSize: 13, color: '#6B7A99', textDecoration: 'none', fontWeight: 500 }}>
+              <Link href="/panel" style={{ fontSize: 13, color: '#4A5568', textDecoration: 'none', fontWeight: 500 }}>
                 ← Panel
               </Link>
             </div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, color: '#1A2744', letterSpacing: '-0.5px', margin: 0 }}>
+            <h1 style={{ fontSize: 24, fontWeight: 800, color: '#111C2E', letterSpacing: '-0.5px', margin: 0 }}>
               Sahiplenme Taleplerim
             </h1>
-            <p style={{ fontSize: 13, color: '#6B7A99', marginTop: 4 }}>
+            <p style={{ fontSize: 13, color: '#4A5568', marginTop: 4 }}>
               İşletme sahiplenme başvurularınızın durumu
             </p>
           </div>
           <Link href="/katil" style={{
             display: 'inline-flex', alignItems: 'center', gap: 7,
             padding: '10px 18px', borderRadius: 11,
-            background: '#1B3A69', color: 'white',
+            background: '#1A335E', color: 'white',
             fontSize: 13, fontWeight: 700, textDecoration: 'none',
           }}>
             <IcPlus /> Yeni Başvuru
@@ -158,21 +158,21 @@ export default function TaleplerPage() {
           <div style={{ background: 'white', borderRadius: 16, padding: '60px', textAlign: 'center', border: '1px solid #E2E8F4' }}>
             <svg width="28" height="28" viewBox="0 0 32 32" fill="none" style={{ animation: 'spin .9s linear infinite', display: 'inline-block', marginBottom: 12 }}>
               <circle cx="16" cy="16" r="13" stroke="#E5E7EB" strokeWidth="3"/>
-              <path d="M16 3a13 13 0 0 1 13 13" stroke="#1B3A69" strokeWidth="3" strokeLinecap="round"/>
+              <path d="M16 3a13 13 0 0 1 13 13" stroke="#1A335E" strokeWidth="3" strokeLinecap="round"/>
             </svg>
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-            <div style={{ fontSize: 13, color: '#6B7A99' }}>Talepler yükleniyor...</div>
+            <div style={{ fontSize: 13, color: '#4A5568' }}>Talepler yükleniyor...</div>
           </div>
         ) : claims.length === 0 ? (
           <div style={{ background: 'white', borderRadius: 16, border: '1px solid #E2E8F4', padding: '60px 32px', textAlign: 'center' }}>
-            <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#1B3A69' }}>
+            <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#1A335E' }}>
               <IcBuilding />
             </div>
-            <h2 style={{ fontSize: 17, fontWeight: 800, color: '#1A2744', marginBottom: 8 }}>Henüz başvurunuz yok</h2>
-            <p style={{ fontSize: 13, color: '#6B7A99', maxWidth: 320, margin: '0 auto 24px', lineHeight: 1.7 }}>
+            <h2 style={{ fontSize: 17, fontWeight: 800, color: '#111C2E', marginBottom: 8 }}>Henüz başvurunuz yok</h2>
+            <p style={{ fontSize: 13, color: '#4A5568', maxWidth: 320, margin: '0 auto 24px', lineHeight: 1.7 }}>
               İşletmenizi Hekimhane'ye ekleyin veya mevcut profilin sahipliğini talep edin.
             </p>
-            <Link href="/katil" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: '#1B3A69', color: 'white', borderRadius: 11, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+            <Link href="/katil" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: '#1A335E', color: 'white', borderRadius: 11, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
               <IcPlus /> Başvuru Oluştur
             </Link>
           </div>
@@ -188,19 +188,19 @@ export default function TaleplerPage() {
                   {/* İkon */}
                   <div style={{
                     width: 42, height: 42, borderRadius: 12, flexShrink: 0,
-                    background: (ENTITY_COLOR[c.entity_type] || '#1B3A69') + '18',
-                    color: ENTITY_COLOR[c.entity_type] || '#1B3A69',
+                    background: (ENTITY_COLOR[c.entity_type] || '#1A335E') + '18',
+                    color: ENTITY_COLOR[c.entity_type] || '#1A335E',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     <IcBuilding />
                   </div>
                   {/* Bilgiler */}
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 15, color: '#1A2744', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: '#111C2E', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {c.entity_name || 'Yeni İşletme Başvurusu'}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: ENTITY_COLOR[c.entity_type] || '#6B7A99' }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: ENTITY_COLOR[c.entity_type] || '#4A5568' }}>
                         {ENTITY_LABEL[c.entity_type] || c.entity_type}
                       </span>
                       <span style={{ fontSize: 11, color: '#9CA3AF' }}>·</span>
@@ -210,7 +210,7 @@ export default function TaleplerPage() {
                       {c.role && (
                         <>
                           <span style={{ fontSize: 11, color: '#9CA3AF' }}>·</span>
-                          <span style={{ fontSize: 11, color: '#6B7A99' }}>{c.role}</span>
+                          <span style={{ fontSize: 11, color: '#4A5568' }}>{c.role}</span>
                         </>
                       )}
                     </div>
@@ -224,7 +224,7 @@ export default function TaleplerPage() {
                     <Link href="/panel" style={{
                       display: 'inline-flex', alignItems: 'center', gap: 4,
                       padding: '6px 14px', borderRadius: 9,
-                      background: '#1B3A69', color: 'white',
+                      background: '#1A335E', color: 'white',
                       fontSize: 12, fontWeight: 700, textDecoration: 'none',
                     }}>
                       Panele Git <IcArrow />

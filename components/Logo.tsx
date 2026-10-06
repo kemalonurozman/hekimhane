@@ -17,7 +17,7 @@ export function ToothGlyph({ size = 24, fill = 'currentColor' }: { size?: number
 export function LogoMark({ size = 34 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" aria-hidden>
-      <rect width="40" height="40" rx="11" fill="#1B3A69" />
+      <rect width="40" height="40" rx="11" fill="#1A335E" />
       <path d={TOOTH} fill="#FFFFFF" />
     </svg>
   );
@@ -37,7 +37,7 @@ export function Logo({ size = 34, dark = false, tld = true }: { size?: number; d
       }}>
         <span style={{
           fontSize: size * 0.56, fontWeight: 700,
-          color: dark ? '#FFFFFF' : '#1B3A69',
+          color: dark ? '#FFFFFF' : '#1A335E',
         }}>
           hekimhane
         </span>
@@ -45,7 +45,7 @@ export function Logo({ size = 34, dark = false, tld = true }: { size?: number; d
           <span style={{
             fontSize: size * 0.36, fontWeight: 600,
             letterSpacing: '-0.2px', marginLeft: 1,
-            color: '#D4A843',
+            color: '#B8892F',
           }}>
             .com.tr
           </span>

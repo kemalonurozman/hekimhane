@@ -50,9 +50,9 @@ export default function HakkimizdaPage() {
       {/* Hero */}
       <div style={{ background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%)', padding: '64px 0 56px', position: 'relative', overflow: 'hidden', textAlign: 'center' }}>
         <div style={{ position: 'absolute', left: '50%', top: -120, transform: 'translateX(-50%)', width: 700, height: 700, borderRadius: '50%', background: 'rgba(255,255,255,.03)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', right: -80, bottom: -80, width: 400, height: 400, borderRadius: '50%', background: 'rgba(212,168,67,.06)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', right: -80, bottom: -80, width: 400, height: 400, borderRadius: '50%', background: 'rgba(184,137,47,.06)', pointerEvents: 'none' }} />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '6px 15px', borderRadius: 20, background: 'rgba(212,168,67,.2)', border: '1px solid rgba(212,168,67,.35)', fontSize: 12, fontWeight: 700, letterSpacing: '.5px', color: '#F0C060', marginBottom: 18 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '6px 15px', borderRadius: 20, background: 'rgba(184,137,47,.2)', border: '1px solid rgba(184,137,47,.35)', fontSize: 12, fontWeight: 700, letterSpacing: '.5px', color: '#F0C060', marginBottom: 18 }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18 M5 21V7l7-4 7 4v14 M12 9v6 M9 12h6" /></svg>
             TÜRKİYE&apos;NİN SAĞLIK REHBERİ
           </div>
@@ -69,7 +69,7 @@ export default function HakkimizdaPage() {
       <div className="container" style={{ padding: '0 32px' }}>
         <div className="hakk-grid-4" style={{ gap: 16, marginTop: -28, marginBottom: 56 }}>
           {STATS.map(s => (
-            <div key={s.label} style={{ background: 'white', borderRadius: 18, border: '1px solid var(--border)', padding: '24px 20px', textAlign: 'center', boxShadow: '0 4px 24px rgba(27,58,105,.07)' }}>
+            <div key={s.label} style={{ background: 'white', borderRadius: 18, border: '1px solid var(--border)', padding: '24px 20px', textAlign: 'center', boxShadow: '0 4px 24px rgba(26,51,94,.07)' }}>
               <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 34, fontWeight: 800, color: 'var(--navy)', lineHeight: 1.2, paddingTop: 2 }}>{s.n}</div>
               <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 6, fontWeight: 500 }}>{s.label}</div>
             </div>
@@ -79,7 +79,7 @@ export default function HakkimizdaPage() {
         {/* Misyon */}
         <div className="hakk-grid-2" style={{ marginBottom: 56 }}>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.5, color: 'var(--gold)', marginBottom: 10 }}>MİSYONUMUZ</div>
+            <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.5, color: 'var(--gold-text)', marginBottom: 10 }}>MİSYONUMUZ</div>
             <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, color: 'var(--navy)', marginBottom: 16, lineHeight: 1.3 }}>
               Doğru sağlık hizmetine ulaşmayı kolaylaştırıyoruz
             </h2>
@@ -91,7 +91,7 @@ export default function HakkimizdaPage() {
             </p>
           </div>
           <div style={{ background: 'white', borderRadius: 24, border: '1px solid var(--border)', padding: '36px 32px' }}>
-            <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.5, color: 'var(--gold)', marginBottom: 10 }}>VİZYONUMUZ</div>
+            <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.5, color: 'var(--gold-text)', marginBottom: 10 }}>VİZYONUMUZ</div>
             <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 800, color: 'var(--navy)', marginBottom: 14 }}>
               Sağlıkta dijital dönüşümün öncüsü olmak
             </h3>
@@ -152,7 +152,7 @@ export default function HakkimizdaPage() {
             Kliniğinizi, hastanenizi veya eczanenizi Hekimhane'ye ücretsiz ekleyin, binlerce hastaya ulaşın.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <Link href="/katil" style={{ padding: '13px 28px', background: 'var(--gold)', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+            <Link href="/katil" style={{ padding: '13px 28px', background: 'var(--gold-fill)', color: 'var(--on-gold)', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 7 }}>
               <i className="fa-solid fa-plus" />Ücretsiz Ekle
             </Link>
             <Link href="/iletisim" style={{ padding: '13px 24px', background: 'rgba(255,255,255,.12)', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 600, textDecoration: 'none', border: '1px solid rgba(255,255,255,.2)' }}>

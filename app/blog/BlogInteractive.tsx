@@ -57,7 +57,7 @@ function BlogCard({ post }: { post: Post }) {
           background: 'white', borderRadius: 20, border: '1px solid var(--border)',
           overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column',
           transition: 'box-shadow .2s, transform .2s',
-          boxShadow: hovered ? '0 8px 32px rgba(27,58,105,.1)' : 'none',
+          boxShadow: hovered ? '0 8px 32px rgba(26,51,94,.1)' : 'none',
           transform: hovered ? 'translateY(-2px)' : 'none',
         }}>
         {/* Görsel alanı */}
@@ -121,7 +121,7 @@ function HastalıkCard({ h }: { h: HastalıkOzet }) {
           background: 'white', borderRadius: 20, border: '1px solid var(--border)',
           overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column',
           transition: 'box-shadow .2s, transform .2s',
-          boxShadow: hovered ? '0 8px 32px rgba(27,58,105,.1)' : 'none',
+          boxShadow: hovered ? '0 8px 32px rgba(26,51,94,.1)' : 'none',
           transform: hovered ? 'translateY(-2px)' : 'none',
         }}>
         {/* Üst renkli alan — tıbbi ikon */}
@@ -209,7 +209,7 @@ function NewsletterSection() {
           />
           <button
             onClick={() => { if (email.includes('@')) setDone(true); }}
-            style={{ padding: '12px 22px', background: 'var(--gold)', color: 'white', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            style={{ padding: '12px 22px', background: 'var(--gold-fill)', color: 'var(--on-gold)', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
             Abone Ol
           </button>
         </div>
@@ -264,7 +264,7 @@ export default function BlogInteractive({ posts, hastaliklar }: { posts: Post[];
                       {featured.category}
                     </span>
                   )}
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(212,168,67,.15)', color: 'var(--gold2)' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(184,137,47,.15)', color: 'var(--gold2)' }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.8 5.9 20.4l1.5-6.8L2.2 9l6.9-.7z"/></svg>
                     Öne Çıkan
                   </span>

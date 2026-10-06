@@ -47,8 +47,8 @@ function NavMenu({ label, items, allLabel, allHref, open, onToggle, innerRef, ac
     <div ref={innerRef} style={{ position: 'relative' }}>
       <button onClick={onToggle}
         style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 13px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-          fontSize: 13.5, fontWeight: active || open ? 600 : 500, letterSpacing: '-.1px', color: active || open ? '#1B3A69' : '#3A3A3C',
-          background: active || open ? 'rgba(27,58,105,.07)' : 'transparent', transition: 'background .15s, color .15s' }}>
+          fontSize: 13.5, fontWeight: active || open ? 600 : 500, letterSpacing: '-.1px', color: active || open ? '#1A335E' : '#3A3A3C',
+          background: active || open ? 'rgba(26,51,94,.07)' : 'transparent', transition: 'background .15s, color .15s' }}>
         {label}
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .18s', opacity: .6 }}><path d="M6 9l6 6 6-6" /></svg>
       </button>
@@ -64,7 +64,7 @@ function NavMenu({ label, items, allLabel, allHref, open, onToggle, innerRef, ac
           ))}
           <div style={{ height: 1, background: '#F0F0F0', margin: '6px 6px' }} />
           <Link href={allHref} onClick={onToggle}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px', borderRadius: 10, fontSize: 13.5, fontWeight: 700, color: '#1B3A69', textDecoration: 'none' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px', borderRadius: 10, fontSize: 13.5, fontWeight: 700, color: '#1A335E', textDecoration: 'none' }}
             onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
             onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
             {allLabel}
@@ -289,9 +289,9 @@ export default function Navbar() {
                 const active = isActive(link);
                 return (
                   <Link key={link.href} href={link.href} style={{
-                    padding: '6px 13px', borderRadius: 8, fontSize: 13.5, fontWeight: active ? 600 : 500, letterSpacing: '-.1px',
-                    color: active ? '#1B3A69' : '#3A3A3C', background: active ? 'rgba(27,58,105,.07)' : 'transparent',
-                    textDecoration: 'none', transition: 'background .15s, color .15s',
+                    padding: '6px 11px', borderRadius: 8, fontSize: 15, fontWeight: active ? 600 : 500, letterSpacing: '-.1px',
+                    color: active ? 'var(--brand)' : 'var(--ink)', background: 'transparent',
+                    textDecoration: 'none', transition: 'color .15s',
                   }}>{link.label}</Link>
                 );
               };
@@ -313,7 +313,7 @@ export default function Navbar() {
             {/* Onaylı işletmesi olan kullanıcıya hesap düğmesinin hemen yanında belirgin kısayol */}
             {!authLoading && user && sahipOlunan.length > 0 && (
               <Link href={duzenleHref} className="nav-user-desktop" title={buSayfa ? 'Bu işletmenin profilini düzenle' : 'İşletme profilini düzenle'}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 50, background: '#1B3A69', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(27,58,105,.25)' }}>
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 50, background: '#1A335E', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(26,51,94,.25)' }}>
                 {kalemIkon}{duzenleEtiket}
               </Link>
             )}
@@ -326,27 +326,26 @@ export default function Navbar() {
                   onClick={() => setDropOpen(o => !o)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 8,
-                    padding: '5px 10px 5px 5px', borderRadius: 50,
-                    border: '1px solid rgba(0,0,0,.1)',
-                    background: 'white',
+                    height: 44, padding: '0 12px 0 6px', borderRadius: 999,
+                    border: '1px solid var(--border)',
+                    background: 'var(--surface)',
                     cursor: 'pointer',
-                    boxShadow: '0 1px 3px rgba(0,0,0,.06)',
                   }}
                 >
                   {avatar ? (
-                    <img src={avatar} alt="avatar" style={{ width: 26, height: 26, borderRadius: '50%' }} />
+                    <img src={avatar} alt="avatar" style={{ width: 32, height: 32, borderRadius: '50%' }} />
                   ) : (
                     <div style={{
-                      width: 26, height: 26, borderRadius: '50%',
-                      background: '#1B3A69', color: 'white',
+                      width: 32, height: 32, borderRadius: '50%',
+                      background: 'var(--tint-50)', color: 'var(--brand)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 10, fontWeight: 700,
+                      fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 800,
                     }}>
                       {initials}
                     </div>
                   )}
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#1D1D1F', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-.1px' }}>
-                    {name.split(' ')[0]}
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {name.includes('@') ? name.split('@')[0] : name.split(' ')[0]}
                   </span>
                   <span style={{ color: '#8E8E93' }}>
                     {dropOpen ? <ChevronUp /> : <ChevronDown />}
@@ -387,7 +386,7 @@ export default function Navbar() {
                         onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F7')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                       >
-                        <span style={{ color: '#1B3A69', display: 'flex' }}>{item.icon}</span>
+                        <span style={{ color: '#1A335E', display: 'flex' }}>{item.icon}</span>
                         {item.label}
                       </Link>
                     ))}
@@ -426,12 +425,12 @@ export default function Navbar() {
                         style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '15px 17px', textDecoration: 'none', transition: 'background .12s' }}
                         onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
                         onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
-                        <span style={{ width: 40, height: 40, borderRadius: 11, background: 'linear-gradient(150deg,#1B3A69,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <span style={{ width: 40, height: 40, borderRadius: 11, background: 'linear-gradient(150deg,#1A335E,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18" /><path d="M5 21V7l7-4 7 4v14" /><path d="M9 21v-6h6v6" /></svg>
                         </span>
                         <div>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#1A2744' }}>İşletme / Doktor Kaydı</div>
-                          <div style={{ fontSize: 12, color: '#6B7A99', marginTop: 2, lineHeight: 1.4 }}>Klinik, muayene veya eczanenizi ekleyin</div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#111C2E' }}>İşletme / Doktor Kaydı</div>
+                          <div style={{ fontSize: 12, color: '#4A5568', marginTop: 2, lineHeight: 1.4 }}>Klinik, muayene veya eczanenizi ekleyin</div>
                         </div>
                       </Link>
                       <div style={{ height: 1, background: '#F0F0F0' }} />
@@ -440,11 +439,11 @@ export default function Navbar() {
                         onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
                         onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
                         <span style={{ width: 40, height: 40, borderRadius: 11, background: 'var(--gold-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22V4a1 1 0 0 1 1-1h9l-1.5 4L14 11H5" /><path d="M4 22h4" /></svg>
+                          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#B8892F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22V4a1 1 0 0 1 1-1h9l-1.5 4L14 11H5" /><path d="M4 22h4" /></svg>
                         </span>
                         <div>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#1A2744' }}>İşletmeni Sahiplen</div>
-                          <div style={{ fontSize: 12, color: '#6B7A99', marginTop: 2, lineHeight: 1.4 }}>Listedeyseniz profilinizi bulup talep edin</div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#111C2E' }}>İşletmeni Sahiplen</div>
+                          <div style={{ fontSize: 12, color: '#4A5568', marginTop: 2, lineHeight: 1.4 }}>Listedeyseniz profilinizi bulup talep edin</div>
                         </div>
                       </Link>
                     </div>
@@ -470,12 +469,12 @@ export default function Navbar() {
                         style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '15px 17px', textDecoration: 'none', transition: 'background .12s' }}
                         onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
                         onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
-                        <span style={{ width: 40, height: 40, borderRadius: 11, background: 'linear-gradient(150deg,#1B3A69,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <span style={{ width: 40, height: 40, borderRadius: 11, background: 'linear-gradient(150deg,#1A335E,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M6 21V7l6-4 6 4v14M10 9h.01M14 9h.01M10 13h.01M14 13h.01M10 17h4" /></svg>
                         </span>
                         <div>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#1A2744' }}>Doktor / İşletme Girişi</div>
-                          <div style={{ fontSize: 12, color: '#6B7A99', marginTop: 2, lineHeight: 1.4 }}>Randevu, hasta ve profil yönetimi</div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#111C2E' }}>Doktor / İşletme Girişi</div>
+                          <div style={{ fontSize: 12, color: '#4A5568', marginTop: 2, lineHeight: 1.4 }}>Randevu, hasta ve profil yönetimi</div>
                         </div>
                       </Link>
                       <div style={{ height: 1, background: '#F0F0F0' }} />
@@ -484,11 +483,11 @@ export default function Navbar() {
                         onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
                         onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
                         <span style={{ width: 40, height: 40, borderRadius: 11, background: 'var(--gold-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20a8 8 0 0 1 16 0" /></svg>
+                          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#B8892F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20a8 8 0 0 1 16 0" /></svg>
                         </span>
                         <div>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#1A2744' }}>Hasta / Ziyaretçi Girişi</div>
-                          <div style={{ fontSize: 12, color: '#6B7A99', marginTop: 2, lineHeight: 1.4 }}>Randevularınızı ve yorumlarınızı görün</div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#111C2E' }}>Hasta / Ziyaretçi Girişi</div>
+                          <div style={{ fontSize: 12, color: '#4A5568', marginTop: 2, lineHeight: 1.4 }}>Randevularınızı ve yorumlarınızı görün</div>
                         </div>
                       </Link>
                     </div>
@@ -498,12 +497,12 @@ export default function Navbar() {
                 {/* Prominent CTA */}
                 <Link href="/katil" className="nav-cta-desktop" style={{
                   display: 'flex', alignItems: 'center',
-                  padding: '7px 16px', borderRadius: 9,
-                  background: '#D4A843',
-                  fontSize: 13, fontWeight: 600, color: 'white',
-                  textDecoration: 'none', letterSpacing: '-.1px',
+                  height: 40, padding: '0 16px', borderRadius: 'var(--radius-md)',
+                  background: 'var(--gold-fill)',
+                  fontSize: 14, fontWeight: 600, color: 'var(--on-gold)',
+                  textDecoration: 'none', whiteSpace: 'nowrap',
                 }}>
-                  İşletmenizi Ekleyin
+                  Kliniğinizi ekleyin
                 </Link>
               </>
             )}
@@ -522,7 +521,7 @@ export default function Navbar() {
                 border: '1px solid rgba(0,0,0,.1)',
                 background: 'white',
                 cursor: 'pointer',
-                color: '#1B3A69',
+                color: '#1A335E',
                 boxShadow: '0 1px 3px rgba(0,0,0,.06)',
                 flexShrink: 0,
               }}
@@ -583,7 +582,7 @@ export default function Navbar() {
               border: '1px solid rgba(0,0,0,.1)',
               background: 'white',
               cursor: 'pointer',
-              color: '#1B3A69',
+              color: '#1A335E',
               boxShadow: '0 1px 3px rgba(0,0,0,.06)',
             }}
           >
@@ -609,12 +608,12 @@ export default function Navbar() {
                   fontSize: 17,
                   fontWeight: active ? 700 : 500,
                   letterSpacing: '-.2px',
-                  color: active ? '#1B3A69' : '#1D1D1F',
-                  background: active ? 'rgba(27,58,105,.07)' : 'transparent',
+                  color: active ? '#1A335E' : '#1D1D1F',
+                  background: active ? 'rgba(26,51,94,.07)' : 'transparent',
                   textDecoration: 'none',
                   marginBottom: 4,
                   transition: 'background .15s',
-                  borderLeft: active ? '3px solid #1B3A69' : '3px solid transparent',
+                  borderLeft: active ? '3px solid #1A335E' : '3px solid transparent',
                 }}
               >
                 {link.label}
@@ -631,9 +630,9 @@ export default function Navbar() {
             return (
               <div key={grp.baslik} style={{ marginBottom: 4 }}>
                 <button type="button" onClick={() => setMobGrp(acik ? null : grp.baslik)} aria-expanded={acik}
-                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 52, padding: '0 16px', borderRadius: 12, fontSize: 17, fontWeight: acik ? 700 : 500, letterSpacing: '-.2px', color: acik ? '#1B3A69' : '#1D1D1F', background: acik ? 'rgba(27,58,105,.07)' : 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 52, padding: '0 16px', borderRadius: 12, fontSize: 17, fontWeight: acik ? 700 : 500, letterSpacing: '-.2px', color: acik ? '#1A335E' : '#1D1D1F', background: acik ? 'rgba(26,51,94,.07)' : 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
                   {grp.baslik}
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={acik ? '#1B3A69' : '#86868B'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: acik ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform .2s', flexShrink: 0 }}><path d="m6 9 6 6 6-6" /></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={acik ? '#1A335E' : '#86868B'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: acik ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform .2s', flexShrink: 0 }}><path d="m6 9 6 6 6-6" /></svg>
                 </button>
                 {acik && (
                   <div style={{ padding: '2px 0 6px' }}>
@@ -672,7 +671,7 @@ export default function Navbar() {
                 ) : (
                   <div style={{
                     width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
-                    background: '#1B3A69', color: 'white',
+                    background: '#1A335E', color: 'white',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 14, fontWeight: 700,
                   }}>
@@ -688,7 +687,7 @@ export default function Navbar() {
               {/* Profili Düzenle — mobil menünün en üstünde, belirgin */}
               {sahipOlunan.length > 0 && (
                 <Link href={duzenleHref} onClick={() => setMobileOpen(false)}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, borderRadius: 12, background: '#1B3A69', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', marginBottom: 8 }}>
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, borderRadius: 12, background: '#1A335E', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', marginBottom: 8 }}>
                   {kalemIkon}{duzenleEtiket}
                 </Link>
               )}
@@ -710,7 +709,7 @@ export default function Navbar() {
                     textDecoration: 'none', letterSpacing: '-.1px', marginBottom: 2,
                   }}
                 >
-                  <span style={{ color: '#1B3A69', display: 'flex' }}>{item.icon}</span>
+                  <span style={{ color: '#1A335E', display: 'flex' }}>{item.icon}</span>
                   {item.label}
                 </Link>
               ))}
@@ -739,12 +738,12 @@ export default function Navbar() {
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   minHeight: 48, borderRadius: 12,
-                  background: '#D4A843',
-                  fontSize: 15, fontWeight: 600, color: 'white',
-                  textDecoration: 'none', letterSpacing: '-.1px',
+                  background: 'var(--gold-fill)',
+                  fontSize: 15, fontWeight: 600, color: 'var(--on-gold)',
+                  textDecoration: 'none',
                 }}
               >
-                İşletmenizi Ekleyin
+                Kliniğinizi ekleyin
               </Link>
               <Link
                 href="/giris?tip=isletme"
@@ -752,9 +751,9 @@ export default function Navbar() {
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                   minHeight: 48, borderRadius: 12,
-                  border: '1.5px solid #1B3A69',
+                  border: '1.5px solid #1A335E',
                   background: 'white',
-                  fontSize: 15, fontWeight: 700, color: '#1B3A69',
+                  fontSize: 15, fontWeight: 700, color: '#1A335E',
                   textDecoration: 'none', letterSpacing: '-.1px',
                 }}
               >

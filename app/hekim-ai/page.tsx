@@ -28,7 +28,7 @@ const IC: Record<string, React.ReactNode> = {
   check:  <path d="M20 6L9 17l-5-5" />,
 };
 
-function Icon({ name, size = 22, color = '#1B3A69', stroke = 2 }: { name: string; size?: number; color?: string; stroke?: number }) {
+function Icon({ name, size = 22, color = '#1A335E', stroke = 2 }: { name: string; size?: number; color?: string; stroke?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
       {IC[name]}
@@ -36,7 +36,7 @@ function Icon({ name, size = 22, color = '#1B3A69', stroke = 2 }: { name: string
   );
 }
 
-const NAVY = '#1B3A69', GOLD = '#D4A843', TEXT = '#1c1c1e', MUTED = '#6E6E73', BORDER = '#E5E5EA';
+const NAVY = '#1A335E', GOLD = '#B8892F', TEXT = '#1c1c1e', MUTED = '#6E6E73', BORDER = '#E5E5EA';
 
 const FEATURES = [
   { icon: 'phone',  title: 'Hiçbir Talebi Kaçırmayın', text: 'Aynı anda birden fazla aramayı ve talebi karşılar; menü ve bekleme derdi olmadan her talebi randevuya dönüştürür.' },
@@ -64,7 +64,7 @@ export default function HekimAIPage() {
         .ha-glow{position:absolute;border-radius:50%;filter:blur(12px);opacity:.55;pointer-events:none;}
         .ha-cta{display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border-radius:14px;font-size:15px;font-weight:700;text-decoration:none;letter-spacing:-.2px;transition:transform .16s ease;}
         .ha-cta:hover{transform:translateY(-2px);}
-        .ha-cta-gold{background:linear-gradient(135deg,#EBC65D,#D4A843);color:#0F2A55;box-shadow:0 10px 26px rgba(212,168,67,.4);}
+        .ha-cta-gold{background:linear-gradient(135deg,#EBC65D,#B8892F);color:#152A4E;box-shadow:0 10px 26px rgba(184,137,47,.4);}
         .ha-cta-ghost{background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(255,255,255,.28);}
         .ha-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
         .ha-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
@@ -78,10 +78,10 @@ export default function HekimAIPage() {
 
       {/* ── HERO ── */}
       <section className="ha-hero">
-        <span className="ha-glow" style={{ width: 380, height: 380, right: -90, top: -140, background: 'rgba(212,168,67,.2)' }} />
+        <span className="ha-glow" style={{ width: 380, height: 380, right: -90, top: -140, background: 'rgba(184,137,47,.2)' }} />
         <span className="ha-glow" style={{ width: 320, height: 320, left: -110, bottom: -150, background: 'rgba(78,123,192,.3)' }} />
         <div className="ha-wrap" style={{ position: 'relative', zIndex: 1, padding: '84px 24px 92px', textAlign: 'center' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'linear-gradient(135deg,#EBC65D,#D4A843)', color: '#0F2A55', fontSize: 12, fontWeight: 800, letterSpacing: '1px', marginBottom: 24 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'linear-gradient(135deg,#EBC65D,#B8892F)', color: '#152A4E', fontSize: 12, fontWeight: 800, letterSpacing: '1px', marginBottom: 24 }}>
             ÇOK YAKINDA
           </span>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginBottom: 18, flexWrap: 'wrap' }}>
@@ -116,7 +116,7 @@ export default function HekimAIPage() {
         <div className="ha-steps">
           {STEPS.map(s => (
             <div key={s.n} style={{ background: '#F5F5F7', border: `1px solid ${BORDER}`, borderRadius: 20, padding: '26px 24px', position: 'relative' }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg,#12305C,#1B3A69)', color: '#EBC65D', fontWeight: 800, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>{s.n}</div>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg,#12305C,#1A335E)', color: '#EBC65D', fontWeight: 800, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>{s.n}</div>
               <h3 style={{ fontSize: 17, fontWeight: 800, color: TEXT, letterSpacing: '-.3px', margin: '0 0 8px' }}>{s.title}</h3>
               <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.65, margin: 0 }}>{s.text}</p>
             </div>
@@ -144,7 +144,7 @@ export default function HekimAIPage() {
       {/* ── HEDEFİMİZ (dürüst; gerçek metrik iddiası yok) ── */}
       <section className="ha-wrap" style={{ padding: '56px 24px' }}>
         <div style={{ background: 'linear-gradient(150deg,#0B1F42,#163D6E)', borderRadius: 26, padding: 'clamp(30px, 4vw, 48px)', color: '#fff', position: 'relative', overflow: 'hidden' }}>
-          <span className="ha-glow" style={{ width: 260, height: 260, right: -60, bottom: -110, background: 'rgba(212,168,67,.18)' }} />
+          <span className="ha-glow" style={{ width: 260, height: 260, right: -60, bottom: -110, background: 'rgba(184,137,47,.18)' }} />
           <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: 720, margin: '0 auto' }}>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.2px', textTransform: 'uppercase', color: '#EBC65D', margin: '0 0 12px' }}>Hedefimiz</p>
             <h2 style={{ fontSize: 'clamp(22px, 3.2vw, 30px)', fontWeight: 800, letterSpacing: '-.7px', lineHeight: 1.25, margin: '0 0 26px' }}>
@@ -164,7 +164,7 @@ export default function HekimAIPage() {
       {/* ── KAPANIŞ ── */}
       <section style={{ background: '#F5F5F7' }}>
         <div className="ha-wrap" style={{ padding: '64px 24px', textAlign: 'center' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 15px', borderRadius: 999, background: 'linear-gradient(135deg,#EBC65D,#D4A843)', color: '#0F2A55', fontSize: 12, fontWeight: 800, letterSpacing: '1px', marginBottom: 18 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 15px', borderRadius: 999, background: 'linear-gradient(135deg,#EBC65D,#B8892F)', color: '#152A4E', fontSize: 12, fontWeight: 800, letterSpacing: '1px', marginBottom: 18 }}>
             ÇOK YAKINDA
           </span>
           <h2 style={{ fontSize: 'clamp(24px, 3.6vw, 34px)', fontWeight: 800, letterSpacing: '-1px', color: NAVY, margin: '0 0 14px' }}>HekimAI yolda</h2>

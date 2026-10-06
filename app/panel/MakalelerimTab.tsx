@@ -6,8 +6,8 @@ import MakaleGorselYukle from '@/components/MakaleGorselYukle';
 import MakaleGovde from '@/components/MakaleGovde';
 
 const T = {
-  navy: '#1B3A69', gold: '#D4A843', white: '#FFFFFF', border: '#E2E8F4',
-  muted: '#6B7A99', text: '#1A2744', green: '#059669', amber: '#F59E0B', red: '#EF4444',
+  navy: '#1A335E', gold: '#B8892F', white: '#FFFFFF', border: '#E2E8F4',
+  muted: '#4A5568', text: '#111C2E', green: '#059669', amber: '#F59E0B', red: '#EF4444',
 };
 
 export interface PanelMakale {
@@ -75,18 +75,18 @@ const MK_HL_CSS = `
 }
 .mk-back {
   position: absolute; inset: 0; overflow: hidden; pointer-events: none;
-  color: #1A2744; background: #FFFFFF;
+  color: #111C2E; background: #FFFFFF;
 }
 .mk-ta {
   position: relative; z-index: 1; width: 100%; min-height: 320px; resize: vertical;
-  background: transparent; color: transparent; caret-color: #1A2744; outline: none;
+  background: transparent; color: transparent; caret-color: #111C2E; outline: none;
   border-color: #E2E8F4;
 }
 .mk-ta::placeholder { color: transparent; }
-.mk-h { font-weight: 800; color: #1B3A69; }
-.mk-b { font-weight: 800; color: #1A2744; }
-.mk-quote { color: #6B7A99; font-style: italic; }
-.mk-bullet { color: #D4A843; font-weight: 800; }
+.mk-h { font-weight: 800; color: #1A335E; }
+.mk-b { font-weight: 800; color: #111C2E; }
+.mk-quote { color: #4A5568; font-style: italic; }
+.mk-bullet { color: #B8892F; font-weight: 800; }
 .mk-mark { color: #B8C2D9; }
 .mk-link { color: #2563EB; }
 .mk-img { color: #059669; }

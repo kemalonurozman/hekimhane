@@ -221,7 +221,7 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
         {formErr && <div style={{ background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.3)', color: C.red, fontSize: 12.5, borderRadius: 9, padding: '10px 13px' }}>{formErr}</div>}
 
         <button type="submit" disabled={kaydet}
-          style={{ alignSelf: 'flex-start', padding: '11px 24px', borderRadius: 10, border: 'none', background: C.gold, color: '#1A2744', fontSize: 13.5, fontWeight: 800, cursor: kaydet ? 'default' : 'pointer', fontFamily: 'inherit', opacity: kaydet ? .6 : 1 }}>
+          style={{ alignSelf: 'flex-start', padding: '11px 24px', borderRadius: 10, border: 'none', background: C.gold, color: '#111C2E', fontSize: 13.5, fontWeight: 800, cursor: kaydet ? 'default' : 'pointer', fontFamily: 'inherit', opacity: kaydet ? .6 : 1 }}>
           {kaydet ? 'Kaydediliyor…' : form.taslak ? 'Taslağı kaydet' : 'Yayınla'}
         </button>
       </form>
@@ -237,7 +237,7 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
           <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>Panelden gelen yazıları onaylayın veya kendiniz makale yayınlayın.</p>
         </div>
         <button onClick={() => { setForm({ ...BOS }); setFormErr(''); setMod('yeni'); }}
-          style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: C.gold, color: '#1A2744', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
+          style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: C.gold, color: '#111C2E', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
           + Yeni Makale
         </button>
       </div>
@@ -252,7 +252,7 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
           const aktif = filtre === f;
           return (
             <button key={f} onClick={() => setFiltre(f)}
-              style={{ padding: '7px 14px', borderRadius: 20, border: `1px solid ${aktif ? 'rgba(212,168,67,.4)' : C.border}`, background: aktif ? 'rgba(212,168,67,.14)' : 'transparent', color: aktif ? C.gold : C.muted, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: '7px 14px', borderRadius: 20, border: `1px solid ${aktif ? 'rgba(184,137,47,.4)' : C.border}`, background: aktif ? 'rgba(184,137,47,.14)' : 'transparent', color: aktif ? C.gold : C.muted, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
               {FILTRE_LABEL[f]} ({sayac(f)})
             </button>
           );
@@ -278,7 +278,7 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
                       <span style={{ fontSize: 10.5, fontWeight: 800, color: renk, background: `${renk}1A`, border: `1px solid ${renk}4D`, borderRadius: 8, padding: '2px 9px' }}>{etiket}</span>
-                      {m.sponsorlu && <span style={{ fontSize: 10.5, fontWeight: 800, color: C.gold, background: 'rgba(212,168,67,.12)', border: '1px solid rgba(212,168,67,.3)', borderRadius: 8, padding: '2px 9px' }}>İŞ ORTAĞI</span>}
+                      {m.sponsorlu && <span style={{ fontSize: 10.5, fontWeight: 800, color: C.gold, background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 8, padding: '2px 9px' }}>İŞ ORTAĞI</span>}
                       <span style={{ fontSize: 11.5, color: C.muted }}>{m.category || '—'}</span>
                       <span style={{ fontSize: 11.5, color: C.muted }}>· {fmt(m.created_at)}</span>
                       {m.kaynak === 'panel' && <span style={{ fontSize: 11.5, color: C.blue }}>· panelden</span>}
@@ -308,7 +308,7 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
                         <a href={`/blog/${m.slug}`} target="_blank" rel="noreferrer" style={{ ...btn('transparent', C.muted, C.border), textDecoration: 'none' }}>Aç</a>
                         <button onClick={() => anasayfaToggle(m.id, !m.show_homepage)} disabled={islemId === m.id}
                           style={m.show_homepage
-                            ? btn('rgba(212,168,67,.15)', '#B8860B', 'rgba(212,168,67,.4)')
+                            ? btn('rgba(184,137,47,.15)', '#B8860B', 'rgba(184,137,47,.4)')
                             : btn('transparent', C.muted, C.border)}>
                           {m.show_homepage ? '★ Anasayfada' : '☆ Anasayfaya çıkar'}
                         </button>
@@ -344,7 +344,7 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
         </div>
       )}
 
-      <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: `translateX(-50%) translateY(${toast ? '0' : '12px'})`, background: '#1A2744', color: 'white', padding: '10px 22px', borderRadius: 50, fontSize: 13, fontWeight: 600, opacity: toast ? 1 : 0, transition: 'all .3s', zIndex: 9999, pointerEvents: 'none', whiteSpace: 'nowrap' }}>
+      <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: `translateX(-50%) translateY(${toast ? '0' : '12px'})`, background: '#111C2E', color: 'white', padding: '10px 22px', borderRadius: 50, fontSize: 13, fontWeight: 600, opacity: toast ? 1 : 0, transition: 'all .3s', zIndex: 9999, pointerEvents: 'none', whiteSpace: 'nowrap' }}>
         {toast}
       </div>
     </div>

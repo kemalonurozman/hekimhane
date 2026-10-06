@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
           (adminNote
             ? `<div style="margin:14px 0 0;padding:12px 14px;background:#F8FAFF;border-left:3px solid ${k.renk};border-radius:8px;"><div style="font-size:11px;font-weight:700;color:#6E6E73;letter-spacing:.4px;margin-bottom:4px;">YÖNETİCİ NOTU</div><div style="font-size:14px;color:#1c1c1e;line-height:1.6;">${esc(adminNote).replace(/\n/g, '<br>')}</div></div>`
             : '') +
-          `<p style="margin:18px 0 0;"><a href="https://www.hekimhane.com.tr/panel" style="display:inline-block;background:#1B3A69;color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:700;font-size:13px;">Panelde Yorumlarım</a></p>` +
+          `<p style="margin:18px 0 0;"><a href="https://www.hekimhane.com.tr/panel" style="display:inline-block;background:#1A335E;color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:700;font-size:13px;">Panelde Yorumlarım</a></p>` +
           `<p style="font-size:12px;color:#6E6E73;margin-top:12px;">Sorularınız için bu e-postayı yanıtlayabilirsiniz.</p>`);
         const r = await sendEmail({ to: alici, subject: `${k.konu} — ${isletme}`, html, replyTo: ADMIN_EMAIL });
         mail = r.ok ? { sent: true, to: alici } : { sent: false, to: alici, reason: r.skipped ? 'E-posta servisi yapılandırılmamış' : (r.error || 'Gönderilemedi') };

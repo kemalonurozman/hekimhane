@@ -19,7 +19,7 @@ export default function MapEmbed({ lat, lng, name, mapsUrl }: Props) {
         borderRadius: '12px',
         overflow: 'hidden',
         border: '1px solid var(--border)',
-        boxShadow: '0 2px 8px rgba(27,58,105,.08)',
+        boxShadow: '0 2px 8px rgba(26,51,94,.08)',
       }}>
         <iframe
           src={embedUrl}

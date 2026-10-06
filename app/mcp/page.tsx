@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: { title: 'Hekimhane MCP Bağlantısı', description: 'Kliniğinizi yapay zeka asistanınızdan yönetin.', url: 'https://www.hekimhane.com.tr/mcp', type: 'website' },
 };
 
-const NAVY = '#1B3A69', GOLD = '#D4A843', MUTED = '#6E6E73', BORDER = '#E5E5EA', TEXT = '#1D1D1F';
+const NAVY = '#1A335E', GOLD = '#B8892F', MUTED = '#6E6E73', BORDER = '#E5E5EA', TEXT = '#1D1D1F';
 
 function Ikon({ d, size = 22, color = NAVY }: { d: string; size?: number; color?: string }) {
   return (
@@ -64,13 +64,13 @@ const SSS = [
 export default function McpPage() {
   const istemciler = Object.keys(ISTEMCI_BILGI) as Istemci[];
   return (
-    <main style={{ background: 'var(--ivory, #FBF8F2)', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
+    <main style={{ background: 'var(--ivory, #F6F8FB)', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
 
       {/* HERO */}
       <section style={{ background: `linear-gradient(160deg, #071A2E 0%, #0E2D55 45%, ${NAVY} 100%)`, padding: '120px 24px 72px' }}>
         <div style={{ maxWidth: 1080, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 44, alignItems: 'center' }}>
           <div>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(212,168,67,.15)', border: '1px solid rgba(212,168,67,.4)', color: GOLD, fontSize: 11.5, fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', marginBottom: 22 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(184,137,47,.15)', border: '1px solid rgba(184,137,47,.4)', color: GOLD, fontSize: 11.5, fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', marginBottom: 22 }}>
               Hekimhane-Pro · MCP
             </span>
             <h1 style={{ color: 'white', fontSize: 'clamp(30px, 4.6vw, 42px)', fontWeight: 800, letterSpacing: '-1.2px', lineHeight: 1.15, margin: '0 0 16px' }}>
@@ -81,7 +81,7 @@ export default function McpPage() {
               Hekimhane&apos;nin MCP bağlantısını Claude gibi bir asistana ekleyin, panelde tıklayarak yaptığınız işleri tek cümleyle yaptırın.
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <Link href="/panel" style={{ padding: '13px 24px', borderRadius: 12, background: `linear-gradient(135deg, ${GOLD}, #BE8F2C)`, color: 'white', fontSize: 14.5, fontWeight: 800, textDecoration: 'none', boxShadow: '0 6px 20px rgba(212,168,67,.35)' }}>Panelde anahtar oluştur</Link>
+              <Link href="/panel" style={{ padding: '13px 24px', borderRadius: 12, background: `linear-gradient(135deg, ${GOLD}, #B8892F)`, color: 'white', fontSize: 14.5, fontWeight: 800, textDecoration: 'none', boxShadow: '0 6px 20px rgba(184,137,47,.35)' }}>Panelde anahtar oluştur</Link>
               <Link href="/pro" style={{ padding: '13px 22px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,.3)', color: 'white', fontSize: 14.5, fontWeight: 700, textDecoration: 'none' }}>Hekimhane-Pro</Link>
             </div>
           </div>
@@ -95,7 +95,7 @@ export default function McpPage() {
             </div>
             <div style={{ display: 'grid', gap: 6, marginBottom: 12 }}>
               {['takvim_durumu · Perşembe', 'randevu_ekle · 15:00–17:00'].map(t => (
-                <div key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, width: 'fit-content', padding: '5px 10px', borderRadius: 8, background: 'rgba(212,168,67,.14)', border: '1px solid rgba(212,168,67,.3)', color: GOLD, fontSize: 11.5, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>
+                <div key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, width: 'fit-content', padding: '5px 10px', borderRadius: 8, background: 'rgba(184,137,47,.14)', border: '1px solid rgba(184,137,47,.3)', color: GOLD, fontSize: 11.5, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>
                   <svg width="11" height="11" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M1 5 L4.5 8.5 L11 1.5" stroke={GOLD} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   {t}
                 </div>
@@ -124,7 +124,7 @@ export default function McpPage() {
             { ikon: IKON.anahtar, b: 'Kontrol sizde', m: 'Kişisel anahtarla bağlanırsınız ve istediğiniz an iptal edersiniz. Veri değiştiren her işlemden önce asistan onayınızı ister.' },
           ].map(x => (
             <div key={x.b} style={{ background: 'white', borderRadius: 18, border: `1px solid ${BORDER}`, padding: '24px 22px', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: `linear-gradient(140deg, ${NAVY}, #0F2A55)`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}><Ikon d={x.ikon} size={20} color="white" /></div>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: `linear-gradient(140deg, ${NAVY}, #152A4E)`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}><Ikon d={x.ikon} size={20} color="white" /></div>
               <h3 style={{ fontSize: 16, fontWeight: 800, color: TEXT, margin: '0 0 6px', letterSpacing: '-0.3px' }}>{x.b}</h3>
               <p style={{ fontSize: 13.5, color: MUTED, lineHeight: 1.6, margin: 0 }}>{x.m}</p>
             </div>

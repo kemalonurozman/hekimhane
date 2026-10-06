@@ -26,7 +26,7 @@ const IC: Record<string, React.ReactNode> = {
   arrow:  <path d="M5 12h14M12 5l7 7-7 7" />,
 };
 
-function Icon({ name, size = 22, color = '#1B3A69', stroke = 2 }: { name: string; size?: number; color?: string; stroke?: number }) {
+function Icon({ name, size = 22, color = '#1A335E', stroke = 2 }: { name: string; size?: number; color?: string; stroke?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
       {IC[name]}
@@ -34,7 +34,7 @@ function Icon({ name, size = 22, color = '#1B3A69', stroke = 2 }: { name: string
   );
 }
 
-const NAVY = '#1B3A69', GOLD = '#D4A843', TEXT = '#1c1c1e', MUTED = '#6E6E73', BORDER = '#E5E5EA';
+const NAVY = '#1A335E', GOLD = '#B8892F', TEXT = '#1c1c1e', MUTED = '#6E6E73', BORDER = '#E5E5EA';
 
 const KAYNAKLAR = [
   { icon: 'globe', title: 'Kendi Web Siteniz', text: 'Tek satır kodla sitenize gömün.' },
@@ -65,11 +65,11 @@ export default function RandevuModuluPage() {
     <div style={{ paddingTop: 64, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif', color: TEXT, background: '#fff' }}>
       <style>{`
         .rm-wrap{max-width:1120px;margin:0 auto;padding:0 24px;}
-        .rm-hero{position:relative;overflow:hidden;background:linear-gradient(155deg,#0F2A55 0%,#1B3A69 55%,#163D6E 100%);color:#fff;}
+        .rm-hero{position:relative;overflow:hidden;background:linear-gradient(155deg,#152A4E 0%,#1A335E 55%,#163D6E 100%);color:#fff;}
         .rm-glow{position:absolute;border-radius:50%;filter:blur(12px);opacity:.5;pointer-events:none;}
         .rm-cta{display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border-radius:14px;font-size:15px;font-weight:700;text-decoration:none;letter-spacing:-.2px;transition:transform .16s ease;}
         .rm-cta:hover{transform:translateY(-2px);}
-        .rm-cta-gold{background:linear-gradient(135deg,#EBC65D,#D4A843);color:#0F2A55;box-shadow:0 10px 26px rgba(212,168,67,.4);}
+        .rm-cta-gold{background:linear-gradient(135deg,#EBC65D,#B8892F);color:#152A4E;box-shadow:0 10px 26px rgba(184,137,47,.4);}
         .rm-cta-ghost{background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(255,255,255,.28);}
         .rm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
         .rm-card{background:#fff;border:1px solid ${BORDER};border-radius:20px;padding:24px 22px;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;}
@@ -87,7 +87,7 @@ export default function RandevuModuluPage() {
 
       {/* ── HERO ── */}
       <section className="rm-hero">
-        <span className="rm-glow" style={{ width: 380, height: 380, right: -90, top: -140, background: 'rgba(212,168,67,.2)' }} />
+        <span className="rm-glow" style={{ width: 380, height: 380, right: -90, top: -140, background: 'rgba(184,137,47,.2)' }} />
         <span className="rm-glow" style={{ width: 320, height: 320, left: -110, bottom: -150, background: 'rgba(78,123,192,.3)' }} />
         <div className="rm-wrap" style={{ position: 'relative', zIndex: 1, padding: '82px 24px 90px', textAlign: 'center' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 15px', borderRadius: 999, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.2)', fontSize: 12, fontWeight: 800, letterSpacing: '1px', marginBottom: 24 }}>
@@ -101,7 +101,7 @@ export default function RandevuModuluPage() {
             <strong style={{ color: '#fff', fontWeight: 700 }}> tek panelde</strong> buluşur. Farklı yerlerden ve sayfalardan randevu almaya bugün başlayın.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/katil" className="rm-cta rm-cta-gold">İşletmenizi Ekleyin<Icon name="arrow" size={17} color="#0F2A55" stroke={2.4} /></Link>
+            <Link href="/katil" className="rm-cta rm-cta-gold">İşletmenizi Ekleyin<Icon name="arrow" size={17} color="#152A4E" stroke={2.4} /></Link>
             <Link href="/neden-hekimhane" className="rm-cta rm-cta-ghost">Neden Hekimhane?</Link>
           </div>
         </div>
@@ -128,11 +128,11 @@ export default function RandevuModuluPage() {
             ))}
           </div>
           <div className="rm-arrow-wrap">
-            <div style={{ width: 46, height: 46, borderRadius: '50%', background: 'linear-gradient(135deg,#EBC65D,#D4A843)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(212,168,67,.35)' }}>
-              <Icon name="arrow" size={22} color="#0F2A55" stroke={2.6} />
+            <div style={{ width: 46, height: 46, borderRadius: '50%', background: 'linear-gradient(135deg,#EBC65D,#B8892F)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(184,137,47,.35)' }}>
+              <Icon name="arrow" size={22} color="#152A4E" stroke={2.6} />
             </div>
           </div>
-          <div style={{ background: 'linear-gradient(150deg,#0F2A55,#163D6E)', borderRadius: 20, padding: '28px 26px', color: '#fff', textAlign: 'center' }}>
+          <div style={{ background: 'linear-gradient(150deg,#152A4E,#163D6E)', borderRadius: 20, padding: '28px 26px', color: '#fff', textAlign: 'center' }}>
             <div style={{ width: 52, height: 52, borderRadius: 15, background: 'rgba(255,255,255,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
               <Icon name="inbox" size={26} color="#EBC65D" />
             </div>
@@ -171,13 +171,13 @@ export default function RandevuModuluPage() {
           <div className="rm-grid" style={{ marginBottom: 26 }}>
             {STEPS.map(s => (
               <div key={s.n} style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 18, padding: '22px 20px' }}>
-                <div style={{ width: 38, height: 38, borderRadius: 11, background: 'linear-gradient(135deg,#12305C,#1B3A69)', color: '#EBC65D', fontWeight: 800, fontSize: 17, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 13 }}>{s.n}</div>
+                <div style={{ width: 38, height: 38, borderRadius: 11, background: 'linear-gradient(135deg,#12305C,#1A335E)', color: '#EBC65D', fontWeight: 800, fontSize: 17, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 13 }}>{s.n}</div>
                 <h3 style={{ fontSize: 15.5, fontWeight: 800, color: TEXT, margin: '0 0 7px', letterSpacing: '-.2px' }}>{s.title}</h3>
                 <p style={{ fontSize: 13.5, color: MUTED, lineHeight: 1.6, margin: 0 }}>{s.text}</p>
               </div>
             ))}
           </div>
-          <div style={{ background: '#0F2A55', borderRadius: 14, padding: '16px 18px', overflowX: 'auto' }}>
+          <div style={{ background: '#152A4E', borderRadius: 14, padding: '16px 18px', overflowX: 'auto' }}>
             <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(255,255,255,.4)', marginBottom: 8 }}>Örnek Kod</div>
             <pre style={{ margin: 0, fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', fontSize: 12.5, lineHeight: 1.6, color: '#DCE6F5', whiteSpace: 'pre' }}>{IFRAME_KODU}</pre>
           </div>
@@ -206,8 +206,8 @@ export default function RandevuModuluPage() {
           <p style={{ fontSize: 16, color: MUTED, lineHeight: 1.65, maxWidth: 560, margin: '0 auto 28px' }}>
             Ücretsiz profilinizi oluşturun; randevu modülünü sitenize ekleyin, tüm talepleri tek panelde yönetin.
           </p>
-          <Link href="/katil" className="rm-cta rm-cta-gold" style={{ boxShadow: '0 10px 26px rgba(212,168,67,.35)' }}>
-            İşletmenizi Ekleyin<Icon name="arrow" size={17} color="#0F2A55" stroke={2.4} />
+          <Link href="/katil" className="rm-cta rm-cta-gold" style={{ boxShadow: '0 10px 26px rgba(184,137,47,.35)' }}>
+            İşletmenizi Ekleyin<Icon name="arrow" size={17} color="#152A4E" stroke={2.4} />
           </Link>
         </div>
       </section>

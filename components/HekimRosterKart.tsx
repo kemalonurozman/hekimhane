@@ -11,7 +11,7 @@ function Stars({ rat }: { rat: number }) {
     <span style={{ display: 'inline-flex', gap: 1.5 }}>
       {[1, 2, 3, 4, 5].map(i => (
         <i key={i} className={`fa-${i <= Math.round(rat) ? 'solid' : 'regular'} fa-star`}
-          style={{ fontSize: 11, color: i <= Math.round(rat) ? '#D4A843' : '#D8D8DE' }} />
+          style={{ fontSize: 11, color: i <= Math.round(rat) ? '#B8892F' : '#D8D8DE' }} />
       ))}
     </span>
   );

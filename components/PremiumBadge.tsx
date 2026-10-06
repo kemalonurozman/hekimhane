@@ -24,9 +24,9 @@ export default function PremiumBadge({ size = 'sm', variant = 'photo' }: Premium
         height: dim,
         borderRadius: '50%',
         /* Hekimhane lacivert arka plan */
-        background: 'linear-gradient(145deg, #1B3A69, #163060)',
+        background: 'linear-gradient(145deg, #1A335E, #163060)',
         border: '2.5px solid white',
-        boxShadow: '0 2px 8px rgba(27,58,105,.35)',
+        boxShadow: '0 2px 8px rgba(26,51,94,.35)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

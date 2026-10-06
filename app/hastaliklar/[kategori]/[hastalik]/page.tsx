@@ -80,13 +80,13 @@ export default function HastalıkDetayPage({ params }: Props) {
 
       {/* Hero — belirgin, solid navy (silik değil) */}
       <section style={{
-        background: 'linear-gradient(135deg, #12305C 0%, #1B3A69 55%, #17457E 100%)',
+        background: 'linear-gradient(135deg, #12305C 0%, #1A335E 55%, #17457E 100%)',
         padding: '56px 0 52px',
         color: 'white',
         position: 'relative',
         overflow: 'hidden',
       }}>
-        <span aria-hidden style={{ position: 'absolute', right: -90, top: -120, width: 360, height: 360, borderRadius: '50%', background: 'rgba(212,168,67,.10)', filter: 'blur(8px)', pointerEvents: 'none' }} />
+        <span aria-hidden style={{ position: 'absolute', right: -90, top: -120, width: 360, height: 360, borderRadius: '50%', background: 'rgba(184,137,47,.10)', filter: 'blur(8px)', pointerEvents: 'none' }} />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           {/* Breadcrumb */}
           <nav style={{ fontSize: 13, color: 'rgba(255,255,255,.65)', marginBottom: 22, display: 'flex', gap: 7, alignItems: 'center', flexWrap: 'wrap' }}>

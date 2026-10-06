@@ -53,7 +53,7 @@ export default function CocukKonuDetayPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Hero */}
-      <div style={{ background: 'linear-gradient(135deg, #1B3A69 0%, #163D6E 100%)', padding: '46px 0 42px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'linear-gradient(135deg, #1A335E 0%, #163D6E 100%)', padding: '46px 0 42px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', right: -60, top: -60, width: 260, height: 260, borderRadius: '50%', background: 'rgba(255,255,255,.04)' }} />
         <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: 820 }}>
           <nav style={{ display: 'flex', gap: 6, fontSize: 12, color: 'rgba(255,255,255,.55)', marginBottom: 16, flexWrap: 'wrap' }}>
@@ -61,7 +61,7 @@ export default function CocukKonuDetayPage({ params }: Props) {
             <Link href="/cocuk-dis-sagligi" style={{ color: 'rgba(255,255,255,.7)', textDecoration: 'none' }}>Çocuk Diş Sağlığı</Link><span>›</span>
             <span style={{ color: 'white' }}>{k.ad}</span>
           </nav>
-          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--gold)', background: 'rgba(212,168,67,.12)', border: '1px solid rgba(212,168,67,.3)', borderRadius: 20, padding: '5px 13px', marginBottom: 14 }}>
+          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--on-deep-heading)', background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '5px 13px', marginBottom: 14 }}>
             Pedodonti
           </span>
           <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(24px,3.6vw,34px)', fontWeight: 800, color: 'white', lineHeight: 1.2, margin: '0 0 12px', letterSpacing: '-0.4px' }}>
@@ -131,7 +131,7 @@ export default function CocukKonuDetayPage({ params }: Props) {
             Bulunduğunuz şehirdeki çocuk diş hekimlerini (pedodonti) inceleyin, puan ve yorumlara göre karşılaştırın.
           </p>
           <Link href="/klinikler?uzmanlik=Pedodonti%20(%C3%87ocuk%20Di%C5%9F%20Hekimli%C4%9Fi)"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--gold)', color: 'var(--navy)', fontSize: 14.5, fontWeight: 700, borderRadius: 12, padding: '13px 24px', textDecoration: 'none' }}>
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--gold-fill)', color: 'var(--navy)', fontSize: 14.5, fontWeight: 700, borderRadius: 12, padding: '13px 24px', textDecoration: 'none' }}>
             Çocuk diş hekimlerini gör →
           </Link>
         </section>

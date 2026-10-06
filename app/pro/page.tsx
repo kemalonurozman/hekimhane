@@ -15,8 +15,8 @@ export const metadata: Metadata = {
   },
 };
 
-const NAVY = '#1B3A69';
-const GOLD = '#D4A843';
+const NAVY = '#1A335E';
+const GOLD = '#B8892F';
 const MUTED = '#6E6E73';
 const BORDER = '#E5E5EA';
 
@@ -134,7 +134,7 @@ function MockProfil() {
       <div style={{ height: 58, background: `linear-gradient(120deg, #0E2D55, ${NAVY} 55%, #2B5288)`, position: 'relative' }}>
         <svg viewBox="0 0 400 58" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} aria-hidden="true">
           <path d="M0 40 C 90 18, 180 56, 400 31 L 400 58 L 0 58 Z" fill="rgba(255,255,255,.08)" />
-          <path d="M0 49 C 120 31, 240 60, 400 42 L 400 58 L 0 58 Z" fill="rgba(212,168,67,.16)" />
+          <path d="M0 49 C 120 31, 240 60, 400 42 L 400 58 L 0 58 Z" fill="rgba(184,137,47,.16)" />
         </svg>
       </div>
       <div style={{ padding: '0 16px 14px' }}>
@@ -142,14 +142,14 @@ function MockProfil() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginTop: -16 }}>
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <div style={{ width: 46, height: 46, borderRadius: '50%', background: 'white', border: `2.5px solid ${GOLD}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800, color: NAVY }}>H</div>
-            <span style={{ position: 'absolute', bottom: -3, right: -3, width: 17, height: 17, borderRadius: '50%', background: `linear-gradient(145deg, ${GOLD}, #BE8F2C)`, border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ position: 'absolute', bottom: -3, right: -3, width: 17, height: 17, borderRadius: '50%', background: `linear-gradient(145deg, ${GOLD}, #B8892F)`, border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="8" height="8" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M1 5 L4.5 8.5 L11 1.5" stroke="white" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </span>
           </div>
           <div style={{ minWidth: 0, marginTop: 16 }}>
             <div style={{ fontSize: 12.5, fontWeight: 800, color: '#1D1D1F', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Örnek Diş Kliniği</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: MUTED }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 7px', borderRadius: 999, background: 'linear-gradient(135deg,#D4A843,#BE8F2C)', color: 'white', fontWeight: 800, letterSpacing: '.6px' }}>PRO</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 7px', borderRadius: 999, background: 'var(--gold-fill)', color: 'var(--on-gold)', fontWeight: 800, letterSpacing: '.6px' }}>PRO</span>
               İstanbul · Beşiktaş
             </div>
           </div>
@@ -163,7 +163,7 @@ function MockProfil() {
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20 15.3 15.3 0 0 1 0-20z" /></svg>
             Web Sitesi
           </span>
-          <span style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '7px 8px', borderRadius: 9, background: `linear-gradient(135deg, ${GOLD}, #BE8F2C)`, color: 'white', fontSize: 10.5, fontWeight: 700 }}>Randevu Al</span>
+          <span style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '7px 8px', borderRadius: 9, background: `linear-gradient(135deg, ${GOLD}, #B8892F)`, color: 'white', fontSize: 10.5, fontWeight: 700 }}>Randevu Al</span>
         </div>
       </div>
     </div>
@@ -197,12 +197,12 @@ const SSS = [
 
 export default function ProPage() {
   return (
-    <main style={{ background: 'var(--ivory, #FBF8F2)', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
+    <main style={{ background: 'var(--ivory, #F6F8FB)', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
 
       {/* HERO */}
       <section style={{ background: `linear-gradient(160deg, #071A2E 0%, #0E2D55 45%, ${NAVY} 100%)`, padding: '120px 24px 72px', textAlign: 'center' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(212,168,67,.15)', border: '1px solid rgba(212,168,67,.4)', color: GOLD, fontSize: 11.5, fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', marginBottom: 22 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(184,137,47,.15)', border: '1px solid rgba(184,137,47,.4)', color: GOLD, fontSize: 11.5, fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', marginBottom: 22 }}>
             <svg width="11" height="11" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M1 5 L4.5 8.5 L11 1.5" stroke={GOLD} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
             Hekimhane-Pro
           </span>
@@ -223,7 +223,7 @@ export default function ProPage() {
       {/* ÖZELLİKLER — vitrinler + detay kartları */}
       <section style={{ padding: '76px 24px', maxWidth: 1080, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 52 }}>
-          <span style={{ display: 'inline-block', padding: '4px 13px', borderRadius: 999, background: 'rgba(212,168,67,.12)', border: '1px solid rgba(212,168,67,.35)', color: '#9A742A', fontSize: 11, fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', marginBottom: 14 }}>
+          <span style={{ display: 'inline-block', padding: '4px 13px', borderRadius: 999, background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.35)', color: '#9A742A', fontSize: 11, fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', marginBottom: 14 }}>
             Neden Pro
           </span>
           <h2 style={{ fontSize: 30, fontWeight: 800, color: '#1D1D1F', letterSpacing: '-0.9px', margin: '0 0 10px' }}>
@@ -264,7 +264,7 @@ export default function ProPage() {
           {KARTLAR.map(o => (
             <div key={o.baslik} className="pro-kart"
               style={{ background: 'white', borderRadius: 18, border: `1px solid ${BORDER}`, padding: '24px 22px', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: `linear-gradient(140deg, ${NAVY}, #0F2A55)`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 15, boxShadow: '0 3px 10px rgba(27,58,105,.25)' }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: `linear-gradient(140deg, ${NAVY}, #152A4E)`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 15, boxShadow: '0 3px 10px rgba(26,51,94,.25)' }}>
                 <Ikon d={o.ikon} size={20} color="white" />
               </div>
               <h3 style={{ fontSize: 15.5, fontWeight: 800, color: '#1D1D1F', margin: '0 0 6px', letterSpacing: '-0.3px' }}>{o.baslik}</h3>
@@ -287,7 +287,7 @@ export default function ProPage() {
           React SSR bunları escape edip hydration uyumsuzluğu yaratıyor. */}
       <style>{`
         .pro-kart { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-        .pro-kart:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(27,58,105,.12); border-color: #D4A843; }
+        .pro-kart:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(26,51,94,.12); border-color: #B8892F; }
         .pro-vitrin--ters .pro-vitrin-metin { order: 2; }
         .pro-vitrin--ters .pro-vitrin-mock { order: 1; }
         @media (max-width: 800px) {
@@ -318,7 +318,7 @@ export default function ProPage() {
       {/* FİYAT */}
       <section style={{ padding: '72px 24px' }}>
         <div style={{ maxWidth: 440, margin: '0 auto', background: 'white', borderRadius: 22, border: `1.5px solid ${GOLD}`, boxShadow: '0 8px 32px rgba(190,143,44,.15)', overflow: 'hidden' }}>
-          <div style={{ background: `linear-gradient(135deg, ${GOLD}, #BE8F2C)`, padding: '10px', textAlign: 'center', color: 'white', fontSize: 11.5, fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase' }}>
+          <div style={{ background: `linear-gradient(135deg, ${GOLD}, #B8892F)`, padding: '10px', textAlign: 'center', color: 'white', fontSize: 11.5, fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase' }}>
             Tek paket, tüm özellikler
           </div>
           <div style={{ padding: '34px 30px', textAlign: 'center' }}>

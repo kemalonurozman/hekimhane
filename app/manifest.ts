@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       'Türkiye genelindeki klinik, hastane, diş hekimi ve eczaneleri bul; yorumları oku, randevu al.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#FBF8F2',
-    theme_color: '#1B3A69',
+    background_color: '#F6F8FB',
+    theme_color: '#1A335E',
     lang: 'tr',
     icons: [
       { src: '/web-app-manifest-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },

@@ -17,7 +17,7 @@ export const C = {
   text:   '#1D1D1F',
   muted:  '#6E6E73',
   dim:    '#AEAEB2',
-  navy:   '#1B3A69',   // tek vurgu — aktif menü, birincil düğme, bağlantı
+  navy:   '#1A335E',   // tek vurgu — aktif menü, birincil düğme, bağlantı
   gold:   '#B48A2A',   // marka altını, beyaz zeminde okunur ton
   // Durum renkleri — beyaz zeminde metin olarak da okunur (600 tonları)
   green:  '#1E8E5A',

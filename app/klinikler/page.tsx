@@ -464,7 +464,7 @@ export default async function KliniklerPage(
       basePath="/klinikler"
       entityLabel="klinik"
       entityLabelPlural="klinik"
-      color="#1B3A69"
+      color="#1A335E"
       gradient="linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%)"
       icon={
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">

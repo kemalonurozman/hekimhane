@@ -22,8 +22,8 @@ export const HERO_BACKGROUNDS: HeroBg[] = [
     key: 'navy', name: 'Navy Premium', style: 'wave',
     desc: 'Lacivert tonlar, altın detaylar. Güçlü, kurumsal ve modern.',
     base: 'linear-gradient(155deg,#091B36 0%,#12315E 52%,#0A1F3E 100%)',
-    swatch: 'linear-gradient(150deg,#0A1E3C,#12315E,#D4A843)',
-    dots: ['#0F2A55', '#D4A843', '#9FC2E8'],
+    swatch: 'linear-gradient(150deg,#0A1E3C,#12315E,#B8892F)',
+    dots: ['#152A4E', '#B8892F', '#9FC2E8'],
   },
   {
     key: 'pearl', name: 'Pearl Premium', style: 'wave',
@@ -60,10 +60,10 @@ export const HERO_BACKGROUNDS: HeroBg[] = [
   {
     key: 'gold', name: 'Altın Lacivert', style: 'blob',
     desc: 'Marka rengi — lacivert zeminde altın vurgular.',
-    base: 'linear-gradient(160deg,#0F2A55 0%,#1B3A69 50%,#8a6d1f 100%)',
-    blobs: ['#D4A843', '#2563eb', '#1B3A69'],
-    swatch: 'linear-gradient(150deg,#0F2A55,#1B3A69,#D4A843)',
-    dots: ['#0F2A55', '#1B3A69', '#D4A843'],
+    base: 'linear-gradient(160deg,#152A4E 0%,#1A335E 50%,#8a6d1f 100%)',
+    blobs: ['#B8892F', '#2563eb', '#1A335E'],
+    swatch: 'linear-gradient(150deg,#152A4E,#1A335E,#B8892F)',
+    dots: ['#152A4E', '#1A335E', '#B8892F'],
   },
   {
     key: 'yesil', name: 'Aurora Yeşil', style: 'blob',
@@ -131,7 +131,7 @@ export const HERO_BG_CSS = `
 /* ── Navy Premium ── */
 .hbw--navy .hbw__base{background:linear-gradient(155deg,#091B36 0%,#12315E 52%,#0A1F3E 100%);}
 .hbw--navy .hbw__w1{fill:rgba(255,255,255,.055);}
-.hbw--navy .hbw__w2{fill:rgba(212,168,67,.20);}
+.hbw--navy .hbw__w2{fill:rgba(184,137,47,.20);}
 .hbw--navy .hbw__w3{fill:rgba(159,194,232,.10);}
 .hbw--navy .hbw__l1{stroke:rgba(232,197,120,.85);stroke-width:1.4;}
 .hbw--navy .hbw__l2{stroke:rgba(255,255,255,.28);stroke-width:1;}

@@ -36,7 +36,7 @@ export default function MakaleGovde({ bloklar }: { bloklar: BlogBlok[] }) {
           <img key={i} src={b.url} alt={b.alt || ''} style={{ display: 'block', width: '100%', borderRadius: 14, border: '1px solid var(--border)', margin: '18px 0' }} />
         );
         if (b.tip === 'alinti') return (
-          <blockquote key={i} style={{ margin: '20px 0', padding: '14px 20px', borderLeft: '4px solid var(--gold)', background: '#FBF7EE', borderRadius: '0 12px 12px 0', fontSize: 16.5, lineHeight: 1.7, color: 'var(--text)', fontStyle: 'italic' }}>{renderInline(b.metin)}</blockquote>
+          <blockquote key={i} style={{ margin: '20px 0', padding: '14px 20px', borderLeft: '4px solid var(--gold)', background: '#F6F8FB', borderRadius: '0 12px 12px 0', fontSize: 16.5, lineHeight: 1.7, color: 'var(--text)', fontStyle: 'italic' }}>{renderInline(b.metin)}</blockquote>
         );
         return <p key={i} style={{ fontSize: 16, lineHeight: 1.75, color: 'var(--text)', marginBottom: 16 }}>{renderInline(b.metin)}</p>;
       })}

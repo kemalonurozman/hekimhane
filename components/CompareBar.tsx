@@ -47,7 +47,7 @@ export default function CompareBar() {
           {items.map(it => (
             <span key={it.id} style={{
               display: 'inline-flex', alignItems: 'center', gap: 7,
-              background: 'var(--cream, #FBF8F2)', border: '1px solid var(--border)',
+              background: 'var(--cream, #F6F8FB)', border: '1px solid var(--border)',
               borderRadius: 10, padding: '5px 8px 5px 10px', maxWidth: 200,
             }}>
               <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

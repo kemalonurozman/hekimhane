@@ -36,17 +36,17 @@ const Cal = ({ c = 'white', s = 17 }: { c?: string; s?: number }) => (
 const Pin = ({ c = '#EA4335', s = 17 }: { c?: string; s?: number }) => (
   <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z" /><circle cx="12" cy="10" r="3" /></svg>
 );
-const Qr = ({ c = '#1B3A69', s = 22 }: { c?: string; s?: number }) => (
+const Qr = ({ c = '#1A335E', s = 22 }: { c?: string; s?: number }) => (
   <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><path d="M14 14h3v3h-3zM21 14v7M17 21h4M17 17h.01" /></svg>
 );
 const Shield = ({ c = '#059669', s = 22 }: { c?: string; s?: number }) => (
   <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="M9 12l2 2 4-4" /></svg>
 );
-const Link2 = ({ c = '#1B3A69', s = 22 }: { c?: string; s?: number }) => (
+const Link2 = ({ c = '#1A335E', s = 22 }: { c?: string; s?: number }) => (
   <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
 );
 const Star = ({ s = 12 }: { s?: number }) => (
-  <svg width={s} height={s} viewBox="0 0 24 24" fill="#D4A843"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z" /></svg>
+  <svg width={s} height={s} viewBox="0 0 24 24" fill="#B8892F"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z" /></svg>
 );
 const Check = ({ c = 'white', s = 12 }: { c?: string; s?: number }) => (
   <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
@@ -76,7 +76,7 @@ function AvatarIllustration() {
         {/* Yaka + lacivert vurgu */}
         <path d="M42 72 L50 84 L44 92 Z" fill="#EDF1F6" />
         <path d="M58 72 L50 84 L56 92 Z" fill="#EDF1F6" />
-        <path d="M49 84 h2 v16 h-2 z" fill="#1B3A69" opacity=".18" />
+        <path d="M49 84 h2 v16 h-2 z" fill="#1A335E" opacity=".18" />
         {/* Boyun */}
         <path d="M43 62 h14 v10 c0 4 -14 4 -14 0 z" fill="#E4A886" />
         {/* Baş */}
@@ -113,7 +113,7 @@ const OZELLIKLER = [
     onem: 'Kartın ilk butonu randevu. Hasta seni araması gerekmeden, o an talebini bırakır. Kaçan hastayı yakalar, dönüşümü artırır — bu yüzden en üstte.',
   },
   {
-    ic: <Phone c="#1B3A69" s={22} />, bg: '#EEF2FF', renk: '#1B3A69',
+    ic: <Phone c="#1A335E" s={22} />, bg: '#EEF2FF', renk: '#1A335E',
     baslik: 'Doğrudan Ara',
     onem: 'Tek dokunuşla telefon açılır. Acil ağrı ya da hızlı bilgi isteyen hasta için en kısa yol. Randevunun hemen altında, her zaman erişilebilir.',
   },
@@ -138,7 +138,7 @@ const OZELLIKLER = [
     onem: 'Pro hesaplarda kartın en üstünde yeşil onay rozeti. Sıradan bir link listesinden ayrışmanı sağlar; hasta gözünde güveni ve ciddiyeti artırır.',
   },
   {
-    ic: <Qr c="#1B3A69" s={22} />, bg: '#EEF2FF', renk: '#1B3A69',
+    ic: <Qr c="#1A335E" s={22} />, bg: '#EEF2FF', renk: '#1A335E',
     baslik: 'QR kod',
     onem: 'Kliniğinde, vitrininde, basılı kartında QR. Okutan hasta saniyeler içinde kartında. Fiziksel dünyayı dijitale bağlayan köprü.',
   },
@@ -151,7 +151,7 @@ const OZELLIKLER = [
 
 export default function HekimKartTanitim() {
   return (
-    <div style={{ paddingTop: 64, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif', background: '#FBF8F2' }}>
+    <div style={{ paddingTop: 64, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif', background: '#F6F8FB' }}>
       <style>{`
         .hk-wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
         .hk-hero { background: linear-gradient(160deg,#071A2E 0%,#0E2D55 45%,#163D6E 100%); padding: 64px 0 210px; text-align:center; }
@@ -168,7 +168,7 @@ export default function HekimKartTanitim() {
         .hk-b { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; }
         .hk-b-ok { background:rgba(16,185,129,.16); border:1px solid rgba(16,185,129,.4); color:#6EE7B7; }
         .hk-b-loc { background:rgba(255,255,255,.12); color:rgba(255,255,255,.8); font-weight:500; }
-        .hk-b-rat { background:rgba(212,168,67,.16); border:1px solid rgba(212,168,67,.35); color:#E7BE5C; }
+        .hk-b-rat { background:rgba(184,137,47,.16); border:1px solid rgba(184,137,47,.35); color:#E7BE5C; }
 
         .hk-links { padding: 16px 16px 8px; display:flex; flex-direction:column; gap:9px; }
         .hk-btn { display:flex; align-items:center; gap:12px; padding:13px 15px; border-radius:15px; font-size:14px; font-weight:600; text-decoration:none; transition:transform .15s, box-shadow .15s; }
@@ -184,7 +184,7 @@ export default function HekimKartTanitim() {
         .hk-mini { flex:1; display:flex; align-items:center; justify-content:center; gap:7px; padding:10px 6px; border-radius:13px; font-size:12px; font-weight:700; color:#fff; text-decoration:none; transition:transform .15s, box-shadow .15s; }
         .hk-mini:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.18); }
 
-        .hk-phone { background:linear-gradient(135deg,#1B3A69,#2d5496); color:#fff; box-shadow:0 4px 16px rgba(27,58,105,.28); }
+        .hk-phone { background:linear-gradient(135deg,#1A335E,#2d5496); color:#fff; box-shadow:0 4px 16px rgba(26,51,94,.28); }
         .hk-rez   { background:linear-gradient(135deg,#047857,#059669); color:#fff; box-shadow:0 4px 16px rgba(5,150,105,.25); }
         .hk-ig    { background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045); box-shadow:0 4px 14px rgba(131,58,180,.22); }
         .hk-in    { background:linear-gradient(135deg,#0A66C2,#004182); box-shadow:0 4px 14px rgba(10,102,194,.22); }
@@ -206,7 +206,7 @@ export default function HekimKartTanitim() {
       {/* ── HERO ─────────────────────────────────────────── */}
       <section className="hk-hero">
         <div className="hk-wrap">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(212,168,67,.12)', border: '1px solid rgba(212,168,67,.3)', borderRadius: 20, padding: '5px 16px', fontSize: 11, fontWeight: 700, color: '#D4A843', letterSpacing: '1.2px', textTransform: 'uppercase', marginBottom: 22 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '5px 16px', fontSize: 11, fontWeight: 700, color: 'var(--on-deep-heading)', letterSpacing: '1.2px', textTransform: 'uppercase', marginBottom: 22 }}>
             Dijital Kartvizit · Ücretsiz
           </div>
           <h1 style={{ fontSize: 'clamp(34px,5.5vw,58px)', fontWeight: 800, color: '#fff', letterSpacing: '-2px', lineHeight: 1.05, margin: '0 0 18px' }}>
@@ -224,7 +224,7 @@ export default function HekimKartTanitim() {
         <div className="hk-grid">
           {/* Sol — kısa anlatım */}
           <div className="hk-panel">
-            <h2 style={{ fontSize: 26, fontWeight: 800, color: '#1B3A69', letterSpacing: '-.6px', margin: '0 0 10px' }}>
+            <h2 style={{ fontSize: 26, fontWeight: 800, color: '#1A335E', letterSpacing: '-.6px', margin: '0 0 10px' }}>
               Butonların sırası tesadüf değil
             </h2>
             <p style={{ color: '#6E6E73', fontSize: 15, lineHeight: 1.7, margin: '0 0 22px' }}>
@@ -240,7 +240,7 @@ export default function HekimKartTanitim() {
                 ['3', 'En son yön', 'Web sitesi ve konum — kararını vermiş hasta için.'],
               ].map(([n, t, d]) => (
                 <div key={n} style={{ display: 'flex', gap: 13, alignItems: 'flex-start' }}>
-                  <span style={{ width: 26, height: 26, borderRadius: 8, background: '#1B3A69', color: '#fff', fontSize: 13, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</span>
+                  <span style={{ width: 26, height: 26, borderRadius: 8, background: '#1A335E', color: '#fff', fontSize: 13, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</span>
                   <div>
                     <div style={{ fontSize: 14.5, fontWeight: 700, color: '#1D1D1F' }}>{t}</div>
                     <div style={{ fontSize: 13, color: '#6E6E73', lineHeight: 1.5 }}>{d}</div>
@@ -310,7 +310,7 @@ export default function HekimKartTanitim() {
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: '#B45309', textTransform: 'uppercase', letterSpacing: '1.2px', marginBottom: 12 }}>
             <Star s={13} /> Neden özel bir kart?
           </div>
-          <h2 style={{ fontSize: 'clamp(24px,3.4vw,34px)', fontWeight: 800, color: '#1B3A69', letterSpacing: '-.8px', margin: '0 0 10px' }}>
+          <h2 style={{ fontSize: 'clamp(24px,3.4vw,34px)', fontWeight: 800, color: '#1A335E', letterSpacing: '-.8px', margin: '0 0 10px' }}>
             Her başlık, bir amaca hizmet ediyor
           </h2>
           <p style={{ color: '#6E6E73', fontSize: 15, maxWidth: 560, margin: '0 auto', lineHeight: 1.65 }}>
@@ -332,11 +332,11 @@ export default function HekimKartTanitim() {
       {/* ── ÖZEL BANDI ───────────────────────────────────── */}
       <section className="hk-wrap" style={{ paddingBottom: 64 }}>
         <div style={{ background: 'linear-gradient(135deg,#FBF3E0,#F6ECD4)', border: '1px solid #EADBB5', borderRadius: 22, padding: '34px 32px', display: 'flex', gap: 22, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-          <div style={{ width: 52, height: 52, borderRadius: 14, background: '#1B3A69', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Shield c="#D4A843" s={26} />
+          <div style={{ width: 52, height: 52, borderRadius: 14, background: '#1A335E', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Shield c="#B8892F" s={26} />
           </div>
           <div style={{ flex: 1, minWidth: 260 }}>
-            <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1B3A69', letterSpacing: '-.4px', margin: '0 0 8px' }}>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1A335E', letterSpacing: '-.4px', margin: '0 0 8px' }}>
               Genel bir “link sayfası” değil — sağlığa özel
             </h3>
             <p style={{ fontSize: 14.5, color: '#6b5d3e', lineHeight: 1.7, margin: 0 }}>
@@ -358,7 +358,7 @@ export default function HekimKartTanitim() {
             <p style={{ color: 'rgba(255,255,255,.6)', fontSize: 15, maxWidth: 480, margin: '0 auto 26px', lineHeight: 1.6 }}>
               Kliniğini Hekimhane&apos;ye ekle; profilin onaylandığında dijital kartın otomatik hazır olur.
             </p>
-            <Link href="/katil" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 30px', borderRadius: 13, background: '#D4A843', color: '#fff', fontSize: 15, fontWeight: 700, textDecoration: 'none', letterSpacing: '-.2px' }}>
+            <Link href="/katil" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 30px', borderRadius: 13, background: '#B8892F', color: '#fff', fontSize: 15, fontWeight: 700, textDecoration: 'none', letterSpacing: '-.2px' }}>
               Kliniğini Ekle <Arrow />
             </Link>
           </div>

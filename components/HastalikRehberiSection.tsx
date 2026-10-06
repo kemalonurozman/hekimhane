@@ -128,7 +128,7 @@ export default function HastalikRehberiSection() {
           <div>
             <p style={{
               fontSize: 11, fontWeight: 600, letterSpacing: '1.2px',
-              textTransform: 'uppercase', color: '#1B3A69',
+              textTransform: 'uppercase', color: '#1A335E',
               margin: '0 0 8px',
             }}>
               Diş Sağlığı Bilgi Merkezi
@@ -147,7 +147,7 @@ export default function HastalikRehberiSection() {
           <Link href="/hastaliklar/dis-sagligi" style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
             padding: '9px 20px', borderRadius: 10,
-            border: '1.5px solid #1B3A69', color: '#1B3A69',
+            border: '1.5px solid #1A335E', color: '#1A335E',
             fontSize: 13.5, fontWeight: 600, textDecoration: 'none',
             letterSpacing: '-.2px', whiteSpace: 'nowrap',
           }}>

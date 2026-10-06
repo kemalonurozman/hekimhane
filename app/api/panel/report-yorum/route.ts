@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
         ${satir('Puan', `${yorum.rating}/5`)}
         ${satir('Yorum', esc(yorum.text))}
         ${satir('Gerekçe', esc(String(reason).trim()))}
-        <p style="margin:16px 0 0;"><a href="https://www.hekimhane.com.tr/admin" style="color:#1B3A69;font-weight:700;">Admin → Şikayetler</a></p>
+        <p style="margin:16px 0 0;"><a href="https://www.hekimhane.com.tr/admin" style="color:#1A335E;font-weight:700;">Admin → Şikayetler</a></p>
       `),
     });
 

@@ -7,7 +7,7 @@ import {
   type AsistanYetki, type AsistanSekme,
 } from '@/lib/asistan';
 
-const NAVY = '#1B3A69', GOLD = '#D4A843', MUTED = '#6E6E73', BORDER = '#E5E5EA', TEXT = '#1D1D1F', BG = '#F5F5F7';
+const NAVY = '#1A335E', GOLD = '#B8892F', MUTED = '#6E6E73', BORDER = '#E5E5EA', TEXT = '#1D1D1F', BG = '#F5F5F7';
 
 interface Asistan { id: string; email: string; ad: string | null; eklenme: string; yetkiler: AsistanYetki[]; durum: 'aktif' | 'davet_bekliyor' }
 interface Yonetilen { entity_id: string; entity_type: string; entity_name: string; asistanlar: Asistan[] }

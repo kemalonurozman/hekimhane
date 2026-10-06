@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { SearchResults } from '@/app/api/search/route';
-import HeroKonumSecici from '@/components/HeroKonumSecici';
+import { IL_ILCE, IL_LISTE } from '@/lib/tr-il-ilce';
+import { toSlug } from '@/lib/helpers';
 
 // ── Sayaç animasyonu ─────────────────────────────────────────────────────────
 function AnimatedCount({ target, suffix = '+' }: { target: number; suffix?: string }) {
@@ -54,13 +55,36 @@ function IconSpinner() {
 
 // ── Canlı Arama Formu ─────────────────────────────────────────────────────────
 const GRUPLAR_CONFIG = [
-  { key: 'klinikler'  as const, baslik: 'Diş Kliniği',  renk: '#1B3A69', bg: '#EEF2FF' },
+  { key: 'klinikler'  as const, baslik: 'Diş Kliniği',  renk: '#1A335E', bg: '#EEF2FF' },
   { key: 'doktorlar'  as const, baslik: 'Diş Hekimi',   renk: '#0E7490', bg: '#ECFEFF' },
 ];
+
+/** Konum alanı: "İzmir", "kadıköy", "Çankaya Ankara" → { il, ilce }. Eşleşmezse serbest metin olarak aramaya eklenir. */
+function konumCoz(girdi: string): { il?: string; ilce?: string; serbest?: string } {
+  const t = girdi.trim();
+  if (!t) return {};
+  const k = toSlug(t);
+  const il = IL_LISTE.find(x => toSlug(x) === k);
+  if (il) return { il };
+  const parcalar = t.split(/[,/]+|\s+/).filter(Boolean);
+  for (const ilAdi of IL_LISTE) {
+    if (parcalar.some(p => toSlug(p) === toSlug(ilAdi))) {
+      const kalan = toSlug(parcalar.filter(p => toSlug(p) !== toSlug(ilAdi)).join(' '));
+      const ilce = IL_ILCE[ilAdi].find(c => toSlug(c) === kalan);
+      return ilce ? { il: ilAdi, ilce } : { il: ilAdi };
+    }
+  }
+  for (const [ilAdi, ilceler] of Object.entries(IL_ILCE)) {
+    const ilce = ilceler.find(c => toSlug(c) === k);
+    if (ilce) return { il: ilAdi, ilce };
+  }
+  return { serbest: t };
+}
 
 function LiveSearchForm({ mounted }: { mounted: boolean }) {
   const router = useRouter();
   const [q, setQ]         = useState('');
+  const [konum, setKonum] = useState('');   // tek arama çubuğundaki "İl veya ilçe" alanı
   const [sonuclar, setSonuclar] = useState<SearchResults | null>(null);
   const [acik, setAcik]   = useState(false);
   const [yukleniyor, setYukleniyor] = useState(false);
@@ -118,9 +142,15 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
     e.preventDefault();
     setAcik(false);
     const term = q.trim();
-    if (!term) return;
-    // Diş klinikleri listesine yönlendir
-    router.push(`/klinikler?q=${encodeURIComponent(term)}`);
+    const yer = konumCoz(konum);
+    if (!term && !yer.il && !yer.serbest) return;
+    // Tek arama: metin + konum birlikte diş klinikleri listesine gider
+    const ps = new URLSearchParams();
+    const metin = [term, yer.serbest].filter(Boolean).join(' ');
+    if (metin) ps.set('q', metin);
+    if (yer.il) ps.set('il', yer.il);
+    if (yer.ilce) ps.set('ilce', yer.ilce);
+    router.push(`/klinikler?${ps.toString()}`);
   }
 
   function handleSelect(href: string) {
@@ -147,14 +177,14 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
         transition: 'opacity .7s ease .3s, transform .7s ease .3s',
       }}
     >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 8, width: '100%' }}>
+      <form onSubmit={handleSubmit} role="search" className="hk-search hk-search--lg hk-hero-arama">
 
         {/* Input + dropdown */}
-        <div style={{ flex: 1, position: 'relative' }}>
+        <div className="hk-hero-arama__alan" style={{ position: 'relative' }}>
           {/* İkon */}
           <div style={{
-            position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)',
-            color: yukleniyor ? '#1B3A69' : '#8E8E93',
+            position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
+            color: yukleniyor ? 'var(--brand)' : 'var(--ink-tertiary)',
             display: 'flex', pointerEvents: 'none',
             transition: 'color .2s',
           }}>
@@ -166,23 +196,11 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
             value={q}
             onChange={handleInput}
             onFocus={() => sonuclar && setAcik(true)}
-            placeholder="Diş kliniği, diş hekimi veya ilçe ara…"
+            placeholder="Diş kliniği, diş hekimi veya tedavi"
+            aria-label="Diş kliniği, diş hekimi veya tedavi"
             autoComplete="off"
             spellCheck={false}
-            style={{
-              width: '100%',
-              padding: '16px 20px 16px 50px',
-              borderRadius: dropdownAcik ? '14px 14px 0 0' : '14px',
-              border: '1px solid #D9DCE3',
-              borderBottom: dropdownAcik ? '1px solid #EEF0F4' : '1px solid #D9DCE3',
-              background: '#FFFFFF',
-              color: '#1D1D1F',
-              fontSize: 15, outline: 'none',
-              boxSizing: 'border-box', fontFamily: 'inherit',
-              letterSpacing: '-.1px',
-              boxShadow: '0 6px 24px rgba(27,58,105,.08)',
-              transition: 'border-radius .15s, border-bottom .15s',
-            }}
+            className="hk-hero-arama__input"
           />
 
           {/* Dropdown */}
@@ -192,9 +210,9 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
               top: '100%',
               left: 0, right: 0,
               background: 'white',
-              borderRadius: '0 0 14px 14px',
-              border: '1px solid #D9DCE3', borderTop: 'none',
-              boxShadow: '0 20px 50px rgba(27,58,105,.14)',
+              borderRadius: 'var(--radius-lg)', marginTop: 10,
+              border: '1px solid var(--border)',
+              boxShadow: '0 20px 50px rgba(26,51,94,.14)',
               zIndex: 9999,
               overflow: 'hidden',
               maxHeight: 400,
@@ -229,7 +247,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
                       }}
                       style={{
                         padding: '9px 18px', borderRadius: 10,
-                        background: '#1B3A69', color: 'white',
+                        background: '#1A335E', color: 'white',
                         fontSize: 13, fontWeight: 600, border: 'none',
                         cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '-.1px',
                       }}
@@ -244,7 +262,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
                       }}
                       style={{
                         padding: '9px 18px', borderRadius: 10,
-                        background: '#F5F5F7', color: '#1B3A69',
+                        background: '#F5F5F7', color: '#1A335E',
                         fontSize: 13, fontWeight: 600, border: 'none',
                         cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '-.1px',
                       }}
@@ -338,7 +356,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
                     if (q.trim()) router.push(`/klinikler?q=${encodeURIComponent(q.trim())}`);
                   }}
                   style={{
-                    fontSize: 12, color: '#1B3A69', fontWeight: 600,
+                    fontSize: 12, color: '#1A335E', fontWeight: 600,
                     background: 'none', border: 'none', cursor: 'pointer',
                     padding: 0, fontFamily: 'inherit', letterSpacing: '-.1px',
                     display: 'flex', alignItems: 'center', gap: 4,
@@ -355,37 +373,26 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
           )}
         </div>
 
-        {/* Ara butonu */}
-        <button type="submit" style={{
-          padding: '16px 28px', borderRadius: 14, border: 'none',
-          background: '#1B3A69',
-          color: 'white', fontSize: 15, fontWeight: 600,
-          cursor: 'pointer', letterSpacing: '-.1px',
-          flexShrink: 0, fontFamily: 'inherit',
-          boxShadow: '0 2px 8px rgba(27,58,105,.22)',
-          alignSelf: 'flex-start',
-        }}>
-          Ara
-        </button>
+        {/* Konum — aynı çubukta (ikinci bir seçici satırı yok) */}
+        <label className="hk-search__field hk-search__field--loc hk-hero-arama__konum">
+          <i className="fa-solid fa-location-dot" style={{ color: 'var(--gold)', fontSize: 16 }} aria-hidden="true" />
+          <span className="hk-sr">İl veya ilçe</span>
+          <input type="text" value={konum} onChange={e => setKonum(e.target.value)} placeholder="İl veya ilçe" list="hk-iller" autoComplete="off" />
+          <datalist id="hk-iller">{IL_LISTE.map(il => <option key={il} value={il} />)}</datalist>
+        </label>
+        <button type="submit" className="hk-btn hk-btn--lg hk-btn--primary hk-search__btn">Ara</button>
       </form>
 
-      {/* Hızlı filtre butonları — doğrudan aramaya götürür */}
-      <div className="hero-chips" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 14, justifyContent: 'center' }}>
+      {/* Popüler tedaviler — tek satır etiket dizisi ("Tüm klinikler" tedaviler bölümünün başlığında) */}
+      <div className="hk-hero-etiketler">
         {([
           ['İmplant', `/klinikler?uzmanlik=${encodeURIComponent('İmplantoloji (İmplant)')}`],
           ['Ortodonti', `/klinikler?uzmanlik=${encodeURIComponent('Ortodonti (Diş Teli)')}`],
-          ['Estetik Diş', `/klinikler?uzmanlik=${encodeURIComponent('Estetik Diş Hekimliği')}`],
-          ['Kanal Tedavisi', `/klinikler?uzmanlik=${encodeURIComponent('Endodonti (Kanal Tedavisi)')}`],
-          ['Çocuk Diş', `/klinikler?uzmanlik=${encodeURIComponent('Pedodonti (Çocuk Diş Hekimliği)')}`],
-          ['Tüm Klinikler →', '/klinikler'],
+          ['Estetik diş', `/klinikler?uzmanlik=${encodeURIComponent('Estetik Diş Hekimliği')}`],
+          ['Kanal tedavisi', `/klinikler?uzmanlik=${encodeURIComponent('Endodonti (Kanal Tedavisi)')}`],
+          ['Çocuk diş', `/klinikler?uzmanlik=${encodeURIComponent('Pedodonti (Çocuk Diş Hekimliği)')}`],
         ] as [string, string][]).map(([label, href]) => (
-          <a key={href} href={href}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 15px', borderRadius: 999,
-              background: '#FFFFFF', border: '1px solid #E0E3E9', color: '#1B3A69',
-              fontSize: 13, fontWeight: 600, textDecoration: 'none', letterSpacing: '-.1px',
-              whiteSpace: 'nowrap', transition: 'background .15s, border-color .15s' }}>
-            {label}
-          </a>
+          <a key={href} href={href} className="hk-tag">{label}</a>
         ))}
       </div>
     </div>
@@ -421,7 +428,7 @@ function HekimSerit({ mounted }: { mounted: boolean }) {
       transform: mounted ? 'translateY(0)' : 'translateY(12px)',
       transition: 'opacity .8s ease .45s, transform .8s ease .45s',
     }}>
-      <span className="hekim-serit-etiket">Diş hekimleri için</span>
+      <span className="hk-badge hk-badge--new">DİŞ HEKİMLERİ İÇİN</span>
       <span className="hekim-serit-metin" aria-live="polite">
         <span key={i} className="hekim-serit-ic">{HEKIM_OZELLIKLERI[i]}</span>
       </span>
@@ -441,47 +448,37 @@ export default function HeroAnimated({ stats }: Props) {
   useEffect(() => { setTimeout(() => setMounted(true), 60); }, []);
 
   const statItems = [
-    { label: 'Diş Kliniği', val: stats.klinik,    suffix: '+' },
+    { label: 'Diş kliniği', val: stats.klinik,    suffix: ''  },
     { label: 'İl',          val: 81,              suffix: ''  },
   ];
 
   return (
-    <section style={{
-      position: 'relative',
-      background: 'radial-gradient(900px 480px at 50% -12%, #E9F0FB 0%, rgba(233,240,251,0) 70%), #FBFBFD',
-      borderBottom: '1px solid #E5E5EA',
-      padding: '92px 0 88px',
-      /* overflow: hidden kaldırıldı — dropdown'ın section dışına çıkmasına izin ver */
-    }}>
+    <section style={{ position: 'relative', background: 'var(--canvas)', padding: 'var(--space-5) 0 0' }}>
       {/* dangerouslySetInnerHTML: children olarak verilen CSS'teki ">" sunucuda
           escape edilip hydration hatasına yol açıyordu */}
       <style dangerouslySetInnerHTML={{ __html: `
         .hero-section {
           padding: 92px 0 88px;
         }
-        .hero-chips a:hover { background: #F2F4F8 !important; border-color: #CBD2DE !important; }
-        /* Dönen başlık: satır yüksekliği sabit (sayfa zıplamasın), metin gradyanla boyanır
-           ve içinden parlak bir şerit süzülür */
-        .hero-donen { display: inline-block; min-height: 1.12em; padding: 0 .06em .08em; white-space: nowrap; }
-        @media (max-width: 360px) { .hero-donen { font-size: .88em; } }
-        .hero-donen-ic {
-          display: inline-block;
-          background: linear-gradient(100deg, #2F5591 0%, #4A6A9A 30%, #D4A843 45%, #FFF3C4 50%, #D4A843 55%, #4A6A9A 70%, #2F5591 100%);
-          background-size: 250% 100%;
-          -webkit-background-clip: text; background-clip: text;
-          -webkit-text-fill-color: transparent; color: transparent;
-          animation: heroGir .7s cubic-bezier(.2,.8,.2,1) both, heroParilti 3.2s ease-in-out infinite;
-        }
-        @keyframes heroGir {
-          from { opacity: 0; transform: translateY(.35em); filter: blur(8px); }
-          to   { opacity: 1; transform: none;             filter: blur(0); }
-        }
-        @keyframes heroParilti {
-          0%   { background-position: 100% 0; }
-          100% { background-position: 0% 0; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .hero-donen-ic { animation: none; background-position: 60% 0; }
+        /* Hero: açık lacivert düz gradyan panel; başlık tek renk (gradyan metin yok) */
+        .hk-hero-panel { text-align: center; padding: 80px 32px; border-radius: var(--radius-xl); background: linear-gradient(120deg, var(--tint-50), var(--tint-100)); }
+        .hk-hero-baslik { margin: 0 auto 16px; max-width: 900px; font-family: var(--font-display); font-size: 64px; line-height: 68px; font-weight: 800; letter-spacing: -0.035em; color: var(--brand); }
+        .hk-hero-alt { margin: 0 auto 32px; max-width: 560px; font-size: 18px; line-height: 28px; color: var(--ink-secondary); }
+        .hk-hero-arama { text-align: left; }
+        .hk-hero-arama__alan { flex: 1 1 280px; min-width: 0; display: flex; align-items: center; height: 56px; }
+        .hk-hero-arama__input { width: 100%; height: 56px; padding: 0 16px 0 46px; border: 0; background: transparent; font: inherit; font-size: 16px; color: var(--ink); outline: none; border-radius: var(--radius-md); }
+        .hk-hero-arama__input::placeholder { color: var(--ink-tertiary); }
+        .hk-hero-arama__konum { border-left: 1px solid var(--border) !important; border-radius: 0 !important; }
+        .hk-hero-etiketler { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+        .hk-hero-etiketler a { height: 30px; padding: 0 12px; text-decoration: none; }
+        .hk-hero-etiketler a:hover { background: var(--tint-100); }
+        @media (max-width: 1080px) { .hk-hero-baslik { font-size: 48px; line-height: 52px; } }
+        @media (max-width: 640px) {
+          .hk-hero-panel { padding: 48px 20px; }
+          .hk-hero-baslik { font-size: 36px; line-height: 40px; }
+          .hk-hero-alt { font-size: 16px; line-height: 24px; }
+          .hk-hero-arama__alan, .hk-hero-arama__konum { flex-basis: 100% !important; }
+          .hk-hero-arama__konum { border-left: 0 !important; border-top: 1px solid var(--border) !important; }
         }
         /* Hekimlere seslenen dönen şerit — arama alanının altında, /katil'e götürür */
         .hekim-serit {
@@ -489,16 +486,16 @@ export default function HeroAnimated({ stats }: Props) {
           max-width: 100%; margin: 22px auto 0;
           padding: 9px 16px 9px 10px; border-radius: 999px;
           background: #FFFFFF; border: 1px solid #E2E7F0;
-          box-shadow: 0 4px 16px rgba(27,58,105,.07);
-          text-decoration: none; color: #1B3A69;
+          box-shadow: 0 4px 16px rgba(26,51,94,.07);
+          text-decoration: none; color: #1A335E;
           transition: border-color .18s, box-shadow .18s, transform .18s;
         }
         .hekim-serit:hover {
-          border-color: #C9D4E6; box-shadow: 0 8px 26px rgba(27,58,105,.13); transform: translateY(-1px);
+          border-color: #C9D4E6; box-shadow: 0 8px 26px rgba(26,51,94,.13); transform: translateY(-1px);
         }
         .hekim-serit-etiket {
           flex-shrink: 0; padding: 3px 10px; border-radius: 999px;
-          background: linear-gradient(135deg,#D4A843,#BE8F2C); color: #fff;
+          background: var(--gold-fill); color: var(--on-gold);
           font-size: 10.5px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase;
         }
         .hekim-serit-metin {
@@ -511,7 +508,7 @@ export default function HeroAnimated({ stats }: Props) {
           animation: seritGir .55s cubic-bezier(.2,.8,.2,1) both;
         }
         .hekim-serit-ok { flex-shrink: 0; display: flex; color: #7C8AA3; }
-        .hekim-serit:hover .hekim-serit-ok { color: #1B3A69; }
+        .hekim-serit:hover .hekim-serit-ok { color: #1A335E; }
         @keyframes seritGir {
           from { opacity: 0; transform: translateY(1.1em); }
           to   { opacity: 1; transform: none; }
@@ -530,7 +527,7 @@ export default function HeroAnimated({ stats }: Props) {
           .hekim-serit-ic { animation: none; }
         }
         .hero-search-form {
-          max-width: 560px;
+          max-width: 860px;
           margin: 0 auto 26px;
         }
         @media (max-width: 480px) {
@@ -551,91 +548,31 @@ export default function HeroAnimated({ stats }: Props) {
 
 
       {/* İçerik */}
-      <div className="container" style={{ position: 'relative', zIndex: 4, textAlign: 'center' }}>
+      <div className="container" style={{ position: 'relative', zIndex: 4 }}>
+       <div className="hk-hero-panel">
 
-        {/* Etiket */}
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: 8,
-          background: 'rgba(27,58,105,.06)',
-          border: '1px solid rgba(27,58,105,.12)',
-          borderRadius: 20, padding: '5px 14px',
-          fontSize: 11, fontWeight: 600, color: '#1B3A69',
-          letterSpacing: '1px', textTransform: 'uppercase',
-          marginBottom: 26,
-          opacity: mounted ? 1 : 0,
-          transform: mounted ? 'translateY(0)' : 'translateY(12px)',
-          transition: 'opacity .6s ease, transform .6s ease',
-        }}>
-          Türkiye Diş Sağlığı Rehberi
-        </div>
+        <span className="hk-badge hk-badge--neutral" style={{ marginBottom: 24 }}>TÜRKİYE DİŞ SAĞLIĞI REHBERİ</span>
 
-        {/* Başlık */}
-        <h1 style={{
-          fontSize: 'clamp(38px, 6vw, 72px)',
-          fontWeight: 700,
-          color: '#1B3A69',
-          lineHeight: 1.06,
-          letterSpacing: '-2.2px',
-          margin: '0 0 18px',
-          opacity: mounted ? 1 : 0,
-          transform: mounted ? 'translateY(0)' : 'translateY(20px)',
-          transition: 'opacity .7s ease .1s, transform .7s ease .1s',
-        }}>
-          Size En Yakın Diş Hekimini<br />
-          <span className="hero-donen"><span className="hero-donen-ic">Hızlıca Bulun</span></span>
-        </h1>
+        {/* Başlık — cümle düzeni, tek renk */}
+        <h1 className="hk-hero-baslik">Size en yakın diş hekimini hızlıca bulun</h1>
 
-        {/* Alt yazı */}
-        <p style={{
-          fontSize: 17, color: '#6E6E73',
-          maxWidth: 520, margin: '0 auto 40px',
-          lineHeight: 1.7, fontWeight: 400, letterSpacing: '.1px',
-          opacity: mounted ? 1 : 0,
-          transform: mounted ? 'translateY(0)' : 'translateY(16px)',
-          transition: 'opacity .7s ease .2s, transform .7s ease .2s',
-        }}>
-          {stats.klinik.toLocaleString('tr')}+ diş kliniği ve muayenehane
+        <p className="hk-hero-alt">
+          {stats.klinik.toLocaleString('tr-TR')} diş kliniği ve muayenehane; puan, adres ve iletişim bilgileriyle tek yerde.
         </p>
 
         {/* ── Canlı Arama ─────────────────────────────────────────── */}
         <LiveSearchForm mounted={mounted} />
 
-        {/* ── Konumdan seç: İl / İlçe / Sorun → Diş Hekimlerini Listele ── */}
-        <HeroKonumSecici mounted={mounted} />
-
         {/* ── Hekimlere seslenen dönen şerit ── */}
         <HekimSerit mounted={mounted} />
+       </div>
 
-        {/* İstatistik sayaçları */}
-        <div style={{
-          display: 'flex', justifyContent: 'center',
-          gap: 'clamp(16px, 4vw, 56px)',
-          flexWrap: 'wrap',
-          opacity: mounted ? 1 : 0,
-          transform: mounted ? 'translateY(0)' : 'translateY(12px)',
-          transition: 'opacity .8s ease .4s, transform .8s ease .4s',
-        }}>
-          {statItems.map((s, i) => (
-            <div key={s.label} style={{
-              textAlign: 'center',
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? 'translateY(0)' : 'translateY(10px)',
-              transition: `opacity .6s ease ${.45 + i * .08}s, transform .6s ease ${.45 + i * .08}s`,
-            }}>
-              <div style={{
-                fontSize: 'clamp(26px, 3.5vw, 38px)',
-                fontWeight: 700, color: '#1B3A69',
-                letterSpacing: '-1.5px', lineHeight: 1, fontVariantNumeric: 'tabular-nums',
-              }}>
-                <AnimatedCount target={s.val} suffix={s.suffix} />
-              </div>
-              <div style={{
-                fontSize: 12, color: '#6E6E73',
-                letterSpacing: '.8px', textTransform: 'uppercase',
-                fontWeight: 500, marginTop: 6,
-              }}>
-                {s.label}
-              </div>
+        {/* İstatistik bandı — ayrı beyaz bant, rakamlar artı işaretsiz */}
+        <div className="hk-stats" style={{ marginTop: 'var(--space-5)' }}>
+          {statItems.map(s => (
+            <div key={s.label} className="hk-stats__item">
+              <span className="hk-stats__num hk-stats__num--brand"><AnimatedCount target={s.val} suffix={s.suffix} /></span>
+              <span className="hk-stats__label">{s.label}</span>
             </div>
           ))}
         </div>

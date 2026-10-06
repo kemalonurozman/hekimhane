@@ -29,7 +29,7 @@ async function sendClaimBildirimleri(k: {
     const isletmeAdi = k.entity_name || b.ad || '—';
     const turEtiket = TUR_ETIKET[k.entity_type] || k.entity_type;
     const linkSatiri = b.url
-      ? `<p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">Profil:</strong> <a href="${b.url}" style="color:#1B3A69;font-weight:600;">${b.url.replace(/^https?:\/\/(www\.)?/, '')}</a></p>`
+      ? `<p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">Profil:</strong> <a href="${b.url}" style="color:#1A335E;font-weight:600;">${b.url.replace(/^https?:\/\/(www\.)?/, '')}</a></p>`
       : '';
 
     const detay =
@@ -61,7 +61,7 @@ async function sendClaimBildirimleri(k: {
         html: mailShell(`${tur}niz Alındı`,
           `<p style="font-size:14px;color:#1c1c1e;">Merhaba <strong>${k.claimant_name || ''}</strong>,</p>` +
           `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${isletmeAdi}</strong> için ${tur.toLowerCase()}niz başarıyla alındı. Talebiniz <strong>24 saat içinde</strong> değerlendirilip size geri dönüş yapılacaktır.</p>` +
-          (b.url ? `<p style="font-size:13px;color:#6E6E73;line-height:1.6;margin-top:8px;">Talep ettiğiniz profil: <a href="${b.url}" style="color:#1B3A69;font-weight:600;">${b.url.replace(/^https?:\/\/(www\.)?/, '')}</a></p>` : '') +
+          (b.url ? `<p style="font-size:13px;color:#6E6E73;line-height:1.6;margin-top:8px;">Talep ettiğiniz profil: <a href="${b.url}" style="color:#1A335E;font-weight:600;">${b.url.replace(/^https?:\/\/(www\.)?/, '')}</a></p>` : '') +
           `<p style="font-size:13px;color:#6E6E73;line-height:1.6;margin-top:12px;">Sorularınız için bu e-postayı yanıtlayabilirsiniz.</p>`),
       });
     }

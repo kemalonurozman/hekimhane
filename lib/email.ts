@@ -36,13 +36,13 @@ export async function sendEmail(opts: MailOpts): Promise<{ ok: boolean; skipped?
 
 // ── Basit, markalı HTML şablonu ──
 export function mailShell(baslik: string, govde: string): string {
-  return `<!doctype html><html><body style="margin:0;background:#FBF8F2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  return `<!doctype html><html><body style="margin:0;background:#F6F8FB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <div style="max-width:520px;margin:0 auto;padding:24px 16px;">
     <div style="text-align:center;margin-bottom:20px;">
-      <a href="https://www.hekimhane.com.tr" style="text-decoration:none;font-size:20px;font-weight:800;color:#1B3A69;">hekimhane<span style="color:#D4A843;">.com.tr</span></a>
+      <a href="https://www.hekimhane.com.tr" style="text-decoration:none;font-size:20px;font-weight:800;color:#1A335E;">hekimhane<span style="color:#B8892F;">.com.tr</span></a>
     </div>
     <div style="background:#fff;border:1px solid #E5E5EA;border-radius:16px;padding:24px;">
-      <h1 style="font-size:18px;color:#1B3A69;margin:0 0 14px;">${baslik}</h1>
+      <h1 style="font-size:18px;color:#1A335E;margin:0 0 14px;">${baslik}</h1>
       ${govde}
     </div>
     <p style="text-align:center;font-size:11px;color:#9CA3AF;margin-top:18px;">
@@ -72,5 +72,5 @@ export function satirTel(etiket: string, tel: string | null | undefined): string
   if (!tel) return '';
   const href = telHref(tel);
   if (!href) return satir(etiket, tel);
-  return `<p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">${etiket}:</strong> <a href="tel:${href}" style="color:#1B3A69;font-weight:700;text-decoration:none;">${esc(tel)}</a> <span style="color:#9CA3AF;font-size:12px;">(aramak için dokunun)</span></p>`;
+  return `<p style="margin:6px 0;font-size:14px;color:#1c1c1e;"><strong style="color:#6E6E73;">${etiket}:</strong> <a href="tel:${href}" style="color:#1A335E;font-weight:700;text-decoration:none;">${esc(tel)}</a> <span style="color:#9CA3AF;font-size:12px;">(aramak için dokunun)</span></p>`;
 }

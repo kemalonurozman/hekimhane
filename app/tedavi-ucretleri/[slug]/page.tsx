@@ -71,7 +71,7 @@ export default function TedaviDetayPage({ params }: Props) {
       {/* Hero */}
       <div style={{ background: 'white', borderBottom: '1px solid #ECE8E0', padding: 'clamp(26px,5vw,40px) 0' }}>
         <div className="container" style={{ maxWidth: 820 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--gold-light)', color: '#9A7B1F', border: '1px solid rgba(212,168,67,.35)', borderRadius: 20, padding: '3px 11px', fontSize: 11, fontWeight: 800, letterSpacing: '.5px', marginBottom: 12 }}>{t.kategori}</div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--gold-light)', color: '#9A7B1F', border: '1px solid rgba(184,137,47,.35)', borderRadius: 20, padding: '3px 11px', fontSize: 11, fontWeight: 800, letterSpacing: '.5px', marginBottom: 12 }}>{t.kategori}</div>
           <h1 style={{ fontFamily: 'var(--font-playfair, serif)', fontSize: 'clamp(24px,5vw,34px)', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.4px', margin: '0 0 10px' }}>{t.ad}</h1>
           <p style={{ color: 'var(--muted)', fontSize: 15, maxWidth: 640, lineHeight: 1.65, margin: 0 }}>{t.ozet}</p>
           {fiyat && (
@@ -151,10 +151,10 @@ export default function TedaviDetayPage({ params }: Props) {
         </div>
 
         {/* CTA — hekim bul */}
-        <div style={{ background: 'linear-gradient(150deg,#0F2A55,#1B3A69)', borderRadius: 20, padding: 'clamp(22px,5vw,30px)', textAlign: 'center', color: 'white', marginBottom: 16 }}>
+        <div style={{ background: 'linear-gradient(150deg,#152A4E,#1A335E)', borderRadius: 20, padding: 'clamp(22px,5vw,30px)', textAlign: 'center', color: 'white', marginBottom: 16 }}>
           <h2 style={{ fontFamily: 'var(--font-playfair, serif)', fontSize: 20, fontWeight: 800, margin: '0 0 8px' }}>{t.ad} için diş hekimi bulun</h2>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,.8)', maxWidth: 440, margin: '0 auto 18px', lineHeight: 1.6 }}>Size en yakın kliniği inceleyin, yorumları okuyun ve online randevu alın.</p>
-          <Link href="/klinikler" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--gold)', color: 'white', padding: '12px 26px', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+          <Link href="/klinikler" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--gold-fill)', color: 'var(--on-gold)', padding: '12px 26px', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
             <i className="fa-solid fa-magnifying-glass" /> Diş Hekimi Ara
           </Link>
         </div>
