@@ -46,9 +46,10 @@ function NavMenu({ label, items, allLabel, allHref, open, onToggle, innerRef, ac
   return (
     <div ref={innerRef} style={{ position: 'relative' }}>
       <button onClick={onToggle}
-        style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 13px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-          fontSize: 13.5, fontWeight: active || open ? 600 : 500, letterSpacing: '-.1px', color: active || open ? '#1A335E' : '#3A3A3C',
-          background: active || open ? 'rgba(26,51,94,.07)' : 'transparent', transition: 'background .15s, color .15s' }}>
+        /* Düz bağlantılarla (navLink) birebir aynı ölçü/renk: 15px, 500/600, var(--ink)/var(--brand) — eskiden 13.5px ve gri idi, menü karışık görünüyordu */
+        style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+          fontSize: 15, fontWeight: active ? 600 : 500, letterSpacing: '-.1px', color: active || open ? 'var(--brand)' : 'var(--ink)',
+          background: open ? 'rgba(26,51,94,.07)' : 'transparent', transition: 'background .15s, color .15s' }}>
         {label}
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .18s', opacity: .6 }}><path d="M6 9l6 6 6-6" /></svg>
       </button>
