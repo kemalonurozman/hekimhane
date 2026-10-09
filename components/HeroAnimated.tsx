@@ -66,6 +66,15 @@ function konumCoz(girdi: string): { il?: string; ilce?: string; serbest?: string
   const k = toSlug(t);
   const il = IL_LISTE.find(x => toSlug(x) === k);
   if (il) return { il };
+  // Konum seçicisinin yazdığı biçim: "Çankaya, Ankara" (çok kelimeli ilçe adları bölünmesin)
+  if (t.includes(',')) {
+    const [ilceStr, ilStr] = t.split(',').map(x => x.trim());
+    const ilAdi = IL_LISTE.find(x => toSlug(x) === toSlug(ilStr || ''));
+    if (ilAdi) {
+      const ilce = IL_ILCE[ilAdi].find(c => toSlug(c) === toSlug(ilceStr));
+      return ilce ? { il: ilAdi, ilce } : { il: ilAdi };
+    }
+  }
   const parcalar = t.split(/[,/]+|\s+/).filter(Boolean);
   for (const ilAdi of IL_LISTE) {
     if (parcalar.some(p => toSlug(p) === toSlug(ilAdi))) {
@@ -79,6 +88,133 @@ function konumCoz(girdi: string): { il?: string; ilce?: string; serbest?: string
     if (ilce) return { il: ilAdi, ilce };
   }
   return { serbest: t };
+}
+
+// ── Konum seçici — il/ilçe açılır listesi ────────────────────────────────────
+type KonumOneri = { tip: 'il' | 'ilce'; il: string; ilce?: string };
+type KonumGrup = { baslik: string; items: KonumOneri[] };
+
+/** "Merkez" her zaman listenin başında, kalanı veri sırasıyla. */
+function merkezOnce(ilceler: string[]): string[] {
+  return [...ilceler.filter(c => c === 'Merkez'), ...ilceler.filter(c => c !== 'Merkez')];
+}
+
+/**
+ * Yazılan metne göre öneriler: boşsa 81 il; metin bir ile tam eşitse o ilin
+ * ilçeleri (Merkez başta); aksi hâlde önce eşleşen iller, sonra eşleşen ilçeler.
+ * Eşleşmede "ile başlayan" > "içeren"; ilçelerde Merkez öne alınır.
+ */
+function konumOnerileri(girdi: string): KonumGrup[] {
+  const t = toSlug(girdi.trim());
+  if (!t) return [{ baslik: 'İller', items: IL_LISTE.map(il => ({ tip: 'il', il })) }];
+
+  const tamIl = IL_LISTE.find(il => toSlug(il) === t);
+  if (tamIl) {
+    return [
+      { baslik: 'İl', items: [{ tip: 'il', il: tamIl }] },
+      { baslik: `${tamIl} ilçeleri`, items: merkezOnce(IL_ILCE[tamIl]).map(ilce => ({ tip: 'ilce', il: tamIl, ilce })) },
+    ];
+  }
+
+  const puan = (ad: string) => { const k = toSlug(ad); return k.startsWith(t) ? 2 : k.includes(t) ? 1 : 0; };
+  const iller = IL_LISTE.map(il => ({ il, p: puan(il) })).filter(x => x.p > 0)
+    .sort((a, b) => b.p - a.p).slice(0, 8).map(x => ({ tip: 'il' as const, il: x.il }));
+
+  const ilceler: { il: string; ilce: string; p: number }[] = [];
+  for (const [il, liste] of Object.entries(IL_ILCE)) {
+    for (const ilce of liste) { const pp = puan(ilce); if (pp > 0) ilceler.push({ il, ilce, p: pp }); }
+  }
+  ilceler.sort((a, b) => (b.p - a.p) || ((b.ilce === 'Merkez' ? 1 : 0) - (a.ilce === 'Merkez' ? 1 : 0)) || a.ilce.localeCompare(b.ilce, 'tr'));
+
+  const gruplar: KonumGrup[] = [];
+  if (iller.length) gruplar.push({ baslik: 'İller', items: iller });
+  if (ilceler.length) gruplar.push({ baslik: 'İlçeler', items: ilceler.slice(0, 12).map(x => ({ tip: 'ilce', il: x.il, ilce: x.ilce })) });
+  return gruplar;
+}
+
+function KonumSecici({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [acik, setAcik] = useState(false);
+  const [aktif, setAktif] = useState(-1);
+  const kokRef = useRef<HTMLDivElement>(null);
+  const listeRef = useRef<HTMLDivElement>(null);
+
+  const gruplar = konumOnerileri(value);
+  const duz = gruplar.flatMap(g => g.items);
+
+  useEffect(() => {
+    function kapat(e: MouseEvent) { if (kokRef.current && !kokRef.current.contains(e.target as Node)) setAcik(false); }
+    document.addEventListener('mousedown', kapat);
+    return () => document.removeEventListener('mousedown', kapat);
+  }, []);
+
+  // Klavyeyle gezerken aktif satır görünür kalsın
+  useEffect(() => {
+    if (aktif < 0 || !listeRef.current) return;
+    const el = listeRef.current.querySelector(`[data-idx="${aktif}"]`) as HTMLElement | null;
+    el?.scrollIntoView({ block: 'nearest' });
+  }, [aktif]);
+
+  function sec(o: KonumOneri) {
+    if (o.tip === 'il') { onChange(o.il); setAktif(-1); setAcik(true); }   // il seçildi → ilçeleri göster
+    else { onChange(`${o.ilce}, ${o.il}`); setAcik(false); }
+  }
+
+  function onKey(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (!acik && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { setAcik(true); return; }
+    if (e.key === 'ArrowDown') { e.preventDefault(); setAktif(i => Math.min(i + 1, duz.length - 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setAktif(i => Math.max(i - 1, 0)); }
+    else if (e.key === 'Enter' && acik && aktif >= 0 && duz[aktif]) { e.preventDefault(); sec(duz[aktif]); }
+    else if (e.key === 'Escape') { setAcik(false); }
+  }
+
+  let idx = -1;
+  return (
+    <div ref={kokRef} className="hk-search__field hk-search__field--loc hk-hero-arama__konum" style={{ position: 'relative' }}>
+      <i className="fa-solid fa-location-dot" style={{ color: 'var(--gold)', fontSize: 16 }} aria-hidden="true" />
+      <span className="hk-sr">İl veya ilçe</span>
+      <input
+        type="text" value={value} placeholder="İl veya ilçe" autoComplete="off" spellCheck={false}
+        role="combobox" aria-expanded={acik} aria-controls="hk-konum-liste" aria-autocomplete="list"
+        onChange={e => { onChange(e.target.value); setAktif(-1); setAcik(true); }}
+        onFocus={() => setAcik(true)}
+        onKeyDown={onKey}
+      />
+      {value && (
+        <button type="button" aria-label="Konumu temizle" className="hk-konum-temizle"
+          onMouseDown={e => { e.preventDefault(); onChange(''); setAktif(-1); setAcik(true); }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+      )}
+      {acik && duz.length > 0 && (
+        <div id="hk-konum-liste" ref={listeRef} className="hk-konum-dd" role="listbox">
+          {gruplar.map(g => (
+            <div key={g.baslik}>
+              <div className="hk-konum-dd__grup">{g.baslik}</div>
+              {g.items.map(o => {
+                idx += 1; const i = idx;
+                const secili = i === aktif;
+                return (
+                  <button key={`${o.tip}-${o.il}-${o.ilce || ''}`} type="button" role="option" aria-selected={secili} data-idx={i}
+                    className={`hk-konum-dd__satir${secili ? ' is-aktif' : ''}`}
+                    onMouseDown={e => { e.preventDefault(); sec(o); }}
+                    onMouseEnter={() => setAktif(i)}>
+                    <span className="hk-konum-dd__ikon" aria-hidden="true">
+                      {o.tip === 'il'
+                        ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9h.01M9 13h.01M9 17h.01" /></svg>
+                        : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>}
+                    </span>
+                    <span className="hk-konum-dd__ad">{o.tip === 'il' ? o.il : o.ilce}</span>
+                    {o.tip === 'ilce' && <span className="hk-konum-dd__alt">{o.il}</span>}
+                    {o.tip === 'il' && value && toSlug(value.trim()) === toSlug(o.il) && <span className="hk-konum-dd__alt">Tüm il</span>}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function LiveSearchForm({ mounted }: { mounted: boolean }) {
@@ -373,13 +509,8 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
           )}
         </div>
 
-        {/* Konum — aynı çubukta (ikinci bir seçici satırı yok) */}
-        <label className="hk-search__field hk-search__field--loc hk-hero-arama__konum">
-          <i className="fa-solid fa-location-dot" style={{ color: 'var(--gold)', fontSize: 16 }} aria-hidden="true" />
-          <span className="hk-sr">İl veya ilçe</span>
-          <input type="text" value={konum} onChange={e => setKonum(e.target.value)} placeholder="İl veya ilçe" list="hk-iller" autoComplete="off" />
-          <datalist id="hk-iller">{IL_LISTE.map(il => <option key={il} value={il} />)}</datalist>
-        </label>
+        {/* Konum — aynı çubukta; il/ilçe açılır listesi (tarayıcının gri datalist'i yerine) */}
+        <KonumSecici value={konum} onChange={setKonum} />
         <button type="submit" className="hk-btn hk-btn--lg hk-btn--primary hk-search__btn">Ara</button>
       </form>
 
@@ -469,6 +600,17 @@ export default function HeroAnimated({ stats }: Props) {
         .hk-hero-arama__input { width: 100%; height: 56px; padding: 0 16px 0 46px; border: 0; background: transparent; font: inherit; font-size: 16px; color: var(--ink); outline: none; border-radius: var(--radius-md); }
         .hk-hero-arama__input::placeholder { color: var(--ink-tertiary); }
         .hk-hero-arama__konum { border-left: 1px solid var(--border) !important; border-radius: 0 !important; }
+        /* Konum açılır listesi */
+        .hk-konum-temizle { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; border: 0; background: var(--tint-100); color: var(--ink-secondary); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+        .hk-konum-temizle:hover { background: var(--tint-200, #d6dfec); color: var(--brand); }
+        .hk-konum-dd { position: absolute; top: calc(100% + 10px); left: -1px; right: -1px; min-width: 280px; max-height: 340px; overflow-y: auto; background: #fff; border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow-lg); padding: 6px; z-index: 60; text-align: left; overscroll-behavior: contain; }
+        .hk-konum-dd__grup { padding: 8px 10px 4px; font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--ink-tertiary); }
+        .hk-konum-dd__satir { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 0; border-radius: 9px; background: transparent; font: inherit; font-size: 14.5px; color: var(--ink); cursor: pointer; text-align: left; }
+        .hk-konum-dd__satir.is-aktif { background: var(--tint-50); color: var(--brand); }
+        .hk-konum-dd__ikon { flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px; background: var(--tint-50); color: var(--brand); display: inline-flex; align-items: center; justify-content: center; }
+        .hk-konum-dd__satir.is-aktif .hk-konum-dd__ikon { background: #fff; }
+        .hk-konum-dd__ad { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .hk-konum-dd__alt { margin-left: auto; flex-shrink: 0; font-size: 12.5px; color: var(--ink-tertiary); }
         .hk-hero-etiketler { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
         .hk-hero-etiketler a { height: 30px; padding: 0 12px; text-decoration: none; }
         .hk-hero-etiketler a:hover { background: var(--tint-100); }
@@ -479,6 +621,7 @@ export default function HeroAnimated({ stats }: Props) {
           .hk-hero-alt { font-size: 16px; line-height: 24px; }
           .hk-hero-arama__alan, .hk-hero-arama__konum { flex-basis: 100% !important; }
           .hk-hero-arama__konum { border-left: 0 !important; border-top: 1px solid var(--border) !important; }
+          .hk-konum-dd { left: 0; right: 0; min-width: 0; max-height: 300px; }
         }
         /* Hekimlere seslenen dönen şerit — arama alanının altında, /katil'e götürür */
         .hekim-serit {
