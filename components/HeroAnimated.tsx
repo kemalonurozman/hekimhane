@@ -137,6 +137,7 @@ function KonumSecici({ value, onChange }: { value: string; onChange: (v: string)
   const [aktif, setAktif] = useState(-1);
   const kokRef = useRef<HTMLDivElement>(null);
   const listeRef = useRef<HTMLDivElement>(null);
+  const girdiRef = useRef<HTMLInputElement>(null);
 
   const gruplar = konumOnerileri(value);
   const duz = gruplar.flatMap(g => g.items);
@@ -169,10 +170,12 @@ function KonumSecici({ value, onChange }: { value: string; onChange: (v: string)
 
   let idx = -1;
   return (
-    <div ref={kokRef} className="hk-search__field hk-search__field--loc hk-hero-arama__konum" style={{ position: 'relative' }}>
+    <div ref={kokRef} className="hk-search__field hk-search__field--loc hk-hero-arama__konum" style={{ position: 'relative', cursor: 'text' }}
+      onClick={e => { if ((e.target as HTMLElement).closest('button')) return; girdiRef.current?.focus(); }}>
       <i className="fa-solid fa-location-dot" style={{ color: 'var(--gold)', fontSize: 16 }} aria-hidden="true" />
       <span className="hk-sr">İl veya ilçe</span>
       <input
+        ref={girdiRef}
         type="text" value={value} placeholder="İl veya ilçe" autoComplete="off" spellCheck={false}
         role="combobox" aria-expanded={acik} aria-controls="hk-konum-liste" aria-autocomplete="list"
         onChange={e => { onChange(e.target.value); setAktif(-1); setAcik(true); }}
@@ -236,6 +239,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
   const [yukleniyor, setYukleniyor] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrapRef     = useRef<HTMLDivElement>(null);
+  const aramaRef    = useRef<HTMLInputElement>(null);
 
   // Dışarı tıklamada kapat
   useEffect(() => {
@@ -326,7 +330,8 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
       <form onSubmit={handleSubmit} role="search" className="hk-search hk-search--lg hk-hero-arama">
 
         {/* Input + dropdown */}
-        <div className="hk-hero-arama__alan" style={{ position: 'relative' }}>
+        <div className="hk-hero-arama__alan" style={{ position: 'relative', cursor: 'text' }}
+          onClick={e => { if ((e.target as HTMLElement).closest('button, a')) return; aramaRef.current?.focus(); }}>
           {/* İkon */}
           <div style={{
             position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
@@ -339,6 +344,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
 
           {/* Input */}
           <input
+            ref={aramaRef}
             value={q}
             onChange={handleInput}
             onFocus={() => sonuclar && setAcik(true)}
@@ -605,7 +611,10 @@ export default function HeroAnimated({ stats }: Props) {
         .hk-hero-panel { text-align: center; padding: 80px 32px; border-radius: var(--radius-xl); background: linear-gradient(120deg, var(--tint-50), var(--tint-100)); }
         .hk-hero-baslik { margin: 0 auto 16px; max-width: 900px; font-family: var(--font-display); font-size: 64px; line-height: 68px; font-weight: 800; letter-spacing: -0.035em; color: var(--brand); }
         .hk-hero-alt { margin: 0 auto 32px; max-width: 560px; font-size: 18px; line-height: 28px; color: var(--ink-secondary); }
-        .hk-hero-arama { text-align: left; }
+        .hk-hero-arama { text-align: left; transition: border-color .15s; }
+        .hk-hero-arama:focus-within { border-color: #b9c4d6; }
+        .hk-hero-arama input:focus-visible { outline: none !important; }
+        .hk-hero-arama .hk-search__field:focus-within { box-shadow: none !important; border-color: transparent !important; }
         .hk-hero-arama__alan { flex: 1 1 280px; min-width: 0; display: flex; align-items: center; height: 56px; }
         .hk-hero-arama__input { width: 100%; height: 56px; padding: 0 16px 0 46px; border: 0; background: transparent; font: inherit; font-size: 16px; color: var(--ink); outline: none; border-radius: var(--radius-md); }
         .hk-hero-arama__input::placeholder { color: var(--ink-tertiary); }

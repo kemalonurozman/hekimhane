@@ -259,7 +259,7 @@ const TAB_LABELS: Record<Tab, { icon: string; label: string }> = {
   hekimler: { icon: 'fa-user-doctor',      label: 'Hekimler' },
   meslek:   { icon: 'fa-user-graduate',    label: 'Mesleki Bilgiler' },
   konum:    { icon: 'fa-map-location-dot', label: 'Konum' },
-  tur:      { icon: 'fa-vr-cardboard',     label: '360° Tur' },
+  tur:      { icon: 'fa-images',           label: 'Fotoğraflar' },   // fotoğraflar + altında 360° tur
   video:    { icon: 'fa-play-circle',      label: 'Video' },
   yorumlar: { icon: 'fa-star',             label: 'Yorumlar' },
   randevu:  { icon: 'fa-calendar-plus',    label: 'Randevu' },
@@ -1317,6 +1317,60 @@ export default function ProfilSayfasi(props: ProfilProps) {
   const sc: React.CSSProperties = { background: 'white', borderRadius: 20, marginBottom: 24, border: '1px solid var(--border)', overflow: 'hidden' };
   const scHd: React.CSSProperties = { padding: '18px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' };
   const scBody: React.CSSProperties = { padding: 24 };
+  /** Fotoğraf galerisi — Genel sekmesinde ve "Fotoğraflar" sekmesinde (360°'nin üstünde) aynı blok. */
+  const fotoGalerisi = () => {
+                const galleryPhotos = (photos || []).filter(Boolean) as string[];
+                const SLOTS = 6;
+                const placeholders = Math.max(0, SLOTS - galleryPhotos.length);
+                // Fotoğraf yoksa bölüm kapalı gelir, başlığa tıklayınca açılır
+                const collapsible = galleryPhotos.length === 0;
+                const bodyVisible = !collapsible || photoOpen;
+                return (
+                  <div style={sc}>
+                    <div style={{ ...scHd, cursor: collapsible ? 'pointer' : 'default', userSelect: 'none' }}
+                      onClick={collapsible ? () => setPhotoOpen(o => !o) : undefined}>
+                      <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Fotoğraflar</h3>
+                      <span style={{ fontSize: 12, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {galleryPhotos.length > 0 ? `${galleryPhotos.length} fotoğraf` : 'Henüz fotoğraf eklenmemiş'}
+                        {collapsible && (
+                          <i className={`fa-solid fa-chevron-${photoOpen ? 'up' : 'down'}`} style={{ fontSize: 11, transition: 'transform .2s' }} />
+                        )}
+                      </span>
+                    </div>
+                    {bodyVisible && (
+                    <div style={scBody}>
+                      <div className="profil-photo-grid">
+                        {/* Gerçek fotoğraflar */}
+                        {galleryPhotos.map((url, i) => (
+                          <button key={i} onClick={() => setLightboxIdx(i)}
+                            style={{ aspectRatio: '4/3', borderRadius: 12, overflow: 'hidden', display: 'block', border: '1px solid var(--border)', position: 'relative', padding: 0, cursor: 'zoom-in', background: 'none' }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={url} alt={`${name} - ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0)', transition: 'background .2s' }}
+                              onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = 'rgba(0,0,0,.18)'}
+                              onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = 'rgba(0,0,0,0)'} />
+                          </button>
+                        ))}
+                        {/* Placeholder slotlar */}
+                        {Array.from({ length: placeholders }).map((_, i) => (
+                          <div key={`ph-${i}`}
+                            style={{ aspectRatio: '4/3', borderRadius: 12, border: '1.5px dashed #D1D5DB', background: '#F9FAFB', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, color: '#9CA3AF' }}>
+                            <i className="fa-regular fa-image" style={{ fontSize: 22 }} />
+                            <span style={{ fontSize: 11, fontWeight: 500 }}>Fotoğraf {galleryPhotos.length + i + 1}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {galleryPhotos.length === 0 && claimed && (
+                        <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--muted)', marginTop: 12, lineHeight: 1.6 }}>
+                          İşletme sahibi fotoğraf ekleyebilir.<br />
+                          <a href="/panel" style={{ color: 'var(--navy)', fontWeight: 600 }}>Panel üzerinden düzenleyin →</a>
+                        </p>
+                      )}
+                    </div>
+                    )}
+                  </div>
+                );
+  };
 
   return (
     <div style={{ paddingTop: 66 }}>
@@ -1586,9 +1640,6 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 {tab === 'hekimler' && (
                   <span style={{ background: heroLight ? 'rgba(19,43,82,.12)' : 'rgba(255,255,255,.2)', color: hName, padding: '2px 7px', borderRadius: 10, fontSize: 11, marginLeft: 2 }}>{hekimSayisi}</span>
                 )}
-                {tab === 'tur' && (
-                  <span style={{ background: 'var(--gold-soft)', color: 'var(--gold-text)', padding: '2px 7px', borderRadius: 10, fontSize: 10, fontWeight: 700, marginLeft: 2 }}>YENİ</span>
-                )}
               </button>
             ))}
           </div>
@@ -1689,60 +1740,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
               {/* Mesleki Bilgiler ayrı sekmeye taşındı → activeTab === 'meslek' */}
 
-              {/* ── Fotoğraf Galerisi ── */}
-              {(() => {
-                const galleryPhotos = (photos || []).filter(Boolean) as string[];
-                const SLOTS = 6;
-                const placeholders = Math.max(0, SLOTS - galleryPhotos.length);
-                // Fotoğraf yoksa bölüm kapalı gelir, başlığa tıklayınca açılır
-                const collapsible = galleryPhotos.length === 0;
-                const bodyVisible = !collapsible || photoOpen;
-                return (
-                  <div style={sc}>
-                    <div style={{ ...scHd, cursor: collapsible ? 'pointer' : 'default', userSelect: 'none' }}
-                      onClick={collapsible ? () => setPhotoOpen(o => !o) : undefined}>
-                      <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Fotoğraflar</h3>
-                      <span style={{ fontSize: 12, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        {galleryPhotos.length > 0 ? `${galleryPhotos.length} fotoğraf` : 'Henüz fotoğraf eklenmemiş'}
-                        {collapsible && (
-                          <i className={`fa-solid fa-chevron-${photoOpen ? 'up' : 'down'}`} style={{ fontSize: 11, transition: 'transform .2s' }} />
-                        )}
-                      </span>
-                    </div>
-                    {bodyVisible && (
-                    <div style={scBody}>
-                      <div className="profil-photo-grid">
-                        {/* Gerçek fotoğraflar */}
-                        {galleryPhotos.map((url, i) => (
-                          <button key={i} onClick={() => setLightboxIdx(i)}
-                            style={{ aspectRatio: '4/3', borderRadius: 12, overflow: 'hidden', display: 'block', border: '1px solid var(--border)', position: 'relative', padding: 0, cursor: 'zoom-in', background: 'none' }}>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={url} alt={`${name} - ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0)', transition: 'background .2s' }}
-                              onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = 'rgba(0,0,0,.18)'}
-                              onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = 'rgba(0,0,0,0)'} />
-                          </button>
-                        ))}
-                        {/* Placeholder slotlar */}
-                        {Array.from({ length: placeholders }).map((_, i) => (
-                          <div key={`ph-${i}`}
-                            style={{ aspectRatio: '4/3', borderRadius: 12, border: '1.5px dashed #D1D5DB', background: '#F9FAFB', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, color: '#9CA3AF' }}>
-                            <i className="fa-regular fa-image" style={{ fontSize: 22 }} />
-                            <span style={{ fontSize: 11, fontWeight: 500 }}>Fotoğraf {galleryPhotos.length + i + 1}</span>
-                          </div>
-                        ))}
-                      </div>
-                      {galleryPhotos.length === 0 && claimed && (
-                        <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--muted)', marginTop: 12, lineHeight: 1.6 }}>
-                          İşletme sahibi fotoğraf ekleyebilir.<br />
-                          <a href="/panel" style={{ color: 'var(--navy)', fontWeight: 600 }}>Panel üzerinden düzenleyin →</a>
-                        </p>
-                      )}
-                    </div>
-                    )}
-                  </div>
-                );
-              })()}
+              {/* ── Fotoğraf Galerisi ── (Fotoğraflar sekmesiyle ortak: fotoGalerisi) */}
+              {fotoGalerisi()}
 
               {/* ── 360° Görünüm ── */}
               {(() => {
@@ -2153,6 +2152,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
           )}
 
           {/* ── 360° TUR TAB ── */}
+          {/* Fotoğraflar sekmesi: galeri üstte, 360° sanal tur altında */}
+          {activeTab === 'tur' && fotoGalerisi()}
           {activeTab === 'tur' && (() => {
             const tourInfo = extractTourSrc(tour360url);
             const panoInfo = extractTourSrc(photo360);
@@ -2486,94 +2487,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
         {/* SAĞ SIDEBAR ────────────────────────────────────── */}
         <div>
 
-          {/* İletişim */}
-          <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '20px 22px', marginBottom: 20 }}>
-            <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 15, fontWeight: 700, marginBottom: 14 }}>İletişim & Konum</h4>
-            {tel && (
-              <div style={{ display: 'flex', gap: 10, marginBottom: 10, fontSize: 13, alignItems: 'center' }}>
-                <i className="fa-solid fa-phone" style={{ width: 18, color: 'var(--navy)', fontSize: 13 }} />
-                <a href={`tel:${tel.replace(/\s/g,'')}`} style={{ color: 'var(--navy)', fontWeight: 600 }}>{tel}</a>
-              </div>
-            )}
-            {adres && (
-              <div style={{ display: 'flex', gap: 10, marginBottom: 10, fontSize: 13, alignItems: 'flex-start' }}>
-                <i className="fa-solid fa-location-dot" style={{ width: 18, color: 'var(--navy)', fontSize: 13, marginTop: 1 }} />
-                <span>{adres}</span>
-              </div>
-            )}
-            {maps_url && (
-              <div style={{ display: 'flex', gap: 10, marginBottom: 10, fontSize: 13, alignItems: 'center' }}>
-                <i className="fa-brands fa-google" style={{ width: 18, color: 'var(--navy)', fontSize: 13 }} />
-                <a href={maps_url} target="_blank" rel="noopener" style={{ color: 'var(--navy)', fontWeight: 600 }}>Google Maps'te Gör</a>
-              </div>
-            )}
-            {website && (
-              <div style={{ display: 'flex', gap: 10, marginBottom: 10, fontSize: 13, alignItems: 'center' }}>
-                <i className="fa-solid fa-globe" style={{ width: 18, color: 'var(--navy)', fontSize: 13 }} />
-                <a href={website} target="_blank" rel="noopener" style={{ color: 'var(--navy)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>{website.replace(/^https?:\/\//, '')}</a>
-              </div>
-            )}
-            {(acik_24_saat || calisma_saatleri) && (
-              <div style={{ display: 'flex', gap: 10, marginBottom: 10, fontSize: 13, alignItems: 'flex-start' }}>
-                <i className="fa-regular fa-clock" style={{ width: 18, color: 'var(--navy)', fontSize: 13, marginTop: 2 }} />
-                <div>
-                  {acik_24_saat
-                    ? <span style={{ fontWeight: 700, color: '#065F46', background: '#ECFDF5', padding: '1px 8px', borderRadius: 8, border: '1px solid #A7F3D0', fontSize: 12 }}>24 Saat Açık</span>
-                    : (() => {
-                        try {
-                          const sch = JSON.parse(calisma_saatleri || '{}') as Record<string,{acik:boolean;baslangic:string;bitis:string}>;
-                          const GUNLER = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
-                          const rows = GUNLER.map(g => sch[g] ? { g, ...sch[g] } : null).filter(Boolean) as {g:string;acik:boolean;baslangic:string;bitis:string}[];
-                          if (!rows.length) return <span style={{ color: 'var(--muted)', fontSize: 12 }}>Belirtilmemiş</span>;
-                          return (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                              {rows.map(r => (
-                                <div key={r.g} style={{ display: 'flex', gap: 8, fontSize: 12 }}>
-                                  <span style={{ width: 76, fontWeight: 600, color: r.acik ? 'var(--text)' : 'var(--muted)' }}>{r.g}</span>
-                                  {r.acik
-                                    ? <span style={{ color: 'var(--text)' }}>{r.baslangic} – {r.bitis}</span>
-                                    : <span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Kapalı</span>
-                                  }
-                                </div>
-                              ))}
-                            </div>
-                          );
-                        } catch {
-                          return <span style={{ color: 'var(--text)', fontWeight: 500, whiteSpace: 'pre-line', lineHeight: 1.6 }}>{calisma_saatleri}</span>;
-                        }
-                      })()
-                  }
-                </div>
-              </div>
-            )}
-            {(instagram_url || facebook_url || linkedin_url) && (
-              <div style={{ display: 'flex', gap: 8, paddingTop: 6, borderTop: '1px solid var(--border)', marginTop: 4 }}>
-                {instagram_url && (
-                  <a href={instagram_url} target="_blank" rel="noopener"
-                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)', color: 'white', textDecoration: 'none', fontSize: 15 }}
-                    title="Instagram">
-                    <i className="fa-brands fa-instagram" />
-                  </a>
-                )}
-                {facebook_url && (
-                  <a href={facebook_url} target="_blank" rel="noopener"
-                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: '#1877F2', color: 'white', textDecoration: 'none', fontSize: 15 }}
-                    title="Facebook">
-                    <i className="fa-brands fa-facebook-f" />
-                  </a>
-                )}
-                {linkedin_url && (
-                  <a href={linkedin_url} target="_blank" rel="noopener"
-                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: '#0A66C2', color: 'white', textDecoration: 'none', fontSize: 15 }}
-                    title="LinkedIn">
-                    <i className="fa-brands fa-linkedin-in" />
-                  </a>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Randevu widget — masaüstünde İletişim & Konum'un hemen altında; eczanede gizli (randevu almaz) */}
+          {/* Randevu widget — kenar çubuğunun en üstünde; eczanede gizli (randevu almaz) */}
           {!randevuGizli && (
           <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 20 }}>
             <div style={{ background: '#2D2D2D', padding: '20px 22px' }}>
@@ -2662,6 +2576,72 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {!randevuAktif && <TalepNotu />}
               </>)}
             </div>
+          </div>
+          )}
+
+          {/* Çalışma saatleri + sosyal — "İletişim & Konum" kartı kaldırıldı: tel/adres/yol tarifi/web
+              zaten üstteki başlıkta. Randevu widget'ı yukarı alındı; yalnız başlıkta olmayan bilgiler burada. */}
+          {(acik_24_saat || calisma_saatleri || instagram_url || facebook_url || linkedin_url) && (
+          <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '20px 22px', marginBottom: 20 }}>
+            {(acik_24_saat || calisma_saatleri) && <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 15, fontWeight: 700, marginBottom: 14 }}>Çalışma Saatleri</h4>}
+            {(acik_24_saat || calisma_saatleri) && (
+              <div style={{ display: 'flex', gap: 10, marginBottom: 10, fontSize: 13, alignItems: 'flex-start' }}>
+                <i className="fa-regular fa-clock" style={{ width: 18, color: 'var(--navy)', fontSize: 13, marginTop: 2 }} />
+                <div>
+                  {acik_24_saat
+                    ? <span style={{ fontWeight: 700, color: '#065F46', background: '#ECFDF5', padding: '1px 8px', borderRadius: 8, border: '1px solid #A7F3D0', fontSize: 12 }}>24 Saat Açık</span>
+                    : (() => {
+                        try {
+                          const sch = JSON.parse(calisma_saatleri || '{}') as Record<string,{acik:boolean;baslangic:string;bitis:string}>;
+                          const GUNLER = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
+                          const rows = GUNLER.map(g => sch[g] ? { g, ...sch[g] } : null).filter(Boolean) as {g:string;acik:boolean;baslangic:string;bitis:string}[];
+                          if (!rows.length) return <span style={{ color: 'var(--muted)', fontSize: 12 }}>Belirtilmemiş</span>;
+                          return (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                              {rows.map(r => (
+                                <div key={r.g} style={{ display: 'flex', gap: 8, fontSize: 12 }}>
+                                  <span style={{ width: 76, fontWeight: 600, color: r.acik ? 'var(--text)' : 'var(--muted)' }}>{r.g}</span>
+                                  {r.acik
+                                    ? <span style={{ color: 'var(--text)' }}>{r.baslangic} – {r.bitis}</span>
+                                    : <span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Kapalı</span>
+                                  }
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        } catch {
+                          return <span style={{ color: 'var(--text)', fontWeight: 500, whiteSpace: 'pre-line', lineHeight: 1.6 }}>{calisma_saatleri}</span>;
+                        }
+                      })()
+                  }
+                </div>
+              </div>
+            )}
+            {(instagram_url || facebook_url || linkedin_url) && (
+              <div style={{ display: 'flex', gap: 8, paddingTop: 6, borderTop: '1px solid var(--border)', marginTop: 4 }}>
+                {instagram_url && (
+                  <a href={instagram_url} target="_blank" rel="noopener"
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)', color: 'white', textDecoration: 'none', fontSize: 15 }}
+                    title="Instagram">
+                    <i className="fa-brands fa-instagram" />
+                  </a>
+                )}
+                {facebook_url && (
+                  <a href={facebook_url} target="_blank" rel="noopener"
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: '#1877F2', color: 'white', textDecoration: 'none', fontSize: 15 }}
+                    title="Facebook">
+                    <i className="fa-brands fa-facebook-f" />
+                  </a>
+                )}
+                {linkedin_url && (
+                  <a href={linkedin_url} target="_blank" rel="noopener"
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: '#0A66C2', color: 'white', textDecoration: 'none', fontSize: 15 }}
+                    title="LinkedIn">
+                    <i className="fa-brands fa-linkedin-in" />
+                  </a>
+                )}
+              </div>
+            )}
           </div>
           )}
 
