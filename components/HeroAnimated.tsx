@@ -185,10 +185,18 @@ function KonumSecici({ value, onChange }: { value: string; onChange: (v: string)
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
         </button>
       )}
+      {acik && duz.length === 0 && value.trim() && (
+        <div className="hk-konum-dd" role="status">
+          <div className="hk-konum-dd__bos">
+            <div className="hk-konum-dd__bos-baslik">Sonuç yok</div>
+            <div className="hk-konum-dd__bos-alt">&ldquo;{value.trim()}&rdquo; adında il veya ilçe bulunamadı.</div>
+          </div>
+        </div>
+      )}
       {acik && duz.length > 0 && (
         <div id="hk-konum-liste" ref={listeRef} className="hk-konum-dd" role="listbox">
           {gruplar.map(g => (
-            <div key={g.baslik}>
+            <div key={g.baslik} className="hk-konum-dd__bolum">
               <div className="hk-konum-dd__grup">{g.baslik}</div>
               {g.items.map(o => {
                 idx += 1; const i = idx;
@@ -205,7 +213,9 @@ function KonumSecici({ value, onChange }: { value: string; onChange: (v: string)
                     </span>
                     <span className="hk-konum-dd__ad">{o.tip === 'il' ? o.il : o.ilce}</span>
                     {o.tip === 'ilce' && <span className="hk-konum-dd__alt">{o.il}</span>}
-                    {o.tip === 'il' && value && toSlug(value.trim()) === toSlug(o.il) && <span className="hk-konum-dd__alt">Tüm il</span>}
+                    {o.tip === 'il' && (value && toSlug(value.trim()) === toSlug(o.il)
+                      ? <span className="hk-konum-dd__alt">Tüm il</span>
+                      : <svg className="hk-konum-dd__ok" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>)}
                   </button>
                 );
               })}
@@ -600,17 +610,43 @@ export default function HeroAnimated({ stats }: Props) {
         .hk-hero-arama__input { width: 100%; height: 56px; padding: 0 16px 0 46px; border: 0; background: transparent; font: inherit; font-size: 16px; color: var(--ink); outline: none; border-radius: var(--radius-md); }
         .hk-hero-arama__input::placeholder { color: var(--ink-tertiary); }
         .hk-hero-arama__konum { border-left: 1px solid var(--border) !important; border-radius: 0 !important; }
-        /* Konum açılır listesi */
-        .hk-konum-temizle { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; border: 0; background: var(--tint-100); color: var(--ink-secondary); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
-        .hk-konum-temizle:hover { background: var(--tint-200, #d6dfec); color: var(--brand); }
-        .hk-konum-dd { position: absolute; top: calc(100% + 10px); left: -1px; right: -1px; min-width: 280px; max-height: 340px; overflow-y: auto; background: #fff; border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow-lg); padding: 6px; z-index: 60; text-align: left; overscroll-behavior: contain; }
-        .hk-konum-dd__grup { padding: 8px 10px 4px; font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--ink-tertiary); }
-        .hk-konum-dd__satir { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 0; border-radius: 9px; background: transparent; font: inherit; font-size: 14.5px; color: var(--ink); cursor: pointer; text-align: left; }
-        .hk-konum-dd__satir.is-aktif { background: var(--tint-50); color: var(--brand); }
-        .hk-konum-dd__ikon { flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px; background: var(--tint-50); color: var(--brand); display: inline-flex; align-items: center; justify-content: center; }
-        .hk-konum-dd__satir.is-aktif .hk-konum-dd__ikon { background: #fff; }
-        .hk-konum-dd__ad { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .hk-konum-dd__alt { margin-left: auto; flex-shrink: 0; font-size: 12.5px; color: var(--ink-tertiary); }
+        /* Konum açılır listesi — Apple popover: buzlu cam, ok ucu, iOS grup başlıkları, seçimde vurgu */
+        .hk-konum-temizle { flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; border: 0; background: rgba(60,60,67,.12); color: rgba(60,60,67,.7); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+        .hk-konum-temizle:hover { background: rgba(60,60,67,.2); color: var(--ink); }
+        .hk-konum-dd {
+          position: absolute; top: calc(100% + 12px); left: 50%; transform: translateX(-50%);
+          width: 320px; max-height: 360px; overflow-y: auto; overscroll-behavior: contain;
+          padding: 6px; z-index: 60; text-align: left;
+          background: rgba(255,255,255,.96);   /* hafif cam etkisi; arkadaki metin okunmasın */
+          -webkit-backdrop-filter: saturate(160%) blur(18px); backdrop-filter: saturate(160%) blur(18px);
+          border: 0.5px solid rgba(0,0,0,.12); border-radius: 14px;
+          box-shadow: 0 0 0 0.5px rgba(0,0,0,.04), 0 12px 36px rgba(0,0,0,.16), 0 2px 6px rgba(0,0,0,.06);
+          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          animation: hk-popover-ac .16s cubic-bezier(.2,.8,.2,1);
+        }
+        .hk-konum-dd::before {
+          content: ""; position: absolute; top: -6px; left: calc(50% - 6px); width: 12px; height: 12px;
+          background: rgba(255,255,255,.96); border-left: 0.5px solid rgba(0,0,0,.12); border-top: 0.5px solid rgba(0,0,0,.12);
+          transform: rotate(45deg); border-radius: 2px 0 0 0;
+        }
+        @keyframes hk-popover-ac { from { opacity: 0; transform: translateX(-50%) translateY(-4px) scale(.98); } to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
+        .hk-konum-dd__bolum + .hk-konum-dd__bolum { margin-top: 4px; padding-top: 4px; border-top: 0.5px solid rgba(60,60,67,.16); }
+        .hk-konum-dd__grup { padding: 10px 14px 5px; font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: rgba(60,60,67,.48); }
+        .hk-konum-dd__satir { position: relative; display: flex; align-items: center; gap: 11px; width: 100%; padding: 9px 12px 9px 14px; border: 0; border-radius: 9px; background: transparent; font: inherit; font-size: 15px; font-weight: 400; letter-spacing: -.01em; line-height: 20px; color: rgba(17,28,46,.9); cursor: pointer; text-align: left; transition: background .1s; }
+        .hk-konum-dd__satir + .hk-konum-dd__satir::before { content: ""; position: absolute; left: 43px; right: 12px; top: -0.5px; height: 0.5px; background: rgba(60,60,67,.12); }
+        .hk-konum-dd__satir.is-aktif { background: rgba(26,51,94,.07); color: var(--brand); }
+        .hk-konum-dd__satir.is-aktif::before, .hk-konum-dd__satir.is-aktif + .hk-konum-dd__satir::before { opacity: 0; }
+        .hk-konum-dd__ikon { flex-shrink: 0; width: 18px; display: inline-flex; align-items: center; justify-content: center; color: rgba(60,60,67,.42); }
+        .hk-konum-dd__ikon svg { stroke-width: 1.6; }
+        .hk-konum-dd__satir.is-aktif .hk-konum-dd__ikon, .hk-konum-dd__satir.is-aktif .hk-konum-dd__ok { color: var(--brand); }
+        .hk-konum-dd__ad { font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .hk-konum-dd__satir.is-aktif .hk-konum-dd__ad { font-weight: 500; }
+        .hk-konum-dd__alt { margin-left: auto; flex-shrink: 0; font-size: 13px; font-weight: 400; color: rgba(60,60,67,.5); }
+        .hk-konum-dd__ok { margin-left: auto; flex-shrink: 0; color: rgba(60,60,67,.28); }
+        .hk-konum-dd__bos { padding: 18px 14px 16px; text-align: center; }
+        .hk-konum-dd__bos-baslik { font-size: 15px; font-weight: 500; color: var(--ink); }
+        .hk-konum-dd__bos-alt { margin-top: 3px; font-size: 13px; line-height: 1.45; color: rgba(60,60,67,.6); }
         .hk-hero-etiketler { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
         .hk-hero-etiketler a { height: 30px; padding: 0 12px; text-decoration: none; }
         .hk-hero-etiketler a:hover { background: var(--tint-100); }
@@ -621,7 +657,8 @@ export default function HeroAnimated({ stats }: Props) {
           .hk-hero-alt { font-size: 16px; line-height: 24px; }
           .hk-hero-arama__alan, .hk-hero-arama__konum { flex-basis: 100% !important; }
           .hk-hero-arama__konum { border-left: 0 !important; border-top: 1px solid var(--border) !important; }
-          .hk-konum-dd { left: 0; right: 0; min-width: 0; max-height: 300px; }
+          .hk-konum-dd { left: 0; right: 0; width: auto; transform: none; max-height: 300px; animation: none; }
+          .hk-konum-dd::before { left: 28px; }
         }
         /* Hekimlere seslenen dönen şerit — arama alanının altında, /katil'e götürür */
         .hekim-serit {
