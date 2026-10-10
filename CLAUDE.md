@@ -554,6 +554,12 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
   - "Hareketi azalt" tercihinde hiçbir şey oynamaz. Kök `app/loading.tsx` **bilerek eklenmedi** (tüm sayfaları akışa alır, 404 durum kodlarını etkiler).
 - **Bilinçli dışarıda:** site genelindeki `--brand #1a335e` tokenı logodaki `#12294D`'ye çekilmedi; profil, panel ve diğer iç sayfalardaki Font Awesome ikonları değiştirilmedi.
 
+### Klinik Profili — Telefon Gizleme, Hakkında, Fotoğraf Kaydırma (Eki 2026)
+- **Telefon açıkta yazmaz (yalnız `entityType==='klinik'`):** `ProfilSayfasi` → `telAcik` state, `telGizle`. Hero'daki numara satırı ve bilgi tablosu numarayı göstermez; **"Ara"** düğmesi `tel:` bağlantısıdır, basınca arar **ve** etiketi numaraya döner (masaüstünde numarayı görmenin yolu bu). Konum sekmesindeki telefon düğmesi de aynı. Klinik SSS'sine `tel: null` geçilir (numara SSS metninde/FAQPage şemasında yazmaz). Liste haritası balonu: `ListMap` marker `telGizli` → "Telefonla ara". **Bilerek duran:** `LocalBusiness` JSON-LD `telephone` (SEO), karşılaştırma tablosu, hastane/doktor/eczane profilleri.
+- **"Klinik Bilgileri" kartı klinikte kaldırıldı** (tür/şehir/ilçe/telefon zaten hero'da). Yerinde `klinikHakkinda()`: `bio` paragrafları + öne çıkanlar (hizmet süresi = `deneyim_baslangic`, online randevu, acil, 7/24). Hiçbiri yoksa bölüm çıkmaz. Doktor/hastane/eczane bilgi kartları aynen duruyor.
+- **Panel:** Profil Düzenle'de klinik için **"Klinik Hakkında"** alanı (`bio`, 2000 karakter) eklendi — eskiden `bio` yalnız doktor formundaydı, klinikler tanıtım yazamıyordu (`update-entity` whitelist'inde zaten vardı).
+- **Fotoğraflar telefonda kaydırılır:** ≤640px'te `.profil-photo-grid` yatay scroll-snap şerit (%82 genişlik, sonraki fotoğrafın kenarı görünür; fotoğraf varken boş yer tutucular gizli). Lightbox'ta parmakla sola/sağa kaydırma (45px eşik, sürüklerken fotoğraf parmağı izler), aşağı çekince kapanır; `touchAction:none`.
+
 ### Listeleme Sayfaları Başlığı — Açık, Sade (Eyl 2026)
 - `components/ListingLayout.tsx` üst bandı: koyu gradyan + `HeroParticles` canvas'ı + dekoratif daireler **kaldırıldı**. Beyaz zemin, `var(--border)` hairline'lar, başlık `var(--text)` 700, breadcrumb gri. İkon kutusu düz `color` (sayfanın marka rengi) üstünde beyaz glif — sayfaların `icon` SVG'leri `stroke="white"` olduğu için bu şart. Aktif filtre çipleri `${color}12` tint.
 - `gradient` prop'u artık **kullanılmıyor** (opsiyonel bırakıldı; 4 liste sayfası hâlâ geçiyor, kaldırmak isteğe bağlı).

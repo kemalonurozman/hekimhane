@@ -329,6 +329,25 @@ button {
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
+.profil-lightbox-img { animation: profil-lb-gir .22s ease; }
+@keyframes profil-lb-gir { from { opacity: 0; } to { opacity: 1; } }
+/* Telefon: galeri parmakla kaydırılan şerit (scroll-snap); sonraki fotoğrafın kenarı görünür */
+@media (max-width: 640px) {
+  .profil-photo-grid {
+    display: flex !important;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0 -4px;
+    padding: 0 4px 2px;
+  }
+  .profil-photo-grid::-webkit-scrollbar { display: none; }
+  .profil-photo-grid > * { flex: 0 0 82%; scroll-snap-align: center; }
+  /* Fotoğraf varken boş yer tutucular şeritte gösterilmez */
+  .profil-photo-grid--dolu .profil-photo-ph { display: none !important; }
+}
 
 /* Sahiplen CTA flex row */
 .profil-sahiplen-cta {

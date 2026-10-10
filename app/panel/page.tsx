@@ -4991,6 +4991,15 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
 
               {et!=='doktor'&&<div><label style={LBL}>Google Maps Bağlantısı</label><input type="url" value={String(formData.maps_url||'')} placeholder="https://maps.google.com/..." style={INP} onChange={e=>F('maps_url',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
 
+              {/* Klinik tanıtımı — profilde "Hakkında" bölümünün en üstünde görünür */}
+              {et==='klinik'&&<div style={{ gridColumn:'1 / -1' }}>
+                <label style={LBL}>Klinik Hakkında</label>
+                <textarea rows={5} maxLength={2000} value={String(formData.bio||'')} placeholder="Kliniğinizi hastalara tanıtın: ne zamandan beri hizmet veriyorsunuz, ekibiniz, öne çıkan tedavileriniz, kullandığınız teknoloji, hastaya yaklaşımınız…" style={{...INP,resize:'vertical',lineHeight:1.6}} onChange={e=>F('bio', e.target.value)} onFocus={onF} onBlur={offF}/>
+                <p style={{ fontSize:11, color:T.muted, marginTop:5, lineHeight:1.6 }}>
+                  Profil sayfanızda &quot;Hakkında&quot; başlığıyla en üstte gösterilir. Paragraflar arasında boş satır bırakın. Mesleki Bilgiler bölümündeki başlangıç yılı da burada "kaç yıldır hizmette" olarak görünür.
+                </p>
+              </div>}
+
               {et==='doktor'&&<>
                 <div><label style={LBL}>Çalıştığı Klinik / Hastane</label><input value={String(formData.clinic_name||'')} placeholder="Özel Xyz Hastanesi" style={INP} onChange={e=>F('clinic_name',e.target.value)} onFocus={onF} onBlur={offF}/></div>
                 <div><label style={LBL}>Biyografi</label><textarea rows={3} value={String(formData.bio||'')} placeholder="Doktor hakkında..." style={{...INP,resize:'vertical',lineHeight:1.6}} onChange={e=>F('bio',e.target.value)} onFocus={onF} onBlur={offF}/></div>

@@ -501,7 +501,7 @@ export default async function KliniklerPage(
         const href = isKlinik
           ? (k.slug ? `/klinikler/${TR(k.il||'turkiye')}/${TR(k.ilce||'merkez')}/${k.slug}` : `/klinikler/${k.id}`)
           : (k.slug ? `/doktorlar/${k.slug}` : `/doktorlar/${k.id}`);
-        return { id: k.id, name: nm, lat: k.lat, lng: k.lng, tel: k.tel, type: isKlinik ? k.type : k.spec, il: k.il, ilce: k.ilce, href };
+        return { id: k.id, name: nm, lat: k.lat, lng: k.lng, tel: k.tel, telGizli: true, type: isKlinik ? k.type : k.spec, il: k.il, ilce: k.ilce, href };
       })}
       totalPages={totalPages}
       currentPage={filters.page || 1}

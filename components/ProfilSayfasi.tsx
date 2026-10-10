@@ -1131,6 +1131,11 @@ export default function ProfilSayfasi(props: ProfilProps) {
   }) : [];
   const acikGun = (iso: string) => { setPreselectDate(iso); setRandevuModal(true); };
   const [lightboxIdx, setLightboxIdx]   = useState<number | null>(null);
+  // Kliniklerde numara açıkta yazmaz; "Ara" düğmesine basınca aranır ve numara görünür.
+  const [telAcik, setTelAcik]           = useState(false);
+  // Lightbox'ta parmakla kaydırma (telefon): başlangıç noktası + anlık sürükleme
+  const dokunus = useRef<{ x: number; y: number } | null>(null);
+  const [surukle, setSurukle]           = useState(0);
   const [photoOpen, setPhotoOpen]       = useState(false); // fotoğraf yoksa bölüm kapalı, tıklayınca açılır
   const [kapaliBolum, setKapaliBolum]   = useState<Record<string, boolean>>({}); // hastane hekim bölümleri aç/kapa
   // Sahiplenme mührü ipucu — hero overflow:hidden içinde kaldığı için
@@ -1229,6 +1234,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
   // ── Aksiyon buton linkleri (Ara / WhatsApp / Yol Tarifi / Web Sitesi) ──
   const telClean = (tel || '').replace(/[^\d]/g, '');
+  const telGizle = entityType === 'klinik' && !telAcik;
   // WhatsApp kaynağı: işletme "whatsapp" alanını doldurmuşsa onu kullan.
   //   'same' → telefonla aynı numara;  boş → WhatsApp gösterme (telefon körü körüne WhatsApp sayılmaz)
   const waRaw = (whatsapp || '').trim();
@@ -1311,12 +1317,53 @@ export default function ProfilSayfasi(props: ProfilProps) {
         { l: 'Tür', v: type || '—' },
         { l: 'Şehir', v: il || '—' },
         { l: 'İlçe', v: ilce || '—' },
-        { l: 'Telefon', v: tel || '—' },
+        // Klinikte telefon bilgi tablosunda yazmaz — "Ara" düğmesiyle açılır
       ];
 
   const sc: React.CSSProperties = { background: 'white', borderRadius: 20, marginBottom: 24, border: '1px solid var(--border)', overflow: 'hidden' };
   const scHd: React.CSSProperties = { padding: '18px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' };
   const scBody: React.CSSProperties = { padding: 24 };
+  /** Klinik: "Hakkında" — işletmenin panelden yazdığı tanıtım + öne çıkan bilgiler
+   *  (kaç yıldır hizmette, online randevu, acil; diller ayrı bölümde). Hiçbiri yoksa bölüm çıkmaz. */
+  const klinikHakkinda = () => {
+    const yil = new Date().getFullYear();
+    const sure = deneyimBaslangic && deneyimBaslangic >= 1950 && deneyimBaslangic <= yil ? yil - deneyimBaslangic : 0;
+    const ozet: { ikon: string; baslik: string; deger: string }[] = [];
+    if (deneyimBaslangic && deneyimBaslangic >= 1950 && deneyimBaslangic <= yil) {
+      ozet.push({ ikon: 'fa-award', baslik: 'Hizmet süresi', deger: sure >= 1 ? `${sure} yıldır (${deneyimBaslangic}\u2019ten beri)` : `${deneyimBaslangic} yılında açıldı` });
+    }
+    if (randevuAktif) ozet.push({ ikon: 'fa-calendar-check', baslik: 'Online randevu', deger: 'Bu sayfadan alınabilir' });
+    if (acil) ozet.push({ ikon: 'fa-truck-medical', baslik: 'Acil hasta', deger: 'Kabul ediyor' });
+    if (acik_24_saat) ozet.push({ ikon: 'fa-clock', baslik: 'Çalışma düzeni', deger: '7/24 açık' });
+    const paragraflar = (bio || '').split('\n\n').map(x => x.trim()).filter(Boolean);
+    if (!paragraflar.length && !ozet.length) return null;
+    return (
+      <div style={sc}>
+        <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Hakkında</h3></div>
+        <div style={scBody}>
+          {paragraflar.map((para, i) => (
+            <p key={i} style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.8, margin: 0, marginBottom: i < paragraflar.length - 1 || ozet.length ? 14 : 0 }}>{para}</p>
+          ))}
+          {ozet.length > 0 && (
+            <div className="profil-info-grid" style={paragraflar.length ? { paddingTop: 16, borderTop: '1px solid var(--border)' } : undefined}>
+              {ozet.map(o => (
+                <div key={o.baslik} style={{ display: 'flex', alignItems: 'flex-start', gap: 11 }}>
+                  <span style={{ flex: 'none', width: 34, height: 34, borderRadius: 10, background: 'rgba(26,51,94,.07)', color: 'var(--navy)', display: 'grid', placeItems: 'center', fontSize: 14 }}>
+                    <i className={`fa-solid ${o.ikon}`} />
+                  </span>
+                  <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)' }}>{o.baslik}</span>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{o.deger}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   /** Fotoğraf galerisi — Genel sekmesinde ve "Fotoğraflar" sekmesinde (360°'nin üstünde) aynı blok. */
   const fotoGalerisi = () => {
                 const galleryPhotos = (photos || []).filter(Boolean) as string[];
@@ -1339,7 +1386,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                     </div>
                     {bodyVisible && (
                     <div style={scBody}>
-                      <div className="profil-photo-grid">
+                      <div className={`profil-photo-grid${galleryPhotos.length ? ' profil-photo-grid--dolu' : ''}`}>
                         {/* Gerçek fotoğraflar */}
                         {galleryPhotos.map((url, i) => (
                           <button key={i} onClick={() => setLightboxIdx(i)}
@@ -1353,7 +1400,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         ))}
                         {/* Placeholder slotlar */}
                         {Array.from({ length: placeholders }).map((_, i) => (
-                          <div key={`ph-${i}`}
+                          <div key={`ph-${i}`} className="profil-photo-ph"
                             style={{ aspectRatio: '4/3', borderRadius: 12, border: '1.5px dashed #D1D5DB', background: '#F9FAFB', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, color: '#9CA3AF' }}>
                             <i className="fa-regular fa-image" style={{ fontSize: 22 }} />
                             <span style={{ fontSize: 11, fontWeight: 500 }}>Fotoğraf {galleryPhotos.length + i + 1}</span>
@@ -1571,7 +1618,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: hSubSoft }}>
                 <span><Stars rat={avg} /> <strong style={{ color: hName, fontSize: 16 }}>{avg}</strong></span>
                 {yorumlar.length > 0 && <span>{yorumlar.length} yorum</span>}
-                {tel && <span>📞 {tel}</span>}
+                {tel && !telGizle && <span>📞 {tel}</span>}
                 {entityType === 'doktor' && fee ? <span>💰 {fee.toLocaleString('tr')} ₺</span> : null}
               </div>
             </div>
@@ -1595,8 +1642,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {/* İkincil aksiyonlar — mevcut veriye göre otomatik dizilir */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(92px, 1fr))', gap: 8 }}>
                 {tel && (
-                  <a href={`tel:${tel.replace(/\s/g, '')}`} style={secBtnStyle}>
-                    <i className="fa-solid fa-phone" style={{ color: 'var(--navy)' }} /> Ara
+                  <a href={`tel:${tel.replace(/\s/g, '')}`} style={secBtnStyle} onClick={() => setTelAcik(true)}
+                    aria-label={`${name} — telefonla ara`}>
+                    <i className="fa-solid fa-phone" style={{ color: 'var(--navy)' }} /> {entityType === 'klinik' && telAcik ? tel : 'Ara'}
                   </a>
                 )}
                 {premium && waUrl && (
@@ -1655,7 +1703,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
           {/* ── GENEL TAB ── */}
           {activeTab === 'genel' && (
             <>
-              {/* Klinik bilgileri */}
+              {/* Klinikte "Klinik Bilgileri" kartı yok (tür/şehir/ilçe/telefon zaten üst bölümde).
+                  Yerinde işletmenin kendi anlatımı durur: Hakkında + öne çıkan bilgiler. */}
+              {entityType === 'klinik' ? klinikHakkinda() : (
               <div style={sc}>
                 <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>
                   {entityType === 'doktor' ? 'Doktor Bilgileri' : entityType === 'eczane' ? 'Eczane Bilgileri' : entityType === 'hastane' ? 'Hastane Bilgileri' : 'Klinik Bilgileri'}
@@ -1671,6 +1721,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Uzmanlık alanları */}
               {specChips.length > 0 && (
@@ -1726,8 +1777,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 </div>
               )}
 
-              {/* ── Biyografi (doktor / klinik) ── */}
-              {(entityType === 'doktor' || entityType === 'klinik') && bio && (
+              {/* ── Biyografi (doktor) — klinikte en üstte: klinikHakkinda() ── */}
+              {entityType === 'doktor' && bio && (
                 <div style={sc}>
                   <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Hakkında</h3></div>
                   <div style={scBody}>
@@ -2142,8 +2193,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
                     </a>
                   )}
                   {tel && (
-                    <a href={`tel:${tel.replace(/\s/g,'')}`} style={{ padding: '11px 20px', borderRadius: 11, fontSize: 13, fontWeight: 700, background: 'white', color: 'var(--navy)', border: '1.5px solid var(--border)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                      <i className="fa-solid fa-phone" /> {tel}
+                    <a href={`tel:${tel.replace(/\s/g,'')}`} style={{ padding: '11px 20px', borderRadius: 11, fontSize: 13, fontWeight: 700, background: 'white', color: 'var(--navy)', border: '1.5px solid var(--border)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }} onClick={() => setTelAcik(true)}>
+                      <i className="fa-solid fa-phone" /> {telGizle ? 'Ara' : tel}
                     </a>
                   )}
                 </div>
@@ -2700,7 +2751,22 @@ export default function ProfilSayfasi(props: ProfilProps) {
         return (
           <div
             onClick={() => setLightboxIdx(null)}
-            style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,.92)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            onTouchStart={e => { const t = e.touches[0]; dokunus.current = { x: t.clientX, y: t.clientY }; setSurukle(0); }}
+            onTouchMove={e => {
+              if (!dokunus.current || total < 2) return;
+              const t = e.touches[0];
+              const dx = t.clientX - dokunus.current.x, dy = t.clientY - dokunus.current.y;
+              if (Math.abs(dx) > Math.abs(dy)) setSurukle(dx);
+            }}
+            onTouchEnd={e => {
+              const b = dokunus.current; dokunus.current = null; setSurukle(0);
+              if (!b) return;
+              const t = e.changedTouches[0];
+              const dx = t.clientX - b.x, dy = t.clientY - b.y;
+              if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) && total > 1) { if (dx < 0) next(); else prev(); }
+              else if (dy > 90 && Math.abs(dy) > Math.abs(dx)) setLightboxIdx(null);   // aşağı çek → kapat
+            }}
+            style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', touchAction: 'none', overscrollBehavior: 'contain' }}>
             {/* Kapat */}
             <button onClick={() => setLightboxIdx(null)}
               style={{ position: 'absolute', top: 18, right: 20, background: 'rgba(255,255,255,.12)', border: 'none', borderRadius: '50%', width: 42, height: 42, color: 'white', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
@@ -2724,9 +2790,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={galleryPhotos[lightboxIdx]}
+              key={lightboxIdx}
               alt={`${name} - ${lightboxIdx + 1}`}
+              draggable={false}
               onClick={e => { e.stopPropagation(); if (total > 1) next(); }}
-              style={{ maxWidth: '90vw', maxHeight: '88vh', objectFit: 'contain', borderRadius: 10, boxShadow: '0 8px 48px rgba(0,0,0,.6)', userSelect: 'none', cursor: total > 1 ? 'pointer' : 'default' }}
+              className="profil-lightbox-img"
+              style={{ transform: surukle ? `translateX(${surukle}px)` : undefined, transition: surukle ? 'none' : 'transform .2s ease', maxWidth: '90vw', maxHeight: '88vh', objectFit: 'contain', borderRadius: 10, boxShadow: '0 8px 48px rgba(0,0,0,.6)', userSelect: 'none', cursor: total > 1 ? 'pointer' : 'default' }}
             />
             {/* Sayaç */}
             {total > 1 && (
