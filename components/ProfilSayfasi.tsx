@@ -1288,11 +1288,10 @@ export default function ProfilSayfasi(props: ProfilProps) {
   // Info grid satırları
   const infoRows = entityType === 'doktor'
     ? [
-        { l: 'Şehir', v: il || '—' },
-        { l: 'İlçe', v: ilce || '—' },
+        // Şehir / ilçe / telefon üst bölümde zaten var → burada tekrar edilmez.
+        // Geriye bilgi kalmazsa kart hiç çıkmaz (aşağıda infoDolu kontrolü).
         { l: 'Deneyim', v: exp ? `${exp} yıl` : '—' },
         { l: 'Seans Ücreti', v: fee ? `${fee.toLocaleString('tr')} ₺` : '—' },
-        { l: 'Telefon', v: tel || '—' },
         { l: 'E-posta', v: emailVisible || '—' },
       ]
     : entityType === 'eczane'
@@ -1705,7 +1704,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
             <>
               {/* Klinikte "Klinik Bilgileri" kartı yok (tür/şehir/ilçe/telefon zaten üst bölümde).
                   Yerinde işletmenin kendi anlatımı durur: Hakkında + öne çıkan bilgiler. */}
-              {entityType === 'klinik' ? klinikHakkinda() : (
+              {entityType === 'klinik' ? klinikHakkinda() : !infoRows.some(r => r.v && r.v !== '—') ? null : (
               <div style={sc}>
                 <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>
                   {entityType === 'doktor' ? 'Doktor Bilgileri' : entityType === 'eczane' ? 'Eczane Bilgileri' : entityType === 'hastane' ? 'Hastane Bilgileri' : 'Klinik Bilgileri'}
