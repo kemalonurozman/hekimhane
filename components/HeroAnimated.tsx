@@ -557,7 +557,7 @@ export default function HeroAnimated({ stats }: Props) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setTimeout(() => setMounted(true), 60); }, []);
 
-  // Dönen başlıklar — ilk sıradaki hasta başlığı daha uzun kalır; noktaya basılırsa dönüş durur
+  // Dönen başlıklar — ilk sıradaki hasta başlığı daha uzun kalır (basliklar.length = 6, gec() içinde sabit)
   const basliklar = [
     { baslik: 'Size en yakın diş hekimini hızlıca bulun', alt: `${stats.klinik.toLocaleString('tr-TR')} diş kliniği ve muayenehane; puan, adres ve iletişim bilgileriyle tek yerde.` },
     { baslik: 'Randevularınızı tek platformdan yönetin', alt: 'Profilinizden ve web sitenizden gelen tüm randevu talepleri tek takvimde toplanır.' },
@@ -567,13 +567,19 @@ export default function HeroAnimated({ stats }: Props) {
     { baslik: 'HekimKart ile dijital kartvizitinizi paylaşın', alt: 'Tek bağlantı ya da QR kodla paylaşın; profiliniz güncellendikçe kartınız da güncellenir.' },
   ];
   const [b, setB] = useState(0);
-  const [elle, setElle] = useState(false);
+  const [soluk, setSoluk] = useState(false);   // geçiş: önce yavaşça söner, sonra yeni başlık belirir
+  const gec = useCallback((hedef: number | null) => {
+    setSoluk(true);
+    setTimeout(() => {
+      setB(n => (hedef === null ? (n + 1) % 6 : hedef));
+      setSoluk(false);
+    }, 650);
+  }, []);
+  // Süre dolunca kendiliğinden sıradakine geçer — her zaman (noktaya basmak da durdurmaz, süre yeniden başlar)
   useEffect(() => {
-    if (elle || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    const t = setTimeout(() => setB(n => (n + 1) % basliklar.length), b === 0 ? 6500 : 4200);
+    const t = setTimeout(() => gec(null), b === 0 ? 7500 : 6000);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [b, elle]);
+  }, [b, gec]);
 
   const statItems = [
     { label: 'Diş kliniği', val: stats.klinik,    suffix: ''  },
@@ -596,12 +602,15 @@ export default function HeroAnimated({ stats }: Props) {
         .hk-hero-baslik-kutu .hk-hero-baslik { margin-bottom: 0; }
         .hk-hero-alt-kutu { min-height: 56px; margin-bottom: 32px; }
         .hk-hero-alt-kutu .hk-hero-alt { margin-bottom: 0; }
-        .hk-hero-don { display: block; animation: hkBaslikGir .6s cubic-bezier(.2,.8,.2,1) both; }
-        @keyframes hkBaslikGir { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+        /* Yavaş, sakin geçiş: söner (hafif yukarı) → yeni metin aşağıdan belirir */
+        .hk-hero-don { display: block; opacity: 1; transform: none; transition: opacity .9s cubic-bezier(.4,0,.2,1), transform .9s cubic-bezier(.4,0,.2,1); }
+        .hk-hero-don--alt { transition-delay: .08s; }
+        .hk-hero-don.is-soluk { opacity: 0; transform: translateY(8px); transition-duration: .6s; transition-delay: 0s; }
         .hk-hero-noktalar { display: flex; justify-content: center; gap: 6px; margin: -14px 0 22px; }
-        .hk-hero-noktalar button { width: 6px; height: 6px; padding: 0; border: 0; border-radius: 999px; background: #C1CEE2; cursor: pointer; transition: width .25s, background .25s; }
+        .hk-hero-noktalar button { width: 6px; height: 6px; padding: 0; border: 0; border-radius: 999px; background: #C1CEE2; cursor: pointer; transition: width .6s cubic-bezier(.4,0,.2,1), background .6s; }
         .hk-hero-noktalar button.is-aktif { width: 20px; background: #12294D; }
-        @media (prefers-reduced-motion: reduce) { .hk-hero-don { animation: none; } }
+        /* Hareketi azalt: kayma yok, yalnız yumuşak solma — başlık yine kendiliğinden değişir */
+        @media (prefers-reduced-motion: reduce) { .hk-hero-don, .hk-hero-don.is-soluk { transform: none; } }
         .hk-hero-baslik { margin: 0 auto 16px; max-width: 900px; font-family: var(--font-display); font-size: 64px; line-height: 68px; font-weight: 800; letter-spacing: -0.035em; color: var(--brand); }
         .hk-hero-alt { margin: 0 auto 32px; max-width: 560px; font-size: 18px; line-height: 28px; color: var(--ink-secondary); }
         /* Arama çubuğu — marka kimliği v1 (Uygulamalar: web hero): beyaz kart, 18px köşe,
@@ -740,15 +749,15 @@ export default function HeroAnimated({ stats }: Props) {
 
         {/* Başlık — sırayla döner: ilki hastalara (SSR'da ve arama motorunda görünen), diğerleri hekimlere */}
         <div className="hk-hero-baslik-kutu">
-          <h1 className="hk-hero-baslik"><span key={b} className="hk-hero-don">{basliklar[b].baslik}</span></h1>
+          <h1 className="hk-hero-baslik"><span className={`hk-hero-don${soluk ? ' is-soluk' : ''}`}>{basliklar[b].baslik}</span></h1>
         </div>
         <div className="hk-hero-alt-kutu">
-          <p className="hk-hero-alt"><span key={b} className="hk-hero-don">{basliklar[b].alt}</span></p>
+          <p className="hk-hero-alt"><span className={`hk-hero-don hk-hero-don--alt${soluk ? ' is-soluk' : ''}`}>{basliklar[b].alt}</span></p>
         </div>
         <div className="hk-hero-noktalar" role="tablist" aria-label="Başlıklar">
           {basliklar.map((x, i) => (
             <button key={x.baslik} type="button" role="tab" aria-selected={i === b} aria-label={x.baslik}
-              className={i === b ? 'is-aktif' : undefined} onClick={() => { setB(i); setElle(true); }} />
+              className={i === b ? 'is-aktif' : undefined} onClick={() => { if (i !== b) gec(i); }} />
           ))}
         </div>
 
