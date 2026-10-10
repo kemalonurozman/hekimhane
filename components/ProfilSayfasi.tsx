@@ -863,6 +863,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
   const [done, setDone]       = useState(false);
   const [saving, setSaving]   = useState(false);
   const [hata, setHata]       = useState('');
+  const [bulten, setBulten] = useState(false); // e-posta bülteni izni — isteğe bağlı, varsayılan kapalı
   const [website, setWebsite] = useState(''); // honeypot — botlar doldurur, insanlar görmez
 
   // Widget'tan bir güne tıklanarak açıldıysa o tarihi ön-seç (doğrudan saat seçimine)
@@ -890,7 +891,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
     const tercih = [tarihStr, saat].filter(Boolean).join(' · ');
     const payload: Record<string, unknown> = {
       entity_type: entityType, entity_id: entityId, entity_name: name,
-      ad_soyad: adSoyad, tel, email, tercih, mesaj, website,
+      ad_soyad: adSoyad, tel, email, tercih, mesaj, website, bulten,
     };
     if (aktif && tarih && saat) payload.randevu_slot = `${tarih} ${saat}`;
     try {
@@ -1070,14 +1071,19 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
               </div>
               <div>
                 <label style={labelStyle}>Notunuz <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
-                <textarea value={mesaj} onChange={e => setMesaj(e.target.value)} rows={2} placeholder="Şikayetiniz veya eklemek istedikleriniz…"
+                <textarea value={mesaj} onChange={e => setMesaj(e.target.value)} rows={2} placeholder="Eklemek istedikleriniz (ayrıntılı sağlık bilgisi yazmanız gerekmez)"
                   style={{ ...inputStyle, resize: 'none' }} />
               </div>
             </div>
 
             <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 12, color: 'var(--muted)', margin: '16px 0 18px', cursor: 'pointer', lineHeight: 1.6 }}>
               <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} style={{ marginTop: 2, accentColor: '#059669', flexShrink: 0 }} />
-              <span>Bilgilerimin randevu oluşturma amacıyla bu işletmeyle paylaşılmasına onay veriyorum. <a href="/kvkk" style={{ color: '#059669', fontWeight: 600 }}>KVKK Aydınlatma Metni</a></span>
+              <span><a href="/kvkk" target="_blank" rel="noopener" style={{ color: '#059669', fontWeight: 600 }}>KVKK Aydınlatma Metni</a>&apos;ni okudum; ad, telefon, e-posta ve notumun randevu oluşturulması amacıyla bu işletmeyle paylaşılmasına açık rıza veriyorum.</span>
+            </label>
+            {/* Ticari ileti izni ayrı ve isteğe bağlı — randevu onayına bağlanamaz */}
+            <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 12, color: 'var(--muted)', margin: '-8px 0 18px', cursor: 'pointer', lineHeight: 1.6 }}>
+              <input type="checkbox" checked={bulten} onChange={e => setBulten(e.target.checked)} style={{ marginTop: 2, accentColor: '#059669', flexShrink: 0 }} />
+              <span>Hekimhane&apos;den sağlık içerikleri ve duyuruları e-posta ile almak istiyorum. <span style={{ opacity: .8 }}>(İsteğe bağlı; dilediğiniz an vazgeçebilirsiniz.)</span></span>
             </label>
 
             {hata && (
@@ -1310,7 +1316,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
         { l: 'Doktor Sayısı', v: docs ? String(docs) : '—' },
         { l: 'Yatak Kapasitesi', v: beds ? String(beds) : '—' },
         { l: 'Kuruluş', v: founded ? String(founded) : '—' },
-        { l: 'Puan', v: `${avg} / 5` },
+        { l: 'Puan', v: yorumlar.length > 0 ? `${avg} / 5` : '—' },
       ]
     : [
         { l: 'Tür', v: type || '—' },
@@ -1615,7 +1621,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 )}
               </div>
               <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: hSubSoft }}>
-                <span><Stars rat={avg} /> <strong style={{ color: hName, fontSize: 16 }}>{avg}</strong></span>
+                {yorumlar.length > 0
+                  ? <span><Stars rat={avg} /> <strong style={{ color: hName, fontSize: 16 }}>{avg}</strong></span>
+                  : <span>Henüz değerlendirme yok</span>}
                 {yorumlar.length > 0 && <span>{yorumlar.length} yorum</span>}
                 {tel && !telGizle && <span>📞 {tel}</span>}
                 {entityType === 'doktor' && fee ? <span>💰 {fee.toLocaleString('tr')} ₺</span> : null}
@@ -1945,11 +1953,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         </>
                       ) : (
                         <>
-                          <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 52, fontWeight: 800, color: 'var(--navy)', lineHeight: 1 }}>{avg}</div>
-                          <div style={{ margin: '6px 0 4px' }}><Stars rat={avg} size={18} /></div>
-                          <Link href="/degerlendirme-sistemi" style={{ fontSize: 11.5, color: 'var(--muted)', textDecoration: 'none', borderBottom: '1px dotted var(--muted)' }} title="Puanlar neden 4.2 civarında başlar? Değerlendirme sistemimizi öğrenin">
-                            Başlangıç puanı · henüz yorum yok
-                          </Link>
+                          {/* Yorum yokken puan gösterilmez — hesaplanmış bir sayı gerçek hasta puanı gibi algılanmasın */}
+                          <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 40, fontWeight: 800, color: '#C7C7CC', lineHeight: 1 }}>—</div>
+                          <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 10, lineHeight: 1.5 }}>Henüz<br />değerlendirme yok</div>
                         </>
                       )}
                     </div>

@@ -1,3 +1,4 @@
+import { YASAL_GUNCELLEME } from '@/lib/sirket';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -34,8 +35,8 @@ export default function GizlilikPage() {
       content: `Hekimhane, aşağıdaki çerez türlerini kullanır:
 
 • **Zorunlu çerezler:** Sitenin çalışması için gerekli teknik çerezler. Devre dışı bırakılamaz.
-• **Analitik çerezler:** Ziyaretçi sayısı, sayfa görüntülenmeleri gibi anonim istatistikler (Google Analytics).
-• **Tercih çerezleri:** Dil ve görüntüleme tercihlerinizi hatırlamak için.
+• **Ziyaret istatistikleri:** Yalnızca izin verirseniz; sayfa görüntülenmeleri ve sayfa hızı (Vercel Analytics). Çerez bırakmaz, reklam için kullanılmaz.
+• **Tercih kayıtları:** Çerez tercihinizi ve görünüm seçimlerinizi hatırlamak için.
 
 Tarayıcı ayarlarınızdan çerezleri yönetebilir veya silebilirsiniz. Zorunlu olmayan çerezleri reddetme hakkına sahipsiniz.`,
     },
@@ -98,7 +99,7 @@ Bu haklarınızı kullanmak için **hekimhane.com.tr/iletisim** adresindeki ilet
             🔒 Gizlilik Politikası
           </h1>
           <p style={{ color: 'rgba(255,255,255,.65)', fontSize: 14 }}>
-            Son güncelleme: Ocak 2025
+            Son güncelleme: {YASAL_GUNCELLEME}
           </p>
         </div>
       </div>

@@ -5,8 +5,8 @@ import './styles/hk-components.css';
 import Navbar from '@/components/Navbar';
 import SiteFooter from '@/components/SiteFooter';
 import CompareBar from '@/components/CompareBar';
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import CerezOnay from '@/components/CerezOnay';
+import SohbetBalonu from '@/components/SohbetBalonu';
 
 // Tasarım sistemi v3: gövde Inter, başlık Plus Jakarta Sans. latin-ext: Türkçe harfler (İ ş ğ ı) önden yüklenir.
 const inter = Inter({
@@ -85,8 +85,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main>{children}</main>
         <SiteFooter />
         <CompareBar />
-        <Analytics />
-        <SpeedInsights />
+        {/* Ziyaret istatistikleri yalnızca onay verilirse yüklenir (CerezOnay içinde) */}
+        <CerezOnay />
+        <SohbetBalonu />
       </body>
     </html>
   );

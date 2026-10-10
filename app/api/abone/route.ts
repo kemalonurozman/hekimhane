@@ -14,6 +14,10 @@ export async function POST(req: NextRequest) {
       entity_name,
     } = body;
 
+    // Ticari elektronik ileti izni açıkça verilmeden listeye kayıt yapılmaz
+    if (body.izin !== true) {
+      return NextResponse.json({ error: 'E-posta izni gerekli.' }, { status: 400 });
+    }
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Geçerli bir e-posta adresi girin.' }, { status: 400 });
     }

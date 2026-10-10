@@ -234,15 +234,11 @@ export default function KarsilastirClient() {
                         padding: '14px 16px', fontSize: 13.5, color: '#1D1D1F', lineHeight: 1.5,
                         borderLeft: '1px solid var(--border)',
                         borderBottom: sonSatir ? 'none' : '1px solid #F0F0F5',
-                        background: kazandi ? '#F0FDF4' : 'white',
+                        background: 'white',
                         display: 'flex', alignItems: 'center', gap: 6,
                       }}>
                         {satir.render(it)}
-                        {kazandi && (
-                          <span title="En iyi değer" style={{ fontSize: 10, fontWeight: 700, color: '#059669', background: '#DCFCE7', borderRadius: 5, padding: '1px 6px', flexShrink: 0 }}>
-                            En iyi
-                          </span>
-                        )}
+{/* Üstünlük rozeti yok: sağlık hizmeti sunucuları arasında "en iyi" nitelemesi yapılmaz */}
                       </div>
                     );
                   })}

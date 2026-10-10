@@ -178,7 +178,9 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { entity_type, entity_id, entity_name, ad_soyad, tel, email, tercih, mesaj, website, randevu_slot } = body || {};
+    const { entity_type, entity_id, entity_name, ad_soyad, tel, email, tercih, mesaj, website, randevu_slot, bulten } = body || {};
+    // E-posta listesine yalnız hasta AÇIKÇA işaretlediyse eklenir (ticari ileti izni randevuya bağlanamaz)
+    const bultenIzni = bulten === true;
     // Slot formatı: "YYYY-MM-DD HH:MM" (yerel; saat dilimi dönüşümü yok)
     const slot = randevu_slot && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(String(randevu_slot).trim())
       ? String(randevu_slot).trim() : null;
@@ -247,7 +249,7 @@ export async function POST(req: NextRequest) {
     const { error } = await (admin as any).from('randevu_talepleri').insert(insertKayit);
 
     if (!error) {
-      await addToEmailList(admin, kayit);
+      if (bultenIzni) await addToEmailList(admin, kayit);
       await sendRandevuBildirimleri(admin, { ...kayit, randevu_slot: slot || null });
       return NextResponse.json({ ok: true });
     }
@@ -273,7 +275,7 @@ export async function POST(req: NextRequest) {
         durum: 'beklemede',
       });
       if (!fbErr) {
-        await addToEmailList(admin, kayit);
+        if (bultenIzni) await addToEmailList(admin, kayit);
         await sendRandevuBildirimleri(admin, { ...kayit, randevu_slot: slot || null });
         return NextResponse.json({ ok: true });
       }

@@ -61,6 +61,9 @@ export async function buildSection(section: string): Promise<SmUrl[]> {
       { loc: `${BASE}/iletisim`, changefreq: 'monthly', priority: 0.5 },
       { loc: `${BASE}/gizlilik`, changefreq: 'yearly', priority: 0.3 },
       { loc: `${BASE}/kvkk`, changefreq: 'yearly', priority: 0.3 },
+      { loc: `${BASE}/mesafeli-satis-sozlesmesi`, changefreq: 'yearly', priority: 0.2 },
+      { loc: `${BASE}/on-bilgilendirme-formu`, changefreq: 'yearly', priority: 0.2 },
+      { loc: `${BASE}/iptal-iade`, changefreq: 'yearly', priority: 0.2 },
       { loc: `${BASE}/kullanim`, changefreq: 'yearly', priority: 0.3 },
     ];
     const kategori = KATEGORILER.filter(k => k.slug === 'dis-sagligi')

@@ -1,3 +1,4 @@
+import { SIRKET } from '@/lib/sirket';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import IletisimForm from './IletisimForm';
@@ -40,7 +41,7 @@ export default function IletisimPage() {
           {/* İletişim kartları */}
           {[
             { icon: 'fa-clock', color: '#1A335E', bg: '#EEF2FF', label: 'Yanıt Süresi', value: 'En geç 24 saat içinde', href: undefined },
-            { icon: 'fa-building', color: '#065F46', bg: '#ECFDF5', label: 'Şirket', value: 'Hekimhane Sağlık Rehberi A.Ş.', href: undefined },
+            { icon: 'fa-building', color: '#065F46', bg: '#ECFDF5', label: 'Şirket', value: SIRKET.unvan, href: undefined },
           ].map(item => (
             <div key={item.label} style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '20px 22px', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
               <div style={{ width: 42, height: 42, borderRadius: 12, background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

@@ -1,3 +1,4 @@
+import { SIRKET, YASAL_GUNCELLEME } from '@/lib/sirket';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -39,7 +40,7 @@ export default function KVKKPage() {
               <p style={{ margin: '6px 0 0', color: 'rgba(255,255,255,.7)', fontSize: 15 }}>6698 Sayılı Kişisel Verilerin Korunması Kanunu</p>
             </div>
           </div>
-          <p style={{ color: 'rgba(255,255,255,.6)', fontSize: 13, margin: 0 }}>Son güncelleme: Ocak 2025</p>
+          <p style={{ color: 'rgba(255,255,255,.6)', fontSize: 13, margin: 0 }}>Son güncelleme: {YASAL_GUNCELLEME}</p>
         </div>
       </section>
 
@@ -57,10 +58,10 @@ export default function KVKKPage() {
               1. Veri Sorumlusu
             </h2>
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15 }}>
-              Hekimhane platformu (<strong>hekimhane.com.tr</strong>) bünyesinde kişisel verileriniz, KVKK kapsamında <strong>veri sorumlusu</strong> sıfatıyla işlenmektedir. Platform, Türkiye'de faaliyet gösteren ve doktor, klinik, hastane ile eczane bilgilerini kullanıcılara sunan bir sağlık rehberi hizmetidir.
+              Hekimhane platformu (<strong>hekimhane.com.tr</strong>) üzerinden toplanan kişisel verileriniz, 6698 sayılı KVKK kapsamında <strong>veri sorumlusu</strong> sıfatıyla <strong>{SIRKET.unvan}</strong> tarafından işlenmektedir.{SIRKET.adres ? ` Adres: ${[SIRKET.adres, SIRKET.ulke].filter(Boolean).join(', ')}.` : ''} Platform, Türkiye'de faaliyet gösteren ve doktor, klinik, hastane ile eczane bilgilerini kullanıcılara sunan bir sağlık rehberi hizmetidir.
             </p>
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, marginTop: 12 }}>
-              İletişim: <a href="mailto:kvkk@hekimhane.com.tr" style={{ color: 'var(--navy)', fontWeight: 600 }}>kvkk@hekimhane.com.tr</a>
+              İletişim: <a href={`mailto:${SIRKET.kvkkEposta}`} style={{ color: 'var(--navy)', fontWeight: 600 }}>{SIRKET.kvkkEposta}</a>
             </p>
           </section>
 
@@ -135,13 +136,17 @@ export default function KVKKPage() {
             </h2>
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, marginBottom: 16 }}>Kişisel verileriniz; KVKK'nın 8. ve 9. maddeleri uyarınca aşağıdaki alıcı gruplarına aktarılabilir:</p>
             <ul style={{ paddingLeft: 20, color: '#374151', lineHeight: 2, fontSize: 15 }}>
-              <li><strong>Hizmet sağlayıcılar:</strong> Barındırma (hosting), veritabanı ve analitik hizmetleri (Supabase/AWS altyapısı)</li>
-              <li><strong>Ödeme altyapısı:</strong> İşletmelere yönelik ödeme işlemlerinde ödeme aracıları</li>
+              <li><strong>Barındırma ve veritabanı:</strong> Vercel Inc. (site barındırma) ve Supabase Inc. (veritabanı, oturum, dosya depolama)</li>
+              <li><strong>E-posta gönderimi:</strong> Resend (randevu, onay ve bildirim e-postaları)</li>
+              <li><strong>Giriş:</strong> Google ile giriş yapmayı seçen işletme sahipleri için Google</li>
+              <li><strong>Destek:</strong> Sohbet balonunu kullanan ziyaretçilerin mesajları için Ozvelo</li>
+              <li><strong>Randevu talepleri:</strong> Randevu formunda paylaştığınız ad, telefon, e-posta ve not, yalnızca randevu istediğiniz klinik ya da hekime iletilir</li>
+              <li><strong>Ödeme altyapısı:</strong> İşletmelerin Pro üyelik ödemeleri için Stripe (kart bilgileri Hekimhane&apos;ye ulaşmaz)</li>
               <li><strong>Yetkili kurum ve kuruluşlar:</strong> Yasal zorunluluk halinde kamu kurumları ve mahkemeler</li>
               <li><strong>İş ortakları:</strong> Platform entegrasyonları için gerekli üçüncü taraflar (açık rıza ile)</li>
             </ul>
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, marginTop: 12 }}>
-              Yurt dışı aktarım söz konusu olduğunda KVKK Madde 9 kapsamındaki güvenceler sağlanmaktadır.
+              <strong>Yurt dışına aktarım:</strong> Yukarıdaki hizmet sağlayıcıların sunucuları Türkiye dışında (ağırlıklı olarak Avrupa Birliği ve Amerika Birleşik Devletleri) bulunmaktadır; bu nedenle kişisel verileriniz, hizmetin sunulabilmesi için yurt dışına aktarılmaktadır. Aktarım, KVKK&apos;nın 9. maddesinde öngörülen şartlara uygun olarak yapılır.
             </p>
           </section>
 
@@ -208,8 +213,8 @@ export default function KVKKPage() {
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
-                { icon: '📧', label: 'E-posta', value: 'kvkk@hekimhane.com.tr', note: 'Kayıtlı e-posta veya noter onaylı imza gerekebilir' },
-                { icon: '📬', label: 'Posta', value: 'Hekimhane, [Adres]', note: 'Kimlik fotokopisi ile birlikte' },
+                { icon: '📧', label: 'E-posta', value: SIRKET.kvkkEposta, note: 'Kimliğinizi doğrulayabilmemiz için kayıtlı e-posta adresinizden yazın' },
+                ...(SIRKET.adres ? [{ icon: '📬', label: 'Posta', value: `${SIRKET.unvan}, ${[SIRKET.adres, SIRKET.ulke].filter(Boolean).join(', ')}`, note: 'Islak imzalı dilekçe ile' }] : []),
                 { icon: '📝', label: 'Online Form', value: 'hekimhane.com.tr/iletisim', note: 'İletişim formu üzerinden' },
               ].map(item => (
                 <div key={item.label} style={{ display: 'flex', gap: 14, padding: '14px 18px', background: 'white', borderRadius: 10, border: '1px solid var(--border)', alignItems: 'flex-start' }}>
@@ -268,7 +273,7 @@ export default function KVKKPage() {
             <div style={{ fontSize: 28, marginBottom: 8 }}>✉️</div>
             <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy)', marginBottom: 6 }}>KVKK Başvurusu</div>
             <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 12, lineHeight: 1.5 }}>Haklarınızı kullanmak için bizimle iletişime geçin.</p>
-            <a href="mailto:kvkk@hekimhane.com.tr" className="btn btn-navy" style={{ fontSize: 13, display: 'block', textAlign: 'center' }}>
+            <a href={`mailto:${SIRKET.kvkkEposta}`} className="btn btn-navy" style={{ fontSize: 13, display: 'block', textAlign: 'center' }}>
               Başvuru Yap
             </a>
           </div>

@@ -62,6 +62,12 @@ export default function ProCta({ boyut = 'md' }: { boyut?: 'md' | 'lg' }) {
       {mesaj && (
         <p style={{ marginTop: 10, fontSize: 13, color: '#B45309', fontWeight: 600 }}>{mesaj}</p>
       )}
+      {/* Ödemeden önce sözleşme ve ön bilgilendirme — satın alma düğmesinin hemen altında */}
+      <p style={{ margin: '12px 0 0', maxWidth: 440, fontSize: 12, lineHeight: 1.6, color: 'inherit', opacity: 0.72 }}>
+        Üyelik her ay kendiliğinden yenilenir; dilediğiniz an iptal edebilirsiniz. Devam ederek{' '}
+        <a href="/on-bilgilendirme-formu" target="_blank" rel="noopener" style={{ color: 'inherit', textDecoration: 'underline' }}>Ön Bilgilendirme Formu</a>{' '}ve{' '}
+        <a href="/mesafeli-satis-sozlesmesi" target="_blank" rel="noopener" style={{ color: 'inherit', textDecoration: 'underline' }}>Mesafeli Satış Sözleşmesi</a>&apos;ni kabul etmiş olursunuz.
+      </p>
     </div>
   );
 }

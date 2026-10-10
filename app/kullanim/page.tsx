@@ -1,3 +1,4 @@
+import { YASAL_GUNCELLEME } from '@/lib/sirket';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -107,7 +108,7 @@ Hekimhane; 6698 sayılı KVKK, 5651 sayılı İnternet Ortamında Yapılan Yayı
             📋 Kullanım Şartları
           </h1>
           <p style={{ color: 'rgba(255,255,255,.65)', fontSize: 14 }}>
-            Son güncelleme: Ocak 2025
+            Son güncelleme: {YASAL_GUNCELLEME}
           </p>
         </div>
       </div>

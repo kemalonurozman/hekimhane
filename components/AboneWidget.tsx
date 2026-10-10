@@ -29,10 +29,12 @@ export default function AboneWidget({
   const [done,    setDone]    = useState(false);
   const [already, setAlready] = useState(false);
   const [err,     setErr]     = useState('');
+  const [izin,    setIzin]    = useState(false);   // ticari elektronik ileti izni — açıkça işaretlenmeli
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !email.includes('@')) { setErr('Geçerli bir e-posta girin.'); return; }
+    if (!izin) { setErr('Devam etmek için e-posta izni kutusunu işaretleyin.'); return; }
     setSending(true); setErr('');
     try {
       const res = await fetch('/api/abone', {
@@ -43,6 +45,7 @@ export default function AboneWidget({
           isim:  isim.trim() || undefined,
           tip,
           kaynak: entityId ? 'profil' : 'form',
+          izin: true,
           entity_id:   entityId   || undefined,
           entity_type: entityType || undefined,
           entity_name: entityName || undefined,
@@ -91,6 +94,10 @@ export default function AboneWidget({
         style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: '#1A335E', color: 'white', fontSize: 13, fontWeight: 700, cursor: sending ? 'not-allowed' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
         {sending ? 'Kaydediliyor…' : 'Haberdar Ol'}
       </button>
+      <label style={{ display: 'flex', gap: 8, alignItems: 'flex-start', width: '100%', fontSize: 11.5, color: '#6E6E73', lineHeight: 1.5, cursor: 'pointer' }}>
+        <input type="checkbox" checked={izin} onChange={e => { setIzin(e.target.checked); setErr(''); }} style={{ marginTop: 2, accentColor: '#1A335E', flexShrink: 0 }} />
+        <span>Hekimhane&apos;den e-posta ile bilgilendirme almayı kabul ediyorum. Dilediğim an vazgeçebilirim. <a href="/kvkk" style={{ color: '#1A335E', fontWeight: 600 }}>Aydınlatma Metni</a></span>
+      </label>
       {err && <span style={{ fontSize: 12, color: '#DC2626', width: '100%' }}>{err}</span>}
     </form>
   );
@@ -110,8 +117,8 @@ export default function AboneWidget({
           </div>
           <div style={{ fontSize: 12.5, color: '#6E6E73', lineHeight: 1.6 }}>
             {description || (tip === 'isletme'
-              ? 'Yeni özellikler, fırsatlar ve hizmet güncellemeleri için abone olun.'
-              : `${entityName ? `${entityName} adresindeki` : 'Sağlık'} yeniliklerden, kampanyalardan ve önemli duyurulardan haberdar olun.`
+              ? 'Yeni özellikler ve hizmet güncellemeleri için abone olun.'
+              : `${entityName ? `${entityName} adresindeki` : 'Sağlık'} yeniliklerden ve önemli duyurulardan haberdar olun.`
             )}
           </div>
         </div>
@@ -133,7 +140,10 @@ export default function AboneWidget({
         </button>
       </form>
       {err && <div style={{ marginTop: 8, fontSize: 12, color: '#DC2626' }}>{err}</div>}
-      <p style={{ fontSize: 11, color: '#9CA3AF', margin: '10px 0 0' }}>İstediğiniz zaman abonelikten çıkabilirsiniz.</p>
+      <label style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 10, fontSize: 11.5, color: '#6E6E73', lineHeight: 1.5, cursor: 'pointer' }}>
+        <input type="checkbox" checked={izin} onChange={e => { setIzin(e.target.checked); setErr(''); }} style={{ marginTop: 2, accentColor: '#1A335E', flexShrink: 0 }} />
+        <span>Hekimhane&apos;den e-posta ile bilgilendirme almayı kabul ediyorum. Dilediğim an vazgeçebilirim. <a href="/kvkk" style={{ color: '#1A335E', fontWeight: 600 }}>Aydınlatma Metni</a></span>
+      </label>
       <style>{`@keyframes abone-spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );

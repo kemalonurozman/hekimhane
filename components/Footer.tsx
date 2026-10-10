@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import HkLogoAnim from '@/components/HkLogoAnim';
 import { toSlug } from '@/lib/helpers';
+import FooterBulten from '@/components/FooterBulten';
+import { CerezTercihBaglantisi } from '@/components/CerezOnay';
+import { SIRKET as SIRKET_BILGI } from '@/lib/sirket';
 
 export default function Footer() {
   const PLATFORM = [
@@ -44,6 +47,9 @@ export default function Footer() {
     ['Kullanım Şartları',   '/kullanim'],
     ['KVKK',                '/kvkk'],
     ['Çerez Politikası',    '/cerez'],
+    ['Mesafeli Satış Sözleşmesi', '/mesafeli-satis-sozlesmesi'],
+    ['Ön Bilgilendirme Formu', '/on-bilgilendirme-formu'],
+    ['İptal ve İade',       '/iptal-iade'],
     ['Abonelik İptali',     '/abonelik-iptali'],
   ];
 
@@ -137,10 +143,7 @@ export default function Footer() {
           <div className="hk-footer__brand">
             <HkLogoAnim size={38} dark />
             <p>Türkiye'nin diş sağlığı rehberi. Size en yakın diş kliniğini ve uzman diş hekimini tek platformda bulun.</p>
-            <div className="hk-footer__bulten">
-              <input type="email" placeholder="E-posta adresiniz" aria-label="E-posta adresiniz" />
-              <button type="button">Abone ol</button>
-            </div>
+            <FooterBulten />
             {/* İletişim — ödeme alan site için iletişim ve iptal yolu görünür olmalı */}
             <div className="hk-footer__iletisim">
               <a href="mailto:info@hekimhane.com.tr" style={{ color: 'var(--on-deep)', fontWeight: 600 }}>info@hekimhane.com.tr</a>
@@ -182,7 +185,7 @@ export default function Footer() {
         </div>
 
         <div className="hk-footer__legal" style={{ marginTop: 'var(--space-5)' }}>
-          <p>© {new Date().getFullYear()} Hekimhane — hekimhane.com.tr — Tüm hakları saklıdır.</p>
+          <p>© {new Date().getFullYear()} Hekimhane — {SIRKET_BILGI.unvan} — Tüm hakları saklıdır. · <CerezTercihBaglantisi style={{ textDecoration: 'underline', textUnderlineOffset: 3 }} /></p>
           <p>Türkiye · Diş sağlığında güvenilir rehber</p>
         </div>
       </div>
