@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans, Manrope } from 'next/font/google';
 import './globals.css';
 import './styles/hk-components.css';
 import Navbar from '@/components/Navbar';
@@ -20,6 +20,14 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin', 'latin-ext'],
   variable: '--font-jakarta',
   weight: ['600', '700', '800'],
+  display: 'swap',
+});
+
+// Yazı işareti (logo): Manrope Bold — marka kimliği v1. Yalnız logoda kullanılır.
+const manrope = Manrope({
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-manrope',
+  weight: ['500', '700'],
   display: 'swap',
 });
 
@@ -65,7 +73,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr" className={`${inter.variable} ${jakarta.variable}`}>
+    <html lang="tr" className={`${inter.variable} ${jakarta.variable} ${manrope.variable}`}>
       <head>
         <link
           rel="stylesheet"

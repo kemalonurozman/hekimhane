@@ -29,16 +29,14 @@ export default function OgImage() {
             marginBottom: 36,
           }}
         >
-          <svg width="76" height="76" viewBox="0 0 40 40" fill="none">
-            <rect width="40" height="40" rx="11" fill="#1A335E" />
-            <path
-              d="M20 8.2c-2.9 0-4.3-1.5-6.9-1.5-2.4 0-4.2 1.9-4.2 4.9 0 2.3.9 4.3 1.5 6.4.5 1.9.7 3.6.9 5.6.2 2 .5 4.1 1.1 5.8.5 1.4 1.2 2.4 2.2 2.4 1.1 0 1.6-1.2 1.9-2.9.3-1.7.5-3.6 1.1-5.1.2-.6.6-1.1 1.3-1.1s1.1.5 1.3 1.1c.6 1.5.8 3.4 1.1 5.1.3 1.7.8 2.9 1.9 2.9 1 0 1.7-1 2.2-2.4.6-1.7.9-3.8 1.1-5.8.2-2 .4-3.7.9-5.6.6-2.1 1.5-4.1 1.5-6.4 0-3-1.8-4.9-4.2-4.9C24.3 6.7 22.9 8.2 20 8.2Z"
-              fill="#FFFFFF"
-            />
+          <svg width="84" height="84" viewBox="0 0 48 48" fill="none">
+            <path d="M8 15C8 10.5 11.6 7 16.1 7H18.3V33C18.3 37.5 14.7 41 10.2 41H8Z" fill="#FFFFFF" />
+            <path d="M29.7 15C29.7 10.5 33.3 7 37.8 7H40V33C40 37.5 36.4 41 31.9 41H29.7Z" fill="#FFFFFF" />
+            <path d="M7.4 33.03L8 31.6C10.6 25.8 15 20.2 24 20.2M19 27.35C26 28.6 38 28.5 40 19L40.2 18" fill="none" stroke="#0E2D55" strokeWidth="1.6" />
+            <path d="M8 31.6C10.6 25.8 15 20.2 24 20.2C31 20.4 37.2 22.2 40 14L40 19C38 28.5 26 28.6 19 27.35C13 27.35 9.4 31.5 8 36.2Z" fill="#DEC283" />
           </svg>
           <div style={{ display: 'flex', alignItems: 'baseline', letterSpacing: -2 }}>
-            <span style={{ color: 'white', fontSize: 56, fontWeight: 700 }}>hekimhane</span>
-            <span style={{ color: '#B8892F', fontSize: 34, fontWeight: 600, marginLeft: 3 }}>.com.tr</span>
+            <span style={{ color: 'white', fontSize: 58, fontWeight: 700 }}>hekimhane</span>
           </div>
         </div>
 

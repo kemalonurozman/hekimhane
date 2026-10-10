@@ -81,9 +81,14 @@ export function entityKartAlanlari(r: Record<string, any> | null | undefined): R
 
 /* ── Web sitesi rozeti ────────────────────────────────────────────────── */
 
-/** Diş glifi — components/Logo.tsx içindeki TOOTH ile aynı yol. */
-const ROZET_DIS =
-  'M20 8.2c-2.9 0-4.3-1.5-6.9-1.5-2.4 0-4.2 1.9-4.2 4.9 0 2.3.9 4.3 1.5 6.4.5 1.9.7 3.6.9 5.6.2 2 .5 4.1 1.1 5.8.5 1.4 1.2 2.4 2.2 2.4 1.1 0 1.6-1.2 1.9-2.9.3-1.7.5-3.6 1.1-5.1.2-.6.6-1.1 1.3-1.1s1.1.5 1.3 1.1c.6 1.5.8 3.4 1.1 5.1.3 1.7.8 2.9 1.9 2.9 1 0 1.7-1 2.2-2.4.6-1.7.9-3.8 1.1-5.8.2-2 .4-3.7.9-5.6.6-2.1 1.5-4.1 1.5-6.4 0-3-1.8-4.9-4.2-4.9C24.3 6.7 22.9 8.2 20 8.2Z';
+/** Marka işareti (Akışkan H) — components/Logo.tsx içindeki HK_LOGO ile aynı yollar.
+ *  Rozet kendi içinde HTML olduğundan yollar burada tekrar edilir (mask yok: zemin rengi bilinir). */
+const ROZET_LOGO = {
+  left: 'M8 15C8 10.5 11.6 7 16.1 7H18.3V33C18.3 37.5 14.7 41 10.2 41H8Z',
+  right: 'M29.7 15C29.7 10.5 33.3 7 37.8 7H40V33C40 37.5 36.4 41 31.9 41H29.7Z',
+  band: 'M8 31.6C10.6 25.8 15 20.2 24 20.2C31 20.4 37.2 22.2 40 14L40 19C38 28.5 26 28.6 19 27.35C13 27.35 9.4 31.5 8 36.2Z',
+  gap: 'M7.4 33.03L8 31.6C10.6 25.8 15 20.2 24 20.2M19 27.35C26 28.6 38 28.5 40 19L40.2 18',
+};
 
 export type RozetTema = 'acik' | 'koyu';
 
@@ -107,13 +112,14 @@ export function rozetHtml(opts: { kartUrl: string; ad: string; tema: RozetTema }
   const kenar   = koyu ? 'rgba(255,255,255,.18)' : '#E5E5EA';
   const baslik  = koyu ? '#FFFFFF' : '#1A335E';
   const ikincil = koyu ? 'rgba(255,255,255,.72)' : '#6E6E73';
-  const logoZem = koyu ? '#FFFFFF' : '#1A335E';
-  const logoDis = koyu ? '#1A335E' : '#FFFFFF';
+  const logoZem = koyu ? '#FFFFFF' : '#12294D';
+  const logoDis = koyu ? '#12294D' : '#FFFFFF';
+  const logoDalga = koyu ? '#C9A04A' : '#DEC283';
 
   return [
     `<!-- Hekimhane Onaylı Üye Rozeti -->`,
     `<a href="${htmlKacis(url)}" target="_blank" rel="noopener" title="${ad} — Hekimhane dijital kartviziti" aria-label="${ad} Hekimhane onaylı üyesidir — dijital kartviziti görüntüle" style="display:inline-flex;align-items:center;gap:11px;padding:9px 16px 9px 9px;border-radius:13px;border:1px solid ${kenar};background:${zemin};text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.25;box-shadow:0 1px 3px rgba(0,0,0,.08);max-width:100%;box-sizing:border-box">`,
-    `<svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true" style="flex-shrink:0;display:block"><rect width="40" height="40" rx="11" fill="${logoZem}"/><path d="${ROZET_DIS}" fill="${logoDis}"/></svg>`,
+    `<svg width="38" height="38" viewBox="0 0 48 48" aria-hidden="true" style="flex-shrink:0;display:block"><rect width="48" height="48" rx="11" fill="${logoZem}"/><g transform="translate(7.2 7.2) scale(.7)"><path d="${ROZET_LOGO.left}" fill="${logoDis}"/><path d="${ROZET_LOGO.right}" fill="${logoDis}"/><path d="${ROZET_LOGO.gap}" fill="none" stroke="${logoZem}" stroke-width="1.6"/><path d="${ROZET_LOGO.band}" fill="${logoDalga}"/></g></svg>`,
     `<span style="display:flex;flex-direction:column;text-align:left;min-width:0">`,
     `<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#B8892F"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#B8892F" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Onaylı Üye</span>`,
     `<span style="font-size:13px;font-weight:700;color:${baslik};margin-top:1px">Bu işletme hekimhane.com.tr üyesidir</span>`,

@@ -290,7 +290,7 @@ function GirisContent() {
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 24 }}>
           <LogoMark size={34} />
-          <span style={{ fontWeight: 800, fontSize: 20, color: 'var(--navy)', letterSpacing: '-0.3px' }}>Hekim<span style={{ color: 'var(--gold-text)' }}>hane</span></span>
+          <span style={{ fontFamily: 'var(--font-manrope), Manrope, system-ui, sans-serif', fontWeight: 700, fontSize: 23, color: '#12294D', letterSpacing: '-0.035em', lineHeight: 1 }}>hekimhane</span>
         </div>
 
         {/* --- Hesap oluşturma başarılı --- */}

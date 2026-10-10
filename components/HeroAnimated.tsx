@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { SearchResults } from '@/app/api/search/route';
 import { IL_ILCE, IL_LISTE } from '@/lib/tr-il-ilce';
 import { toSlug } from '@/lib/helpers';
+import HkIcon from '@/components/HkIcon';
 
 // ── Sayaç animasyonu ─────────────────────────────────────────────────────────
 function AnimatedCount({ target, suffix = '+' }: { target: number; suffix?: string }) {
@@ -35,13 +36,6 @@ function AnimatedCount({ target, suffix = '+' }: { target: number; suffix?: stri
 }
 
 // ── İkonlar ───────────────────────────────────────────────────────────────────
-function IconSearch() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-    </svg>
-  );
-}
 
 function IconSpinner() {
   return (
@@ -170,18 +164,20 @@ function KonumSecici({ value, onChange }: { value: string; onChange: (v: string)
 
   let idx = -1;
   return (
-    <div ref={kokRef} className="hk-search__field hk-search__field--loc hk-hero-arama__konum" style={{ position: 'relative', cursor: 'text' }}
+    <div ref={kokRef} className="hk-hero-arama__konum" style={{ position: 'relative', cursor: 'text' }}
       onClick={e => { if ((e.target as HTMLElement).closest('button')) return; girdiRef.current?.focus(); }}>
-      <i className="fa-solid fa-location-dot" style={{ color: 'var(--gold)', fontSize: 16 }} aria-hidden="true" />
-      <span className="hk-sr">İl veya ilçe</span>
+      <HkIcon name="location-pin" size={22} color="#12294D" />
+      <label className="hk-hero-arama__metin">
+        <span className="hk-hero-arama__etiket">Şehir</span>
       <input
         ref={girdiRef}
-        type="text" value={value} placeholder="İl veya ilçe" autoComplete="off" spellCheck={false}
+        type="text" value={value} placeholder="İl veya ilçe" aria-label="Şehir: il veya ilçe" autoComplete="off" spellCheck={false}
         role="combobox" aria-expanded={acik} aria-controls="hk-konum-liste" aria-autocomplete="list"
         onChange={e => { onChange(e.target.value); setAktif(-1); setAcik(true); }}
         onFocus={() => setAcik(true)}
         onKeyDown={onKey}
       />
+      </label>
       {value && (
         <button type="button" aria-label="Konumu temizle" className="hk-konum-temizle"
           onMouseDown={e => { e.preventDefault(); onChange(''); setAktif(-1); setAcik(true); }}>
@@ -210,9 +206,7 @@ function KonumSecici({ value, onChange }: { value: string; onChange: (v: string)
                     onMouseDown={e => { e.preventDefault(); sec(o); }}
                     onMouseEnter={() => setAktif(i)}>
                     <span className="hk-konum-dd__ikon" aria-hidden="true">
-                      {o.tip === 'il'
-                        ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9h.01M9 13h.01M9 17h.01" /></svg>
-                        : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>}
+                      <HkIcon name={o.tip === 'il' ? 'city' : 'location-pin'} size={18} accent={false} />
                     </span>
                     <span className="hk-konum-dd__ad">{o.tip === 'il' ? o.il : o.ilce}</span>
                     {o.tip === 'ilce' && <span className="hk-konum-dd__alt">{o.il}</span>}
@@ -327,33 +321,26 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
         transition: 'opacity .7s ease .3s, transform .7s ease .3s',
       }}
     >
-      <form onSubmit={handleSubmit} role="search" className="hk-search hk-search--lg hk-hero-arama">
+      <form onSubmit={handleSubmit} role="search" className="hk-hero-arama">
 
         {/* Input + dropdown */}
-        <div className="hk-hero-arama__alan" style={{ position: 'relative', cursor: 'text' }}
+        <div className="hk-hero-arama__alan" style={{ cursor: 'text' }}
           onClick={e => { if ((e.target as HTMLElement).closest('button, a')) return; aramaRef.current?.focus(); }}>
-          {/* İkon */}
-          <div style={{
-            position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
-            color: yukleniyor ? 'var(--brand)' : 'var(--ink-tertiary)',
-            display: 'flex', pointerEvents: 'none',
-            transition: 'color .2s',
-          }}>
-            {yukleniyor ? <IconSpinner /> : <IconSearch />}
-          </div>
-
-          {/* Input */}
-          <input
-            ref={aramaRef}
-            value={q}
-            onChange={handleInput}
-            onFocus={() => sonuclar && setAcik(true)}
-            placeholder="Diş kliniği, diş hekimi veya tedavi"
-            aria-label="Diş kliniği, diş hekimi veya tedavi"
-            autoComplete="off"
-            spellCheck={false}
-            className="hk-hero-arama__input"
-          />
+          <span className="hk-hero-arama__ikon" aria-hidden="true">
+            {yukleniyor ? <IconSpinner /> : <HkIcon name="search" size={22} color="#12294D" />}
+          </span>
+          <label className="hk-hero-arama__metin">
+            <span className="hk-hero-arama__etiket">Ne arıyorsunuz?</span>
+            <input
+              ref={aramaRef}
+              value={q}
+              onChange={handleInput}
+              onFocus={() => sonuclar && setAcik(true)}
+              placeholder="Klinik, hekim veya tedavi"
+              autoComplete="off"
+              spellCheck={false}
+            />
+          </label>
 
           {/* Dropdown */}
           {dropdownAcik && (
@@ -527,7 +514,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
 
         {/* Konum — aynı çubukta; il/ilçe açılır listesi (tarayıcının gri datalist'i yerine) */}
         <KonumSecici value={konum} onChange={setKonum} />
-        <button type="submit" className="hk-btn hk-btn--lg hk-btn--primary hk-search__btn">Ara</button>
+        <button type="submit" className="hk-hero-arama__btn">Hekim bul</button>
       </form>
 
       {/* Popüler tedaviler — tek satır etiket dizisi ("Tüm klinikler" tedaviler bölümünün başlığında) */}
@@ -539,7 +526,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
           ['Kanal tedavisi', `/klinikler?uzmanlik=${encodeURIComponent('Endodonti (Kanal Tedavisi)')}`],
           ['Çocuk diş', `/klinikler?uzmanlik=${encodeURIComponent('Pedodonti (Çocuk Diş Hekimliği)')}`],
         ] as [string, string][]).map(([label, href]) => (
-          <a key={href} href={href} className="hk-tag">{label}</a>
+          <a key={href} href={href}><HkIcon name="dentistry" size={20} color="#12294D" />{label}</a>
         ))}
       </div>
     </div>
@@ -611,14 +598,22 @@ export default function HeroAnimated({ stats }: Props) {
         .hk-hero-panel { text-align: center; padding: 80px 32px; border-radius: var(--radius-xl); background: linear-gradient(120deg, var(--tint-50), var(--tint-100)); }
         .hk-hero-baslik { margin: 0 auto 16px; max-width: 900px; font-family: var(--font-display); font-size: 64px; line-height: 68px; font-weight: 800; letter-spacing: -0.035em; color: var(--brand); }
         .hk-hero-alt { margin: 0 auto 32px; max-width: 560px; font-size: 18px; line-height: 28px; color: var(--ink-secondary); }
-        .hk-hero-arama { text-align: left; transition: border-color .15s; }
-        .hk-hero-arama:focus-within { border-color: #b9c4d6; }
-        .hk-hero-arama input:focus-visible { outline: none !important; }
-        .hk-hero-arama .hk-search__field:focus-within { box-shadow: none !important; border-color: transparent !important; }
-        .hk-hero-arama__alan { flex: 1 1 280px; min-width: 0; display: flex; align-items: center; height: 56px; }
-        .hk-hero-arama__input { width: 100%; height: 56px; padding: 0 16px 0 46px; border: 0; background: transparent; font: inherit; font-size: 16px; color: var(--ink); outline: none; border-radius: var(--radius-md); }
-        .hk-hero-arama__input::placeholder { color: var(--ink-tertiary); }
-        .hk-hero-arama__konum { border-left: 1px solid var(--border) !important; border-radius: 0 !important; }
+        /* Arama çubuğu — marka kimliği v1 (Uygulamalar: web hero): beyaz kart, 18px köşe,
+           iki satırlı alanlar (etiket + girdi), 22px ikon, ince ayraç, lacivert düğme */
+        .hk-hero-arama { display: flex; flex-wrap: wrap; align-items: stretch; gap: 4px; padding: 8px; text-align: left; background: #FFFFFF; border-radius: 18px; box-shadow: 0 1px 2px rgba(14,26,44,.06), 0 12px 32px -12px rgba(18,41,77,.18); font-family: var(--font-sans); }
+        .hk-hero-arama__alan, .hk-hero-arama__konum { position: relative; display: flex; align-items: center; gap: 12px; min-width: 0; padding: 12px 16px; border-radius: 12px; transition: background .15s; }
+        .hk-hero-arama__alan { flex: 2 1 260px; }
+        .hk-hero-arama__konum { flex: 1 1 180px; }
+        .hk-hero-arama__alan:hover, .hk-hero-arama__konum:hover, .hk-hero-arama__alan:focus-within, .hk-hero-arama__konum:focus-within { background: #F6F8FB; }
+        .hk-hero-arama__konum::before { content: ""; position: absolute; left: -2px; top: 10px; bottom: 10px; width: 1px; background: #E4E0D8; }
+        .hk-hero-arama__ikon { flex: none; display: flex; width: 22px; height: 22px; align-items: center; justify-content: center; color: #12294D; }
+        .hk-hero-arama__metin { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; cursor: text; }
+        .hk-hero-arama__etiket { font-size: 12px; line-height: 16px; font-weight: 700; color: #12294D; }
+        .hk-hero-arama input { width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; font: inherit; font-size: 15px; line-height: 20px; color: #0E1A2C; outline: none !important; box-shadow: none; }
+        .hk-hero-arama input::placeholder { color: #8B93A1; }
+        .hk-hero-arama__btn { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 28px; border: 0; border-radius: 12px; background: #12294D; color: #FFFFFF; font: inherit; font-weight: 700; font-size: 16px; cursor: pointer; transition: background .15s; }
+        .hk-hero-arama__btn:hover { background: #1B355F; }
+        .hk-hero-arama__btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
         /* Konum açılır listesi — Apple popover: buzlu cam, ok ucu, iOS grup başlıkları, seçimde vurgu */
         .hk-konum-temizle { flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; border: 0; background: rgba(60,60,67,.12); color: rgba(60,60,67,.7); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
         .hk-konum-temizle:hover { background: rgba(60,60,67,.2); color: var(--ink); }
@@ -657,15 +652,16 @@ export default function HeroAnimated({ stats }: Props) {
         .hk-konum-dd__bos-baslik { font-size: 15px; font-weight: 500; color: var(--ink); }
         .hk-konum-dd__bos-alt { margin-top: 3px; font-size: 13px; line-height: 1.45; color: rgba(60,60,67,.6); }
         .hk-hero-etiketler { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
-        .hk-hero-etiketler a { height: 30px; padding: 0 12px; text-decoration: none; }
-        .hk-hero-etiketler a:hover { background: var(--tint-100); }
+        .hk-hero-etiketler { gap: 10px; margin-top: 20px; }
+        .hk-hero-etiketler a { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px 8px 10px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E4E0D8; font-size: 14px; font-weight: 600; color: #12294D; text-decoration: none; transition: border-color .15s, box-shadow .15s; }
+        .hk-hero-etiketler a:hover { border-color: #C1CEE2; box-shadow: 0 4px 12px -6px rgba(18,41,77,.25); }
         @media (max-width: 1080px) { .hk-hero-baslik { font-size: 48px; line-height: 52px; } }
         @media (max-width: 640px) {
           .hk-hero-panel { padding: 48px 20px; }
           .hk-hero-baslik { font-size: 36px; line-height: 40px; }
           .hk-hero-alt { font-size: 16px; line-height: 24px; }
-          .hk-hero-arama__alan, .hk-hero-arama__konum { flex-basis: 100% !important; }
-          .hk-hero-arama__konum { border-left: 0 !important; border-top: 1px solid var(--border) !important; }
+          .hk-hero-arama__alan, .hk-hero-arama__konum, .hk-hero-arama__btn { flex-basis: 100%; }
+          .hk-hero-arama__konum::before { left: 16px; right: 16px; top: -2px; bottom: auto; width: auto; height: 1px; }
           .hk-konum-dd { left: 0; right: 0; width: auto; transform: none; max-height: 300px; animation: none; }
           .hk-konum-dd::before { left: 28px; }
         }
@@ -722,15 +718,6 @@ export default function HeroAnimated({ stats }: Props) {
         @media (max-width: 480px) {
           .hero-section {
             padding: 60px 0 64px !important;
-          }
-          .hero-search-form > form {
-            flex-direction: column;
-            gap: 10px;
-          }
-          .hero-search-form button[type="submit"] {
-            width: 100%;
-            justify-content: center;
-            align-self: auto !important;
           }
         }
       ` }} />
