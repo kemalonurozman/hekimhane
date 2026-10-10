@@ -284,11 +284,26 @@ export default function ListingLayout(props: ListingLayoutProps) {
         .listing-stat-number {
           font-size: 26px;
         }
-        .listing-ikon { flex: none; display: grid; place-items: center; width: 72px; height: 72px; border-radius: 20px; background: #FFFFFF; color: #12294D; box-shadow: 0 1px 2px rgba(14,26,44,.06), 0 10px 24px -14px rgba(18,41,77,.28); }
+        /* Üst başlık — tek beyaz bant: yol + ikon + başlık + özet. Panel-içinde-panel yok. */
+        .listing-ust { background: #FFFFFF; border-bottom: 1px solid var(--border); }
+        .listing-ust__ic { padding-top: 14px; padding-bottom: 22px; }
+        .listing-ust__yol { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; line-height: 18px; }
+        .listing-ust__yol a { text-decoration: none; }
+        .listing-ust__yol a:hover { color: var(--brand) !important; }
+        .listing-ust__satir { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+        .listing-ikon { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: var(--tint-50); border: 1px solid var(--tint-200); color: #12294D; }
+        .listing-ikon svg { width: 30px; height: 30px; }
+        .listing-ust__baslik { margin: 0; font-family: var(--font-display); font-size: 30px; line-height: 36px; font-weight: 800; letter-spacing: -0.03em; color: var(--ink); }
+        .listing-ust__ozet { display: flex; align-items: center; flex-wrap: wrap; gap: 0 4px; margin: 4px 0 0; font-size: 15px; line-height: 22px; color: var(--ink-secondary); font-variant-numeric: tabular-nums; }
+        .listing-ust__ozet b { font-weight: 700; color: var(--ink); }
+        .listing-ust__nokta { width: 3px; height: 3px; margin: 0 8px; border-radius: 50%; background: #C7C7CC; }
         @media (max-width: 768px) {
-          .listing-cathero { flex-direction: row !important; align-items: center !important; gap: 14px !important; }
-          .listing-ikon { width: 52px; height: 52px; border-radius: 15px; }
-          .listing-ikon svg { width: 28px; height: 28px; }
+          .listing-ust__ic { padding-top: 10px; padding-bottom: 16px; }
+          .listing-ust__satir { gap: 12px; margin-top: 12px; }
+          .listing-ikon { width: 44px; height: 44px; border-radius: 13px; }
+          .listing-ikon svg { width: 24px; height: 24px; }
+          .listing-ust__baslik { font-size: 22px; line-height: 27px; }
+          .listing-ust__ozet { font-size: 14px; margin-top: 2px; }
         }
         .listing-icon-box {
           width: 64px;
@@ -430,34 +445,33 @@ export default function ListingLayout(props: ListingLayoutProps) {
         }
       `}</style>
 
-      {/* ── ÜST BAŞLIK — açık, sade (koyu gradyan + partikül kaldırıldı) ── */}
-      {/* overflow:hidden — stat şeridinin negatif marj taşmasını kırpar (mobilde yatay kaydırma olmasın) */}
-      <div style={{ background: '#FFFFFF', borderBottom: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>
-        {/* Breadcrumb */}
-        <div className="listing-breadcrumb" style={{ borderBottom: '1px solid var(--border)', padding: '11px 0' }}>
-          <div className="container" style={{ display: 'flex', gap: 6, fontSize: 12.5, flexWrap: 'wrap', alignItems: 'center' }}>
+      {/* ── ÜST BAŞLIK — tek beyaz bant: yol + ikon + başlık + özet ── */}
+      <div className="listing-ust">
+        <div className="container listing-ust__ic">
+          {/* Breadcrumb — başlıkla aynı blokta, ayrı şerit değil */}
+          <nav className="listing-ust__yol" aria-label="Sayfa yolu">
             {breadcrumb.map((b, i) => (
               <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {i > 0 && <span style={{ color: '#C7C7CC', display: 'flex' }}><IcChevronRight /></span>}
                 {i === breadcrumb.length - 1
-                  ? <span style={{ color: 'var(--text)', fontWeight: 600 }}>{b.label}</span>
-                  : <Link href={b.href} style={{ color: 'var(--muted)', fontWeight: 500 }}>{b.label}</Link>}
+                  ? <span style={{ color: 'var(--ink-secondary)', fontWeight: 500 }}>{b.label}</span>
+                  : <Link href={b.href} style={{ color: 'var(--ink-tertiary)', fontWeight: 500 }}>{b.label}</Link>}
               </span>
             ))}
-          </div>
-        </div>
+          </nav>
 
-        {/* Başlık paneli — tek CategoryHero: başlık + sayı kapsülleri */}
-        <div className="container listing-hero-container">
-          <div className="hk-cathero listing-cathero">
-            {/* Kategori ikonu — hareketli ikon setinden; kutunun üzerine gelince oynar */}
+          {/* Başlık satırı: ikon + başlık + tek satır özet (kapsül yok) */}
+          <div className="listing-ust__satir">
             <div className="listing-ikon" data-hk-hover aria-hidden="true">{icon}</div>
-            <div className="hk-cathero__body">
-              <h1 className="hk-cathero__title hk-cathero__title--sm">{title}</h1>
-              <div className="hk-cathero__stats">
-                <span className="hk-pill"><b>{count.toLocaleString('tr')}</b> {entityLabelPlural}</span>
-                {cityCount !== undefined && <span className="hk-pill"><b>{cityCount}</b> şehir</span>}
-              </div>
+            <div style={{ minWidth: 0 }}>
+              <h1 className="listing-ust__baslik">{title}</h1>
+              <p className="listing-ust__ozet">
+                <b>{count.toLocaleString('tr')}</b> {entityLabelPlural}
+                {/* İl seçiliyken "şehir" sayısı anlamsız — yalnız tüm Türkiye görünümünde */}
+                {cityCount !== undefined && !activeFilters.il && (
+                  <><span className="listing-ust__nokta" aria-hidden="true" /><b>{cityCount}</b> şehir</>
+                )}
+              </p>
             </div>
           </div>
         </div>
