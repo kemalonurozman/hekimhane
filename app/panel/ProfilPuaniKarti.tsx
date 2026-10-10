@@ -4,7 +4,7 @@
 // yalnız arama sonuçlarındaki sırayı ve ana sayfa öne çıkanlarını etkiler.
 // Kalem kalem neyin tamam, neyin eksik olduğunu ve eksiğin kaç puan getireceğini gösterir.
 import { useEffect, useState } from 'react';
-import { ONE_CIKAN_ESIK, puanSeviyesi, type PuanKalemi } from '@/lib/profil-puani';
+import { puanSeviyesi, type PuanKalemi } from '@/lib/profil-puani';
 
 interface Profil { entity_id: string; entity_type: string; entity_name: string; puan: number; kalemler: PuanKalemi[] }
 
@@ -33,6 +33,7 @@ export default function ProfilPuaniKarti({ aktifEntityId, onGit }: { aktifEntity
   if (!profiller || profiller.length === 0) return null;   // yüklenirken / klinik-doktor profili yoksa kart yok
   const p = profiller.find(x => x.entity_id === String(aktifEntityId || '')) || profiller[0];
   const sev = puanSeviyesi(p.puan);
+  const gorselVar = (p.kalemler.find(k => k.anahtar === 'ana-gorsel')?.puan || 0) > 0;
   const eksikler = p.kalemler.filter(k => k.puan < k.max).sort((a, b) => (b.max - b.puan) - (a.max - a.puan));
   const tamamlar = p.kalemler.filter(k => k.puan >= k.max);
   const R = 34, CEVRE = 2 * Math.PI * R;
@@ -59,7 +60,7 @@ export default function ProfilPuaniKarti({ aktifEntityId, onGit }: { aktifEntity
           </div>
           <div style={{ fontSize: 12.5, color: '#6E6E73', marginTop: 4, lineHeight: 1.55 }}>
             <b style={{ color: '#1D1D1F', fontWeight: 600 }}>{p.entity_name}</b> · 100 üzerinden. Puanınız yükseldikçe arama sonuçlarında daha üst sıralarda görünürsünüz
-            {p.puan >= ONE_CIKAN_ESIK ? '; şu an ana sayfa öne çıkanları için yeterli puandasınız.' : `; ${ONE_CIKAN_ESIK} puana ulaşınca ana sayfada öne çıkanlara aday olursunuz.`}
+            {gorselVar ? '. Ana sayfadaki öne çıkanlar bölümüne adaysınız; oradaki sıranız da bu puana göre belirlenir.' : '. Logonuzu veya profil fotoğrafınızı yükleyince ana sayfadaki öne çıkanlar bölümüne aday olursunuz.'}
           </div>
           <div style={{ fontSize: 11.5, color: '#8E8E93', marginTop: 5 }}>Bu puanı yalnızca siz görürsünüz; ziyaretçilere gösterilmez.</div>
         </div>

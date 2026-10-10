@@ -109,8 +109,6 @@ export function puanSeviyesi(puan: number): { ad: string; renk: string } {
   return { ad: 'Başlangıç', renk: '#8B93A1' };
 }
 
-/** Ana sayfa "öne çıkanlar"a girmek için gereken en düşük puan (Pro üyeler bundan bağımsız). */
-export const ONE_CIKAN_ESIK = 60;
 
 /** Satırı tarayıcıya göndermeden önce puan alanını düşürür — puan sayfa kaynağında da görünmesin.
  *  `select('*')` ile çekilip client bileşene (kart) verilen her satırda kullan. */

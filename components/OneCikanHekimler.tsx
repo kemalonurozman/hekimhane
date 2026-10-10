@@ -9,6 +9,8 @@ export type PremiumItem = {
   premium?: boolean;
   /** Yalnız sunucuda sıralama için (profil puanı) — arayüzde ASLA gösterilmez. */
   sira?: number;
+  /** Yalnız sunucuda sıralama için (son güncelleme) — tarayıcıya gönderilmez. */
+  guncel?: number;
   tip: 'klinik' | 'doktor';
   ad: string;
   altbaslik: string;
@@ -66,7 +68,7 @@ export default function OneCikanHekimler({ items }: { items: PremiumItem[] }) {
         </div>
 
         <div className="ocp-grid">
-          {items.slice(0, 9).map((it, idx) => (
+          {items.slice(0, 12).map((it, idx) => (
             <Link key={idx} href={it.href} className="ocp-item">
               <div className="ocp-ph">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
