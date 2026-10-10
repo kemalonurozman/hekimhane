@@ -1,3 +1,4 @@
+import { puanGuncelle } from '@/lib/profil-puani-sunucu';
 import { NextResponse, type NextRequest } from 'next/server';
 import { panelOturum } from '@/lib/panel-oturum';
 import { createServerClient } from '@supabase/ssr';
@@ -70,6 +71,7 @@ export async function POST(request: NextRequest) {
       .update(updateData)
       .eq('id', yorumId);
 
+    if (!updateErr) await puanGuncelle(admin, String(yorum.entity_type), String(yorum.entity_id));   // yanıt oranı profil puanını etkiler
     if (updateErr) {
       // reply_text kolonu eksikse açık hata mesajı ver
       const msg = updateErr.message?.includes('reply_text') || updateErr.message?.includes('column')

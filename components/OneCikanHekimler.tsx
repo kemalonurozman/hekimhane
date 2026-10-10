@@ -5,6 +5,10 @@ import SafeLogo from '@/components/SafeLogo';
 import { basHarfler } from '@/lib/hk';
 
 export type PremiumItem = {
+  /** Pro üye mi (altın mühür yalnız bunlarda). Yoksa true sayılır — eski çağrılarla uyum. */
+  premium?: boolean;
+  /** Yalnız sunucuda sıralama için (profil puanı) — arayüzde ASLA gösterilmez. */
+  sira?: number;
   tip: 'klinik' | 'doktor';
   ad: string;
   altbaslik: string;
@@ -53,7 +57,7 @@ export default function OneCikanHekimler({ items }: { items: PremiumItem[] }) {
               Öne Çıkan Üyeler
             </p>
             <h2 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-0.8px', color: '#1A335E', margin: 0 }}>
-              Premium Diş Hekimleri &amp; Klinikler
+              Diş Hekimleri &amp; Klinikler
             </h2>
           </div>
           <Link href="/klinikler" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600, color: '#1A335E', textDecoration: 'none', flexShrink: 0 }}>
@@ -70,9 +74,9 @@ export default function OneCikanHekimler({ items }: { items: PremiumItem[] }) {
                 <SafeLogo src={it.foto} alt={it.ad} fallback={<div className="ocp-init" aria-hidden="true">{basHarfler(it.ad)}</div>} />
 
                 {/* Altın yıldız mührü (profildeki gibi) — "premium" yazısı yerine */}
-                <span title="Premium üye" style={{ position: 'absolute', top: 11, left: 11, width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg,#EAC86B,#B8892F)', border: '2px solid rgba(255,255,255,.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,.28)' }}>
+                {it.premium !== false && <span title="Premium üye" style={{ position: 'absolute', top: 11, left: 11, width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg,#EAC86B,#B8892F)', border: '2px solid rgba(255,255,255,.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,.28)' }}>
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.8 5.9 20.4l1.5-6.8L2.2 9l6.9-.7z" /></svg>
-                </span>
+                </span>}
               </div>
               <div style={{ padding: '16px 18px 18px', display: 'flex', flexDirection: 'column', flex: 1 }}>
                 <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--gold-text)', marginBottom: 6 }}>

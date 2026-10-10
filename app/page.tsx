@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import KategoriKartlari from '@/components/KategoriKartlari';
 import HeroAnimated from '@/components/HeroAnimated';
+import { ONE_CIKAN_ESIK } from '@/lib/profil-puani';
 import HkIconAnim from '@/components/HkIconAnim';
 import HastalikRehberiSection from '@/components/HastalikRehberiSection';
 import OneCikanHekimler, { type PremiumItem } from '@/components/OneCikanHekimler';
@@ -72,7 +73,17 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
       supabase.from('klinikler').select('*').eq('premium', true).limit(10),
       supabase.from('doktorlar').select('*').eq('premium', true).not('tags', 'cs', '{devlet-dis-hastanesi}').limit(10),
     ]);
-    const klinikler: PremiumItem[] = (kRes.data as any[] || [])
+    // Pro'lardan sonra: profil puanı en yüksek, sahiplenilmiş profiller (puan ziyaretçiye gösterilmez).
+    // Kolon yoksa (migration çalışmadıysa) sorgu hata döner → liste yalnız Pro'larla kalır.
+    const [kpRes, dpRes] = await Promise.all([
+      (supabase as any).from('klinikler').select('*').eq('claimed', true).neq('premium', true).gte('profil_puani', ONE_CIKAN_ESIK)
+        .order('profil_puani', { ascending: false }).order('rat', { ascending: false }).limit(9),
+      (supabase as any).from('doktorlar').select('*').eq('claimed', true).neq('premium', true).gte('profil_puani', ONE_CIKAN_ESIK)
+        .not('tags', 'cs', '{devlet-dis-hastanesi}').order('profil_puani', { ascending: false }).order('rat', { ascending: false }).limit(9),
+    ]);
+    const kPuanli = (kpRes.error ? [] : kpRes.data || []) as any[];
+    const dPuanli = (dpRes.error ? [] : dpRes.data || []) as any[];
+    const klinikler: PremiumItem[] = [...(kRes.data as any[] || []), ...kPuanli]
       .filter(k => k.slug && k.il && k.ilce)
       .map(k => ({
         tip: 'klinik' as const,
@@ -83,8 +94,9 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
         foto: k.logo || (k.photos || [])[0] || null,
         href: `/klinikler/${toSlug(k.il)}/${toSlug(k.ilce)}/${k.slug}`,
         rat: Number(k.rat) || 0, rev: Number(k.rev) || 0,
+        premium: k.premium === true, sira: Number(k.profil_puani) || 0,
       }));
-    const doktorlar: PremiumItem[] = (dRes.data as any[] || [])
+    const doktorlar: PremiumItem[] = [...(dRes.data as any[] || []), ...dPuanli]
       .filter(d => d.slug)
       .map(d => ({
         tip: 'doktor' as const,
@@ -95,12 +107,16 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
         foto: d.photo || (d.photos || [])[0] || null,
         href: `/doktorlar/${d.slug}`,
         rat: Number(d.rat) || 0, rev: Number(d.rev) || 0,
+        premium: d.premium === true, sira: Number(d.profil_puani) || 0,
       }));
     // Ölü görseller (süresi dolan Google Places URL'leri → 403) sunucuda ayıklanır:
     // SSR standart illüstrasyonu basar, tarayıcıda "?" anı hiç olmaz. Kısa
     // zaman aşımı — yavaş bir CDN ana sayfayı bekletmesin (o durumda görsel kalır,
     // istemcideki SafeLogo yine yakalar).
-    const hepsi = [...klinikler, ...doktorlar];
+    // Pro üyeler en önde; ardından profil puanına göre (klinik/doktor karışık), en fazla 9 kart
+    const hepsi = [...klinikler, ...doktorlar]
+      .sort((a, b) => (Number(b.premium) - Number(a.premium)) || ((b.sira || 0) - (a.sira || 0)) || (b.rat - a.rat))
+      .slice(0, 9);
     await Promise.all(hepsi.map(async it => {
       if (!it.foto || it.foto.startsWith('/')) return;
       try {
@@ -108,7 +124,8 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
         if (r.status === 403 || r.status === 404 || r.status === 410) it.foto = null;
       } catch { /* zaman aşımı/ağ — görseli bırak, istemci yedeği çalışır */ }
     }));
-    return hepsi;
+    // Puan tarayıcıya gitmez: sıralama bitti, alan düşürülür
+    return hepsi.map(({ sira: _sira, ...it }) => it);
   } catch { return []; }
 }
 

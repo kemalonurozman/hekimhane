@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+import { puansiz } from '@/lib/profil-puani';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -298,7 +299,7 @@ export default async function DisTedaviPage({ params }: Props) {
                       ? <>{y.klinik.ilce ? `${y.klinik.ilce}, ` : ''}{y.klinik.il} — aynı il</>
                       : <>{y.klinik.il} — {yerBaslik}&apos;a yaklaşık {y.km} km</>}
                   </div>
-                  <KlinikCard klinik={y.klinik} />
+                  <KlinikCard klinik={puansiz(y.klinik)} />
                 </div>
               ))}
             </div>
@@ -312,7 +313,7 @@ export default async function DisTedaviPage({ params }: Props) {
           </h2>
         )}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {sorted.map(k => <KlinikCard key={k.id} klinik={k} />)}
+          {sorted.map(k => <KlinikCard key={k.id} klinik={puansiz(k)} />)}
         </div>
 
         {/* İç linkleme: aynı yerde diğer uzmanlıklar */}

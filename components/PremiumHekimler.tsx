@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import type { Klinik } from '@/lib/types';
 import KlinikCard from '@/components/KlinikCard';
+import { puansiz } from '@/lib/profil-puani';
 
 /**
  * Hastalık/tedavi sayfalarının altında gösterilen "Önerilen Diş Hekimleri" bölümü.
@@ -41,7 +42,7 @@ export default async function PremiumHekimler({ uzmanlik, limit = 3 }: { uzmanli
         </p>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14, marginTop: 14 }}>
-        {secili.map(k => <KlinikCard key={k.id} klinik={k} />)}
+        {secili.map(k => <KlinikCard key={k.id} klinik={puansiz(k)} />)}
       </div>
     </section>
   );

@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+import { puansiz } from '@/lib/profil-puani';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -121,7 +122,7 @@ export default async function IlceKlinikPage({ params }: Props) {
 
       <div className="container" style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 16px 48px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {sorted.map(k => <KlinikCard key={k.id} klinik={k} />)}
+          {sorted.map(k => <KlinikCard key={k.id} klinik={puansiz(k)} />)}
         </div>
 
         {availSpecs.length > 0 && (

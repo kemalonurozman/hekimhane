@@ -1,5 +1,6 @@
 'use client';
 
+import ProfilPuaniKarti from './ProfilPuaniKarti';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
@@ -701,7 +702,7 @@ export default function PanelPage() {
         {tab === 'dashboard' && !sadeceAsistan && asistanClaims.length > 0 && (
           <AsistanErisimKarti kayitlar={asistanClaims} onGit={setTab} />
         )}
-        {tab === 'dashboard' && !sadeceAsistan && <DashboardTab user={user} claims={basvurular} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { aktifSec(c.id); setTab('edit'); }} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} onRelease={handleRelease} releasingId={releasingId} />}
+        {tab === 'dashboard' && !sadeceAsistan && <DashboardTab ustEk={approvedClaims.length > 0 ? <ProfilPuaniKarti key={aktifKey} aktifEntityId={aktifClaim?.entity_id} onGit={(t, eid) => { const c = approvedClaims.find(x => String(x.entity_id) === eid); if (c) aktifSec(c.id); setTab(t as any); }} /> : null} user={user} claims={basvurular} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { aktifSec(c.id); setTab('edit'); }} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} onRelease={handleRelease} releasingId={releasingId} />}
         {tab === 'claims'    && <ClaimsTab claims={basvurular} loading={claimsLoading} onNewClaim={() => setTab('new')} profileUrls={profileUrls} onDeleted={() => loadClaims(user?.email || '')} />}
         {tab === 'profile'   && <ProfileTab user={user} approvedClaims={approvedClaims} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} />}
         {tab === 'new'       && <NewClaimTab user={user} onSuccess={() => { loadClaims(user?.email || ''); setTab('claims'); }} />}
@@ -773,7 +774,7 @@ export default function PanelPage() {
 /* ═══════════════════════════════════════════════
    DASHBOARD
 ═══════════════════════════════════════════════ */
-function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoading, onTabChange, profileUrls, onEditClaim, premiumMap, subsMap, onManage, managingId, onRelease, releasingId }: { user: User | null; claims: ClaimRequest[]; approvedClaims: ClaimRequest[]; pendingClaims: ClaimRequest[]; claimsLoading: boolean; onTabChange: (t: any) => void; profileUrls: Record<string, string>; onEditClaim: (c: ClaimRequest) => void; premiumMap: Record<string, boolean>; subsMap: Record<string, SubInfo>; onManage: (claimId: string, entityType: string, entityId: string) => void; managingId: string | null; onRelease: (claimId: string, entityName: string) => void; releasingId: string | null }) {
+function DashboardTab({ ustEk, user, claims, approvedClaims, pendingClaims, claimsLoading, onTabChange, profileUrls, onEditClaim, premiumMap, subsMap, onManage, managingId, onRelease, releasingId }: { ustEk?: React.ReactNode; user: User | null; claims: ClaimRequest[]; approvedClaims: ClaimRequest[]; pendingClaims: ClaimRequest[]; claimsLoading: boolean; onTabChange: (t: any) => void; profileUrls: Record<string, string>; onEditClaim: (c: ClaimRequest) => void; premiumMap: Record<string, boolean>; subsMap: Record<string, SubInfo>; onManage: (claimId: string, entityType: string, entityId: string) => void; managingId: string | null; onRelease: (claimId: string, entityName: string) => void; releasingId: string | null }) {
   const name = user?.user_metadata?.full_name || user?.user_metadata?.name || 'Kullanıcı';
   return (
     <div>
@@ -792,6 +793,9 @@ function DashboardTab({ user, claims, approvedClaims, pendingClaims, claimsLoadi
             iconKey="shield" color={proVar ? T.gold : '#7C3AED'} />;
         })()}
       </div>
+
+      {/* Profil puanı — yalnız sahibine görünür */}
+      {ustEk}
 
       {approvedClaims.length > 0 && (
         <div style={{ background: T.white, borderRadius: 16, border: `1px solid ${T.border}`, marginBottom: 20, overflow: 'hidden' }}>

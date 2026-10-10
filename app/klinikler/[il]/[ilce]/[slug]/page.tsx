@@ -1,3 +1,4 @@
+import { puansiz } from '@/lib/profil-puani';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -175,7 +176,7 @@ export default async function KlinikProfilPage({ params }: Props) {
       faq={faq}
       yorumlar={yorumlar}
       kartSlug={kartSlug}
-      hospitalDoctors={hospitalDoctors}
+      hospitalDoctors={(hospitalDoctors || []).map(puansiz)}
       listHref="/klinikler"
       breadcrumb={[
         { label: 'Ana Sayfa', href: '/' },

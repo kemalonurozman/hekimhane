@@ -1,3 +1,4 @@
+import { puanGuncelle } from '@/lib/profil-puani-sunucu';
 import { createServerClient } from '@supabase/ssr';
 import { panelOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
@@ -144,6 +145,9 @@ export async function POST(request: NextRequest) {
         : error.message;
       return NextResponse.json({ error: msg }, { status: 500 });
     }
+
+    // 4b. Profil puanını yeniden hesapla (liste sırası buna bakar). Best-effort.
+    await puanGuncelle(admin, entityType, String(entityId));
 
     // 5. Next.js cache temizle — liste ve profil sayfaları güncel veri göstersin
     const pathMap: Record<string, string> = {

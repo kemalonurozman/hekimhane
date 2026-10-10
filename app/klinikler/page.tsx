@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+import { puansiz } from '@/lib/profil-puani';
+import { puanKolonuVar, profilSirasi } from '@/lib/profil-puani-sunucu';
 import HkIconAnim from '@/components/HkIconAnim';
 import type { Metadata } from 'next';
 import { unstable_noStore as noStore, unstable_cache } from 'next/cache';
@@ -100,8 +102,9 @@ export async function generateMetadata(
 async function getKlinikler(filters: KlinikFilters) {
   noStore();
   const from = ((filters.page || 1) - 1) * PAGE_SIZE;
-  let query = supabase.from('klinikler').select('*', { count: 'exact' })
-    .order('rat', { ascending: false }).range(from, from + PAGE_SIZE - 1);
+  // Sıra: Pro → profil puanı → hasta puanı
+  let query = profilSirasi(supabase.from('klinikler').select('*', { count: 'exact' }), await puanKolonuVar(supabase))
+    .range(from, from + PAGE_SIZE - 1);
   if (filters.il)       query = query.eq('il', filters.il);
   if (filters.ilce)     query = query.eq('ilce', filters.ilce);
   if (filters.tip)      query = query.eq('type', filters.tip);
@@ -232,9 +235,8 @@ const getKonumlar = unstable_cache(async (filters: KlinikFilters) => {
 async function getDoktorBucket(filters: KlinikFilters, tag: string) {
   noStore();
   const from = ((filters.page || 1) - 1) * PAGE_SIZE;
-  let q = supabase.from('doktorlar').select('*', { count: 'exact' })
-    .contains('tags', [tag])
-    .order('rat', { ascending: false }).range(from, from + PAGE_SIZE - 1);
+  let q = profilSirasi(supabase.from('doktorlar').select('*', { count: 'exact' })
+    .contains('tags', [tag]), await puanKolonuVar(supabase)).range(from, from + PAGE_SIZE - 1);
   if (filters.il)       q = q.eq('il', filters.il);
   if (filters.ilce)     q = q.eq('ilce', filters.ilce);
   if (filters.uzmanlik) q = q.eq('spec', filters.uzmanlik);
@@ -321,10 +323,11 @@ async function getHepsi(filters: KlinikFilters) {
     if (filters.q) q = hekimAra(q, filters.q);
     return q;
   };
+  const puanli = await puanKolonuVar(supabase);
   const [kl, dv, uni, kc, dc, uc] = await Promise.all([
-    applyK(supabase.from('klinikler').select('*').order('rat', { ascending: false }).range(0, need - 1)),
-    applyD(supabase.from('doktorlar').select('*').contains('tags', [DEVLET_TAG]).order('rat', { ascending: false }).range(0, need - 1)),
-    applyD(supabase.from('doktorlar').select('*').contains('tags', [UNI_TAG]).order('rat', { ascending: false }).range(0, need - 1)),
+    applyK(profilSirasi(supabase.from('klinikler').select('*'), puanli).range(0, need - 1)),
+    applyD(profilSirasi(supabase.from('doktorlar').select('*').contains('tags', [DEVLET_TAG]), puanli).range(0, need - 1)),
+    applyD(profilSirasi(supabase.from('doktorlar').select('*').contains('tags', [UNI_TAG]), puanli).range(0, need - 1)),
     applyK(supabase.from('klinikler').select('id', { count: 'exact', head: true })),
     applyD(supabase.from('doktorlar').select('id', { count: 'exact', head: true }).contains('tags', [DEVLET_TAG])),
     applyD(supabase.from('doktorlar').select('id', { count: 'exact', head: true }).contains('tags', [UNI_TAG])),
@@ -335,15 +338,18 @@ async function getHepsi(filters: KlinikFilters) {
     return ad.replace(/^(uzm\.?|dr\.?|dt\.?|prof\.?|doç\.?|diş hekimi)\s*/g, '').startsWith(aranan) || ad.startsWith(aranan);
   };
   const merged = [
-    ...((kl.data || []) as Klinik[]).map(k => ({ kind: 'klinik' as const, rat: k.rat || 0, data: k })),
-    ...((dv.data || []) as Doktor[]).map(d => ({ kind: 'doktor' as const, rat: d.rat || 0, data: d })),
-    ...((uni.data || []) as Doktor[]).map(d => ({ kind: 'doktor' as const, rat: d.rat || 0, data: d })),
+    ...((kl.data || []) as Klinik[]).map(k => ({ kind: 'klinik' as const, rat: k.rat || 0, pro: k.premium ? 1 : 0, puan: Number((k as any).profil_puani) || 0, data: k })),
+    ...((dv.data || []) as Doktor[]).map(d => ({ kind: 'doktor' as const, rat: d.rat || 0, pro: (d as any).premium ? 1 : 0, puan: Number((d as any).profil_puani) || 0, data: d })),
+    ...((uni.data || []) as Doktor[]).map(d => ({ kind: 'doktor' as const, rat: d.rat || 0, pro: (d as any).premium ? 1 : 0, puan: Number((d as any).profil_puani) || 0, data: d })),
   ].sort((a, b) => {
     // Arama varken en iyi eşleşme üstte: adı yazılanla başlayan kayıt, türü ne olursa olsun öne gelir
     if (aranan) {
       const pa = adBaslar(a), pb = adBaslar(b);
       if (pa !== pb) return pa ? -1 : 1;
     }
+    // Pro üyeler en önde, sonra profil puanı yüksek olanlar (puan ziyaretçiye gösterilmez)
+    if (a.pro !== b.pro) return b.pro - a.pro;
+    if (a.puan !== b.puan) return b.puan - a.puan;
     // Özel klinikler önceliklidir → her zaman üstte; sonra devlet/üniversite hastanesi
     // hekimleri. Grup içinde puana göre sıralanır.
     if (a.kind !== b.kind) return a.kind === 'klinik' ? -1 : 1;
@@ -548,8 +554,8 @@ export default async function KliniklerPage(
               <span style={{ fontSize: 13.5, color: '#6B5B2E', lineHeight: 1.55 }}>{fallback.note}</span>
             </div>
             {fallback.items.map(it => it.kind === 'klinik'
-              ? <KlinikCard key={`fk-${it.data.id}`} klinik={it.data as Klinik} />
-              : <DoktorCard key={`fd-${it.data.id}`} doktor={it.data as Doktor} />)}
+              ? <KlinikCard key={`fk-${it.data.id}`} klinik={puansiz(it.data as Klinik)} />
+              : <DoktorCard key={`fd-${it.data.id}`} doktor={puansiz(it.data as Doktor)} />)}
           </div>
         ) : (
           <EmptyState href="/klinikler" />
@@ -557,8 +563,8 @@ export default async function KliniklerPage(
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {items.map(it => it.kind === 'klinik'
-            ? <KlinikCard key={`k-${it.data.id}`} klinik={it.data as Klinik} />
-            : <DoktorCard key={`d-${it.data.id}`} doktor={it.data as Doktor} />)}
+            ? <KlinikCard key={`k-${it.data.id}`} klinik={puansiz(it.data as Klinik)} />
+            : <DoktorCard key={`d-${it.data.id}`} doktor={puansiz(it.data as Doktor)} />)}
         </div>
       )}
     </ListingLayout>

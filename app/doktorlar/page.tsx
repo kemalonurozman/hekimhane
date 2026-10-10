@@ -1,4 +1,6 @@
 export const dynamic = 'force-dynamic';
+import { puansiz } from '@/lib/profil-puani';
+import { puanKolonuVar, profilSirasi } from '@/lib/profil-puani-sunucu';
 import HkIconAnim from '@/components/HkIconAnim';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
@@ -48,8 +50,9 @@ const DIL_SECENEKLERI = ['Türkçe', 'İngilizce', 'Fransızca', 'Arapça', 'Rus
 
 async function getDoktorlar(filters: Record<string, string | undefined> & { page?: number }) {
   const from = ((filters.page || 1) - 1) * PAGE_SIZE;
-  let query = supabase.from('doktorlar').select('*', { count: 'exact' })
-    .order('rat', { ascending: false }).range(from, from + PAGE_SIZE - 1);
+  // Sıra: Pro → profil puanı → hasta puanı
+  let query = profilSirasi(supabase.from('doktorlar').select('*', { count: 'exact' }), await puanKolonuVar(supabase))
+    .range(from, from + PAGE_SIZE - 1);
   // Diş hekimlerini hariç tut
   query = (query as any).not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
   if (filters.il)     query = query.eq('il', filters.il);
@@ -193,7 +196,7 @@ export default async function DoktorlarPage(
         <EmptyState href="/doktorlar" />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {doktorlar.map(d => <DoktorCard key={d.id} doktor={d} />)}
+          {doktorlar.map(d => <DoktorCard key={d.id} doktor={puansiz(d)} />)}
         </div>
       )}
     </ListingLayout>

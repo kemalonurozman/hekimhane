@@ -1,3 +1,4 @@
+import { puansiz } from '@/lib/profil-puani';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -138,7 +139,7 @@ export default async function HastaneProfilPage({ params }: Props) {
       acik_24_saat={h.acik_24_saat}
       randevuAktif={(h as any).randevu_aktif} randevuSlotDk={(h as any).randevu_slot_dk} bookedSlots={rvBooked}
       yorumlar={yorumlar}
-      hospitalDoctors={hospitalDoctors}
+      hospitalDoctors={(hospitalDoctors || []).map(puansiz)}
       kartSlug={kartSlug}
       listHref="/hastaneler"
       breadcrumb={[
