@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import KurumRozeti from '@/components/KurumRozeti';
 import type { Klinik } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
@@ -44,6 +45,7 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
           <h3 className="hk-doctor__name">
             <Link href={profileUrl} onClick={e => e.stopPropagation()} style={{ color: 'inherit' }}>{k.name}</Link>
           </h3>
+          <KurumRozeti kurum={k.kurum || 'ozel'} />
           {k.premium && <span className="hk-badge hk-badge--premium">PREMIUM</span>}
         </div>
 
@@ -61,8 +63,8 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
               {[konum, adres].filter(Boolean).join(' · ')}
             </span>
           )}
-          {/* Kurum türü etiket değil, meta satırında */}
-          {k.type && <span>{k.type}</span>}
+          {/* Özel/Devlet/Üniversite başlıktaki rozette; burada yalnız farklı bir tür adı varsa */}
+          {k.type && !/^(özel|devlet|üniversite)$/i.test(k.type.trim()) && <span>{k.type}</span>}
           {k.rev > 0 && (
             <span className="hk-doctor__rating">
               <i className="fa-solid fa-star hk-icon" style={{ fontSize: 14 }} />

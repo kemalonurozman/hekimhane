@@ -6,6 +6,7 @@ import type { Doktor } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
 import HkAvatar from '@/components/HkAvatar';
+import KurumRozeti, { kurumBul } from '@/components/KurumRozeti';
 import { puanYaz, AZ_DEGERLENDIRME_SINIRI } from '@/lib/hk';
 
 // İç etiketler (devlet-dis-hastanesi vb.) ziyaretçiye gösterilmez
@@ -20,7 +21,9 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
   const router = useRouter();
 
   const fullName    = `${d.ad} ${d.soyad}`.trim();
-  const displayName = d.unvan ? `${d.unvan} ${fullName}` : fullName;
+  // Unvan adın başında zaten yazıyorsa tekrar eklenmez ("Dt. Dt. …" olmasın)
+  const unvanVar = !!d.unvan && fullName.toLocaleLowerCase('tr').startsWith(d.unvan.toLocaleLowerCase('tr'));
+  const displayName = d.unvan && !unvanVar ? `${d.unvan} ${fullName}` : fullName;
   const profileUrl  = d.slug ? `/doktorlar/${d.slug}` : `/doktorlar/${d.id}`;
 
   // Branş + görünür etiketler tek stil; branş ilk sırada, tekrar yok
@@ -47,6 +50,7 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
           <h3 className="hk-doctor__name">
             <Link href={profileUrl} onClick={e => e.stopPropagation()} style={{ color: 'inherit' }}>{displayName}</Link>
           </h3>
+          <KurumRozeti kurum={kurumBul((d as any).tags)} />
           {d.premium && <span className="hk-badge hk-badge--premium">PREMIUM</span>}
         </div>
 

@@ -20,6 +20,29 @@ const uzmanlikOverlap = (uzmanlik: string) => specFilterValues(synonymsForSpec(u
 // Kurum türü — özel=klinikler tablosu; devlet/üniversite=doktorlar tablosu (etiketle)
 const DEVLET_TAG = 'devlet-dis-hastanesi';
 const UNI_TAG = 'universite-dis-hastanesi';
+// Arama metni → kelimeler. Her kelime ayrı ayrı eşleşmeli (VE), böylece "ahmet yıl" yazınca
+// adı Ahmet, soyadı Yıl… olan hekime kadar daralır. PostgREST .or() sözdizimini bozan
+// karakterler (virgül, parantez, %, *) ayıklanır.
+function aramaKelimeleri(q?: string): string[] {
+  return (q || '').replace(/[,()%*\\"']/g, ' ').split(/\s+/).filter(Boolean).slice(0, 5);
+}
+// Kelime BAŞI eşleşmesi: "y" yazınca adında herhangi bir yerde y geçenler değil, bir kelimesi
+// y ile başlayanlar gelir ("Dt.Ahmet" gibi noktaya bitişik yazımlar için ".w" de sayılır).
+const basla = (kolon: string, w: string) => `${kolon}.ilike.${w}%,${kolon}.ilike.% ${w}%,${kolon}.ilike.%.${w}%`;
+function hekimAra(q: any, metin?: string) {
+  for (const w of aramaKelimeleri(metin)) {
+    // Branş yalnız 3+ harfte aranır — tek harf her şeyi eşleştirmesin. Kurum adı aranmaz:
+    // "Mehmet … Hastanesi"ndeki tüm hekimler "mehmet" aramasına düşüyordu.
+    const ek = w.length >= 3 ? `,spec.ilike.%${w}%` : '';
+    q = q.or(`${basla('ad', w)},${basla('soyad', w)}${ek}`);
+  }
+  return q;
+}
+function klinikAra(q: any, metin?: string) {
+  for (const w of aramaKelimeleri(metin)) q = q.or(basla('name', w));
+  return q;
+}
+
 const KURUM_VALS = ['ozel', 'devlet', 'universite', 'hepsi'] as const;
 // Yabancı dil filtresi (klinikler.yabanci_diller ile eşleşir)
 const KLINIK_DIL_SECENEKLERI = ['Türkçe', 'İngilizce', 'Fransızca', 'Arapça', 'Rusça', 'Ukraynaca', 'Azerice']
@@ -215,7 +238,7 @@ async function getDoktorBucket(filters: KlinikFilters, tag: string) {
   if (filters.il)       q = q.eq('il', filters.il);
   if (filters.ilce)     q = q.eq('ilce', filters.ilce);
   if (filters.uzmanlik) q = q.eq('spec', filters.uzmanlik);
-  if (filters.q)        q = (q as any).or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%,spec.ilike.%${filters.q}%`);
+  if (filters.q)        q = hekimAra(q, filters.q);
   const { data, count, error } = await q;
   if (error) console.error(error);
   return { data: (data || []) as Doktor[], count: count || 0 };
@@ -288,14 +311,14 @@ async function getHepsi(filters: KlinikFilters) {
     if (filters.il) q = q.eq('il', filters.il);
     if (filters.ilce) q = q.eq('ilce', filters.ilce);
     if (filters.uzmanlik) q = (q as any).overlaps('specs', uzmanlikOverlap(filters.uzmanlik));
-    if (filters.q) q = q.or(`name.ilike.%${filters.q}%,adres.ilike.%${filters.q}%`);
+    if (filters.q) q = klinikAra(q, filters.q);
     return q;
   };
   const applyD = (q: any) => {
     if (filters.il) q = q.eq('il', filters.il);
     if (filters.ilce) q = q.eq('ilce', filters.ilce);
     if (filters.uzmanlik) q = q.eq('spec', filters.uzmanlik);
-    if (filters.q) q = q.or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%,spec.ilike.%${filters.q}%`);
+    if (filters.q) q = hekimAra(q, filters.q);
     return q;
   };
   const [kl, dv, uni, kc, dc, uc] = await Promise.all([
@@ -306,11 +329,21 @@ async function getHepsi(filters: KlinikFilters) {
     applyD(supabase.from('doktorlar').select('id', { count: 'exact', head: true }).contains('tags', [DEVLET_TAG])),
     applyD(supabase.from('doktorlar').select('id', { count: 'exact', head: true }).contains('tags', [UNI_TAG])),
   ]);
+  const aranan = aramaKelimeleri(filters.q).join(' ').toLocaleLowerCase('tr');
+  const adBaslar = (x: { kind: 'klinik' | 'doktor'; data: any }) => {
+    const ad = (x.kind === 'klinik' ? String(x.data.name || '') : `${x.data.ad || ''} ${x.data.soyad || ''}`).toLocaleLowerCase('tr');
+    return ad.replace(/^(uzm\.?|dr\.?|dt\.?|prof\.?|doç\.?|diş hekimi)\s*/g, '').startsWith(aranan) || ad.startsWith(aranan);
+  };
   const merged = [
     ...((kl.data || []) as Klinik[]).map(k => ({ kind: 'klinik' as const, rat: k.rat || 0, data: k })),
     ...((dv.data || []) as Doktor[]).map(d => ({ kind: 'doktor' as const, rat: d.rat || 0, data: d })),
     ...((uni.data || []) as Doktor[]).map(d => ({ kind: 'doktor' as const, rat: d.rat || 0, data: d })),
   ].sort((a, b) => {
+    // Arama varken en iyi eşleşme üstte: adı yazılanla başlayan kayıt, türü ne olursa olsun öne gelir
+    if (aranan) {
+      const pa = adBaslar(a), pb = adBaslar(b);
+      if (pa !== pb) return pa ? -1 : 1;
+    }
     // Özel klinikler önceliklidir → her zaman üstte; sonra devlet/üniversite hastanesi
     // hekimleri. Grup içinde puana göre sıralanır.
     if (a.kind !== b.kind) return a.kind === 'klinik' ? -1 : 1;
@@ -368,7 +401,7 @@ async function getFallback(filters: KlinikFilters, limit = 5): Promise<{ items: 
 export default async function KliniklerPage(
   { searchParams }: { searchParams: Record<string, string> }
 ) {
-  const kurumSel = (KURUM_VALS as readonly string[]).includes(searchParams.kurum) ? searchParams.kurum : 'ozel';
+  const kurumSel = (KURUM_VALS as readonly string[]).includes(searchParams.kurum) ? searchParams.kurum : 'hepsi';   // ilk açılış: Hepsi (özel + devlet + üniversite)
   const filters: KlinikFilters = {
     il:       searchParams.il       || undefined,
     ilce:     searchParams.ilce     || undefined,
@@ -425,8 +458,7 @@ export default async function KliniklerPage(
 
   const kurumEtiket = kurumSel === 'devlet' ? 'Devlet Diş Hekimleri'
     : kurumSel === 'universite' ? 'Üniversite Diş Hekimleri'
-    : kurumSel === 'hepsi' ? 'Tüm Diş Klinikleri & Hekimleri'
-    : null;
+    : null;   // hepsi (varsayılan) → genel başlık
 
   const title = kurumEtiket ? (yer ? `${yer} ${kurumEtiket}` : kurumEtiket)
     : tipEtiket ? (yer ? `${yer} ${tipEtiket}` : `Tüm ${tipEtiket}`)
@@ -464,7 +496,7 @@ export default async function KliniklerPage(
     <ListingLayout
       basePath="/klinikler"
       entityLabel="klinik"
-      entityLabelPlural="klinik"
+      entityLabelPlural={kurumSel === 'ozel' ? 'klinik' : isDoc ? 'hekim' : 'klinik ve hekim'}
       color="#1A335E"
       gradient="linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%)"
       icon={<HkIconAnim name="dentistry" size={36} playOnView />}
@@ -494,7 +526,7 @@ export default async function KliniklerPage(
         { key: 'dil',      label: 'Konuşulan Dil', type: 'radio', render: 'chips', options: KLINIK_DIL_SECENEKLERI },
       ]}
       activeFilters={{ kurum: kurumSel, il: filters.il, ilce: filters.ilce, uzmanlik: filters.uzmanlik, tip: filters.tip, dil: filters.dil, q: filters.q }}
-      hasActiveFilters={!!(filters.il || filters.ilce || filters.uzmanlik || filters.tip || filters.dil || filters.q || kurumSel !== 'ozel')}
+      hasActiveFilters={!!(filters.il || filters.ilce || filters.uzmanlik || filters.tip || filters.dil || filters.q || kurumSel !== 'hepsi')}
       markers={konumlar.map((k: any) => {
         const isKlinik = !isDoc;
         const nm = isKlinik ? k.name : `${k.ad || ''} ${k.soyad || ''}`.trim();

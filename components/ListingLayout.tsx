@@ -17,7 +17,7 @@ export interface FilterSection {
   type: 'radio' | 'checkbox' | 'search';
   options?: FilterOption[];
   placeholder?: string;
-  hideAll?: boolean; // "Tümü" seçeneğini gizle (ör. kurum: varsayılan Özel seçili)
+  hideAll?: boolean; // "Tümü" seçeneğini gizle (ör. kurum: kendi "Hepsi" seçeneği var, varsayılan o)
   render?: 'chips'; // sabit/kısa seçenekler için tıklanabilir çip görünümü (ör. Yabancı Dil)
 }
 
@@ -210,7 +210,8 @@ export default function ListingLayout(props: ListingLayoutProps) {
   const clearAll = () => router.push(basePath);
 
   const activeChips = filterSections
-    .filter(s => activeFilters[s.key])
+    // "Hepsi" bir filtre değildir (kurum varsayılanı) → çip/sayaç üretmez
+    .filter(s => activeFilters[s.key] && !(s.hideAll && activeFilters[s.key] === 'hepsi'))
     // Çipte ham değer ("ozel") değil seçeneğin görünen adı ("Özel") yazılır
     .map(s => ({ key: s.key, label: (s as any).options?.find((o: any) => o.value === activeFilters[s.key])?.label || activeFilters[s.key]! }));
 
