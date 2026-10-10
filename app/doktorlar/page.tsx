@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+import HkIconAnim from '@/components/HkIconAnim';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { unstable_cache } from 'next/cache';
@@ -158,13 +159,7 @@ export default async function DoktorlarPage(
       entityLabelPlural="doktor"
       color="#0E7490"
       gradient="linear-gradient(135deg, #155E75 0%, #0E7490 100%)"
-      icon={
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="7" r="4"/>
-          <path d="M5 21v-1a7 7 0 0 1 7-7 7 7 0 0 1 7 7v1"/>
-          <path d="M16 11h3M17.5 9.5v3"/>
-        </svg>
-      }
+      icon={<HkIconAnim name="doctor-profile" size={36} playOnView />}
       iconBg="linear-gradient(135deg,#155E75,#0E7490)"
       title={title}
       count={count}

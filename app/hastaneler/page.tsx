@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+import HkIconAnim from '@/components/HkIconAnim';
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import type { Hastane } from '@/lib/types';
@@ -107,12 +108,7 @@ export default async function HastanelerPage(
       entityLabelPlural="hastane"
       color="#065F46"
       gradient="linear-gradient(135deg, #065F46 0%, #047857 100%)"
-      icon={
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="3"/>
-          <path d="M12 8v8M8 12h8"/>
-        </svg>
-      }
+      icon={<HkIconAnim name="hospital" size={36} playOnView />}
       iconBg="linear-gradient(135deg,#065F46,#047857)"
       title={title}
       count={count}

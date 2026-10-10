@@ -284,6 +284,12 @@ export default function ListingLayout(props: ListingLayoutProps) {
         .listing-stat-number {
           font-size: 26px;
         }
+        .listing-ikon { flex: none; display: grid; place-items: center; width: 72px; height: 72px; border-radius: 20px; background: #FFFFFF; color: #12294D; box-shadow: 0 1px 2px rgba(14,26,44,.06), 0 10px 24px -14px rgba(18,41,77,.28); }
+        @media (max-width: 768px) {
+          .listing-cathero { flex-direction: row !important; align-items: center !important; gap: 14px !important; }
+          .listing-ikon { width: 52px; height: 52px; border-radius: 15px; }
+          .listing-ikon svg { width: 28px; height: 28px; }
+        }
         .listing-icon-box {
           width: 64px;
           height: 64px;
@@ -443,7 +449,9 @@ export default function ListingLayout(props: ListingLayoutProps) {
 
         {/* Başlık paneli — tek CategoryHero: başlık + sayı kapsülleri */}
         <div className="container listing-hero-container">
-          <div className="hk-cathero">
+          <div className="hk-cathero listing-cathero">
+            {/* Kategori ikonu — hareketli ikon setinden; kutunun üzerine gelince oynar */}
+            <div className="listing-ikon" data-hk-hover aria-hidden="true">{icon}</div>
             <div className="hk-cathero__body">
               <h1 className="hk-cathero__title hk-cathero__title--sm">{title}</h1>
               <div className="hk-cathero__stats">

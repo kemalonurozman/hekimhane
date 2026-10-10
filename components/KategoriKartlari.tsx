@@ -2,24 +2,8 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import HkIconAnim from '@/components/HkIconAnim';
 
-function IconTooth() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7 7C7 4.5 8.5 2.5 10 2.5Q11 4 12 5Q13 4 14 2.5C15.5 2.5 17 4.5 17 7C17 8.5 16.5 10 16 11.5C15.5 13 15.5 16 16 18.5C16.5 21 16 22 14.5 22C13.5 22 13 20.5 12.5 19L12 17L11.5 19C11 20.5 10.5 22 9.5 22C8 22 7.5 21 8 18.5C8.5 16 8.5 13 8 11.5C7.5 10 7 8.5 7 7Z" />
-    </svg>
-  );
-}
-function IconDoctor() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="7" r="4" />
-      <path d="M6 21v-2a6 6 0 0 1 12 0v2" />
-      <path d="M17 14h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-1" />
-      <path d="M17 19v-4" />
-    </svg>
-  );
-}
 function IconChevronRight() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -100,7 +84,7 @@ export default function KategoriKartlari({ stats }: { stats: { klinik: number; d
   const KATEGORILER: Kategori[] = [
     {
       href: '/klinikler',
-      icon: <IconTooth />,
+      icon: <HkIconAnim name="clinic" size={28} playOnView />,
       label: 'Diş Klinikleri',
       desc: 'Diş klinikleri ve özel muayenehaneler',
       count: stats.klinik,
@@ -109,7 +93,7 @@ export default function KategoriKartlari({ stats }: { stats: { klinik: number; d
     },
     {
       href: '/doktorlar?spec=Di%C5%9F%20Hekimi',
-      icon: <IconDoctor />,
+      icon: <HkIconAnim name="doctor-profile" size={28} playOnView />,
       label: 'Diş Hekimleri',
       desc: 'Uzman diş hekimleri ve hekim profilleri',
       count: 0,
@@ -118,7 +102,7 @@ export default function KategoriKartlari({ stats }: { stats: { klinik: number; d
     },
     {
       href: '/hastaliklar/dis-sagligi',
-      icon: <IconTooth />,
+      icon: <HkIconAnim name="health-info" size={28} playOnView />,
       label: 'Ağız & Diş Sağlığı',
       desc: 'Diş hastalıkları ve tedavi rehberi',
       count: 0,

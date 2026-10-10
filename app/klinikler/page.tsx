@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+import HkIconAnim from '@/components/HkIconAnim';
 import type { Metadata } from 'next';
 import { unstable_noStore as noStore, unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
@@ -466,11 +467,7 @@ export default async function KliniklerPage(
       entityLabelPlural="klinik"
       color="#1A335E"
       gradient="linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%)"
-      icon={
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 2C9.2 2 7 4 7 6.5c0 1.4.4 2.4.9 3.4.9 2 .8 5.2-.4 9.4-.3 1.3.8 2.2 1.7.7.4-.7.9-1.3 2.3-1.3 1.4 0 1.9.6 2.3 1.3.9 1.5 2 .6 1.7-.7-1.2-4.2-1.3-7.4-.4-9.4.5-1 .9-2 .9-3.4C16 4 13.8 2 12 2z"/>
-        </svg>
-      }
+      icon={<HkIconAnim name="dentistry" size={36} playOnView />}
       iconBg="linear-gradient(135deg,var(--navy),var(--navy2))"
       title={title}
       count={count}

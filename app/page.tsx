@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import KategoriKartlari from '@/components/KategoriKartlari';
 import HeroAnimated from '@/components/HeroAnimated';
+import HkIconAnim from '@/components/HkIconAnim';
 import HastalikRehberiSection from '@/components/HastalikRehberiSection';
 import OneCikanHekimler, { type PremiumItem } from '@/components/OneCikanHekimler';
 import { toSlug } from '@/lib/helpers';
@@ -116,13 +117,6 @@ const POPÜLER_İLLER = [
   'Adana', 'Konya', 'Gaziantep', 'Muğla', 'Mersin',
 ];
 
-function IconMapPin() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
-    </svg>
-  );
-}
 function IconArrow() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -230,7 +224,7 @@ export default async function HomePage() {
       }}>
         <div className="container">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-            <span style={{ color: '#6E6E73', display: 'flex' }}><IconMapPin /></span>
+            <HkIconAnim name="location-pin" size={22} color="#12294D" playOnView />
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>
               Şehre göre diş kliniği ara
             </h2>

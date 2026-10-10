@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Logo } from '@/components/Logo';
+import HkLogoAnim from '@/components/HkLogoAnim';
 import { toSlug } from '@/lib/helpers';
 
 export default function Footer() {
@@ -135,7 +135,7 @@ export default function Footer() {
 
           {/* Marka + tanıtım + bülten + iletişim */}
           <div className="hk-footer__brand">
-            <Logo size={38} dark />
+            <HkLogoAnim size={38} dark />
             <p>Türkiye'nin diş sağlığı rehberi. Size en yakın diş kliniğini ve uzman diş hekimini tek platformda bulun.</p>
             <div className="hk-footer__bulten">
               <input type="email" placeholder="E-posta adresiniz" aria-label="E-posta adresiniz" />

@@ -6,6 +6,9 @@ import type { SearchResults } from '@/app/api/search/route';
 import { IL_ILCE, IL_LISTE } from '@/lib/tr-il-ilce';
 import { toSlug } from '@/lib/helpers';
 import HkIcon from '@/components/HkIcon';
+import type { HkIkonAdi } from '@/lib/hk-icons';
+import HkIconAnim from '@/components/HkIconAnim';
+import HkLogoAnim, { HkSpinner } from '@/components/HkLogoAnim';
 
 // ── Sayaç animasyonu ─────────────────────────────────────────────────────────
 function AnimatedCount({ target, suffix = '+' }: { target: number; suffix?: string }) {
@@ -37,15 +40,6 @@ function AnimatedCount({ target, suffix = '+' }: { target: number; suffix?: stri
 
 // ── İkonlar ───────────────────────────────────────────────────────────────────
 
-function IconSpinner() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
-        <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur=".7s" repeatCount="indefinite" />
-      </path>
-    </svg>
-  );
-}
 
 // ── Canlı Arama Formu ─────────────────────────────────────────────────────────
 const GRUPLAR_CONFIG = [
@@ -166,7 +160,7 @@ function KonumSecici({ value, onChange }: { value: string; onChange: (v: string)
   return (
     <div ref={kokRef} className="hk-hero-arama__konum" style={{ position: 'relative', cursor: 'text' }}
       onClick={e => { if ((e.target as HTMLElement).closest('button')) return; girdiRef.current?.focus(); }}>
-      <HkIcon name="location-pin" size={22} color="#12294D" />
+      <HkIconAnim name="location-pin" size={22} color="#12294D" hoverTarget=".hk-hero-arama__konum" />
       <label className="hk-hero-arama__metin">
         <span className="hk-hero-arama__etiket">Şehir</span>
       <input
@@ -327,7 +321,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
         <div className="hk-hero-arama__alan" style={{ cursor: 'text' }}
           onClick={e => { if ((e.target as HTMLElement).closest('button, a')) return; aramaRef.current?.focus(); }}>
           <span className="hk-hero-arama__ikon" aria-hidden="true">
-            {yukleniyor ? <IconSpinner /> : <HkIcon name="search" size={22} color="#12294D" />}
+            {yukleniyor ? <HkSpinner size={22} label="Aranıyor" /> : <HkIconAnim name="search" size={22} color="#12294D" hoverTarget=".hk-hero-arama__alan" />}
           </span>
           <label className="hk-hero-arama__metin">
             <span className="hk-hero-arama__etiket">Ne arıyorsunuz?</span>
@@ -520,13 +514,13 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
       {/* Popüler tedaviler — tek satır etiket dizisi ("Tüm klinikler" tedaviler bölümünün başlığında) */}
       <div className="hk-hero-etiketler">
         {([
-          ['İmplant', `/klinikler?uzmanlik=${encodeURIComponent('İmplantoloji (İmplant)')}`],
-          ['Ortodonti', `/klinikler?uzmanlik=${encodeURIComponent('Ortodonti (Diş Teli)')}`],
-          ['Estetik diş', `/klinikler?uzmanlik=${encodeURIComponent('Estetik Diş Hekimliği')}`],
-          ['Kanal tedavisi', `/klinikler?uzmanlik=${encodeURIComponent('Endodonti (Kanal Tedavisi)')}`],
-          ['Çocuk diş', `/klinikler?uzmanlik=${encodeURIComponent('Pedodonti (Çocuk Diş Hekimliği)')}`],
-        ] as [string, string][]).map(([label, href]) => (
-          <a key={href} href={href}><HkIcon name="dentistry" size={20} color="#12294D" />{label}</a>
+          ['İmplant', `/klinikler?uzmanlik=${encodeURIComponent('İmplantoloji (İmplant)')}`, 'dentistry'],
+          ['Ortodonti', `/klinikler?uzmanlik=${encodeURIComponent('Ortodonti (Diş Teli)')}`, 'filter'],
+          ['Estetik diş', `/klinikler?uzmanlik=${encodeURIComponent('Estetik Diş Hekimliği')}`, 'star-rating'],
+          ['Kanal tedavisi', `/klinikler?uzmanlik=${encodeURIComponent('Endodonti (Kanal Tedavisi)')}`, 'general-surgery'],
+          ['Çocuk diş', `/klinikler?uzmanlik=${encodeURIComponent('Pedodonti (Çocuk Diş Hekimliği)')}`, 'pediatrics'],
+        ] as [string, string, HkIkonAdi][]).map(([label, href, ikon], i) => (
+          <a key={href} href={href}><HkIconAnim name={ikon} size={20} color="#12294D" playOnView delay={900 + i * 140} />{label}</a>
         ))}
       </div>
     </div>
@@ -596,6 +590,7 @@ export default function HeroAnimated({ stats }: Props) {
         }
         /* Hero: açık lacivert düz gradyan panel; başlık tek renk (gradyan metin yok) */
         .hk-hero-panel { text-align: center; padding: 80px 32px; border-radius: var(--radius-xl); background: linear-gradient(120deg, var(--tint-50), var(--tint-100)); }
+        .hk-hero-logo { display: flex; justify-content: center; margin-bottom: 28px; min-height: 56px; }
         .hk-hero-baslik { margin: 0 auto 16px; max-width: 900px; font-family: var(--font-display); font-size: 64px; line-height: 68px; font-weight: 800; letter-spacing: -0.035em; color: var(--brand); }
         .hk-hero-alt { margin: 0 auto 32px; max-width: 560px; font-size: 18px; line-height: 28px; color: var(--ink-secondary); }
         /* Arama çubuğu — marka kimliği v1 (Uygulamalar: web hero): beyaz kart, 18px köşe,
@@ -657,7 +652,8 @@ export default function HeroAnimated({ stats }: Props) {
         .hk-hero-etiketler a:hover { border-color: #C1CEE2; box-shadow: 0 4px 12px -6px rgba(18,41,77,.25); }
         @media (max-width: 1080px) { .hk-hero-baslik { font-size: 48px; line-height: 52px; } }
         @media (max-width: 640px) {
-          .hk-hero-panel { padding: 48px 20px; }
+          .hk-hero-panel { padding: 40px 20px 48px; }
+          .hk-hero-logo { margin-bottom: 22px; transform: scale(.86); }
           .hk-hero-baslik { font-size: 36px; line-height: 40px; }
           .hk-hero-alt { font-size: 16px; line-height: 24px; }
           .hk-hero-arama__alan, .hk-hero-arama__konum, .hk-hero-arama__btn { flex-basis: 100%; }
@@ -727,7 +723,8 @@ export default function HeroAnimated({ stats }: Props) {
       <div className="container" style={{ position: 'relative', zIndex: 4 }}>
        <div className="hk-hero-panel">
 
-        <span className="hk-badge hk-badge--neutral" style={{ marginBottom: 24 }}>TÜRKİYE DİŞ SAĞLIĞI REHBERİ</span>
+        {/* Hareketli marka işareti — görünür olunca bir kez oynar, üzerine gelince yeniden */}
+        <div className="hk-hero-logo"><HkLogoAnim size={56} url /></div>
 
         {/* Başlık — cümle düzeni, tek renk */}
         <h1 className="hk-hero-baslik">Size en yakın diş hekimini hızlıca bulun</h1>

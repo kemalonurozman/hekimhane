@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
-import { Logo } from '@/components/Logo';
+import HkLogoAnim from '@/components/HkLogoAnim';
 import type { User } from '@supabase/supabase-js';
 
 // Diş hekimleri "klinikler" tablosunda type='Diş Hekimi' olarak tutuluyor;
@@ -280,7 +280,7 @@ export default function Navbar() {
 
           {/* ── Logo ─────────────────────────────────────────────────── */}
           <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-            <Logo size={34} />
+            <HkLogoAnim size={34} autoplay={false} />
           </Link>
 
           {/* ── Desktop nav ──────────────────────────────────────────── */}
@@ -570,7 +570,7 @@ export default function Navbar() {
             onClick={() => setMobileOpen(false)}
             style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
           >
-            <Logo size={34} />
+            <HkLogoAnim size={34} autoplay={false} />
           </Link>
 
           {/* Close button */}

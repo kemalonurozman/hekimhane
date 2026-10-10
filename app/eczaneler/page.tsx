@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+import HkIconAnim from '@/components/HkIconAnim';
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import type { Eczane } from '@/lib/types';
@@ -112,12 +113,7 @@ export default async function EczanelerPage(
       entityLabelPlural="eczane"
       color="#6D28D9"
       gradient="linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)"
-      icon={
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z"/>
-          <path d="m8.5 8.5 7 7"/>
-        </svg>
-      }
+      icon={<HkIconAnim name="pharmacy" size={36} playOnView />}
       iconBg="linear-gradient(135deg,#7C3AED,#6D28D9)"
       title={title}
       count={count}
