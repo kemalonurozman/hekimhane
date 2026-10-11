@@ -122,10 +122,10 @@ interface FormData {
 
 // Yerleşim: diş kliniği üstte tam genişlik, altında hastane + doktor yan yana, en altta eczane tam genişlik
 const KATEGORILER: { type: BusinessType; label: string; desc: string; renk: string; bg: string; icon: React.ReactNode; soon?: boolean; tamGenislik?: boolean }[] = [
-  { type: 'klinik',  label: 'Diş Kliniği / Diş Hekimi', desc: 'Muayenehane, poliklinik, ağız ve diş sağlığı merkezi', renk: '#1A335E', bg: '#EEF2FF', icon: <IcTooth />, tamGenislik: true },
-  { type: 'hastane', label: 'Hastane',      desc: 'Özel, devlet veya dal hastanesi',       renk: '#065F46', bg: '#ECFDF5', icon: <IcHospital /> },
-  { type: 'doktor',  label: 'Doktor',       desc: 'Her uzmanlık dalından bireysel hekim', renk: '#92400E', bg: '#FEF3C7', icon: <IcDoctor /> },
-  { type: 'eczane',  label: 'Eczane',       desc: 'Eczane ve nöbetçi eczane bilgisi',     renk: '#6D28D9', bg: '#F5F3FF', icon: <IcPill />,     tamGenislik: true },
+  { type: 'klinik',  label: 'Diş Kliniği / Diş Hekimi', desc: 'Muayenehane, poliklinik, ağız ve diş sağlığı merkezi', renk: '#12294D', bg: '#F1F4F9', icon: <IcTooth />, tamGenislik: true },
+  { type: 'hastane', label: 'Hastane',      desc: 'Özel, devlet veya dal hastanesi',       renk: '#12294D', bg: '#F1F4F9', icon: <IcHospital /> },
+  { type: 'doktor',  label: 'Doktor',       desc: 'Her uzmanlık dalından bireysel hekim', renk: '#12294D', bg: '#F1F4F9', icon: <IcDoctor /> },
+  { type: 'eczane',  label: 'Eczane',       desc: 'Eczane ve nöbetçi eczane bilgisi',     renk: '#12294D', bg: '#F1F4F9', icon: <IcPill />,     tamGenislik: true },
 ];
 
 const ILLER = [
@@ -323,15 +323,48 @@ export default function KatilPage() {
     setTour360prev(false);
   }
 
+  // ── Adımlar tarayıcı geçmişine bağlı ──────────────────────────────────
+  // Tür seçimi ayrı bir geçmiş kaydıdır (/katil?tur=klinik). Böylece tarayıcının
+  // geri tuşu forma girmeden önceki sayfaya değil, tür seçimine döner; ileri tuşu
+  // forma geri getirir; sayfa yenilenince seçilen tür korunur.
+  const turGecerli = (t: string | null): t is BusinessType => !!t && KATEGORILER.some(k => k.type === t && !k.soon);
+
+  useEffect(() => {
+    const urldenOku = () => {
+      const tur = new URLSearchParams(window.location.search).get('tur');
+      if (turGecerli(tur)) { setSeciliType(tur); setStep('form'); }
+      else { setStep('kategori'); }
+      window.scrollTo({ top: 0 });
+    };
+    // İlk açılış: bağlantıda tür varsa doğrudan forma
+    const ilk = new URLSearchParams(window.location.search).get('tur');
+    if (turGecerli(ilk)) { setSeciliType(ilk); setStep('form'); }
+    window.addEventListener('popstate', urldenOku);
+    return () => window.removeEventListener('popstate', urldenOku);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function handleTypeSelect(type: BusinessType) {
     setSeciliType(type);
     setStep('form');
+    const ps = new URLSearchParams(window.location.search);
+    ps.set('tur', type);
+    window.history.pushState({ hkKatil: 'form' }, '', `/katil?${ps.toString()}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /** Formdan tür seçimine dönüş — geçmişte kendi kaydımız varsa onu geri alır (çift kayıt oluşmaz). */
+  function tureDon() {
+    if (window.history.state?.hkKatil === 'form') { window.history.back(); return; }
+    const ps = new URLSearchParams(window.location.search); ps.delete('tur');
+    window.history.replaceState(null, '', ps.toString() ? `/katil?${ps.toString()}` : '/katil');
+    setStep('kategori');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function validate() {
     const e: Partial<FormData> = {};
-    if (!form.isletme_adi.trim()) e.isletme_adi = 'İşletme adı zorunludur';
+    if (!form.isletme_adi.trim()) e.isletme_adi = seciliType === 'doktor' ? 'Hekimin adı zorunludur' : 'İşletme adı zorunludur';
     if (!form.ad_soyad.trim())    e.ad_soyad    = 'Ad soyad zorunludur';
     if (!form.tel.trim())         e.tel         = 'Telefon zorunludur';
     if (!form.email.trim())       e.email       = 'E-posta zorunludur';
@@ -380,6 +413,8 @@ export default function KatilPage() {
         setSaveError(data.error || 'Bir hata oluştu, lütfen tekrar deneyin.');
       } else {
         setStep('tamam');
+        // Form kaydı geçmişten çıkar: geri tuşu gönderilmiş forma değil tür seçimine döner
+        window.history.replaceState(null, '', '/katil');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch {
@@ -432,21 +467,20 @@ export default function KatilPage() {
 
         {/* ── ADIM: Tamamlandı ───────────────────────────── */}
         {step === 'tamam' && (
-          <div style={{ background: 'white', borderRadius: 24, border: '1px solid var(--border)', padding: '56px 40px', textAlign: 'center', maxWidth: 540, margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}><IcCheck /></div>
-            <h2 style={{ fontWeight: 800, fontSize: 24, color: '#166534', marginBottom: 10 }}>Başvurunuz Alındı!</h2>
-            <p style={{ color: '#15803D', fontSize: 15, lineHeight: 1.7, marginBottom: 28 }}>
-              <strong>{form.isletme_adi}</strong> için başvurunuz alındı.
-              Ekibimiz en kısa sürede{' '}
-              <strong>{form.email}</strong> adresine dönüş yapacaktır.
+          <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '44px 32px', textAlign: 'center', maxWidth: 540, margin: '0 auto', boxShadow: '0 1px 2px rgba(14,26,44,.04), 0 14px 34px -22px rgba(18,41,77,.28)' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}><HkIconAnim name="success" size={52} playOnView /></div>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, letterSpacing: '-0.02em', color: 'var(--ink)', margin: '0 0 10px' }}>Teşekkürler</h2>
+            <p style={{ color: 'var(--ink-secondary)', fontSize: 15, lineHeight: 1.7, margin: '0 0 26px' }}>
+              <strong style={{ color: 'var(--ink)' }}>{form.isletme_adi}</strong> için başvurunuz kaydedildi.
+              İnceleme tamamlandığında <strong style={{ color: 'var(--ink)' }}>{form.email}</strong> adresine yazacağız.
             </p>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/" style={{ padding: '11px 22px', background: 'var(--navy)', color: 'white', borderRadius: 11, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
-                Ana Sayfaya Dön
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link href="/" style={{ padding: '12px 22px', background: '#12294D', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+                Ana sayfaya dön
               </Link>
-              <button onClick={() => { setStep('kategori'); resetAll(); }}
-                style={{ padding: '11px 22px', border: '1.5px solid var(--border)', background: 'white', color: 'var(--navy)', borderRadius: 11, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
-                Yeni Başvuru
+              <button type="button" onClick={() => { resetAll(); setSeciliType(null); setStep('kategori'); window.scrollTo({ top: 0 }); }}
+                style={{ padding: '12px 22px', border: '1.5px solid var(--border)', background: 'white', color: '#12294D', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                Başka bir işletme ekle
               </button>
             </div>
           </div>
@@ -493,19 +527,10 @@ export default function KatilPage() {
             {/* Form */}
             <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '32px' }}>
               {/* Geri butonu */}
-              <button onClick={() => setStep('kategori')}
-                style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 24, padding: 0 }}>
-                <IcChevLeft />Kategori Seçimine Dön
+              <button type="button" onClick={tureDon}
+                style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 22, padding: 0, fontFamily: 'inherit', fontWeight: 600 }}>
+                <IcChevLeft />Tür seçimine dön
               </button>
-
-              {/* Seçili tür */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', borderRadius: 14, background: `${seciliKat.bg}`, border: `1.5px solid ${seciliKat.renk}30`, marginBottom: 28 }}>
-                <div style={{ color: seciliKat.renk }}>{seciliKat.icon}</div>
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: seciliKat.renk, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Başvuru Türü</div>
-                  <div style={{ fontWeight: 800, color: seciliKat.renk, fontSize: 16 }}>{seciliKat.label}</div>
-                </div>
-              </div>
 
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
@@ -517,8 +542,8 @@ export default function KatilPage() {
 
                 {/* İşletme adı */}
                 <div>
-                  <label style={lbl}>İşletme Adı <span style={{ color: '#EF4444' }}>*</span></label>
-                  <input type="text" value={form.isletme_adi} placeholder={`${seciliKat.label} adı`}
+                  <label style={lbl}>{seciliType === 'doktor' ? 'Hekimin Adı Soyadı' : 'İşletme Adı'} <span style={{ color: '#EF4444' }}>*</span></label>
+                  <input type="text" value={form.isletme_adi} placeholder={seciliType === 'doktor' ? 'Örn. Dr. Ayşe Yılmaz' : seciliType === 'klinik' ? 'Kliniğinizin ya da muayenehanenizin adı' : `${seciliKat.label} adı`}
                     onChange={e => setForm(f => ({ ...f, isletme_adi: e.target.value }))}
                     onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
                     onBlur={e => (e.currentTarget.style.borderColor = errors.isletme_adi ? '#FCA5A5' : '#E5E7EB')}
@@ -529,7 +554,7 @@ export default function KatilPage() {
                 {/* Ad Soyad + Ünvan */}
                 <div className="form-two-col">
                   <div>
-                    <label style={lbl}>Ad Soyad <span style={{ color: '#EF4444' }}>*</span></label>
+                    <label style={lbl}>Başvuran Ad Soyad <span style={{ color: '#EF4444' }}>*</span></label>
                     <input type="text" value={form.ad_soyad} placeholder="Adınız Soyadınız"
                       onChange={e => setForm(f => ({ ...f, ad_soyad: e.target.value }))}
                       onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
@@ -755,7 +780,8 @@ export default function KatilPage() {
                 </button>
 
                 <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.6 }}>
-                  Bilgileriniz yalnızca doğrulama amacıyla kullanılacak ve üçüncü taraflarla paylaşılmayacaktır.
+                  İşletme adı, adres ve işletme telefonu onaydan sonra profilinizde yayımlanır; yetkili kişi bilgileri yalnızca başvurunuzu doğrulamak için kullanılır.
+                  Başvuruyu göndererek <Link href="/kvkk" target="_blank" style={{ color: 'var(--brand)', fontWeight: 600 }}>KVKK Aydınlatma Metni</Link>&apos;ni okuduğunuzu kabul edersiniz.
                 </p>
               </form>
             </div>
@@ -763,8 +789,8 @@ export default function KatilPage() {
             {/* Yan bilgi */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'sticky', top: 90 }}>
               <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '20px' }}>
-                <h3 style={{ fontWeight: 700, fontSize: 14, marginBottom: 14, color: 'var(--text)' }}>Nasıl Çalışır?</h3>
-                {['Formu doldurup gönderin', 'Ekibimiz talebinizi inceler (1-2 iş günü)', 'E-posta ile bildirim alırsınız', 'Profilinizi yönetmeye başlayın'].map((s, i) => (
+                <h3 style={{ fontWeight: 700, fontSize: 14, marginBottom: 14, color: 'var(--text)' }}>Nasıl çalışır?</h3>
+                {['Formu doldurup gönderin', 'Başvurunuzu inceler, işletme telefonunuzdan doğrularız', 'Sonucu e-posta ile bildiririz', 'Panelden profilinizi yönetirsiniz'].map((s, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
                     <div style={{ width: 22, height: 22, borderRadius: 6, background: `${seciliKat.renk}15`, color: seciliKat.renk, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, flexShrink: 0 }}>{i + 1}</div>
                     <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{s}</p>
@@ -772,20 +798,20 @@ export default function KatilPage() {
                 ))}
               </div>
 
-              <div style={{ background: '#FFFBEB', borderRadius: 16, border: '1px solid #FDE68A', padding: '18px 20px' }}>
-                <h3 style={{ fontWeight: 700, fontSize: 13, color: '#92400E', marginBottom: 10 }}>Sahiplenme Avantajları</h3>
-                {['Profil bilgilerini düzenle', 'Fotoğraf ve logo ekle', 'Yorumlara yanıt ver', 'Ziyaret istatistiklerini gör'].map(s => (
-                  <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12, color: '#92400E' }}>
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7l3 3 5-6" stroke="#D97706" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    {s}
+              <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '20px' }}>
+                <h3 style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)', marginBottom: 12 }}>Onaydan sonra</h3>
+                {['Profil bilgilerinizi düzenlersiniz', 'Logo ve fotoğraf eklersiniz', 'Randevu taleplerini yönetirsiniz', 'Yorumlara yanıt verirsiniz'].map(x => (
+                  <div key={x} style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 9, fontSize: 13, color: 'var(--muted)' }}>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}><path d="M3 7l3 3 5-6" stroke="#12294D" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    {x}
                   </div>
                 ))}
               </div>
 
               {/* Eklenenler özet */}
               {(photoFiles.some(Boolean) || tour360url) && (
-                <div style={{ background: '#F0FDF4', borderRadius: 16, border: '1px solid #86EFAC', padding: '18px 20px' }}>
-                  <h3 style={{ fontWeight: 700, fontSize: 13, color: '#166534', marginBottom: 10 }}>Eklenenler</h3>
+                <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '18px 20px' }}>
+                  <h3 style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)', marginBottom: 10 }}>Eklenenler</h3>
                   {photoFiles.filter(Boolean).length > 0 && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, fontSize: 12, color: '#15803D' }}>
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" fill="#DCFCE7" stroke="#86EFAC"/><path d="M3.5 6l2 2 3-3" stroke="#16A34A" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
