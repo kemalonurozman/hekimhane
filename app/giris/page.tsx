@@ -1,5 +1,6 @@
 'use client';
 
+import GirisRozeti from '@/components/GirisRozeti';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
@@ -380,10 +381,8 @@ function GirisContent() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 18 }}>
               {([
-                { key: 'isletme', baslik: 'Doktor / İşletme', alt: 'Panel, randevu, profil',
-                  icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M6 21V7l6-4 6 4v14M10 9h.01M14 9h.01M10 13h.01M14 13h.01M10 17h4"/></svg> },
-                { key: 'hasta', baslik: 'Hasta / Ziyaretçi', alt: 'Randevu ve yorumlar',
-                  icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg> },
+                { key: 'isletme', baslik: 'Doktor / İşletme', alt: 'Panel, randevu, profil' },
+                { key: 'hasta', baslik: 'Hasta / Ziyaretçi', alt: 'Randevu ve yorumlar' },
               ] as const).map(t => {
                 const aktif = kullaniciTip === t.key;
                 return (
@@ -392,18 +391,19 @@ function GirisContent() {
                     style={{
                       position: 'relative', padding: '15px 10px 13px', borderRadius: 15, cursor: 'pointer',
                       fontFamily: 'inherit', textAlign: 'center',
-                      border: aktif ? '2px solid var(--navy)' : '1.5px solid #E4E6EC',
-                      background: aktif ? 'linear-gradient(180deg,#F4F8FF,#EAF1FD)' : '#FBFBFD',
-                      boxShadow: aktif ? '0 6px 18px rgba(26,51,94,.16)' : 'none',
+                      border: aktif ? `2px solid ${t.key === 'hasta' ? '#C9A04A' : '#12294D'}` : '1.5px solid #E4E6EC',
+                      background: aktif ? (t.key === 'hasta' ? '#FDFAF1' : '#F3F6FB') : '#FBFBFD',
+                      boxShadow: aktif ? (t.key === 'hasta' ? '0 6px 18px rgba(184,137,47,.18)' : '0 6px 18px rgba(18,41,77,.16)') : 'none',
                       transition: 'all .16s cubic-bezier(.4,0,.2,1)',
                     }}>
                     {aktif && (
-                      <span style={{ position: 'absolute', top: 7, right: 7, width: 17, height: 17, borderRadius: 999, background: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ position: 'absolute', top: 7, right: 7, width: 17, height: 17, borderRadius: 999, background: t.key === 'hasta' ? '#B8892F' : '#12294D', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                       </span>
                     )}
-                    <span style={{ display: 'flex', justifyContent: 'center', color: aktif ? 'var(--navy)' : '#98A2B3', marginBottom: 7 }}>
-                      {t.icon}
+                    {/* Üst menüdeki açılır listeyle aynı rozet — seçili olmayan soluk */}
+                    <span style={{ display: 'flex', justifyContent: 'center', marginBottom: 9 }}>
+                      <GirisRozeti tip={t.key} size={46} soluk={!aktif} />
                     </span>
                     <span style={{ display: 'block', fontSize: 13.5, fontWeight: 700, letterSpacing: '-0.2px', color: aktif ? 'var(--navy)' : '#4B5565' }}>
                       {t.baslik}

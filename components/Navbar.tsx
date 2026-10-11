@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import HkLogoAnim from '@/components/HkLogoAnim';
+import GirisRozeti from '@/components/GirisRozeti';
 import type { User } from '@supabase/supabase-js';
 
 // Diş hekimleri "klinikler" tablosunda type='Diş Hekimi' olarak tutuluyor;
@@ -433,11 +434,9 @@ export default function Navbar() {
                         style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '15px 17px', textDecoration: 'none', transition: 'background .12s' }}
                         onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
                         onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
-                        <span style={{ width: 40, height: 40, borderRadius: 11, background: 'linear-gradient(150deg,#1A335E,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M6 21V7l6-4 6 4v14M10 9h.01M14 9h.01M10 13h.01M14 13h.01M10 17h4" /></svg>
-                        </span>
+                        <GirisRozeti tip="isletme" size={44} />
                         <div>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#111C2E' }}>Doktor / İşletme Girişi</div>
+                          <div style={{ fontSize: 14.5, fontWeight: 700, color: '#12294D', letterSpacing: '-.1px' }}>Doktor / İşletme Girişi</div>
                           <div style={{ fontSize: 12, color: '#4A5568', marginTop: 2, lineHeight: 1.4 }}>Randevu, hasta ve profil yönetimi</div>
                         </div>
                       </Link>
@@ -446,11 +445,9 @@ export default function Navbar() {
                         style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '15px 17px', textDecoration: 'none', transition: 'background .12s' }}
                         onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
                         onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
-                        <span style={{ width: 40, height: 40, borderRadius: 11, background: 'var(--gold-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#B8892F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20a8 8 0 0 1 16 0" /></svg>
-                        </span>
+                        <GirisRozeti tip="hasta" size={44} />
                         <div>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#111C2E' }}>Hasta / Ziyaretçi Girişi</div>
+                          <div style={{ fontSize: 14.5, fontWeight: 700, color: '#12294D', letterSpacing: '-.1px' }}>Hasta / Ziyaretçi Girişi</div>
                           <div style={{ fontSize: 12, color: '#4A5568', marginTop: 2, lineHeight: 1.4 }}>Randevularınızı ve yorumlarınızı görün</div>
                         </div>
                       </Link>
@@ -721,7 +718,7 @@ export default function Navbar() {
                   textDecoration: 'none', letterSpacing: '-.1px',
                 }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M6 21V7l6-4 6 4v14M10 9h.01M14 9h.01M10 13h.01M14 13h.01M10 17h4" /></svg>
+                <GirisRozeti tip="isletme" size={28} />
                 Doktor / İşletme Girişi
               </Link>
               <Link
@@ -737,7 +734,7 @@ export default function Navbar() {
                   boxShadow: '0 1px 3px rgba(0,0,0,.05)',
                 }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20a8 8 0 0 1 16 0" /></svg>
+                <GirisRozeti tip="hasta" size={28} />
                 Hasta / Ziyaretçi Girişi
               </Link>
             </div>
