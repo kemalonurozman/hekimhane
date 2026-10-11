@@ -222,7 +222,7 @@ export default async function HomePage() {
         <div className="container">
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 32 }}>
             <div>
-              <h2 className="section-title" style={{ margin: '0 0 8px' }}>Diş sağlığında ne arıyorsunuz?</h2>
+              <h2 className="vt-h2" style={{ margin: '0 0 10px' }}>Diş sağlığında ne arıyorsunuz?</h2>
               <p style={{ color: 'var(--ink-secondary)', fontSize: 16, margin: 0 }}>
                 Türkiye genelinde arama yapın, size en yakın diş hekimini bulun.
               </p>
