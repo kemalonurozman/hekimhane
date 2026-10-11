@@ -656,3 +656,63 @@ button {
     font-size: 16px !important;
   }
 }
+
+/* Altın çağrı düğmesi — üzerinden yavaşça ışık geçer (navbar "Kliniğinizi ekleyin").
+   Zemin: altın tonları arasında akan gradyan; ::after: eğik beyaz ışık şeridi. */
+.hk-cta-isik {
+  position: relative; overflow: hidden; isolation: isolate;
+  background: linear-gradient(110deg, #C9A04A 0%, #E3C277 28%, #D4AC55 52%, #EBCF8D 74%, #C9A04A 100%);
+  background-size: 220% 100%;
+  box-shadow: 0 1px 2px rgba(120,84,10,.25), 0 6px 18px -8px rgba(190,143,44,.7), inset 0 1px 0 rgba(255,255,255,.45);
+  animation: hk-cta-akis 7s ease-in-out infinite;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.hk-cta-isik::after {
+  content: ""; position: absolute; top: -20%; bottom: -20%; left: -60%; width: 46%; z-index: -1;
+  background: linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.75) 50%, rgba(255,255,255,0) 100%);
+  transform: skewX(-18deg);
+  animation: hk-cta-isik 4.2s cubic-bezier(.4,0,.2,1) infinite;
+}
+.hk-cta-isik:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(120,84,10,.28), 0 10px 24px -8px rgba(190,143,44,.85), inset 0 1px 0 rgba(255,255,255,.5); }
+.hk-cta-isik:active { transform: translateY(0); }
+@keyframes hk-cta-akis { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes hk-cta-isik { 0% { left: -60%; } 45%, 100% { left: 130%; } }
+@media (prefers-reduced-motion: reduce) {
+  .hk-cta-isik, .hk-cta-isik::after { animation: none; }
+  .hk-cta-isik::after { display: none; }
+}
+
+/* /katil — işletme türü seçimi (iOS gruplu liste) */
+.katil-ust { background: #FFFFFF; border-bottom: 1px solid var(--border); text-align: center; padding: 44px 0 36px; }
+.katil-ust__etiket { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: 999px; background: var(--tint-50); color: var(--brand); font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+.katil-ust__baslik { margin: 16px auto 0; max-width: 720px; font-family: var(--font-display); font-size: 40px; line-height: 46px; font-weight: 800; letter-spacing: -0.035em; color: var(--ink); }
+.katil-ust__alt { margin: 12px auto 0; max-width: 520px; font-size: 17px; line-height: 26px; color: var(--ink-secondary); }
+.katil-adimlar { display: inline-flex; align-items: center; gap: 10px; margin-top: 24px; font-size: 13px; font-weight: 600; color: var(--ink-tertiary); }
+.katil-adimlar b { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-right: 7px; border-radius: 50%; background: #EEF1F6; color: var(--ink-tertiary); font-size: 12px; font-weight: 700; }
+.katil-adimlar .is-aktif { color: var(--ink); }
+.katil-adimlar .is-aktif b { background: #12294D; color: #fff; }
+.katil-adimlar i { width: 22px; height: 1px; background: #D9DCE3; }
+.katil-liste { max-width: 620px; margin: 0 auto; background: #FFFFFF; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; box-shadow: 0 1px 2px rgba(14,26,44,.04), 0 14px 34px -22px rgba(18,41,77,.28); }
+.katil-satir { position: relative; display: flex; align-items: center; gap: 16px; width: 100%; padding: 18px 20px; border: 0; background: transparent; text-align: left; font: inherit; cursor: pointer; transition: background .15s; }
+.katil-satir + .katil-satir::before { content: ""; position: absolute; left: 84px; right: 0; top: 0; height: 1px; background: var(--border); }
+.katil-satir:hover, .katil-satir:focus-visible { background: #F6F8FB; outline: none; }
+.katil-satir:disabled { cursor: not-allowed; opacity: .5; }
+.katil-satir__ikon { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: var(--tint-50); border: 1px solid var(--tint-200); color: #12294D; }
+.katil-satir__ad { display: block; font-size: 17px; line-height: 22px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+.katil-satir__alt { display: block; margin-top: 2px; font-size: 14px; line-height: 20px; color: var(--ink-secondary); }
+.katil-satir__ok { flex: none; margin-left: auto; color: #C7C7CC; transition: transform .2s, color .2s; }
+.katil-satir:hover .katil-satir__ok { color: var(--brand); transform: translateX(3px); }
+.katil-not { max-width: 620px; margin: 16px auto 0; text-align: center; font-size: 14px; color: var(--ink-secondary); }
+.katil-not a { color: var(--brand); font-weight: 600; text-decoration: none; }
+.katil-not a:hover { text-decoration: underline; }
+.katil-fayda { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; max-width: 900px; margin: 56px auto 0; padding-top: 40px; border-top: 1px solid var(--border); }
+.katil-fayda h3 { margin: 12px 0 4px; font-size: 15px; font-weight: 600; color: var(--ink); }
+.katil-fayda p { margin: 0; font-size: 13.5px; line-height: 20px; color: var(--ink-secondary); }
+@media (max-width: 760px) {
+  .katil-ust { padding: 32px 0 28px; }
+  .katil-ust__baslik { font-size: 28px; line-height: 34px; }
+  .katil-ust__alt { font-size: 15px; line-height: 23px; }
+  .katil-fayda { grid-template-columns: 1fr 1fr; gap: 24px 18px; margin-top: 40px; padding-top: 32px; }
+  .katil-satir { padding: 16px; gap: 14px; }
+  .katil-satir + .katil-satir::before { left: 78px; }
+}

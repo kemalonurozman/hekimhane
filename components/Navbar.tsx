@@ -414,43 +414,6 @@ export default function Navbar() {
             ) : (
               /* Giriş yapılmamış */
               <>
-                {/* Kayıt Ol — dropdown */}
-                <div ref={regRef} className="nav-user-desktop" style={{ position: 'relative' }}>
-                  <button onClick={() => setRegOpen(o => !o)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#3A3A3C', fontFamily: 'inherit', letterSpacing: '-.1px' }}>
-                    Kayıt Ol {regOpen ? <ChevronUp /> : <ChevronDown />}
-                  </button>
-                  {regOpen && (
-                    <div style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: 300, background: '#fff', borderRadius: 16, boxShadow: '0 16px 44px rgba(20,30,50,.16)', border: '1px solid #ECECEC', overflow: 'hidden', zIndex: 300 }}>
-                      <Link href="/katil" onClick={() => setRegOpen(false)}
-                        style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '15px 17px', textDecoration: 'none', transition: 'background .12s' }}
-                        onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
-                        onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
-                        <span style={{ width: 40, height: 40, borderRadius: 11, background: 'linear-gradient(150deg,#1A335E,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18" /><path d="M5 21V7l7-4 7 4v14" /><path d="M9 21v-6h6v6" /></svg>
-                        </span>
-                        <div>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#111C2E' }}>İşletme / Doktor Kaydı</div>
-                          <div style={{ fontSize: 12, color: '#4A5568', marginTop: 2, lineHeight: 1.4 }}>Klinik, muayene veya eczanenizi ekleyin</div>
-                        </div>
-                      </Link>
-                      <div style={{ height: 1, background: '#F0F0F0' }} />
-                      <Link href="/klinikler" onClick={() => setRegOpen(false)}
-                        style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '15px 17px', textDecoration: 'none', transition: 'background .12s' }}
-                        onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
-                        onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
-                        <span style={{ width: 40, height: 40, borderRadius: 11, background: 'var(--gold-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#B8892F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22V4a1 1 0 0 1 1-1h9l-1.5 4L14 11H5" /><path d="M4 22h4" /></svg>
-                        </span>
-                        <div>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#111C2E' }}>İşletmeni Sahiplen</div>
-                          <div style={{ fontSize: 12, color: '#4A5568', marginTop: 2, lineHeight: 1.4 }}>Listedeyseniz profilinizi bulup talep edin</div>
-                        </div>
-                      </Link>
-                    </div>
-                  )}
-                </div>
-
                 {/* Giriş Yap — kim olduğunu seçtiren dropdown (doktor önce) */}
                 <div ref={loginRef} className="nav-user-desktop" style={{ position: 'relative' }}>
                   <button onClick={() => setLoginOpen(o => !o)}
@@ -496,13 +459,13 @@ export default function Navbar() {
                 </div>
 
                 {/* Prominent CTA */}
-                <Link href="/katil" className="nav-cta-desktop" style={{
-                  display: 'flex', alignItems: 'center',
+                <Link href="/katil" className="nav-cta-desktop hk-cta-isik" style={{
+                  display: 'flex', alignItems: 'center', gap: 7,
                   height: 40, padding: '0 16px', borderRadius: 'var(--radius-md)',
-                  background: 'var(--gold-fill)',
-                  fontSize: 14, fontWeight: 600, color: 'var(--on-gold)',
+                  fontSize: 14, fontWeight: 700, color: 'var(--on-gold)',
                   textDecoration: 'none', whiteSpace: 'nowrap',
                 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                   Kliniğinizi ekleyin
                 </Link>
               </>
@@ -736,11 +699,11 @@ export default function Navbar() {
               <Link
                 href="/katil"
                 onClick={() => setMobileOpen(false)}
+                className="hk-cta-isik"
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   minHeight: 48, borderRadius: 12,
-                  background: 'var(--gold-fill)',
-                  fontSize: 15, fontWeight: 600, color: 'var(--on-gold)',
+                  fontSize: 15, fontWeight: 700, color: 'var(--on-gold)',
                   textDecoration: 'none',
                 }}
               >

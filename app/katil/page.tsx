@@ -1,5 +1,8 @@
 'use client';
 
+import HkIcon from '@/components/HkIcon';
+import HkIconAnim from '@/components/HkIconAnim';
+import type { HkIkonAdi } from '@/lib/hk-icons';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { ILCELER } from '@/lib/tr-il-ilce';
@@ -119,7 +122,7 @@ interface FormData {
 
 // Yerleşim: diş kliniği üstte tam genişlik, altında hastane + doktor yan yana, en altta eczane tam genişlik
 const KATEGORILER: { type: BusinessType; label: string; desc: string; renk: string; bg: string; icon: React.ReactNode; soon?: boolean; tamGenislik?: boolean }[] = [
-  { type: 'klinik',  label: 'Diş Kliniği / Diş Hekimi', desc: 'Diş hekimi, ortodontist, implant', renk: '#1A335E', bg: '#EEF2FF', icon: <IcTooth />, tamGenislik: true },
+  { type: 'klinik',  label: 'Diş Kliniği / Diş Hekimi', desc: 'Muayenehane, poliklinik, ağız ve diş sağlığı merkezi', renk: '#1A335E', bg: '#EEF2FF', icon: <IcTooth />, tamGenislik: true },
   { type: 'hastane', label: 'Hastane',      desc: 'Özel, devlet veya dal hastanesi',       renk: '#065F46', bg: '#ECFDF5', icon: <IcHospital /> },
   { type: 'doktor',  label: 'Doktor',       desc: 'Her uzmanlık dalından bireysel hekim', renk: '#92400E', bg: '#FEF3C7', icon: <IcDoctor /> },
   { type: 'eczane',  label: 'Eczane',       desc: 'Eczane ve nöbetçi eczane bilgisi',     renk: '#6D28D9', bg: '#F5F3FF', icon: <IcPill />,     tamGenislik: true },
@@ -137,12 +140,15 @@ const ILLER = [
   'Yalova','Yozgat','Zonguldak',
 ];
 
-const AVANTAJLAR = [
-  { icon: '🔍', title: 'Daha Fazla Görünürlük', desc: 'Binlerce hasta her gün sağlık hizmeti ararken işletmeniz öne çıkar.' },
-  { icon: '⭐', title: 'Yorum Yönetimi',         desc: 'Hastalarınızın yorumlarına yanıt verin, itibarınızı yönetin.' },
-  { icon: '📊', title: 'İstatistikler',           desc: 'Profilinizin kaç kişi tarafından görüntülendiğini takip edin.' },
-  { icon: '✅', title: 'Ücretsiz Listeleme',      desc: 'Temel listeleme tamamen ücretsiz. Premium özellikler için esnek planlar.' },
+// Yalnız gerçekten sunulan özellikler — vaat içermez
+const AVANTAJLAR: { ikon: HkIkonAdi; title: string; desc: string }[] = [
+  { ikon: 'verified',    title: 'Ücretsiz profil',      desc: 'Listeleme ücretsizdir. Bilgilerinizi dilediğiniz an kendiniz güncellersiniz.' },
+  { ikon: 'appointment', title: 'Randevu talepleri',    desc: 'Hastaların randevu talepleri panelinize ve e-postanıza düşer.' },
+  { ikon: 'review',      title: 'Yorumlara yanıt',      desc: 'Hasta değerlendirmelerini görür, her birine yanıt yazabilirsiniz.' },
+  { ikon: 'hekimkart',   title: 'Dijital kartvizit',    desc: 'HekimKart ile profilinizi tek bağlantı ya da QR kodla paylaşırsınız.' },
 ];
+// Tür satırlarındaki ikonlar — marka ikon setinden, tek renk
+const TUR_IKON: Record<string, HkIkonAdi> = { klinik: 'dentistry', hastane: 'hospital', doktor: 'doctor-profile', eczane: 'pharmacy' };
 
 const DOC_SLOTS = [
   { key: 'vergi',  label: 'Vergi Levhası',          sub: 'PDF veya görsel',           required: false },
@@ -400,24 +406,25 @@ export default function KatilPage() {
 
   /* ── RENDER ─────────────────────────────────────────────── */
   return (
-    <div style={{ paddingTop: 66, background: 'var(--cream)', minHeight: '100vh' }}>
+    <div style={{ paddingTop: 66, background: 'var(--canvas)', minHeight: '100vh' }}>
 
-      {/* Hero */}
-      <div style={{ background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%)', padding: '48px 0 40px', position: 'relative', overflow: 'hidden', textAlign: 'center' }}>
-        <div style={{ position: 'absolute', right: -100, top: -100, width: 400, height: 400, borderRadius: '50%', background: 'rgba(255,255,255,.04)', pointerEvents: 'none' }} />
-        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 20, background: 'rgba(184,137,47,.2)', border: '1px solid rgba(184,137,47,.35)', fontSize: 12, fontWeight: 700, color: '#F0C060', marginBottom: 16 }}>
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1l1 3h3l-2.5 1.8 1 3L5 7l-2.5 1.8 1-3L1 4h3z" fill="#F0C060"/></svg>
-            ÜCRETSİZ LİSTELEME
-          </div>
-          <h1 style={{ fontSize: 36, fontWeight: 800, color: 'white', marginBottom: 12, lineHeight: 1.2, letterSpacing: '-0.5px' }}>
-            {step === 'form' && seciliKat
-              ? `${seciliKat.label} Ekle`
-              : 'İşletmenizi Hekimhane\'ye Ekleyin'}
+      {/* Üst bölüm — açık, sade: etiket + başlık + alt metin + adım göstergesi */}
+      <div className="katil-ust">
+        <div className="container">
+          <span className="katil-ust__etiket">Ücretsiz listeleme</span>
+          <h1 className="katil-ust__baslik">
+            {step === 'form' && seciliKat ? `${seciliKat.label} ekleyin` : step === 'tamam' ? 'Başvurunuz bize ulaştı' : 'İşletmenizi Hekimhane\'ye ekleyin'}
           </h1>
-          <p style={{ color: 'rgba(255,255,255,.75)', fontSize: 15, maxWidth: 500, margin: '0 auto', lineHeight: 1.7 }}>
-            Türkiye'nin sağlık rehberinde yerinizi alın. Binlerce hastaya ulaşın.
+          <p className="katil-ust__alt">
+            {step === 'kategori' ? 'Üç kısa adımda profilinizi oluşturun. Önce işletmenizin türünü seçin.'
+              : step === 'form' ? 'Bilgilerinizi girin; başvurunuzu inceleyip size e-posta ile dönelim.'
+              : 'İncelemenin ardından sizi e-posta ile bilgilendireceğiz.'}
           </p>
+          <div className="katil-adimlar" aria-label="Başvuru adımları">
+            <span className={step === 'kategori' ? 'is-aktif' : undefined}><b>1</b>Tür</span><i />
+            <span className={step === 'form' ? 'is-aktif' : undefined}><b>2</b>Bilgiler</span><i />
+            <span className={step === 'tamam' ? 'is-aktif' : undefined}><b>3</b>Onay</span>
+          </div>
         </div>
       </div>
 
@@ -448,71 +455,33 @@ export default function KatilPage() {
         {/* ── ADIM: Kategori Seçimi ───────────────────────── */}
         {step === 'kategori' && (
           <>
-            {/* Kategori kartları — ÖNCE */}
-            <div style={{ textAlign: 'center', marginBottom: 32 }}>
-              <h2 style={{ fontSize: 28, fontWeight: 800, marginBottom: 10, color: 'var(--navy)', letterSpacing: '-0.5px' }}>
-                İşletme Türünüzü Seçin
-              </h2>
-              <p style={{ color: 'var(--muted)', fontSize: 15 }}>Hangi türde işletme listelemek istiyorsunuz?</p>
-            </div>
-
-            <div className="katil-kat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 18, maxWidth: 720, margin: '0 auto 56px' }}>
+            {/* Tür seçimi — tek gruplu liste (iOS ayarlar düzeni): ikon · ad · açıklama · ok */}
+            <div className="katil-liste" role="list">
               {KATEGORILER.map(k => (
-                <button key={k.type} onClick={() => { if (!k.soon) handleTypeSelect(k.type); }}
-                  disabled={k.soon}
-                  aria-disabled={k.soon}
-                  style={{
-                    position: 'relative', gridColumn: k.tamGenislik ? '1 / -1' : undefined,
-                    background: 'white', borderRadius: 22, border: `2px solid ${k.renk}20`,
-                    padding: '30px 26px', display: 'flex', alignItems: 'flex-start', gap: 18,
-                    cursor: k.soon ? 'not-allowed' : 'pointer', textAlign: 'left', transition: 'all .18s',
-                    boxShadow: '0 2px 12px rgba(0,0,0,.05)',
-                    opacity: k.soon ? 0.55 : 1,
-                  }}
-                  onMouseEnter={e => { if (k.soon) return; const el = e.currentTarget; el.style.borderColor = k.renk; el.style.boxShadow = `0 10px 36px ${k.renk}22`; el.style.transform = 'translateY(-3px)'; }}
-                  onMouseLeave={e => { if (k.soon) return; const el = e.currentTarget; el.style.borderColor = `${k.renk}20`; el.style.boxShadow = '0 2px 12px rgba(0,0,0,.05)'; el.style.transform = 'none'; }}
-                >
-                  {k.soon && (
-                    <span style={{
-                      position: 'absolute', top: 14, right: 14,
-                      fontSize: 10.5, fontWeight: 800, letterSpacing: '.6px', textTransform: 'uppercase',
-                      color: '#92400E', background: '#FEF3C7', border: '1px solid #FDE68A',
-                      borderRadius: 20, padding: '3px 10px',
-                    }}>
-                      Yakında
-                    </span>
-                  )}
-                  <div style={{ width: 62, height: 62, borderRadius: 18, background: k.bg, color: k.renk, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 4px 14px ${k.renk}18` }}>
-                    {k.icon}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ fontWeight: 800, fontSize: 18, color: k.renk, marginBottom: 5 }}>{k.label}</h3>
-                    <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 14 }}>{k.desc}</p>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 700, color: k.soon ? 'var(--muted)' : k.renk }}>
-                      {k.soon ? 'Çok yakında' : <>Başla <IcArrow /></>}
-                    </span>
-                  </div>
+                <button key={k.type} type="button" role="listitem" className="katil-satir"
+                  onClick={() => { if (!k.soon) handleTypeSelect(k.type); }} disabled={k.soon} aria-disabled={k.soon}>
+                  <span className="katil-satir__ikon"><HkIconAnim name={TUR_IKON[k.type] || 'clinic'} size={26} /></span>
+                  <span style={{ minWidth: 0 }}>
+                    <span className="katil-satir__ad">{k.label}</span>
+                    <span className="katil-satir__alt">{k.soon ? 'Çok yakında' : k.desc}</span>
+                  </span>
+                  <svg className="katil-satir__ok" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>
                 </button>
               ))}
             </div>
+            <p className="katil-not">
+              İşletmeniz zaten listede mi? <Link href="/klinikler">Profilinizi bulun ve sahiplenin →</Link>
+            </p>
 
-            {/* Avantajlar — ARKA PLANDA, ALTTA */}
-            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 40, marginBottom: 8 }}>
-              <div style={{ textAlign: 'center', marginBottom: 22 }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1l1.2 3.6H11l-3 2.1 1.2 3.6L6 8.4l-3.2 1.9 1.2-3.6-3-2.1h3.8z" fill="currentColor"/></svg>
-                  Neden Hekimhane?
+            {/* Sunulanlar — dört sade sütun, vaat içermez */}
+            <div className="katil-fayda">
+              {AVANTAJLAR.map(a => (
+                <div key={a.title}>
+                  <HkIcon name={a.ikon} size={26} color="#12294D" />
+                  <h3>{a.title}</h3>
+                  <p>{a.desc}</p>
                 </div>
-              </div>
-              <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
-                {AVANTAJLAR.map(a => (
-                  <div key={a.title} style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '20px 16px', textAlign: 'center' }}>
-                    <div style={{ fontSize: 26, marginBottom: 8 }}>{a.icon}</div>
-                    <h3 style={{ fontWeight: 700, fontSize: 13, marginBottom: 5, color: 'var(--navy)' }}>{a.title}</h3>
-                    <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>{a.desc}</p>
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
           </>
         )}
