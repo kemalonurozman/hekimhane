@@ -4,6 +4,10 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import KategoriKartlari from '@/components/KategoriKartlari';
 import HeroAnimated from '@/components/HeroAnimated';
+import SekmeliVitrin, { type VitrinSekme } from '@/components/vitrin/SekmeliVitrin';
+import AracVitrini, { type Arac } from '@/components/vitrin/AracVitrini';
+import NoktaGrafik from '@/components/vitrin/NoktaGrafik';
+import { AramaGorsel, TakvimGorsel, YorumGorsel, RehberGorsel, KartGorsel, AsistanGorsel } from '@/components/vitrin/Gorseller';
 import { profilPuaniHesapla } from '@/lib/profil-puani';
 import HkIconAnim from '@/components/HkIconAnim';
 import HastalikRehberiSection from '@/components/HastalikRehberiSection';
@@ -131,6 +135,33 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
   } catch { return []; }
 }
 
+// ── Koyu sekmeli vitrin: her sekme kendi renginde ──
+const SEKMELER: VitrinSekme[] = [
+  { id: 'bul', ad: 'Klinik Bul', ustyazi: 'Diş klinikleri ve hekimler', baslik: ['Size yakın kliniği', 'birkaç saniyede bulun'], renk: '#7FB2FF',
+    cta: { href: '/klinikler', ad: 'Klinikleri keşfedin' }, gorsel: <AramaGorsel />, desen: <NoktaGrafik ikon="location-pin" size={440} renk="rgba(127,178,255,.5)" /> },
+  { id: 'randevu', ad: 'Randevu', ustyazi: 'Online randevu', baslik: ['Uygun saati', 'profilden seçin'], renk: '#DEC283',
+    cta: { href: '/klinikler', ad: 'Randevu alabileceğiniz klinikler' }, gorsel: <TakvimGorsel />, desen: <NoktaGrafik ikon="appointment" size={440} renk="rgba(222,194,131,.5)" /> },
+  { id: 'yorum', ad: 'Değerlendirmeler', ustyazi: 'Hasta yorumları', baslik: ['Karar vermeden önce', 'deneyimleri okuyun'], renk: '#FF8FA3',
+    cta: { href: '/degerlendirme-sistemi', ad: 'Değerlendirme sistemi nasıl çalışır?' }, gorsel: <YorumGorsel />, desen: <NoktaGrafik ikon="review" size={440} renk="rgba(255,143,163,.5)" /> },
+  { id: 'rehber', ad: 'Sağlık Rehberi', ustyazi: 'Ağız ve diş sağlığı', baslik: ['Tedavileri', 'sade bir dille öğrenin'], renk: '#5FD6CE',
+    cta: { href: '/hastaliklar/dis-sagligi', ad: 'Rehbere göz atın' }, gorsel: <RehberGorsel />, desen: <NoktaGrafik ikon="health-info" size={440} renk="rgba(95,214,206,.5)" /> },
+  { id: 'hekim', ad: 'Hekimler İçin', ustyazi: 'Diş hekimleri ve klinikler', baslik: ['Muayenehanenizi', 'tek panelden yönetin'], renk: '#B79CFF',
+    cta: { href: '/neden-hekimhane', ad: 'Neler sunduğumuza bakın' }, gorsel: <KartGorsel />, desen: <NoktaGrafik ikon="doctor-profile" size={440} renk="rgba(183,156,255,.5)" /> },
+];
+
+// ── Hekimlere yönelik araçlar: üzerine gelince renklenen, bağlantılı büyük kartlar ──
+const HEKIM_ARACLARI: Arac[] = [
+  { id: 'randevu', ad: 'Randevu Takvimi', etiket: 'Randevu Takvimi', pro: true, href: '/randevu-sistemi', renk: { zemin: '#DCE8FB', vurgu: '#1A5FD0' },
+    cumle: 'Hastalar profilinizden uygun saati kendisi seçer. Takviminizi siz açar, siz kapatırsınız.',
+    gorsel: <TakvimGorsel />, desen: <NoktaGrafik ikon="appointment" size={300} /> },
+  { id: 'kart', ad: 'HekimKart', etiket: 'HekimKart', href: '/hekimkart', renk: { zemin: '#D3EFEC', vurgu: '#0D7C79' },
+    cumle: 'Tüm iletişim bilgileriniz tek bağlantıda. Karekodla paylaşın; profiliniz değiştikçe kartınız da güncellenir.',
+    gorsel: <KartGorsel />, desen: <NoktaGrafik ikon="hekimkart" size={300} /> },
+  { id: 'asistan', ad: 'Yapay Zekâ Asistanı', etiket: 'Yapay Zekâ Asistanı', pro: true, href: '/mcp', renk: { zemin: '#E4DCFA', vurgu: '#5B3FB8' },
+    cumle: 'Kullandığınız yapay zekâ asistanına bağlayın; randevuları ve takvimi yazarak yönetin.',
+    gorsel: <AsistanGorsel />, desen: <NoktaGrafik ikon="message" size={300} /> },
+];
+
 const POPÜLER_İLLER = [
   'İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya',
   'Adana', 'Konya', 'Gaziantep', 'Muğla', 'Mersin',
@@ -213,6 +244,9 @@ export default async function HomePage() {
 
       {/* Not: Ayrı "Şikayetinizi Anlatın" ve "Hekimhane AI" arama bölümleri kaldırıldı;
           tek arama hero'da (yazı + hızlı filtre butonları) toplandı. */}
+
+      {/* ── KOYU SEKMELİ VİTRİN — hareketli, her sekme kendi renginde ── */}
+      <SekmeliVitrin sekmeler={SEKMELER} />
 
       {/* ── ÖNE ÇIKAN PREMIUM HEKİM/KLİNİKLER (geçişli carousel) ─────── */}
       {premiumler.length > 0 && <OneCikanHekimler items={premiumler} />}
@@ -306,6 +340,13 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* ── HEKİMLER İÇİN ARAÇLAR — yapışkan menü + renklenen bağlantılı kartlar ── */}
+      <section className="vt-zemin vt-bolum">
+        <div className="container">
+          <AracVitrini baslik="Hekimler için araçlar" araclar={HEKIM_ARACLARI} />
+        </div>
+      </section>
 
       {/* ── CTA ─────────────────────────────────────────────────────── */}
       <section className="cta-section">

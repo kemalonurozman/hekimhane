@@ -35,22 +35,22 @@ const sayi = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 // ── Öne çıkan dört araç (yapışkan menülü vitrin) ──
 const ARACLAR: Arac[] = [
   {
-    id: 'randevu', ad: 'Randevu Takvimi', etiket: 'Randevu Takvimi', pro: true,
+    id: 'randevu', ad: 'Randevu Takvimi', etiket: 'Randevu Takvimi', pro: true, href: '/randevu-sistemi', renk: { zemin: '#DCE8FB', vurgu: '#1A5FD0' },
     cumle: 'Hastalar profilinizden uygun saati kendisi seçer. Takviminizi siz açar, siz kapatırsınız.',
     gorsel: <TakvimGorsel />, desen: <NoktaGrafik ikon="appointment" size={300} />,
   },
   {
-    id: 'yorum', ad: 'Yorum Yönetimi', etiket: 'Yorum Yönetimi',
+    id: 'yorum', ad: 'Yorum Yönetimi', etiket: 'Yorum Yönetimi', href: '/degerlendirme-sistemi', renk: { zemin: '#F6E9C6', vurgu: '#9C7A2E' },
     cumle: 'Hasta değerlendirmelerini tek ekranda görün, her birine kendi sözlerinizle yanıt verin.',
     gorsel: <YorumGorsel />, desen: <NoktaGrafik ikon="review" size={300} />,
   },
   {
-    id: 'kart', ad: 'HekimKart', etiket: 'HekimKart',
+    id: 'kart', ad: 'HekimKart', etiket: 'HekimKart', href: '/hekimkart', renk: { zemin: '#D3EFEC', vurgu: '#0D7C79' },
     cumle: 'Tüm iletişim bilgileriniz tek bağlantıda. Karekodla paylaşın; profiliniz değiştikçe kartınız da güncellenir.',
     gorsel: <KartGorsel />, desen: <NoktaGrafik ikon="hekimkart" size={300} />,
   },
   {
-    id: 'asistan', ad: 'Yapay Zekâ Asistanı', etiket: 'Yapay Zekâ Asistanı', pro: true,
+    id: 'asistan', ad: 'Yapay Zekâ Asistanı', etiket: 'Yapay Zekâ Asistanı', pro: true, href: '/mcp', renk: { zemin: '#E4DCFA', vurgu: '#5B3FB8' },
     cumle: 'Kullandığınız yapay zekâ asistanına bağlayın; randevuları ve takvimi yazarak yönetin.',
     gorsel: <AsistanGorsel />, desen: <NoktaGrafik ikon="message" size={300} />,
   },

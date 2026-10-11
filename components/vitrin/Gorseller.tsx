@@ -16,11 +16,11 @@ export function TakvimGorsel() {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
         {gunler.map((g, gi) => (
-          <div key={g} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div key={g} className="vt-h-belir" style={{ display: 'flex', flexDirection: 'column', gap: 8, animationDelay: `${gi * 90}ms` }}>
             <span style={{ fontSize: 11.5, fontWeight: 600, color: 'rgba(255,255,255,.55)', textAlign: 'center' }}>{g}</span>
             {[0, 1, 2, 3].map(s => {
               const d = dolu.has(`${gi}-${s}`), secili = gi === 2 && s === 3;
-              return <span key={s} style={{
+              return <span key={s} className={secili ? 'vt-h-sec' : undefined} style={{
                 height: 34, borderRadius: 9, display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 600,
                 background: secili ? '#DEC283' : d ? 'rgba(222,194,131,.18)' : 'rgba(255,255,255,.06)',
                 color: secili ? '#12294D' : d ? '#DEC283' : 'rgba(255,255,255,.32)',
@@ -77,8 +77,8 @@ export function KartGorsel() {
 
 /** Yapay zekâ asistanı ile yönetim (MCP) */
 export function AsistanGorsel() {
-  const balon = (metin: string, sag: boolean) => (
-    <div style={{ display: 'flex', justifyContent: sag ? 'flex-end' : 'flex-start', marginBottom: 10 }}>
+  const balon = (metin: string, sag: boolean, sira = 0) => (
+    <div className="vt-h-balon" style={{ display: 'flex', justifyContent: sag ? 'flex-end' : 'flex-start', marginBottom: 10, animationDelay: `${sira * 1.3}s` }}>
       <span style={{
         maxWidth: '82%', padding: '10px 14px', borderRadius: sag ? '16px 16px 4px 16px' : '16px 16px 16px 4px', fontSize: 13, lineHeight: 1.45,
         background: sag ? '#DEC283' : 'rgba(255,255,255,.08)', color: sag ? '#12294D' : 'rgba(255,255,255,.9)', fontWeight: sag ? 600 : 400,
@@ -87,10 +87,10 @@ export function AsistanGorsel() {
   );
   return (
     <div className="vt-cihaz vt-cihaz--genis">
-      {balon('Yarın 15:00 ile 17:00 arasını kapat.', true)}
-      {balon('Kapatıldı. Yarın için 3 randevunuz var; ilki 09:30’da.', false)}
-      {balon('Bekleyen talepleri göster.', true)}
-      {balon('2 yeni randevu talebi var. İkisi de perşembe öğleden sonrayı tercih ediyor.', false)}
+      {balon('Yarın 15:00 ile 17:00 arasını kapat.', true, 0)}
+      {balon('Kapatıldı. Yarın için 3 randevunuz var; ilki 09:30’da.', false, 1)}
+      {balon('Bekleyen talepleri göster.', true, 2)}
+      {balon('2 yeni randevu talebi var. İkisi de perşembe öğleden sonrayı tercih ediyor.', false, 3)}
     </div>
   );
 }
@@ -102,7 +102,7 @@ export function BolgeGorsel() {
     <div style={{ position: 'relative', height: 420, margin: '0 -40px', backgroundImage: 'radial-gradient(circle, rgba(255,255,255,.2) 1.3px, transparent 1.6px)', backgroundSize: '9px 9px', WebkitMaskImage: 'linear-gradient(to top, #000 60%, transparent)', maskImage: 'linear-gradient(to top, #000 60%, transparent)' }}>
       {pinler.map(([x, y], i) => (
         <span key={i} style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, width: 30, height: 30, marginLeft: -15, marginTop: -15, borderRadius: '50%', background: i % 2 ? 'rgba(222,194,131,.16)' : 'rgba(120,160,220,.16)', display: 'grid', placeItems: 'center' }}>
-          <span style={{ width: 10, height: 10, borderRadius: '50%', background: i % 2 ? '#DEC283' : '#7FA6E0' }} />
+          <span className="vt-h-nabiz" style={{ width: 10, height: 10, borderRadius: '50%', background: i % 2 ? '#DEC283' : '#7FA6E0', animationDelay: `${i * 0.35}s` }} />
         </span>
       ))}
     </div>
@@ -115,7 +115,7 @@ export function PuanGorsel() {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, height: 190, padding: '0 6px' }}>
       {h.map((x, i) => (
-        <span key={i} style={{ flex: 1, height: `${x}%`, borderRadius: 6, background: i < 7 ? `rgba(222,194,131,${0.25 + i * 0.1})` : 'rgba(255,255,255,.12)' }} />
+        <span key={i} className="vt-h-buyu" style={{ flex: 1, height: `${x}%`, borderRadius: 6, animationDelay: `${i * 70}ms`, background: i < 7 ? `rgba(222,194,131,${0.25 + i * 0.1})` : 'rgba(255,255,255,.12)' }} />
       ))}
     </div>
   );
@@ -144,6 +144,47 @@ export function AdimGorsel() {
         <div key={x} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,.05)' }}>
           <span style={{ width: 28, height: 28, borderRadius: '50%', background: i === 0 ? '#DEC283' : 'rgba(255,255,255,.1)', color: i === 0 ? '#12294D' : '#fff', display: 'grid', placeItems: 'center', fontSize: 13, fontWeight: 800 }}>{i + 1}</span>
           <span style={{ fontSize: 15, fontWeight: 600, color: '#fff' }}>{x}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Arama sonucu — klinik listesi (ana sayfa vitrini) */
+export function AramaGorsel() {
+  return (
+    <div className="vt-cihaz vt-cihaz--genis">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 14px', borderRadius: 12, background: 'rgba(255,255,255,.08)', marginBottom: 12 }}>
+        <HkIcon name="search" size={18} color="#FFFFFF" accent="#DEC283" bg="#1B1C1F" />
+        <span style={{ fontSize: 13.5, color: 'rgba(255,255,255,.75)' }}>İmplant · Kadıköy</span>
+      </div>
+      {[0, 1, 2].map(i => (
+        <div key={i} className="vt-h-belir" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 14, background: 'rgba(255,255,255,.05)', marginBottom: 8, animationDelay: `${200 + i * 140}ms` }}>
+          <span style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,.09)', display: 'grid', placeItems: 'center', flex: 'none' }}>
+            <HkIcon name="dentistry" size={22} color="#FFFFFF" accent="#DEC283" bg="#1B1C1F" />
+          </span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={cizgi(['72%', '58%', '66%'][i], 0.5)} /><span style={{ ...cizgi(['44%', '52%', '38%'][i]), marginTop: 7 }} />
+          </span>
+          <span style={{ display: 'flex', gap: 2 }}>
+            {[0, 1, 2, 3, 4].map(y => <svg key={y} width="11" height="11" viewBox="0 0 24 24" fill={y < 5 - (i === 1 ? 1 : 0) ? '#DEC283' : 'rgba(255,255,255,.18)'}><path d="M12 3.6l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.6l-5.1 2.7 1-5.7-4.1-4 5.7-.8z" /></svg>)}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Sağlık rehberi — konu başlıkları (ana sayfa vitrini) */
+export function RehberGorsel() {
+  const konular: [string, 'dentistry' | 'health-info' | 'pediatrics' | 'info'][] = [['Diş eti çekilmesi', 'dentistry'], ['Kanal tedavisi nedir?', 'health-info'], ['Çocuklarda ilk muayene', 'pediatrics'], ['İmplant sonrası bakım', 'info']];
+  return (
+    <div className="vt-cihaz vt-cihaz--genis">
+      {konular.map(([ad, ikon], i) => (
+        <div key={ad} className="vt-h-belir" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 14px', borderRadius: 14, background: i === 0 ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.05)', marginBottom: 8, animationDelay: `${i * 130}ms` }}>
+          <HkIcon name={ikon} size={22} color="#FFFFFF" accent="#DEC283" bg="#1B1C1F" />
+          <span style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>{ad}</span>
+          <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,.4)', fontSize: 16 }}>›</span>
         </div>
       ))}
     </div>

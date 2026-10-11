@@ -4,6 +4,7 @@
 // Kaydırdıkça görünen kart solda işaretlenir (IntersectionObserver); listeden
 // tıklayınca ilgili karta kaydırılır. Telefonda liste yatay kaydırılan çip şeridine döner.
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 
 export interface Arac {
   id: string;
@@ -16,6 +17,10 @@ export interface Arac {
   gorsel: React.ReactNode;
   /** Köşedeki noktalı grafik */
   desen?: React.ReactNode;
+  /** Kartın tamamı bu adrese gider */
+  href?: string;
+  /** Üzerine gelince kartın büründüğü renk (açık ton) ve şerit/düğme rengi (koyu ton) */
+  renk?: { zemin: string; vurgu: string };
 }
 
 export default function AracVitrini({ baslik, araclar }: { baslik: string; araclar: Arac[] }) {
@@ -55,17 +60,29 @@ export default function AracVitrini({ baslik, araclar }: { baslik: string; aracl
         </nav>
       </div>
       <div className="vt-arac__kartlar">
-        {araclar.map(a => (
-          <article key={a.id} data-id={a.id} ref={el => { kartlar.current[a.id] = el; }} className="vt-arac__kart">
-            {a.desen}
-            <div className="vt-arac__ust">
-              <span className="vt-arac__etiket">{a.etiket}</span>
-              {a.pro && <span className="vt-pro">Pro</span>}
-            </div>
-            <p className="vt-arac__cumle">{a.cumle}</p>
-            <div className="vt-arac__gorsel">{a.gorsel}</div>
-          </article>
-        ))}
+        {araclar.map(a => {
+          const ic = (
+            <>
+              {a.desen}
+              {/* Üzerine gelince arkadan akan bağlantı şeridi */}
+              <div className="vt-serit" aria-hidden="true">
+                <div className="vt-serit__ic">
+                  {Array.from({ length: 12 }).map((_, i) => <span key={i}>{a.ad} →</span>)}
+                </div>
+              </div>
+              <div className="vt-arac__ust">
+                <span className="vt-arac__etiket">{a.etiket}</span>
+                {a.pro && <span className="vt-pro">Pro</span>}
+              </div>
+              <p className="vt-arac__cumle">{a.cumle}</p>
+              <div className="vt-arac__gorsel">{a.gorsel}</div>
+            </>
+          );
+          const stil = a.renk ? ({ ['--vt-zemin' as string]: a.renk.zemin, ['--vt-vurgu' as string]: a.renk.vurgu } as React.CSSProperties) : undefined;
+          return a.href
+            ? <Link key={a.id} href={a.href} data-id={a.id} ref={(el: HTMLAnchorElement | null) => { kartlar.current[a.id] = el; }} className="vt-arac__kart vt-arac__kart--bag" style={stil} aria-label={`${a.ad}: ${a.cumle}`}>{ic}</Link>
+            : <article key={a.id} data-id={a.id} ref={el => { kartlar.current[a.id] = el; }} className="vt-arac__kart" style={stil}>{ic}</article>;
+        })}
       </div>
     </div>
   );

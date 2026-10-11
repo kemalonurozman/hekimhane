@@ -16,14 +16,14 @@ function maske(ad: HkIkonAdi): string {
   return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
 }
 
-export default function NoktaGrafik({ ikon, size = 220, koyu = false, className, style }: {
-  ikon: HkIkonAdi; size?: number; koyu?: boolean; className?: string; style?: React.CSSProperties;
+export default function NoktaGrafik({ ikon, size = 220, koyu = false, renk, className, style }: {
+  ikon: HkIkonAdi; size?: number; koyu?: boolean; /** Nokta rengi (varsayılan: açıkta gri, koyuda beyaz) */ renk?: string; className?: string; style?: React.CSSProperties;
 }) {
   const m = maske(ikon);
   return (
     <span aria-hidden="true" className={className ? `vt-nokta ${className}` : 'vt-nokta'} style={{
       width: size, height: size,
-      backgroundImage: `radial-gradient(circle, ${koyu ? 'rgba(255,255,255,.34)' : '#B9C2D0'} 1.15px, transparent 1.5px)`,
+      backgroundImage: `radial-gradient(circle, ${renk || (koyu ? 'rgba(255,255,255,.34)' : '#B9C2D0')} 1.15px, transparent 1.5px)`,
       WebkitMaskImage: m, maskImage: m, ...style,
     }} />
   );
