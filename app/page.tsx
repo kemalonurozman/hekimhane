@@ -73,9 +73,8 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
       supabase.from('klinikler').select('*').eq('premium', true).limit(10),
       supabase.from('doktorlar').select('*').eq('premium', true).not('tags', 'cs', '{devlet-dis-hastanesi}').limit(10),
     ]);
-    // Pro'lardan sonra: sahibi tarafından yönetilen ve kendi görselini yüklemiş profiller.
-    // Sıra: profil puanı (canlı hesaplanır — kolon/migration'a bağlı değil), eşitlikte en son
-    // güncellenen önde. Puan ziyaretçiye gösterilmez. Sahiplik: klinikte `claimed`, doktorda
+    // Adaylar: Pro üyeler + sahibi tarafından yönetilen profiller. Puan canlı hesaplanır
+    // (kolon/migration'a bağlı değil) ve ziyaretçiye gösterilmez. Sahiplik: klinikte `claimed`, doktorda
     // onaylı claim kaydı (doktorlar tablosunda claimed kolonu yok).
     const { data: dClaims } = await (supabase as any).from('claim_requests')
       .select('entity_id').eq('entity_type', 'doktor').eq('status', 'approved').limit(200);
@@ -88,12 +87,7 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
     ]);
     const adaySec = (rows: any[], tip: 'klinik' | 'doktor') => rows
       .filter(r => r.premium !== true)
-      .map(r => {
-        const s = profilPuaniHesapla(tip, r);
-        return { r, puan: s.puan, gorsel: (s.kalemler.find(x => x.anahtar === 'ana-gorsel')?.puan || 0) > 0 };
-      })
-      .filter(x => x.gorsel)                       // logosu / profil fotoğrafı olmayan öne çıkmaz
-      .map(x => ({ ...x.r, profil_puani: x.puan }));
+      .map(r => ({ ...r, profil_puani: profilPuaniHesapla(tip, r).puan }));   // kartlar fotoğrafsız → görsel şartı yok
     const kPuanli = adaySec((kpRes.error ? [] : kpRes.data || []) as any[], 'klinik');
     const dPuanli = adaySec((dpRes.error ? [] : dpRes.data || []) as any[], 'doktor');
     const klinikler: PremiumItem[] = [...(kRes.data as any[] || []), ...kPuanli]
@@ -122,21 +116,16 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
         rat: Number(d.rat) || 0, rev: Number(d.rev) || 0,
         premium: d.premium === true, sira: Number(d.profil_puani) || profilPuaniHesapla('doktor', d).puan, guncel: Date.parse(d.updated_at || '') || 0,
       }));
-    // Ölü görseller (süresi dolan Google Places URL'leri → 403) sunucuda ayıklanır:
-    // SSR standart illüstrasyonu basar, tarayıcıda "?" anı hiç olmaz. Kısa
-    // zaman aşımı — yavaş bir CDN ana sayfayı bekletmesin (o durumda görsel kalır,
-    // istemcideki SafeLogo yine yakalar).
-    // Pro üyeler en önde; ardından profil puanına göre (klinik/doktor karışık), en fazla 12 kart
-    const hepsi = [...klinikler, ...doktorlar]
-      .sort((a, b) => (Number(b.premium) - Number(a.premium)) || ((b.sira || 0) - (a.sira || 0)) || ((b.guncel || 0) - (a.guncel || 0)) || (b.rat - a.rat))
-      .slice(0, 12);
-    await Promise.all(hepsi.map(async it => {
-      if (!it.foto || it.foto.startsWith('/')) return;
-      try {
-        const r = await fetch(it.foto, { method: 'HEAD', redirect: 'follow', signal: AbortSignal.timeout(2500), cache: 'no-store' });
-        if (r.status === 403 || r.status === 404 || r.status === 410) it.foto = null;
-      } catch { /* zaman aşımı/ağ — görseli bırak, istemci yedeği çalışır */ }
-    }));
+    // Sıra: profil puanı en yüksek olanlar önde → ilk üç kart her zaman profili en dolu üç üye.
+    // Puanı EŞİT olanlar her sayfa açılışında kendi aralarında yer değiştirir (önce karıştır,
+    // sonra kararlı sırala). Pro üyelik sıralamada rol oynamaz; yalnız küçük altın işaretle belirtilir.
+    // Kartlar fotoğrafsızdır, bu yüzden görsel yoklaması da yapılmaz.
+    const karisik = [...klinikler, ...doktorlar];
+    for (let k = karisik.length - 1; k > 0; k--) {
+      const r = Math.floor(Math.random() * (k + 1));
+      [karisik[k], karisik[r]] = [karisik[r], karisik[k]];
+    }
+    const hepsi = karisik.sort((a, b) => (b.sira || 0) - (a.sira || 0)).slice(0, 9);
     // Puan tarayıcıya gitmez: sıralama bitti, alan düşürülür
     return hepsi.map(({ sira: _sira, guncel: _guncel, ...it }) => it);
   } catch { return []; }

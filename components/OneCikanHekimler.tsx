@@ -1,8 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import SafeLogo from '@/components/SafeLogo';
-import { basHarfler } from '@/lib/hk';
 
 export type PremiumItem = {
   /** Pro üye mi (altın mühür yalnız bunlarda). Yoksa true sayılır — eski çağrılarla uyum. */
@@ -23,9 +21,6 @@ export type PremiumItem = {
   rev: number;
 };
 
-// Fotoğrafı olmayan kartlar için markaya uygun, telifsiz diş temalı jenerik görseller
-const GENEL_GORSELLER = ['/premium/dis-1.svg', '/premium/dis-2.svg', '/premium/dis-3.svg', '/premium/dis-4.svg'];
-
 function Yildizlar({ rat }: { rat: number }) {
   const dolu = Math.round(rat);
   return (
@@ -45,15 +40,15 @@ export default function OneCikanHekimler({ items }: { items: PremiumItem[] }) {
   return (
     <section style={{ padding: '60px 0', background: '#FFFFFF' }}>
       <style>{`
-        .ocp-grid{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;}
-        .ocp-item{flex:1 1 300px;max-width:360px;min-width:0;background:#fff;border:1px solid #E5E5EA;border-radius:20px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);text-decoration:none;display:flex;flex-direction:column;transition:box-shadow .2s,transform .2s;}
-        .ocp-item:hover{box-shadow:0 12px 32px rgba(26,51,94,.14);transform:translateY(-3px);}
-        .ocp-ph{position:relative;aspect-ratio:16/11;background:linear-gradient(120deg,var(--tint-50),var(--tint-100));overflow:hidden;}
-        .ocp-init{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:56px;letter-spacing:-.02em;color:var(--brand);}
-        .ocp-ph img{width:100%;height:100%;object-fit:cover;display:block;}
+        .ocp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+        .ocp-item{position:relative;display:flex;flex-direction:column;min-height:168px;padding:20px 20px 18px;border:1px solid var(--border);border-radius:18px;background:#fff;text-decoration:none;box-shadow:0 1px 2px rgba(14,26,44,.04);transition:box-shadow .22s,transform .22s,border-color .22s;}
+        .ocp-item:hover{box-shadow:0 14px 34px -18px rgba(18,41,77,.38);transform:translateY(-2px);border-color:#C1CEE2;}
+        .ocp-ad{margin:0 0 6px;padding-right:26px;font-size:16.5px;line-height:1.3;font-weight:700;letter-spacing:-.02em;color:#12294D;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+        @media (max-width: 900px){.ocp-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+        @media (max-width: 600px){.ocp-grid{grid-template-columns:minmax(0,1fr);gap:12px;}.ocp-item{min-height:0;padding:18px;}}
       `}</style>
       <div className="container">
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 26 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
           <div>
             <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '1.2px', textTransform: 'uppercase', color: 'var(--gold-text)', margin: '0 0 10px' }}>
               Öne Çıkan Üyeler
@@ -67,35 +62,35 @@ export default function OneCikanHekimler({ items }: { items: PremiumItem[] }) {
           </Link>
         </div>
 
+        {/* Fotoğrafsız, yalın kartlar: tür · ad · uzmanlık · konum · değerlendirme */}
         <div className="ocp-grid">
-          {items.slice(0, 12).map((it, idx) => (
+          {items.slice(0, 9).map((it, idx) => (
             <Link key={idx} href={it.href} className="ocp-item">
-              <div className="ocp-ph">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                {/* Fotoğraf yoksa diş görseli değil baş harfler (tasarım sistemi: Avatar) */}
-                <SafeLogo src={it.foto} alt={it.ad} fallback={<div className="ocp-init" aria-hidden="true">{basHarfler(it.ad)}</div>} />
-
-                {/* Altın yıldız mührü (profildeki gibi) — "premium" yazısı yerine */}
-                {it.premium !== false && <span title="Premium üye" style={{ position: 'absolute', top: 11, left: 11, width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg,#EAC86B,#B8892F)', border: '2px solid rgba(255,255,255,.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,.28)' }}>
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.8 5.9 20.4l1.5-6.8L2.2 9l6.9-.7z" /></svg>
-                </span>}
-              </div>
-              <div style={{ padding: '16px 18px 18px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--gold-text)', marginBottom: 6 }}>
-                  {it.tip === 'doktor' ? 'Diş Hekimi' : 'Diş Kliniği'}
+              {it.premium === true && (
+                <span title="Pro üye" aria-label="Pro üye" style={{ position: 'absolute', top: 18, right: 18, width: 22, height: 22, borderRadius: '50%', background: '#F7F0DE', boxShadow: 'inset 0 0 0 1px #EAD9AE', display: 'grid', placeItems: 'center' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="#B8892F"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.8 5.9 20.4l1.5-6.8L2.2 9l6.9-.7z" /></svg>
                 </span>
-                <h3 style={{ fontSize: 16, fontWeight: 800, color: '#12294B', letterSpacing: '-0.3px', lineHeight: 1.3, margin: '0 0 6px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{it.ad}</h3>
-                <div style={{ fontSize: 13, color: '#1A335E', fontWeight: 600, marginBottom: 8 }}>{it.altbaslik}</div>
-                {(it.il || it.ilce) && (
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, color: '#6E6E73', marginBottom: 12 }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1A335E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+              )}
+              <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--gold-text)', marginBottom: 8 }}>
+                {it.tip === 'doktor' ? 'Diş Hekimi' : 'Diş Kliniği'}
+              </span>
+              <h3 className="ocp-ad">{it.ad}</h3>
+              <div style={{ fontSize: 13.5, color: '#3C4A61', fontWeight: 500, marginBottom: 10 }}>{it.altbaslik}</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', marginTop: 'auto', paddingTop: 12, borderTop: '1px solid #F0F1F4' }}>
+                {(it.il || it.ilce) ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, color: '#6E6E73' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-6.5-5.7-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 15.3 12 21 12 21z" /><circle cx="12" cy="9.8" r="2.4" /></svg>
                     {[it.ilce, it.il].filter(Boolean).join(', ')}
-                  </div>
+                  </span>
+                ) : <span />}
+                {it.rev > 0 ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    <Yildizlar rat={it.rat} />
+                    <span style={{ fontSize: 12, color: '#6E6E73', fontVariantNumeric: 'tabular-nums' }}>{it.rat.toFixed(1)} ({it.rev})</span>
+                  </span>
+                ) : (
+                  <span style={{ fontSize: 12, color: '#AEAEB2' }}>Henüz değerlendirme yok</span>
                 )}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 'auto' }}>
-                  <Yildizlar rat={it.rev > 0 ? it.rat : 0} />
-                  <span style={{ fontSize: 12, color: '#8E8E93' }}>{it.rev > 0 ? `${it.rat.toFixed(1)} (${it.rev})` : 'Yeni'}</span>
-                </div>
               </div>
             </Link>
           ))}
