@@ -566,6 +566,7 @@ export default function HeroAnimated({ stats }: Props) {
     { baslik: 'Rezervasyon sistemini kendi sitenize ekleyin', alt: 'Hastalarınız web sitenizden çıkmadan uygun saati seçip randevu alır.' },
     { baslik: 'HekimKart ile dijital kartvizitinizi paylaşın', alt: 'Tek bağlantı ya da QR kodla paylaşın; profiliniz güncellendikçe kartınız da güncellenir.' },
   ];
+  const SURE_ILK = 7500, SURE_DIGER = 6000;   // ms — nokta göstergesindeki kısalan çubukla aynı
   const [b, setB] = useState(0);
   const [soluk, setSoluk] = useState(false);   // geçiş: önce yavaşça söner, sonra yeni başlık belirir
   const gec = useCallback((hedef: number | null) => {
@@ -577,7 +578,7 @@ export default function HeroAnimated({ stats }: Props) {
   }, []);
   // Süre dolunca kendiliğinden sıradakine geçer — her zaman (noktaya basmak da durdurmaz, süre yeniden başlar)
   useEffect(() => {
-    const t = setTimeout(() => gec(null), b === 0 ? 7500 : 6000);
+    const t = setTimeout(() => gec(null), b === 0 ? SURE_ILK : SURE_DIGER);
     return () => clearTimeout(t);
   }, [b, gec]);
 
@@ -608,9 +609,13 @@ export default function HeroAnimated({ stats }: Props) {
         .hk-hero-don.is-soluk { opacity: 0; transform: translateY(8px); transition-duration: .6s; transition-delay: 0s; }
         .hk-hero-noktalar { display: flex; justify-content: center; gap: 6px; margin: -14px 0 22px; }
         .hk-hero-noktalar button { width: 6px; height: 6px; padding: 0; border: 0; border-radius: 999px; background: #C1CEE2; cursor: pointer; transition: width .6s cubic-bezier(.4,0,.2,1), background .6s; }
-        .hk-hero-noktalar button.is-aktif { width: 20px; background: #12294D; }
+        .hk-hero-noktalar button { position: relative; overflow: hidden; }
+        .hk-hero-noktalar button.is-aktif { width: 34px; background: #C1CEE2; }
+        .hk-hero-noktalar button.is-aktif span { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; border-radius: 999px; background: #12294D; transform-origin: left center; animation: hkNoktaSure linear forwards; }
+        @keyframes hkNoktaSure { from { transform: scaleX(1); } to { transform: scaleX(0); } }
         /* Hareketi azalt: kayma yok, yalnız yumuşak solma — başlık yine kendiliğinden değişir */
         @media (prefers-reduced-motion: reduce) { .hk-hero-don, .hk-hero-don.is-soluk { transform: none; } }
+        /* Süre çubuğu hareketi azalt açıkken de çalışır: başlık yine kendiliğinden değiştiği için ne zaman değişeceği belli olmalı */
         .hk-hero-baslik { margin: 0 auto 16px; max-width: 900px; font-family: var(--font-display); font-size: 64px; line-height: 68px; font-weight: 800; letter-spacing: -0.035em; color: var(--brand); }
         .hk-hero-alt { margin: 0 auto 32px; max-width: 560px; font-size: 18px; line-height: 28px; color: var(--ink-secondary); }
         /* Arama çubuğu — marka kimliği v1 (Uygulamalar: web hero): beyaz kart, 18px köşe,
@@ -757,7 +762,10 @@ export default function HeroAnimated({ stats }: Props) {
         <div className="hk-hero-noktalar" role="tablist" aria-label="Başlıklar">
           {basliklar.map((x, i) => (
             <button key={x.baslik} type="button" role="tab" aria-selected={i === b} aria-label={x.baslik}
-              className={i === b ? 'is-aktif' : undefined} onClick={() => { if (i !== b) gec(i); }} />
+              className={i === b ? 'is-aktif' : undefined} onClick={() => { if (i !== b) gec(i); }}>
+              {/* Kalan süre: dolgu sağdan sola kısalır; bitince sıradaki başlığa geçilir */}
+              {i === b && <span key={b} style={{ animationDuration: `${b === 0 ? SURE_ILK : SURE_DIGER}ms` }} />}
+            </button>
           ))}
         </div>
 
