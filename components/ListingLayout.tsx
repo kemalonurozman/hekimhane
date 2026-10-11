@@ -259,7 +259,7 @@ export default function ListingLayout(props: ListingLayoutProps) {
       <style>{`
         .listing-body {
           display: grid;
-          grid-template-columns: 272px 1fr;
+          grid-template-columns: 272px minmax(0, 1fr);
           gap: 24px;
           padding: 28px 32px;
           align-items: start;
@@ -364,7 +364,7 @@ export default function ListingLayout(props: ListingLayoutProps) {
 
         @media (max-width: 768px) {
           .listing-body {
-            grid-template-columns: 1fr;
+            grid-template-columns: minmax(0, 1fr);
             gap: 16px;
             padding: 16px 16px;
           }

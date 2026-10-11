@@ -456,7 +456,11 @@ export default function KatilPage() {
               : 'İncelemenin ardından sizi e-posta ile bilgilendireceğiz.'}
           </p>
           <div className="katil-adimlar" aria-label="Başvuru adımları">
-            <span className={step === 'kategori' ? 'is-aktif' : undefined}><b>1</b>Tür</span><i />
+            {/* Form adımındayken "1 Tür" tıklanabilir — tür seçimine döner */}
+            {step === 'form'
+              ? <button type="button" className="katil-adim-geri" onClick={tureDon} aria-label="Tür seçimine dön"><b>1</b>Tür</button>
+              : <span className={step === 'kategori' ? 'is-aktif' : undefined}><b>1</b>Tür</span>}
+            <i />
             <span className={step === 'form' ? 'is-aktif' : undefined}><b>2</b>Bilgiler</span><i />
             <span className={step === 'tamam' ? 'is-aktif' : undefined}><b>3</b>Onay</span>
           </div>
@@ -472,7 +476,7 @@ export default function KatilPage() {
             <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, letterSpacing: '-0.02em', color: 'var(--ink)', margin: '0 0 10px' }}>Teşekkürler</h2>
             <p style={{ color: 'var(--ink-secondary)', fontSize: 15, lineHeight: 1.7, margin: '0 0 26px' }}>
               <strong style={{ color: 'var(--ink)' }}>{form.isletme_adi}</strong> için başvurunuz kaydedildi.
-              İnceleme tamamlandığında <strong style={{ color: 'var(--ink)' }}>{form.email}</strong> adresine yazacağız.
+              Çoğu başvuruyu birkaç saat içinde, en geç 24 saatte yanıtlıyoruz; sonucu <strong style={{ color: 'var(--ink)' }}>{form.email}</strong> adresine yazacağız.
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link href="/" style={{ padding: '12px 22px', background: '#12294D', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
@@ -790,7 +794,12 @@ export default function KatilPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'sticky', top: 90 }}>
               <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '20px' }}>
                 <h3 style={{ fontWeight: 700, fontSize: 14, marginBottom: 14, color: 'var(--text)' }}>Nasıl çalışır?</h3>
-                {['Formu doldurup gönderin', 'Başvurunuzu inceler, işletme telefonunuzdan doğrularız', 'Sonucu e-posta ile bildiririz', 'Panelden profilinizi yönetirsiniz'].map((s, i) => (
+                {[
+                  'Formu doldurup gönderin.',
+                  'Başvurunuzu inceler, işletme telefonunuzdan doğrularız. Çoğu başvuru birkaç saat içinde, en geç 24 saatte yanıtlanır.',
+                  'İşletmeniz sistemde zaten kayıtlıysa kayıtlar birleştirilir; güncel hesabınız size gönderilir.',
+                  'Sonucu e-posta ile bildiririz; panelden profilinizi yönetmeye başlarsınız.',
+                ].map((s, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
                     <div style={{ width: 22, height: 22, borderRadius: 6, background: `${seciliKat.renk}15`, color: seciliKat.renk, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, flexShrink: 0 }}>{i + 1}</div>
                     <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{s}</p>
@@ -806,6 +815,16 @@ export default function KatilPage() {
                     {x}
                   </div>
                 ))}
+              </div>
+
+              {/* Pro üyelik — doğrudan iletişim (sohbet balonu ya da e-posta) */}
+              <div style={{ background: 'var(--tint-50)', borderRadius: 16, border: '1px solid var(--tint-200)', padding: '18px 20px' }}>
+                <h3 style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)', marginBottom: 6 }}>Pro üyelik mi düşünüyorsunuz?</h3>
+                <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.55, margin: 0 }}>
+                  Bize doğrudan ulaşabilirsiniz: sağ alttaki sohbet balonundan yazın ya da{' '}
+                  <a href="mailto:info@hekimhane.com.tr" style={{ color: 'var(--brand)', fontWeight: 600 }}>info@hekimhane.com.tr</a> adresine e-posta gönderin.{' '}
+                  <Link href="/pro" style={{ color: 'var(--brand)', fontWeight: 600 }}>Pro özelliklerini inceleyin →</Link>
+                </p>
               </div>
 
               {/* Eklenenler özet */}

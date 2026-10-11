@@ -46,7 +46,7 @@ export default function KVKKPage() {
 
       <div className="container hastalik-content-grid" style={{ padding: '48px 20px' }}>
         {/* İçerik */}
-        <article style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '40px 48px' }}>
+        <article className="kvkk-article" style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '40px 48px', minWidth: 0 }}>
 
           <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 12, padding: '16px 20px', marginBottom: 36, fontSize: 14, color: '#1E40AF', lineHeight: 1.6 }}>
             <strong>Önemli Bilgi:</strong> Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu'nun ("KVKK") 10. maddesi ve Aydınlatma Yükümlülüğünün Yerine Getirilmesinde Uyulacak Usul ve Esaslar Hakkında Tebliğ kapsamında hazırlanmıştır.
@@ -72,7 +72,7 @@ export default function KVKKPage() {
             </h2>
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, marginBottom: 16 }}>Platform kullanımı sırasında aşağıdaki kişisel veriler işlenebilir:</p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+            <div className="kvkk-iki" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
               {[
                 { icon: '👤', title: 'Kimlik Verileri', desc: 'Ad, soyad (üye girişi varsa)' },
                 { icon: '📧', title: 'İletişim Verileri', desc: 'E-posta adresi (bülten aboneliği)' },
@@ -158,7 +158,7 @@ export default function KVKKPage() {
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, marginBottom: 16 }}>
               Kişisel verileriniz, işlenme amacının gerektirdiği süre boyunca ve ilgili yasal mevzuatta öngörülen süreler dikkate alınarak saklanmaktadır:
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="kvkk-iki" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {[
                 { cat: 'Üyelik verileri',      sure: 'Üyelik sona erince + 3 yıl' },
                 { cat: 'İşlem kayıtları',       sure: '10 yıl (TTK gereği)' },
@@ -183,7 +183,7 @@ export default function KVKKPage() {
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, marginBottom: 20 }}>
               KVKK'nın 11. maddesi uyarınca aşağıdaki haklara sahipsiniz:
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="kvkk-iki" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
                 { emoji: '📋', hak: 'Bilgi alma',         aciklama: 'Kişisel verilerinizin işlenip işlenmediğini öğrenme' },
                 { emoji: '🔍', hak: 'Bilgiye erişim',     aciklama: 'İşlenen veriler hakkında bilgi talep etme' },

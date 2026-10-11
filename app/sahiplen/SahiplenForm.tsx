@@ -285,7 +285,7 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
               { n: '1', t: 'İtiraz talebinizi gönderin' },
               { n: '2', t: 'Ekibimiz her iki tarafla iletişime geçer' },
               { n: '3', t: 'Belgeler incelenerek doğrulama yapılır' },
-              { n: '4', t: 'Sonuç e-posta ile bildirilir (2–5 iş günü)' },
+              { n: '4', t: 'Sonuç e-posta ile bildirilir (çoğunlukla birkaç saat, en geç 24 saat)' },
             ].map(s => (
               <div key={s.n} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, fontSize: 13, color: '#78350F' }}>
                 <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#F59E0B', color: 'white', fontSize: 11, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.n}</div>

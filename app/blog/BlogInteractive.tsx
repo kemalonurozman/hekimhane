@@ -1,5 +1,6 @@
 'use client';
 
+import FooterBulten from '@/components/FooterBulten';
 import { useState } from 'react';
 import Link from 'next/link';
 import type { HastalıkOzet } from './page';
@@ -185,35 +186,17 @@ function NewsletterSection() {
   const [done, setDone] = useState(false);
 
   return (
-    <div style={{ background: 'linear-gradient(135deg, var(--navy), var(--navy2))', borderRadius: 24, padding: '40px', textAlign: 'center', marginTop: 48 }}>
-      <div style={{ fontSize: 32, marginBottom: 12 }}>📬</div>
+    <div style={{ background: 'linear-gradient(135deg, var(--navy), var(--navy2))', borderRadius: 24, padding: 'clamp(24px, 6vw, 40px)', textAlign: 'center', marginTop: 48 }}>
       <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 800, color: 'white', marginBottom: 8 }}>
         Sağlık bültenimize abone olun
       </h3>
       <p style={{ color: 'rgba(255,255,255,.7)', fontSize: 14, marginBottom: 20 }}>
-        Her hafta seçilmiş sağlık yazıları e-posta kutunuza gelsin.
+        Yeni sağlık yazılarını e-posta ile alın.
       </p>
-      {done ? (
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.15)', borderRadius: 12, padding: '12px 24px', color: 'white', fontWeight: 700, fontSize: 14 }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          Abone oldunuz, teşekkürler!
-        </div>
-      ) : (
-        <div style={{ display: 'flex', gap: 10, maxWidth: 420, margin: '0 auto' }}>
-          <input
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            placeholder="E-posta adresiniz"
-            style={{ flex: 1, padding: '12px 16px', borderRadius: 10, border: 'none', fontSize: 14, fontFamily: 'inherit', outline: 'none' }}
-          />
-          <button
-            onClick={() => { if (email.includes('@')) setDone(true); }}
-            style={{ padding: '12px 22px', background: 'var(--gold-fill)', color: 'var(--on-gold)', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-            Abone Ol
-          </button>
-        </div>
-      )}
+      {/* Gerçek kayıt + açık e-posta izni (eskiden düğme hiçbir yere kaydetmeden "abone oldunuz" diyordu) */}
+      <div style={{ maxWidth: 440, margin: '0 auto', textAlign: 'left' }}>
+        <FooterBulten />
+      </div>
     </div>
   );
 }

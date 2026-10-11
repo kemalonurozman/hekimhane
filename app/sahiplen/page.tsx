@@ -194,7 +194,7 @@ export default async function SahiplenPage(
                 ))}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 14, paddingTop: 13, borderTop: '1px solid #F0ECE4', fontSize: 12, color: 'var(--muted)' }}>
                   <i className="fa-regular fa-clock" style={{ color: 'var(--gold)' }} />
-                  Ortalama yanıt süresi: 1–2 iş günü
+                  Çoğu başvuru birkaç saat içinde, en geç 24 saatte yanıtlanır
                 </div>
               </div>
 

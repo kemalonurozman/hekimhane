@@ -48,9 +48,10 @@ export default function YasalSayfa({ baslik, ozet, bolumler, yol, children }: {
           .yasal-tablo th, .yasal-tablo td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--border); }
           .yasal-tablo th { font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--ink-tertiary); background: var(--canvas); }
           .yasal-tablo-sar { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; margin: 4px 0 14px; }
-          @media (max-width: 900px) { .yasal-izgara { grid-template-columns: 1fr; } }
+          @media (max-width: 900px) { .yasal-izgara { grid-template-columns: minmax(0, 1fr); } }
+          @media (max-width: 640px) { .yasal-tablo { font-size: 13px; min-width: 520px; } }
         `}</style>
-        <div>
+        <div style={{ minWidth: 0 }}>
           {children}
           {bolumler.map((b, i) => (
             <section key={i} id={`b${i + 1}`} style={{ background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: 16, padding: '22px 24px', marginBottom: 14 }}>

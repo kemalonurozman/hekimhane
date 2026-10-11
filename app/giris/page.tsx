@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
@@ -86,6 +86,12 @@ function GirisContent() {
   // Hangi girişte olduğumuz ilk bakışta belli olmalı; üst menü ?tip= ile buraya yönlendirir.
   const [kullaniciTip, setKullaniciTip] = useState<'hasta' | 'isletme'>(
     searchParams.get('tip') === 'hasta' ? 'hasta' : 'isletme');
+  // Üst menüden Doktor / Hasta seçimi sayfa açıkken de değişebilir (aynı sayfada ?tip= güncellenir)
+  //  → seçim adres çubuğunu izler; yalnız ilk açılışta okumak yetmez.
+  const tipParam = searchParams.get('tip');
+  useEffect(() => {
+    if (tipParam === 'hasta' || tipParam === 'isletme') setKullaniciTip(tipParam);
+  }, [tipParam]);
   const [email,      setEmail]      = useState(searchParams.get('email') || '');
   const [password,   setPassword]   = useState('');
   const [password2,  setPassword2]  = useState('');
@@ -252,13 +258,14 @@ function GirisContent() {
     transition: 'all .15s',
   };
   // Apple-tarzı segmented control
-  const segTrack: React.CSSProperties = { display: 'flex', background: '#EFEFF2', borderRadius: 12, padding: 4, gap: 4 };
+  // Giriş Yap / Kayıt Ol — belirgin: seçili sekme lacivert dolgu, diğeri koyu metin
+  const segTrack: React.CSSProperties = { display: 'flex', background: '#EEF1F6', border: '1px solid #DDE3EC', borderRadius: 14, padding: 5, gap: 5 };
   const segBtn = (active: boolean): React.CSSProperties => ({
-    flex: 1, padding: '9px 8px', borderRadius: 9, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-    fontSize: 13.5, fontWeight: 600, letterSpacing: '-0.1px',
-    background: active ? '#FFFFFF' : 'transparent',
-    color: active ? 'var(--navy)' : '#8A8A8E',
-    boxShadow: active ? '0 1px 3px rgba(0,0,0,.13), 0 1px 1px rgba(0,0,0,.04)' : 'none',
+    flex: 1, minHeight: 46, padding: '10px 8px', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+    fontSize: 15, fontWeight: 700, letterSpacing: '-0.1px',
+    background: active ? '#12294D' : 'transparent',
+    color: active ? '#FFFFFF' : '#3C4A61',
+    boxShadow: active ? '0 1px 2px rgba(14,26,44,.2), 0 6px 14px -8px rgba(18,41,77,.55)' : 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
     transition: 'all .18s cubic-bezier(.4,0,.2,1)',
   });

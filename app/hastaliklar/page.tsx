@@ -324,9 +324,7 @@ export default function HastalıklarPage() {
           <div style={{
             background: 'linear-gradient(135deg, #0A2540 0%, #163D6E 100%)',
             borderRadius: 22,
-            padding: '48px 48px',
-            display: 'grid', gridTemplateColumns: '1fr auto', gap: 48, alignItems: 'center',
-          }}>
+          }} className="hast-cta">
             <div>
               <p style={{
                 fontSize: 11, fontWeight: 600, letterSpacing: '1.2px',
@@ -342,7 +340,7 @@ export default function HastalıklarPage() {
               </h2>
               <p style={{ color: 'rgba(255,255,255,.6)', fontSize: 15, margin: 0, lineHeight: 1.65, letterSpacing: '.1px' }}>
                 Okuduğunuz hastalıkla ilgili en yakın uzman doktoru bulun.
-                12.000+ doktor profili ile Türkiye genelinde sağlık hizmeti arayın.
+                Türkiye genelindeki hekim ve klinik profilleri arasında arama yapın.
               </p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 180 }}>
