@@ -567,6 +567,10 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Arama (hepsi + devlet/üniversite modları):** `aramaKelimeleri()` metni kelimelere böler (`.or()` bozan `, ( ) % *` ayıklanır), her kelime **VE** ile ve **kelime başından** eşleşir (`basla()`: `w%`, `% w%`, `%.w%`). Hekimde ad/soyad (+3 harften itibaren branş), klinikte ad. Böylece "mehmet y" → 11, "mehmet yıl" → 1 sonuç: yazdıkça aranan hekime kadar daralır. Arama varken adı yazılanla başlayan kayıt, özel/devlet ayrımından önce en üste gelir. Özel modun (`getKlinikler`) kendi arama mantığı aynen duruyor.
 - `DoktorCard`: unvan adın başında zaten varsa tekrar eklenmez ("Dt. Dt. …" düzeltildi).
 
+### Üst Menü — Diğer Branşlar (Eki 2026)
+- Diş dışı meslekler (fizyoterapist/Bobath, fizik tedavi, psikiyatri, psikolog) ve kurumlar (devlet diş hastaneleri, hastaneler, eczaneler) eskiden **yalnız footer'daydı** (commit f1c6ff5); üst menü 75ca3c1'den beri diş odaklıydı. Artık `Navbar.tsx` → `DIGER_BRANSLAR` ile **"Diğer Branşlar"** açılır menüsü (masaüstü + mobil akordeon), alt bağlantı "Tüm Doktorlar" → `/doktorlar`.
+- **Menü genişliği:** öğeler `white-space: nowrap` (`.nav-ogesi`); ≤1260px 14px/8px sıkılaşır; **≤1100px hamburger menüye geçilir** (eskiden 768px — 769–1100px arasında yazılar iki satıra kırılıyordu).
+
 ### Navbar CTA ve /katil İlk Adım (Eki 2026)
 - **"Kayıt Ol" açılır menüsü kaldırıldı** (`regOpen` state'i artık kullanılmıyor). İçindeki "İşletmeni Sahiplen" yolu `/katil` sayfasındaki "İşletmeniz zaten listede mi?" bağlantısına taşındı.
 - **Altın çağrı düğmesi `.hk-cta-isik`** (`app/globals.css`): akan altın gradyan + `::after` ile eğik ışık şeridi (4,2 sn), hover'da hafif yükselme; "hareketi azalt"ta sabit. Masaüstü ve mobil menüdeki "Kliniğinizi ekleyin" bunu kullanır. Başka altın düğmede kullanılacaksa `background` inline verilmemeli (sınıf zemini ezer).

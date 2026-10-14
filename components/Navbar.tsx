@@ -40,15 +40,26 @@ const HASTALIKLAR: [string, string][] = [
   ['Aft (Ağız Yarası)', '/hastaliklar/dis-sagligi/aft'],
 ];
 
+// Diş dışı meslekler ve kurumlar — eskiden yalnız footer'daydı, üst menüden de ulaşılsın
+const DIGER_BRANSLAR: [string, string][] = [
+  ['Fizyoterapistler (Bobath)', '/bobath-terapistleri'],
+  ['Fizik Tedavi ve Rehabilitasyon', `/doktorlar?spec=${encodeURIComponent('Fiziksel Tıp ve Rehabilitasyon')}`],
+  ['Psikiyatri Uzmanları', `/doktorlar?spec=${encodeURIComponent('Psikiyatri')}`],
+  ['Psikologlar', `/doktorlar?spec=${encodeURIComponent('Psikoloji')}`],
+  ['Devlet Diş Hastaneleri', '/devlet-dis-hastaneleri'],
+  ['Hastaneler', '/hastaneler'],
+  ['Eczaneler', '/eczaneler'],
+];
+
 function NavMenu({ label, items, allLabel, allHref, open, onToggle, innerRef, active }: {
   label: string; items: [string, string][]; allLabel: string; allHref: string;
   open: boolean; onToggle: () => void; innerRef: React.RefObject<HTMLDivElement>; active: boolean;
 }) {
   return (
     <div ref={innerRef} style={{ position: 'relative' }}>
-      <button onClick={onToggle}
+      <button onClick={onToggle} className="nav-ogesi"
         /* Düz bağlantılarla (navLink) birebir aynı ölçü/renk: 15px, 500/600, var(--ink)/var(--brand) — eskiden 13.5px ve gri idi, menü karışık görünüyordu */
-        style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+        style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
           fontSize: 15, fontWeight: active ? 600 : 500, letterSpacing: '-.1px', color: active || open ? 'var(--brand)' : 'var(--ink)',
           background: open ? 'rgba(26,51,94,.07)' : 'transparent', transition: 'background .15s, color .15s' }}>
         {label}
@@ -167,9 +178,11 @@ export default function Navbar() {
   const regRef = useRef<HTMLDivElement>(null);
   const loginRef = useRef<HTMLDivElement>(null);
   const [svcOpen, setSvcOpen] = useState(false);
+  const [digOpen, setDigOpen] = useState(false);
   const [disOpen, setDisOpen] = useState(false);
   const svcRef = useRef<HTMLDivElement>(null);
   const disRef = useRef<HTMLDivElement>(null);
+  const digRef = useRef<HTMLDivElement>(null);
 
   const isActive = (link: { base: string }) => pathname.startsWith(link.base);
 
@@ -231,6 +244,7 @@ export default function Navbar() {
       if (loginRef.current && !loginRef.current.contains(e.target as Node)) setLoginOpen(false);
       if (svcRef.current && !svcRef.current.contains(e.target as Node)) setSvcOpen(false);
       if (disRef.current && !disRef.current.contains(e.target as Node)) setDisOpen(false);
+      if (digRef.current && !digRef.current.contains(e.target as Node)) setDigOpen(false);
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
@@ -290,8 +304,8 @@ export default function Navbar() {
               const navLink = (link: typeof NAV_LINKS[number]) => {
                 const active = isActive(link);
                 return (
-                  <Link key={link.href} href={link.href} style={{
-                    padding: '6px 11px', borderRadius: 8, fontSize: 15, fontWeight: active ? 600 : 500, letterSpacing: '-.1px',
+                  <Link key={link.href} href={link.href} className="nav-ogesi" style={{
+                    whiteSpace: 'nowrap', padding: '6px 11px', borderRadius: 8, fontSize: 15, fontWeight: active ? 600 : 500, letterSpacing: '-.1px',
                     color: active ? 'var(--brand)' : 'var(--ink)', background: 'transparent',
                     textDecoration: 'none', transition: 'color .15s',
                   }}>{link.label}</Link>
@@ -301,9 +315,12 @@ export default function Navbar() {
                 <>
                   {navLink(NAV_LINKS[0])}
                   <NavMenu label="Hizmetler" items={HIZMETLER} allLabel="Tüm Diş Hekimleri" allHref="/klinikler"
-                    open={svcOpen} onToggle={() => { setSvcOpen(o => !o); setDisOpen(false); }} innerRef={svcRef} active={pathname.startsWith('/dis-tedavileri')} />
+                    open={svcOpen} onToggle={() => { setSvcOpen(o => !o); setDisOpen(false); setDigOpen(false); }} innerRef={svcRef} active={pathname.startsWith('/dis-tedavileri')} />
                   <NavMenu label="Ağız & Diş Sağlığı" items={HASTALIKLAR} allLabel="Tüm Hastalıklar" allHref="/hastaliklar/dis-sagligi"
-                    open={disOpen} onToggle={() => { setDisOpen(o => !o); setSvcOpen(false); }} innerRef={disRef} active={pathname.startsWith('/hastaliklar')} />
+                    open={disOpen} onToggle={() => { setDisOpen(o => !o); setSvcOpen(false); setDigOpen(false); }} innerRef={disRef} active={pathname.startsWith('/hastaliklar')} />
+                  <NavMenu label="Diğer Branşlar" items={DIGER_BRANSLAR} allLabel="Tüm Doktorlar" allHref="/doktorlar"
+                    open={digOpen} onToggle={() => { setDigOpen(o => !o); setSvcOpen(false); setDisOpen(false); }} innerRef={digRef}
+                    active={['/doktorlar', '/bobath-terapistleri', '/hastaneler', '/eczaneler', '/devlet-dis-hastaneleri'].some(p => pathname.startsWith(p))} />
                   {NAV_LINKS.slice(1).map(navLink)}
                 </>
               );
@@ -586,6 +603,7 @@ export default function Navbar() {
           {([
             { baslik: 'Hizmetler', items: HIZMETLER, allLabel: 'Tüm Diş Hekimleri', allHref: '/klinikler' },
             { baslik: 'Ağız & Diş Sağlığı', items: HASTALIKLAR, allLabel: 'Tüm Hastalıklar', allHref: '/hastaliklar/dis-sagligi' },
+            { baslik: 'Diğer Branşlar', items: DIGER_BRANSLAR, allLabel: 'Tüm Doktorlar', allHref: '/doktorlar' },
           ] as const).map(grp => {
             const acik = mobGrp === grp.baslik;
             return (
@@ -743,15 +761,19 @@ export default function Navbar() {
       </div>
 
       <style jsx global>{`
-        /* Hide desktop nav links on mobile */
-        @media (max-width: 768px) {
+        /* Menü öğeleri tek satırda kalır; sığmayan genişlikte (≤1100px) hamburger menüye geçilir.
+           1101–1260px arası: öğeler biraz sıkılaşır. */
+        @media (max-width: 1260px) {
+          .nav-ogesi { font-size: 14px !important; padding-left: 8px !important; padding-right: 8px !important; }
+        }
+        @media (max-width: 1100px) {
           .nav-links-desktop { display: none !important; }
           .nav-cta-desktop   { display: none !important; }
           .nav-user-desktop  { display: none !important; }
           .hamburger-btn     { display: flex !important; }
         }
         /* Ensure hamburger is hidden on desktop */
-        @media (min-width: 769px) {
+        @media (min-width: 1101px) {
           .hamburger-btn { display: none !important; }
         }
       `}</style>
