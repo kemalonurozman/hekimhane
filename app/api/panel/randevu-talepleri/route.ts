@@ -3,6 +3,7 @@ import { panelOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir } from '@/lib/email';
+import { yorumTokeni, yorumBaglantisi, talepYorumDurumu } from '@/lib/onayli-yorum';
 import { yetkiliEntityIdleri } from '@/lib/erisim';
 
 // Service role — RLS'yi bypass eder (yalnızca server-side)
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
 
     // Talep gerçekten bu kullanıcının işletmesine mi ait? (bildirim için detay da al)
     const { data: talep } = await (admin as any).from('randevu_talepleri')
-      .select('entity_id, entity_name, ad_soyad, email, randevu_slot').eq('id', id).maybeSingle();
+      .select('entity_id, entity_name, ad_soyad, email, randevu_slot, status').eq('id', id).maybeSingle();
     if (!talep || !ids.includes(String(talep.entity_id))) {
       return NextResponse.json({ error: 'Bu talep üzerinde yetkiniz yok' }, { status: 403 });
     }
@@ -132,6 +133,19 @@ export async function POST(request: NextRequest) {
               (talep.randevu_slot ? satir('İptal edilen', talep.randevu_slot) : '') +
               `<p style="font-size:13px;color:#6E6E73;line-height:1.6;margin-top:12px;">Yeni bir randevu için işletmeyle iletişime geçebilirsiniz.</p>`),
           });
+        } else if (hasStatus && body.status === 'tamamlandi' && talep.status !== 'tamamlandi') {
+          // Randevu tamamlandı → hastaya tek kullanımlık ONAYLI yorum bağlantısı
+          const d = await talepYorumDurumu(admin, String(id));
+          if (d.durum === 'acik') {
+            const link = yorumBaglantisi(yorumTokeni(String(id)));
+            await sendEmail({
+              to: talep.email, subject: `${talep.entity_name} — deneyiminizi değerlendirir misiniz?`,
+              html: mailShell('Deneyiminizi Değerlendirin',
+                `<p style="font-size:14px;color:#1c1c1e;line-height:1.7;">Merhaba <strong>${talep.ad_soyad || ''}</strong>, <strong>${talep.entity_name}</strong> randevunuz tamamlandı. Deneyiminizi paylaşırsanız sizden sonraki hastalara yol gösterir.</p>` +
+                `<p style="margin:22px 0;"><a href="${link}" style="display:inline-block;padding:13px 22px;border-radius:12px;background:#12294D;color:#fff;font-weight:700;text-decoration:none;font-size:15px;">Değerlendirme yap</a></p>` +
+                `<p style="font-size:12.5px;color:#6E6E73;line-height:1.6;">Bu bağlantı yalnız size özeldir ve tek kullanımlıktır; yorumunuz profilde <strong>Onaylı hasta</strong> işaretiyle görünür. Ayrıntılı sağlık bilgisi yazmanız gerekmez. Bağlantı 60 gün geçerlidir.</p>`),
+            });
+          }
         } else if (yeniSlot && yeniSlot !== talep.randevu_slot) {
           await sendEmail({
             to: talep.email, subject: `Randevunuz güncellendi — ${talep.entity_name}`,

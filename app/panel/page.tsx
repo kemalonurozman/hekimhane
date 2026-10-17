@@ -1,5 +1,6 @@
 'use client';
 
+import OnayliYorumDugmesi from './OnayliYorumDugmesi';
 import ProfilPuaniKarti from './ProfilPuaniKarti';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -2296,6 +2297,8 @@ function RandevuTalepleriTab({ approvedClaims, aktifEntityId }: { approvedClaims
                         <button onClick={() => setStatus(t.id, 'tamamlandi')} disabled={updating === t.id}
                           style={{ padding: '10px 15px', minHeight: 40, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', background: A.accent, color: '#fff', border: 'none' }}>Tamamlandı</button>
                       )}
+                      {/* Tamamlanan randevu → hastaya onaylı yorum bağlantısı */}
+                      {t.status === 'tamamlandi' && <OnayliYorumDugmesi talepId={t.id} tel={t.tel} ad={t.ad_soyad} isletme={t.entity_name} />}
                       {t.status !== 'yeni' && (
                         <button onClick={() => setStatus(t.id, 'yeni')} disabled={updating === t.id}
                           style={{ padding: '10px 15px', minHeight: 40, borderRadius: 10, fontSize: 13, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', background: 'transparent', color: A.muted, border: `1px solid ${A.line}` }}>Yeni&apos;ye al</button>

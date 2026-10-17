@@ -681,6 +681,13 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Düzeltilen hata:** `applyPremium` upsert'i `email: opts.email ?? null` yazıyordu; her abonelik olayı kayıtlı abone e-postasını **siliyordu**. Artık e-posta yalnız geldiğinde yazılır — yoksa iptal bildirimi de portal fallback'i de adresi bulamıyordu.
 - **Stripe koşulu:** webhook endpoint'i `checkout.session.completed`, `invoice.paid`, `customer.subscription.updated`, `customer.subscription.deleted` olaylarına abone olmalı; `RESEND_API_KEY` Vercel'de tanımlı olmalı.
 
+### Onaylı Yorum — yalnız randevusu tamamlanan hasta (Eki 2026)
+- **Akış:** işletme panelde talebi **Tamamlandı** yapar → hastanın e-postası varsa "Deneyiminizi Değerlendirin" maili (tek kullanımlık bağlantı) gider; e-postası yoksa talep kartındaki **"Yorum bağlantısını kopyala" / "WhatsApp ile gönder"** (`app/panel/OnayliYorumDugmesi.tsx`) → hasta `/degerlendir?t=…` sayfasında puan + yorum bırakır → `yorumlar`'a `verified=true` yazılır, profilde yeşil **"Onaylı hasta"** rozeti (`ProfilSayfasi` → `OnayliHastaRozeti`, Genel ve Yorumlar sekmesinde).
+- **Tek kaynak `lib/onayli-yorum.ts`:** `yorumTokeni` / `yorumTokeniCoz` (HMAC imzalı `talepId.sonGecerlilik.imza`, 60 gün, `YORUM_TOKEN_SECRET` → `MCP_INTERNAL_SECRET` → service-role), `talepYorumDurumu` (`yok | tamamlanmadi | yazildi | acik`; içinde `noStore()` **şart** — yoksa yazıldıktan sonra sayfa formu yeniden açıyordu).
+- **DDL yok. Tek kullanım işareti `cekim_talepleri`'nde:** `isletme_turu='onayli-yorum'`, `notlar=<talepId>`, `tel='-'` (kolon zorunlu). Önce işaret, sonra yorum yazılır; yorum yazılamazsa işaret silinir. Admin talep listesi bu satırları `.or('isletme_turu.is.null,isletme_turu.neq.onayli-yorum')` ile gizler. **Tuzak:** `yorumlar.user_id` kullanılamaz — `profiles` tablosuna yabancı anahtarlı (23503).
+- **Rotalar:** `POST /api/yorum/onayli` (token + puan 1–5 + en az 10 karakter; admin'e bildirim maili) · `GET /api/panel/yorum-baglantisi?talep=` (`panelOturum` + `yetkiliEntityIdleri(['randevu'])`; yazıldıysa `{yazildi:true}`) · `randevu-talepleri` POST'u tamamlandı geçişinde maili atar (yalnız durum gerçekten değiştiyse ve yorum açıksa).
+- Onaylı yorum da normal yorum gibi işletmenin `rat/rev` alanlarını değiştirmez.
+
 ### Bekleyen migration'lar (kullanıcı Supabase SQL Editor'da çalıştırmalı)
 - `supabase/migrations/add_account_activations.sql` — **çalıştırıldı** (aktivasyon akışı için şart).
 - `supabase/migrations/add_premium_column.sql` + `add_premium_subscriptions.sql` — Stripe akışı için **şart**. `add_premium_subscriptions.sql` daha önce çalıştırıldıysa **yeniden çalıştırılmalı**: eski sürümdeki `USING (TRUE)` SELECT politikası abone e-postalarını herkese açıyordu, yeni sürüm onu `DROP` eder.

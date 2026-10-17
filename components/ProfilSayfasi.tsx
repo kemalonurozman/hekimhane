@@ -1103,6 +1103,16 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
 }
 
 // ── Ana Bileşen ───────────────────────────────────────────────────
+// Onaylı yorum rozeti — yalnız Hekimhane randevusu tamamlanan hastanın yorumunda (lib/onayli-yorum.ts)
+function OnayliHastaRozeti() {
+  return (
+    <span title="Bu kişi Hekimhane üzerinden randevu aldı ve randevusu tamamlandı" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: '#166534', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+      Onaylı hasta
+    </span>
+  );
+}
+
 export default function ProfilSayfasi(props: ProfilProps) {
   const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, uzmanlikKurum, deneyimBaslangic, deneyimler, sertifikalar, yabanciDiller, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, randevuAktif, randevuSlotDk, bookedSlots, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug, hospitalDoctors, clinicHref } = props;
 
@@ -1989,7 +1999,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <span style={{ fontWeight: 700, fontSize: 14 }}>{maskName(r.author)}</span>
-                              {r.verified && <span style={{ fontSize: 11, color: '#059669', fontWeight: 600 }}>✓ Doğrulandı</span>}
+                              {r.verified && <OnayliHastaRozeti />}
                             </div>
                             <span style={{ fontSize: 11, color: 'var(--muted)' }}>{formatVisitDate(r.date)}</span>
                           </div>
@@ -2461,7 +2471,10 @@ export default function ProfilSayfasi(props: ProfilProps) {
                       {yorumlar.map(r => (
                         <div key={r.id} style={{ background: '#F9FBFF', border: '1px solid var(--border)', borderRadius: 14, padding: 16 }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                            <span style={{ fontWeight: 700, fontSize: 14 }}>{maskName(r.author)}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                              <span style={{ fontWeight: 700, fontSize: 14 }}>{maskName(r.author)}</span>
+                              {r.verified && <OnayliHastaRozeti />}
+                            </div>
                             <span style={{ fontSize: 11, color: 'var(--muted)' }}>{formatVisitDate(r.date)}</span>
                           </div>
                           <Stars rat={r.rating} />
