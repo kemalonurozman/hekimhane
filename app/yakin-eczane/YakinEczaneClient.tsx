@@ -1,4 +1,5 @@
 'use client';
+import AraDugmesi from '@/components/AraDugmesi';
 import { useState } from 'react';
 import Link from 'next/link';
 import { formatTel } from '@/lib/helpers';
@@ -212,14 +213,12 @@ export default function YakinEczaneClient() {
 
                   <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
                     {e.tel && (
-                      <a href={`tel:${e.tel.replace(/\D/g, '')}`} style={{
+                      <AraDugmesi tel={e.tel} goster={formatTel} ikon={<IconPhone />} ariaLabel={`${e.name} — telefonla ara`} style={{
                         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                         padding: '9px 0', borderRadius: 10,
                         background: '#1A335E', color: 'white',
                         fontSize: 13, fontWeight: 600, textDecoration: 'none', letterSpacing: '-.1px',
-                      }}>
-                        <IconPhone /> {formatTel(e.tel)}
-                      </a>
+                      }} />
                     )}
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([e.name, e.address, e.ilce, e.il].filter(Boolean).join(' '))}`}

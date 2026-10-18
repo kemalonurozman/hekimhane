@@ -89,13 +89,13 @@ export function buildKlinikFaq(input: FaqInput): FaqItem[] {
     {
       soru: `${label} için nasıl randevu alabilirim?`,
       cevap: tel
-        ? `Randevu almak için ${tel} numaralı telefondan doğrudan iletişime geçebilir ya da Hekimhane profil sayfası üzerinden iletişim bilgilerini görüntüleyebilirsiniz.`
+        ? `Randevu almak için Hekimhane profil sayfasındaki "Ara" düğmesiyle doğrudan arayabilirsiniz.`
         : `Randevu ve iletişim bilgilerine Hekimhane profil sayfası üzerinden ulaşabilir, uygun saatler için doğrudan iletişime geçebilirsiniz.`,
     },
-    // 3) Telefon (yalnızca kayıtlı numara varsa)
+    // 3) Telefon (yalnızca kayıtlı numara varsa) — numara metne yazılmaz, "Ara" düğmesine yönlendirilir
     tel ? {
       soru: `${label} telefon numarası nedir?`,
-      cevap: `${label} iletişim telefonu: ${tel}. Güncel iletişim bilgileri Hekimhane profil sayfasında yer almaktadır.`,
+      cevap: `${label} telefon numarasına profil sayfasındaki "Ara" düğmesinden ulaşabilirsiniz; düğmeye bastığınızda numara görünür ve telefonunuzdan doğrudan arama başlar.`,
     } : null,
     // 4) Hizmet / uzmanlık (yalnızca specs varsa)
     (specs && specs.length) ? {
@@ -169,7 +169,7 @@ export function buildEczaneFaq(input: EczaneFaqInput): FaqItem[] {
     // 4) Telefon (yalnızca kayıtlı numara varsa)
     tel ? {
       soru: `${label} telefon numarası nedir?`,
-      cevap: `${label} iletişim telefonu: ${tel}. İlaç stoğu ve nöbet durumu gibi bilgileri arayarak öğrenebilirsiniz.`,
+      cevap: `${label} telefon numarasına profil sayfasındaki "Ara" düğmesinden ulaşabilirsiniz; düğmeye bastığınızda numara görünür ve telefonunuzdan doğrudan arama başlar. İlaç stoğu ve nöbet durumu gibi bilgileri arayarak öğrenebilirsiniz.`,
     } : null,
     // 5) Eczacı / sorumlu (yalnızca kayıtlıysa)
     pharmacist ? {
@@ -242,7 +242,7 @@ export function buildDoktorFaq(input: DoktorFaqInput): FaqItem[] {
     {
       soru: `${label} için nasıl randevu alabilirim?`,
       cevap: tel
-        ? `Randevu almak için ${tel} numaralı telefondan doğrudan iletişime geçebilir ya da Hekimhane profil sayfası üzerinden randevu ve iletişim bilgilerini görüntüleyebilirsiniz.`
+        ? `Randevu almak için Hekimhane profil sayfasındaki "Ara" düğmesiyle doğrudan arayabilir ya da online randevu talebi bırakabilirsiniz.`
         : `Randevu ve iletişim bilgilerine Hekimhane profil sayfası üzerinden ulaşabilir, uygun saatler için doğrudan iletişime geçebilirsiniz.`,
     },
     // 3) Branşa özel soru (yalnızca spec varsa)
@@ -258,7 +258,7 @@ export function buildDoktorFaq(input: DoktorFaqInput): FaqItem[] {
     // 5) Telefon (yalnızca kayıtlı numara varsa)
     tel ? {
       soru: `${label} telefon numarası nedir?`,
-      cevap: `${label} iletişim telefonu: ${tel}. Güncel iletişim bilgileri Hekimhane profil sayfasında yer almaktadır.`,
+      cevap: `${label} telefon numarasına profil sayfasındaki "Ara" düğmesinden ulaşabilirsiniz; düğmeye bastığınızda numara görünür ve telefonunuzdan doğrudan arama başlar.`,
     } : null,
     // 6) Puan / yorum (yalnızca gerçek yorum varsa)
     (rev && rev > 0 && rat) ? {

@@ -9,7 +9,6 @@ export interface Marker {
   lng: number;
   tel?: string | null;
   /** true → numara balonda yazmaz, yalnız "Ara" bağlantısı görünür (klinikler). */
-  telGizli?: boolean;
   href: string;
   type?: string | null;
   nobetci?: boolean;
@@ -202,7 +201,7 @@ export default function ListMap({ markers, color = '#1A335E' }: Props) {
             <div style="font-weight:700;font-size:13px;color:#111C2E;margin-bottom:4px;line-height:1.3">${m.name}</div>
             ${m.type    ? `<div style="font-size:11px;color:#4A5568;margin-bottom:5px">${m.type}</div>` : ''}
             ${m.nobetci ? `<div style="font-size:11px;color:#DC2626;font-weight:700;margin-bottom:5px">🌙 Nöbetçi</div>` : ''}
-            ${m.tel     ? `<a href="tel:${m.tel}" style="display:block;font-size:12px;color:#1A335E;font-weight:600;margin-bottom:8px">${m.telGizli ? 'Telefonla ara' : `📞 ${m.tel}`}</a>` : ''}
+            ${m.tel     ? `<a href="tel:${m.tel}" style="display:block;font-size:12px;color:#1A335E;font-weight:600;margin-bottom:8px">Telefonla ara</a>` : ''}
             <a href="${m.href}" style="display:inline-block;padding:6px 12px;background:${color};color:white;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none">Profili Gör →</a>
           </div>`;
         const pin = L.marker([m.lat, m.lng], { icon: pinIcon }).bindPopup(popup, { maxWidth: 240 });

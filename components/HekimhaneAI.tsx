@@ -5,6 +5,7 @@
  * Hekimhane veritabanı + hastalık bilgisi + Claude AI
  */
 
+import AraDugmesi from '@/components/AraDugmesi';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 
@@ -37,7 +38,7 @@ function TypingDots() {
   );
 }
 
-// Satır içi token'ları parse eder: **bold**, [link](url), 📞 tel, düz metin
+// Satır içi token'ları parse eder: **bold**, [link](url), 📞 tel (Ara düğmesi), düz metin
 function renderInline(metin: string): React.ReactNode[] {
   // [text](url) | **bold** | 📞 0312 123 45 67
   const tokenRe = /\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|📞\s*([\d\s()+\-]{7,20})/g;
@@ -71,13 +72,11 @@ function renderInline(metin: string): React.ReactNode[] {
       // Bold: **text**
       parcalar.push(<strong key={m.index}>{m[3]}</strong>);
     } else if (m[4] !== undefined) {
-      // Telefon numarası: tıklanabilir tel: linki
-      const numara = m[4].trim();
-      const temizNo = numara.replace(/\s/g, '');
+      // Telefon numarası açıkta yazmaz — "Ara" düğmesi (basınca numara görünür / arar)
       parcalar.push(
-        <a
+        <AraDugmesi
           key={m.index}
-          href={`tel:${temizNo}`}
+          tel={m[4].trim()}
           style={{
             color: '#2D6A4F', fontWeight: 600,
             textDecoration: 'none',
@@ -85,9 +84,8 @@ function renderInline(metin: string): React.ReactNode[] {
             background: '#ECFDF5', borderRadius: 6,
             padding: '1px 7px', fontSize: 13,
           }}
-        >
-          📞 {numara}
-        </a>
+          ikon={<span aria-hidden>📞 </span>}
+        />
       );
     }
 

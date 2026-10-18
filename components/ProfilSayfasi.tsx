@@ -1,5 +1,6 @@
 'use client';
 
+import AraDugmesi from './AraDugmesi';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
@@ -840,7 +841,7 @@ function MhrsDugmeleri({ tel }: { tel?: string | null }) {
   const ikincil: React.CSSProperties = { ...temel, background: 'white', color: 'var(--navy)', border: '1.5px solid var(--border)' };
   return (
     <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginTop: 18 }}>
-      {tel && <a href={`tel:${String(tel).replace(/\s/g, '')}`} style={birincil}><i className="fa-solid fa-phone" /> Hastaneyi Ara · {tel}</a>}
+      {tel && <AraDugmesi tel={tel} etiket="Hastaneyi Ara" style={birincil} ikon={<i className="fa-solid fa-phone" />} goster={t => `Hastaneyi Ara · ${t}`} />}
       <a href="https://www.mhrs.gov.tr" target="_blank" rel="noopener noreferrer" style={tel ? ikincil : birincil}><i className="fa-solid fa-arrow-up-right-from-square" /> MHRS&apos;den Randevu Al</a>
       <a href="tel:182" style={ikincil}><i className="fa-solid fa-headset" /> ALO 182</a>
     </div>
@@ -1250,7 +1251,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
   // ── Aksiyon buton linkleri (Ara / WhatsApp / Yol Tarifi / Web Sitesi) ──
   const telClean = (tel || '').replace(/[^\d]/g, '');
-  const telGizle = entityType === 'klinik' && !telAcik;
+  // Numara hiçbir türde açıkta yazmaz — "Ara" düğmesine basınca görünür/arar
+  const telGizle = !telAcik;
   // WhatsApp kaynağı: işletme "whatsapp" alanını doldurmuşsa onu kullan.
   //   'same' → telefonla aynı numara;  boş → WhatsApp gösterme (telefon körü körüne WhatsApp sayılmaz)
   const waRaw = (whatsapp || '').trim();
@@ -1315,7 +1317,6 @@ export default function ProfilSayfasi(props: ProfilProps) {
         { l: 'Eczacı', v: pharmacist || '—' },
         { l: 'Şehir', v: il || '—' },
         { l: 'İlçe', v: ilce || '—' },
-        { l: 'Telefon', v: tel || '—' },
         { l: 'Nöbetçi', v: nobetci ? 'Evet' : 'Hayır' },
       ]
     : entityType === 'hastane'
@@ -1635,7 +1636,6 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   ? <span><Stars rat={avg} /> <strong style={{ color: hName, fontSize: 16 }}>{avg}</strong></span>
                   : <span>Henüz değerlendirme yok</span>}
                 {yorumlar.length > 0 && <span>{yorumlar.length} yorum</span>}
-                {tel && !telGizle && <span>📞 {tel}</span>}
                 {entityType === 'doktor' && fee ? <span>💰 {fee.toLocaleString('tr')} ₺</span> : null}
               </div>
             </div>
@@ -1661,7 +1661,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 {tel && (
                   <a href={`tel:${tel.replace(/\s/g, '')}`} style={secBtnStyle} onClick={() => setTelAcik(true)}
                     aria-label={`${name} — telefonla ara`}>
-                    <i className="fa-solid fa-phone" style={{ color: 'var(--navy)' }} /> {entityType === 'klinik' && telAcik ? tel : 'Ara'}
+                    <i className="fa-solid fa-phone" style={{ color: 'var(--navy)' }} /> {telGizle ? 'Ara' : tel}
                   </a>
                 )}
                 {premium && waUrl && (

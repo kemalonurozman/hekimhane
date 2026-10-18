@@ -276,7 +276,7 @@ export default function HekimKartTanitim() {
                 {/* 2) Telefon */}
                 <div className="hk-btn hk-phone">
                   <span className="hk-ic"><Phone /></span>
-                  <span className="hk-lbl"><span className="hk-lbl-sub">Doğrudan Ara</span><span className="hk-lbl-main">0212 555 34 12</span></span>
+                  <span className="hk-lbl"><span className="hk-lbl-sub">Doğrudan Ara</span><span className="hk-lbl-main">Telefonla ara</span></span>
                 </div>
                 {/* 3) Sosyal — kompakt, yan yana */}
                 <div className="hk-social-row">

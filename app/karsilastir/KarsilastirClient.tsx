@@ -1,4 +1,5 @@
 'use client';
+import AraDugmesi from '@/components/AraDugmesi';
 import Link from 'next/link';
 import { useCompare, removeCompare, clearCompare, type CompareItem, type CompareType } from '@/lib/compare';
 import { formatTel } from '@/lib/helpers';
@@ -61,7 +62,7 @@ const konumSatiri: Satir = {
 const telSatiri: Satir = {
   label: 'Telefon',
   render: it => it.tel
-    ? <a href={`tel:${it.tel.replace(/\D/g, '')}`} style={{ color: 'var(--navy)', fontWeight: 600, textDecoration: 'none' }}>{formatTel(it.tel)}</a>
+    ? <AraDugmesi tel={it.tel} goster={formatTel} style={{ color: 'var(--navy)', fontWeight: 600, textDecoration: 'none' }} ikon={<i className="fa-solid fa-phone" style={{ fontSize: 12, marginRight: 6 }} />} />
     : bosDeger,
 };
 const onaySatiri: Satir = { label: 'Onaylı / Sahiplenilmiş', render: it => evetHayir(it.verified || it.claimed) };

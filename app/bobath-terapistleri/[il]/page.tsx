@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+import AraDugmesi from '@/components/AraDugmesi';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -86,9 +87,8 @@ export default async function BobathIlPage({ params }: Props) {
                 ) : (
                   <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {d.tel && (
-                      <a href={`tel:${d.tel.replace(/\s/g, '')}`} style={{ fontSize: 13, color: 'var(--navy)', textDecoration: 'none', display: 'flex', gap: 7, alignItems: 'center' }}>
-                        <i className="fa-solid fa-phone" style={{ color: 'var(--gold)', fontSize: 12 }} /> {d.tel}
-                      </a>
+                      <AraDugmesi tel={d.tel} style={{ fontSize: 13, color: 'var(--navy)', textDecoration: 'none', display: 'flex', gap: 7, alignItems: 'center' }}
+                        ikon={<i className="fa-solid fa-phone" style={{ color: 'var(--gold)', fontSize: 12 }} />} />
                     )}
                     {email && (
                       <a href={`mailto:${email}`} style={{ fontSize: 13, color: 'var(--navy)', textDecoration: 'none', display: 'flex', gap: 7, alignItems: 'center', wordBreak: 'break-all' }}>

@@ -1,5 +1,6 @@
 'use client';
 
+import AraDugmesi from '@/components/AraDugmesi';
 import { useRouter } from 'next/navigation';
 import type { Eczane } from '@/lib/types';
 import PremiumBadge from '@/components/PremiumBadge';
@@ -177,12 +178,8 @@ export default function EczaneCard({ eczane: e }: { eczane: Eczane }) {
 
         {e.tel && (
           <div className="eczane-card__footer">
-            <a href={`tel:${e.tel.replace(/\s/g,'')}`}
-              onClick={ev => ev.stopPropagation()}
-              className="eczane-card__tel">
-              <i className="fa-solid fa-phone" style={{ fontSize: '11px', color: 'var(--gold)' }} />
-              {formatTel(e.tel)}
-            </a>
+            <AraDugmesi tel={e.tel} goster={formatTel} className="eczane-card__tel" ariaLabel={`${e.name} — telefonla ara`}
+              ikon={<i className="fa-solid fa-phone" style={{ fontSize: '11px', color: 'var(--gold)' }} />} />
           </div>
         )}
       </div>

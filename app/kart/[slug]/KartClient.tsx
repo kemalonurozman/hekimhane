@@ -1,5 +1,6 @@
 'use client';
 
+import AraDugmesi from '@/components/AraDugmesi';
 import { useState, useEffect } from 'react';
 import type { KartData, KartYorum } from './page';
 import { maskReviewName } from '@/lib/helpers';
@@ -529,13 +530,15 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
           {/* Linkler */}
           <div className="kp-links">
             {d.tel && (
-              <a href={`tel:${d.tel.replace(/\s/g, '')}`} className="kp-btn kp-btn--phone">
-                <span className="kp-icon"><Ic d={ICONS.phone} size={17} color="white" /></span>
-                <span className="kp-lbl">
-                  <span className="kp-lbl-sub">Doğrudan Ara</span>
-                  <span>{d.tel}</span>
-                </span>
-              </a>
+              <AraDugmesi tel={d.tel} etiket="Telefonla ara" className="kp-btn kp-btn--phone" ariaLabel={`${fullName} — telefonla ara`} durdur={false}>
+                {metin => (<>
+                  <span className="kp-icon"><Ic d={ICONS.phone} size={17} color="white" /></span>
+                  <span className="kp-lbl">
+                    <span className="kp-lbl-sub">Doğrudan Ara</span>
+                    <span>{metin}</span>
+                  </span>
+                </>)}
+              </AraDugmesi>
             )}
 
             {d.instagram_url && (
@@ -870,13 +873,6 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
           <div style={{ fontSize: 10.5, color: '#4A5568', marginTop: 3 }}>Randevu · İletişim · Değerlendirme</div>
         </div>
 
-        {/* Telefon — doğrudan iletişim */}
-        {d.tel && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 14, fontSize: 17, fontWeight: 800, letterSpacing: '.4px', color: '#fff' }}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#E7BE5C" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z" /></svg>
-            {d.tel}
-          </div>
-        )}
 
         {/* Esnek boşluk — alt grubu poster tabanına yaslar */}
         <div style={{ flex: 1, minHeight: 14 }} />

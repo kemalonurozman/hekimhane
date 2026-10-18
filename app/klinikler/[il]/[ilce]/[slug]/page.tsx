@@ -126,7 +126,7 @@ export default async function KlinikProfilPage({ params }: Props) {
   };
 
   const faq = buildKlinikFaq({
-    name: k.name, il: k.il, ilce: k.ilce, adres: k.adres, tel: null,   // numara SSS metninde de yazmaz — "Ara" düğmesiyle açılır
+    name: k.name, il: k.il, ilce: k.ilce, adres: k.adres, tel: k.tel,
     rat: k.rat, rev: k.rev, specs: k.specs, calisma_saatleri: k.calisma_saatleri,
   });
   const faqPage = faq.length ? {
