@@ -145,7 +145,7 @@ hekimhane-next/
 
 ## ADIM 9 — Stripe Ödeme Sistemi (Hekimhane-Pro)
 
-İşletme sahipleri panelden **Hekimhane-Pro** aylık aboneliğine (150 TL/ay) geçer.
+İşletme sahipleri panelden **Hekimhane-Pro** aylık aboneliğine (290 TL/ay — `lib/pro-plan.ts`) geçer.
 Kod tarafı hazır; aşağıdaki adımlar Stripe ve Vercel panellerinden yapılmalıdır.
 
 ### 9.1 — Ortam değişkenleri (Vercel → Settings → Environment Variables)
@@ -204,7 +204,7 @@ Panel → "Aboneliği Yönet" → /api/stripe/portal → Stripe Müşteri Portal
 ### 9.6 — Yayına almadan önce
 
 - [ ] Stripe **test modunda** uçtan uca dene (test kartı `4242 4242 4242 4242`)
-- [ ] 150 TL'nin **KDV dahil mi hariç mi** olduğuna karar ver, ürün açıklamasına yaz
+- [ ] 290 TL'nin **KDV dahil mi hariç mi** olduğuna karar ver, ürün açıklamasına yaz
 - [ ] **Mesafeli Satış Sözleşmesi** ve **İptal/İade Koşulları** sayfalarını yayınla —
       Türkiye'de online tahsilat için yasal zorunluluk (mevcut `/kvkk`, `/gizlilik`,
       `/kullanim` bunları karşılamaz)

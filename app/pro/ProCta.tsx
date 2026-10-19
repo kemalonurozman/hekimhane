@@ -9,8 +9,12 @@ import { PRO_AYLIK_TL } from '@/lib/pro-plan';
  * Pro sayfasındaki yükseltme butonu.
  * Giriş yoksa → /giris (dönüşte /pro). Girişliyse → /api/stripe/checkout
  * işletme belirtmeden çağrılır; sunucu ilk onaylı işletmeyi kendisi bulur.
+ *
+ * `koyu` — lacivert zemin üzerinde kullanıldığında (hero) alt metin ve
+ * bağlantılar açık renk olur. Eskiden `color: inherit` sayfa gövdesinin koyu
+ * rengini alıyordu ve yazı koyu zeminde siyah görünüyordu.
  */
-export default function ProCta({ boyut = 'md' }: { boyut?: 'md' | 'lg' }) {
+export default function ProCta({ boyut = 'md', koyu = false }: { boyut?: 'md' | 'lg'; koyu?: boolean }) {
   const router = useRouter();
   const [durum, setDurum] = useState<'bekliyor' | 'calisiyor'>('bekliyor');
   const [mesaj, setMesaj] = useState<string | null>(null);
@@ -46,6 +50,8 @@ export default function ProCta({ boyut = 'md' }: { boyut?: 'md' | 'lg' }) {
   }
 
   const lg = boyut === 'lg';
+  const notRenk = koyu ? 'rgba(255,255,255,.78)' : '#6E6E73';
+  const linkRenk = koyu ? '#FFFFFF' : '#1B3A69';
   return (
     <div>
       <button onClick={tikla} disabled={durum === 'calisiyor'}
@@ -63,10 +69,10 @@ export default function ProCta({ boyut = 'md' }: { boyut?: 'md' | 'lg' }) {
         <p style={{ marginTop: 10, fontSize: 13, color: '#B45309', fontWeight: 600 }}>{mesaj}</p>
       )}
       {/* Ödemeden önce sözleşme ve ön bilgilendirme — satın alma düğmesinin hemen altında */}
-      <p style={{ margin: '12px 0 0', maxWidth: 440, fontSize: 12, lineHeight: 1.6, color: 'inherit', opacity: 0.72 }}>
+      <p style={{ margin: '12px 0 0', maxWidth: 440, fontSize: 12, lineHeight: 1.6, color: notRenk }}>
         Üyelik her ay kendiliğinden yenilenir; dilediğiniz an iptal edebilirsiniz. Devam ederek{' '}
-        <a href="/on-bilgilendirme-formu" target="_blank" rel="noopener" style={{ color: 'inherit', textDecoration: 'underline' }}>Ön Bilgilendirme Formu</a>{' '}ve{' '}
-        <a href="/mesafeli-satis-sozlesmesi" target="_blank" rel="noopener" style={{ color: 'inherit', textDecoration: 'underline' }}>Mesafeli Satış Sözleşmesi</a>&apos;ni kabul etmiş olursunuz.
+        <a href="/on-bilgilendirme-formu" target="_blank" rel="noopener" style={{ color: linkRenk, textDecoration: 'underline' }}>Ön Bilgilendirme Formu</a>{' '}ve{' '}
+        <a href="/mesafeli-satis-sozlesmesi" target="_blank" rel="noopener" style={{ color: linkRenk, textDecoration: 'underline' }}>Mesafeli Satış Sözleşmesi</a>&apos;ni kabul etmiş olursunuz.
       </p>
     </div>
   );

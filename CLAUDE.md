@@ -453,8 +453,8 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - Sahiplenilmemişte mühür tıklanabilir (`/sahiplen?id=…&type=…`), hafif nabız animasyonu var ve üzerine gelince profesyonel davet balonu açılır.
 - **Tuzak:** hero `overflow:hidden` — balon `position:fixed` ve konumu React state'ten (`sealTip`) hesaplanır; absolute konumlandırma kırpılıyordu. Yukarıda yer yoksa (`r.top < 260`) balon aşağı açılır (`hk-tip--alt`), yatayda viewport'a klemplenir.
 
-### Stripe Ödeme Sistemi — Hekimhane-Pro (aylık 150 TL)
-- **Ürün:** Stripe Product Catalog → `Hekimhane-Pro`, `prod_VA4Ez1eZ6NPoBm`, 150 TL/ay abonelik.
+### Stripe Ödeme Sistemi — Hekimhane-Pro (aylık 290 TL)
+- **Ürün:** Stripe Product Catalog → `Hekimhane-Pro`, `prod_VA4Ez1eZ6NPoBm`, 290 TL/ay abonelik (Eki 2026; başlangıçta 150, sonra 190 idi).
 - **Fiyat çözümü (`lib/stripe.ts` → `getProPriceId()`):** önce `STRIPE_PRICE_MONTHLY` env → yoksa ürünün Stripe'daki varsayılan fiyatı (API'den, modül seviyesinde cache) → son çare eski `STRIPE_PRICE_YEARLY`. **Fiyat kodda sabit değil** — Stripe'da değiştirmek yeter. UI'da görünen metin ayrı: `lib/pro-plan.ts` (`PRO_AYLIK_TL`).
 - **Rotalar:** `checkout` (abonelik başlat) · `portal` (iptal/kart/fatura — Stripe Müşteri Portalı) · `subscription` (panel için durum okuma) · `webhook` (premium bayrağını yönetir).
 - **Yetki:** dördü de `lib/stripe-owner.ts` → `verifyOwner()` kullanır: oturum + `claim_requests`'te `status='approved'` e-posta eşleşmesi. Stripe çağrısından **önce** çalışır, böylece anahtar yokken bile yetkisiz istek 401 alır.
@@ -464,7 +464,7 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **`premium_subscriptions` tarayıcıya kapalı:** abone e-postası + Stripe ID'leri içerir, RLS'te politika yok (yalnız service-role). Panel durumu bu yüzden `/api/stripe/subscription` üzerinden sunucudan okur — `supabase.from('premium_subscriptions')` client'ta **çalışmaz**.
 - **Stripe panelinden yapılması gerekenler:** Customer portal etkin olmalı (yoksa "Aboneliği Yönet" hata verir) + webhook endpoint'i 3 olaya abone olmalı. Detay: `SETUP.md` ADIM 9.
 - **Yasal eksik:** Mesafeli Satış Sözleşmesi + İptal/İade sayfaları **yok**; Türkiye'de online tahsilat için zorunlu. `/kvkk`, `/gizlilik`, `/kullanim` bunları karşılamaz.
-- **Ödeme akışı Payment Link üzerinden (Ağu 2026):** checkout rotası sahiplik + zaten-Pro kontrolünden sonra canlı Payment Link'e `client_reference_id=tip__id` + `prefilled_email` ekleyip yönlendirir (`STRIPE_PAYMENT_LINK` env ile değiştirilebilir; boş string API-session akışına döndürür). Webhook metadata yoksa `client_reference_id`'yi çözer (`tip:id` ve `tip__id`). Fiyat 190 TL/ay (`lib/pro-plan.ts`). **Çıplak link paylaşılmamalı** — referanssız ödemede Pro otomatik açılmaz.
+- **Ödeme akışı Payment Link üzerinden (Ağu 2026):** checkout rotası sahiplik + zaten-Pro kontrolünden sonra canlı Payment Link'e `client_reference_id=tip__id` + `prefilled_email` ekleyip yönlendirir (`STRIPE_PAYMENT_LINK` env ile değiştirilebilir; boş string API-session akışına döndürür). Webhook metadata yoksa `client_reference_id`'yi çözer (`tip:id` ve `tip__id`). Fiyat 290 TL/ay (`lib/pro-plan.ts`, Eki 2026; Stripe Payment Link fiyatı da 290 olmalı). **Çıplak link paylaşılmamalı** — referanssız ödemede Pro otomatik açılmaz.
 - **Pro'ya kilitli alanlar (Ağu 2026):** `website`, `instagram_url/facebook_url/linkedin_url`, rezervasyon modülü (`randevu_aktif/randevu_slot_dk/randevu_bloke` + embed). Üç katman: panel UI kilidi (EditProfileTab `pro` = formData.premium; RandevuModulTab `proAktif`; ortak `ProKilit` bileşeni) + `update-entity` API'de `PRO_FIELDS` sessizce düşürülür (form tüm formData'yı gönderdiği için hata dönmek her kaydı bozar) + `/embed/randevu` premium değilse kilit HTML döner (fail-closed). `randevu_email` kilitli DEĞİL (Randevu Talepleri sekmesi ücretsiz kalır).
 
 ### Abonelik İptali & İletişim Görünürlüğü (Ağu 2026)

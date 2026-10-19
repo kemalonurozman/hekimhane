@@ -213,7 +213,7 @@ export default function ProPage() {
             Randevularınızı yönetin, hastalarınızı takip edin, profilinizi profesyonelleştirin.
             Tek üyelik, tüm araçlar — aylık {PRO_AYLIK_TL} TL, istediğiniz an iptal.
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center' }}><ProCta boyut="lg" /></div>
+          <div style={{ display: 'flex', justifyContent: 'center' }}><ProCta boyut="lg" koyu /></div>
           <p style={{ color: 'rgba(255,255,255,.45)', fontSize: 12.5, marginTop: 16 }}>
             Güvenli ödeme — Stripe altyapısı. Taahhüt yok.
           </p>
