@@ -3,9 +3,10 @@
 import HkIcon from '@/components/HkIcon';
 import HkIconAnim from '@/components/HkIconAnim';
 import type { HkIkonAdi } from '@/lib/hk-icons';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ILCELER } from '@/lib/tr-il-ilce';
+import { DOKTOR_BRANSLARI } from '@/lib/doktor-branslari';
 
 /* ── SVG ikonlar ─────────────────────────────────────────── */
 function IcTooth() {
@@ -62,30 +63,6 @@ function IcChevLeft() {
     </svg>
   );
 }
-function IcFile() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-      <polyline points="14,2 14,8 20,8"/>
-    </svg>
-  );
-}
-function IcImage() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-      <circle cx="8.5" cy="8.5" r="1.5"/>
-      <polyline points="21,15 16,10 5,21"/>
-    </svg>
-  );
-}
-function IcX() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-      <path d="M2 2l8 8M10 2l-8 8" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-    </svg>
-  );
-}
 function IcGlobe() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -112,6 +89,7 @@ interface FormData {
   isletme_adi: string;
   ad_soyad:    string;
   unvan:       string;
+  brans:       string;   // yalnız doktor: uzmanlık
   tel:         string;
   email:       string;
   il:          string;
@@ -150,140 +128,6 @@ const AVANTAJLAR: { ikon: HkIkonAdi; title: string; desc: string }[] = [
 // Tür satırlarındaki ikonlar — marka ikon setinden, tek renk
 const TUR_IKON: Record<string, HkIkonAdi> = { klinik: 'dentistry', hastane: 'hospital', doktor: 'doctor-profile', eczane: 'pharmacy' };
 
-const DOC_SLOTS = [
-  { key: 'vergi',  label: 'Vergi Levhası',          sub: 'PDF veya görsel',           required: false },
-  { key: 'sicil',  label: 'Ticaret Sicil Belgesi',   sub: 'PDF veya görsel',           required: false },
-  { key: 'imza',   label: 'İmza Sirküleri',           sub: 'PDF veya görsel',           required: false },
-  { key: 'kimlik', label: 'Kimlik / Pasaport',        sub: 'Yetkili kişiye ait',        required: false },
-];
-
-/* ── Belge Slot Bileşeni ────────────────────────────────── */
-function DocSlot({ slotKey, label, sub, file, onFile }: { slotKey: string; label: string; sub: string; file: File | null; onFile: (f: File | null) => void }) {
-  const ref = useRef<HTMLInputElement>(null);
-  const loaded = !!file;
-
-  return (
-    <div
-      onClick={() => ref.current?.click()}
-      style={{
-        border: `2px dashed ${loaded ? '#22C55E' : '#C7DCFF'}`,
-        borderStyle: loaded ? 'solid' : 'dashed',
-        borderRadius: 12,
-        padding: '16px 12px',
-        textAlign: 'center',
-        cursor: 'pointer',
-        transition: 'all .18s',
-        background: loaded ? '#F0FDF4' : 'white',
-        position: 'relative',
-      }}
-      onMouseEnter={e => { if (!loaded) { (e.currentTarget as HTMLDivElement).style.borderColor = '#1A335E'; (e.currentTarget as HTMLDivElement).style.background = '#F0F7FF'; }}}
-      onMouseLeave={e => { if (!loaded) { (e.currentTarget as HTMLDivElement).style.borderColor = '#C7DCFF'; (e.currentTarget as HTMLDivElement).style.background = 'white'; }}}
-    >
-      <input
-        ref={ref}
-        type="file"
-        accept=".pdf,.jpg,.jpeg,.png"
-        style={{ display: 'none' }}
-        onChange={ev => {
-          const f = ev.target.files?.[0];
-          if (!f) return;
-          if (f.size > 6 * 1024 * 1024) { alert('Dosya boyutu 6 MB\'dan büyük olamaz.'); return; }
-          onFile(f);
-        }}
-      />
-      {loaded && (
-        <button
-          onClick={ev => { ev.stopPropagation(); onFile(null); if (ref.current) ref.current.value = ''; }}
-          style={{ position: 'absolute', top: 6, right: 6, width: 20, height: 20, borderRadius: '50%', background: '#EF4444', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
-          <IcX />
-        </button>
-      )}
-      <div style={{ color: loaded ? '#16A34A' : '#9CA3AF', marginBottom: 6, display: 'flex', justifyContent: 'center' }}>
-        {loaded
-          ? <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" fill="#DCFCE7" stroke="#86EFAC" strokeWidth="1.5"/><path d="M7 11l3 3 5-6" stroke="#16A34A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          : <IcFile />
-        }
-      </div>
-      <div style={{ fontSize: 12, fontWeight: 700, color: loaded ? '#15803D' : '#111C2E', marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: 10, color: loaded ? '#16A34A' : '#4A5568' }}>
-        {loaded ? (file!.name.length > 22 ? file!.name.slice(0, 20) + '…' : file!.name) : sub}
-      </div>
-    </div>
-  );
-}
-
-/* ── Fotoğraf Slot Bileşeni ─────────────────────────────── */
-function PhotoSlot({ index, preview, onFile, onRemove }: { index: number; preview: string | null; onFile: (f: File, prev: string) => void; onRemove: () => void }) {
-  const ref = useRef<HTMLInputElement>(null);
-  const [drag, setDrag] = useState(false);
-
-  function handleFiles(files: FileList | null) {
-    if (!files?.[0]) return;
-    const f = files[0];
-    if (!f.type.startsWith('image/')) { alert('Lütfen bir görsel dosyası seçin.'); return; }
-    if (f.size > 8 * 1024 * 1024) { alert('Dosya 8 MB\'dan büyük olamaz.'); return; }
-    const url = URL.createObjectURL(f);
-    onFile(f, url);
-  }
-
-  return (
-    <div
-      onClick={() => !preview && ref.current?.click()}
-      onDragOver={ev => { ev.preventDefault(); setDrag(true); }}
-      onDragLeave={() => setDrag(false)}
-      onDrop={ev => { ev.preventDefault(); setDrag(false); handleFiles(ev.dataTransfer.files); }}
-      style={{
-        aspectRatio: '1',
-        borderRadius: 12,
-        border: `2px ${preview ? 'solid #BBF7D0' : 'dashed #C7DCFF'}`,
-        background: drag ? '#E8F0FE' : preview ? '#F0FDF4' : '#FAFBFF',
-        cursor: preview ? 'default' : 'pointer',
-        overflow: 'hidden',
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        gap: 4,
-        transition: 'all .18s',
-      }}
-      onMouseEnter={e => { if (!preview) { (e.currentTarget as HTMLDivElement).style.borderColor = '#1A335E'; }}}
-      onMouseLeave={e => { if (!preview) { (e.currentTarget as HTMLDivElement).style.borderColor = '#C7DCFF'; }}}
-    >
-      <input
-        ref={ref}
-        type="file"
-        accept="image/*"
-        style={{ display: 'none' }}
-        onChange={ev => handleFiles(ev.target.files)}
-      />
-      {preview ? (
-        <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity .15s' }}
-            onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.opacity = '1'}
-            onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.opacity = '0'}>
-            <button
-              onClick={ev => { ev.stopPropagation(); onRemove(); }}
-              style={{ padding: '7px 14px', background: '#EF4444', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-              Kaldır
-            </button>
-          </div>
-          <div style={{ position: 'absolute', top: 5, left: 5, background: 'rgba(0,0,0,.5)', color: 'white', fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 6 }}>
-            {index + 1}
-          </div>
-        </>
-      ) : (
-        <>
-          <div style={{ color: '#9CA3AF' }}><IcImage /></div>
-          <div style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 600 }}>{index === 0 ? 'Kapak' : `Fotoğraf ${index + 1}`}</div>
-        </>
-      )}
-    </div>
-  );
-}
-
 /* ─────────────────────────────────────────────────────────── */
 export default function KatilPage() {
   const [step,        setStep]       = useState<'kategori' | 'form' | 'tamam'>('kategori');
@@ -292,7 +136,7 @@ export default function KatilPage() {
   const [saveError,   setSaveError]  = useState('');
 
   const [form, setForm] = useState<FormData>({
-    isletme_adi: '', ad_soyad: '', unvan: '', tel: '',
+    isletme_adi: '', ad_soyad: '', unvan: '', brans: '', tel: '',
     email: '', il: '', ilce: '', adres: '', mesaj: '',
   });
   const [errors, setErrors] = useState<Partial<FormData>>({});
@@ -306,19 +150,15 @@ export default function KatilPage() {
   }, []);
 
   /* ── Fotoğraflar, 360° ─────────── */
-  const [photoSlots, setPhotoSlots]   = useState<(string | null)[]>(Array(6).fill(null));
-  const [photoFiles, setPhotoFiles]   = useState<(File | null)[]>(Array(6).fill(null));
   const [tour360url, setTour360url]   = useState('');
   const [tour360prev, setTour360prev] = useState(false);
 
   const seciliKat = KATEGORILER.find(k => k.type === seciliType);
 
   function resetAll() {
-    setForm({ isletme_adi:'',ad_soyad:'',unvan:'',tel:'',email:'',il:'',ilce:'',adres:'',mesaj:'' });
+    setForm({ isletme_adi:'',ad_soyad:'',unvan:'',brans:'',tel:'',email:'',il:'',ilce:'',adres:'',mesaj:'' });
     setErrors({});
     setSaveError('');
-    setPhotoSlots(Array(6).fill(null));
-    setPhotoFiles(Array(6).fill(null));
     setTour360url('');
     setTour360prev(false);
   }
@@ -369,6 +209,7 @@ export default function KatilPage() {
     if (!form.tel.trim())         e.tel         = 'Telefon zorunludur';
     if (!form.email.trim())       e.email       = 'E-posta zorunludur';
     if (!form.il)                 e.il          = 'Şehir seçin';
+    if (seciliType === 'doktor' && !form.brans.trim()) e.brans = 'Uzmanlık zorunludur';
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -380,14 +221,14 @@ export default function KatilPage() {
     setSaveError('');
 
     /* Ek bilgileri role alanına ekle */
-    const photoCount  = photoFiles.filter(Boolean).length;
+    // Biçim lib/yeni-isletme.ts → basvuruBilgisi() ile çözülür (onayda kayıt buradan oluşur)
     const extraNotes  = [
       form.unvan.trim() || null,
+      seciliType === 'doktor' && form.brans.trim() ? `Uzmanlık: ${form.brans.trim()}` : null,
       form.il ? (form.ilce ? `${form.il} / ${form.ilce}` : form.il) : null,
       form.adres ? `Adres: ${form.adres}` : null,
-      form.mesaj || null,
-      photoCount   ? `Yüklenen fotoğraf sayısı: ${photoCount}` : null,
-      tour360url   ? `360° tur linki: ${tour360url}`           : null,
+      form.mesaj ? form.mesaj.replace(/\s*\|\s*/g, ' / ') : null,
+      tour360url.trim() ? `360° tur linki: ${tour360url.trim()}` : null,
       'YENİ İŞLETME BAŞVURUSU',
     ].filter(Boolean).join(' | ');
 
@@ -555,6 +396,25 @@ export default function KatilPage() {
                   {err('isletme_adi')}
                 </div>
 
+                {/* Doktor: uzmanlık (listede görünmesi için şart) */}
+                {seciliType === 'doktor' && (
+                  <div>
+                    <label style={lbl}>Uzmanlık <span style={{ color: '#EF4444' }}>*</span></label>
+                    <input type="text" list="katil-branslar" value={form.brans} placeholder="Örn. Kardiyoloji"
+                      onChange={e => setForm(f => ({ ...f, brans: e.target.value }))}
+                      onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
+                      onBlur={e => (e.currentTarget.style.borderColor = errors.brans ? '#FCA5A5' : '#E5E7EB')}
+                      style={inp('brans')} />
+                    <datalist id="katil-branslar">
+                      {DOKTOR_BRANSLARI.map(b => <option key={b} value={b} />)}
+                    </datalist>
+                    {err('brans')}
+                    <span style={{ display: 'block', fontSize: 11, color: 'var(--muted)', marginTop: 5, lineHeight: 1.5 }}>
+                      Diş hekimiyseniz üstteki adımda <strong>Diş Kliniği / Diş Hekimi</strong> türünü seçin.
+                    </span>
+                  </div>
+                )}
+
                 {/* Ad Soyad + Ünvan */}
                 <div className="form-two-col">
                   <div>
@@ -654,33 +514,12 @@ export default function KatilPage() {
                     style={{ ...inp('mesaj'), resize: 'vertical', lineHeight: 1.6 }} />
                 </div>
 
-                {/* ─── FOTOĞRAFLAR ─── */}
-                <div>
-                  <div style={secTitle(seciliKat.renk)}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
-                    Fotoğraflar
-                    <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--muted)', textTransform: 'none', letterSpacing: 0, marginLeft: 2 }}>(isteğe bağlı, maks. 6)</span>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 8 }}>
-                    {photoSlots.map((preview, i) => (
-                      <PhotoSlot
-                        key={i}
-                        index={i}
-                        preview={preview}
-                        onFile={(file, prev) => {
-                          const ns = [...photoSlots]; ns[i] = prev; setPhotoSlots(ns);
-                          const nf = [...photoFiles]; nf[i] = file; setPhotoFiles(nf);
-                        }}
-                        onRemove={() => {
-                          const ns = [...photoSlots]; if (ns[i]) URL.revokeObjectURL(ns[i]!); ns[i] = null; setPhotoSlots(ns);
-                          const nf = [...photoFiles]; nf[i] = null; setPhotoFiles(nf);
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <p style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>
-                    İlk fotoğraf kapak olarak kullanılır. Sürükle-bırak veya tıklayarak yükleyebilirsiniz. Maks. 8 MB/adet.
-                  </p>
+                {/* ─── FOTOĞRAFLAR ─── (eskiden seçilen dosyalar hiçbir yere yüklenmiyordu) */}
+                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '14px 16px', background: 'var(--tint-50, #F4F7FB)', border: '1px solid var(--border)', borderRadius: 12 }}>
+                  <span style={{ flexShrink: 0, marginTop: 1, color: 'var(--brand, #1A335E)' }}><HkIcon name="info" size={20} /></span>
+                  <span style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.55 }}>
+                    <strong>Fotoğraflar</strong> — başvurunuz onaylandığında panelinizdeki <strong>Profilimi Düzenle → Fotoğraflar</strong> bölümünden kapak ve galeri fotoğraflarınızı yüklersiniz.
+                  </span>
                 </div>
 
                 {/* ─── 360° TUR ─── */}
@@ -784,7 +623,7 @@ export default function KatilPage() {
                 </button>
 
                 <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.6 }}>
-                  İşletme adı, adres ve işletme telefonu onaydan sonra profilinizde yayımlanır; yetkili kişi bilgileri yalnızca başvurunuzu doğrulamak için kullanılır.
+                  İşletme adı, şehir ve adres onaydan sonra profilinizde yayımlanır. Bu formdaki telefon ve yetkili bilgileri yalnızca başvurunuzu doğrulamak için kullanılır, profilde gösterilmez; profilde görünecek iletişim bilgilerini onaydan sonra panelden siz eklersiniz.
                   Başvuruyu göndererek <Link href="/kvkk" target="_blank" style={{ color: 'var(--brand)', fontWeight: 600 }}>KVKK Aydınlatma Metni</Link>&apos;ni okuduğunuzu kabul edersiniz.
                 </p>
               </form>
@@ -828,15 +667,9 @@ export default function KatilPage() {
               </div>
 
               {/* Eklenenler özet */}
-              {(photoFiles.some(Boolean) || tour360url) && (
+              {tour360url && (
                 <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '18px 20px' }}>
                   <h3 style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)', marginBottom: 10 }}>Eklenenler</h3>
-                  {photoFiles.filter(Boolean).length > 0 && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, fontSize: 12, color: '#15803D' }}>
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" fill="#DCFCE7" stroke="#86EFAC"/><path d="M3.5 6l2 2 3-3" stroke="#16A34A" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      {photoFiles.filter(Boolean).length} fotoğraf eklendi
-                    </div>
-                  )}
                   {tour360url && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#15803D' }}>
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" fill="#DCFCE7" stroke="#86EFAC"/><path d="M3.5 6l2 2 3-3" stroke="#16A34A" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>

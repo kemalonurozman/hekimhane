@@ -1,85 +1,77 @@
 export const dynamic = 'force-dynamic';
 import HkIconAnim from '@/components/HkIconAnim';
 import type { Metadata } from 'next';
+import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import type { Eczane } from '@/lib/types';
 import EczaneCard from '@/components/EczaneCard';
 import ListingLayout from '@/components/ListingLayout';
-import { resolveKonum } from '@/lib/il-koordinatlari';
+import { fetchAllRows } from '@/lib/fetch-all';
+import { eczaneListesi, ilceCikar, type EczaneOzet } from '@/lib/eczane-liste';
 
 const PAGE_SIZE = 30;
 
 export async function generateMetadata(
   { searchParams }: { searchParams: Record<string, string> }
 ): Promise<Metadata> {
-  const il = searchParams.il || ''; const nobetci = searchParams.nobetci || '';
+  const il = searchParams.il || ''; const ilce = searchParams.ilce || ''; const nobetci = searchParams.nobetci || '';
+  const yer = ilce && il ? `${il} ${ilce}` : il;
   let title = 'Eczaneler';
-  if (nobetci) title = 'Nöbetçi Eczaneler'; else if (il) title = `${il} Eczaneleri`;
-  const desc = `${il || 'Türkiye'} bölgesindeki eczaneler ve nöbetçi eczane bilgileri. Hekimhane'de hızlıca bulun.`;
+  if (nobetci) title = yer ? `${yer} Nöbetçi Eczaneler` : 'Nöbetçi Eczaneler';
+  else if (yer) title = `${yer} Eczaneleri`;
+  const desc = `${yer || 'Türkiye'} bölgesindeki eczaneler ve nöbetçi eczane bilgileri. Hekimhane'de hızlıca bulun.`;
   return { title, description: desc, openGraph: { title: `${title} | Hekimhane`, description: desc } };
 }
 
-async function getEczaneler(filters: Record<string, string | undefined> & { page?: number }) {
-  const from = ((filters.page || 1) - 1) * PAGE_SIZE;
-  let query = supabase.from('eczaneler').select('*', { count: 'exact' })
-    .order('nobetci', { ascending: false }).order('name', { ascending: true })
-    .range(from, from + PAGE_SIZE - 1);
-  if (filters.il)      query = query.eq('il', filters.il);
-  if (filters.ilce)    query = query.eq('ilce', filters.ilce);
-  if (filters.nobetci) query = query.eq('nobetci', true);
-  if (filters.q)       query = query.ilike('name', `%${filters.q}%`);
-  const { data, count, error } = await query;
-  if (error) console.error(error);
-  return { data: (data || []) as Eczane[], count: count || 0 };
-}
+/**
+ * Tüm eczanelerin küçük özeti (id, il, ilçe, ad, nöbetçi) — sayaçlar, Türkçe
+ * sıralama ve sayfalama bundan yapılır (bkz. lib/eczane-liste.ts).
+ * Eskiden il sayaçları tek sorguyla çekiliyordu; PostgREST 1000 satırda kestiği
+ * için ~8.800 eczanenin yalnız ilk 1000'i sayılıyor, "7 şehir" görünüyordu.
+ * 10 dk önbellek; ekleme/silme sonrası `revalidateTag('eczane-indeks')`.
+ */
+const eczaneIndeksi = unstable_cache(async (): Promise<EczaneOzet[]> => {
+  const rows = await fetchAllRows<{ id: string; il: string | null; ilce: string | null; name: string | null; nobetci: boolean | null }>(
+    () => supabase.from('eczaneler').select('id,il,ilce,name,nobetci').order('id'));
+  // İlçesi boş kayıtlarda ilçe addan bir kez, önbelleğe alırken türetilir
+  return rows.map(r => [r.id, r.il, r.ilce || ilceCikar(r.name || '', r.il), r.name || '', !!r.nobetci]);
+}, ['eczane-indeks-v1'], { revalidate: 600, tags: ['eczane-indeks', 'facets'] });
 
-// Şehir sayıları — aktif nobetci filtresi dikkate alınır
-async function getIller(nobetci?: string) {
-  let query = supabase.from('eczaneler').select('il').not('il', 'is', null).limit(100000);
-  if (nobetci) query = query.eq('nobetci', true);
-  const { data } = await query;
-  const map: Record<string, number> = {};
-  (data || []).forEach((r: { il: string | null }) => { if (r.il) map[r.il] = (map[r.il] || 0) + 1; });
-  return Object.entries(map)
-    .sort((a, b) => a[0].localeCompare(b[0], 'tr'))
-    .map(([il, count]) => ({ value: il, label: il, count }));
-}
-
-async function getKonumlar(filters: Record<string, string | undefined>) {
-  let query = supabase.from('eczaneler')
-    .select('id,name,lat,lng,tel,nobetci,il,ilce,slug')
-    .not('lat', 'is', null).not('lng', 'is', null)
-    .neq('lat', 0).neq('lng', 0);
-  if (filters.il)      query = query.eq('il', filters.il);
-  if (filters.ilce)    query = query.eq('ilce', filters.ilce);
-  if (filters.nobetci) query = query.eq('nobetci', true);
-  if (filters.q)       query = query.ilike('name', `%${filters.q}%`);
-  const { data } = await query.limit(5000);
-  return data || [];
+/** Sayfadaki kayıtların tam satırları — indeksteki sırayla. */
+async function sayfaKayitlari(ids: string[], ilceById: Record<string, string>): Promise<Eczane[]> {
+  if (!ids.length) return [];
+  const { data, error } = await supabase.from('eczaneler').select('*').in('id', ids);
+  if (error) console.error('eczaneler sayfa:', error.message);
+  const byId = new Map(((data || []) as Eczane[]).map(e => [e.id, e]));
+  return ids.map(id => byId.get(id)).filter(Boolean)
+    // ilçesi boş kayıtlarda addan türetilen ilçe kartta da görünsün
+    .map(e => (!e!.ilce && ilceById[e!.id] ? { ...e!, ilce: ilceById[e!.id] } : e!));
 }
 
 export default async function EczanelerPage(
   { searchParams }: { searchParams: Record<string, string> }
 ) {
+  const sayfa = Math.max(1, parseInt(searchParams.page || '1') || 1);
   const filters = {
     il:      searchParams.il      || undefined,
     ilce:    searchParams.ilce    || undefined,
     nobetci: searchParams.nobetci || undefined,
-    q:       searchParams.q       || undefined,
-    page:    searchParams.page    ? parseInt(searchParams.page) : 1,
+    q:       (searchParams.q || '').trim() || undefined,
+    page:    sayfa,
   };
 
-  const [{ data: eczaneler, count }, illerWithCount, konumlar] = await Promise.all([
-    getEczaneler(filters),
-    getIller(filters.nobetci),
-    getKonumlar(filters),
-  ]);
-
+  // Veritabanına ulaşılamazsa sayfa boş liste ile yine açılır (graceful)
+  let indeks: EczaneOzet[] = [];
+  try { indeks = await eczaneIndeksi(); } catch (e) { console.error('eczane indeksi:', e); }
+  const liste = eczaneListesi(indeks, { il: filters.il, ilce: filters.ilce, nobetci: !!filters.nobetci, q: filters.q }, sayfa, PAGE_SIZE);
+  const eczaneler = await sayfaKayitlari(liste.ids, liste.ilceById);
+  const count = liste.toplam;
+  const illerWithCount = liste.iller;
   const totalPages = Math.ceil(count / PAGE_SIZE);
 
-  const title = filters.nobetci ? 'Nöbetçi Eczaneler'
-    : filters.ilce ? `${filters.ilce} Eczaneleri`
-    : filters.il   ? `${filters.il} Eczaneleri`
+  const yer = filters.ilce && filters.il ? `${filters.il} ${filters.ilce}` : filters.il;
+  const title = filters.nobetci ? (yer ? `${yer} Nöbetçi Eczaneler` : 'Nöbetçi Eczaneler')
+    : yer ? `${yer} Eczaneleri`
     : 'Tüm Eczaneler';
 
   return (
@@ -122,6 +114,7 @@ export default async function EczanelerPage(
         { label: 'Ana Sayfa', href: '/' },
         { label: 'Eczaneler', href: '/eczaneler' },
         ...(filters.il ? [{ label: filters.il, href: `/eczaneler?il=${encodeURIComponent(filters.il)}` }] : []),
+        ...(filters.il && filters.ilce ? [{ label: filters.ilce, href: `/eczaneler?il=${encodeURIComponent(filters.il)}&ilce=${encodeURIComponent(filters.ilce)}` }] : []),
         ...(filters.nobetci ? [{ label: 'Nöbetçi', href: '/eczaneler?nobetci=true' }] : []),
       ]}
       filterSections={[
@@ -133,24 +126,42 @@ export default async function EczanelerPage(
           options: [{ value: 'true', label: 'Nöbetçi Eczaneler' }],
         },
         { key: 'il', label: 'Şehir', type: 'radio', options: illerWithCount },
+        // İlçe yalnız şehir seçiliyken ve o şehirde ilçesi bilinen eczane varken
+        ...(filters.il && liste.ilceler.length > 0
+          ? [{ key: 'ilce', label: `${filters.il} İlçeleri`, type: 'radio' as const, options: liste.ilceler }]
+          : []),
       ]}
       activeFilters={{ il: filters.il, ilce: filters.ilce, nobetci: filters.nobetci, q: filters.q }}
       hasActiveFilters={!!(filters.il || filters.ilce || filters.nobetci || filters.q)}
-      markers={konumlar.map(e => ({
-        id: e.id, name: e.name, lat: e.lat, lng: e.lng, tel: e.tel,
-        type: e.nobetci ? 'Nöbetçi' : 'Eczane',
-        il: e.il, ilce: e.ilce,
-        href: e.slug ? `/eczaneler/${e.slug}` : `/eczaneler/${e.id}`,
-      }))}
       totalPages={totalPages}
-      currentPage={filters.page || 1}
+      currentPage={sayfa}
       searchParams={searchParams}
     >
       {eczaneler.length === 0 ? (
         <EmptyState href="/eczaneler" />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {eczaneler.map(e => <EczaneCard key={e.id} eczane={e} />)}
+          {eczaneler.map((e, i) => {
+            // Liste il (şehir seçiliyse ilçe) sırasıyla gelir → grup değişince ara başlık
+            const grup = filters.il ? (e.ilce || 'İlçesi belirtilmemiş') : (e.il || 'Şehri belirtilmemiş');
+            const onceki = i > 0 ? (filters.il ? (eczaneler[i - 1].ilce || 'İlçesi belirtilmemiş') : (eczaneler[i - 1].il || 'Şehri belirtilmemiş')) : null;
+            const grupSayisi = filters.il
+              ? (filters.ilce ? count : liste.ilceler.find(x => x.value === e.ilce)?.count)
+              : illerWithCount.find(x => x.value === e.il)?.count;
+            return (
+              <div key={e.id} style={{ display: 'contents' }}>
+                {grup !== onceki && !filters.ilce && (
+                  <div className="ecz-grup" style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, padding: i === 0 ? '0 4px 2px' : '14px 4px 2px', borderBottom: '1px solid var(--border)' }}>
+                    <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, letterSpacing: '-0.2px', color: 'var(--ink, #1D1D1F)' }}>{grup}</h2>
+                    {grupSayisi !== undefined && (
+                      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}>{grupSayisi.toLocaleString('tr')} eczane</span>
+                    )}
+                  </div>
+                )}
+                <EczaneCard eczane={e} />
+              </div>
+            );
+          })}
         </div>
       )}
     </ListingLayout>

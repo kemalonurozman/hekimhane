@@ -21,6 +21,22 @@
         "3100"
       ],
       "port": 3100
+    },
+    {
+      "name": "hekimhane-onizleme-sahte",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=https://ornek.supabase.co",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3105"
+      ],
+      "port": 3105
     }
   ]
 }

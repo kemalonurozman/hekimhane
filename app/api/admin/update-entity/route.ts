@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { isAdminRequest } from '@/lib/admin-auth';
 import { normalizeSpecList } from '@/lib/uzmanlik-data';
 import { createClient } from '@supabase/supabase-js';
@@ -62,6 +63,8 @@ export async function POST(request: NextRequest) {
     }
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
+    // Ad / il / ilçe değişmiş olabilir → liste sayaçları ve eczane indeksi tazelensin
+    try { revalidateTag('facets'); } catch { /* build dışı */ }
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('admin/update-entity error:', err);

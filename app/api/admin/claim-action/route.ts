@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { isAdminRequest } from '@/lib/admin-auth';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
@@ -68,18 +68,22 @@ export async function POST(request: NextRequest) {
     // 4. Onaylandıysa → işletmeyi "claimed = true" yap
     //    Hata yutulmaz: kolon yoksa (doktorlar'da yoktu) admin bunu görmeli.
     let warning: string | null = null;
-    let olusturulan: { id: string; slug: string } | null = null;
+    let olusturulan: { id: string; slug: string; entityType: string } | null = null;
     if (action === 'approve' && claim.entity_id === 'new') {
       // "Yeni işletme" başvurusu: listede kayıt yok → şimdi oluştur ve talebi ona bağla.
       // (Eskiden onay yalnız durumu değiştiriyordu; sahibi panelde "onaylı" görüp
       // düzenleyecek bir kayıt bulamıyordu.) Başvurandaki telefon kayda yazılmaz.
       try {
         const y = await yeniIsletmeOlustur(admin, claim);
-        const { error: bagErr } = await admin.from('claim_requests').update({ entity_id: y.id }).eq('id', claimId);
+        // Diş hekimi "doktor" başvurusu klinik olarak açılır → talebin türü de güncellenir
+        const { error: bagErr } = await admin.from('claim_requests')
+          .update({ entity_id: y.id, entity_type: y.entityType }).eq('id', claimId);
         if (bagErr) throw new Error(`kayıt oluştu (${y.id}) ama talebe bağlanamadı: ${bagErr.message}`);
         claim.entity_id = y.id;
-        olusturulan = { id: y.id, slug: y.slug };
-        try { revalidatePath(`/${y.tablo}`); revalidatePath('/'); } catch { /* build dışı */ }
+        claim.entity_type = y.entityType;
+        olusturulan = { id: y.id, slug: y.slug, entityType: y.entityType };
+        if (y.uyari) warning = y.uyari;
+        try { revalidatePath(`/${y.tablo}`); revalidatePath('/'); revalidateTag('facets'); } catch { /* build dışı */ }
       } catch (e) {
         warning = `Talep onaylandı ama işletme kaydı oluşturulamadı: ${(e as Error).message}`;
       }

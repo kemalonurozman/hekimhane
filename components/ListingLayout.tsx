@@ -203,6 +203,8 @@ export default function ListingLayout(props: ListingLayoutProps) {
     const params = new URLSearchParams(sp.toString());
     if (!value) params.delete(key);
     else params.set(key, value);
+    // İlçe şehre bağlıdır: şehir değişir ya da kalkarsa eski ilçe seçimi düşer
+    if (key === 'il') params.delete('ilce');
     params.delete('page');
     router.push(`${basePath}?${params.toString()}`);
   }, [sp, router, basePath]);

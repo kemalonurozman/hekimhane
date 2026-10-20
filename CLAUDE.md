@@ -695,7 +695,22 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **KİŞİSEL VERİ:** başvurandaki telefon/e-posta işletme kaydına **yazılmaz** (`tel=null`) — cep numarası sitede açığa çıkmasın; sahibi panelden iş yeri numarasını girer.
 - **Eski onaylar için:** admin Talepler → onaylı + `entity_id='new'` talepte **"İşletme Kaydını Oluştur"** düğmesi (`claim-action` `approve` + `notify:false`; mail gitmez, bekleyen sayacı değişmez). Onayda bağlı kayıt DB'de yoksa (silinmiş) `warning` döner, otomatik oluşturulmaz.
 - **Panel graceful:** `EditProfileTab` 'new' ya da DB'de satırı olmayan talepte boş form yerine "işletme kaydı henüz hazır değil" kartı (`kayitYok`, `maybeSingle`); Genel Bakış satırında "Kayıt hazırlanıyor" rozeti.
-- **Not:** doktor türünde kayıt `doktorlar`'a düşer; diş hekimi başvurusuysa [[dental-doctor-table-placement]] gereği admin kaydı `klinikler`'e taşımalı.
+- **Doktor (Eki 2026 düzeltmesi):** formlarda doktor için **zorunlu "Uzmanlık"** alanı var (`lib/doktor-branslari.ts` → `DOKTOR_BRANSLARI` öneri listesi, yazımlar mevcut `doktorlar.spec` değerleriyle aynı); role'e `Uzmanlık: X` parçası olarak yazılır. Eskiden form uzmanlık sormuyordu ve "Ünvan" (başvuranın rolü: "Sahip") uzmanlık sanılıyordu. Uzmanlıksız doktor `/doktorlar`'da görünmez (liste boş `spec`'i dışarıda bırakır) → eski başvurularda admin'e uyarı çıkar. "Dr./Uzm. Dr./Prof. Dr." ön eki `unvan` kolonuna ayrılır (`unvanAyir`).
+- **Diş hekimi "doktor" başvurusu** (`disHekimiBransi`) `klinikler`'e `type='Diş Hekimi'` olarak açılır ve talebin `entity_type`'ı `klinik`'e çevrilir ([[dental-doctor-table-placement]]).
+- **360° tur linki** başvurudan profile işlenir (`tour360url`, best-effort). Şehir çözülemezse admin uyarısı.
+- **/katil fotoğrafları:** form 6 fotoğraf seçtirip "eklendi" diyordu ama dosyalar **hiçbir yere yüklenmiyordu** (yalnız sayısı nota yazılıyordu). Bölüm kaldırıldı, yerine "onaydan sonra panelden yüklersiniz" notu; kullanılmayan `DocSlot`/`PhotoSlot` silindi. Form altı metni de düzeltildi: başvurudaki telefon profilde **yayımlanmaz**.
+- Uyarılar admin'de `window.alert` ile gösterilir (toast 3 sn'de kayboluyordu).
+
+### /eczaneler — Doğru Sayaçlar, İl/İlçe Sıralaması, İlçe Filtresi (Eki 2026)
+- **Sorun:** "8.788 eczane · 7 şehir"; Ankara 876 (gerçekte ~1.547). İl sayaçları `select('il').limit(100000)` ile çekiliyordu — **PostgREST tek sorguda en fazla 1000 satır döndürür, `.limit()` bunu aşmaz**; yalnız ilk 1000 satır sayılıyordu.
+- **Kural:** tüm satırları gerektiren her sorguda `lib/fetch-all.ts` → `fetchAllRows(() => sorgu)` kullan (sayfalı toplar; builder her sayfada yeniden kurulur, `.order('id')` ekle). `/doktorlar` (il + uzmanlık sayaç yedeği) ve `/hastaneler` (il + tür sayaçları) de aynı hatayı taşıyordu → düzeltildi; `/klinikler`'deki yerel kopya ortak yardımcıya bağlandı.
+- **Yeni yapı:** `app/eczaneler/page.tsx` → `eczaneIndeksi()` (unstable_cache, 10 dk, etiket `eczane-indeks` + `facets`): tüm eczanelerin özeti `[id, il, ilce, ad, nobetci]`. Filtre, il/ilçe sayaçları, Türkçe sıralama ve sayfalama **`lib/eczane-liste.ts`**'te (saf, sunucu importu yok); yalnız görünen 30 kaydın tam satırı `.in('id', ids)` ile çekilir.
+- **Sıra:** il → ilçe → nöbetçi önce → ad, `Intl.Collator('tr')` ile (veritabanı sıralaması Ç/İ/Ş/Ö/Ü'yü alfabenin sonuna atar). Liste ara başlıklı: şehir seçili değilse il başlıkları, seçiliyse ilçe başlıkları (adet ile).
+- **İlçe:** şehir seçilince "<İl> İlçeleri" filtresi çıkar. İçe aktarılan eczanelerin çoğunda `ilce` boş ama ad ilçeyi taşır → `ilceCikar()` iki biçimi çözer: "(Ankara Keçiören)" ve "(Alaplı - Zonguldak)"; yalnız `lib/tr-il-ilce.ts`'teki resmî ilçeyse kabul (mahalle adı → null), "Kazan" → Kahramankazan, "(Tokat Tokat)" → Merkez. Ölçüm: Ankara 1000/1000 çözüldü; yalnız "(Tokat)" gibi il yazan adlar ilçesiz kalır ("İlçesi belirtilmemiş" grubunda, sonda). Türetilen ilçe kartta da gösterilir; **veritabanına yazılmaz**.
+- **Arama:** ad + il + ilçe, Türkçe harf duyarsız, her kelime eşleşmeli ("kecioren" → Keçiören).
+- **ListingLayout:** şehir değişince/kaldırılınca `ilce` parametresi de düşer (başka ilin ilçesiyle boş sonuç kalmaz).
+- **Önbellek tazeleme:** admin sil (`delete-entity`), admin düzenle (`admin/update-entity`), panel düzenle ve onayda yeni kayıt (`claim-action`) → `revalidateTag('facets')`.
+- Kullanılmayan harita için sayfaya gömülen 1000 eczanelik `markers` kaldırıldı (ListingLayout haritayı çizmiyor).
 
 ### Bekleyen migration'lar (kullanıcı Supabase SQL Editor'da çalıştırmalı)
 - `supabase/migrations/add_account_activations.sql` — **çalıştırıldı** (aktivasyon akışı için şart).

@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+import { fetchAllRows } from '@/lib/fetch-all';
 import HkIconAnim from '@/components/HkIconAnim';
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
@@ -41,11 +42,14 @@ async function getHastaneler(filters: Record<string, string | undefined> & { pag
 
 // Şehir sayıları — aktif tip filtresi varsa sadece o türden sayar
 async function getIller(tip?: string) {
-  let query = supabase.from('hastaneler').select('il').not('il', 'is', null).limit(100000);
-  if (tip) query = query.eq('type', tip);
-  const { data } = await query;
+  // PostgREST 1000 satırda keser → sayfalayarak tümünü topla
+  const data = await fetchAllRows<{ il: string | null }>(() => {
+    let q = supabase.from('hastaneler').select('il').not('il', 'is', null);
+    if (tip) q = q.eq('type', tip);
+    return q.order('id');
+  });
   const map: Record<string, number> = {};
-  (data || []).forEach((r: { il: string | null }) => { if (r.il) map[r.il] = (map[r.il] || 0) + 1; });
+  data.forEach((r: { il: string | null }) => { if (r.il) map[r.il] = (map[r.il] || 0) + 1; });
   return Object.entries(map)
     .sort((a, b) => a[0].localeCompare(b[0], 'tr'))
     .map(([il, count]) => ({ value: il, label: il, count }));
@@ -53,11 +57,13 @@ async function getIller(tip?: string) {
 
 // Tür sayıları — aktif il filtresi varsa sadece o şehirden sayar
 async function getTipler(il?: string) {
-  let query = supabase.from('hastaneler').select('type').not('type', 'is', null).limit(100000);
-  if (il) query = query.eq('il', il);
-  const { data } = await query;
+  const data = await fetchAllRows<{ type: string | null }>(() => {
+    let q = supabase.from('hastaneler').select('type').not('type', 'is', null);
+    if (il) q = q.eq('il', il);
+    return q.order('id');
+  });
   const map: Record<string, number> = {};
-  (data || []).forEach((r: { type: string | null }) => { if (r.type) map[r.type] = (map[r.type] || 0) + 1; });
+  data.forEach((r: { type: string | null }) => { if (r.type) map[r.type] = (map[r.type] || 0) + 1; });
   return Object.entries(map)
     .sort((a, b) => b[1] - a[1])
     .map(([type, count]) => ({ value: type, label: type, count }));

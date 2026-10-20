@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { isAdminRequest } from '@/lib/admin-auth';
 
 function adminClient() {
@@ -74,7 +74,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 5. Public listeler bayat kalmasın
-    try { revalidatePath(`/${entityType}`); revalidatePath('/'); } catch { /* build dışı ortamda sessiz */ }
+    try { revalidatePath(`/${entityType}`); revalidatePath('/'); revalidateTag('facets'); } catch { /* build dışı ortamda sessiz */ }
 
     return NextResponse.json({ success: true, uyarilar });
   } catch (err) {

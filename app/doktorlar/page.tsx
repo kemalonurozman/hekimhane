@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+import { fetchAllRows } from '@/lib/fetch-all';
 import { puansiz } from '@/lib/profil-puani';
 import { puanKolonuVar, profilSirasi } from '@/lib/profil-puani-sunucu';
 import HkIconAnim from '@/components/HkIconAnim';
@@ -71,12 +72,15 @@ async function getDoktorlar(filters: Record<string, string | undefined> & { page
 const getIller = unstable_cache(async (spec?: string) => {
   const rpc = await supabase.rpc('doktor_il_counts', { p_spec: spec || null });
   if (!rpc.error && rpc.data) return (rpc.data as { deger: string; adet: number }[]).map(r => ({ value: r.deger, label: r.deger, count: Number(r.adet) }));
-  let query = (supabase.from('doktorlar').select('il').not('il', 'is', null).limit(100000) as any)
-    .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
-  if (spec) query = query.eq('spec', spec);
-  const { data } = await query;
+  // PostgREST 1000 satırda keser → sayfalayarak tümünü topla (eskiden .limit(100000) sessizce 1000'de kalıyordu)
+  const data = await fetchAllRows<{ il: string | null }>(() => {
+    let q = (supabase.from('doktorlar').select('il').not('il', 'is', null) as any)
+      .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
+    if (spec) q = q.eq('spec', spec);
+    return q.order('id');
+  });
   const map: Record<string, number> = {};
-  (data || []).forEach((r: { il: string | null }) => { if (r.il) map[r.il] = (map[r.il] || 0) + 1; });
+  data.forEach((r: { il: string | null }) => { if (r.il) map[r.il] = (map[r.il] || 0) + 1; });
   return Object.entries(map)
     .sort((a, b) => a[0].localeCompare(b[0], 'tr'))
     .map(([il, count]) => ({ value: il, label: il, count }));
@@ -85,12 +89,15 @@ const getIller = unstable_cache(async (spec?: string) => {
 const getUzmanliklar = unstable_cache(async (il?: string) => {
   const rpc = await supabase.rpc('doktor_spec_counts', { p_il: il || null });
   if (!rpc.error && rpc.data) return (rpc.data as { deger: string; adet: number }[]).map(r => ({ value: r.deger, label: r.deger, count: Number(r.adet) }));
-  let query = (supabase.from('doktorlar').select('spec').not('spec', 'is', null).limit(100000) as any)
-    .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
-  if (il) query = query.eq('il', il);
-  const { data } = await query;
+  // PostgREST 1000 satırda keser → sayfalayarak tümünü topla (eskiden .limit(100000) sessizce 1000'de kalıyordu)
+  const data = await fetchAllRows<{ spec: string | null }>(() => {
+    let q = (supabase.from('doktorlar').select('spec').not('spec', 'is', null) as any)
+      .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
+    if (il) q = q.eq('il', il);
+    return q.order('id');
+  });
   const map: Record<string, number> = {};
-  (data || []).forEach((r: { spec: string | null }) => { if (r.spec) map[r.spec] = (map[r.spec] || 0) + 1; });
+  data.forEach((r: { spec: string | null }) => { if (r.spec) map[r.spec] = (map[r.spec] || 0) + 1; });
   return Object.entries(map)
     .sort((a, b) => b[1] - a[1])
     .map(([spec, count]) => ({ value: spec, label: spec, count }));

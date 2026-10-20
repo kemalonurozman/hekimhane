@@ -20,6 +20,7 @@ import { ASISTAN_DURUM, asistanYetkileri, type AsistanYetki } from '@/lib/asista
 import AsistanlarTab, { AsistanErisimKarti } from './AsistanlarTab';
 import MakalelerimTab from './MakalelerimTab';
 import McpTab from './McpTab';
+import { DOKTOR_BRANSLARI } from '@/lib/doktor-branslari';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
@@ -1439,7 +1440,7 @@ function NewClaimTab({ user, onSuccess }: { user: User | null; onSuccess: () => 
   const meta = user?.user_metadata || {};
   const [form, setForm] = useState({
     isletme_adi: '', ad_soyad: meta.full_name || meta.name || '', tel: '',
-    email: user?.email || '', unvan: '', il: '', ilce: '', adres: '', mesaj: '',
+    email: user?.email || '', unvan: '', brans: '', il: '', ilce: '', adres: '', mesaj: '',
   });
   const [errors, setErrors] = useState<Partial<typeof form>>({});
 
@@ -1523,6 +1524,7 @@ function NewClaimTab({ user, onSuccess }: { user: User | null; onSuccess: () => 
     if (!selectedEntity) {
       if (!form.isletme_adi.trim()) e.isletme_adi = 'İşletme adı zorunludur';
       if (!form.il.trim())          e.il          = 'Şehir zorunludur';
+      if (typeVal === 'doktor' && !form.brans.trim()) e.brans = 'Uzmanlık zorunludur';
     }
     setErrors(e);
     if (Object.keys(e).length > 0) return;
@@ -1550,7 +1552,8 @@ function NewClaimTab({ user, onSuccess }: { user: User | null; onSuccess: () => 
           claimant_name: form.ad_soyad.trim(),
           phone:         form.tel.trim(),
           email:         form.email.trim(),
-          role:          [form.unvan.trim() || null, form.il ? (form.ilce ? `${form.il} / ${form.ilce}` : form.il) : null, form.adres ? `Adres: ${form.adres}` : null, form.mesaj || null, 'YENİ İŞLETME BAŞVURUSU'].filter(Boolean).join(' | ') || null,
+          // Biçim lib/yeni-isletme.ts → basvuruBilgisi() ile çözülür (onayda kayıt buradan oluşur)
+          role:          [form.unvan.trim() || null, typeVal === 'doktor' && form.brans.trim() ? `Uzmanlık: ${form.brans.trim()}` : null, form.il ? (form.ilce ? `${form.il} / ${form.ilce}` : form.il) : null, form.adres ? `Adres: ${form.adres}` : null, form.mesaj ? form.mesaj.replace(/\s*\|\s*/g, ' / ') : null, 'YENİ İŞLETME BAŞVURUSU'].filter(Boolean).join(' | ') || null,
           status:        'pending',
         };
     try {
@@ -1691,6 +1694,15 @@ function NewClaimTab({ user, onSuccess }: { user: User | null; onSuccess: () => 
               </div>
               {/* Yeni işletme ise şehir/ilçe/adres göster */}
               {!selectedEntity && (<>
+                {typeVal === 'doktor' && (
+                  <div style={{ gridColumn: '1/-1' }}>
+                    <label style={lbl}>Uzmanlık <span style={{ color: T.red }}>*</span></label>
+                    <input type="text" list="panel-branslar" value={form.brans} placeholder="Örn. Kardiyoloji" style={inp('brans')}
+                      onChange={e => setForm(f => ({ ...f, brans: e.target.value }))} onFocus={fFocus} onBlur={fBlur('brans')} />
+                    <datalist id="panel-branslar">{DOKTOR_BRANSLARI.map(b => <option key={b} value={b} />)}</datalist>
+                    {errMsg('brans')}
+                  </div>
+                )}
                 <div>
                   <label style={lbl}>Şehir <span style={{ color: T.red }}>*</span></label>
                   <select value={form.il} style={{ ...inp('il'), cursor: 'pointer' }} onChange={e => setForm(f => ({ ...f, il: e.target.value }))} onFocus={fFocus} onBlur={fBlur('il')}>

@@ -2525,8 +2525,9 @@ export default function AdminPage() {
         const res = await fetch('/api/admin/claim-action', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ claimId: id, action: 'approve', notify: false }) });
         const data = await res.json().catch(() => ({}));
         if (res.ok && data?.created?.id) {
-          setClaims(prev => prev.map(c => c.id === id ? { ...c, entity_id: data.created.id } : c));
+          setClaims(prev => prev.map(c => c.id === id ? { ...c, entity_id: data.created.id, entity_type: data.created.entityType || c.entity_type } : c));
           showToast(`İşletme kaydı oluşturuldu: ${data.created.id}`);
+          if (data?.warning) setTimeout(() => window.alert(data.warning), 300);
         } else showToast(data?.warning || data?.error || 'Kayıt oluşturulamadı');
       } catch { showToast('Bağlantı hatası'); }
       setActionId(null);
@@ -2547,14 +2548,15 @@ export default function AdminPage() {
       if (res.ok) {
         const data = await res.json().catch(() => ({}));
         const newStatus = action === 'approve' ? 'approved' : 'rejected';
-        setClaims(prev => prev.map(c => c.id === id ? { ...c, status: newStatus as any, ...(data?.created?.id ? { entity_id: data.created.id } : {}) } : c));
+        setClaims(prev => prev.map(c => c.id === id ? { ...c, status: newStatus as any, ...(data?.created?.id ? { entity_id: data.created.id, entity_type: data.created.entityType || c.entity_type } : {}) } : c));
         setPendingCount(prev => Math.max(0, prev - 1));
         const mailNote = data?.mail?.sent
           ? (data.mail.accountCreated ? ' · kullanıcıya hesap + mail gönderildi' : ' · kullanıcıya mail gönderildi')
           : '';
         const kayitNote = data?.created?.id ? ` · işletme kaydı oluşturuldu (${data.created.id})` : '';
         showToast((action === 'approve' ? 'Talep onaylandı' : 'Talep reddedildi') + kayitNote + mailNote);
-        if (data?.warning) setTimeout(() => showToast(data.warning), 3200);
+        // Uyarı (eksik uzmanlık / şehir, silinmiş kayıt) toast'ta kaybolmasın
+        if (data?.warning) setTimeout(() => window.alert(data.warning), 300);
         await loadStats();
       } else {
         showToast('Hata oluştu, tekrar deneyin');

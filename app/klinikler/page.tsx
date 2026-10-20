@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+import { fetchAllRows } from '@/lib/fetch-all';
 import { puansiz } from '@/lib/profil-puani';
 import { puanKolonuVar, profilSirasi } from '@/lib/profil-puani-sunucu';
 import HkIconAnim from '@/components/HkIconAnim';
@@ -156,19 +157,7 @@ async function getKlinikler(filters: KlinikFilters) {
 }
 
 // Şehir sayıları — aktif uzmanlik filtresi dikkate alınır
-// Supabase tek sorguda en fazla 1000 satır döndürür; tüm satırları sayfalayarak topla.
-async function fetchAllRows<T = any>(build: () => any, maxRows = 20000): Promise<T[]> {
-  // Not: noStore() burada YOK — sayaç/harita fonksiyonları unstable_cache ile
-  // önbelleğe alınır; ana liste (getKlinikler) kendi noStore'unu tutar.
-  const PAGE = 1000; const out: T[] = [];
-  for (let from = 0; from < maxRows; from += PAGE) {
-    const { data, error } = await build().range(from, from + PAGE - 1);
-    if (error || !data || !data.length) break;
-    out.push(...data);
-    if (data.length < PAGE) break;
-  }
-  return out;
-}
+// Supabase tek sorguda en fazla 1000 satır döndürür → lib/fetch-all.ts fetchAllRows
 
 // Filtre sayaçları + harita yavaş değişir → 1 saat önbellek. Önce GROUP BY RPC,
 // yoksa tüm satırları çekip JS'te sayma (graceful).
