@@ -10,3 +10,4 @@ scripts/.geocode-state.json
 
 # Kişisel veri içeren yerel yedekler
 .yedek/
+.env*
