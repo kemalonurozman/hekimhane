@@ -826,6 +826,9 @@ function DashboardTab({ ustEk, user, claims, approvedClaims, pendingClaims, clai
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     </a>
                   )}
+                  {c.entity_id === 'new' && (
+                    <span title="Başvurunuz onaylandı; liste kaydınız ekibimiz tarafından oluşturulunca profil düzenleme açılır." style={{ fontSize: 12, fontWeight: 600, color: '#B45309', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 9, padding: '7px 12px', whiteSpace: 'nowrap' }}>Kayıt hazırlanıyor</span>
+                  )}
                   {c.entity_id && c.entity_id !== 'new' && (
                     <button onClick={() => onEditClaim(c)}
                       style={{ padding: '7px 14px', background: T.gold, color: 'white', borderRadius: 9, fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
@@ -4555,6 +4558,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   const [certDrag,   setCertDrag]  = useState<number | null>(null);           // üzerine dosya sürüklenen slot (index)
   const [embedCopied, setEmbedCopied] = useState(false);                      // randevu embed kodu kopyalandı
   const [dilInput,   setDilInput]  = useState('');                            // yabancı dil ekleme kutusu
+  const [kayitYok,   setKayitYok]  = useState(false);                         // onaylı talebin işletme satırı DB'de yok (silinmiş / hiç oluşmamış)
 
   // Geniş ekranda (≥1100px) sağda canlı önizleme; daha darda form tek sütun, önizleme gizli.
   // (isMobile <768 üst bileşenden gelir; 768–1099 arası "tablet" burada ölçülür.)
@@ -4578,7 +4582,8 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
     const table = TM[claim.entity_type];
     if (!table) { setLoading(false); return; }
     const sb = createSupabaseBrowser();
-    const { data } = await sb.from(table).select('*').eq('id', claim.entity_id!).single();
+    const { data } = await sb.from(table).select('*').eq('id', claim.entity_id!).maybeSingle();
+    setKayitYok(!data);
     const d = (data || {}) as Record<string,any>;
     const w = String(d.whatsapp || '');
     setWaMode(!w ? 'off' : w === 'same' ? 'same' : 'custom');
@@ -4767,6 +4772,26 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
           ))}
           {approvedClaims.filter(c=>c.entity_id&&c.entity_id!=='new').length===0&&<p style={{ fontSize:13, color:T.muted, textAlign:'center', padding:'20px 0' }}>Düzenlenebilir onaylı işletme bulunamadı.</p>}
         </div>
+      </div>
+    </div>
+  );
+
+  /* ── KAYIT YOK — onaylı talep var ama düzenlenecek işletme satırı yok ──
+     (a) 'new' başvurusu: onay sırasında kayıt oluşturulmamış (eski onaylar);
+     (b) işletme sonradan silinmiş. Boş form yerine durumu açıkça söyle. */
+  if (selectedClaim.entity_id === 'new' || (!loading && kayitYok)) return (
+    <div>
+      <div style={{ marginBottom:28 }}><h1 style={{ fontSize:22, fontWeight:800, color:T.text, letterSpacing:'-0.4px' }}>Profilimi Düzenle</h1><p style={{ fontSize:13, color:T.muted, marginTop:3 }}>Onaylı işletmenizin profil bilgilerini güncelleyin.</p></div>
+      <div style={{ background:T.white, borderRadius:16, border:`1px solid ${T.border}`, padding:'52px 32px', textAlign:'center' }}>
+        <div style={{ width:64, height:64, borderRadius:'50%', background:'#FFF7ED', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px', color:'#EA580C' }}><Ic d={icons.info} size={28}/></div>
+        <h2 style={{ fontSize:17, fontWeight:800, color:T.text, marginBottom:8 }}>{selectedClaim.entity_name} için işletme kaydı henüz hazır değil</h2>
+        <p style={{ fontSize:13, color:T.muted, maxWidth:420, margin:'0 auto', lineHeight:1.7 }}>
+          Başvurunuz onaylandı ancak işletmenizin liste kaydı sistemde bulunamadı. Ekibimiz kaydı oluşturduğunda bu sayfadan profilinizi düzenleyebileceksiniz.
+          Beklediğinizden uzun sürdüyse <strong>Hesabım → Destek</strong> üzerinden ya da <a href="mailto:info@hekimhane.com.tr" style={{ color:T.navy, fontWeight:700 }}>info@hekimhane.com.tr</a> adresine yazın.
+        </p>
+        {approvedClaims.filter(c=>c.entity_id&&c.entity_id!=='new').length>0 && (
+          <button onClick={()=>onSelectClaim(null)} style={{ marginTop:20, padding:'10px 18px', background:T.navy, color:'white', border:'none', borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>Diğer işletmelerimi düzenle</button>
+        )}
       </div>
     </div>
   );

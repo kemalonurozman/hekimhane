@@ -1,8 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { isAdminRequest } from '@/lib/admin-auth';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 import { sendEmail, mailShell, satir } from '@/lib/email';
+import { yeniIsletmeOlustur } from '@/lib/yeni-isletme';
 
 // Güçlü, okunabilir geçici şifre (harf + rakam, 12 karakter)
 function genPassword(): string {
@@ -66,18 +68,38 @@ export async function POST(request: NextRequest) {
     // 4. Onaylandıysa → işletmeyi "claimed = true" yap
     //    Hata yutulmaz: kolon yoksa (doktorlar'da yoktu) admin bunu görmeli.
     let warning: string | null = null;
-    if (action === 'approve' && claim.entity_id && claim.entity_id !== 'new') {
+    let olusturulan: { id: string; slug: string } | null = null;
+    if (action === 'approve' && claim.entity_id === 'new') {
+      // "Yeni işletme" başvurusu: listede kayıt yok → şimdi oluştur ve talebi ona bağla.
+      // (Eskiden onay yalnız durumu değiştiriyordu; sahibi panelde "onaylı" görüp
+      // düzenleyecek bir kayıt bulamıyordu.) Başvurandaki telefon kayda yazılmaz.
+      try {
+        const y = await yeniIsletmeOlustur(admin, claim);
+        const { error: bagErr } = await admin.from('claim_requests').update({ entity_id: y.id }).eq('id', claimId);
+        if (bagErr) throw new Error(`kayıt oluştu (${y.id}) ama talebe bağlanamadı: ${bagErr.message}`);
+        claim.entity_id = y.id;
+        olusturulan = { id: y.id, slug: y.slug };
+        try { revalidatePath(`/${y.tablo}`); revalidatePath('/'); } catch { /* build dışı */ }
+      } catch (e) {
+        warning = `Talep onaylandı ama işletme kaydı oluşturulamadı: ${(e as Error).message}`;
+      }
+    } else if (action === 'approve' && claim.entity_id) {
       const table = TABLE_MAP[claim.entity_type];
       if (table) {
-        const { error: claimedErr } = await admin.from(table).update({ claimed: true }).eq('id', claim.entity_id);
-        if (claimedErr) {
-          console.error('claim-action claimed update:', claimedErr.message);
-          warning = `Talep onaylandı ama işletme "sahiplenildi" olarak işaretlenemedi: ${claimedErr.message}`;
-        }
-        // Doktor sahiplenince gizli iletişimi (Bobath vb.) otomatik aç — best-effort
-        if (claim.entity_type === 'doktor') {
-          try { await admin.from(table).update({ contact_hidden: false }).eq('id', claim.entity_id); }
-          catch { /* contact_hidden kolonu yoksa sessizce geç */ }
+        const { data: mevcut } = await admin.from(table).select('id').eq('id', claim.entity_id).maybeSingle();
+        if (!mevcut) {
+          warning = `Talep onaylandı ama bağlı işletme kaydı (${claim.entity_id}) listede yok — silinmiş olabilir. Sahibi panelde düzenleyecek kayıt bulamaz.`;
+        } else {
+          const { error: claimedErr } = await admin.from(table).update({ claimed: true }).eq('id', claim.entity_id);
+          if (claimedErr) {
+            console.error('claim-action claimed update:', claimedErr.message);
+            warning = `Talep onaylandı ama işletme "sahiplenildi" olarak işaretlenemedi: ${claimedErr.message}`;
+          }
+          // Doktor sahiplenince gizli iletişimi (Bobath vb.) otomatik aç — best-effort
+          if (claim.entity_type === 'doktor') {
+            try { await admin.from(table).update({ contact_hidden: false }).eq('id', claim.entity_id); }
+            catch { /* contact_hidden kolonu yoksa sessizce geç */ }
+          }
         }
       }
     }
@@ -137,7 +159,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true, status: newStatus, mail, warning });
+    return NextResponse.json({ success: true, status: newStatus, mail, warning, created: olusturulan });
   } catch (err) {
     console.error('claim-action error:', err);
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });

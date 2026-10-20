@@ -283,7 +283,7 @@ function DashboardTab({ stats, onTabChange }: { stats: Stats | null; onTabChange
 function ClaimsTab({ claims, loading, onAction, actionId }: {
   claims: Claim[];
   loading: boolean;
-  onAction: (id: string, action: 'approve' | 'reject') => void;
+  onAction: (id: string, action: 'approve' | 'reject' | 'create') => void;
   actionId: string | null;
 }) {
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
@@ -391,7 +391,8 @@ function ClaimsTab({ claims, loading, onAction, actionId }: {
                       <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>İşletme</div>
                       <DR label="Ad" value={c.entity_name || '—'} />
                       <DR label="Tür" value={meta.label} />
-                      {c.entity_id && <DR label="ID" value={c.entity_id} />}
+                      {c.entity_id && c.entity_id !== 'new' && <DR label="ID" value={c.entity_id} />}
+                      {c.entity_id === 'new' && <DR label="Kayıt" value={c.status === 'approved' ? 'Listede kayıt YOK — oluşturulmalı' : 'Yeni işletme (listede yok; onayda oluşturulur)'} />}
                     </div>
                     <div>
                       <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>Başvuran</div>
@@ -409,6 +410,12 @@ function ClaimsTab({ claims, loading, onAction, actionId }: {
 
                     {/* Alt aksiyon çubuğu */}
                     <div style={{ gridColumn: '1/-1', display: 'flex', gap: 8, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
+                      {c.status === 'approved' && c.entity_id === 'new' && (
+                        <button onClick={() => onAction(c.id, 'create')} disabled={actionId === c.id}
+                          style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: C.navy, color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 5 }}>
+                          <Ic d={IC.check} size={12} /> {actionId === c.id ? 'Oluşturuluyor…' : 'İşletme Kaydını Oluştur'}
+                        </button>
+                      )}
                       {c.status === 'approved' && (
                         <button onClick={() => onAction(c.id, 'reject')}
                           style={{ padding: '7px 14px', borderRadius: 8, border: '1px solid rgba(239,68,68,.3)', background: 'rgba(239,68,68,.08)', color: C.red, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -2508,7 +2515,23 @@ export default function AdminPage() {
     if (tab === 'claims' && allowed) { loadClaims(); loadStats(); }
   }, [tab, allowed, loadClaims]);
 
-  async function handleClaimAction(id: string, action: 'approve' | 'reject') {
+  async function handleClaimAction(id: string, action: 'approve' | 'reject' | 'create') {
+    // 'create': zaten onaylı "yeni işletme" talebi için listede kayıt oluştur
+    // (eski onaylarda kayıt üretilmiyordu). Mail yok, bekleyen sayacı değişmez.
+    if (action === 'create') {
+      if (!window.confirm('Bu başvuru için listede işletme kaydı oluşturulacak ve talebe bağlanacak. Devam?')) return;
+      setActionId(id);
+      try {
+        const res = await fetch('/api/admin/claim-action', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ claimId: id, action: 'approve', notify: false }) });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data?.created?.id) {
+          setClaims(prev => prev.map(c => c.id === id ? { ...c, entity_id: data.created.id } : c));
+          showToast(`İşletme kaydı oluşturuldu: ${data.created.id}`);
+        } else showToast(data?.warning || data?.error || 'Kayıt oluşturulamadı');
+      } catch { showToast('Bağlantı hatası'); }
+      setActionId(null);
+      return;
+    }
     // Kullanıcıya mail gönderilsin mi? (onayda hesap + giriş bilgisi maili,
     // redde bilgilendirme). Tamam = mail gönder, İptal = sadece işlem yap.
     const notify = action === 'approve'
@@ -2524,12 +2547,14 @@ export default function AdminPage() {
       if (res.ok) {
         const data = await res.json().catch(() => ({}));
         const newStatus = action === 'approve' ? 'approved' : 'rejected';
-        setClaims(prev => prev.map(c => c.id === id ? { ...c, status: newStatus as any } : c));
+        setClaims(prev => prev.map(c => c.id === id ? { ...c, status: newStatus as any, ...(data?.created?.id ? { entity_id: data.created.id } : {}) } : c));
         setPendingCount(prev => Math.max(0, prev - 1));
         const mailNote = data?.mail?.sent
           ? (data.mail.accountCreated ? ' · kullanıcıya hesap + mail gönderildi' : ' · kullanıcıya mail gönderildi')
           : '';
-        showToast((action === 'approve' ? 'Talep onaylandı' : 'Talep reddedildi') + mailNote);
+        const kayitNote = data?.created?.id ? ` · işletme kaydı oluşturuldu (${data.created.id})` : '';
+        showToast((action === 'approve' ? 'Talep onaylandı' : 'Talep reddedildi') + kayitNote + mailNote);
+        if (data?.warning) setTimeout(() => showToast(data.warning), 3200);
         await loadStats();
       } else {
         showToast('Hata oluştu, tekrar deneyin');
