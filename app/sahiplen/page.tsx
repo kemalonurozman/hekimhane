@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import SahiplenForm from './SahiplenForm';
 
 export const metadata: Metadata = {
+  alternates: { canonical: 'https://www.hekimhane.com.tr/sahiplen' },
   title: 'İşletmeni Sahiplen | Hekimhane',
   description: 'Hekimhane\'deki işletmenizi sahiplenerek profilinizi yönetin, bilgilerinizi güncelleyin.',
 };

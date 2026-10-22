@@ -77,7 +77,7 @@ const getIller = unstable_cache(async (spec?: string) => {
     let q = (supabase.from('doktorlar').select('il').not('il', 'is', null) as any)
       .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
     if (spec) q = q.eq('spec', spec);
-    return q.order('id');
+    return q;
   });
   const map: Record<string, number> = {};
   data.forEach((r: { il: string | null }) => { if (r.il) map[r.il] = (map[r.il] || 0) + 1; });
@@ -94,7 +94,7 @@ const getUzmanliklar = unstable_cache(async (il?: string) => {
     let q = (supabase.from('doktorlar').select('spec').not('spec', 'is', null) as any)
       .not('spec', 'in', `(${DIS_HEKIMI_SPECS.map(s => `"${s}"`).join(',')})`).not('tags', 'cs', '{devlet-dis-hastanesi}').not('tags', 'cs', '{universite-dis-hastanesi}').not('tags', 'cs', '{bobath-terapisti}');
     if (il) q = q.eq('il', il);
-    return q.order('id');
+    return q;
   });
   const map: Record<string, number> = {};
   data.forEach((r: { spec: string | null }) => { if (r.spec) map[r.spec] = (map[r.spec] || 0) + 1; });

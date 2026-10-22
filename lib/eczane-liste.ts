@@ -12,8 +12,8 @@
  */
 import { ILCELER } from './tr-il-ilce';
 
-/** Önbellekteki özet satır: [id, il, ilce, name, nobetci] */
-export type EczaneOzet = [string, string | null, string | null, string, boolean];
+/** Önbellekteki özet satır: [id, il, ilce, name, nobetci, slug] */
+export type EczaneOzet = [string, string | null, string | null, string, boolean, string | null];
 
 export interface EczaneSatir {
   id: string; il: string | null; ilce: string | null; name: string; nobetci: boolean;
@@ -90,12 +90,7 @@ export function siraKarsilastir(a: EczaneSatir, b: EczaneSatir): number {
 
 export interface EczaneFiltre { il?: string; ilce?: string; nobetci?: boolean; q?: string }
 
-/** Arama: her kelime ad, il veya ilçede geçmeli (Türkçe harf duyarsız). */
-function aramaUyar(s: EczaneSatir, q?: string): boolean {
-  if (!q) return true;
-  const hedef = norm(`${s.name} ${s.il || ''} ${s.ilce || ''}`);
-  return norm(q).split(/\s+/).filter(Boolean).every(k => hedef.includes(k));
-}
+// Arama: her kelime ad, il veya ilçede geçmeli (Türkçe harf duyarsız) — normlar() ile.
 
 export interface EczaneListeSonuc {
   ids: string[];                                  // bu sayfadaki kayıtlar, sıralı
@@ -107,7 +102,9 @@ export interface EczaneListeSonuc {
 
 export function eczaneListesi(ozet: EczaneOzet[], f: EczaneFiltre, sayfa: number, sayfaBoyu: number): EczaneListeSonuc {
   const tum = ozet.map(ozettenSatir);
-  const temel = tum.filter(s => (!f.nobetci || s.nobetci) && aramaUyar(s, f.q));
+  const kelimeler = f.q ? norm(f.q).split(/\s+/).filter(Boolean) : [];
+  const nl = kelimeler.length ? normlar(ozet) : null;
+  const temel = tum.filter((s, i) => (!f.nobetci || s.nobetci) && (!nl || kelimeler.every(k => nl[i].hedef.includes(k))));
 
   const ilSay = new Map<string, number>();
   for (const s of temel) if (s.il) ilSay.set(s.il, (ilSay.get(s.il) || 0) + 1);
@@ -128,4 +125,45 @@ export function eczaneListesi(ozet: EczaneOzet[], f: EczaneFiltre, sayfa: number
   for (const s of sayfaSatirlari) if (s.ilce) ilceById[s.id] = s.ilce;
 
   return { ids: sayfaSatirlari.map(s => s.id), toplam: sonuc.length, iller, ilceler, ilceById };
+}
+
+export interface EczaneOneri { id: string; ad: string; alt: string; href: string }
+
+// Normalize edilmiş ad / arama metni — liste (önbellek) başına bir kez hesaplanır
+const NORM_ONBELLEK = new WeakMap<EczaneOzet[], { nad: string; hedef: string }[]>();
+function normlar(ozet: EczaneOzet[]) {
+  let n = NORM_ONBELLEK.get(ozet);
+  if (!n) {
+    n = ozet.map(o => { const nad = norm(o[3]); return { nad, hedef: `${nad} ${norm(o[1])} ${norm(o[2])}` }; });
+    NORM_ONBELLEK.set(ozet, n);
+  }
+  return n;
+}
+
+/**
+ * Arama kutusu önerileri: her kelime ad/il/ilçede geçmeli (Türkçe harf duyarsız).
+ * Sıra: ad aranan metinle başlayan → bir kelimesi aranan metinle başlayan → içeren;
+ * eşitlikte Türkçe alfabe. Adresi (slug) olmayan kayıt önerilmez (gidecek sayfa yok).
+ */
+export function eczaneOnerileri(ozet: EczaneOzet[], q: string, limit = 8): EczaneOneri[] {
+  const nq = norm(q);
+  const kelimeler = nq.split(/\s+/).filter(Boolean);
+  if (!kelimeler.length || nq.length < 2) return [];
+  const aday: { o: EczaneOzet; puan: number; nad: string }[] = [];
+  const nl = normlar(ozet);
+  for (let i = 0; i < ozet.length; i++) {
+    const o = ozet[i];
+    if (!o[5]) continue;
+    const { nad, hedef } = nl[i];
+    if (!kelimeler.every(k => hedef.includes(k))) continue;
+    const puan = nad.startsWith(nq) ? 0 : nad.split(/[\s().-]+/).some(w => w.startsWith(kelimeler[0])) ? 1 : 2;
+    aday.push({ o, puan, nad });
+  }
+  aday.sort((a, b) => a.puan - b.puan || TR.compare(a.o[3], b.o[3]));
+  return aday.slice(0, limit).map(({ o }) => ({
+    id: o[0],
+    ad: o[3],
+    alt: [o[2] || ilceCikar(o[3], o[1]), o[1]].filter(Boolean).join(', ') + (o[4] ? ' · Nöbetçi' : ''),
+    href: `/eczaneler/${o[5]}`,
+  }));
 }

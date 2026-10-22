@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 
 interface Props { params: { il: string; ilce: string; slug: string } }
 
-const tr = (s: string) => (s||'').toLowerCase()
+const tr = (s: string) => (s||'').toLowerCase().replace(/\u0307/g, '')
   .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
   .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
 
@@ -76,7 +76,7 @@ export default async function KlinikProfilPage({ params }: Props) {
   if (!res) notFound();
   const { k, yorumlar, hospitalDoctors } = res;
 
-  const trFn = (s: string) => (s||'').toLowerCase()
+  const trFn = (s: string) => (s||'').toLowerCase().replace(/\u0307/g, '')
     .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
     .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
 

@@ -1,7 +1,38 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
+// Detay sayfalarındaki tr() ile aynı il/ilçe biçimi.
+// "İ".toLowerCase() görünmez birleşik nokta (U+0307) bırakır → önce silinir.
+const ilceParca = (s: string) => s.toLowerCase().replace(/̇/g, '')
+  .replace(/[şŞ]/g, 's').replace(/[ıİ]/g, 'i').replace(/[ğĞ]/g, 'g')
+  .replace(/[üÜ]/g, 'u').replace(/[öÖ]/g, 'o').replace(/[çÇ]/g, 'c').replace(/\s+/g, '-');
+
+// /klinikler|hastaneler/<il>/<ilce>[/<slug>] adreslerinde il/ilçe kanonik değilse
+// (ör. "i̇stanbul", "%c4%b0stanbul", "Kadıköy") tek adımda temiz adrese 301.
+function ilIlceYonlendir(request: NextRequest): NextResponse | null {
+  const parts = request.nextUrl.pathname.split('/');
+  // ['', 'klinikler', il, ilce] veya ['', 'klinikler', il, ilce, slug]
+  if (parts.length < 4 || parts.length > 5) return null;
+  if (parts[1] !== 'klinikler' && parts[1] !== 'hastaneler') return null;
+  let degisti = false;
+  for (const i of [2, 3]) {
+    let ham: string;
+    try { ham = decodeURIComponent(parts[i]); } catch { return null; }
+    const temiz = ilceParca(ham);
+    if (!temiz) return null;
+    if (temiz !== ham) degisti = true;
+    parts[i] = encodeURIComponent(temiz);
+  }
+  if (!degisti) return null;
+  const url = request.nextUrl.clone();
+  url.pathname = parts.join('/');
+  return NextResponse.redirect(url, 301);
+}
+
 export async function middleware(request: NextRequest) {
+  const yon = ilIlceYonlendir(request);
+  if (yon) return yon;
+
   let response = NextResponse.next({ request: { headers: request.headers } });
 
   const supabase = createServerClient(

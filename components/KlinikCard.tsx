@@ -8,6 +8,7 @@ import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
 import HkAvatar from '@/components/HkAvatar';
 import { puanYaz, AZ_DEGERLENDIRME_SINIRI } from '@/lib/hk';
+import { urlParca } from '@/lib/entity-link';
 
 /**
  * Klinik liste satırı — tasarım sistemi `DoctorRow`:
@@ -18,7 +19,7 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
   const router = useRouter();
 
   const profileUrl = k.slug
-    ? `/klinikler/${encodeURIComponent(k.il || '').toLowerCase().replace(/%../g, s => s.toLowerCase())}/${encodeURIComponent(k.ilce || '').toLowerCase().replace(/%../g, s => s.toLowerCase())}/${k.slug}`
+    ? `/klinikler/${urlParca(k.il || 'turkiye')}/${urlParca(k.ilce || 'merkez')}/${k.slug}`
     : `/klinikler/${k.id}`;
 
   const specs = (k.specs || []).filter(Boolean);

@@ -7,6 +7,7 @@
 
 import { NextRequest } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { urlParca } from '@/lib/entity-link';
 import { IL_LISTE, IL_ILCE } from '@/lib/tr-il-ilce';
 
 // Konum tespiti için normalize (Türkçe + aksan-duyarsız)
@@ -135,8 +136,8 @@ export async function GET(req: NextRequest) {
   const hastaneler: SearchItem[] =
     hastaneRes.status === 'fulfilled' && hastaneRes.value.data
       ? hastaneRes.value.data.map((h: { name: string; type?: string; il?: string; ilce?: string; slug?: string }) => {
-          const il  = h.il?.toLowerCase() ?? '';
-          const ilce = h.ilce?.toLowerCase() ?? '';
+          const il  = h.il ? urlParca(h.il) : '';
+          const ilce = h.ilce ? urlParca(h.ilce) : '';
           const href =
             h.slug && il && ilce
               ? `/hastaneler/${encodeURIComponent(il)}/${encodeURIComponent(ilce)}/${h.slug}`
@@ -153,8 +154,8 @@ export async function GET(req: NextRequest) {
   const klinikler: SearchItem[] =
     klinikRes.status === 'fulfilled' && klinikRes.value.data
       ? klinikRes.value.data.map((k: { name: string; il?: string; ilce?: string; slug?: string }) => {
-          const il  = k.il?.toLowerCase() ?? '';
-          const ilce = k.ilce?.toLowerCase() ?? '';
+          const il  = k.il ? urlParca(k.il) : '';
+          const ilce = k.ilce ? urlParca(k.ilce) : '';
           const href =
             k.slug && il && ilce
               ? `/klinikler/${encodeURIComponent(il)}/${encodeURIComponent(ilce)}/${k.slug}`

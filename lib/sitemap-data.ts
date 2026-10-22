@@ -32,8 +32,34 @@ async function fetchAll<T = any>(build: () => any, max = 40000): Promise<T[]> {
   return out;
 }
 
+// updated_at ile dene; sütun yoksa (migration çalışmamışsa) eski sorguya düş —
+// yoksa hata yüzünden bölüm sitemap'i boş döner.
+async function fetchWithDate<T>(table: string, cols: string, notNull: string): Promise<(T & { updated_at?: string | null })[]> {
+  const ilk = await supabase.from(table).select(`${cols},updated_at`).not(notNull, 'is', null).range(0, 0);
+  const tarihli = !ilk.error;
+  return fetchAll<T & { updated_at?: string | null }>(
+    () => supabase.from(table).select(tarihli ? `${cols},updated_at` : cols).not(notNull, 'is', null));
+}
+
+// Geçerli bir tarihse ISO'ya çevir; yoksa lastmod hiç yazılmaz (uydurma "şimdi" yerine).
+function tarih(v?: string | null): string | undefined {
+  if (!v) return undefined;
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? undefined : d.toISOString();
+}
+const enGec = (a?: string, b?: string) => (!a ? b : !b ? a : (a > b ? a : b));
+
+// Aynı loc iki kez yazılmasın (ör. uzmanlık slug'ı ile tedavi slug'ı çakışınca)
+function tekil(urls: SmUrl[]): SmUrl[] {
+  const gor = new Set<string>();
+  return urls.filter(u => (gor.has(u.loc) ? false : (gor.add(u.loc), true)));
+}
+
 export async function buildSection(section: string): Promise<SmUrl[]> {
-  const lastmod = new Date().toISOString();
+  return tekil(await buildSectionRaw(section));
+}
+
+async function buildSectionRaw(section: string): Promise<SmUrl[]> {
 
   // ── GENEL: statik + hastalık + blog ──
   if (section === 'genel') {
@@ -84,26 +110,34 @@ export async function buildSection(section: string): Promise<SmUrl[]> {
 
   // ── KLİNİKLER: tüm klinik detay + ilçe landing ──
   if (section === 'klinikler') {
-    const rows = await fetchAll<{ il: string; ilce: string; slug: string }>(
-      () => supabase.from('klinikler').select('il,ilce,slug').not('slug', 'is', null));
+    const rows = await fetchWithDate<{ il: string; ilce: string; slug: string }>('klinikler', 'il,ilce,slug', 'slug');
     const detay: SmUrl[] = rows.map(k => ({
       loc: `${BASE}/klinikler/${tr(k.il || 'turkiye')}/${tr(k.ilce || 'merkez')}/${k.slug}`,
-      changefreq: 'monthly', priority: 0.65, lastmod,
+      changefreq: 'monthly', priority: 0.65, lastmod: tarih(k.updated_at),
     }));
-    // ilçe landing (benzersiz il+ilçe)
-    const ilceSet = new Set<string>();
-    rows.forEach(k => { if (k.il) ilceSet.add(`${k.il}|${k.ilce || 'Merkez'}`); });
-    const ilce: SmUrl[] = Array.from(ilceSet).map(key => {
+    // ilçe landing (benzersiz il+ilçe) — lastmod: ilçedeki en son güncellenen klinik
+    const ilceMap = new Map<string, string | undefined>();
+    rows.forEach(k => {
+      if (!k.il) return;
+      const key = `${k.il}|${k.ilce || 'Merkez'}`;
+      ilceMap.set(key, enGec(ilceMap.get(key), tarih(k.updated_at)));
+    });
+    const ilce: SmUrl[] = Array.from(ilceMap.entries()).map(([key, lm]) => {
       const [il, ic] = key.split('|');
-      return { loc: `${BASE}/klinikler/${tr(il)}/${tr(ic)}`, changefreq: 'weekly', priority: 0.68, lastmod };
+      return { loc: `${BASE}/klinikler/${tr(il)}/${tr(ic)}`, changefreq: 'weekly', priority: 0.68, lastmod: lm };
     });
     return [...ilce, ...detay];
   }
 
   // ── DİŞ TEDAVİLERİ: il/ilçe × uzmanlık/tedavi combo (yalnızca veri olanlar) ──
   if (section === 'dis-tedavileri') {
-    const rows = await fetchAll<{ il: string; ilce: string; specs: string[] | null }>(
-      () => supabase.from('klinikler').select('il,ilce,specs').not('il', 'is', null));
+    const rows = await fetchWithDate<{ il: string; ilce: string; specs: string[] | null }>('klinikler', 'il,ilce,specs', 'il');
+    const ilTarih: Record<string, string | undefined> = {};
+    const ilceTarih: Record<string, string | undefined> = {};
+    rows.forEach(k => {
+      const t = tarih(k.updated_at); const key = `${k.il}|${k.ilce || 'Merkez'}`;
+      ilTarih[k.il] = enGec(ilTarih[k.il], t); ilceTarih[key] = enGec(ilceTarih[key], t);
+    });
     const ilSpecs: Record<string, Set<string>> = {};
     const ilceSpecs: Record<string, Set<string>> = {};
     rows.forEach(k => {
@@ -119,13 +153,13 @@ export async function buildSection(section: string): Promise<SmUrl[]> {
     const problemsFor = (set: Set<string>) => DENTAL_PROBLEMS.filter(p => { const c = canonicalDentalSpec(p.spec); return c && set.has(c); });
     const out: SmUrl[] = [];
     for (const [il, set] of Object.entries(ilSpecs)) {
-      const ilP = tr(il);
+      const ilP = tr(il); const lastmod = ilTarih[il];
       for (const spec of Array.from(set)) out.push({ loc: `${BASE}/dis-tedavileri/${ilP}/${tr(spec)}`, changefreq: 'weekly', priority: 0.7, lastmod });
       for (const t of treatmentsFor(set)) out.push({ loc: `${BASE}/dis-tedavileri/${ilP}/${t.slug}`, changefreq: 'weekly', priority: 0.72, lastmod });
       for (const p of problemsFor(set)) out.push({ loc: `${BASE}/dis-tedavileri/${ilP}/${p.slug}`, changefreq: 'weekly', priority: 0.68, lastmod });
     }
     for (const [key, set] of Object.entries(ilceSpecs)) {
-      const [il, ic] = key.split('|'); const ilP = tr(il); const icP = tr(ic);
+      const [il, ic] = key.split('|'); const ilP = tr(il); const icP = tr(ic); const lastmod = ilceTarih[key];
       for (const spec of Array.from(set)) out.push({ loc: `${BASE}/dis-tedavileri/${ilP}/${icP}/${tr(spec)}`, changefreq: 'weekly', priority: 0.66, lastmod });
       for (const t of treatmentsFor(set)) out.push({ loc: `${BASE}/dis-tedavileri/${ilP}/${icP}/${t.slug}`, changefreq: 'weekly', priority: 0.66, lastmod });
     }
@@ -134,21 +168,20 @@ export async function buildSection(section: string): Promise<SmUrl[]> {
 
   // ── HASTANELER ──
   if (section === 'hastaneler') {
-    const rows = await fetchAll<{ il: string; ilce: string; slug: string }>(
-      () => supabase.from('hastaneler').select('il,ilce,slug').not('slug', 'is', null));
-    return rows.map(h => ({ loc: `${BASE}/hastaneler/${tr(h.il || 'turkiye')}/${tr(h.ilce || 'merkez')}/${h.slug}`, changefreq: 'monthly', priority: 0.65, lastmod }));
+    const rows = await fetchWithDate<{ il: string; ilce: string; slug: string }>('hastaneler', 'il,ilce,slug', 'slug');
+    return rows.map(h => ({ loc: `${BASE}/hastaneler/${tr(h.il || 'turkiye')}/${tr(h.ilce || 'merkez')}/${h.slug}`, changefreq: 'monthly', priority: 0.65, lastmod: tarih(h.updated_at) }));
   }
 
   // ── DOKTORLAR ──
   if (section === 'doktorlar') {
-    const rows = await fetchAll<{ slug: string }>(() => supabase.from('doktorlar').select('slug').not('slug', 'is', null));
-    return rows.map(d => ({ loc: `${BASE}/doktorlar/${d.slug}`, changefreq: 'monthly', priority: 0.6, lastmod }));
+    const rows = await fetchWithDate<{ slug: string }>('doktorlar', 'slug', 'slug');
+    return rows.map(d => ({ loc: `${BASE}/doktorlar/${d.slug}`, changefreq: 'monthly', priority: 0.6, lastmod: tarih(d.updated_at) }));
   }
 
   // ── ECZANELER ──
   if (section === 'eczaneler') {
-    const rows = await fetchAll<{ slug: string }>(() => supabase.from('eczaneler').select('slug').not('slug', 'is', null));
-    return rows.map(e => ({ loc: `${BASE}/eczaneler/${e.slug}`, changefreq: 'monthly', priority: 0.6, lastmod }));
+    const rows = await fetchWithDate<{ slug: string }>('eczaneler', 'slug', 'slug');
+    return rows.map(e => ({ loc: `${BASE}/eczaneler/${e.slug}`, changefreq: 'monthly', priority: 0.6, lastmod: tarih(e.updated_at) }));
   }
 
   return [];
@@ -157,10 +190,11 @@ export async function buildSection(section: string): Promise<SmUrl[]> {
 function esc(s: string) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
 // Kök sitemap index — bölüm alt-haritalarına işaret eder (ağaç kökü)
-export function renderSitemapIndex(sections: readonly string[], lastmod = new Date().toISOString()): string {
+// lastmod opsiyonel: her istekte "şimdi" yazmak Google'ın lastmod'a güvenini bozuyordu.
+export function renderSitemapIndex(sections: readonly string[], lastmods: Record<string, string | undefined> = {}): string {
   const body = sections.map(s => `  <sitemap>
-    <loc>${BASE}/sitemap-${s}.xml</loc>
-    <lastmod>${lastmod}</lastmod>
+    <loc>${BASE}/sitemap-${s}.xml</loc>${lastmods[s] ? `
+    <lastmod>${lastmods[s]}</lastmod>` : ''}
   </sitemap>`).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

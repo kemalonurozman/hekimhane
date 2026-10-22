@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${kat.ad} Hastalıkları | Hekimhane`,
     description: `${kat.ad} alanındaki hastalıklar hakkında detaylı bilgi: belirtiler, nedenler ve tedavi seçenekleri.`,
+    alternates: { canonical: `https://www.hekimhane.com.tr/hastaliklar/${kat.slug}` },
     ...(gizli ? { robots: { index: false, follow: false } } : {}),
   };
 }

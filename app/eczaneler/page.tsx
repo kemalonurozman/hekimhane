@@ -1,13 +1,12 @@
 export const dynamic = 'force-dynamic';
 import HkIconAnim from '@/components/HkIconAnim';
 import type { Metadata } from 'next';
-import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import type { Eczane } from '@/lib/types';
 import EczaneCard from '@/components/EczaneCard';
 import ListingLayout from '@/components/ListingLayout';
-import { fetchAllRows } from '@/lib/fetch-all';
-import { eczaneListesi, ilceCikar, type EczaneOzet } from '@/lib/eczane-liste';
+import { eczaneListesi, type EczaneOzet } from '@/lib/eczane-liste';
+import { eczaneIndeksi } from '@/lib/eczane-indeks';
 
 const PAGE_SIZE = 30;
 
@@ -20,22 +19,11 @@ export async function generateMetadata(
   if (nobetci) title = yer ? `${yer} Nöbetçi Eczaneler` : 'Nöbetçi Eczaneler';
   else if (yer) title = `${yer} Eczaneleri`;
   const desc = `${yer || 'Türkiye'} bölgesindeki eczaneler ve nöbetçi eczane bilgileri. Hekimhane'de hızlıca bulun.`;
-  return { title, description: desc, openGraph: { title: `${title} | Hekimhane`, description: desc } };
+  const qs = new URLSearchParams();
+  if (il) qs.set('il', il); if (ilce) qs.set('ilce', ilce); if (nobetci) qs.set('nobetci', nobetci);
+  const canonical = `https://www.hekimhane.com.tr/eczaneler${qs.toString() ? `?${qs.toString()}` : ''}`;
+  return { title, description: desc, alternates: { canonical }, openGraph: { title: `${title} | Hekimhane`, description: desc, url: canonical } };
 }
-
-/**
- * Tüm eczanelerin küçük özeti (id, il, ilçe, ad, nöbetçi) — sayaçlar, Türkçe
- * sıralama ve sayfalama bundan yapılır (bkz. lib/eczane-liste.ts).
- * Eskiden il sayaçları tek sorguyla çekiliyordu; PostgREST 1000 satırda kestiği
- * için ~8.800 eczanenin yalnız ilk 1000'i sayılıyor, "7 şehir" görünüyordu.
- * 10 dk önbellek; ekleme/silme sonrası `revalidateTag('eczane-indeks')`.
- */
-const eczaneIndeksi = unstable_cache(async (): Promise<EczaneOzet[]> => {
-  const rows = await fetchAllRows<{ id: string; il: string | null; ilce: string | null; name: string | null; nobetci: boolean | null }>(
-    () => supabase.from('eczaneler').select('id,il,ilce,name,nobetci').order('id'));
-  // İlçesi boş kayıtlarda ilçe addan bir kez, önbelleğe alırken türetilir
-  return rows.map(r => [r.id, r.il, r.ilce || ilceCikar(r.name || '', r.il), r.name || '', !!r.nobetci]);
-}, ['eczane-indeks-v1'], { revalidate: 600, tags: ['eczane-indeks', 'facets'] });
 
 /** Sayfadaki kayıtların tam satırları — indeksteki sırayla. */
 async function sayfaKayitlari(ids: string[], ilceById: Record<string, string>): Promise<Eczane[]> {
@@ -118,7 +106,7 @@ export default async function EczanelerPage(
         ...(filters.nobetci ? [{ label: 'Nöbetçi', href: '/eczaneler?nobetci=true' }] : []),
       ]}
       filterSections={[
-        { key: 'q', label: 'Arama', type: 'search', placeholder: 'Eczane ara...' },
+        { key: 'q', label: 'Arama', type: 'search', placeholder: 'Eczane adı yazın…', oneriUrl: '/api/eczane-ara' },
         {
           key: 'nobetci',
           label: 'Nöbet Durumu',

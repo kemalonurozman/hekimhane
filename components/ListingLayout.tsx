@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useCallback, useRef, useEffect, ReactNode } from 'react';
+import { useState, useCallback, useRef, useEffect, useTransition, ReactNode } from 'react';
 // ListMap kaldırıldı — harita sadece profil sayfasında gösterilir
 
 export interface FilterOption {
@@ -19,6 +19,9 @@ export interface FilterSection {
   placeholder?: string;
   hideAll?: boolean; // "Tümü" seçeneğini gizle (ör. kurum: kendi "Hepsi" seçeneği var, varsayılan o)
   render?: 'chips'; // sabit/kısa seçenekler için tıklanabilir çip görünümü (ör. Yabancı Dil)
+  /** search: yazarken öneri listesi için uç nokta (GET ?q= → { oneriler: {id, ad, alt, href}[] }).
+   *  Verilirse yazmak listeyi süzmez; öneriye tıklamak o sayfaya gider, Enter tüm sonuçları listeler. */
+  oneriUrl?: string;
 }
 
 export interface MapMarker {
@@ -199,23 +202,38 @@ export default function ListingLayout(props: ListingLayoutProps) {
     return () => { document.body.style.overflow = ''; };
   }, [filterDrawerOpen]);
 
+  // İyimser arayüz: tıklanan filtre sunucu yanıtını beklemeden işaretli görünür;
+  // yeni sayfa gelince (activeFilters değişince) bekleyen seçimler temizlenir.
+  const [gecisVar, startTransition] = useTransition();
+  const [bekleyen, setBekleyen] = useState<Record<string, string | null>>({});
+  const aktifAnahtar = JSON.stringify(activeFilters);
+  useEffect(() => { setBekleyen({}); }, [aktifAnahtar]);
+  const gorunen: Record<string, string | undefined> = { ...activeFilters };
+  for (const [k, v] of Object.entries(bekleyen)) gorunen[k] = v ?? undefined;
+
   const updateFilter = useCallback((key: string, value: string | null) => {
     const params = new URLSearchParams(sp.toString());
+    // Henüz sunucudan dönmemiş önceki tıklamalar da adrese yansısın (art arda seçimde kaybolmasın)
+    for (const [k, v] of Object.entries(bekleyen)) { if (v) params.set(k, v); else params.delete(k); }
     if (!value) params.delete(key);
     else params.set(key, value);
     // İlçe şehre bağlıdır: şehir değişir ya da kalkarsa eski ilçe seçimi düşer
     if (key === 'il') params.delete('ilce');
     params.delete('page');
-    router.push(`${basePath}?${params.toString()}`);
-  }, [sp, router, basePath]);
+    setBekleyen(prev => ({ ...prev, [key]: value, ...(key === 'il' ? { ilce: null } : {}) }));
+    startTransition(() => { router.push(`${basePath}?${params.toString()}`); });
+  }, [sp, router, basePath, bekleyen]);
 
-  const clearAll = () => router.push(basePath);
+  const clearAll = () => {
+    setBekleyen(Object.fromEntries(Object.keys(activeFilters).map(k => [k, null])));
+    startTransition(() => { router.push(basePath); });
+  };
 
   const activeChips = filterSections
     // "Hepsi" bir filtre değildir (kurum varsayılanı) → çip/sayaç üretmez
-    .filter(s => activeFilters[s.key] && !(s.hideAll && activeFilters[s.key] === 'hepsi'))
+    .filter(s => gorunen[s.key] && !(s.hideAll && gorunen[s.key] === 'hepsi'))
     // Çipte ham değer ("ozel") değil seçeneğin görünen adı ("Özel") yazılır
-    .map(s => ({ key: s.key, label: (s as any).options?.find((o: any) => o.value === activeFilters[s.key])?.label || activeFilters[s.key]! }));
+    .map(s => ({ key: s.key, label: (s as any).options?.find((o: any) => o.value === gorunen[s.key])?.label || gorunen[s.key]! }));
 
   // Shared aside content (used in both sidebar and drawer)
   const filterAsideContent = (
@@ -243,7 +261,7 @@ export default function ListingLayout(props: ListingLayoutProps) {
         <FilterSectionBlock
           key={section.key}
           section={section}
-          activeValue={activeFilters[section.key]}
+          activeValue={gorunen[section.key]}
           open={openSections[section.key] !== false}
           onToggle={() => setOpenSections(prev => ({ ...prev, [section.key]: !prev[section.key] }))}
           onUpdate={(v) => updateFilter(section.key, v)}
@@ -567,8 +585,10 @@ export default function ListingLayout(props: ListingLayoutProps) {
             )}
           </div>
 
-          {/* Kart listesi */}
-          {children}
+          {/* Kart listesi — yeni filtre yüklenirken soluk (tıklamanın alındığı belli olsun) */}
+          <div aria-busy={gecisVar} style={{ opacity: gecisVar ? 0.45 : 1, transition: 'opacity .15s', pointerEvents: gecisVar ? 'none' : undefined }}>
+            {children}
+          </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
@@ -684,6 +704,7 @@ function FilterSectionBlock({
               placeholder={section.placeholder || 'Ara...'}
               color={color}
               onUpdate={onUpdate}
+              oneriUrl={section.oneriUrl}
             />
           )}
 
@@ -857,69 +878,147 @@ function Pagination({ totalPages, currentPage, basePath, searchParams }: {
 }
 
 // ── LiveSearchInput — debounced, yazarken URL günceller ─────────────────────
+interface AramaOnerisi { id: string; ad: string; alt: string; href: string }
+
 function LiveSearchInput({
-  sectionKey, activeValue, placeholder, color, onUpdate,
+  sectionKey, activeValue, placeholder, color, onUpdate, oneriUrl,
 }: {
   sectionKey: string;
   activeValue: string | null;
   placeholder: string;
   color: string;
   onUpdate: (val: string | null) => void;
+  oneriUrl?: string;
 }) {
+  const router = useRouter();
   const [value, setValue] = useState(activeValue || '');
+  const [oneriler, setOneriler] = useState<AramaOnerisi[]>([]);
+  const [acik, setAcik] = useState(false);
+  const [araniyor, setAraniyor] = useState(false);
+  const [secili, setSecili] = useState(-1);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const istekRef = useRef<AbortController | null>(null);
 
   // activeValue dışarıdan değişirse (filtre temizleme) senkronize et
   useEffect(() => { setValue(activeValue || ''); }, [activeValue]);
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); istekRef.current?.abort(); }, []);
+
+  const oneriGetir = (q: string) => {
+    istekRef.current?.abort();
+    if (!oneriUrl || q.trim().length < 2) { setOneriler([]); setAraniyor(false); return; }
+    const ctrl = new AbortController(); istekRef.current = ctrl;
+    setAraniyor(true);
+    fetch(`${oneriUrl}?q=${encodeURIComponent(q.trim())}`, { signal: ctrl.signal })
+      .then(r => r.json())
+      .then(d => { setOneriler(Array.isArray(d.oneriler) ? d.oneriler : []); setSecili(-1); setAraniyor(false); })
+      .catch(e => { if (e?.name !== 'AbortError') { setOneriler([]); setAraniyor(false); } });
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value;
     setValue(v);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      onUpdate(v.trim() || null);
-    }, 350);
+    if (oneriUrl) {
+      // Öneri modu: yazmak listeyi süzmez (her tuşta sayfa yenilenmez), öneri getirir
+      setAcik(true);
+      timerRef.current = setTimeout(() => oneriGetir(v), 120);
+      return;
+    }
+    timerRef.current = setTimeout(() => { onUpdate(v.trim() || null); }, 350);
   };
 
-  // Enter tuşuyla da tetiklensin
+  const tumunuListele = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setAcik(false);
+    onUpdate(value.trim() || null);
+  };
+  const git = (o: AramaOnerisi) => { setAcik(false); router.push(o.href); };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const listeVar = oneriUrl && acik && oneriler.length > 0;
+    if (e.key === 'ArrowDown' && listeVar) { e.preventDefault(); setSecili(i => Math.min(i + 1, oneriler.length - 1)); return; }
+    if (e.key === 'ArrowUp' && listeVar)   { e.preventDefault(); setSecili(i => Math.max(i - 1, -1)); return; }
+    if (e.key === 'Escape') { setAcik(false); return; }
     if (e.key === 'Enter') {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      onUpdate(value.trim() || null);
+      e.preventDefault();
+      if (listeVar && secili >= 0) { git(oneriler[secili]); return; }
+      tumunuListele();
     }
   };
 
+  const listeGoster = !!oneriUrl && acik && value.trim().length >= 2;
+
   return (
-    <div style={{ position: 'relative' }}>
-      <span style={{
-        position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)',
-        color: 'var(--muted)', display: 'flex', pointerEvents: 'none',
-      }}>
-        <IcSearch />
-      </span>
-      <input
-        value={value}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        style={{
-          width: '100%', padding: '8px 10px 8px 28px',
-          borderRadius: 9, fontSize: 13, outline: 'none',
-          border: `1.5px solid ${value ? color : 'var(--border)'}`,
-          boxSizing: 'border-box', fontFamily: 'inherit',
-          transition: 'border-color .15s',
-        }}
-      />
-      {value && (
-        <button
-          onClick={() => { setValue(''); onUpdate(null); }}
+    <div style={{ position: 'relative' }}
+      onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setAcik(false); }}>
+      <div style={{ position: 'relative' }}>
+        <span style={{
+          position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)',
+          color: 'var(--muted)', display: 'flex', pointerEvents: 'none',
+        }}>
+          <IcSearch />
+        </span>
+        <input
+          value={value}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          onFocus={() => { if (oneriUrl && value.trim().length >= 2) { setAcik(true); if (!oneriler.length) oneriGetir(value); } }}
+          placeholder={placeholder}
+          role={oneriUrl ? 'combobox' : undefined}
+          aria-expanded={oneriUrl ? listeGoster : undefined}
+          aria-controls={oneriUrl ? `${sectionKey}-oneriler` : undefined}
+          aria-autocomplete={oneriUrl ? 'list' : undefined}
           style={{
-            position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--muted)', fontSize: 14, lineHeight: 1, padding: 2,
+            width: '100%', padding: '8px 28px 8px 28px',
+            borderRadius: 9, fontSize: 13, outline: 'none',
+            border: `1.5px solid ${value ? color : 'var(--border)'}`,
+            boxSizing: 'border-box', fontFamily: 'inherit',
+            transition: 'border-color .15s',
           }}
-          title="Temizle"
-        >✕</button>
+        />
+        {value && (
+          <button
+            onClick={() => { setValue(''); setOneriler([]); setAcik(false); if (activeValue) onUpdate(null); }}
+            style={{
+              position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--muted)', fontSize: 14, lineHeight: 1, padding: 2,
+            }}
+            title="Temizle" aria-label="Aramayı temizle"
+          >✕</button>
+        )}
+      </div>
+
+      {listeGoster && (
+        <div id={`${sectionKey}-oneriler`} role="listbox"
+          style={{ marginTop: 8, border: '1px solid var(--border)', borderRadius: 12, background: '#fff', overflow: 'hidden', boxShadow: '0 6px 20px rgba(0,0,0,.06)' }}>
+          {oneriler.map((o, i) => (
+            <a key={o.id} href={o.href} role="option" aria-selected={i === secili}
+              onMouseDown={e => e.preventDefault()}  /* Safari: odak kutuda kalsın, liste tıklamadan önce kapanmasın */
+              onClick={e => { e.preventDefault(); git(o); }}
+              onMouseEnter={() => setSecili(i)}
+              style={{
+                display: 'block', padding: '9px 12px', textDecoration: 'none',
+                background: i === secili ? 'var(--tint-50, #F4F7FB)' : 'transparent',
+                borderTop: i === 0 ? 'none' : '0.5px solid var(--border)',
+              }}>
+              <span style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink, #1D1D1F)', lineHeight: 1.35 }}>{o.ad}</span>
+              {o.alt && <span style={{ display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>{o.alt}</span>}
+            </a>
+          ))}
+          {oneriler.length === 0 && (
+            <div style={{ padding: '10px 12px', fontSize: 12.5, color: 'var(--muted)' }}>
+              {araniyor ? 'Aranıyor…' : 'Eşleşen kayıt yok'}
+            </div>
+          )}
+          <button type="button" onMouseDown={e => e.preventDefault()} onClick={tumunuListele}
+            style={{
+              display: 'block', width: '100%', textAlign: 'left', padding: '9px 12px', fontSize: 12.5, fontWeight: 600,
+              color, background: 'var(--canvas, #FAFAFB)', border: 'none', borderTop: '1px solid var(--border)', cursor: 'pointer', fontFamily: 'inherit',
+            }}>
+            &ldquo;{value.trim()}&rdquo; için tüm sonuçları listele
+          </button>
+        </div>
       )}
     </div>
   );

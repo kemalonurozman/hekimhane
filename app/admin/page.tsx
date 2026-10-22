@@ -127,7 +127,7 @@ function getBizRole(c: Claim)  { return c.unvan || c.role || null; }
 
 /* Türkçe → slug */
 function tr(s: string) {
-  return (s||'').toLowerCase()
+  return (s||'').toLowerCase().replace(/\u0307/g, '')
     .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
     .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c')
     .replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');

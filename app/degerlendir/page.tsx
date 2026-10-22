@@ -8,6 +8,7 @@ import HkIcon from '@/components/HkIcon';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
+  alternates: { canonical: 'https://www.hekimhane.com.tr/degerlendir' },
   title: 'Deneyiminizi Değerlendirin',
   robots: { index: false, follow: false },   // kişiye özel bağlantı — dizine girmez
 };

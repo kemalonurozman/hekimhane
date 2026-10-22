@@ -60,8 +60,9 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
+  // canonical burada YOK: layout'taki canonical, kendi canonical'ı olmayan her sayfaya
+  // miras kalıp onu ana sayfanın kopyası gösteriyordu. Her sayfa kendi canonical'ını verir.
   alternates: {
-    canonical: 'https://www.hekimhane.com.tr',
     types: {
       'application/rss+xml': [{ url: 'https://www.hekimhane.com.tr/rss.xml', title: 'Hekimhane Blog — Ağız ve Diş Sağlığı' }],
     },

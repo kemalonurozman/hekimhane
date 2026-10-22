@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
+  alternates: { canonical: 'https://www.hekimhane.com.tr/kvkk' },
   title: 'KVKK Aydınlatma Metni | Hekimhane',
   description: '6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında Hekimhane kullanıcılarına yönelik aydınlatma metni.',
 };

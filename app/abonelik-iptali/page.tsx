@@ -4,6 +4,7 @@ import AbonelikIptalForm from './AbonelikIptalForm';
 import { PRO_AYLIK_TL } from '@/lib/pro-plan';
 
 export const metadata: Metadata = {
+  alternates: { canonical: 'https://www.hekimhane.com.tr/abonelik-iptali' },
   title: 'Abonelik İptali | Hekimhane',
   description: 'Hekimhane-Pro aboneliğinizi iptal edin. Panelden tek tıkla iptal edebilir veya iptal talep formunu doldurabilirsiniz.',
 };

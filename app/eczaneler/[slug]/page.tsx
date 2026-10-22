@@ -9,6 +9,7 @@ import { maskReviewName } from '@/lib/helpers';
 import { bookedSlots } from '@/lib/randevu-booked';
 import { buildEczaneFaq } from '@/lib/faq';
 import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
+import { ilceCikar } from '@/lib/eczane-liste';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,8 @@ async function getData(slug: string) {
   const { data: raw } = await supabase.from('eczaneler').select('*').eq('slug', slug).single();
   const e = raw as Eczane | null;
   if (!e) return null;
+  // İçe aktarılan kayıtların çoğunda ilçe boş, ama ad ilçeyi taşır ("… (Ankara Keçiören)")
+  if (!e.ilce) { const t = ilceCikar(e.name, e.il); if (t) e.ilce = t; }
   const { data: rawYorumlar } = await supabase.from('yorumlar').select('*')
     .eq('entity_type', 'eczane').eq('entity_id', e.id)
     .order('created_at', { ascending: false }).limit(50);
@@ -36,9 +39,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const res = await getData(params.slug);
   if (!res) return { title: 'Eczane Bulunamadı' };
   const { e } = res;
-  const title = `${e.name} — ${e.ilce || ''}, ${e.il || ''}`;
+  // Boş ilçe "— , Ankara" gibi kırık başlık üretmesin
+  const yer = [e.ilce, e.il].filter(Boolean).join(', ');
+  const title = yer ? `${e.name} — ${yer}` : e.name;
   const desc  = `${e.name} eczanesi iletişim, yorumlar ve adres bilgileri. ${e.address || ''} ${e.il || ''}`;
-  return { title, description: desc, openGraph: { title: `${title} | Hekimhane`, description: desc } };
+  const url = `https://www.hekimhane.com.tr/eczaneler/${e.slug}`;
+  return { title, description: desc, alternates: { canonical: url }, openGraph: { title: `${title} | Hekimhane`, description: desc, url } };
 }
 
 export default async function EczaneProfilPage({ params }: Props) {

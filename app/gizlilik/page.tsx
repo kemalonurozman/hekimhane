@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
+  alternates: { canonical: 'https://www.hekimhane.com.tr/gizlilik' },
   title: 'Gizlilik Politikası | Hekimhane',
   description: 'Hekimhane gizlilik politikası. Kişisel verilerinizin nasıl toplandığı, kullanıldığı ve korunduğu hakkında bilgi edinin.',
 };

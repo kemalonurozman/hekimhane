@@ -16,7 +16,7 @@ const TABLO: Record<string, string> = { klinik: 'klinikler', hastane: 'hastanele
 
 /** Detay rotalarındaki tr() ile aynı — il/ilçe'yi URL parçasına çevirir. */
 export function urlParca(s: string | null | undefined): string {
-  return (s || '').toLowerCase()
+  return (s || '').toLowerCase().replace(/\u0307/g, '')
     .replace(/[şŞ]/g, 's').replace(/[ıİ]/g, 'i').replace(/[ğĞ]/g, 'g')
     .replace(/[üÜ]/g, 'u').replace(/[öÖ]/g, 'o').replace(/[çÇ]/g, 'c')
     .replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');

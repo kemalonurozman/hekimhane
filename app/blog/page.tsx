@@ -7,6 +7,7 @@ import { HASTALIKLAR, KATEGORILER } from '@/lib/hastaliklar-data';
 import { BLOG_YAZILARI } from '@/lib/blog-data';
 
 export const metadata: Metadata = {
+  alternates: { canonical: 'https://www.hekimhane.com.tr/blog' },
   title: 'Blog | Hekimhane — Diş Sağlığı Yazıları',
   description: 'Diş sağlığı, tedaviler ve hasta rehberleri. Uzman gözünden ağız ve diş sağlığı içerikleri.',
 };

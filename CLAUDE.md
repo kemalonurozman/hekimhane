@@ -413,6 +413,9 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Favicon:** H monogramı (lacivert kare + beyaz H + altın orta bar). `app/icon.svg` + `favicon.ico` (16/32/48) + `apple-icon.png` + `app/manifest.ts`. Google güncellemesi haftalar sürebilir (`s2/favicons` ile teşhis edilebilir).
 - **Kombinasyon SEO sayfaları:** `/dis-tedavileri/[il]/[...seg]` (il+uzmanlık, ilçe+uzmanlık, tedavi), `/klinikler/[il]/[ilce]` landing, FAQPage JSON-LD (`lib/faq.ts`: buildKlinikFaq/buildDoktorFaq/buildEczaneFaq).
 - **Sitemap ağacı:** `app/sitemap.xml` (index) + `sitemap-{genel,klinikler,dis-tedavileri,hastaneler,doktorlar,eczaneler}.xml`. `lib/sitemap-data.ts`. RSS: `app/rss.xml`.
+- **Canonical (Eki 2026):** `app/layout.tsx`'te canonical **yok** — oradaki ana sayfa canonical'ı, kendi canonical'ı olmayan her sayfaya (tüm eczaneler, /hastaneler, /blog…) miras kalıyordu. **Yeni sayfa eklerken `alternates.canonical` ver.**
+- **İ slug tuzağı:** `"İ".toLowerCase()` → `i` + U+0307. Tüm il/ilçe URL yardımcılarında `toLowerCase()`'tan hemen sonra `.replace(/\u0307/g, '')` var. `middleware.ts` → `ilIlceYonlendir()` /klinikler|hastaneler/<il>/<ilce> içindeki kanonik olmayan biçimleri tek adımda 301'ler.
+- **Sitemap lastmod:** satırların gerçek `updated_at`'i (sütun yoksa lastmod yazılmaz, sorgu düşmez). Index'te lastmod yok. `buildSection` loc'ları tekilleştirir.
 - **Karşılaştırma:** `components/CompareButton.tsx` (corner variant absolute) + `CompareBar.tsx`. Kart isimlerinde float `-shim span` ile buton çakışması önlendi.
 
 ### Yorum Şikayet / Moderasyon Akışı
@@ -711,6 +714,13 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **ListingLayout:** şehir değişince/kaldırılınca `ilce` parametresi de düşer (başka ilin ilçesiyle boş sonuç kalmaz).
 - **Önbellek tazeleme:** admin sil (`delete-entity`), admin düzenle (`admin/update-entity`), panel düzenle ve onayda yeni kayıt (`claim-action`) → `revalidateTag('facets')`.
 - Kullanılmayan harita için sayfaya gömülen 1000 eczanelik `markers` kaldırıldı (ListingLayout haritayı çizmiyor).
+- **Hız (Eki 2026):** canlıda her şehir tıklaması ~1,8 sn sürüyordu (hastaneler 0,5 sn). Üç düzeltme:
+  1. `fetchAllRows` sayfaları **8'erli paralel** çeker (9 sıralı tur → 2 tur) ve her zaman `id` sırası ekler — çağıran `.order('id')` eklemesin.
+  2. İndeks `lib/eczane-indeks.ts`'e taşındı: süreç belleği (60 sn, eşzamanlı istekler tek yüklemeyi paylaşır) → `unstable_cache` (10 dk) → veritabanı. Yerel ölçüm: ilk istek ~1 sn, sonraki tıklamalar 20–30 ms.
+  3. **İyimser filtre (ListingLayout, tüm liste sayfaları):** tıklanan seçenek sunucuyu beklemeden işaretlenir (`bekleyen` durumu + `useTransition`), sonuç alanı yüklenirken soluklaşır. Ölçüm: işaret 15 ms'de.
+- **Arama önerileri:** `FilterSection.oneriUrl` verilirse arama kutusu yazarken listeyi süzmez, altında öneri listesi açar (en fazla 8; ok tuşları, Enter = seçili öneriye git / seçim yoksa tüm sonuçları listele, Esc kapatır). Kenar paneli kendi içinde kaydığı için liste **panelin içinde** açılır (havada açılır liste kırpılırdı). Eczane için `/api/eczane-ara?q=` → `eczaneOnerileri()` (bellekteki indeksten; normalleştirilmiş adlar `WeakMap`'te liste başına bir kez hesaplanır, öneri başına ~0,2 ms). İndekste artık `slug` da var.
+- **Eczane profil başlığı:** ilçe boşken "Ad — , Ankara" çıkıyordu; profil sayfası da `ilceCikar` ile ilçeyi addan türetir, başlık boş parçaları atlar.
+- **Yerel test yöntemi (anahtar yokken):** scratchpad'de küçük bir PostgREST taklidi (`/rest/v1/eczaneler`, offset/limit + `id=in.()` + `slug=eq.`) ve `NEXT_PUBLIC_SUPABASE_URL=http://localhost:<port>` ile önizleme; veri canlı sayfalardan alınan herkese açık satırlardı.
 
 ### Bekleyen migration'lar (kullanıcı Supabase SQL Editor'da çalıştırmalı)
 - `supabase/migrations/add_account_activations.sql` — **çalıştırıldı** (aktivasyon akışı için şart).

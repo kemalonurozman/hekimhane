@@ -10,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: 'https://www.hekimhane.com.tr/sitemap.xml',
-    host: 'https://www.hekimhane.com.tr',
+    // host: Google desteklemiyor (Search Console "Rule ignored" uyarısı) → kaldırıldı.
   };
 }

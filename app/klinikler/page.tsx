@@ -50,7 +50,7 @@ const KURUM_VALS = ['ozel', 'devlet', 'universite', 'hepsi'] as const;
 // Yabancı dil filtresi (klinikler.yabanci_diller ile eşleşir)
 const KLINIK_DIL_SECENEKLERI = ['Türkçe', 'İngilizce', 'Fransızca', 'Arapça', 'Rusça', 'Ukraynaca', 'Azerice']
   .map(d => ({ value: d, label: d }));
-const TR = (s: string) => (s||'').toLowerCase()
+const TR = (s: string) => (s||'').toLowerCase().replace(/\u0307/g, '')
   .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
   .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
 

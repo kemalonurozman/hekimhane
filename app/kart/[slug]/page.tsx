@@ -41,7 +41,7 @@ export interface KartData {
 
 /** Türkçe karakterleri slug'a çevirir (panel/page.tsx'teki tr() ile aynı) */
 function toUrlSegment(s: string) {
-  return (s || '').toLowerCase()
+  return (s || '').toLowerCase().replace(/\u0307/g, '')
     .replace(/[şŞ]/g, 's').replace(/[ıİ]/g, 'i').replace(/[ğĞ]/g, 'g')
     .replace(/[üÜ]/g, 'u').replace(/[öÖ]/g, 'o').replace(/[çÇ]/g, 'c')
     .replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -240,6 +240,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const photo = d.photo_url || d.photo;
   return {
     title: `${name} — HekimKart`,
+    alternates: { canonical: `https://www.hekimhane.com.tr/kart/${params.slug}` },
     description: `${name} dijital kartviziti. ${d.spec || ''} ${d.il || ''}`.trim(),
     openGraph: {
       title: name,

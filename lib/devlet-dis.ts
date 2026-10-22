@@ -21,7 +21,7 @@ async function fetchAll<T = any>(build: () => any, max = 8000): Promise<T[]> {
 }
 
 // hastaneler rota slug'ı (app/hastaneler/[il]/[ilce]/[slug] ile aynı dönüşüm)
-const trUrl = (s: string) => (s || '').toLowerCase()
+const trUrl = (s: string) => (s || '').toLowerCase().replace(/\u0307/g, '')
   .replace(/[şŞ]/g, 's').replace(/[ıİ]/g, 'i').replace(/[ğĞ]/g, 'g')
   .replace(/[üÜ]/g, 'u').replace(/[öÖ]/g, 'o').replace(/[çÇ]/g, 'c').replace(/\s+/g, '-');
 

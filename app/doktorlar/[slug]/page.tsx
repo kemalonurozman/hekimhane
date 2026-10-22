@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 
 interface Props { params: { slug: string } }
 
-const tr = (s: string) => (s||'').toLowerCase()
+const tr = (s: string) => (s||'').toLowerCase().replace(/\u0307/g, '')
   .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
   .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
 

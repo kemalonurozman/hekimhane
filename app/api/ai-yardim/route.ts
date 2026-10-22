@@ -10,6 +10,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { HASTALIKLAR, KATEGORILER } from '@/lib/hastaliklar-data';
 import { supabase } from '@/lib/supabase';
+import { urlParca } from '@/lib/entity-link';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -122,7 +123,7 @@ async function gercekListeleriCek(sorgu: string, il?: string): Promise<string> {
     if (klinikler && klinikler.length > 0) {
       const liste = klinikler.map((k: { name: string; il?: string; ilce?: string; slug?: string; tel?: string }) => {
         const link = (k.slug && k.il && k.ilce)
-          ? `/klinikler/${encodeURIComponent(k.il.toLowerCase())}/${encodeURIComponent(k.ilce.toLowerCase())}/${k.slug}`
+          ? `/klinikler/${urlParca(k.il)}/${urlParca(k.ilce)}/${k.slug}`
           : null;
         const konum = `${k.il ?? ''}${k.ilce ? `/${k.ilce}` : ''}`;
         const tel = k.tel ? ` 📞 ${k.tel}` : '';

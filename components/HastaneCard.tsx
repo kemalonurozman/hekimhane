@@ -21,8 +21,8 @@ function Stars({ rat }: { rat: number }) {
 export default function HastaneCard({ hastane: h }: { hastane: Hastane }) {
   const router = useRouter();
 
-  const il   = (h.il   || 'turkiye').toLowerCase().replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g').replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
-  const ilce = (h.ilce || 'merkez').toLowerCase().replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g').replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
+  const il   = (h.il   || 'turkiye').toLowerCase().replace(/\u0307/g, '').replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g').replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
+  const ilce = (h.ilce || 'merkez').toLowerCase().replace(/\u0307/g, '').replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g').replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
   const profileUrl = h.slug ? `/hastaneler/${il}/${ilce}/${h.slug}` : `/hastaneler/${h.id}`;
   const isPremium  = !!(h as any).premium;
 

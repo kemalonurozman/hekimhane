@@ -9,7 +9,7 @@ import ListingLayout from '@/components/ListingLayout';
 import { resolveKonum } from '@/lib/il-koordinatlari';
 
 const PAGE_SIZE = 20;
-const TR = (s: string) => (s||'').toLowerCase()
+const TR = (s: string) => (s||'').toLowerCase().replace(/\u0307/g, '')
   .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
   .replace(/[üÜ]/g,'u').replace(/[öÖ]/g,'o').replace(/[çÇ]/g,'c').replace(/\s+/g,'-');
 
@@ -24,7 +24,10 @@ export async function generateMetadata(
   if (il)  parts.push(il);
   if (parts.length) title = parts.join(', ') + ' — Hastaneler';
   const desc = `${parts.join(', ')} bölgesindeki hastaneler, yorumlar ve iletişim bilgileri. Hekimhane'de karşılaştırın.`;
-  return { title, description: desc, openGraph: { title: `${title} | Hekimhane`, description: desc } };
+  const qs = new URLSearchParams();
+  if (il) qs.set('il', il); if (tip) qs.set('tip', tip);
+  const canonical = `https://www.hekimhane.com.tr/hastaneler${qs.toString() ? `?${qs.toString()}` : ''}`;
+  return { title, description: desc, alternates: { canonical }, openGraph: { title: `${title} | Hekimhane`, description: desc, url: canonical } };
 }
 
 async function getHastaneler(filters: Record<string, string | undefined> & { page?: number }) {
@@ -46,7 +49,7 @@ async function getIller(tip?: string) {
   const data = await fetchAllRows<{ il: string | null }>(() => {
     let q = supabase.from('hastaneler').select('il').not('il', 'is', null);
     if (tip) q = q.eq('type', tip);
-    return q.order('id');
+    return q;
   });
   const map: Record<string, number> = {};
   data.forEach((r: { il: string | null }) => { if (r.il) map[r.il] = (map[r.il] || 0) + 1; });
@@ -60,7 +63,7 @@ async function getTipler(il?: string) {
   const data = await fetchAllRows<{ type: string | null }>(() => {
     let q = supabase.from('hastaneler').select('type').not('type', 'is', null);
     if (il) q = q.eq('il', il);
-    return q.order('id');
+    return q;
   });
   const map: Record<string, number> = {};
   data.forEach((r: { type: string | null }) => { if (r.type) map[r.type] = (map[r.type] || 0) + 1; });
