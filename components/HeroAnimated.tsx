@@ -42,9 +42,12 @@ function AnimatedCount({ target, suffix = '+' }: { target: number; suffix?: stri
 
 
 // ── Canlı Arama Formu ─────────────────────────────────────────────────────────
+// Her işletme türü kendi rengiyle: grup başlığı + satırdaki tür etiketi aynı tonda.
 const GRUPLAR_CONFIG = [
-  { key: 'klinikler'  as const, baslik: 'Diş Kliniği',  renk: '#1A335E', bg: '#EEF2FF' },
-  { key: 'doktorlar'  as const, baslik: 'Diş Hekimi',   renk: '#0E7490', bg: '#ECFEFF' },
+  { key: 'klinikler'  as const, baslik: 'Diş Kliniği', etiket: 'Klinik',  renk: '#1A335E', bg: '#EEF2FF', liste: '/klinikler',  anahtar: /klinik|dis|diş|ağız|agiz|ortodont/ },
+  { key: 'doktorlar'  as const, baslik: 'Hekim',       etiket: 'Hekim',   renk: '#0E7490', bg: '#ECFEFF', liste: '/doktorlar',  anahtar: /doktor|hekim|dr\.?$|uzm/ },
+  { key: 'hastaneler' as const, baslik: 'Hastane',     etiket: 'Hastane', renk: '#B42318', bg: '#FEF3F2', liste: '/hastaneler', anahtar: /hastane/ },
+  { key: 'eczaneler'  as const, baslik: 'Eczane',      etiket: 'Eczane',  renk: '#067647', bg: '#ECFDF3', liste: '/eczaneler',  anahtar: /eczane/ },
 ];
 
 /** Konum alanı: "İzmir", "kadıköy", "Çankaya Ankara" → { il, ilce }. Eşleşmezse serbest metin olarak aramaya eklenir. */
@@ -259,7 +262,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
     debounceRef.current = setTimeout(async () => {
       setYukleniyor(true);
       try {
-        const res  = await fetch(`/api/search?q=${encodeURIComponent(val)}&scope=dental`);
+        const res  = await fetch(`/api/search?q=${encodeURIComponent(val)}`);
         const data: SearchResults = await res.json();
         setSonuclar(data);
         // Sonuç olsun olmasın dropdown'ı aç — sonuç yoksa "bulunamadı + ekleme talebi" gösterilir
@@ -296,9 +299,12 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
     router.push(href);
   }
 
+  // Aranan metin türü söylüyorsa ("… eczanesi", "… hastanesi") o grup en üste çıkar
+  const qKucuk = q.toLocaleLowerCase('tr');
   const aktifGruplar = GRUPLAR_CONFIG
-    .map(g => ({ ...g, items: sonuclar?.[g.key] ?? [] }))
-    .filter(g => g.items.length > 0);
+    .map((g, i) => ({ ...g, items: sonuclar?.[g.key] ?? [], sira: g.anahtar.test(qKucuk) ? -1 : i }))
+    .filter(g => g.items.length > 0)
+    .sort((a, b) => a.sira - b.sira);
 
   const sonucYok = sonuclar !== null && aktifGruplar.length === 0 && q.trim().length >= 2 && !yukleniyor;
   const dropdownAcik = acik && (aktifGruplar.length > 0 || sonucYok);
@@ -330,7 +336,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
               value={q}
               onChange={handleInput}
               onFocus={() => sonuclar && setAcik(true)}
-              placeholder="Klinik, hekim veya tedavi"
+              placeholder="Klinik, hekim, hastane veya eczane"
               autoComplete="off"
               spellCheck={false}
             />
@@ -368,7 +374,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
                     &ldquo;{q.trim()}&rdquo; için sonuç bulunamadı
                   </div>
                   <p style={{ fontSize: 12.5, color: '#6E6E73', margin: '0 0 16px', lineHeight: 1.5 }}>
-                    Aradığınız diş kliniği veya diş hekimi henüz sistemimizde yok.
+                    Aradığınız klinik, hekim, hastane veya eczane henüz sistemimizde yok.
                     Eklenmesini isterseniz bize bildirebilirsiniz.
                   </p>
                   <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -436,9 +442,10 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
                       key={ii}
                       onMouseDown={(e) => { e.preventDefault(); handleSelect(item.href); }}
                       style={{
-                        display: 'flex', flexDirection: 'column', gap: 2,
-                        width: '100%', padding: '9px 16px 9px 28px',
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        width: '100%', padding: '9px 16px 9px 16px',
                         background: 'none', border: 'none',
+                        borderLeft: `3px solid ${grup.renk}`,
                         cursor: 'pointer', textAlign: 'left',
                         fontFamily: 'inherit',
                         overflow: 'hidden',
@@ -447,26 +454,38 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
                       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = grup.bg; }}
                       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; }}
                     >
-                      <span style={{
-                        fontSize: 13.5, fontWeight: 600,
-                        color: '#1D1D1F', letterSpacing: '-.2px',
-                        lineHeight: 1.3,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        display: 'block',
-                      }}>
-                        {item.ad}
-                      </span>
-                      {item.alt && (
+                      <span style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1, minWidth: 0 }}>
                         <span style={{
-                          fontSize: 11.5, color: '#6E6E73', letterSpacing: '.1px',
-                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                          fontSize: 13.5, fontWeight: 600,
+                          color: '#1D1D1F', letterSpacing: '-.2px',
+                          lineHeight: 1.3,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
                           display: 'block',
                         }}>
-                          {item.alt}
+                          {item.ad}
                         </span>
-                      )}
+                        {item.alt && (
+                          <span style={{
+                            fontSize: 11.5, color: '#6E6E73', letterSpacing: '.1px',
+                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                            display: 'block',
+                          }}>
+                            {item.alt}
+                          </span>
+                        )}
+                      </span>
+                      {/* Tür etiketi — eczane/hastane/hekim/klinik rengiyle */}
+                      <span style={{
+                        flexShrink: 0,
+                        fontSize: 10.5, fontWeight: 700, letterSpacing: '.3px',
+                        color: grup.renk, background: grup.bg,
+                        border: `1px solid ${grup.renk}22`,
+                        padding: '3px 8px', borderRadius: 999,
+                      }}>
+                        {grup.etiket}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -486,7 +505,8 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
                   onMouseDown={(e) => {
                     e.preventDefault();
                     setAcik(false);
-                    if (q.trim()) router.push(`/klinikler?q=${encodeURIComponent(q.trim())}`);
+                    // Tüm sonuçlar: en üstteki türün listesinde aynı arama
+                    if (q.trim()) router.push(`${aktifGruplar[0]?.liste || '/klinikler'}?q=${encodeURIComponent(q.trim())}`);
                   }}
                   style={{
                     fontSize: 12, color: '#1A335E', fontWeight: 600,
