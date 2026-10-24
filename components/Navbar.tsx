@@ -10,7 +10,7 @@ import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
 import type { User } from '@supabase/supabase-js';
 
 // ── Üst menü (Eki 2026 sadeleştirme) ────────────────────────────────────────
-// Dört öğe: Hekim Bul ▾ · Sağlık Rehberi ▾ · Özellikler ▾ · Booking (Yeni).
+// Üç öğe: Hekim Bul ▾ · Özellikler ▾ · Booking (Yeni).
 // Eski düz bağlantılar (Diş Hekimleri, Neden Hekimhane?, Blog) açılır menülerin içine taşındı.
 // Diş hekimleri "klinikler" tablosunda type='Diş Hekimi' olarak tutuluyor; /klinikler ikisini birlikte gösterir.
 const NAV_LINKS: { href: string; base: string; label: string; mobilLabel?: string; yeni?: boolean }[] = [
@@ -78,26 +78,8 @@ const MENULER: Menu[] = [
     ],
     alt: [{ ad: 'Hekimleri karşılaştır', href: '/karsilastir' }],
   },
-  {
-    id: 'rehber', label: 'Sağlık Rehberi', genislik: 500,
-    aktif: ['/hastaliklar', '/tedavi-ucretleri', '/uzmanlik', '/cocuk-dis-sagligi', '/blog'],
-    sutunlar: [
-      { baslik: 'Ağız ve diş hastalıkları', ogeler: [
-        { ad: 'Diş Çürüğü', href: '/hastaliklar/dis-sagligi/dis-curugu' },
-        { ad: 'Diş Eti İltihabı (Gingivit)', href: '/hastaliklar/dis-sagligi/gingivit' },
-        { ad: 'Diş Hassasiyeti', href: '/hastaliklar/dis-sagligi/dis-hassasiyeti' },
-        { ad: 'Ağız Kokusu', href: '/hastaliklar/dis-sagligi/agiz-kokusu' },
-        { ad: 'Diş Apsesi', href: '/hastaliklar/dis-sagligi/dis-apsesi' },
-        { ad: 'Tüm Hastalıklar', href: '/hastaliklar/dis-sagligi', vurgu: true },
-      ]},
-      { baslik: 'Rehberler', ogeler: [
-        { ad: '2026 Tedavi Ücretleri', href: '/tedavi-ucretleri' },
-        { ad: 'Uzmanlık Rehberleri', href: '/uzmanlik' },
-        { ad: 'Çocuk Diş Sağlığı', href: '/cocuk-dis-sagligi' },
-        { ad: 'Blog', href: '/blog' },
-      ]},
-    ],
-  },
+  // "Sağlık Rehberi" menüsü Eki 2026'da üst menüden kaldırıldı; hastalık, ücret ve
+  // blog sayfaları yayında kalıyor (alt bilgi ve iç bağlantılardan erişilir).
   {
     id: 'ozellik', label: 'Özellikler', genislik: 620,
     aktif: ['/neden-hekimhane', '/randevu-sistemi', '/randevu-modulu', '/hekimkart', '/degerlendirme-sistemi', '/mcp', '/makale-yayinla', '/pro'],
