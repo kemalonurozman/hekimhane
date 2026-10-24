@@ -21,8 +21,12 @@ export function OzDugme({ ad, href, tur = 'altin' }: OzBaglanti & { tur?: 'altin
     cerceveAcik: 'vt-dugme oz-dugme--cerceve-acik',
   }[tur];
   const dis = /^https?:/.test(href);
-  if (href.startsWith('#') || dis) return <a href={href} className={sinif} {...(dis ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>{ad}</a>;
-  return <Link href={href} className={sinif}>{ad}</Link>;
+  // Altın ve çerçeveli düğmelerde sağda kayan ok (Apple tarzı) — hover'da hafifçe ilerler
+  const ic = (tur === 'altin' || tur === 'cerceve' || tur === 'cerceveAcik')
+    ? <><span className="oz-dugme__yazi">{ad}</span><svg className="oz-dugme__ok" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></>
+    : ad;
+  if (href.startsWith('#') || dis) return <a href={href} className={sinif} {...(dis ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>{ic}</a>;
+  return <Link href={href} className={sinif}>{ic}</Link>;
 }
 
 export function OzSayfa({ children, jsonLd }: { children: React.ReactNode; jsonLd?: object }) {
