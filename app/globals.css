@@ -1165,3 +1165,106 @@ a.vt-oz:hover { box-shadow: inset 0 0 0 1.5px #0E1A2C; }
 @keyframes vt-kay-ileri { from { opacity: 0; transform: translateX(72px); } }
 @keyframes vt-kay-geri { from { opacity: 0; transform: translateX(-72px); } }
 .vt-sek__icerik a, .vt-sek__icerik img { -webkit-user-drag: none; }
+
+/* ═══ Kayıt / sahiplenme formları (Eki 2026) — sade, Apple tarzı ════════════════
+   /katil form adımı, /sahiplen ve benzeri formlar bu sınıfları kullanır (kf- öneki).
+   Boş alan: gri dolgu, çerçevesiz. Odak: beyaz + lacivert halka. DOLU alan: beyaz, belirgin çerçeve,
+   kalın yazı ve yeşil onay işareti → ne doldurulduğu bir bakışta görülür. */
+.kf-sayfa { background: #F5F5F7; min-height: 100vh; padding-top: 66px; }
+.kf-ust { background: rgba(255,255,255,.86); backdrop-filter: saturate(180%) blur(18px); -webkit-backdrop-filter: saturate(180%) blur(18px); border-bottom: 1px solid #E5E5EA; position: sticky; top: 64px; z-index: 40; }
+.kf-ust__ic { max-width: 1000px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+.kf-geri { display: inline-flex; align-items: center; gap: 4px; padding: 8px 14px 8px 8px; border: 0; border-radius: 999px; background: #EEF0F4; color: #12294D; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s, transform .2s; flex: none; }
+.kf-geri:hover { background: #E3E7EE; transform: translateX(-2px); }
+.kf-ust__tur { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.kf-ust__ikon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: #12294D; color: #fff; flex: none; }
+.kf-ust__ad { font-size: 17px; font-weight: 700; letter-spacing: -.01em; color: #0E1A2C; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kf-ust__ad small { display: block; font-size: 12.5px; font-weight: 500; color: #6E6E73; letter-spacing: 0; }
+.kf-ilerleme { display: flex; align-items: center; gap: 10px; flex: none; font-size: 13px; font-weight: 600; color: #6E6E73; font-variant-numeric: tabular-nums; }
+.kf-ilerleme__cubuk { width: 120px; height: 6px; border-radius: 999px; background: #E3E6EC; overflow: hidden; }
+.kf-ilerleme__cubuk i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #C9A04A, #EBCF8D); transition: width .35s cubic-bezier(.2,.8,.2,1); }
+.kf-ilerleme.tamam { color: #1E8E5A; }
+.kf-ilerleme.tamam .kf-ilerleme__cubuk i { background: #1E8E5A; }
+
+.kf-izgara { max-width: 1000px; margin: 0 auto; padding: 36px 24px 72px; display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 32px; align-items: start; }
+.kf-baslik { margin: 0 0 6px; font-family: var(--font-display); font-size: 30px; line-height: 1.1; font-weight: 800; letter-spacing: -.035em; color: #0E1A2C; }
+.kf-alt { margin: 0 0 28px; font-size: 16px; line-height: 1.5; color: #586273; }
+.kf-grup { margin-bottom: 26px; }
+.kf-grup__baslik { margin: 0 0 10px 6px; font-size: 12.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #6E6E73; }
+.kf-grup__kutu { display: grid; gap: 18px; padding: 24px; border-radius: 22px; background: #fff; box-shadow: 0 1px 2px rgba(14,26,44,.04), 0 12px 32px -22px rgba(18,41,77,.3); }
+.kf-iki { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; }
+.kf-alan { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.kf-alan > label, .kf-etiket { font-size: 14px; font-weight: 600; color: #1D1D1F; }
+.kf-alan .z { color: #D93025; margin-left: 2px; }
+.kf-alan .o { margin-left: 6px; font-size: 12.5px; font-weight: 500; color: #8E8E93; }
+.kf-giris { position: relative; }
+.kf-in { width: 100%; min-height: 54px; padding: 0 16px; border: 1.5px solid transparent; border-radius: 14px; background: #F2F3F5; font: inherit; font-size: 16px; font-weight: 500; color: #0E1A2C; box-sizing: border-box; -webkit-appearance: none; appearance: none; transition: background .2s, border-color .2s, box-shadow .2s; }
+.kf-in::placeholder { color: #9AA1AD; font-weight: 400; }
+.kf-in:hover { background: #ECEEF1; }
+.kf-in:focus { outline: none; background: #fff; border-color: #12294D; box-shadow: 0 0 0 4px rgba(18,41,77,.12); }
+.kf-in.dolu { background: #fff; border-color: #B9C6DE; font-weight: 650; padding-right: 46px; }
+.kf-in.dolu:focus { border-color: #12294D; }
+.kf-in.hata { background: #FFF6F5; border-color: #F0A199; }
+.kf-in:disabled { opacity: .55; cursor: not-allowed; }
+select.kf-in { padding-right: 42px; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236E6E73' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; }
+select.kf-in.dolu { padding-right: 42px; }
+textarea.kf-in { min-height: 104px; padding: 14px 16px; line-height: 1.55; resize: vertical; }
+.kf-tik { position: absolute; right: 14px; top: 50%; transform: translateY(-50%) scale(.6); display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #1E8E5A; opacity: 0; pointer-events: none; transition: opacity .2s, transform .3s cubic-bezier(.34,1.56,.64,1); }
+.kf-in.dolu ~ .kf-tik { opacity: 1; transform: translateY(-50%) scale(1); }
+select.kf-in.dolu ~ .kf-tik { display: none; }
+.kf-hata { margin: 0; font-size: 13px; font-weight: 500; color: #D93025; }
+.kf-ipucu { margin: 0; display: flex; align-items: flex-start; gap: 7px; font-size: 13px; line-height: 1.45; color: #6E6E73; }
+.kf-ipucu svg { flex: none; margin-top: 2px; color: #8E8E93; }
+
+.kf-ek { margin-bottom: 26px; border-radius: 22px; background: #fff; box-shadow: 0 1px 2px rgba(14,26,44,.04), 0 12px 32px -22px rgba(18,41,77,.3); overflow: hidden; }
+.kf-ek > summary { display: flex; align-items: center; gap: 12px; padding: 18px 24px; cursor: pointer; list-style: none; font-size: 16px; font-weight: 650; color: #0E1A2C; }
+.kf-ek > summary::-webkit-details-marker { display: none; }
+.kf-ek > summary small { display: block; font-size: 13px; font-weight: 400; color: #6E6E73; }
+.kf-ek > summary svg { margin-left: auto; flex: none; color: #8E8E93; transition: transform .25s; }
+.kf-ek[open] > summary svg { transform: rotate(180deg); }
+.kf-ek__ic { display: grid; gap: 18px; padding: 4px 24px 24px; }
+
+.kf-gonder { width: 100%; min-height: 58px; margin-top: 4px; border: 0; border-radius: 999px; font: inherit; font-size: 17px; font-weight: 700; letter-spacing: -.01em; color: #1B2A44; cursor: pointer; }
+.kf-gonder:disabled { opacity: .65; cursor: wait; }
+.kf-not { margin: 16px 6px 0; font-size: 12.5px; line-height: 1.6; color: #6E6E73; text-align: center; }
+.kf-not a { color: #12294D; font-weight: 600; }
+.kf-hatakutu { padding: 14px 16px; border-radius: 14px; background: #FFF1EF; color: #B42318; font-size: 14px; font-weight: 500; }
+
+.kf-yan { position: sticky; top: 140px; display: grid; gap: 14px; }
+.kf-yan__kart { padding: 20px; border-radius: 20px; background: #fff; box-shadow: 0 1px 2px rgba(14,26,44,.04), 0 10px 28px -22px rgba(18,41,77,.3); }
+.kf-yan h3 { margin: 0 0 14px; font-size: 14px; font-weight: 700; color: #0E1A2C; }
+.kf-adim { display: flex; align-items: flex-start; gap: 11px; margin-bottom: 12px; font-size: 13.5px; line-height: 1.5; color: #586273; }
+.kf-adim:last-child { margin-bottom: 0; }
+.kf-adim b { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 8px; background: #12294D; color: #EBCF8D; font-size: 12px; font-weight: 800; flex: none; }
+.kf-sonra { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; font-size: 13.5px; color: #586273; }
+.kf-sonra li { display: flex; align-items: center; gap: 9px; }
+.kf-sonra svg { flex: none; color: #1E8E5A; }
+.kf-pro { font-size: 13px; line-height: 1.55; color: #586273; }
+.kf-pro a { color: #12294D; font-weight: 600; }
+
+@media (max-width: 900px) {
+  .kf-izgara { grid-template-columns: minmax(0, 1fr); padding: 24px 16px 56px; gap: 24px; }
+  .kf-yan { position: static; }
+  .kf-ust__ic { padding: 10px 16px; gap: 10px; }
+  .kf-ilerleme__cubuk { width: 64px; }
+  .kf-baslik { font-size: 26px; }
+}
+@media (max-width: 640px) {
+  .kf-iki { grid-template-columns: minmax(0, 1fr); }
+  .kf-grup__kutu { padding: 18px; border-radius: 18px; }
+  .kf-ek > summary { padding: 16px 18px; }
+  .kf-ek__ic { padding: 4px 18px 20px; }
+  .kf-ilerleme > span { display: none; }
+  .kf-gonder { position: sticky; bottom: 12px; z-index: 5; box-shadow: 0 10px 30px -8px rgba(120,84,10,.55); }
+}
+@media (prefers-reduced-motion: reduce) { .kf-tik, .kf-geri, .kf-ilerleme__cubuk i { transition: none; } }
+
+/* Profil sayfası: "Bu işletmenin sahibi misiniz?" kutusu (Eki 2026) */
+.sahiplen-kutu { padding: 20px 24px; border-radius: 22px; background: #fff; border: 1px solid #E5E7EE; box-shadow: 0 1px 2px rgba(14,26,44,.04), 0 14px 34px -24px rgba(18,41,77,.35); }
+.sahiplen-kutu__ikon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(150deg, #1C3A66, #0E1F3D); box-shadow: 0 10px 22px -10px rgba(18,41,77,.7), inset 0 1px 0 rgba(255,255,255,.2); flex: none; }
+.sahiplen-kutu__metin { flex: 1; min-width: 0; }
+.sahiplen-kutu__baslik { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; font-size: 16px; font-weight: 750; letter-spacing: -.01em; color: #0E1A2C; }
+.sahiplen-kutu__alt { font-size: 13.5px; line-height: 1.5; color: #586273; }
+.sahiplen-kutu__dugme.vt-dugme { flex: none; min-height: 48px; padding: 0 24px; font-size: 15px; }
+@media (max-width: 760px) { .sahiplen-kutu__dugme.vt-dugme { width: 100%; } .sahiplen-kutu { padding: 18px; } }
+select.kf-in:not(.dolu) { color: #9AA1AD; font-weight: 400; }
+select.kf-in option { color: #0E1A2C; font-weight: 500; }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
+import HkIcon from '@/components/HkIcon';
 import type { User } from '@supabase/supabase-js';
 
 interface Props {
@@ -12,38 +13,134 @@ interface Props {
   isClaimed?: boolean;
 }
 
-/* ── SVG ikonlar ─────────────────────────────────────────── */
-function IcCheck() {
-  return (
-    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-      <circle cx="28" cy="28" r="26" fill="#DCFCE7" stroke="#86EFAC" strokeWidth="2"/>
-      <path d="M18 28l7 7 13-14" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  );
-}
+/* ── Küçük yardımcı bileşenler (modül düzeyinde: yeniden oluşmaz, odak kaybolmaz) ── */
 function IcSpin() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ animation: 'spin .9s linear infinite' }}>
-      <circle cx="9" cy="9" r="7" stroke="rgba(255,255,255,.3)" strokeWidth="2.2"/>
-      <path d="M9 2a7 7 0 0 1 7 7" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ animation: 'sh-spin .9s linear infinite' }} aria-hidden="true">
+      <circle cx="9" cy="9" r="7" stroke="currentColor" strokeOpacity=".25" strokeWidth="2.2"/>
+      <path d="M9 2a7 7 0 0 1 7 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
     </svg>
   );
 }
-function IcSend() {
+function IcBack() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M15.5 2.5 1 7l5.5 2 2 5.5z"/>
-      <path d="M6.5 9 15.5 2.5"/>
-    </svg>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M9 2L4 7l5 5"/></svg>
   );
 }
-function IcWarning() {
+
+/** Bu bileşenin yerel stilleri (kf- sınıflarında karşılığı olmayan parçalar). */
+function YerelStil() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <circle cx="8" cy="8" r="7" stroke="#DC2626" strokeWidth="1.4"/>
-      <path d="M8 5v4M8 10.5v.5" stroke="#DC2626" strokeWidth="1.4" strokeLinecap="round"/>
-    </svg>
+    <style>{`
+      @keyframes sh-spin { to { transform: rotate(360deg); } }
+      .sh-sec { display: block; width: 100%; padding: 18px; border: 1.5px solid transparent; border-radius: 16px; background: #F2F3F5; font: inherit; text-align: left; cursor: pointer; transition: background .2s, border-color .2s, box-shadow .2s; }
+      .sh-sec:hover { background: #fff; border-color: #B9C6DE; box-shadow: 0 8px 22px -14px rgba(18,41,77,.35); }
+      .sh-sec:focus-visible { outline: none; background: #fff; border-color: #12294D; box-shadow: 0 0 0 4px rgba(18,41,77,.12); }
+      .sh-sec__ikon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #12294D; margin-bottom: 12px; }
+      .sh-sec b { display: block; font-size: 15px; font-weight: 700; color: #0E1A2C; margin-bottom: 3px; }
+      .sh-sec span { display: block; font-size: 13px; line-height: 1.5; color: #6E6E73; }
+      .sh-metin { align-self: flex-start; display: inline-flex; align-items: center; gap: 5px; padding: 4px 2px; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 600; color: #586273; cursor: pointer; }
+      .sh-metin:hover { color: #12294D; }
+      .sh-profil { display: flex; align-items: center; gap: 13px; }
+      .sh-onay { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
+      .sh-onay input { width: 20px; height: 20px; margin: 2px 0 0; flex: none; accent-color: #12294D; cursor: pointer; }
+      .sh-onay b { display: block; font-size: 15px; font-weight: 700; color: #0E1A2C; margin-bottom: 3px; }
+      .sh-onay span { display: block; font-size: 13px; line-height: 1.6; color: #586273; }
+      .sh-uyari { display: flex; align-items: flex-start; gap: 14px; }
+      .sh-uyari__ikon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 13px; background: #FFF3D6; flex: none; }
+      .sh-uyari h2 { margin: 0 0 6px; font-size: 16px; font-weight: 700; color: #0E1A2C; }
+      .sh-uyari p { margin: 0; font-size: 14px; line-height: 1.65; color: #586273; }
+      .sh-surec { padding: 16px; border-radius: 16px; background: #F2F3F5; }
+      .sh-surec h3 { margin: 0 0 12px; font-size: 12.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #6E6E73; }
+      .sh-surec .kf-adim { align-items: center; }
+      .sh-tamam { display: grid; justify-items: center; gap: 10px; padding: 12px 0; text-align: center; }
+      .sh-tamam h2 { margin: 6px 0 0; font-family: var(--font-display); font-size: 26px; font-weight: 800; letter-spacing: -.03em; color: #0E1A2C; }
+      .sh-tamam p { margin: 0 0 12px; max-width: 420px; font-size: 15px; line-height: 1.65; color: #586273; }
+      .sh-tamam p strong { color: #0E1A2C; }
+      .sh-tamam button { border: 0; cursor: pointer; font-family: inherit; }
+    `}</style>
+  );
+}
+
+/** Sayfa başlığı — küçük, sade. Başarı ekranında gösterilmez. */
+function Baslik() {
+  return (
+    <>
+      <h1 className="kf-baslik">İşletmeyi sahiplenin</h1>
+      <p className="kf-alt">Birkaç bilgiyle işletmenizi talep edin; ekibimiz doğrulayıp onaylasın.</p>
+    </>
+  );
+}
+
+function Grup({ baslik, children }: { baslik?: string; children: React.ReactNode }) {
+  return (
+    <section className="kf-grup">
+      {baslik && <h2 className="kf-grup__baslik">{baslik}</h2>}
+      <div className="kf-grup__kutu">{children}</div>
+    </section>
+  );
+}
+
+function Etiket({ id, children, zorunlu, opsiyonel }: { id: string; children: React.ReactNode; zorunlu?: boolean; opsiyonel?: boolean }) {
+  return (
+    <label htmlFor={id}>
+      {children}
+      {zorunlu && <span className="z" aria-hidden="true">*</span>}
+      {opsiyonel && <span className="o">isteğe bağlı</span>}
+    </label>
+  );
+}
+
+function Hata({ id, mesaj }: { id: string; mesaj?: string }) {
+  return mesaj ? <p className="kf-hata" id={id} role="alert">{mesaj}</p> : null;
+}
+
+interface GirdiProps {
+  id: string;
+  label: string;
+  tip?: 'text' | 'tel' | 'email';
+  deger: string;
+  degis: (v: string) => void;
+  yer?: string;
+  zorunlu?: boolean;
+  opsiyonel?: boolean;
+  hata?: string;
+  ac?: string;
+}
+function Girdi({ id, label, tip = 'text', deger, degis, yer, zorunlu, opsiyonel, hata, ac }: GirdiProps) {
+  const dolu = deger.trim() !== '';
+  const cls = 'kf-in' + (hata ? ' hata' : dolu ? ' dolu' : '');
+  return (
+    <div className="kf-alan">
+      <Etiket id={id} zorunlu={zorunlu} opsiyonel={opsiyonel}>{label}</Etiket>
+      <div className="kf-giris">
+        <input
+          id={id} type={tip} value={deger} placeholder={yer} autoComplete={ac}
+          className={cls}
+          aria-required={zorunlu || undefined}
+          aria-invalid={hata ? true : undefined}
+          aria-describedby={hata ? `${id}-h` : undefined}
+          onChange={e => degis(e.target.value)}
+        />
+        <span className="kf-tik" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+        </span>
+      </div>
+      <Hata id={`${id}-h`} mesaj={hata} />
+    </div>
+  );
+}
+
+function Metin({ id, label, deger, degis, yer }: { id: string; label: string; deger: string; degis: (v: string) => void; yer?: string }) {
+  return (
+    <div className="kf-alan">
+      <Etiket id={id} opsiyonel>{label}</Etiket>
+      <textarea
+        id={id} value={deger} rows={4} placeholder={yer}
+        className={'kf-in' + (deger.trim() !== '' ? ' dolu' : '')}
+        onChange={e => degis(e.target.value)}
+      />
+    </div>
   );
 }
 
@@ -182,41 +279,26 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
     setSubmitted(true);
   }
 
-  /* ── Ortak stiller — iOS/Apple tarzı gri dolgulu inputlar ── */
-  const inp = (hasErr?: boolean): React.CSSProperties => ({
-    width: '100%', padding: '13px 15px', borderRadius: 13, fontFamily: 'inherit',
-    fontSize: 16, outline: 'none', boxSizing: 'border-box', color: 'var(--text)',
-    border: `1.5px solid ${hasErr ? '#F3B4B4' : 'transparent'}`,
-    transition: 'border-color .15s, box-shadow .15s, background .15s',
-    background: hasErr ? '#FEF4F4' : '#F1F0EB',
-  });
-  const lbl: React.CSSProperties = {
-    display: 'block', fontSize: 12.5, fontWeight: 600,
-    color: 'var(--text)', marginBottom: 7, letterSpacing: '.01em',
-  };
-  // Yan yana input satırı — telefonda bile paralel; yalnızca çok dar ekranda alt alta
-  const row2: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(136px, 1fr))', gap: 12 };
-  const focus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    e.currentTarget.style.borderColor = '#1A335E';
-    e.currentTarget.style.background  = '#fff';
-    e.currentTarget.style.boxShadow   = '0 0 0 3px rgba(26,51,94,.12)';
-  };
-  const blur  = (hasErr: boolean) => (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    e.currentTarget.style.borderColor = hasErr ? '#F3B4B4' : 'transparent';
-    e.currentTarget.style.background  = hasErr ? '#FEF4F4' : '#F1F0EB';
-    e.currentTarget.style.boxShadow   = 'none';
+  const gonderYazi = isClaimed ? 'İtiraz Talebini Gönder' : 'Sahiplenme Talebini Gönder';
+  const mesajYer = (baskasi: boolean) =>
+    `Bu işletmenin sahibi ${baskasi ? 'olduğunu' : 'olduğunuzu'} kanıtlayan bilgiler (vergi no, ruhsat no vb.) ekleyebilirsiniz...`;
+
+  /* Guest alanı değişince o alanın hatasını temizle */
+  const guestDegis = (alan: keyof typeof guestForm) => (v: string) => {
+    setGuestForm(f => ({ ...f, [alan]: v }));
+    setGuestErrors(er => (er[alan] ? { ...er, [alan]: undefined } : er));
   };
 
   /* ── Loading ── */
   if (loading) {
     return (
-      <div style={{ padding: '48px', textAlign: 'center', color: 'var(--muted)' }}>
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ animation: 'spin .9s linear infinite', display: 'inline-block' }}>
-          <circle cx="10" cy="10" r="8" stroke="#E5E7EB" strokeWidth="2.5"/>
-          <path d="M10 2a8 8 0 0 1 8 8" stroke="#1A335E" strokeWidth="2.5" strokeLinecap="round"/>
-        </svg>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
+      <>
+        <YerelStil />
+        <Baslik />
+        <div className="kf-grup__kutu" style={{ justifyItems: 'center', color: '#586273', padding: 40 }} role="status" aria-label="Yükleniyor">
+          <IcSpin />
+        </div>
+      </>
     );
   }
 
@@ -224,53 +306,38 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
   if (submitted) {
     const displayEmail = user ? user.email! : guestForm.email;
     return (
-      <div style={{ textAlign: 'center', padding: 'clamp(32px,6vw,48px) 24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}><IcCheck /></div>
-        <h2 style={{ fontWeight: 800, fontSize: 22, color: 'var(--text)', marginBottom: 10, letterSpacing: '-0.3px' }}>Talebiniz Alındı</h2>
-        <p style={{ color: 'var(--muted)', fontSize: 14.5, maxWidth: 420, margin: '0 auto 26px', lineHeight: 1.7 }}>
-          <strong style={{ color: 'var(--text)' }}>{entityName}</strong> için {isClaimed ? 'itiraz talebiniz' : 'sahiplenme talebiniz'} başarıyla iletildi.
-          En kısa sürede <strong style={{ color: 'var(--text)' }}>{displayEmail}</strong> adresinize dönüş yapacağız.
-        </p>
-        <button onClick={() => router.back()}
-          style={{ padding: '13px 30px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: 13, fontSize: 14.5, fontWeight: 700, cursor: 'pointer' }}>
-          Geri Dön
-        </button>
-      </div>
+      <>
+        <YerelStil />
+        <div className="kf-grup__kutu" style={{ padding: 'clamp(28px,5vw,44px) 24px' }}>
+          <div className="sh-tamam">
+            <HkIcon name="success" size={56} />
+            <h2>Talebiniz alındı</h2>
+            <p>
+              <strong>{entityName}</strong> için {isClaimed ? 'itiraz talebiniz' : 'sahiplenme talebiniz'} başarıyla iletildi.
+              En kısa sürede <strong>{displayEmail}</strong> adresinize dönüş yapacağız.
+            </p>
+            <button type="button" onClick={() => router.back()} className="vt-dugme oz-dugme--altin hk-cta-isik">
+              Geri dön
+            </button>
+          </div>
+        </div>
+      </>
     );
   }
 
   /* ── Dispute onay ekranı (işletme zaten sahiplenilmiş) ── */
   if (isClaimed && !disputeConfirmed) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <>
+        <YerelStil />
+        <Baslik />
 
-        {/* İşletme kartı */}
-        <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 14, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: '#1A335E', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round">
-              <circle cx="10" cy="7" r="3.5"/><path d="M3 19v-.5a7 7 0 0 1 14 0v.5"/>
-            </svg>
-          </div>
-          <div>
-            <div style={{ fontSize: 11, color: '#1A335E', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 2 }}>Sahiplenilecek İşletme</div>
-            <div style={{ fontWeight: 800, color: '#1A335E', fontSize: 16 }}>{entityName}</div>
-            <div style={{ fontSize: 12, color: '#3B82F6', marginTop: 1 }}>{ENTITY_LABEL[entityType] || entityType}</div>
-          </div>
-        </div>
-
-        {/* Uyarı kartı */}
-        <div style={{ background: '#FEF3C7', border: '1.5px solid #FCD34D', borderRadius: 16, padding: '24px 22px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 16 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                <path d="M11 2L20.5 19H1.5L11 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M11 9v5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                <circle cx="11" cy="16" r="1" fill="white"/>
-              </svg>
-            </div>
+        <Grup>
+          <div className="sh-uyari">
+            <span className="sh-uyari__ikon"><HkIcon name="warning" size={24} /></span>
             <div>
-              <div style={{ fontWeight: 800, fontSize: 15, color: '#92400E', marginBottom: 6 }}>Bu İşletme Zaten Sahiplenilmiş</div>
-              <p style={{ fontSize: 13, color: '#78350F', lineHeight: 1.7, margin: 0 }}>
+              <h2>Bu işletme zaten sahiplenilmiş</h2>
+              <p>
                 <strong>{entityName}</strong> başka bir kullanıcı tarafından sahiplenilmiş.
                 Eğer bu işletmenin gerçek sahibi sizseniz, mevcut sahipliğe itiraz eden bir talep gönderebilirsiniz.
                 Ekibimiz her iki tarafla iletişime geçerek doğrulama yapacaktır.
@@ -278,101 +345,99 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
             </div>
           </div>
 
-          {/* Süreç adımları */}
-          <div style={{ background: 'rgba(255,255,255,0.6)', borderRadius: 10, padding: '14px 16px' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#92400E', marginBottom: 10, letterSpacing: '0.4px', textTransform: 'uppercase' }}>İtiraz Süreci</div>
+          <div className="sh-surec">
+            <h3>İtiraz süreci</h3>
             {[
-              { n: '1', t: 'İtiraz talebinizi gönderin' },
-              { n: '2', t: 'Ekibimiz her iki tarafla iletişime geçer' },
-              { n: '3', t: 'Belgeler incelenerek doğrulama yapılır' },
-              { n: '4', t: 'Sonuç e-posta ile bildirilir (çoğunlukla birkaç saat, en geç 24 saat)' },
-            ].map(s => (
-              <div key={s.n} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, fontSize: 13, color: '#78350F' }}>
-                <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#F59E0B', color: 'white', fontSize: 11, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.n}</div>
-                {s.t}
-              </div>
+              'İtiraz talebinizi gönderin',
+              'Ekibimiz her iki tarafla iletişime geçer',
+              'Belgeler incelenerek doğrulama yapılır',
+              'Sonuç e-posta ile bildirilir (çoğunlukla birkaç saat, en geç 24 saat)',
+            ].map((t, i) => (
+              <div key={t} className="kf-adim"><b>{i + 1}</b><span>{t}</span></div>
             ))}
           </div>
-        </div>
 
-        {/* Onay checkbox */}
-        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', padding: '16px 18px', background: disputeChecked ? '#F0FDF4' : '#F9FAFB', border: `1.5px solid ${disputeChecked ? '#86EFAC' : '#E5E7EB'}`, borderRadius: 14, transition: 'all .2s' }}>
-          <div style={{ position: 'relative', flexShrink: 0, marginTop: 2 }}>
-            <input type="checkbox" checked={disputeChecked} onChange={e => setDisputeChecked(e.target.checked)}
-              style={{ position: 'absolute', opacity: 0, width: 20, height: 20, cursor: 'pointer' }} />
-            <div style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${disputeChecked ? '#16A34A' : '#D1D5DB'}`, background: disputeChecked ? '#16A34A' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
-              {disputeChecked && (
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              )}
+          <label className="sh-onay">
+            <input type="checkbox" checked={disputeChecked} onChange={e => setDisputeChecked(e.target.checked)} />
+            <div>
+              <b>Bu işletmenin gerçek sahibi benim</b>
+              <span>
+                Mevcut sahipliğin hatalı olduğunu ve bu işletmenin yasal sahibinin ben olduğumu beyan ediyorum.
+                Yanlış beyan hukuki sorumluluk doğurabilir.
+              </span>
             </div>
-          </div>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 14, color: disputeChecked ? '#166534' : '#374151', marginBottom: 3 }}>
-              Bu işletmenin gerçek sahibi benim
-            </div>
-            <div style={{ fontSize: 12, color: disputeChecked ? '#15803D' : '#6B7280', lineHeight: 1.6 }}>
-              Mevcut sahipliğin hatalı olduğunu ve bu işletmenin yasal sahibinin ben olduğumu beyan ediyorum.
-              Yanlış beyan hukuki sorumluluk doğurabilir.
-            </div>
-          </div>
-        </label>
+          </label>
+        </Grup>
 
-        {/* Devam et butonu */}
-        <button type="button" disabled={!disputeChecked}
-          onClick={() => setDisputeConfirmed(true)}
-          style={{
-            padding: '15px', borderRadius: 13, border: 'none',
-            background: disputeChecked ? '#DC2626' : '#E5E7EB',
-            color: disputeChecked ? 'white' : '#9CA3AF',
-            fontSize: 15, fontWeight: 700,
-            cursor: disputeChecked ? 'pointer' : 'not-allowed',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
-            transition: 'background .2s, color .2s',
-          }}>
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-            <path d="M9 2L16 9M16 9L9 16M16 9H2"/>
-          </svg>
+        <button type="button" disabled={!disputeChecked} onClick={() => setDisputeConfirmed(true)}
+          className="kf-gonder"
+          style={{ background: '#12294D', color: '#fff', cursor: disputeChecked ? 'pointer' : 'not-allowed', opacity: disputeChecked ? 1 : .4 }}>
           İtiraz Talebine Devam Et
         </button>
 
-        {/* Geri dön */}
-        <button type="button" onClick={() => window.history.back()}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: 0 }}>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M9 2L4 7l5 5"/></svg>
-          İşletme sayfasına geri dön
-        </button>
-      </div>
+        <p className="kf-not">
+          <button type="button" className="sh-metin" onClick={() => window.history.back()} style={{ margin: '0 auto' }}>
+            <IcBack />İşletme sayfasına geri dön
+          </button>
+        </p>
+      </>
     );
   }
 
-  /* ── İşletme başlığı (her iki formda ortak) — sade nötr ── */
-  const entityCard = (
-    <div style={{ background: '#F7F5F0', border: '1px solid #EAE6DE', borderRadius: 16, padding: '15px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
-      <div style={{ width: 46, height: 46, borderRadius: 13, background: 'linear-gradient(150deg,#1A335E,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 21h18" /><path d="M5 21V7l7-4 7 4v14" /><path d="M9 21v-6h6v6" />
-        </svg>
-      </div>
-      <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 3 }}>Sahiplenilecek İşletme</div>
-        <div style={{ fontWeight: 800, color: 'var(--text)', fontSize: 16, lineHeight: 1.25 }}>{entityName}</div>
-        <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{ENTITY_LABEL[entityType] || entityType}</div>
-      </div>
-    </div>
-  );
-
   /* ── Hata kutusu (ortak) ── */
   const errorBox = error ? (
-    <div style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 12, padding: '14px 18px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-      <span style={{ flexShrink: 0, marginTop: 1 }}><IcWarning /></span>
-      <div>
-        <div style={{ fontWeight: 700, fontSize: 13, color: '#DC2626', marginBottom: 2 }}>Gönderim başarısız</div>
-        <div style={{ fontSize: 12, color: '#DC2626', opacity: .8 }}>{error}</div>
-      </div>
+    <div className="kf-hatakutu" role="alert">
+      <strong style={{ display: 'block', marginBottom: 2 }}>Gönderim başarısız</strong>
+      {error}
     </div>
   ) : null;
+
+  const gonder = (
+    <>
+      {errorBox}
+      <button type="submit" disabled={saving} className="kf-gonder hk-cta-isik">
+        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 9 }}>
+          {saving ? <><IcSpin />Gönderiliyor...</> : gonderYazi}
+        </span>
+      </button>
+      <p className="kf-not">Bilgileriniz yalnızca doğrulama amacıyla kullanılacak ve üçüncü taraflarla paylaşılmayacaktır.</p>
+    </>
+  );
+
+  const tamForm = (baskasi: boolean) => (
+    <form onSubmit={handleGuestSubmit} style={{ display: 'block' }}>
+      {baskasi && (
+        <button type="button" className="sh-metin" onClick={() => setMod(null)} style={{ marginBottom: 14 }}>
+          <IcBack />Geri
+        </button>
+      )}
+      <Grup baslik={baskasi ? 'İşletme sahibinin bilgileri' : 'Bilgileriniz'}>
+        {baskasi && (
+          <p className="kf-ipucu">
+            <HkIcon name="info" size={16} accent={false} />
+            <span>İşletmeyi farklı bir kişi adına sahipleniyorsunuz. Lütfen gerçek işletme sahibinin bilgilerini girin.</span>
+          </p>
+        )}
+        <div className="kf-iki">
+          <Girdi id="sh-ad" label="Ad Soyad" zorunlu ac="name" yer="Adınız Soyadınız"
+            deger={guestForm.ad_soyad} degis={guestDegis('ad_soyad')} hata={guestErrors.ad_soyad} />
+          <Girdi id="sh-unvan" label="Ünvan" opsiyonel yer="Sahip, Yönetici, Müdür..."
+            deger={guestForm.unvan} degis={guestDegis('unvan')} />
+        </div>
+        <div className="kf-iki">
+          <Girdi id="sh-tel" label="Telefon" tip="tel" zorunlu ac="tel" yer="0500 000 00 00"
+            deger={guestForm.tel} degis={guestDegis('tel')} hata={guestErrors.tel} />
+          <Girdi id="sh-email" label="E-posta" tip="email" zorunlu ac="email" yer="ornek@email.com"
+            deger={guestForm.email} degis={guestDegis('email')} hata={guestErrors.email} />
+        </div>
+      </Grup>
+      <Grup baslik="Ek bilgi">
+        <Metin id="sh-mesaj" label="Ek Mesaj" yer={mesajYer(baskasi)}
+          deger={guestForm.mesaj} degis={guestDegis('mesaj')} />
+      </Grup>
+      {gonder}
+    </form>
+  );
 
   /* ════════════════════════════════════════
      A) GİRİŞ YAPILMIŞ
@@ -383,183 +448,84 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
 
     /* Profil kartı (her zaman görünür) */
     const profilKart = (
-      <div style={{ background: '#fff', border: '1px solid #EAE6DE', borderRadius: 16, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 13 }}>
-        {avatar
-          ? <img src={avatar} alt="" style={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0 }} /> // eslint-disable-line @next/next/no-img-element
-          : <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'linear-gradient(150deg,#1A335E,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'white', fontSize: 17, fontWeight: 700 }}>{name.charAt(0).toUpperCase()}</div>
-        }
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 14.5, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
-          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</div>
+      <Grup baslik="Hesabınız">
+        <div className="sh-profil">
+          {avatar
+            ? <img src={avatar} alt="" style={{ width: 44, height: 44, borderRadius: '50%', flexShrink: 0 }} /> // eslint-disable-line @next/next/no-img-element
+            : <span style={{ display: 'grid', placeItems: 'center', width: 44, height: 44, borderRadius: '50%', background: '#12294D', flexShrink: 0, color: '#EBCF8D', fontSize: 17, fontWeight: 700 }} aria-hidden="true">{name.charAt(0).toUpperCase()}</span>
+          }
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: '#0E1A2C', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
+            <div style={{ fontSize: 13, color: '#6E6E73', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</div>
+          </div>
+          <span className="vt-ucretsiz" style={{ flexShrink: 0 }}>Giriş yapıldı</span>
         </div>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, color: '#166534', background: '#ECFDF3', border: '1px solid #A7F3C9', padding: '4px 10px', borderRadius: 20, whiteSpace: 'nowrap', flexShrink: 0 }}>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-          Giriş Yapıldı
-        </span>
-      </div>
+      </Grup>
     );
 
     /* ── Mod seçilmemişse: seçim ekranı ── */
     if (!mod) {
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-          {entityCard}
+        <>
+          <YerelStil />
+          <Baslik />
           {profilKart}
-
-          <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text)', marginBottom: -8 }}>Bu işletmeyi kim adına sahipleniyorsunuz?</div>
-
-          {/* Seçim butonları — sade nötr kartlar */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
-            {/* Kendi adıma */}
-            <button type="button" onClick={() => setMod('self')}
-              style={{ padding: '18px 16px', borderRadius: 16, border: '1.5px solid #EAE6DE', background: '#fff', cursor: 'pointer', textAlign: 'left', transition: 'border-color .15s, box-shadow .15s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#1A335E'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 18px rgba(26,51,94,.10)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#EAE6DE'; (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'; }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(150deg,#1A335E,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round"><circle cx="10" cy="7" r="3.5"/><path d="M3 18v-.5a7 7 0 0 1 14 0v.5"/></svg>
-              </div>
-              <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--text)', marginBottom: 4 }}>Benim Adıma</div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5, wordBreak: 'break-word' }}>Giriş yaptığım hesap ile sahiplen</div>
-            </button>
-
-            {/* Başkası adına */}
-            <button type="button" onClick={() => setMod('other')}
-              style={{ padding: '18px 16px', borderRadius: 16, border: '1.5px solid #EAE6DE', background: '#fff', cursor: 'pointer', textAlign: 'left', transition: 'border-color .15s, box-shadow .15s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#C7A24A'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 18px rgba(184,137,47,.14)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#EAE6DE'; (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'; }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--gold-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--gold)" strokeWidth="1.7" strokeLinecap="round"><circle cx="7" cy="7" r="3"/><circle cx="14" cy="7" r="3"/><path d="M1 17v-.5a6 6 0 0 1 11.3-2.8"/><path d="M13 13l2 2 4-4"/></svg>
-              </div>
-              <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--text)', marginBottom: 4 }}>Farklı Kişi Adına</div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>İşletme sahibi farklıysa bilgilerini gir</div>
-            </button>
-          </div>
-        </div>
+          <Grup baslik="Bu işletmeyi kim adına sahipleniyorsunuz?">
+            <div className="kf-iki">
+              <button type="button" className="sh-sec" onClick={() => setMod('self')}>
+                <span className="sh-sec__ikon"><HkIcon name="user-account" size={22} color="#fff" accent="#EBCF8D" /></span>
+                <b>Benim adıma</b>
+                <span>Giriş yaptığım hesap ile sahiplen</span>
+              </button>
+              <button type="button" className="sh-sec" onClick={() => setMod('other')}>
+                <span className="sh-sec__ikon"><HkIcon name="doctor-profile" size={22} color="#fff" accent="#EBCF8D" /></span>
+                <b>Farklı kişi adına</b>
+                <span>İşletme sahibi farklıysa bilgilerini girin</span>
+              </button>
+            </div>
+          </Grup>
+        </>
       );
     }
 
     /* ── mod = 'self': kendi adına form ── */
     if (mod === 'self') {
       return (
-        <form onSubmit={handleLoggedSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-          {entityCard}
-          {profilKart}
-
-          {/* Geri */}
-          <button type="button" onClick={() => setMod(null)}
-            style={{ alignSelf: 'flex-start', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 5, padding: 0, marginBottom: -8 }}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M9 2L4 7l5 5"/></svg>
-            Geri
-          </button>
-
-          <div style={row2}>
-            <div>
-              <label style={lbl}>Ünvan <span style={{ color: '#EF4444' }}>*</span></label>
-              <input type="text" value={loggedForm.unvan} placeholder="Sahip, Yönetici, Müdür..."
-                onChange={e => { setLoggedForm(f => ({ ...f, unvan: e.target.value })); setUnvanError(''); }}
-                onFocus={focus} onBlur={blur(!!unvanError)} style={inp(!!unvanError)} />
-              {unvanError && <span style={{ fontSize: 12, color: '#DC2626', marginTop: 4, display: 'block' }}>{unvanError}</span>}
-            </div>
-            <div>
-              <label style={lbl}>Telefon <span style={{ color: '#EF4444' }}>*</span></label>
-              <input type="tel" value={loggedForm.tel} placeholder="0500 000 00 00"
-                onChange={e => { setLoggedForm(f => ({ ...f, tel: e.target.value })); setTelError(''); }}
-                onFocus={focus} onBlur={blur(!!telError)} style={inp(!!telError)} />
-              {telError && <span style={{ fontSize: 12, color: '#DC2626', marginTop: 4, display: 'block' }}>{telError}</span>}
-            </div>
-          </div>
-
-          <div>
-            <label style={lbl}>Ek Mesaj <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(isteğe bağlı)</span></label>
-            <textarea value={loggedForm.mesaj} rows={4}
-              placeholder="Bu işletmenin sahibi olduğunuzu kanıtlayan bilgiler (vergi no, ruhsat no vb.) ekleyebilirsiniz..."
-              onChange={e => setLoggedForm(f => ({ ...f, mesaj: e.target.value }))}
-              onFocus={focus} onBlur={blur(false)}
-              style={{ ...inp(false), resize: 'vertical', lineHeight: 1.6, minHeight: 100 }} />
-          </div>
-
-          {errorBox}
-
-          <button type="submit" disabled={saving}
-            style={{ padding: '16px', borderRadius: 13, border: 'none', background: saving ? '#6B7280' : '#1A335E', color: 'white', fontSize: 15, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9 }}>
-            {saving ? <><IcSpin />Gönderiliyor...</> : <><IcSend />{isClaimed ? 'İtiraz Talebini Gönder' : 'Sahiplenme Talebini Gönder'}</>}
-          </button>
-          <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.7 }}>
-            Bilgileriniz yalnızca doğrulama amacıyla kullanılacak ve üçüncü taraflarla paylaşılmayacaktır.
-          </p>
-        </form>
+        <>
+          <YerelStil />
+          <Baslik />
+          <form onSubmit={handleLoggedSubmit} style={{ display: 'block' }}>
+            {profilKart}
+            <button type="button" className="sh-metin" onClick={() => setMod(null)} style={{ marginBottom: 14, marginTop: -8 }}>
+              <IcBack />Geri
+            </button>
+            <Grup baslik="Bilgileriniz">
+              <div className="kf-iki">
+                <Girdi id="sh-l-unvan" label="Ünvan" zorunlu yer="Sahip, Yönetici, Müdür..."
+                  deger={loggedForm.unvan} hata={unvanError}
+                  degis={v => { setLoggedForm(f => ({ ...f, unvan: v })); setUnvanError(''); }} />
+                <Girdi id="sh-l-tel" label="Telefon" tip="tel" zorunlu ac="tel" yer="0500 000 00 00"
+                  deger={loggedForm.tel} hata={telError}
+                  degis={v => { setLoggedForm(f => ({ ...f, tel: v })); setTelError(''); }} />
+              </div>
+            </Grup>
+            <Grup baslik="Ek bilgi">
+              <Metin id="sh-l-mesaj" label="Ek Mesaj" yer={mesajYer(false)}
+                deger={loggedForm.mesaj} degis={v => setLoggedForm(f => ({ ...f, mesaj: v }))} />
+            </Grup>
+            {gonder}
+          </form>
+        </>
       );
     }
 
     /* ── mod = 'other': başkası adına — tam form ── */
     return (
-      <form onSubmit={handleGuestSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-        {entityCard}
-
-        {/* Geri */}
-        <button type="button" onClick={() => setMod(null)}
-          style={{ alignSelf: 'flex-start', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 5, padding: 0, marginBottom: -8 }}>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M9 2L4 7l5 5"/></svg>
-          Geri
-        </button>
-
-        <div style={{ background: '#F7F5F0', border: '1px solid #EAE6DE', borderRadius: 13, padding: '13px 16px', fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, display: 'flex', gap: 9, alignItems: 'flex-start' }}>
-          <i className="fa-solid fa-circle-info" style={{ color: 'var(--gold)', marginTop: 2, flexShrink: 0 }} />
-          <span>İşletmeyi farklı bir kişi adına sahipleniyorsunuz. Lütfen gerçek işletme sahibinin bilgilerini girin.</span>
-        </div>
-
-        <div style={row2}>
-          <div>
-            <label style={lbl}>Ad Soyad <span style={{ color: '#EF4444' }}>*</span></label>
-            <input type="text" value={guestForm.ad_soyad} placeholder="Adınız Soyadınız"
-              onChange={e => setGuestForm(f => ({ ...f, ad_soyad: e.target.value }))}
-              onFocus={focus} onBlur={blur(!!guestErrors.ad_soyad)} style={inp(!!guestErrors.ad_soyad)} />
-            {guestErrors.ad_soyad && <span style={{ fontSize: 12, color: '#DC2626', marginTop: 4, display: 'block' }}>{guestErrors.ad_soyad}</span>}
-          </div>
-          <div>
-            <label style={lbl}>Ünvan <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(isteğe bağlı)</span></label>
-            <input type="text" value={guestForm.unvan} placeholder="Sahip, Yönetici, Müdür..."
-              onChange={e => setGuestForm(f => ({ ...f, unvan: e.target.value }))}
-              onFocus={focus} onBlur={blur(false)} style={inp(false)} />
-          </div>
-        </div>
-
-        <div style={row2}>
-          <div>
-            <label style={lbl}>Telefon <span style={{ color: '#EF4444' }}>*</span></label>
-            <input type="tel" value={guestForm.tel} placeholder="0500 000 00 00"
-              onChange={e => setGuestForm(f => ({ ...f, tel: e.target.value }))}
-              onFocus={focus} onBlur={blur(!!guestErrors.tel)} style={inp(!!guestErrors.tel)} />
-            {guestErrors.tel && <span style={{ fontSize: 12, color: '#DC2626', marginTop: 4, display: 'block' }}>{guestErrors.tel}</span>}
-          </div>
-          <div>
-            <label style={lbl}>E-posta <span style={{ color: '#EF4444' }}>*</span></label>
-            <input type="email" value={guestForm.email} placeholder="ornek@email.com"
-              onChange={e => setGuestForm(f => ({ ...f, email: e.target.value }))}
-              onFocus={focus} onBlur={blur(!!guestErrors.email)} style={inp(!!guestErrors.email)} />
-            {guestErrors.email && <span style={{ fontSize: 12, color: '#DC2626', marginTop: 4, display: 'block' }}>{guestErrors.email}</span>}
-          </div>
-        </div>
-
-        <div>
-          <label style={lbl}>Ek Mesaj <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(isteğe bağlı)</span></label>
-          <textarea value={guestForm.mesaj} rows={4}
-            placeholder="Bu işletmenin sahibi olduğunu kanıtlayan bilgiler (vergi no, ruhsat no vb.) ekleyebilirsiniz..."
-            onChange={e => setGuestForm(f => ({ ...f, mesaj: e.target.value }))}
-            onFocus={focus} onBlur={blur(false)}
-            style={{ ...inp(false), resize: 'vertical', lineHeight: 1.6, minHeight: 100 }} />
-        </div>
-
-        {errorBox}
-
-        <button type="submit" disabled={saving}
-          style={{ padding: '16px', borderRadius: 13, border: 'none', background: saving ? '#6B7280' : '#1A335E', color: 'white', fontSize: 15, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9 }}>
-          {saving ? <><IcSpin />Gönderiliyor...</> : <><IcSend />Sahiplenme Talebini Gönder</>}
-        </button>
-        <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.7 }}>
-          Bilgileriniz yalnızca doğrulama amacıyla kullanılacak ve üçüncü taraflarla paylaşılmayacaktır.
-        </p>
-      </form>
+      <>
+        <YerelStil />
+        <Baslik />
+        {tamForm(true)}
+      </>
     );
   }
 
@@ -567,64 +533,10 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
      B) GİRİŞ YAPILMAMIŞ — tam form
   ════════════════════════════════════════ */
   return (
-    <form onSubmit={handleGuestSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-      {entityCard}
-
-      {/* Ad Soyad + Ünvan */}
-      <div style={row2}>
-        <div>
-          <label style={lbl}>Ad Soyad <span style={{ color: '#EF4444' }}>*</span></label>
-          <input type="text" value={guestForm.ad_soyad} placeholder="Adınız Soyadınız"
-            onChange={e => setGuestForm(f => ({ ...f, ad_soyad: e.target.value }))}
-            onFocus={focus} onBlur={blur(!!guestErrors.ad_soyad)} style={inp(!!guestErrors.ad_soyad)} />
-          {guestErrors.ad_soyad && <span style={{ fontSize: 12, color: '#DC2626', marginTop: 4, display: 'block' }}>{guestErrors.ad_soyad}</span>}
-        </div>
-        <div>
-          <label style={lbl}>Ünvan <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(isteğe bağlı)</span></label>
-          <input type="text" value={guestForm.unvan} placeholder="Sahip, Yönetici, Müdür..."
-            onChange={e => setGuestForm(f => ({ ...f, unvan: e.target.value }))}
-            onFocus={focus} onBlur={blur(false)} style={inp(false)} />
-        </div>
-      </div>
-
-      {/* Tel + Email */}
-      <div style={row2}>
-        <div>
-          <label style={lbl}>Telefon <span style={{ color: '#EF4444' }}>*</span></label>
-          <input type="tel" value={guestForm.tel} placeholder="0500 000 00 00"
-            onChange={e => setGuestForm(f => ({ ...f, tel: e.target.value }))}
-            onFocus={focus} onBlur={blur(!!guestErrors.tel)} style={inp(!!guestErrors.tel)} />
-          {guestErrors.tel && <span style={{ fontSize: 12, color: '#DC2626', marginTop: 4, display: 'block' }}>{guestErrors.tel}</span>}
-        </div>
-        <div>
-          <label style={lbl}>E-posta <span style={{ color: '#EF4444' }}>*</span></label>
-          <input type="email" value={guestForm.email} placeholder="ornek@email.com"
-            onChange={e => setGuestForm(f => ({ ...f, email: e.target.value }))}
-            onFocus={focus} onBlur={blur(!!guestErrors.email)} style={inp(!!guestErrors.email)} />
-          {guestErrors.email && <span style={{ fontSize: 12, color: '#DC2626', marginTop: 4, display: 'block' }}>{guestErrors.email}</span>}
-        </div>
-      </div>
-
-      {/* Mesaj */}
-      <div>
-        <label style={lbl}>Ek Mesaj <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(isteğe bağlı)</span></label>
-        <textarea value={guestForm.mesaj} rows={4}
-          placeholder="İşletmenizle ilgili eklemek istediklerinizi yazabilirsiniz. Bu işletmenin sahibi olduğunuzu kanıtlayan bilgiler (vergi no, ruhsat no vb.) ekleyebilirsiniz..."
-          onChange={e => setGuestForm(f => ({ ...f, mesaj: e.target.value }))}
-          onFocus={focus} onBlur={blur(false)}
-          style={{ ...inp(false), resize: 'vertical', lineHeight: 1.6, minHeight: 100 }} />
-      </div>
-
-      {errorBox}
-
-      <button type="submit" disabled={saving}
-        style={{ padding: '16px', borderRadius: 13, border: 'none', background: saving ? '#6B7280' : '#1A335E', color: 'white', fontSize: 15, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, transition: 'background .15s' }}>
-        {saving ? <><IcSpin />Gönderiliyor...</> : <><IcSend />Sahiplenme Talebini Gönder</>}
-      </button>
-
-      <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.7 }}>
-        Bilgileriniz yalnızca doğrulama amacıyla kullanılacak ve üçüncü taraflarla paylaşılmayacaktır.
-      </p>
-    </form>
+    <>
+      <YerelStil />
+      <Baslik />
+      {tamForm(false)}
+    </>
   );
 }

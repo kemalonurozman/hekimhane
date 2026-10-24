@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
 import SahiplenForm from './SahiplenForm';
+import GeriDugme from './GeriDugme';
 
 export const metadata: Metadata = {
   alternates: { canonical: 'https://www.hekimhane.com.tr/sahiplen' },
-  title: 'İşletmeni Sahiplen | Hekimhane',
+  title: 'İşletmenizi Sahiplenin',
   description: 'Hekimhane\'deki işletmenizi sahiplenerek profilinizi yönetin, bilgilerinizi güncelleyin.',
 };
 
@@ -14,6 +16,13 @@ const TYPE_LABELS: Record<string, string> = {
   hastane: 'Hastane',
   eczane:  'Eczane',
   doktor:  'Doktor',
+};
+
+const TYPE_ICONS: Record<string, HkIkonAdi> = {
+  klinik:  'dentistry',
+  hastane: 'hospital',
+  eczane:  'pharmacy',
+  doktor:  'doctor-profile',
 };
 
 const TABLE_MAP: Record<string, string> = {
@@ -83,125 +92,103 @@ export default async function SahiplenPage(
     : type === 'doktor'  ? '/doktorlar'
     : '/';
 
-  return (
-    <div style={{ paddingTop: 66, minHeight: '100vh', background: '#F5F4F0' }}>
+  const Tik = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+  );
 
-      {/* Breadcrumb */}
-      <div style={{ background: 'white', borderBottom: '1px solid #ECE8E0', padding: '12px 0' }}>
-        <div className="container" style={{ display: 'flex', gap: 6, fontSize: 12, color: 'var(--muted)', flexWrap: 'wrap' }}>
-          <Link href="/" style={{ color: 'var(--navy)', fontWeight: 500 }}>Ana Sayfa</Link>
-          <i className="fa-solid fa-chevron-right" style={{ fontSize: 8, lineHeight: '20px' }} />
-          {entityName && (
-            <>
-              <Link href={backHref} style={{ color: 'var(--navy)', fontWeight: 500 }}>
-                {TYPE_LABELS[type] || 'İşletme'}
-              </Link>
-              <i className="fa-solid fa-chevron-right" style={{ fontSize: 8, lineHeight: '20px' }} />
-            </>
-          )}
-          <span style={{ color: 'var(--navy)', fontWeight: 600 }}>İşletmeni Sahiplen</span>
-        </div>
-      </div>
-
-      {/* Hero — sade, açık, Apple tarzı */}
-      <div style={{ background: 'white', borderBottom: '1px solid #ECE8E0', padding: 'clamp(30px,6vw,52px) 0' }}>
-        <div className="container" style={{ textAlign: 'center', maxWidth: 600 }}>
-          <div style={{ width: 60, height: 60, borderRadius: 17, margin: '0 auto 18px', background: 'linear-gradient(150deg,#1A335E,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 22px rgba(26,51,94,.22)' }}>
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 21h18" /><path d="M5 21V7l7-4 7 4v14" /><path d="M9 21v-6h6v6" /><path d="M9 10h.01M15 10h.01" />
-            </svg>
+  /* Geçersiz veya eksik parametre */
+  if (!isValid) {
+    return (
+      <div className="kf-sayfa">
+        <div className="kf-ust">
+          <div className="kf-ust__ic">
+            <Link href="/" className="kf-geri">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6" /></svg>
+              Ana sayfa
+            </Link>
           </div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--gold-light)', color: '#9A7B1F', border: '1px solid rgba(184,137,47,.35)', borderRadius: 20, padding: '4px 12px', fontSize: 11.5, fontWeight: 800, letterSpacing: '.6px', marginBottom: 14 }}>
-            <i className="fa-solid fa-tag" style={{ fontSize: 9 }} /> TAMAMEN ÜCRETSİZ
-          </div>
-          <h1 style={{ fontFamily: 'var(--font-playfair, serif)', fontSize: 'clamp(26px,5vw,34px)', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.4px', margin: '0 0 10px' }}>
-            İşletmeni Sahiplen
-          </h1>
-          <p style={{ color: 'var(--muted)', fontSize: 15, maxWidth: 460, margin: '0 auto', lineHeight: 1.65 }}>
-            Profilini talep et, bilgilerini güncelle ve Hekimhane üzerinden hastalara ulaş.
-          </p>
         </div>
-      </div>
-
-      <div className="container" style={{ maxWidth: 940, padding: 'clamp(28px,5vw,44px) clamp(16px,4vw,32px)' }}>
-
-        {!isValid ? (
-          /* Geçersiz veya eksik parametre */
-          <div style={{ background: 'white', borderRadius: 22, border: '1px solid #EAE6DE', boxShadow: '0 1px 2px rgba(20,30,50,.04),0 12px 34px rgba(20,30,50,.05)', padding: 'clamp(32px,6vw,48px) 24px', textAlign: 'center', maxWidth: 480, margin: '0 auto' }}>
-            <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#FEF3F2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
-            </div>
-            <h2 style={{ fontWeight: 800, fontSize: 20, marginBottom: 10, color: 'var(--text)' }}>İşletme Bulunamadı</h2>
-            <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 26, lineHeight: 1.65 }}>
+        <div style={{ maxWidth: 480, margin: '0 auto', padding: '48px 16px 72px' }}>
+          <div className="kf-grup__kutu" style={{ textAlign: 'center', justifyItems: 'center', padding: '36px 24px' }}>
+            <HkIcon name="warning" size={48} />
+            <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, letterSpacing: '-.03em', color: '#0E1A2C' }}>İşletme bulunamadı</h1>
+            <p className="kf-alt" style={{ margin: 0, fontSize: 15 }}>
               Sahiplenmek istediğiniz işletme bulunamadı veya bağlantı geçersiz.
               Lütfen işletme sayfasındaki &quot;Sahiplenin&quot; butonunu kullanın.
             </p>
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/klinikler" className="btn btn-navy" style={{ display: 'inline-flex' }}><i className="fa-solid fa-tooth" style={{ marginRight: 8 }} />Klinikler</Link>
-              <Link href="/hastaneler" className="btn btn-navy" style={{ display: 'inline-flex' }}><i className="fa-solid fa-hospital" style={{ marginRight: 8 }} />Hastaneler</Link>
-              <Link href="/eczaneler" className="btn btn-navy" style={{ display: 'inline-flex' }}><i className="fa-solid fa-pills" style={{ marginRight: 8 }} />Eczaneler</Link>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginTop: 4 }}>
+              <Link href="/klinikler" className="kf-geri" style={{ padding: '10px 18px' }}>Klinikler</Link>
+              <Link href="/hastaneler" className="kf-geri" style={{ padding: '10px 18px' }}>Hastaneler</Link>
+              <Link href="/eczaneler" className="kf-geri" style={{ padding: '10px 18px' }}>Eczaneler</Link>
             </div>
           </div>
-        ) : (
-          <div className="hastalik-content-grid">
+        </div>
+      </div>
+    );
+  }
 
-            {/* Form */}
-            <div style={{ background: 'white', borderRadius: 22, border: '1px solid #EAE6DE', boxShadow: '0 1px 2px rgba(20,30,50,.04),0 12px 34px rgba(20,30,50,.05)', padding: 'clamp(22px,4vw,34px)' }}>
-              <h2 style={{ fontWeight: 800, fontSize: 19, marginBottom: 4, color: 'var(--text)', letterSpacing: '-0.3px' }}>Sahiplenme Talebi</h2>
-              <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 22, lineHeight: 1.6 }}>Birkaç bilgiyle işletmeni talep et; ekibimiz doğrulayıp onaylasın.</p>
-              <SahiplenForm
-                entityId={id}
-                entityType={type}
-                entityName={entityName ?? ''}
-                isClaimed={entityClaimed}
-              />
-            </div>
+  return (
+    <div className="kf-sayfa">
 
-            {/* Yan bilgi */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-              {/* Avantajlar */}
-              <div style={{ background: 'white', borderRadius: 18, border: '1px solid #EAE6DE', padding: '20px 20px 8px' }}>
-                <h3 style={{ fontWeight: 800, fontSize: 13.5, marginBottom: 16, color: 'var(--text)', letterSpacing: '-0.2px' }}>Sahiplenmenin Avantajları</h3>
-                {[
-                  { icon: 'fa-pen-to-square', text: 'Profil bilgilerini düzenle' },
-                  { icon: 'fa-images', text: 'Fotoğraf ve logo ekle' },
-                  { icon: 'fa-star', text: 'Yorumlara yanıt ver' },
-                  { icon: 'fa-bullhorn', text: 'Kampanya duyur' },
-                  { icon: 'fa-chart-line', text: 'Ziyaret istatistiklerini gör' },
-                ].map(item => (
-                  <div key={item.icon} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, fontSize: 13.5, color: 'var(--text)' }}>
-                    <span style={{ width: 30, height: 30, borderRadius: 9, background: 'var(--gold-light)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <i className={`fa-solid ${item.icon}`} style={{ color: 'var(--gold)', fontSize: 12.5 }} />
-                    </span>
-                    {item.text}
-                  </div>
-                ))}
-              </div>
-
-              {/* Süreç — sade nötr */}
-              <div style={{ background: 'white', borderRadius: 18, border: '1px solid #EAE6DE', padding: 20 }}>
-                <h3 style={{ fontWeight: 800, fontSize: 13.5, marginBottom: 14, color: 'var(--text)', letterSpacing: '-0.2px' }}>Nasıl Çalışır?</h3>
-                {[
-                  'Formu doldurup gönder',
-                  'Ekibimiz talebini inceler',
-                  'E-posta ile bildirim alırsın',
-                  'Profilini yönetmeye başla',
-                ].map((s, i) => (
-                  <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 12, fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}>
-                    <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--navy)', color: 'white', fontSize: 11, fontWeight: 800, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</span>
-                    {s}
-                  </div>
-                ))}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 14, paddingTop: 13, borderTop: '1px solid #F0ECE4', fontSize: 12, color: 'var(--muted)' }}>
-                  <i className="fa-regular fa-clock" style={{ color: 'var(--gold)' }} />
-                  Çoğu başvuru birkaç saat içinde, en geç 24 saatte yanıtlanır
-                </div>
-              </div>
-
-            </div>
+      {/* Kompakt üst bar */}
+      <div className="kf-ust">
+        <div className="kf-ust__ic">
+          <GeriDugme fallbackHref={backHref} />
+          <div className="kf-ust__tur">
+            <span className="kf-ust__ikon"><HkIcon name={TYPE_ICONS[type] || 'clinic'} size={20} color="#fff" accent="#EBCF8D" /></span>
+            <span className="kf-ust__ad">
+              {entityName}
+              <small>{TYPE_LABELS[type] || 'İşletme'}</small>
+            </span>
           </div>
-        )}
+          <span className="vt-ucretsiz">Ücretsiz</span>
+        </div>
+      </div>
+
+      <div className="kf-izgara">
+
+        {/* Form (başlık formun içinde — başarı ekranında gizlenir) */}
+        <div style={{ minWidth: 0 }}>
+          <SahiplenForm
+            entityId={id}
+            entityType={type}
+            entityName={entityName ?? ''}
+            isClaimed={entityClaimed}
+          />
+        </div>
+
+        {/* Yan bilgi */}
+        <aside className="kf-yan" aria-label="Sahiplenme hakkında">
+          <div className="kf-yan__kart">
+            <h3>Nasıl çalışır?</h3>
+            {[
+              'Formu doldurup gönderin',
+              'Ekibimiz talebinizi inceler',
+              'E-posta ile bildirim alırsınız',
+              'Profilinizi yönetmeye başlarsınız',
+            ].map((s, i) => (
+              <div key={s} className="kf-adim"><b>{i + 1}</b><span>{s}</span></div>
+            ))}
+          </div>
+
+          <div className="kf-yan__kart">
+            <h3>Sahiplenince</h3>
+            <ul className="kf-sonra">
+              {[
+                'Profil bilgilerinizi düzenleyin',
+                'Fotoğraf ve logo ekleyin',
+                'Yorumlara yanıt verin',
+                'Randevu taleplerini yönetin',
+              ].map(t => (
+                <li key={t}><Tik />{t}</li>
+              ))}
+            </ul>
+          </div>
+
+          <p className="kf-pro" style={{ margin: '0 6px' }}>
+            Çoğu başvuru birkaç saat içinde, en geç 24 saatte yanıtlanır.
+          </p>
+        </aside>
       </div>
     </div>
   );

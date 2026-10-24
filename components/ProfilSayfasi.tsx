@@ -10,6 +10,7 @@ import AboneWidget from '@/components/AboneWidget';
 import PremiumBadge from '@/components/PremiumBadge';
 import HekimRosterKart from '@/components/HekimRosterKart';
 import { ToothGlyph } from '@/components/Logo';
+import HkIcon from '@/components/HkIcon';
 import SafeLogo from '@/components/SafeLogo';
 import { basHarfler } from '@/lib/hk';
 import type { Doktor } from '@/lib/types';
@@ -1926,21 +1927,17 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 </div>
               ) : null}
 
-              {/* Sahiplen CTA */}
+              {/* Sahiplen CTA — sade kart, tek altın ışıklı düğme */}
               {!claimed && (
-                <div className="profil-sahiplen-cta" style={{ background: 'linear-gradient(135deg,#EEF2FF,#E0E7FF)', border: '1.5px solid #C7D2FE', borderRadius: 20, padding: '24px 28px' }}>
-                  <div style={{ width: 52, height: 52, background: 'linear-gradient(135deg,var(--navy),var(--navy2))', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 14px rgba(26,51,94,.25)' }}>
-                    <i className="fa-solid fa-flag" style={{ color: 'white', fontSize: 20 }} />
+                <div className="profil-sahiplen-cta sahiplen-kutu">
+                  <span className="sahiplen-kutu__ikon"><HkIcon name="verified" size={26} color="#fff" accent="#DEC283" /></span>
+                  <div className="sahiplen-kutu__metin">
+                    <div className="sahiplen-kutu__baslik">Bu işletmenin sahibi misiniz? <span className="vt-ucretsiz">Ücretsiz</span></div>
+                    <div className="sahiplen-kutu__alt">Sayfayı sahiplenerek bilgileri güncelleyin, fotoğraf ekleyin ve müşterilerinize daha kolay ulaşın.</div>
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--navy)', marginBottom: 4 }}>Bu işletmenin sahibi misiniz?</div>
-                    <div style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.5 }}>Sayfayı sahiplenerek bilgileri güncelleyin, fotoğraf ekleyin ve müşterilerinize daha kolay ulaşın.</div>
-                  </div>
-                  <Link href={`/sahiplen?id=${id}&type=${entityType}`} style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 0, borderRadius: 12, overflow: 'hidden', border: '2px solid #B8892F', textDecoration: 'none' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 14px', background: '#B8892F', color: '#1A335E', fontSize: 12, fontWeight: 900, letterSpacing: '0.5px' }}>
-                      <i className="fa-solid fa-flag" style={{ fontSize: 11 }} />ÜCRETSİZ
-                    </span>
-                    <span style={{ padding: '10px 16px', background: 'var(--navy)', color: 'white', fontSize: 13, fontWeight: 700 }}>Sahiplenin</span>
+                  <Link href={`/sahiplen?id=${id}&type=${entityType}`} className="vt-dugme oz-dugme--altin hk-cta-isik sahiplen-kutu__dugme">
+                    <span className="oz-dugme__yazi">Profili sahiplen</span>
+                    <svg className="oz-dugme__ok" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                   </Link>
                 </div>
               )}

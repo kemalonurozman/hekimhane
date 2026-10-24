@@ -151,7 +151,6 @@ export default function KatilPage() {
 
   /* ── Fotoğraflar, 360° ─────────── */
   const [tour360url, setTour360url]   = useState('');
-  const [tour360prev, setTour360prev] = useState(false);
 
   const seciliKat = KATEGORILER.find(k => k.type === seciliType);
 
@@ -160,7 +159,6 @@ export default function KatilPage() {
     setErrors({});
     setSaveError('');
     setTour360url('');
-    setTour360prev(false);
   }
 
   // ── Adımlar tarayıcı geçmişine bağlı ──────────────────────────────────
@@ -211,6 +209,7 @@ export default function KatilPage() {
     if (!form.il)                 e.il          = 'Şehir seçin';
     if (seciliType === 'doktor' && !form.brans.trim()) e.brans = 'Uzmanlık zorunludur';
     setErrors(e);
+    if (Object.keys(e).length) setTimeout(() => { const el = document.querySelector<HTMLElement>('.kf-in.hata'); el?.scrollIntoView({ behavior: 'smooth', block: 'center' }); el?.focus({ preventScroll: true }); }, 60);
     return Object.keys(e).length === 0;
   }
 
@@ -264,52 +263,48 @@ export default function KatilPage() {
     }
   }
 
-  const inp = (field: keyof FormData): React.CSSProperties => ({
-    width: '100%', padding: '11px 14px', borderRadius: 10, fontFamily: 'inherit',
-    border: `1.5px solid ${errors[field] ? '#FCA5A5' : '#E5E7EB'}`,
-    fontSize: 14, outline: 'none', boxSizing: 'border-box',
-    transition: 'border-color .15s',
-  });
-  const lbl: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 6 };
-  const secTitle = (renk: string): React.CSSProperties => ({
-    fontSize: 11, fontWeight: 800, color: renk, textTransform: 'uppercase', letterSpacing: '0.8px',
-    paddingBottom: 10, borderBottom: `2px solid ${renk}22`, marginBottom: 14, marginTop: 6,
-    display: 'flex', alignItems: 'center', gap: 7,
-  });
-  const err = (field: keyof FormData) => errors[field]
-    ? <span style={{ fontSize: 11, color: '#DC2626', marginTop: 3, display: 'block' }}>{errors[field]}</span>
-    : null;
+  // ── Form yardımcıları ─────────────────────────────────────────────
+  // Zorunlu alanlar ve doluluk oranı (üstteki ilerleme çubuğu)
+  const zorunlu: (keyof FormData)[] = ['isletme_adi', 'ad_soyad', 'tel', 'email', 'il', ...(seciliType === 'doktor' ? ['brans' as const] : [])];
+  const doluSayi = zorunlu.filter(k => form[k].trim()).length;
+  const oran = Math.round((doluSayi / zorunlu.length) * 100);
+  // kf-in: boş = gri dolgu; dolu = beyaz + belirgin çerçeve + kalın yazı + yeşil onay işareti
+  const sinif = (f: keyof FormData) => `kf-in${form[f].trim() ? ' dolu' : ''}${errors[f] ? ' hata' : ''}`;
+  // Yazarken o alanın hatası kalkar
+  const yaz = (f: keyof FormData, v: string) => {
+    setForm(o => ({ ...o, [f]: v }));
+    if (errors[f]) setErrors(o => { const n = { ...o }; delete n[f]; return n; });
+  };
+  const err = (f: keyof FormData) => errors[f] ? <p className="kf-hata" role="alert">{errors[f]}</p> : null;
 
   /* ── RENDER ─────────────────────────────────────────────── */
+  const formAdimi = step === 'form' && !!seciliKat;
   return (
-    <div style={{ paddingTop: 66, background: 'var(--canvas)', minHeight: '100vh' }}>
+    <div className={formAdimi ? 'kf-sayfa' : undefined} style={formAdimi ? undefined : { paddingTop: 66, background: 'var(--canvas)', minHeight: '100vh' }}>
 
-      {/* Üst bölüm — açık, sade: etiket + başlık + alt metin + adım göstergesi */}
-      <div className="katil-ust">
-        <div className="container">
-          <span className="katil-ust__etiket">Ücretsiz listeleme</span>
-          <h1 className="katil-ust__baslik">
-            {step === 'form' && seciliKat ? `${seciliKat.label} ekleyin` : step === 'tamam' ? 'Başvurunuz bize ulaştı' : 'İşletmenizi Hekimhane\'ye ekleyin'}
-          </h1>
-          <p className="katil-ust__alt">
-            {step === 'kategori' ? 'Üç kısa adımda profilinizi oluşturun. Önce işletmenizin türünü seçin.'
-              : step === 'form' ? 'Bilgilerinizi girin; başvurunuzu inceleyip size e-posta ile dönelim.'
-              : 'İncelemenin ardından sizi e-posta ile bilgilendireceğiz.'}
-          </p>
-          <div className="katil-adimlar" aria-label="Başvuru adımları">
-            {/* Form adımındayken "1 Tür" tıklanabilir — tür seçimine döner */}
-            {step === 'form'
-              ? <button type="button" className="katil-adim-geri" onClick={tureDon} aria-label="Tür seçimine dön"><b>1</b>Tür</button>
-              : <span className={step === 'kategori' ? 'is-aktif' : undefined}><b>1</b>Tür</span>}
-            <i />
-            <span className={step === 'form' ? 'is-aktif' : undefined}><b>2</b>Bilgiler</span><i />
-            <span className={step === 'tamam' ? 'is-aktif' : undefined}><b>3</b>Onay</span>
+      {/* Tür seçimi / onay: açık, sade üst bölüm */}
+      {!formAdimi && (
+        <div className="katil-ust">
+          <div className="container">
+            <span className="katil-ust__etiket">Ücretsiz listeleme</span>
+            <h1 className="katil-ust__baslik">
+              {step === 'tamam' ? 'Başvurunuz bize ulaştı' : 'İşletmenizi Hekimhane\'ye ekleyin'}
+            </h1>
+            <p className="katil-ust__alt">
+              {step === 'kategori' ? 'Üç kısa adımda profilinizi oluşturun. Önce işletmenizin türünü seçin.'
+                : 'İncelemenin ardından sizi e-posta ile bilgilendireceğiz.'}
+            </p>
+            <div className="katil-adimlar" aria-label="Başvuru adımları">
+              <span className={step === 'kategori' ? 'is-aktif' : undefined}><b>1</b>Tür</span><i />
+              <span><b>2</b>Bilgiler</span><i />
+              <span className={step === 'tamam' ? 'is-aktif' : undefined}><b>3</b>Onay</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
+      {!formAdimi && (
       <div className="container" style={{ padding: '40px 32px', maxWidth: 900 }}>
-
         {/* ── ADIM: Tamamlandı ───────────────────────────── */}
         {step === 'tamam' && (
           <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '44px 32px', textAlign: 'center', maxWidth: 540, margin: '0 auto', boxShadow: '0 1px 2px rgba(14,26,44,.04), 0 14px 34px -22px rgba(18,41,77,.28)' }}>
@@ -320,7 +315,7 @@ export default function KatilPage() {
               Çoğu başvuruyu birkaç saat içinde, en geç 24 saatte yanıtlıyoruz; sonucu <strong style={{ color: 'var(--ink)' }}>{form.email}</strong> adresine yazacağız.
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/" style={{ padding: '12px 22px', background: '#12294D', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+              <Link href="/" className="vt-dugme oz-dugme--altin hk-cta-isik">
                 Ana sayfaya dön
               </Link>
               <button type="button" onClick={() => { resetAll(); setSeciliType(null); setStep('kategori'); window.scrollTo({ top: 0 }); }}
@@ -365,323 +360,210 @@ export default function KatilPage() {
           </>
         )}
 
-        {/* ── ADIM: Başvuru Formu ─────────────────────────── */}
-        {step === 'form' && seciliKat && (
-          <div className="hastalik-content-grid">
+      </div>
+      )}
 
-            {/* Form */}
-            <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '32px' }}>
-              {/* Geri butonu */}
-              <button type="button" onClick={tureDon}
-                style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 22, padding: 0, fontFamily: 'inherit', fontWeight: 600 }}>
-                <IcChevLeft />Tür seçimine dön
-              </button>
+      {/* ── ADIM: Başvuru Formu — kompakt üst bar + büyük, belirgin alanlar ── */}
+      {formAdimi && seciliKat && (
+        <>
+          <div className="kf-ust">
+            <div className="kf-ust__ic">
+              <button type="button" className="kf-geri" onClick={tureDon} aria-label="Tür seçimine dön"><IcChevLeft />Tür</button>
+              <div className="kf-ust__tur">
+                <span className="kf-ust__ikon"><HkIcon name={TUR_IKON[seciliKat.type] || 'clinic'} size={20} color="#fff" accent="#DEC283" /></span>
+                <span className="kf-ust__ad">{seciliKat.label}<small>Adım 2 / 3 · Bilgiler</small></span>
+              </div>
+              <div className={`kf-ilerleme${oran === 100 ? ' tamam' : ''}`} aria-live="polite">
+                <span>{doluSayi}/{zorunlu.length} zorunlu alan</span>
+                <div className="kf-ilerleme__cubuk" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={oran}><i style={{ width: `${oran}%` }} /></div>
+              </div>
+            </div>
+          </div>
 
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div className="kf-izgara">
+            <div>
+              <h1 className="kf-baslik">{seciliType === 'doktor' ? 'Hekim bilgileri' : seciliType === 'eczane' ? 'Eczane bilgileri' : seciliType === 'hastane' ? 'Hastane bilgileri' : 'Klinik bilgileri'}</h1>
+              <p className="kf-alt">Başvurunuzu inceleyip size e-posta ile dönelim. Yıldızlı alanlar zorunludur.</p>
 
-                {/* ─── İŞLETME BİLGİLERİ ─── */}
-                <div style={secTitle(seciliKat.renk)}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2h12a2 2 0 0 1 2 2v18H4V4a2 2 0 0 1 2-2zM9 22V12h6v10M9 6h1M14 6h1M9 10h1M14 10h1"/></svg>
-                  İşletme Bilgileri
-                </div>
+              <form onSubmit={handleSubmit} noValidate>
 
-                {/* İşletme adı */}
-                <div>
-                  <label style={lbl}>{seciliType === 'doktor' ? 'Hekimin Adı Soyadı' : 'İşletme Adı'} <span style={{ color: '#EF4444' }}>*</span></label>
-                  <input type="text" value={form.isletme_adi} placeholder={seciliType === 'doktor' ? 'Örn. Dr. Ayşe Yılmaz' : seciliType === 'klinik' ? 'Kliniğinizin ya da muayenehanenizin adı' : `${seciliKat.label} adı`}
-                    onChange={e => setForm(f => ({ ...f, isletme_adi: e.target.value }))}
-                    onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
-                    onBlur={e => (e.currentTarget.style.borderColor = errors.isletme_adi ? '#FCA5A5' : '#E5E7EB')}
-                    style={inp('isletme_adi')} />
-                  {err('isletme_adi')}
-                </div>
-
-                {/* Doktor: uzmanlık (listede görünmesi için şart) */}
-                {seciliType === 'doktor' && (
-                  <div>
-                    <label style={lbl}>Uzmanlık <span style={{ color: '#EF4444' }}>*</span></label>
-                    <input type="text" list="katil-branslar" value={form.brans} placeholder="Örn. Kardiyoloji"
-                      onChange={e => setForm(f => ({ ...f, brans: e.target.value }))}
-                      onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
-                      onBlur={e => (e.currentTarget.style.borderColor = errors.brans ? '#FCA5A5' : '#E5E7EB')}
-                      style={inp('brans')} />
-                    <datalist id="katil-branslar">
-                      {DOKTOR_BRANSLARI.map(b => <option key={b} value={b} />)}
-                    </datalist>
-                    {err('brans')}
-                    <span style={{ display: 'block', fontSize: 11, color: 'var(--muted)', marginTop: 5, lineHeight: 1.5 }}>
-                      Diş hekimiyseniz üstteki adımda <strong>Diş Kliniği / Diş Hekimi</strong> türünü seçin.
-                    </span>
-                  </div>
-                )}
-
-                {/* Ad Soyad + Ünvan */}
-                <div className="form-two-col">
-                  <div>
-                    <label style={lbl}>Başvuran Ad Soyad <span style={{ color: '#EF4444' }}>*</span></label>
-                    <input type="text" value={form.ad_soyad} placeholder="Adınız Soyadınız"
-                      onChange={e => setForm(f => ({ ...f, ad_soyad: e.target.value }))}
-                      onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
-                      onBlur={e => (e.currentTarget.style.borderColor = errors.ad_soyad ? '#FCA5A5' : '#E5E7EB')}
-                      style={inp('ad_soyad')} />
-                    {err('ad_soyad')}
-                  </div>
-                  <div>
-                    <label style={lbl}>Ünvan</label>
-                    <input type="text" value={form.unvan} placeholder="Sahip, Yönetici..."
-                      onChange={e => setForm(f => ({ ...f, unvan: e.target.value }))}
-                      onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
-                      onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
-                      style={inp('unvan')} />
-                  </div>
-                </div>
-
-                {/* Tel + Email */}
-                <div className="form-two-col">
-                  <div>
-                    <label style={lbl}>İşletme Telefonu <span style={{ color: '#EF4444' }}>*</span></label>
-                    <input type="tel" value={form.tel} placeholder="0500 000 00 00"
-                      onChange={e => setForm(f => ({ ...f, tel: e.target.value }))}
-                      onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
-                      onBlur={e => (e.currentTarget.style.borderColor = errors.tel ? '#FCA5A5' : '#E5E7EB')}
-                      style={inp('tel')} />
-                    {err('tel')}
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginTop: 7, padding: '7px 10px', background: '#FFF7ED', borderRadius: 8, border: '1px solid #FED7AA' }}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C2410C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                      </svg>
-                      <span style={{ fontSize: 11, color: '#9A3412', lineHeight: 1.5 }}>
-                        İşletmenizde kullandığınız telefonu girin — başvurunuzu doğrulamak için aranacaksınız.
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <label style={lbl}>E-posta <span style={{ color: '#EF4444' }}>*</span></label>
-                    <input type="email" value={form.email} placeholder="ornek@email.com"
-                      onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                      onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
-                      onBlur={e => (e.currentTarget.style.borderColor = errors.email ? '#FCA5A5' : '#E5E7EB')}
-                      style={inp('email')} />
-                    {err('email')}
-                  </div>
-                </div>
-
-                {/* İl + İlçe */}
-                <div className="form-two-col">
-                  <div>
-                    <label style={lbl}>Şehir <span style={{ color: '#EF4444' }}>*</span></label>
-                    <select value={form.il} onChange={e => setForm(f => ({ ...f, il: e.target.value, ilce: '' }))}
-                      onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
-                      onBlur={e => (e.currentTarget.style.borderColor = errors.il ? '#FCA5A5' : '#E5E7EB')}
-                      style={{ ...inp('il'), background: 'white', cursor: 'pointer' }}>
-                      <option value="">Şehir seçin...</option>
-                      {ILLER.map(il => <option key={il} value={il}>{il}</option>)}
-                    </select>
-                    {err('il')}
-                  </div>
-                  <div>
-                    <label style={lbl}>İlçe</label>
-                    <select value={form.ilce} disabled={!form.il}
-                      onChange={e => setForm(f => ({ ...f, ilce: e.target.value }))}
-                      onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
-                      onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
-                      style={{ ...inp('ilce'), background: 'white', cursor: form.il ? 'pointer' : 'not-allowed', opacity: form.il ? 1 : 0.6 }}>
-                      <option value="">{form.il ? 'İlçe seçin (isteğe bağlı)' : 'Önce şehir seçin'}</option>
-                      {form.ilce && !ILCELER(form.il).includes(form.ilce) && <option value={form.ilce}>{form.ilce}</option>}
-                      {ILCELER(form.il).map(ic => <option key={ic} value={ic}>{ic}</option>)}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Adres */}
-                <div>
-                  <label style={lbl}>Adres</label>
-                  <input type="text" value={form.adres} placeholder="Cadde, sokak, bina no..."
-                    onChange={e => setForm(f => ({ ...f, adres: e.target.value }))}
-                    onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
-                    onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
-                    style={inp('adres')} />
-                </div>
-
-                {/* Ek mesaj */}
-                <div>
-                  <label style={lbl}>Ek Bilgi</label>
-                  <textarea value={form.mesaj} rows={3}
-                    placeholder="İşletmenizle ilgili eklemek istedikleriniz..."
-                    onChange={e => setForm(f => ({ ...f, mesaj: e.target.value }))}
-                    onFocus={e => (e.currentTarget.style.borderColor = seciliKat.renk)}
-                    onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
-                    style={{ ...inp('mesaj'), resize: 'vertical', lineHeight: 1.6 }} />
-                </div>
-
-                {/* ─── FOTOĞRAFLAR ─── (eskiden seçilen dosyalar hiçbir yere yüklenmiyordu) */}
-                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '14px 16px', background: 'var(--tint-50, #F4F7FB)', border: '1px solid var(--border)', borderRadius: 12 }}>
-                  <span style={{ flexShrink: 0, marginTop: 1, color: 'var(--brand, #1A335E)' }}><HkIcon name="info" size={20} /></span>
-                  <span style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.55 }}>
-                    <strong>Fotoğraflar</strong> — başvurunuz onaylandığında panelinizdeki <strong>Profilimi Düzenle → Fotoğraflar</strong> bölümünden kapak ve galeri fotoğraflarınızı yüklersiniz.
-                  </span>
-                </div>
-
-                {/* ─── 360° TUR ─── */}
-                <div>
-                  <div style={secTitle(seciliKat.renk)}>
-                    <Ic360 />
-                    360° Sanal Tur
-                    <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--muted)', textTransform: 'none', letterSpacing: 0, marginLeft: 2 }}>(isteğe bağlı)</span>
-                  </div>
-
-                  {/* Tab: URL giriş veya bilgi */}
-                  <div style={{ border: `1.5px solid #E5E7EB`, borderRadius: 12, overflow: 'hidden', marginBottom: 10 }}>
-                    {/* Sekmeler */}
-                    <div style={{ display: 'flex', background: '#F8FAFF', borderBottom: '1px solid #E5E7EB' }}>
-                      {[
-                        { id: false, label: 'Link / Embed Kodu' },
-                        { id: true,  label: 'Önizleme' },
-                      ].map(tab => (
-                        <button
-                          key={String(tab.id)}
-                          type="button"
-                          onClick={() => setTour360prev(tab.id)}
-                          style={{
-                            flex: 1, padding: '10px', fontSize: 12, fontWeight: 700, fontFamily: 'inherit',
-                            background: tour360prev === tab.id ? 'white' : 'none', border: 'none',
-                            borderBottom: tour360prev === tab.id ? `2px solid ${seciliKat.renk}` : '2px solid transparent',
-                            color: tour360prev === tab.id ? seciliKat.renk : 'var(--muted)',
-                            cursor: 'pointer', transition: 'all .15s', marginBottom: -1,
-                          }}>
-                          {tab.label}
-                        </button>
-                      ))}
+                <section className="kf-grup">
+                  <h2 className="kf-grup__baslik">İşletme</h2>
+                  <div className="kf-grup__kutu">
+                    <div className="kf-alan">
+                      <label htmlFor="kf-isletme">{seciliType === 'doktor' ? 'Hekimin adı soyadı' : 'İşletme adı'}<span className="z">*</span></label>
+                      <div className="kf-giris">
+                        <input id="kf-isletme" type="text" className={sinif('isletme_adi')} value={form.isletme_adi} autoComplete="organization"
+                          placeholder={seciliType === 'doktor' ? 'Örn. Dr. Ayşe Yılmaz' : seciliType === 'klinik' ? 'Kliniğinizin ya da muayenehanenizin adı' : `${seciliKat.label} adı`}
+                          onChange={e => yaz('isletme_adi', e.target.value)} />
+                        <span className="kf-tik" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg></span>
+                      </div>
+                      {err('isletme_adi')}
                     </div>
 
-                    <div style={{ padding: 16 }}>
-                      {!tour360prev ? (
-                        <>
-                          <input
-                            type="url"
-                            value={tour360url}
-                            onChange={e => setTour360url(e.target.value)}
-                            onFocus={e => { e.currentTarget.style.borderColor = seciliKat.renk; e.currentTarget.style.boxShadow = `0 0 0 3px ${seciliKat.renk}15`; }}
-                            onBlur={e => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none'; }}
-                            placeholder="https://my.matterport.com/show/?m=... veya Google Maps 360° linki"
-                            style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1.5px solid #E5E7EB', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', transition: 'all .15s' }}
-                          />
-                          <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                            {[
-                              { label: 'Matterport', bg: '#EEF2FF', color: '#4F46E5', hint: 'my.matterport.com' },
-                              { label: 'Google Sokak Görünümü', bg: '#FEF3C7', color: '#D97706', hint: 'google.com/maps' },
-                              { label: 'YouTube 360°', bg: '#FEE2E2', color: '#DC2626', hint: 'youtube.com' },
-                              { label: 'Kuulamotion', bg: '#ECFDF5', color: '#059669', hint: 'kuulamotion.com' },
-                            ].map(p => (
-                              <span key={p.label} style={{ padding: '4px 10px', background: p.bg, color: p.color, borderRadius: 20, fontSize: 11, fontWeight: 700, border: `1px solid ${p.bg}` }}>
-                                {p.label}
-                              </span>
-                            ))}
-                          </div>
-                          <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 8, lineHeight: 1.5 }}>
-                            Matterport, Google Sokak Görünümü, YouTube 360° veya diğer sanal tur platformlarının embed linkini yapıştırın.
-                          </p>
-                        </>
-                      ) : (
-                        <div>
-                          {tour360url ? (
-                            <iframe
-                              src={tour360url}
-                              title="360° Tur Önizleme"
-                              style={{ width: '100%', height: 220, borderRadius: 10, border: 'none' }}
-                              allowFullScreen
-                            />
-                          ) : (
-                            <div style={{ textAlign: 'center', padding: '32px 20px', color: 'var(--muted)' }}>
-                              <div style={{ fontSize: 32, marginBottom: 8, opacity: 0.3 }}>
-                                <Ic360 />
-                              </div>
-                              <p style={{ fontSize: 13 }}>Önizleme için önce "Link / Embed Kodu" sekmesine bir URL girin.</p>
-                            </div>
-                          )}
+                    {seciliType === 'doktor' && (
+                      <div className="kf-alan">
+                        <label htmlFor="kf-brans">Uzmanlık<span className="z">*</span></label>
+                        <div className="kf-giris">
+                          <input id="kf-brans" type="text" list="katil-branslar" className={sinif('brans')} value={form.brans} placeholder="Örn. Kardiyoloji"
+                            onChange={e => yaz('brans', e.target.value)} />
+                          <span className="kf-tik" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg></span>
                         </div>
-                      )}
+                        <datalist id="katil-branslar">
+                          {DOKTOR_BRANSLARI.map(b => <option key={b} value={b} />)}
+                        </datalist>
+                        {err('brans')}
+                        <p className="kf-ipucu"><span>Diş hekimiyseniz geri dönüp <strong>Diş Kliniği / Diş Hekimi</strong> türünü seçin.</span></p>
+                      </div>
+                    )}
+
+                    <div className="kf-iki">
+                      <div className="kf-alan">
+                        <label htmlFor="kf-il">Şehir<span className="z">*</span></label>
+                        <select id="kf-il" className={sinif('il')} value={form.il} autoComplete="address-level1"
+                          onChange={e => { setForm(f => ({ ...f, il: e.target.value, ilce: '' })); if (errors.il) setErrors(o => { const n = { ...o }; delete n.il; return n; }); }}>
+                          <option value="">Şehir seçin</option>
+                          {ILLER.map(il => <option key={il} value={il}>{il}</option>)}
+                        </select>
+                        {err('il')}
+                      </div>
+                      <div className="kf-alan">
+                        <label htmlFor="kf-ilce">İlçe<span className="o">isteğe bağlı</span></label>
+                        <select id="kf-ilce" className={sinif('ilce')} value={form.ilce} disabled={!form.il} onChange={e => yaz('ilce', e.target.value)}>
+                          <option value="">{form.il ? 'İlçe seçin' : 'Önce şehir seçin'}</option>
+                          {form.ilce && !ILCELER(form.il).includes(form.ilce) && <option value={form.ilce}>{form.ilce}</option>}
+                          {ILCELER(form.il).map(ic => <option key={ic} value={ic}>{ic}</option>)}
+                        </select>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </section>
 
-                {/* ─── HATA & GÖNDER ─── */}
-                {saveError && (
-                  <div style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 10, padding: '12px 16px', color: '#DC2626', fontSize: 13 }}>
-                    {saveError}
+                <section className="kf-grup">
+                  <h2 className="kf-grup__baslik">Başvuran kişi</h2>
+                  <div className="kf-grup__kutu">
+                    <div className="kf-iki">
+                      <div className="kf-alan">
+                        <label htmlFor="kf-ad">Ad soyad<span className="z">*</span></label>
+                        <div className="kf-giris">
+                          <input id="kf-ad" type="text" className={sinif('ad_soyad')} value={form.ad_soyad} autoComplete="name" placeholder="Adınız soyadınız"
+                            onChange={e => yaz('ad_soyad', e.target.value)} />
+                          <span className="kf-tik" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg></span>
+                        </div>
+                        {err('ad_soyad')}
+                      </div>
+                      <div className="kf-alan">
+                        <label htmlFor="kf-unvan">Ünvan<span className="o">isteğe bağlı</span></label>
+                        <div className="kf-giris">
+                          <input id="kf-unvan" type="text" className={sinif('unvan')} value={form.unvan} autoComplete="organization-title" placeholder="Sahip, yönetici…"
+                            onChange={e => yaz('unvan', e.target.value)} />
+                          <span className="kf-tik" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg></span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="kf-iki">
+                      <div className="kf-alan">
+                        <label htmlFor="kf-tel">İşletme telefonu<span className="z">*</span></label>
+                        <div className="kf-giris">
+                          <input id="kf-tel" type="tel" inputMode="tel" className={sinif('tel')} value={form.tel} autoComplete="tel" placeholder="0500 000 00 00"
+                            onChange={e => yaz('tel', e.target.value)} />
+                          <span className="kf-tik" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg></span>
+                        </div>
+                        {err('tel')}
+                        <p className="kf-ipucu">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+                          İşletmenizde kullandığınız numarayı yazın; başvurunuzu doğrulamak için aranacaksınız.
+                        </p>
+                      </div>
+                      <div className="kf-alan">
+                        <label htmlFor="kf-email">E-posta<span className="z">*</span></label>
+                        <div className="kf-giris">
+                          <input id="kf-email" type="email" inputMode="email" className={sinif('email')} value={form.email} autoComplete="email" placeholder="ornek@email.com"
+                            onChange={e => yaz('email', e.target.value)} />
+                          <span className="kf-tik" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg></span>
+                        </div>
+                        {err('email')}
+                      </div>
+                    </div>
                   </div>
-                )}
+                </section>
 
-                <button type="submit" disabled={saving}
-                  style={{
-                    padding: '14px', borderRadius: 13, border: 'none',
-                    background: seciliKat.renk, color: 'white',
-                    fontSize: 15, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer',
-                    opacity: saving ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  }}>
-                  {saving ? 'Gönderiliyor...' : 'Başvuruyu Gönder'}
+                {/* İsteğe bağlı bilgiler — varsayılan kapalı; formu kısa tutar */}
+                <details className="kf-ek">
+                  <summary>
+                    <span>İsteğe bağlı bilgiler<small>Adres, not ve 360° sanal tur</small></span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                  </summary>
+                  <div className="kf-ek__ic">
+                    <div className="kf-alan">
+                      <label htmlFor="kf-adres">Adres</label>
+                      <div className="kf-giris">
+                        <input id="kf-adres" type="text" className={sinif('adres')} value={form.adres} autoComplete="street-address" placeholder="Cadde, sokak, bina no…"
+                          onChange={e => yaz('adres', e.target.value)} />
+                        <span className="kf-tik" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg></span>
+                      </div>
+                    </div>
+                    <div className="kf-alan">
+                      <label htmlFor="kf-mesaj">Ek bilgi</label>
+                      <textarea id="kf-mesaj" className={sinif('mesaj')} value={form.mesaj} rows={3} placeholder="İşletmenizle ilgili eklemek istedikleriniz…"
+                        onChange={e => yaz('mesaj', e.target.value)} />
+                    </div>
+                    <div className="kf-alan">
+                      <label htmlFor="kf-tur360">360° sanal tur bağlantısı</label>
+                      <div className="kf-giris">
+                        <input id="kf-tur360" type="url" className={`kf-in${tour360url.trim() ? ' dolu' : ''}`} value={tour360url} placeholder="https://my.matterport.com/show/?m=…"
+                          onChange={e => setTour360url(e.target.value)} />
+                        <span className="kf-tik" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg></span>
+                      </div>
+                      <p className="kf-ipucu">Matterport, Google Sokak Görünümü, YouTube 360° gibi platformların bağlantısını yapıştırabilirsiniz.</p>
+                    </div>
+                    <p className="kf-ipucu">
+                      <HkIcon name="info" size={16} />
+                      <span><strong>Fotoğraflar:</strong> başvurunuz onaylandığında panelinizdeki <strong>Profilimi Düzenle → Fotoğraflar</strong> bölümünden kapak ve galeri fotoğraflarınızı yüklersiniz.</span>
+                    </p>
+                  </div>
+                </details>
+
+                {saveError && <div className="kf-hatakutu" role="alert" style={{ marginBottom: 14 }}>{saveError}</div>}
+
+                <button type="submit" disabled={saving} className="kf-gonder hk-cta-isik">
+                  {saving ? 'Gönderiliyor…' : 'Başvuruyu gönder'}
                 </button>
 
-                <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.6 }}>
-                  İşletme adı, şehir ve adres onaydan sonra profilinizde yayımlanır. Bu formdaki telefon ve yetkili bilgileri yalnızca başvurunuzu doğrulamak için kullanılır, profilde gösterilmez; profilde görünecek iletişim bilgilerini onaydan sonra panelden siz eklersiniz.
-                  Başvuruyu göndererek <Link href="/kvkk" target="_blank" style={{ color: 'var(--brand)', fontWeight: 600 }}>KVKK Aydınlatma Metni</Link>&apos;ni okuduğunuzu kabul edersiniz.
+                <p className="kf-not">
+                  İşletme adı, şehir ve adres onaydan sonra profilinizde yayımlanır. Telefon ve yetkili bilgileri yalnızca başvurunuzu doğrulamak için kullanılır, profilde gösterilmez; profilde görünecek iletişim bilgilerini onaydan sonra panelden siz eklersiniz.
+                  Başvuruyu göndererek <Link href="/kvkk" target="_blank">KVKK Aydınlatma Metni</Link>&apos;ni okuduğunuzu kabul edersiniz.
                 </p>
               </form>
             </div>
 
-            {/* Yan bilgi */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'sticky', top: 90 }}>
-              <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '20px' }}>
-                <h3 style={{ fontWeight: 700, fontSize: 14, marginBottom: 14, color: 'var(--text)' }}>Nasıl çalışır?</h3>
+            {/* Yan bilgi — küçük ve sakin */}
+            <aside className="kf-yan">
+              <div className="kf-yan__kart">
+                <h3>Sonra ne olur?</h3>
                 {[
-                  'Formu doldurup gönderin.',
                   'Başvurunuzu inceler, işletme telefonunuzdan doğrularız. Çoğu başvuru birkaç saat içinde, en geç 24 saatte yanıtlanır.',
                   'İşletmeniz sistemde zaten kayıtlıysa kayıtlar birleştirilir; güncel hesabınız size gönderilir.',
                   'Sonucu e-posta ile bildiririz; panelden profilinizi yönetmeye başlarsınız.',
-                ].map((s, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
-                    <div style={{ width: 22, height: 22, borderRadius: 6, background: `${seciliKat.renk}15`, color: seciliKat.renk, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, flexShrink: 0 }}>{i + 1}</div>
-                    <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{s}</p>
-                  </div>
+                ].map((t, i) => (
+                  <div key={i} className="kf-adim"><b>{i + 1}</b><span>{t}</span></div>
                 ))}
               </div>
-
-              <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '20px' }}>
-                <h3 style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)', marginBottom: 12 }}>Onaydan sonra</h3>
-                {['Profil bilgilerinizi düzenlersiniz', 'Logo ve fotoğraf eklersiniz', 'Randevu taleplerini yönetirsiniz', 'Yorumlara yanıt verirsiniz'].map(x => (
-                  <div key={x} style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 9, fontSize: 13, color: 'var(--muted)' }}>
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}><path d="M3 7l3 3 5-6" stroke="#12294D" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    {x}
-                  </div>
-                ))}
+              <div className="kf-yan__kart">
+                <h3>Onaydan sonra</h3>
+                <ul className="kf-sonra">
+                  {['Profil bilgilerinizi düzenlersiniz', 'Logo ve fotoğraf eklersiniz', 'Randevu taleplerini yönetirsiniz', 'Yorumlara yanıt verirsiniz'].map(x => (
+                    <li key={x}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>{x}</li>
+                  ))}
+                </ul>
               </div>
-
-              {/* Pro üyelik — doğrudan iletişim (sohbet balonu ya da e-posta) */}
-              <div style={{ background: 'var(--tint-50)', borderRadius: 16, border: '1px solid var(--tint-200)', padding: '18px 20px' }}>
-                <h3 style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)', marginBottom: 6 }}>Pro üyelik mi düşünüyorsunuz?</h3>
-                <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.55, margin: 0 }}>
-                  Bize doğrudan ulaşabilirsiniz: sağ alttaki sohbet balonundan yazın ya da{' '}
-                  <a href="mailto:info@hekimhane.com.tr" style={{ color: 'var(--brand)', fontWeight: 600 }}>info@hekimhane.com.tr</a> adresine e-posta gönderin.{' '}
-                  <Link href="/pro" style={{ color: 'var(--brand)', fontWeight: 600 }}>Pro özelliklerini inceleyin →</Link>
-                </p>
-              </div>
-
-              {/* Eklenenler özet */}
-              {tour360url && (
-                <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '18px 20px' }}>
-                  <h3 style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)', marginBottom: 10 }}>Eklenenler</h3>
-                  {tour360url && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#15803D' }}>
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" fill="#DCFCE7" stroke="#86EFAC"/><path d="M3.5 6l2 2 3-3" stroke="#16A34A" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      360° tur linki eklendi
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+              <p className="kf-pro">
+                Pro üyelik mi düşünüyorsunuz? <a href="mailto:info@hekimhane.com.tr">info@hekimhane.com.tr</a> adresine yazın ya da sağ alttaki sohbet balonunu kullanın. <Link href="/pro">Pro özellikleri →</Link>
+              </p>
+            </aside>
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }
