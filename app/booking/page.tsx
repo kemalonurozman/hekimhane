@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
 import HkLogoAnim from '@/components/HkLogoAnim';
-import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzBalonlar, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKartlar, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
-import BeklemeFormu from './BeklemeFormu';
+import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzBalonlar, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKartlar, OzBasvuru, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
 
 // Hekimhane Booking — Ozvelo.com ortaklığıyla sunulan yapay zekâ randevu
 // asistanı (telefon + web sitesi + mesaj). Sistem hazır: başvuru ya da demo talebi toplanır.
@@ -184,25 +183,16 @@ export default function BookingPage() {
         </div>
       </section>
 
-      {/* ── BAŞVURU / DEMO ── */}
-      <section id="basvuru" className="oz-bekleme">
-        <span id="demo" className="oz-capa" aria-hidden="true" />
-        <div className="container oz-bekleme__izgara">
-          <div className="oz-bekleme__yan">
-            <h2 className="vt-h2" style={{ color: '#fff' }}>Hemen başvurun</h2>
-            <p>Sistem hazır: telefon çağrılarını ve mesajları şu an yanıtlayabiliyoruz. Kurulum hakkında bilgi vermek ve size yardımcı olmak için sizi arayalım.</p>
-            <ul>
-              <li><HkIcon name="phone" size={22} color="#fff" accent="#DEC283" />Sizi arayıp kurulumu anlatalım</li>
-              <li><HkIcon name="message" size={22} color="#fff" accent="#DEC283" />Canlı demo ile deneyin</li>
-              <li><HkIcon name="price-guide" size={22} color="#fff" accent="#DEC283" />Size özel fiyat teklifi</li>
-            </ul>
-            <p className="oz-bekleme__not">
-              Profiliniz yok mu? <Link href="/katil">Hekimhane’ye ücretsiz ekleyin</Link>.
-            </p>
-          </div>
-          <BeklemeFormu />
-        </div>
-      </section>
+      <OzBasvuru
+        urun="booking"
+        baslik="Hemen başvurun"
+        metin="Sistem hazır: telefon çağrılarını ve mesajları şu an yanıtlayabiliyoruz. Kurulum hakkında bilgi vermek ve size yardımcı olmak için sizi arayalım."
+        vaatler={[
+          { ikon: 'phone', ad: 'Sizi arayıp kurulumu anlatalım' },
+          { ikon: 'message', ad: 'Canlı demo ile deneyin' },
+          { ikon: 'price-guide', ad: 'Size özel fiyat teklifi' },
+        ]}
+      />
 
       <OzSss sorular={SSS} />
     </OzSayfa>

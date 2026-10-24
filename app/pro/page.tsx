@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import type { HkIkonAdi } from '@/components/HkIcon';
 import { PRO_AYLIK_TL } from '@/lib/pro-plan';
-import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKapanis, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
+import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKartlar, OzBasvuru, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
 import ProCta from './ProCta';
 
 // Hekimhane-Pro — özellik sayfası dili (bkz. components/ozellik/Ozellik.tsx).
 // Fiyat yalnız lib/pro-plan.ts → PRO_AYLIK_TL. Satın alma ProCta'dan (Stripe) başlar;
-// hero ve kapanış düğmeleri #fiyat bölümündeki ProCta'ya götürür.
+// hero ve bant düğmeleri #fiyat bölümündeki ProCta'ya götürür; OzBasvuru "satın almadan önce konuşalım" içindir.
 
 const URL_ = 'https://www.hekimhane.com.tr/pro';
 
@@ -42,62 +43,53 @@ const FAYDALAR: { baslik: string; metin: string; gorsel?: React.ReactNode; ikon?
   {
     baslik: 'Doğru sayfalarda görünün',
     metin: 'Ana sayfada ve sağlık rehberinde öne çıkarılır, hastalık sayfalarında önerilen hekimler arasında yer alırsınız.',
-    ikon: 'premium',
+    gorsel: <MiniGorunur />,
   },
 ];
 
-// ── Pro hesabınıza dahil olanlar ──
-const DAHIL: { etiket: string; ad: string; ikon: HkIkonAdi; renk: string; metin?: string; maddeler: string[]; href?: string }[] = [
+// ── Pro hesabınıza dahil olanlar (3 büyük kart) ──
+const DAHIL: { etiket: string; ad: string; ikon: HkIkonAdi; renk: string; maddeler: string[] }[] = [
   {
-    etiket: 'Randevu', ad: 'Randevu ve hasta bilgilendirme', ikon: 'appointment', renk: 'rgba(26,95,208,.45)', href: '/randevu-sistemi',
+    etiket: 'Randevu ve hastalar', ad: 'Randevu ve hasta bilgilendirme', ikon: 'appointment', renk: 'rgba(26,95,208,.45)',
     maddeler: [
       'Tek tıkla onaylayın, erteleyin veya iptal edin',
-      'Her kararda hastaya otomatik e-posta gider',
-      'Randevudan bir gün önce otomatik hatırlatma',
+      'Her kararda hastaya e-posta, randevudan bir gün önce hatırlatma',
       'Randevuyu Google Takvim’e tek tıkla ekleyin',
-      'Hekimhane markalı şık e-posta şablonları',
+      'Hasta kartı, not, etiket, dosya ve panelden e-posta',
     ],
   },
   {
-    etiket: 'Hastalar', ad: 'Hasta listesi', ikon: 'user-account', renk: 'rgba(13,124,121,.45)',
-    metin: 'Hasta kayıtlarınız düzenli ve elinizin altında.',
-    maddeler: ['Hasta kartı, not ve etiketler', 'İşlem geçmişi ve dosya ekleme', 'Panelden doğrudan e-posta gönderme'],
-  },
-  {
-    etiket: 'Profil', ad: 'Profesyonel profil görünümü', ikon: 'verified', renk: 'rgba(184,137,47,.5)',
-    metin: 'Hastalar hekim seçerken görünüme ve doğrulanmışlık işaretlerine bakar.',
+    etiket: 'Profil ve görünürlük', ad: 'Profesyonel görünüm, öne çıkma', ikon: 'verified', renk: 'rgba(184,137,47,.5)',
     maddeler: [
       'Altın doğrulama mührü ve arama sonuçlarında Pro rozeti',
-      'Hareketli kapak tasarımı ve renk teması seçimi',
-      'Profilinizde WhatsApp ve web sitesi düğmeleri',
+      'Hareketli kapak, renk teması, WhatsApp ve web sitesi düğmeleri',
+      'Ana sayfada ve sağlık rehberinde öne çıkarma',
+      'Hastalık sayfalarında önerilen hekimler, karşılaştırmada Pro etiketi',
     ],
   },
   {
-    etiket: 'Görünürlük', ad: 'Öne çıkarma', ikon: 'premium', renk: 'rgba(184,137,47,.5)',
-    metin: 'Doğru sayfalarda, doğru anda görünün.',
+    etiket: 'Bağlantılar', ad: 'Web siteniz ve yapay zekâ', ikon: 'message', renk: 'rgba(91,63,184,.4)',
     maddeler: [
-      'Ana sayfa ve sağlık rehberinde öne çıkarma',
-      'Ana sayfada Premium bölümünde yer alma',
-      'Hastalık sayfalarında önerilen hekimler',
-      'Karşılaştırma sayfasında Pro etiketi',
+      'Kopyala-yapıştır tek satır kodla sitenize randevu modülü',
+      'Sitenizden gelen talepler aynı panelde',
+      'Claude gibi asistanlardan randevuları listeleyin, ekleyin, taşıyın',
+      'Gün/saat kapatma ve yorum yanıtlama; kişisel anahtar, anında iptal',
     ],
-  },
-  {
-    etiket: 'Web siteniz', ad: 'Sitenize rezervasyon modülü', ikon: 'clinic', renk: 'rgba(26,95,208,.45)', href: '/randevu-modulu',
-    metin: 'Randevu modülünü kendi sitenize gömün.',
-    maddeler: ['Kopyala-yapıştır tek satır kod', 'Sitenizden gelen talepler aynı panelde', 'Tasarımınıza uyumlu sade görünüm'],
-  },
-  {
-    etiket: 'MCP bağlantısı', ad: 'Yapay zekâ ile yönetim', ikon: 'message', renk: 'rgba(91,63,184,.4)', href: '/mcp',
-    metin: 'Kliniğinizi Claude gibi asistanlardan yönetin.',
-    maddeler: ['Randevuları konuşarak listeleyin, ekleyin, taşıyın', 'Gün/saat kapatma ve yorum yanıtlama', 'Kişisel anahtar, anında iptal'],
   },
 ];
 
 const ADIMLAR = [
   { baslik: 'İşletmenizi sahiplenin', metin: 'Profiliniz zaten Hekimhane’de olabilir. Ücretsiz sahiplenme başvurusu 24 saat içinde değerlendirilir.' },
   { baslik: 'Pro’ya geçin', metin: `Aylık ${PRO_AYLIK_TL} TL. Ödeme, güvenli Stripe altyapısıyla alınır; kart bilgileriniz Hekimhane’de tutulmaz.` },
-  { baslik: 'Panelden yönetin', metin: 'Randevular, hastalar, profil ve içerikleriniz tek panelde. Aboneliğinizi istediğiniz an iptal edebilirsiniz.' },
+  { baslik: 'Panelden yönetin', metin: 'Randevular, hastalar, profil ve içerikleriniz tek panelde.' },
+  { baslik: 'İstediğiniz an iptal edin', metin: 'Panel → “Pro Üyeliği Yönet” ile Stripe müşteri portalına gidersiniz. Dönem sonuna kadar Pro özellikleri açık kalır.' },
+];
+
+const GUVEN: { ikon: HkIkonAdi; baslik: string; metin: string }[] = [
+  { ikon: 'verified', baslik: 'Güvenli ödeme', metin: 'Ödemeler Stripe üzerinden alınır; kart bilgileriniz Hekimhane sunucularına hiçbir zaman ulaşmaz.' },
+  { ikon: 'open-now', baslik: 'Taahhüt yok', metin: 'Üyelik her ay yenilenir; panelden tek tıkla iptal edersiniz, dönem sonuna kadar Pro özellikleri açık kalır.' },
+  { ikon: 'clinic', baslik: 'İşletme başına üyelik', metin: 'Birden fazla işletmeniz varsa her biri için panelden ayrı ayrı Pro’ya geçersiniz.' },
+  { ikon: 'user-account', baslik: 'Sahiplenme ücretsiz', metin: 'İşletmenizi sahiplenmek ve profilinizi yönetmek ücretsizdir; Pro için önce sahiplenme gerekir.' },
 ];
 
 const FIYAT_MADDELERI = [
@@ -116,6 +108,8 @@ const SSS: { s: string; c: string }[] = [
   { s: 'Ödeme güvenli mi?', c: 'Ödemeler dünyanın en yaygın ödeme altyapılarından Stripe üzerinden alınır. Kart bilgileriniz Hekimhane sunucularına hiçbir zaman ulaşmaz.' },
   { s: 'Birden fazla işletmem var, ne yapmalıyım?', c: 'Pro üyelik işletme başınadır. Her işletmeniz için panelden ayrı ayrı Pro’ya geçebilirsiniz.' },
 ];
+
+const BAG: React.CSSProperties = { color: '#1B3A69', fontWeight: 700, textDecoration: 'underline' };
 
 export default function ProPage() {
   const jsonLd = {
@@ -138,9 +132,9 @@ export default function ProPage() {
         baslik={['İşletmenizi', 'bir adım öne taşıyın']}
         govde={<>Randevularınızı yönetin, hastalarınızı takip edin, profilinizi profesyonelleştirin. Tek üyelik, tüm araçlar — aylık {PRO_AYLIK_TL} TL, istediğiniz an iptal.</>}
         birincil={{ ad: `Pro’ya yükseltin — aylık ${PRO_AYLIK_TL} TL`, href: '#fiyat' }}
-        ikincil={{ ad: 'Neler dahil?', href: '#dahil' }}
+        ikincil={{ ad: 'Demo talep edin', href: '#demo' }}
         sahne={<Sahne />}
-        alt={<p style={{ margin: '18px 0 0', fontSize: 13.5, color: '#586273' }}>Güvenli ödeme — Stripe altyapısı. Taahhüt yok.</p>}
+        alt={<p style={{ margin: '18px 0 0', fontSize: 13.5, color: '#586273' }}>Güvenli ödeme — Stripe altyapısı. Taahhüt yok. <a href="#dahil" style={{ color: '#1B3A69', fontWeight: 700, textDecoration: 'underline' }}>Neler dahil?</a></p>}
       />
 
       <OzBant
@@ -150,16 +144,22 @@ export default function ProPage() {
         cta={{ ad: 'Pro’ya yükseltin', href: '#fiyat' }}
       />
 
-      <div id="dahil" style={{ scrollMarginTop: 64 }}>
-        <OzIzgara
-          ustyazi="Neden Pro"
-          baslik="Pro hesabınıza dahil olanlar"
-          govde="Randevudan hasta iletişimine, profilinizden yapay zekâ bağlantısına kadar tüm araçlar."
-          ogeler={DAHIL}
-        />
-      </div>
+      <OzIzgara
+        id="dahil"
+        ustyazi="Neden Pro"
+        baslik="Pro hesabınıza dahil olanlar"
+        govde="Randevudan hasta iletişimine, profilinizden yapay zekâ bağlantısına kadar tüm araçlar."
+        ogeler={DAHIL}
+      />
 
-      <OzAdimlar ustyazi="Nasıl çalışır?" baslik="Üç adımda Pro" adimlar={ADIMLAR} />
+      <OzAdimlar ustyazi="Nasıl çalışır?" baslik="Dört adımda Pro" adimlar={ADIMLAR} />
+
+      <OzKartlar
+        ustyazi="Güven ve kontrol"
+        baslik="Satın almadan önce bilmeniz gerekenler"
+        govde="Ödeme, iptal ve sahiplik kuralları baştan açık."
+        ogeler={GUVEN}
+      />
 
       {/* ── FİYAT (satın alma: ProCta → Stripe) ── */}
       <section id="fiyat" className="vt-zemin vt-bolum" style={{ scrollMarginTop: 64 }}>
@@ -188,14 +188,27 @@ export default function ProPage() {
               </ul>
             </div>
           </div>
+          <p style={{ margin: '22px 0 0', fontSize: 15, lineHeight: 1.7, color: '#3C4A61' }}>
+            Henüz işletmenizi sahiplenmediniz mi? Pro’ya geçmek için önce <Link href="/sahiplen" style={BAG}>ücretsiz sahiplenin</Link>.
+            Ayrıntılı sayfalar: <Link href="/randevu-sistemi" style={BAG}>Randevu takvimi</Link>,{' '}
+            <Link href="/randevu-modulu" style={BAG}>Randevu modülü</Link>,{' '}
+            <Link href="/mcp" style={BAG}>Yapay zekâ ile yönetim</Link>.
+          </p>
         </div>
       </section>
 
-      <OzKapanis
-        baslik="Henüz işletmenizi sahiplenmediniz mi?"
-        metin="Pro’ya geçmek için önce işletmenizi sahiplenin. Sahiplenme ücretsizdir; profiliniz büyük ihtimalle zaten Hekimhane’de."
-        birincil={{ ad: 'Ücretsiz sahiplenin', href: '/sahiplen' }}
-        ikincil={{ ad: 'Pro’ya yükseltin', href: '#fiyat' }}
+      <OzBasvuru not={false}
+        urun="pro"
+        baslik="Satın almadan önce konuşalım"
+        metin="Pro’nun işletmenize uyup uymadığını, panelin nasıl çalıştığını ve kurulum adımlarını anlatmak için sizi arayalım. Satın almaya hazırsanız yukarıdaki Ücret bölümünden hemen başlayabilirsiniz. Pro’ya geçmek için önce işletmenizi sahiplenmeniz gerekir; sahiplenme ücretsizdir."
+        vaatler={[
+          { ikon: 'phone', ad: 'Sizi arayıp Pro’yu anlatalım' },
+          { ikon: 'message', ad: 'Paneli canlı olarak gösterelim' },
+          { ikon: 'price-guide', ad: 'Sorularınızı satın almadan yanıtlayalım' },
+        ]}
+        formBaslik="Pro hakkında bilgi alın"
+        formAciklama="Bilgilerinizi bırakın; ekibimiz sizi arayıp Pro’yu anlatsın ya da canlı olarak göstersin."
+        formEtiket="Pro"
       />
 
       <OzSss sorular={SSS} />
@@ -286,6 +299,25 @@ function MiniProfil() {
           <span style={{ flex: 1, textAlign: 'center', padding: '5px 4px', borderRadius: 7, background: '#12294D', color: '#fff', fontSize: 9.5, fontWeight: 700 }}>Web sitesi</span>
         </div>
       </div>
+    </div>
+  );
+}
+
+function MiniGorunur() {
+  const satir = (ad: string, alt: string, pro: boolean) => (
+    <div key={ad} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '8px 10px', borderRadius: 10, background: '#fff', boxShadow: pro ? 'inset 0 0 0 1.5px #B8892F' : 'inset 0 0 0 1px #DCE3EE' }}>
+      <div style={{ minWidth: 0 }}>
+        <div style={{ fontSize: 11.5, fontWeight: 700, color: '#0E1A2C', whiteSpace: 'nowrap' }}>{ad}</div>
+        <div style={{ fontSize: 10.5, color: '#586273' }}>{alt}</div>
+      </div>
+      {pro && <span className="vt-pro" style={{ height: 16, fontSize: 9, padding: '0 6px', flex: 'none' }}>PRO</span>}
+    </div>
+  );
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%', maxWidth: 230 }}>
+      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.04em', textTransform: 'uppercase', color: '#12294D' }}>Ana sayfa · Öne çıkanlar</div>
+      {satir('Örnek Muayenehane', 'Dahiliye · Ankara', false)}
+      {satir('Örnek Diş Kliniği', 'Diş hekimi · İstanbul', true)}
     </div>
   );
 }

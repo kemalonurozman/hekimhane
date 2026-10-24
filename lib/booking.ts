@@ -1,6 +1,18 @@
 // Hekimhane Booking — bekleme listesi seçenekleri. TEK KAYNAK: form, API ve
 // admin sekmesi buradan okur. İstemci ve sunucuda ortak (sunucu importu koyma).
 
+/** Başvurunun geldiği ürün/özellik sayfası (admin'de ve e-postalarda gösterilir) */
+export const BOOKING_URUNLER: { id: string; ad: string }[] = [
+  { id: 'booking',          ad: 'Hekimhane Booking' },
+  { id: 'randevu-sistemi',  ad: 'Randevu Takvimi' },
+  { id: 'randevu-modulu',   ad: 'Randevu Modülü' },
+  { id: 'mcp',              ad: 'Yapay Zekâ ile Yönetim' },
+  { id: 'pro',              ad: 'Hekimhane-Pro' },
+  { id: 'hekimkart',        ad: 'HekimKart' },
+  { id: 'degerlendirme',    ad: 'Yorum Yönetimi' },
+  { id: 'genel',            ad: 'Hekimhane' },
+];
+
 export const BOOKING_TALEPLER: { id: string; ad: string }[] = [
   { id: 'kurulum', ad: 'Beni arayın (kurulum)' },
   { id: 'demo',    ad: 'Demo' },

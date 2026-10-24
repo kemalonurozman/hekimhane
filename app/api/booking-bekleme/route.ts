@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { sendEmail, mailShell, satir, satirTel } from '@/lib/email';
 import { ADMIN_EMAIL } from '@/lib/admin-auth';
-import { BOOKING_ROLLER, BOOKING_KANALLAR, BOOKING_HACIM, BOOKING_TALEPLER, etiketBul } from '@/lib/booking';
+import { BOOKING_ROLLER, BOOKING_KANALLAR, BOOKING_HACIM, BOOKING_TALEPLER, BOOKING_URUNLER, etiketBul } from '@/lib/booking';
 import { IL_LISTE } from '@/lib/tr-il-ilce';
 
 /*
@@ -19,6 +19,7 @@ const ROL_IDLER = new Set(BOOKING_ROLLER.map(r => r.id));
 const KANAL_IDLER = new Set(BOOKING_KANALLAR.map(k => k.id));
 const HACIM_IDLER = new Set(BOOKING_HACIM.map(h => h.id));
 const ILLER = new Set(IL_LISTE);
+const URUN_IDLER = new Set(BOOKING_URUNLER.map(u => u.id));
 
 export async function POST(req: NextRequest) {
   let body: any;
@@ -34,6 +35,8 @@ export async function POST(req: NextRequest) {
   const tel = kirp(body?.tel, 30);
   const rol = kirp(body?.rol, 30);
   const talep = body?.talep === 'demo' ? 'demo' : 'kurulum';
+  const urun = URUN_IDLER.has(kirp(body?.urun, 30)) ? kirp(body?.urun, 30) : 'booking';
+  const urunAd = etiketBul(BOOKING_URUNLER, urun);
   const kurum_adi = kirp(body?.kurum_adi, 160) || null;
   const il = ILLER.has(kirp(body?.il, 40)) ? kirp(body?.il, 40) : null;
   const kanallar = Array.isArray(body?.kanallar)
@@ -49,14 +52,14 @@ export async function POST(req: NextRequest) {
   if (tel.replace(/\D/g, '').length < 10) return NextResponse.json({ error: 'Geçerli bir telefon numarası yazın.' }, { status: 400 });
   if (!ROL_IDLER.has(rol)) return NextResponse.json({ error: 'Kim olduğunuzu seçin.' }, { status: 400 });
 
-  const kayit = { ad, soyad, email, tel, rol, talep, kurum_adi, il, kanallar, cagri_hacmi, mesaj, bulten };
+  const kayit = { ad, soyad, email, tel, rol, talep, urun, kurum_adi, il, kanallar, cagri_hacmi, mesaj, bulten };
   const db = supabaseAdmin() as any;
 
   // ── Kaydet (varsa güncelle) ──
   let tekrar = false;
   let tabloYok = false;
   try {
-    const { data: var_ } = await db.from('booking_bekleme').select('id').eq('email', email).limit(1);
+    const { data: var_ } = await db.from('booking_bekleme').select('id').eq('email', email).eq('urun', urun).limit(1);
     if (var_ && var_.length) {
       tekrar = true;
       const { error } = await db.from('booking_bekleme')
@@ -93,6 +96,7 @@ export async function POST(req: NextRequest) {
   const kanalMetni = kanallar.map(k => etiketBul(BOOKING_KANALLAR, k)).join(', ');
   try {
     const detay =
+      satir('Özellik', urunAd) +
       satir('Talep', etiketBul(BOOKING_TALEPLER, talep)) +
       satir('Ad Soyad', `${ad} ${soyad}`) +
       satirTel('Telefon', tel) +
@@ -109,8 +113,8 @@ export async function POST(req: NextRequest) {
       : `<p style="margin-top:14px;font-size:12px;color:#6E6E73;">Admin panelinde “Booking Başvuruları” sekmesinden takip edebilirsiniz. Başvuranı arayın.</p>`;
     await sendEmail({
       to: ADMIN_EMAIL,
-      subject: `${tekrar ? 'Güncellendi — ' : ''}Hekimhane Booking ${talep === 'demo' ? 'demo talebi' : 'başvurusu'}: ${ad} ${soyad} — arayın`,
-      html: mailShell(talep === 'demo' ? 'Yeni demo talebi' : 'Yeni Hekimhane Booking başvurusu', detay + uyari),
+      subject: `${tekrar ? 'Güncellendi — ' : ''}${urunAd} ${talep === 'demo' ? 'demo talebi' : 'başvurusu'}: ${ad} ${soyad} — arayın`,
+      html: mailShell(talep === 'demo' ? `Yeni demo talebi — ${urunAd}` : `Yeni başvuru — ${urunAd}`, detay + uyari),
       replyTo: email,
     });
   } catch { /* yok say */ }
@@ -119,13 +123,13 @@ export async function POST(req: NextRequest) {
     try {
       await sendEmail({
         to: email,
-        subject: talep === 'demo' ? 'Hekimhane Booking demo talebinizi aldık' : 'Hekimhane Booking başvurunuzu aldık',
+        subject: talep === 'demo' ? `${urunAd} demo talebinizi aldık` : `${urunAd} başvurunuzu aldık`,
         html: mailShell(talep === 'demo' ? 'Demo talebinizi aldık' : 'Başvurunuzu aldık',
           `<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#1c1c1e;">Merhaba ${ad.replace(/[<>&]/g, '')},</p>
-           <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#1c1c1e;">${talep === 'demo' ? 'Demo talebinizi aldık. Ekibimiz sizi arayıp uygun bir saatte asistanı canlı olarak gösterecek.' : 'Başvurunuzu aldık. Ekibimiz kurulum hakkında bilgi vermek ve size yardımcı olmak için kısa süre içinde sizi arayacak.'}</p>
-           <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#1c1c1e;">Hekimhane Booking; telefon çağrılarınızı ve mesajlarınızı 7/24 yanıtlayan, randevu alan bir yapay zekâ asistanıdır. Hizmet, <strong>Ozvelo.com</strong> ortaklığıyla sunulmaktadır.</p>
-           <p style="margin:16px 0 0;"><a href="https://www.hekimhane.com.tr/booking" style="display:inline-block;background:#1A335E;color:#fff;font-weight:700;font-size:14px;text-decoration:none;border-radius:10px;padding:11px 20px;">Hekimhane Booking’i inceleyin</a></p>
-           <p style="margin:16px 0 0;font-size:12px;color:#6E6E73;line-height:1.6;">Bu e-postayı Hekimhane Booking sayfasındaki formu doldurduğunuz için aldınız. Sorularınız için bu e-postayı yanıtlayabilirsiniz.</p>`),
+           <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#1c1c1e;">${talep === 'demo' ? `Demo talebinizi aldık. Ekibimiz sizi arayıp uygun bir saatte ${urunAd} özelliğini canlı olarak gösterecek.` : `Başvurunuzu aldık. Ekibimiz ${urunAd} hakkında bilgi vermek ve size yardımcı olmak için kısa süre içinde sizi arayacak.`}</p>
+           <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#1c1c1e;">${urun === 'booking' ? 'Hekimhane Booking; telefon çağrılarınızı ve mesajlarınızı 7/24 yanıtlayan, randevu alan bir yapay zekâ asistanıdır. Hizmet, <strong>Ozvelo.com</strong> ortaklığıyla sunulmaktadır.' : 'Hekimhane; hekimlerin ve kliniklerin randevu, iletişim ve görünürlük işlerini tek yerden yönetmesi için araçlar sunar.'}</p>
+           <p style="margin:16px 0 0;"><a href="https://www.hekimhane.com.tr/${urun === 'booking' ? 'booking' : 'neden-hekimhane'}" style="display:inline-block;background:#1A335E;color:#fff;font-weight:700;font-size:14px;text-decoration:none;border-radius:10px;padding:11px 20px;">Hekimhane’yi inceleyin</a></p>
+           <p style="margin:16px 0 0;font-size:12px;color:#6E6E73;line-height:1.6;">Bu e-postayı ${urunAd} sayfasındaki formu doldurduğunuz için aldınız. Sorularınız için bu e-postayı yanıtlayabilirsiniz.</p>`),
         replyTo: 'info@hekimhane.com.tr',
       });
     } catch { /* yok say */ }

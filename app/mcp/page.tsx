@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
 import NoktaGrafik from '@/components/vitrin/NoktaGrafik';
-import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzBalonlar, OzOnayKart, OzBant, OzAdimlar, OzKartlar, OzKapanis, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
+import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzBalonlar, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKartlar, OzBasvuru, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
 import { ARACLAR, ISTEMCI_BILGI, kurulumKodu, YER_TUTUCU, MCP_URL, type AracGrubu, type Istemci } from '@/lib/mcp/araclar';
 
 // Hekimhane MCP — herkese açık rehber. Araç listesi ve kurulum kodları tek kaynaktan
@@ -40,19 +41,49 @@ const FAYDALAR: { baslik: string; metin: string; gorsel: React.ReactNode }[] = [
     metin: 'Kişisel anahtarla bağlanırsınız ve istediğiniz an iptal edersiniz. Veri değiştiren her işlemden önce asistan onayınızı ister.',
     gorsel: <MiniAnahtar />,
   },
+  {
+    baslik: 'Tek bağlantı, birçok asistan',
+    metin: 'MCP açık bir standarttır. Aynı bağlantı Claude, ChatGPT, Cursor ve MCP destekleyen otomasyon araçlarında çalışır; yalnızca kurulum kodu asistana göre değişir.',
+    gorsel: <MiniAsistanlar />,
+  },
 ];
 
 const ADIMLAR = [
   { baslik: 'Pro üyeliğiniz olsun', metin: 'MCP bağlantısı Hekimhane-Pro\'ya dahildir. Hesabınızda en az bir Pro işletme yeterlidir.' },
   { baslik: 'Anahtarınızı oluşturun', metin: 'Panel → Hesap → MCP Bağlantısı. Anahtar yalnızca bir kez gösterilir; en fazla 5 anahtar oluşturabilirsiniz.' },
-  { baslik: 'Asistanınıza ekleyin', metin: 'Paneldeki hazır kodu asistanınızın ayarına yapıştırın. Anahtar koda otomatik yerleşir. "İşletmelerimi göster" diyerek deneyin.' },
+  { baslik: 'Asistanınıza ekleyin', metin: 'Paneldeki hazır kodu asistanınızın ayarına yapıştırın. Anahtar koda otomatik yerleşir.' },
+  { baslik: 'Deneyin ve onaylayın', metin: '"İşletmelerimi göster" diyerek deneyin. Veri değiştiren veya e-posta gönderen her işlemden önce asistan onayınızı ister.' },
 ];
 
-const NEREDE: { ikon: HkIkonAdi; baslik: string; metin: string }[] = [
-  { ikon: 'message', baslik: 'Claude (web, masaüstü, mobil)', metin: 'Gün içinde sohbet eder gibi çalışın: "Bugün kaç randevum var, ilk boşluğum ne zaman?" Masaüstü uygulamasına yapılandırma dosyasıyla, web sürümüne özel bağlayıcı adresiyle eklenir.' },
-  { ikon: 'settings', baslik: 'Claude Code', metin: 'Tek komutla eklenir. Toplu işler için idealdir: haftalık randevu raporu çıkarmak, geçmiş talepleri tabloya dökmek veya tatil günlerini topluca kapatmak gibi.' },
-  { ikon: 'appointment', baslik: 'Cursor ve MCP destekli editörler', metin: 'Kliniğinizin web sitesini geliştirirken takvim ve talep verisini doğrudan editörden görün; sitenize gömdüğünüz rezervasyon modülünü gerçek doluluğa göre test edin.' },
-  { ikon: 'notification', baslik: 'Otomasyon araçları', metin: 'MCP istemci düğümü olan otomasyon platformlarında zamanlanmış akışlar kurun: her sabah 08:00\'de günün randevu özetini e-postanıza ya da ekip sohbetinize gönderin.' },
+// ── Nerelerde kullanabilirsiniz? (3 kart; kaynak: ISTEMCI_BILGI + önceki sayfa metinleri) ──
+const NEREDE: { etiket: string; ad: string; ikon: HkIkonAdi; renk: string; maddeler: string[] }[] = [
+  {
+    etiket: 'Sohbet asistanları', ad: 'Claude ve ChatGPT', ikon: 'message', renk: 'rgba(26,95,208,.45)',
+    maddeler: [
+      'Gün içinde sohbet eder gibi çalışın: "Bugün kaç randevum var, ilk boşluğum ne zaman?"',
+      'Claude Masaüstü: yapılandırma dosyasıyla eklenir',
+      'Claude web sürümü: özel bağlayıcı adresiyle eklenir',
+      'ChatGPT: geliştirici modunda bağlayıcı olarak eklenir',
+    ],
+  },
+  {
+    etiket: 'Kod ve editör', ad: 'Claude Code ve Cursor', ikon: 'settings', renk: 'rgba(13,124,121,.45)',
+    maddeler: [
+      'Claude Code tek komutla eklenir, her oturumda hazırdır',
+      'Toplu işler için idealdir: haftalık randevu raporu, geçmiş talepleri tabloya dökmek, tatil günlerini topluca kapatmak',
+      'Cursor: .cursor/mcp.json dosyasına eklenir',
+      'Web sitesini geliştirirken takvim ve talep verisini doğrudan editörden görün',
+    ],
+  },
+  {
+    etiket: 'Otomasyon', ad: 'Otomasyon araçları', ikon: 'notification', renk: 'rgba(184,137,47,.5)',
+    maddeler: [
+      'MCP istemci düğümü olan platformlarda zamanlanmış akışlar kurun',
+      'Her sabah 08:00\'de günün randevu özetini e-postanıza ya da ekip sohbetinize gönderin',
+      'Yalnızca bağlantı adresi isteyen araçlara URL ile bağlanır',
+      'Anahtar adresin içindedir; bu adresi kimseyle paylaşmayın',
+    ],
+  },
 ];
 
 const SENARYO = [
@@ -104,7 +135,7 @@ export default function McpPage() {
         baslik={['Kliniğinizi', 'yapay zekâ asistanınızdan yönetin']}
         govde="Randevu talepleri, takvim, hasta yorumları ve hasta e-postaları artık konuşarak yönetilebilir. Hekimhane'nin MCP bağlantısını Claude gibi bir asistana ekleyin, panelde tıklayarak yaptığınız işleri tek cümleyle yaptırın."
         birincil={{ ad: 'Panelde anahtar oluştur', href: '/panel' }}
-        ikincil={{ ad: 'Hekimhane-Pro', href: '/pro' }}
+        ikincil={{ ad: 'Demo talep edin', href: '#demo' }}
         sahne={<Sahne />}
       />
 
@@ -115,15 +146,30 @@ export default function McpPage() {
         cta={{ ad: 'Panelde anahtar oluştur', href: '/panel' }}
       />
 
-      <OzAdimlar id="nasil" baslik="Üç adımda bağlanın" adimlar={ADIMLAR} />
+      <OzIzgara
+        ustyazi="Desteklenen asistanlar"
+        baslik="Nerelerde kullanabilirsiniz?"
+        govde="MCP açık bir standart olduğu için aynı bağlantı birçok asistanda ve araçta çalışır."
+        ogeler={NEREDE}
+      />
+
+      <OzAdimlar id="nasil" baslik="Dört adımda bağlanın" adimlar={ADIMLAR} />
+
+      <OzKartlar
+        ustyazi="Güvenlik ve gizlilik"
+        baslik="Anahtar sizde, kurallar panelde"
+        govde="MCP bağlantısı panelinizin yetki kurallarıyla çalışır; erişimi siz verir, siz kaldırırsınız."
+        ogeler={GUVENLIK}
+      />
 
       {/* ── ARAÇLAR (tek kaynak: lib/mcp/araclar.ts) ── */}
-      <section className="vt-zemin vt-bolum">
+      <section className="vt-bolum" style={{ background: '#fff' }}>
         <div className="container">
           <p className="vt-ustyazi">Araçlar</p>
           <h2 className="vt-h2">Asistanınızın yapabildikleri</h2>
           <p className="vt-govde">
-            {ARACLAR.length} araç. <strong style={{ color: '#8A6A1F' }}>İşlem</strong> etiketli araçlar veri değiştirir veya e-posta gönderir, bu yüzden onayınız istenir.
+            {ARACLAR.length} araç. <strong style={{ color: '#8A6A1F' }}>İşlem</strong> etiketli araçlar veri değiştirir veya e-posta gönderir, bu yüzden onayınız istenir. Kurulum kodları için{' '}
+            <a href="#kurulum" style={{ color: '#12294D', fontWeight: 700 }}>Kurulum</a> bölümüne bakın.
           </p>
           <div className="vt-izgara oz-kanal-izgara">
             {GRUPLAR.map(g => {
@@ -155,14 +201,6 @@ export default function McpPage() {
         </div>
       </section>
 
-      <OzKartlar
-        zemin="beyaz"
-        ustyazi="Desteklenen asistanlar"
-        baslik="Nerelerde kullanabilirsiniz?"
-        govde="MCP açık bir standart olduğu için aynı bağlantı birçok asistanda ve araçta çalışır."
-        ogeler={NEREDE}
-      />
-
       {/* ── GÜNLÜK KULLANIM ── */}
       <section className="vt-zemin vt-bolum">
         <div className="container">
@@ -192,6 +230,10 @@ export default function McpPage() {
             Paneldeki MCP Bağlantısı sekmesi bu kodları anahtarınız yerleşik olarak hazırlar. Aşağıda{' '}
             <code style={KOD_SATIR}>{YER_TUTUCU}</code> yazan yere anahtarınızı koyun.
           </p>
+          <p className="vt-govde" style={{ maxWidth: 780, marginTop: 12 }}>
+            Anahtarı <Link href="/panel" style={{ color: '#12294D', fontWeight: 700 }}>panelden</Link> oluşturabilirsiniz; MCP bağlantısı{' '}
+            <Link href="/pro" style={{ color: '#12294D', fontWeight: 700 }}>Hekimhane-Pro</Link>&apos;ya dahildir.
+          </p>
           <div className="oz-panel" style={{ display: 'flex', flexDirection: 'column' }}>
             {istemciler.map((k, i) => (
               <div key={k} style={{ minWidth: 0, paddingTop: i === 0 ? 0 : 26, paddingBottom: i === istemciler.length - 1 ? 0 : 26, borderTop: i === 0 ? 0 : '1px solid #EDEFF2' }}>
@@ -204,18 +246,18 @@ export default function McpPage() {
         </div>
       </section>
 
-      <OzKartlar
-        ustyazi="Güvenlik ve gizlilik"
-        baslik="Anahtar sizde, kurallar panelde"
-        govde="MCP bağlantısı panelinizin yetki kurallarıyla çalışır; erişimi siz verir, siz kaldırırsınız."
-        ogeler={GUVENLIK}
-      />
-
-      <OzKapanis
-        baslik="Panele gidin ve bağlanın"
-        metin="Anahtarınızı Panel → Hesap → MCP Bağlantısı'ndan oluşturun; asistanınıza özel hazır kod orada sizi bekliyor."
-        birincil={{ ad: 'Panele git ve bağlan', href: '/panel' }}
-        ikincil={{ ad: 'Kurulum adımları', href: '#kurulum' }}
+      <OzBasvuru not={false}
+        urun="mcp"
+        baslik="Kurulumda yardım ya da demo isteyin"
+        metin="Anahtarınızı Panel → Hesap → MCP Bağlantısı'ndan kendiniz oluşturabilirsiniz. Bağlantıyı birlikte kurmamızı ya da asistanın nasıl çalıştığını canlı görmeyi isterseniz formu doldurun. MCP bağlantısı Hekimhane-Pro'ya dahildir."
+        vaatler={[
+          { ikon: 'settings', ad: 'Kurulumda yardım alın' },
+          { ikon: 'message', ad: 'Canlı demo ile görün' },
+          { ikon: 'premium', ad: 'Hekimhane-Pro’ya dahil' },
+        ]}
+        formBaslik="MCP bağlantısı için bize ulaşın"
+        formAciklama="Bilgilerinizi bırakın; bağlantıyı birlikte kuralım ya da canlı gösterelim."
+        formEtiket="Pro"
       />
 
       <OzSss sorular={SSS} />
@@ -290,6 +332,23 @@ function MiniAnahtar() {
           <span style={{ padding: '3px 8px', borderRadius: 999, background: '#FDECEA', color: '#B42318', fontSize: 10.5, fontWeight: 800 }}>İptal et</span>
         </div>
       ))}
+    </div>
+  );
+}
+
+function MiniAsistanlar() {
+  const a = ['Claude', 'ChatGPT', 'Cursor', 'Otomasyon'];
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, width: '100%', maxWidth: 230 }}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999, background: '#12294D', color: '#fff', fontSize: 12, fontWeight: 800 }}>
+        <HkIcon name="clinic" size={15} color="#fff" accent="#DEC283" />Hekimhane MCP
+      </span>
+      <div style={{ width: 2, height: 12, background: '#C7D2E4' }} />
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 6 }}>
+        {a.map(x => (
+          <span key={x} style={{ padding: '5px 10px', borderRadius: 9, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE', color: '#12294D', fontSize: 11.5, fontWeight: 700 }}>{x}</span>
+        ))}
+      </div>
     </div>
   );
 }

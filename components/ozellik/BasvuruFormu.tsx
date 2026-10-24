@@ -1,15 +1,20 @@
 'use client';
 
-// Hekimhane Booking başvuru / demo talebi formu — /api/booking-bekleme'ye gönderir.
+// Özellik sayfaları ortak başvuru / demo talebi formu — /api/booking-bekleme'ye gönderir.
+// `urun`: hangi sayfadan geldiği (lib/booking.ts → BOOKING_URUNLER). Yalnız urun='booking' iken kanal ve çağrı yoğunluğu sorulur.
 // Adres #demo ile açılırsa ("Demo talep edin" düğmesi) talep türü demo seçili gelir.
-// Stiller app/booking/page.tsx içindeki .oz-form* sınıflarında.
+// Stiller app/globals.css → oz-form* sınıfları.
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import HkIcon from '@/components/HkIcon';
-import { BOOKING_ROLLER, BOOKING_KANALLAR, BOOKING_HACIM } from '@/lib/booking';
+import { BOOKING_ROLLER, BOOKING_KANALLAR, BOOKING_HACIM, BOOKING_URUNLER, etiketBul } from '@/lib/booking';
 import { IL_LISTE } from '@/lib/tr-il-ilce';
 
-export default function BeklemeFormu() {
+export default function BasvuruFormu({ urun = 'booking', baslik, aciklama, etiket = 'Şimdi kullanımda' }: {
+  urun?: string; baslik?: string; aciklama?: string; etiket?: string;
+}) {
+  const urunAd = etiketBul(BOOKING_URUNLER, urun);
+  const booking = urun === 'booking';
   const baslangic = useRef(Date.now());
   const [f, setF] = useState({
     ad: '', soyad: '', email: '', tel: '', rol: '', kurum_adi: '', il: '',
@@ -45,7 +50,7 @@ export default function BeklemeFormu() {
       const r = await fetch('/api/booking-bekleme', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...f, talep, kanallar, izin, bulten, t: baslangic.current }),
+        body: JSON.stringify({ ...f, urun, talep, kanallar: booking ? kanallar : [], izin, bulten, t: baslangic.current }),
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.error || 'Kaydınız alınamadı.');
@@ -67,8 +72,8 @@ export default function BeklemeFormu() {
           {sonuc.tekrar
             ? 'Bu e-posta adresiyle daha önce başvuru yapılmıştı; yeni bilgilerinizi kaydettik. Ekibimiz sizi arayacak.'
             : talep === 'demo'
-              ? 'Demo talebinizi aldık. Ekibimiz sizi arayıp uygun bir saatte asistanı canlı olarak gösterecek.'
-              : 'Başvurunuzu aldık. Ekibimiz kurulum hakkında bilgi vermek ve size yardımcı olmak için kısa süre içinde sizi arayacak.'}
+              ? `Demo talebinizi aldık. Ekibimiz sizi arayıp uygun bir saatte ${urunAd} özelliğini canlı olarak gösterecek.`
+              : `Başvurunuzu aldık. Ekibimiz ${urunAd} hakkında bilgi vermek ve size yardımcı olmak için kısa süre içinde sizi arayacak.`}
         </p>
         <p className="oz-form__alt">Onay e-postası <strong>{f.email}</strong> adresine gönderildi.</p>
         <Link href="/neden-hekimhane" className="vt-dugme vt-dugme--acik" style={{ marginTop: 8 }}>Hekimhane’nin diğer araçları</Link>
@@ -78,14 +83,14 @@ export default function BeklemeFormu() {
 
   return (
     <form className="oz-form" onSubmit={gonder} noValidate={false}>
-      <span className="oz-etiket">Şimdi kullanımda</span>
-      <h3 className="oz-form__baslik">Kurulum için sizi arayalım</h3>
-      <p className="oz-form__aciklama">Telefon ve mesaj asistanı hazır. Formu doldurun; kurulumu anlatalım ya da canlı demo gösterelim.</p>
+      <span className="oz-etiket">{etiket}</span>
+      <h3 className="oz-form__baslik">{baslik ?? 'Kurulum için sizi arayalım'}</h3>
+      <p className="oz-form__aciklama">{aciklama ?? 'Telefon ve mesaj asistanı hazır. Formu doldurun; kurulumu anlatalım ya da canlı demo gösterelim.'}</p>
 
       <div className="oz-talep" role="radiogroup" aria-label="Talep türü">
         {([
           { id: 'kurulum', ad: 'Beni arayın', aciklama: 'Kurulum ve fiyat hakkında bilgi', ikon: 'phone' },
-          { id: 'demo', ad: 'Demo istiyorum', aciklama: 'Asistanı canlı olarak görün', ikon: 'message' },
+          { id: 'demo', ad: 'Demo istiyorum', aciklama: `${urunAd} özelliğini canlı görün`, ikon: 'message' },
         ] as const).map(t => (
           <button key={t.id} type="button" role="radio" aria-checked={talep === t.id} onClick={() => setTalep(t.id)}
             className={talep === t.id ? 'oz-talep__secim is-secili' : 'oz-talep__secim'}>
@@ -131,7 +136,7 @@ export default function BeklemeFormu() {
           </select>
         </label>
 
-        <fieldset className="oz-alan oz-alan--tam oz-kanallar">
+        {booking && <fieldset className="oz-alan oz-alan--tam oz-kanallar">
           <legend>Hangi kanallarla ilgileniyorsunuz?</legend>
           <div>
             {BOOKING_KANALLAR.map(k => {
@@ -147,19 +152,19 @@ export default function BeklemeFormu() {
               );
             })}
           </div>
-        </fieldset>
+        </fieldset>}
 
-        <label className="oz-alan oz-alan--tam">
+        {booking && <label className="oz-alan oz-alan--tam">
           <span>Günde yaklaşık kaç çağrı alıyorsunuz?</span>
           <select value={f.cagri_hacmi} onChange={yaz('cagri_hacmi')}>
             <option value="">Seçin</option>
             {BOOKING_HACIM.map(h => <option key={h.id} value={h.id}>{h.ad}</option>)}
           </select>
-        </label>
+        </label>}
         <label className="oz-alan oz-alan--tam">
           <span>Eklemek istedikleriniz</span>
           <textarea rows={3} value={f.mesaj} onChange={yaz('mesaj')} maxLength={800}
-            placeholder="Örneğin kaç hekimle çalıştığınız, en yoğun saatleriniz ya da web siteniz" />
+            placeholder={booking ? 'Örneğin kaç hekimle çalıştığınız, en yoğun saatleriniz ya da web siteniz' : 'Örneğin kaç hekimle çalıştığınız ya da öğrenmek istedikleriniz'} />
         </label>
 
         {/* Bot tuzağı — insanlar görmez */}
@@ -171,7 +176,7 @@ export default function BeklemeFormu() {
       <label className="oz-onay">
         <input type="checkbox" checked={izin} onChange={e => setIzin(e.target.checked)} required />
         <span>
-          * Hekimhane Booking kurulumu, demo ve fiyat teklifi için benimle telefon ve e-postayla iletişime geçilmesini istiyorum.
+          * {urunAd} hakkında bilgi, demo ve fiyat teklifi için benimle telefon ve e-postayla iletişime geçilmesini istiyorum.
           Bilgilerimin <Link href="/kvkk" target="_blank">KVKK Aydınlatma Metni</Link> kapsamında işlenmesini kabul ediyorum.
         </span>
       </label>
@@ -185,7 +190,7 @@ export default function BeklemeFormu() {
       <button type="submit" className="oz-gonder hk-cta-isik" disabled={gonderiliyor}>
         {gonderiliyor ? 'Gönderiliyor…' : talep === 'demo' ? 'Demo talep et' : 'Beni arayın'}
       </button>
-      <p className="oz-form__alt">Bilgileriniz yalnızca Hekimhane Booking kurulumu, demo ve fiyat teklifi için kullanılır.</p>
+      <p className="oz-form__alt">Bilgileriniz yalnızca {urunAd} bilgilendirmesi, demo ve fiyat teklifi için kullanılır.</p>
     </form>
   );
 }

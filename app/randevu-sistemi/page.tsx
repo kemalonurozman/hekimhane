@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
-import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKapanis, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
+import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKartlar, OzBasvuru, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
 import { PRO_FIYAT_ETIKET } from '@/lib/pro-plan';
 
 // Hekim Randevu Sistemi (Randevu Takvimi, Pro) — özellik sayfası dili (bkz. components/ozellik/Ozellik.tsx).
@@ -11,7 +11,7 @@ const URL_ = 'https://www.hekimhane.com.tr/randevu-sistemi';
 
 export const metadata: Metadata = {
   title: 'Hekim Randevu Sistemi — Online Randevu, Hatırlatma ve Takvim Yönetimi',
-  description: 'Hekimhane Randevu Sistemi nasıl çalışır? Hastalar uygun tarihi sistemden seçer; hem hekime hem hastaya anında onay maili gider, randevudan önce hatırlatma gönderilir. Hekimler takvimlerini kolayca açıp bloke edebilir.',
+  description: 'Hekimhane Randevu Sistemi nasıl çalışır? Hastalar uygun tarihi sistemden seçer; talep hekime anında iletilir, e-posta bırakan hastaya bilgi ve hatırlatma maili gider. Hekimler takvimlerini kolayca açıp bloke edebilir.',
   alternates: { canonical: URL_ },
 };
 
@@ -24,12 +24,12 @@ const FAYDALAR: { baslik: string; metin: string; gorsel: React.ReactNode }[] = [
   },
   {
     baslik: 'Çift taraflı onay maili',
-    metin: 'Randevu oluşunca aynı anda hem hekime hem hastaya e-posta gider. Hekim gelen hastayı, hasta randevu detaylarını yazılı olarak bilir.',
+    metin: 'Randevu talebi gelince hekime e-posta gider; hasta e-posta bıraktıysa ona da yazılı bilgi iletilir. Hekim gelen hastayı, hasta talep ettiği saati yazılı olarak bilir.',
     gorsel: <MiniCiftMail />,
   },
   {
     baslik: 'Randevudan önce hatırlatma',
-    metin: 'Randevu tarihinden önce otomatik hatırlatma gider; hastadan gelemeyecekse haber vermesi rica edilir. Erken haber, o saatin başka bir hastaya açılmasını sağlar.',
+    metin: 'Randevu gününden bir gün önce, e-posta bırakmış hastaya otomatik hatırlatma gider; gelemeyecekse işletmeye haber vermesi rica edilir. Erken haber, o saatin başka bir hastaya açılmasını sağlar.',
     gorsel: <MiniHatirlatma />,
   },
   {
@@ -42,30 +42,54 @@ const FAYDALAR: { baslik: string; metin: string; gorsel: React.ReactNode }[] = [
 const ADIMLAR = [
   { baslik: 'Uygun zamanı seçin', metin: 'Hasta, hekimin sayfasından “Randevu Al” butonuna basar; açık tarih ve saat dilimini sistemden seçer.' },
   { baslik: 'Talep anında iletilir', metin: 'Randevu talebi hekime ve Hekimhane’ye saniyeler içinde ulaşır — telefon beklemeye, mesai saatine gerek yok.' },
-  { baslik: 'Çift taraflı onay maili', metin: 'Hem hekime hem randevuyu oluşturan hastaya otomatik onay e-postası gider. İki taraf da aynı bilgiye sahiptir.' },
-  { baslik: 'Randevudan önce hatırlatma', metin: 'Randevu tarihinden önce hatırlatma maili gönderilir: “Gelemeyecekseniz lütfen bilgi verin.”' },
+  { baslik: 'Çift taraflı onay maili', metin: 'Hekime bildirim e-postası gider; e-posta bırakan hastaya da talebinin alındığı bildirilir. İki taraf da aynı bilgiye sahiptir.' },
+  { baslik: 'Randevudan önce hatırlatma', metin: 'Randevu gününden bir gün önce, e-posta bırakan hastaya hatırlatma maili gönderilir: “Gelemeyecekseniz lütfen bilgi verin.”' },
 ];
 
 const AVANTAJLAR: { etiket: string; ad: string; ikon: HkIkonAdi; renk: string; maddeler: string[]; href?: string; rozet?: 'Pro' }[] = [
   {
     etiket: 'Hastalar için', ad: 'Beklemeden randevu', ikon: 'user-account', renk: 'rgba(26,95,208,.4)',
-    maddeler: ['Telefonda beklemeden, 7/24 randevu', 'Yazılı onay ve hatırlatma e-postası', 'Uygun saatleri anında görme'],
+    maddeler: [
+      'Telefonda beklemeden, istediği saatte randevu talebi',
+      'Açık saatleri görür, uygun olanı seçer',
+      'Dolu saatler gizlenir; aynı saat iki kişiye verilmez',
+      'E-posta bırakırsa yazılı bilgi ve hatırlatma alır',
+    ],
   },
   {
     etiket: 'Hekimler için', ad: 'Düzenli bir program', ikon: 'doctor-profile', renk: 'rgba(13,124,121,.45)',
-    maddeler: ['Takvimi tek dokunuşla aç/bloke et', 'Her randevu için anında bildirim', 'Daha az unutulan randevu, dolu program'],
+    maddeler: [
+      'Gün ve saatleri tek dokunuşla aç ya da bloke edin',
+      'Her yeni talepte e-posta bildirimi',
+      'Takvimde boş saate tıklayıp elle randevu ekleyin',
+      'Randevuyu erteleyin ya da iptal edin; hastaya e-posta gider',
+    ],
   },
   {
     etiket: 'Randevu Modülü', rozet: 'Pro', ad: 'Kendi sitenizde de →', ikon: 'clinic', renk: 'rgba(184,137,47,.5)', href: '/randevu-modulu',
-    maddeler: ['Aynı takvimi web sitenize yerleştirin', 'Tek satır kodla eklenir', 'Tüm talepler tek panelde buluşur'],
+    maddeler: [
+      'Aynı takvim web sitenizde de çalışır',
+      'Tek satır kodla eklenir',
+      'Tüm talepler tek panelde buluşur',
+    ],
   },
 ];
 
+const GUVEN: { ikon: HkIkonAdi; baslik: string; metin: string }[] = [
+  { ikon: 'settings', baslik: 'Takvim sizde', metin: 'Çalışma saatleriniz ve randevu süresi (15, 20, 30, 45 ya da 60 dakika) sizin belirlediğiniz gibi işler; istediğiniz zaman takvimi kapatıp serbest tercihe dönebilirsiniz.' },
+  { ikon: 'success', baslik: 'Çakışma olmaz', metin: 'Aynı saat için ikinci bir randevu alınamaz. Saat az önce dolduysa hasta başka bir saat seçer.' },
+  { ikon: 'notification', baslik: 'Hastaya haber gider', metin: 'Randevuyu ertelediğinizde ya da iptal ettiğinizde, e-posta bırakmış hastaya bilgi gider. Tamamlandı işaretlerseniz onaylı yorum bağlantısı da iletilir.' },
+  { ikon: 'info', baslik: 'Bilmeniz gerekenler', metin: `Saat seçmeli randevu takvimi Pro üyelikle (${PRO_FIYAT_ETIKET}) açılır. Bildirimler e-postayla gider; hasta e-posta bırakmazsa ona onay ve hatırlatma gitmez.` },
+];
+
 const SSS: { s: string; c: string }[] = [
-  { s: 'Hekimhane üzerinden randevu nasıl alınır?', c: 'Hekimin veya kliniğin Hekimhane profiline gidip “Randevu Al” butonuna basın, açık tarih ve saat dilimini seçin, ad-soyad ve iletişim bilginizi bırakın. Talebiniz anında hekime iletilir ve size onay e-postası gönderilir.' },
-  { s: 'Randevu aldığımda bana e-posta gelir mi?', c: 'Evet. Randevu oluşturulduğunda hem hekime hem de randevuyu oluşturan kişiye otomatik onay e-postası gönderilir. Ayrıca randevu tarihinden önce hatırlatma e-postası iletilir.' },
+  { s: 'Hekimhane üzerinden randevu nasıl alınır?', c: 'Hekimin veya kliniğin Hekimhane profiline gidip “Randevu Al” butonuna basın, açık tarih ve saat dilimini seçin, ad-soyad ve iletişim bilginizi bırakın. Talebiniz anında hekime iletilir; e-posta adresi bıraktıysanız talebinizin alındığını bildiren bir e-posta da gelir.' },
+  { s: 'Randevu aldığımda bana e-posta gelir mi?', c: 'E-posta adresi bıraktıysanız evet: talebiniz alındığında bilgilendirme e-postası gelir, randevu gününden bir gün önce de hatırlatma iletilir. Hekime ise her yeni talepte e-posta gider.' },
   { s: 'Randevuya gelemeyeceğim, ne yapmalıyım?', c: 'Hatırlatma e-postasındaki bilgilerle hekime en kısa sürede haber vermeniz yeterlidir. Erken bilgi vermeniz, o saatin başka bir hastaya açılmasını sağlar.' },
   { s: 'Hekimler randevu takvimini nasıl yönetir?', c: 'Hekimler panelden istedikleri gün ve saat dilimlerini tek dokunuşla randevuya kapatabilir (bloke) veya yeniden açabilir. Bloke edilen saatler hastalara gösterilmez.' },
+  { s: 'Randevu süresini değiştirebilir miyim?', c: 'Evet. Panelin Randevu Takvimi sekmesinde randevu süresini 15, 20, 30, 45 ya da 60 dakika olarak seçersiniz. Saatler, profilinizdeki çalışma saatlerinden okunur.' },
+  { s: 'Randevuyu ertelersem ya da iptal edersem hasta haberdar olur mu?', c: 'Evet. Hasta e-posta adresi bıraktıysa, ertelemede yeni tarih-saat, iptalde iptal bilgisi e-postayla gider. Seçtiğiniz yeni saat başka bir hasta tarafından alınmışsa sistem erteleme yapmaz, başka saat seçmenizi ister.' },
+  { s: 'Randevu takvimi ücretsiz mi?', c: `Hekimhane profili ücretsizdir. Hastaların saat seçerek randevu aldığı takvim ise Pro üyelikle (${PRO_FIYAT_ETIKET}) açılır.` },
 ];
 
 export default function RandevuSistemiPage() {
@@ -87,9 +111,9 @@ export default function RandevuSistemiPage() {
         rozet="Pro"
         urun="Hekimhane | Randevu Takvimi"
         baslik={['Randevular telefonla değil,', 'sistemden seçilir']}
-        govde="Hem hekime hem hastaya anında e-posta gider, randevudan önce hatırlatma gönderilir; hekimler takvimlerini istedikleri gibi açıp kapatır."
+        govde="Hekime her talepte e-posta gider, hasta e-posta bıraktıysa bilgilendirilir ve randevudan bir gün önce hatırlatma alır; hekimler takvimlerini istedikleri gibi açıp kapatır."
         birincil={{ ad: 'İşletmemi ekle', href: '/katil' }}
-        ikincil={{ ad: 'Nasıl çalışır?', href: '#nasil' }}
+        ikincil={{ ad: 'Demo talep edin', href: '#demo' }}
         sahne={<Sahne />}
         alt={
           <Link href="/doktorlar" className="oz-ortak-not">
@@ -100,16 +124,30 @@ export default function RandevuSistemiPage() {
       />
 
       <OzBant
-        baslik="Yazılı onay, zamanında hatırlatma"
+        baslik="Yazılı bilgi, zamanında hatırlatma"
         alt="Randevu ilk tıklamadan hatırlatmaya kadar sistemde ilerler: iki taraf da aynı bilgiye sahip olur, kimse randevuyu unutmaz."
         kartlar={FAYDALAR}
         cta={{ ad: 'İşletmemi ekle', href: '/katil' }}
       />
 
+      <OzIzgara
+        ustyazi="İki taraf için de kolay"
+        baslik="Hastalar beklemez, hekimler planlar"
+        govde="Aynı takvim hem hastanın randevu almasını hem hekimin programını kolaylaştırır. Dilerseniz kendi web sitenize de ekleyin."
+        ogeler={AVANTAJLAR}
+      />
+
       <OzAdimlar id="nasil" baslik="Dört adımda randevu" adimlar={ADIMLAR} />
 
+      <OzKartlar
+        ustyazi="Güven ve sınırlar"
+        baslik="Kontrol sizde, kurallar açık"
+        govde="Takvimin neyi yapıp neyi yapmadığını baştan bilin."
+        ogeler={GUVEN}
+      />
+
       {/* ── Takvim kontrolü ── */}
-      <section className="vt-zemin vt-bolum">
+      <section className="vt-bolum">
         <div className="container oz-ikili">
           <div>
             <p className="vt-ustyazi">Takvim kontrolü</p>
@@ -123,27 +161,24 @@ export default function RandevuSistemiPage() {
         </div>
       </section>
 
-      <OzIzgara
-        zemin="beyaz"
-        ustyazi="İki taraf için de kolay"
-        baslik="Hastalar beklemez, hekimler planlar"
-        govde="Aynı takvim hem hastanın randevu almasını hem hekimin programını kolaylaştırır. Dilerseniz kendi web sitenize de ekleyin."
-        ogeler={AVANTAJLAR}
+      <OzBasvuru
+        urun="randevu-sistemi"
+        baslik="Randevu takvimini sizin için kuralım"
+        metin={`Saat seçmeli randevu takvimi Hekimhane-Pro üyelikle (${PRO_FIYAT_ETIKET}) açılır. Takvimi kurmanız ya da nasıl çalıştığını görmeniz için bilgilerinizi bırakın, sizi arayalım. Hekimhane profili ücretsizdir.`}
+        vaatler={[
+          { ikon: 'appointment', ad: 'Takvimi birlikte kuralım' },
+          { ikon: 'message', ad: 'Canlı demo ile görün' },
+          { ikon: 'premium', ad: `Pro üyelik: ${PRO_FIYAT_ETIKET}` },
+        ]}
+        formBaslik="Randevu takvimini sizin için kuralım"
+        formAciklama="Bilgilerinizi bırakın; takvimi ve Pro üyeliği anlatmak için sizi arayalım."
+        formEtiket="Pro"
       />
 
-      <OzKapanis
-        baslik="Randevu sistemini hemen kullanın"
-        metin={`Bir hekim veya klinik arıyorsanız profilinden dakikalar içinde randevu alın. İşletme sahibiyseniz Hekimhane’ye ücretsiz katılın; saat seçmeli randevu takvimini Pro üyelikle (${PRO_FIYAT_ETIKET}) açın.`}
-        birincil={{ ad: 'Hekimlerden randevu al', href: '/doktorlar' }}
-        ikincil={{ ad: 'İşletmemi ekle', href: '/katil' }}
+      <OzSss
+        sorular={SSS}
+        alt={<>Hasta mısınız? <Link href="/doktorlar">Hekimlerden randevu alın</Link>. Başka sorularınız için <Link href="/iletisim">iletişim</Link> sayfasından bize ulaşabilirsiniz.</>}
       />
-
-      <OzSss sorular={SSS} />
-      <div className="vt-zemin">
-        <p className="container" style={{ margin: '-48px auto 0', paddingBottom: 64, textAlign: 'center', fontSize: 14.5, color: '#586273' }}>
-          Sorularınız için <Link href="/iletisim" style={{ color: '#12294D', fontWeight: 700 }}>iletişim</Link> sayfasından bize ulaşabilirsiniz.
-        </p>
-      </div>
     </OzSayfa>
   );
 }

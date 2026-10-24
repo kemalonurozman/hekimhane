@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import type { HkIkonAdi } from '@/components/HkIcon';
-import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzBant, OzIzgara, OzAdimlar, OzKartlar, OzKapanis, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
+import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzBant, OzIzgara, OzAdimlar, OzKartlar, OzBasvuru, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
 
 // Değerlendirme ve Yorum Sistemi — özellik sayfası dili (bkz. components/ozellik/Ozellik.tsx).
 // Kaynak bilgiler: CLAUDE.md "Onaylı Yorum" + "Yorum Şikayet / Moderasyon Akışı".
@@ -116,15 +117,22 @@ export default function DegerlendirmeSistemiPage() {
         urun="Hekimhane | Değerlendirme Sistemi"
         baslik={['Puanlar ve yorumlar', 'nasıl çalışır?']}
         govde="Hekimhane’de güven her şeyin önünde gelir. Değerlendirmelerin kaynağını, puanın nasıl hesaplandığını, onaylı hasta yorumlarını ve gizliliği burada şeffaf biçimde açıklıyoruz."
-        birincil={{ ad: 'Diş kliniklerini keşfedin', href: '/klinikler' }}
-        ikincil={{ ad: 'Puan nasıl hesaplanır?', href: '#puan' }}
+        birincil={{ ad: 'Bilgi isteyin', href: '#basvuru' }}
+        ikincil={{ ad: 'Demo talep edin', href: '#demo' }}
         sahne={<Sahne />}
+        alt={
+          <p style={{ margin: '18px 0 0', fontSize: 14, lineHeight: 1.6, color: '#586273' }}>
+            Hasta mısınız? <Link href="/klinikler" style={{ color: '#1B3A69', fontWeight: 700, textDecoration: 'underline' }}>Diş kliniklerini keşfedin</Link>
+            {' '}ya da <a href="#puan" style={{ color: '#1B3A69', fontWeight: 700, textDecoration: 'underline' }}>puanın nasıl hesaplandığını</a> okuyun.
+          </p>
+        }
       />
 
       <OzBant
         baslik="Güvenilir yorumlar, adil puanlar"
         alt="Değerlendirmeler gerçek kişilerden gelir, gizliliğiniz korunur ve tek bir yorum bir işletmenin puanını haksız yere değiştiremez."
         kartlar={FAYDALAR}
+        cta={{ ad: 'Bilgi isteyin', href: '#basvuru' }}
       />
 
       <OzIzgara
@@ -132,6 +140,15 @@ export default function DegerlendirmeSistemiPage() {
         baslik="Gerçek kişiler, şeffaf kurallar"
         govde="Puanlar ve yorumlar; kliniği, hekimi veya eczaneyi ziyaret eden gerçek kişiler tarafından bırakılır. İşletme sahibi bu yorumlara yanıt verebilir."
         ogeler={TURLER}
+      />
+
+      <OzAdimlar id="onayli" ustyazi="Onaylı yorum" baslik="Randevudan onaylı yoruma dört adım" adimlar={ADIMLAR} />
+
+      <OzKartlar
+        ustyazi="Doğrulama ve moderasyon"
+        baslik="Değerlendirmeler tarafsız kalır"
+        govde="İşletmeler yorumlara yanıt verebilir ve uygunsuz içeriği bildirebilir; karar her zaman Hekimhane moderasyon ekibindedir."
+        ogeler={MODERASYON}
       />
 
       {/* ── PUAN HESABI ── */}
@@ -175,20 +192,18 @@ export default function DegerlendirmeSistemiPage() {
         </div>
       </section>
 
-      <OzAdimlar id="onayli" ustyazi="Onaylı yorum" baslik="Randevudan onaylı yoruma dört adım" adimlar={ADIMLAR} />
-
-      <OzKartlar
-        ustyazi="Doğrulama ve moderasyon"
-        baslik="Değerlendirmeler tarafsız kalır"
-        govde="İşletmeler yorumlara yanıt verebilir ve uygunsuz içeriği bildirebilir; karar her zaman Hekimhane moderasyon ekibindedir."
-        ogeler={MODERASYON}
-      />
-
-      <OzKapanis
-        baslik="Deneyiminizi paylaşın"
-        metin="Ziyaret ettiğiniz kliniğin, hekimin veya eczanenin Hekimhane profiline gidin; “Deneyiminizi paylaşın” bölümünden yıldız verip yorumunuzu yazın. Deneyiminiz, sizden sonra gelen hastalara yol gösterir."
-        birincil={{ ad: 'Diş kliniklerini keşfedin', href: '/klinikler' }}
-        ikincil={{ ad: 'Bize ulaşın', href: '/iletisim' }}
+      <OzBasvuru
+        urun="degerlendirme"
+        baslik="Yorum yönetimini birlikte kuralım"
+        metin="İşletmenizin yorumlarına nasıl yanıt vereceğinizi, uygunsuz bir yorumu nasıl şikâyet edeceğinizi ve randevusu tamamlanan hastaya değerlendirme bağlantısının nasıl ulaşacağını anlatmak için sizi arayalım. Hasta olarak yorum bırakmak isterseniz ziyaret ettiğiniz kliniğin, hekimin veya eczanenin Hekimhane profilindeki “Deneyiminizi paylaşın” bölümünü kullanın; diş kliniklerini sayfanın üstündeki bağlantıdan keşfedebilirsiniz."
+        vaatler={[
+          { ikon: 'message', ad: 'Yorumlara yanıt vermeyi anlatalım' },
+          { ikon: 'warning', ad: 'Şikâyet ve moderasyon akışını gösterelim' },
+          { ikon: 'verified', ad: 'Onaylı yorum bağlantısını birlikte kuralım' },
+        ]}
+        formBaslik="Yorum yönetimi hakkında bilgi alın"
+        formAciklama="Bilgilerinizi bırakın; ekibimiz sizi arayıp yorum yönetimini anlatsın ya da canlı olarak göstersin."
+        formEtiket="Ücretsiz"
       />
 
       <OzSss sorular={SSS} />

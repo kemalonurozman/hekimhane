@@ -1156,3 +1156,12 @@ a.vt-oz:hover { box-shadow: inset 0 0 0 1.5px #0E1A2C; }
   .vt-dugme.oz-dugme--altin, .oz-adim__no, .oz-adim__no::before, .oz-adim__no::after { animation: none; }
   .vt-dugme.oz-dugme--altin::after { display: none; }
 }
+
+/* ═══ Sürüklenebilir vitrin (Eki 2026) — telefonda parmak, bilgisayarda fare; geçişler yana kayar ═══ */
+.vt-sek__icerik { touch-action: pan-y; cursor: grab; }
+.vt-sek__icerik.is-suruk { cursor: grabbing; user-select: none; }
+.vt-sek__icerik--ileri { animation: vt-kay-ileri .65s cubic-bezier(.2,.8,.2,1) backwards; }
+.vt-sek__icerik--geri { animation: vt-kay-geri .65s cubic-bezier(.2,.8,.2,1) backwards; }
+@keyframes vt-kay-ileri { from { opacity: 0; transform: translateX(72px); } }
+@keyframes vt-kay-geri { from { opacity: 0; transform: translateX(-72px); } }
+.vt-sek__icerik a, .vt-sek__icerik img { -webkit-user-drag: none; }

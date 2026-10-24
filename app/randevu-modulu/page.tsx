@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
-import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKapanis, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
+import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKartlar, OzBasvuru, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
 import { PRO_FIYAT_ETIKET } from '@/lib/pro-plan';
 
 // Randevu Modülü (Pro) — özellik sayfası dili (bkz. components/ozellik/Ozellik.tsx).
@@ -47,22 +47,51 @@ const KAYNAKLAR: { baslik: string; metin: string; gorsel: React.ReactNode }[] = 
   },
 ];
 
-const OZELLIKLER: { etiket: string; ad: string; ikon: HkIkonAdi; renk: string; metin: string }[] = [
-  { etiket: 'Kurulum', ad: 'Sitenize gömün', ikon: 'clinic', renk: 'rgba(26,95,208,.4)', metin: 'Tek satırlık HTML kodunu WordPress, Wix ya da kendi sitenize yapıştırın — kod bilgisi gerekmez.' },
-  { etiket: 'HekimKart', ad: 'HekimKart’ta hazır', ikon: 'hekimkart', renk: 'rgba(184,137,47,.5)', metin: 'Ücretsiz HekimKart sayfanızda randevu butonu baştan gelir; ayrıca kurmanıza gerek yok.' },
-  { etiket: 'Panel', ad: 'Tek panelde buluşur', ikon: 'appointment', renk: 'rgba(13,124,121,.45)', metin: 'Hangi kaynaktan gelirse gelsin tüm talepler Hekimhane panelinizdeki Randevu Talepleri’ne düşer.' },
-  { etiket: 'Bildirim', ad: 'Anında haber', ikon: 'notification', renk: 'rgba(26,95,208,.4)', metin: 'Her yeni talepte size ve ekibinize e-posta gider; hiçbir randevuyu kaçırmayın.' },
-  { etiket: 'Esneklik', ad: 'Her yerde çalışır', ikon: 'share', renk: 'rgba(13,124,121,.45)', metin: 'Web siteniz, blog, açılış sayfası — nereye koyarsanız oradan randevu toplar.' },
-  { etiket: 'Görünüm', ad: 'Markanıza uyar', ikon: 'settings', renk: 'rgba(184,137,47,.5)', metin: 'Renk parametresiyle modülü markanıza uydurun; mobil uyumlu ve hızlı yüklenir.' },
+const OZELLIKLER: { etiket: string; ad: string; ikon: HkIkonAdi; renk: string; maddeler: string[] }[] = [
+  {
+    etiket: 'Kurulum', ad: 'Sitenize gömün', ikon: 'clinic', renk: 'rgba(26,95,208,.4)',
+    maddeler: [
+      'Tek satırlık HTML kodunu kopyalayıp yapıştırırsınız',
+      'WordPress, Wix ya da kendi sitenizde çalışır',
+      'Kod bilgisi gerekmez',
+      'Kodu panelde canlı önizlemeyle görürsünüz',
+    ],
+  },
+  {
+    etiket: 'Panel', ad: 'Tek panelde buluşur', ikon: 'appointment', renk: 'rgba(13,124,121,.45)',
+    maddeler: [
+      'Sitenizden, HekimKart’ınızdan ve profilinizden gelen talepler aynı yerde',
+      'Randevu Talepleri’nde liste ve takvim görünümü',
+      'Her yeni talepte e-posta bildirimi',
+      'Yeni, arandı, tamamlandı olarak takip',
+    ],
+  },
+  {
+    etiket: 'Görünüm', ad: 'Markanıza uyar', ikon: 'settings', renk: 'rgba(184,137,47,.5)',
+    maddeler: [
+      'Bağlantıya renk parametresi ekleyerek markanızın rengine uydurun',
+      'Mobil uyumlu, sitenizin içinde açılır',
+      'Takvim açıksa hasta uygun saati seçer, dolu saatler gizlenir',
+      'Takvim kapalıysa hasta tarih ve saat tercihini bırakır',
+    ],
+  },
 ];
 
 const ADIMLAR = [
+  { baslik: 'Pro üyeliği açın', metin: 'Randevu modülü Hekimhane-Pro ile çalışır. Pro değilse sitenizde modül yerine bir kilit ekranı görünür.' },
   { baslik: 'Panelden kodu kopyalayın', metin: 'Profili Düzenle → “Siteme Ekle” sekmesinden işletmenize özel hazır kodu kopyalayın.' },
   { baslik: 'Sitenize yapıştırın', metin: 'Kodu web sitenizde randevu almak istediğiniz yere ekleyin. Teknik bilgi gerekmez.' },
-  { baslik: 'Randevular panele düşsün', metin: 'Ziyaretçileriniz sizin sitenizden randevu bıraksın; talepler tek panelde toplansın.' },
+  { baslik: 'Randevular panele düşsün', metin: 'Ziyaretçileriniz sizin sitenizden randevu bıraksın; talepler tek panelde toplansın, size e-posta gelsin.' },
 ];
 
-const NERELERE = ['WordPress', 'Wix', 'Kendi web siteniz', 'Açılış sayfaları', 'Blog yazıları', 'Google İşletme profili'];
+const GUVEN: { ikon: HkIkonAdi; baslik: string; metin: string }[] = [
+  { ikon: 'settings', baslik: 'Takvim sizde', metin: 'Çalışma saatleriniz, randevu süresi ve kapattığınız saatler takvim açıkken sitenizdeki modülde de geçerlidir.' },
+  { ikon: 'notification', baslik: 'Talep kaçmaz', metin: 'Her yeni talepte size e-posta gider; Pro üyelikte bildirim iki adrese tanımlanabilir.' },
+  { ikon: 'verified', baslik: 'Spam koruması', metin: 'Randevu formunda gizli bir tuzak alanı ve hız sınırı koruması bulunur; otomatik gönderimlere karşı ilk savunma hattıdır.' },
+  { ikon: 'info', baslik: 'Pro gerekir', metin: `Randevu modülü Pro üyelikle (${PRO_FIYAT_ETIKET}) çalışır. Ücretsiz üyelikte sitenizde modül yerine kilit ekranı gösterilir.` },
+];
+
+const NERELERE = ['WordPress', 'Wix', 'Kendi web siteniz', 'Açılış sayfaları', 'Blog yazıları'];
 
 const IFRAME_KODU = `<iframe src="https://www.hekimhane.com.tr/embed/randevu?type=doktor&id=..."
         width="100%" height="640" style="border:0;max-width:480px"></iframe>`;
@@ -73,6 +102,8 @@ const SSS: { s: string; c: string }[] = [
   { s: 'Gelen talepler nereye düşer?', c: 'Hangi kaynaktan gelirse gelsin — web siteniz, HekimKart’ınız ya da Hekimhane profiliniz — tüm talepler panelinizdeki “Randevu Talepleri” sekmesine düşer; her yeni talepte size ve ekibinize e-posta gider.' },
   { s: 'Modülü markamın rengine uydurabilir miyim?', c: 'Evet. Renk parametresiyle modülü markanıza uydurabilirsiniz; modül mobil uyumludur.' },
   { s: 'Randevu modülü hangi üyelikte var?', c: `Randevu modülü Pro üyelikle kullanılır (${PRO_FIYAT_ETIKET}). Hekimhane profiliniz ücretsizdir.` },
+  { s: 'Pro üyeliğim yoksa sitemde ne görünür?', c: 'Modül kilitli görünür: ziyaretçilere randevu modülünün şu an aktif olmadığı bilgisi gösterilir. Pro üyelik açıldığında aynı kod kendiliğinden çalışmaya başlar.' },
+  { s: 'Ziyaretçiler hangi bilgileri bırakır?', c: 'Ad soyad ve telefon zorunludur; e-posta, tarih, saat ve mesaj isteğe bağlıdır. Talep, panelinizdeki Randevu Talepleri sekmesine düşer.' },
 ];
 
 export default function RandevuModuluPage() {
@@ -96,7 +127,7 @@ export default function RandevuModuluPage() {
         baslik={['Her yerden', 'randevu alın']}
         govde="Kendi web sitenizden, HekimKart’ınızdan ve Hekimhane profilinizden gelen tüm randevu talepleri tek panelde buluşur. Farklı yerlerden ve sayfalardan randevu almaya bugün başlayın."
         birincil={{ ad: 'İşletmenizi ekleyin', href: '/katil' }}
-        ikincil={{ ad: 'Neden Hekimhane?', href: '/neden-hekimhane' }}
+        ikincil={{ ad: 'Demo talep edin', href: '#demo' }}
         sahne={<Sahne />}
         alt={
           <Link href="/randevu-sistemi" className="oz-ortak-not">
@@ -116,13 +147,21 @@ export default function RandevuModuluPage() {
       <OzIzgara
         ustyazi="Neden kolay?"
         baslik="Kurulumu dakikalar, etkisi kalıcı"
+        govde="Kodu bir kez yapıştırırsınız; talepler tek panelde toplanır."
         ogeler={OZELLIKLER}
       />
 
-      <OzAdimlar id="nasil" ustyazi="Nasıl eklenir?" baslik="Üç adımda sitenizde" adimlar={ADIMLAR} />
+      <OzAdimlar id="nasil" ustyazi="Nasıl eklenir?" baslik="Dört adımda sitenizde" adimlar={ADIMLAR} />
+
+      <OzKartlar
+        ustyazi="Güven ve sınırlar"
+        baslik="Kontrol sizde, kurallar açık"
+        govde="Modülün neyi yapıp neyi yapmadığını baştan bilin."
+        ogeler={GUVEN}
+      />
 
       {/* ── Örnek kod ── */}
-      <section className="vt-zemin vt-bolum">
+      <section className="vt-bolum">
         <div className="container oz-ikili">
           <div>
             <p className="vt-ustyazi">Örnek kod</p>
@@ -161,14 +200,24 @@ export default function RandevuModuluPage() {
         </div>
       </section>
 
-      <OzKapanis
-        baslik="Farklı yerlerden randevu almaya başlayın"
-        metin={`Ücretsiz profilinizi oluşturun; Pro üyelikle (${PRO_FIYAT_ETIKET}) randevu modülünü sitenize ekleyin, tüm talepleri tek panelde yönetin.`}
-        birincil={{ ad: 'İşletmenizi ekleyin', href: '/katil' }}
-        ikincil={{ ad: 'Randevu takvimini inceleyin', href: '/randevu-sistemi' }}
+      <OzBasvuru
+        urun="randevu-modulu"
+        baslik="Randevu modülünü sitenize kuralım"
+        metin={`Ücretsiz profilinizi oluşturun; Pro üyelikle (${PRO_FIYAT_ETIKET}) randevu modülünü sitenize ekleyin, tüm talepleri tek panelde yönetin. Kurulumda takılırsanız bilgilerinizi bırakın, sizi arayalım.`}
+        vaatler={[
+          { ikon: 'clinic', ad: 'Kodu sitenize birlikte ekleyelim' },
+          { ikon: 'message', ad: 'Canlı demo ile görün' },
+          { ikon: 'premium', ad: `Pro üyelik: ${PRO_FIYAT_ETIKET}` },
+        ]}
+        formBaslik="Randevu modülünü sitenize kuralım"
+        formAciklama="Bilgilerinizi bırakın; modülü ve Pro üyeliği anlatmak için sizi arayalım."
+        formEtiket="Pro"
       />
 
-      <OzSss sorular={SSS} />
+      <OzSss
+        sorular={SSS}
+        alt={<>Randevu takvimi için <Link href="/randevu-sistemi">Randevu Takvimi</Link> sayfasına, genel bilgi için <Link href="/neden-hekimhane">Neden Hekimhane?</Link> sayfasına göz atabilirsiniz.</>}
+      />
     </OzSayfa>
   );
 }

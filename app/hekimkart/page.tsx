@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
-import { OzSayfa, OzHero, OzSahne, OzBant, OzAdimlar, OzKartlar, OzKapanis, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
+import { OzSayfa, OzHero, OzSahne, OzBant, OzIzgara, OzAdimlar, OzKartlar, OzBasvuru, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
 
 // HekimKart tanıtım sayfası — ücretsiz dijital kartvizit. Özellik sayfası dili (components/ozellik).
 // Sahnedeki kart temsilidir (gerçek kişi değil).
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
 };
 
-// ── Butonların sırası (koyu bant) ──
+// ── Karar yolculuğu (koyu bant) ──
 const SIRA: { baslik: string; metin: string; gorsel: React.ReactNode }[] = [
   {
     baslik: '1 · Önce eylem',
@@ -37,31 +37,56 @@ const SIRA: { baslik: string; metin: string; gorsel: React.ReactNode }[] = [
     metin: 'Web sitesi ve konum en altta: kararını vermiş, iletişime geçmiş hasta için yol tarifi.',
     gorsel: <MiniYon />,
   },
+  {
+    baslik: '4 · Kartı dışarı taşıyın',
+    metin: 'QR kod kliniğinizde, vitrininizde ve basılı kartvizitinizde. Okutan hasta saniyeler içinde kartınızda.',
+    gorsel: <MiniQr />,
+  },
 ];
 
-// ── "Neden özel?" — her başlık + önemi ──
+// ── Üç büyük kart: paylaşım, butonlar, profille bağ (kaynak: bu sayfanın önceki metinleri + app/kart ve CLAUDE.md "HekimKart") ──
+const BOLUMLER: { etiket: string; ad: string; ikon: HkIkonAdi; renk: string; maddeler: string[] }[] = [
+  {
+    etiket: 'Paylaşım', ad: 'Tek link ve QR kod', ikon: 'hekimkart', renk: 'rgba(26,95,208,.45)',
+    maddeler: [
+      'Tüm iletişim kanallarınız tek bağlantıda',
+      'QR kodu kliniğinizde, vitrininizde ve basılı kartvizitinizde kullanın',
+      'Okutan hasta saniyeler içinde kartınıza ulaşır',
+      'Web sitenize ekleyebileceğiniz hazır rozet kodu panelde',
+    ],
+  },
+  {
+    etiket: 'Butonlar', ad: 'Önceliklendirilmiş butonlar', ikon: 'appointment', renk: 'rgba(13,124,121,.45)',
+    maddeler: [
+      'Online randevu ve doğrudan arama en üstte; hasta aramadan talebini bırakabilir',
+      'Instagram, LinkedIn ve Facebook tek kompakt satırda',
+      'Web sitesi ve Google Maps ile tek dokunuşta konum en altta',
+      'Web sitesi isteğe bağlıdır; boşsa kartta görünmez',
+    ],
+  },
+  {
+    etiket: 'Otomatik güncelleme', ad: 'Profilinizle canlı bağlı', ikon: 'doctor-profile', renk: 'rgba(184,137,47,.5)',
+    maddeler: [
+      'Kartta boş bıraktığınız fotoğraf, telefon, web sitesi, konum ve sosyal bağlantılar profilinizden gelir',
+      'Profilinizi güncellediğinizde, karta ayrıca yazmadığınız alanlar da güncellenir',
+      'Puan ve yorumlar Hekimhane profilinizdeki gerçek hasta yorumlarından gelir',
+      'Panelde ziyaretçinin göreceği kartı gerçek hâliyle önizlersiniz',
+    ],
+  },
+];
+
+// ── Sağlığa özel (4 ikonlu kart) ──
 const OZELLIKLER: { ikon: HkIkonAdi; baslik: string; metin: string }[] = [
-  { ikon: 'appointment', baslik: 'Online randevu — en üstte', metin: 'Kartın ilk butonu randevu. Hasta sizi araması gerekmeden, o an talebini bırakır; kaçan hastayı yakalar. Bu yüzden en üstte.' },
-  { ikon: 'phone', baslik: 'Doğrudan ara', metin: 'Tek dokunuşla telefon açılır. Acil ağrı ya da hızlı bilgi isteyen hasta için en kısa yol; randevunun hemen altında.' },
-  { ikon: 'share', baslik: 'Instagram · LinkedIn · Facebook', metin: 'Instagram vaka vitrininiz, LinkedIn profesyonel kimliğiniz, Facebook topluluğunuz. Üçü birden güven inşa eder.' },
-  { ikon: 'clinic', baslik: 'Web sitesi', metin: 'Kendi siteniz varsa buradan bağlanır: hizmetleriniz, ekibiniz ve içerikleriniz için ayrıntılı vitrin. İsteğe bağlı; dolu değilse görünmez.' },
-  { ikon: 'location-pin', baslik: 'Konum — en altta', metin: 'Hasta kararını verip iletişime geçtikten sonra ihtiyacı olan son şey: yol tarifi. Google Maps ile tek dokunuşta navigasyon.' },
   { ikon: 'verified', baslik: 'Onaylı Hekim rozeti', metin: 'Pro hesaplarda kartın en üstünde yeşil onay rozeti. Sıradan bir link listesinden ayrışmanızı sağlar; güveni ve ciddiyeti artırır.' },
-  { ikon: 'hekimkart', baslik: 'QR kod', metin: 'Kliniğinizde, vitrininizde, basılı kartınızda QR. Okutan hasta saniyeler içinde kartınızda; fiziksel dünyayı dijitale bağlayan köprü.' },
   { ikon: 'star-rating', baslik: 'Gerçek puan ve yorumlar', metin: 'Kartınızdaki puan, Hekimhane profilinizdeki gerçek hasta yorumlarından gelir; uydurma değil. Şeffaf itibar, en güçlü pazarlama.' },
+  { ikon: 'doctor-profile', baslik: 'Hekimhane profilinize bağlı', metin: 'Kart, doğrudan Hekimhane profilinize bağlı yapısıyla sıradan bağlantı araçlarından ayrılır; hasta karşısına doğrulanmış kimlikle çıkarsınız.' },
+  { ikon: 'price-guide', baslik: 'Tamamen ücretsiz', metin: 'HekimKart ücretsizdir. Yalnızca kartın en üstündeki yeşil Onaylı Hekim rozeti Pro hesaplarda görünür.' },
 ];
 
 const ADIMLAR = [
   { baslik: 'Kliniğinizi ekleyin', metin: 'Kliniğinizi Hekimhane’ye ücretsiz ekleyin.' },
   { baslik: 'Kartınız hazır', metin: 'Profiliniz onaylandığında dijital kartınız otomatik olarak hazır olur.' },
   { baslik: 'Paylaşın', metin: 'Tek bağlantıyı ve QR kodu kliniğinizde, vitrininizde ve basılı kartınızda kullanın.' },
-];
-
-const FARKLAR = [
-  'Onaylı Hekim rozeti (Pro hesaplarda)',
-  'Gerçek hasta yorumlarından gelen puan',
-  'Doğrudan Hekimhane profilinize bağlı',
-  'Tamamen ücretsiz',
 ];
 
 const SSS: { s: string; c: string }[] = [
@@ -93,55 +118,46 @@ export default function HekimKartTanitim() {
         baslik={['Tüm iletişim kanallarınız', 'tek linkte ve QR kodda']}
         govde="Sıradan bir link listesi değil; sağlığa özel, önceliklendirilmiş bir dijital kartvizit. Online randevu, telefon, Instagram, LinkedIn, Facebook, web sitesi ve konum tek kartta."
         birincil={{ ad: 'Kliniğinizi ekleyin', href: '/katil' }}
-        ikincil={{ ad: 'Nasıl oluşturulur?', href: '#nasil' }}
+        ikincil={{ ad: 'Demo talep edin', href: '#demo' }}
         sahne={<Sahne />}
         alt={<p style={{ margin: '18px 0 0', fontSize: 13, color: '#8A93A3' }}>Sağdaki örnek karttır. Gerçek kartınızda kendi fotoğrafınızı ve bilgilerinizi kullanırsınız.</p>}
       />
 
       <OzBant
         baslik="Butonların sırası tesadüf değil"
-        alt="HekimKart, bir hastanın karar yolculuğuna göre tasarlandı: önce eylem, sonra güven, en son yön."
+        alt="HekimKart, bir hastanın karar yolculuğuna göre tasarlandı: önce eylem, sonra güven, en son yön. QR kod ise kartı fiziksel dünyaya taşır."
         kartlar={SIRA}
         cta={{ ad: 'Kliniğinizi ekleyin', href: '/katil' }}
       />
 
-      <OzKartlar
+      <OzIzgara
         ustyazi="Neden özel bir kart?"
-        baslik="Her başlık, bir amaca hizmet ediyor"
+        baslik="Her bölüm, bir amaca hizmet ediyor"
         govde="HekimKart’taki her bölüm, hastanın sizi bulmasını, size güvenmesini ve iletişime geçmesini kolaylaştırmak için var."
-        ogeler={OZELLIKLER}
+        ogeler={BOLUMLER}
       />
 
       <OzAdimlar id="nasil" ustyazi="Nasıl oluşturulur?" baslik="Üç adımda kartınız hazır" adimlar={ADIMLAR} />
 
-      {/* ── SAĞLIĞA ÖZEL ── */}
-      <section className="vt-zemin vt-bolum">
-        <div className="container oz-ikili">
-          <div>
-            <p className="vt-ustyazi">Sağlığa özel</p>
-            <h2 className="vt-h2">Genel bir “link sayfası” değil</h2>
-            <p className="vt-govde">
-              HekimKart; Onaylı Hekim rozeti, gerçek hasta yorumlarından gelen puan ve doğrudan Hekimhane profilinize bağlı yapısıyla
-              sıradan bağlantı araçlarından ayrılır. Hastanın karşısına güven ve doğrulanmış kimlikle çıkarsınız.
-            </p>
-          </div>
-          <div className="oz-panel" style={{ marginTop: 0 }}>
-            <ul className="oz-madde" style={{ gap: 16 }}>
-              {FARKLAR.map(m => (
-                <li key={m} style={{ fontSize: 17, fontWeight: 600, color: '#0E1A2C' }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E8E5A" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
-                  {m}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
+      <OzKartlar
+        ustyazi="Sağlığa özel"
+        baslik="Genel bir “link sayfası” değil"
+        govde="Onaylı Hekim rozeti, gerçek hasta yorumlarından gelen puan ve profilinize bağlı yapı: hastanın karşısına güven ve doğrulanmış kimlikle çıkarsınız."
+        ogeler={OZELLIKLER}
+      />
 
-      <OzKapanis
-        baslik="Kendi HekimKart’ınızı oluşturun"
-        metin="Kliniğinizi Hekimhane’ye ekleyin; profiliniz onaylandığında dijital kartınız otomatik hazır olur."
-        birincil={{ ad: 'Kliniğinizi ekleyin', href: '/katil' }}
+      <OzBasvuru
+        urun="hekimkart"
+        baslik="HekimKart hakkında bilgi alın"
+        metin="HekimKart ücretsizdir. Kliniğinizi Hekimhane’ye ekleyerek kartınızı hemen oluşturabilirsiniz; profiliniz onaylandığında dijital kartınız otomatik hazır olur. Sorularınız ya da canlı gösterim için formu doldurun."
+        vaatler={[
+          { ikon: 'phone', ad: 'Sizi arayıp anlatalım' },
+          { ikon: 'message', ad: 'Canlı demo ile görün' },
+          { ikon: 'hekimkart', ad: 'Tamamen ücretsiz' },
+        ]}
+        formBaslik="HekimKart için bize ulaşın"
+        formAciklama="Bilgilerinizi bırakın; kartınızı nasıl oluşturacağınızı anlatalım ya da canlı gösterelim."
+        formEtiket="Ücretsiz"
       />
 
       <OzSss sorular={SSS} />
@@ -275,6 +291,14 @@ function MiniGuven() {
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE', fontSize: 12, fontWeight: 700, color: '#12294D' }}>
         <HkIcon name="verified" size={15} color="#1E8E5A" accent={false} />Onaylı Hekim
       </span>
+    </div>
+  );
+}
+
+function MiniQr() {
+  return (
+    <div style={{ width: 92, padding: 8, borderRadius: 12, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE' }}>
+      <Karekod />
     </div>
   );
 }

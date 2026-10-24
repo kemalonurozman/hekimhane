@@ -33,8 +33,12 @@ CREATE TABLE IF NOT EXISTS booking_bekleme (
 -- Tablo daha önce talep kolonu olmadan oluşturulduysa
 ALTER TABLE booking_bekleme ADD COLUMN IF NOT EXISTS talep TEXT NOT NULL DEFAULT 'kurulum';
 
--- Aynı e-posta ikinci kez gelirse yeni satır açılmaz, mevcut kayıt güncellenir
-CREATE UNIQUE INDEX IF NOT EXISTS booking_bekleme_email_uniq ON booking_bekleme (lower(email));
+-- Başvurunun geldiği özellik sayfası (booking | randevu-sistemi | randevu-modulu | mcp | pro | hekimkart | degerlendirme | genel)
+ALTER TABLE booking_bekleme ADD COLUMN IF NOT EXISTS urun TEXT NOT NULL DEFAULT 'booking';
+
+-- Aynı e-posta aynı ürün için ikinci kez gelirse yeni satır açılmaz, mevcut kayıt güncellenir
+DROP INDEX IF EXISTS booking_bekleme_email_uniq;
+CREATE UNIQUE INDEX IF NOT EXISTS booking_bekleme_email_urun_uniq ON booking_bekleme (lower(email), urun);
 CREATE INDEX IF NOT EXISTS booking_bekleme_durum_idx ON booking_bekleme (durum);
 CREATE INDEX IF NOT EXISTS booking_bekleme_created_idx ON booking_bekleme (created_at DESC);
 

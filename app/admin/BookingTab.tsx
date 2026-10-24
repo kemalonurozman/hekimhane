@@ -4,10 +4,10 @@
 // Veri: /api/admin/booking-bekleme (service-role). Durum + not satır içinde kaydedilir.
 import { useEffect, useMemo, useState } from 'react';
 import { C, YUZEY } from './tema';
-import { BOOKING_ROLLER, BOOKING_KANALLAR, BOOKING_HACIM, BOOKING_DURUMLAR, BOOKING_TALEPLER, etiketBul } from '@/lib/booking';
+import { BOOKING_ROLLER, BOOKING_KANALLAR, BOOKING_HACIM, BOOKING_DURUMLAR, BOOKING_TALEPLER, BOOKING_URUNLER, etiketBul } from '@/lib/booking';
 
 interface Kayit {
-  id: string; ad: string; soyad: string; email: string; tel: string; rol: string; talep?: string | null;
+  id: string; ad: string; soyad: string; email: string; tel: string; rol: string; talep?: string | null; urun?: string | null;
   kurum_adi: string | null; il: string | null; kanallar: string[] | null; cagri_hacmi: string | null;
   mesaj: string | null; bulten: boolean; durum: string; admin_notu: string | null;
   created_at: string; updated_at: string;
@@ -70,9 +70,9 @@ export default function BookingTab() {
   }, [kayitlar, durumFiltre, ara]);
 
   function csvIndir() {
-    const bas = ['Tarih', 'Talep', 'Ad', 'Soyad', 'E-posta', 'Telefon', 'Kim', 'Kurum', 'İl', 'Kanallar', 'Çağrı', 'Not', 'Bülten', 'Durum', 'Admin notu'];
+    const bas = ['Tarih', 'Özellik', 'Talep', 'Ad', 'Soyad', 'E-posta', 'Telefon', 'Kim', 'Kurum', 'İl', 'Kanallar', 'Çağrı', 'Not', 'Bülten', 'Durum', 'Admin notu'];
     const satirlar = liste.map(k => [
-      tarih(k.created_at), etiketBul(BOOKING_TALEPLER, k.talep || 'kurulum'), k.ad, k.soyad, k.email, k.tel, etiketBul(BOOKING_ROLLER, k.rol), k.kurum_adi || '', k.il || '',
+      tarih(k.created_at), etiketBul(BOOKING_URUNLER, k.urun || 'booking'), etiketBul(BOOKING_TALEPLER, k.talep || 'kurulum'), k.ad, k.soyad, k.email, k.tel, etiketBul(BOOKING_ROLLER, k.rol), k.kurum_adi || '', k.il || '',
       (k.kanallar || []).map(x => etiketBul(BOOKING_KANALLAR, x)).join(' + '),
       k.cagri_hacmi ? etiketBul(BOOKING_HACIM, k.cagri_hacmi) : '', k.mesaj || '', k.bulten ? 'Evet' : 'Hayır',
       etiketBul(BOOKING_DURUMLAR, k.durum), k.admin_notu || '',
@@ -129,7 +129,7 @@ export default function BookingTab() {
               <button onClick={() => setAcik(genis ? null : k.id)}
                 style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.4fr) minmax(0,1.2fr) minmax(0,1fr) auto', gap: 12, alignItems: 'center', width: '100%', padding: '14px 18px', border: 'none', background: genis ? C.soft : 'transparent', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit' }}>
                 <span style={{ minWidth: 0 }}>
-                  <strong style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14.5, color: C.text }}>{k.ad} {k.soyad}{k.talep === 'demo' && <span style={{ padding: '2px 7px', borderRadius: 999, background: '#E1F2EE', color: '#0B5F55', fontSize: 11, fontWeight: 700 }}>Demo</span>}</strong>
+                  <strong style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14.5, color: C.text }}>{k.ad} {k.soyad}{k.urun && k.urun !== 'booking' && <span style={{ padding: '2px 7px', borderRadius: 999, background: '#EEF3FA', color: C.navy, fontSize: 11, fontWeight: 700 }}>{etiketBul(BOOKING_URUNLER, k.urun)}</span>}{k.talep === 'demo' && <span style={{ padding: '2px 7px', borderRadius: 999, background: '#E1F2EE', color: '#0B5F55', fontSize: 11, fontWeight: 700 }}>Demo</span>}</strong>
                   <span style={{ fontSize: 12.5, color: C.muted }}>{etiketBul(BOOKING_ROLLER, k.rol)}{k.il ? ` · ${k.il}` : ''}</span>
                 </span>
                 <span style={{ minWidth: 0, fontSize: 13, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{k.kurum_adi || '—'}</span>

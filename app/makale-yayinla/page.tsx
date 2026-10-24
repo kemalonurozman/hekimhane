@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import { BLOG_YAZILARI } from '@/lib/blog-data';
 import { MAKALE_FIYAT, KDV_ORANI, KDV_TUTAR, TOPLAM, PAKET_ICERIK, tl } from '@/lib/makale-fiyat';
-import HkIcon from '@/components/HkIcon';
-import { OzSayfa, OzHero, OzSahne, OzOnayKart, OzBant, OzAdimlar, OzKapanis, OzSss, OzDugme, sssJsonLd } from '@/components/ozellik/Ozellik';
+import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
+import { OzSayfa, OzHero, OzSahne, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKartlar, OzKapanis, OzSss, OzDugme, sssJsonLd } from '@/components/ozellik/Ozellik';
 import { SiparisFormu, SoruFormu } from './MakaleYayinlaClient';
 
 // İş Ortağı İçeriği — özellik sayfası dili (bkz. components/ozellik/Ozellik.tsx).
@@ -49,6 +49,44 @@ const FAYDALAR: { baslik: string; metin: string; gorsel?: React.ReactNode; ikon?
   { baslik: 'Doğru hedef kitle', metin: 'Hekimhane ziyaretçileri diş hekimi, klinik ve tedavi arayan hastalar — yani tam olarak sizin hedef kitleniz.', gorsel: <MiniArama /> },
   { baslik: 'Profesyonel sunum', metin: 'İçeriğiniz güvenilir bir sağlık rehberi bağlamında, şeffaf biçimde etiketlenerek yayımlanır.', gorsel: <MiniEtiket /> },
   { baslik: 'Kalıcı yayın', metin: 'Makale sitede kalıcı olarak kalır. Tek seferlik ödeme, aylık ücret yok.', ikon: 'blog' },
+];
+
+// ── Paketin içeriği (3 büyük kart) — yalnız lib/makale-fiyat.ts PAKET_ICERIK ve sayfadaki bilgilerden ──
+const PAKET_KARTLARI: { etiket: string; ad: string; ikon: HkIkonAdi; renk: string; maddeler: string[] }[] = [
+  {
+    etiket: 'Yayın', ad: 'Kalıcı blog yayını', ikon: 'blog', renk: 'rgba(26,95,208,.45)',
+    maddeler: [
+      'Hekimhane blogunda süresiz yayın',
+      'Metin içine en fazla 3 harici bağlantı (dofollow)',
+      'Editör düzenlemesi, görsel ve SEO optimizasyonu',
+      'Yayın sonrası düzeltme ve güncelleme hakkı',
+    ],
+  },
+  {
+    etiket: '30 gün', ad: 'Öne çıkarma', ikon: 'search', renk: 'rgba(13,124,121,.45)',
+    maddeler: [
+      'Ana sayfada 30 gün öne çıkarma',
+      'Blog bölümünde önerilenler alanında 30 gün',
+      'En fazla 3 uzmanlık sayfasında gösterim, 30 gün',
+      'Bir sonraki e-bültende yer alma',
+    ],
+  },
+  {
+    etiket: 'Sipariş', ad: 'Nasıl sipariş verilir?', ikon: 'message', renk: 'rgba(184,137,47,.5)',
+    maddeler: [
+      'Formu doldurun; proforma faturayı e-postayla alın',
+      'Metni siz gönderin ya da biz yazalım',
+      'Ödeme banka havalesi/EFT ile; sipariş ödemeye kadar sizi bağlamaz',
+      'Onaylı işletmeniz varsa panelde Makalelerim’den de gönderebilirsiniz',
+    ],
+  },
+];
+
+const GUVEN: { ikon: HkIkonAdi; baslik: string; metin: string }[] = [
+  { ikon: 'verified', baslik: 'Editör incelemesi', metin: 'Her makale yayımlanmadan önce editör ekibimiz tarafından incelenir.' },
+  { ikon: 'info', baslik: 'Şeffaf etiketleme', metin: 'Makale okuyucuya karşı şeffaflık için “İş Ortağı İçeriği” olarak etiketlenir.' },
+  { ikon: 'success', baslik: 'Yayın sonrası düzeltme', metin: 'Yayından sonra da düzeltme ve güncelleme hakkınız vardır.' },
+  { ikon: 'price-guide', baslik: 'Tek paket, tek fiyat', metin: `${tl(MAKALE_FIYAT)} ₺ + KDV. Ek modül ya da sürpriz kalem yok; aylık ücret yok.` },
 ];
 
 const ADIMLAR = [
@@ -124,7 +162,21 @@ export default async function MakaleYayinlaPage() {
         cta={{ ad: 'Makale sipariş et', href: '#siparis' }}
       />
 
+      <OzIzgara
+        ustyazi="Pakette neler var?"
+        baslik="Yayın, öne çıkarma ve sipariş tek pakette"
+        govde="Hepsi tek fiyata dahildir; ayrı modül satın almazsınız."
+        ogeler={PAKET_KARTLARI}
+      />
+
       <OzAdimlar id="nasil" baslik="Talebinizden yayına dört adım" adimlar={ADIMLAR} />
+
+      <OzKartlar
+        ustyazi="Güven ve şeffaflık"
+        baslik="Makaleniz güvenilir bir çerçevede yayımlanır"
+        govde="İnceleme, etiketleme ve fiyat baştan açıktır."
+        ogeler={GUVEN}
+      />
 
       {/* ── FİYAT — TEK PAKET ── */}
       <section id="fiyat" className="vt-zemin vt-bolum" style={{ scrollMarginTop: 64 }}>

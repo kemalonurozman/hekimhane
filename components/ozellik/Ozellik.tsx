@@ -8,6 +8,7 @@
 import Link from 'next/link';
 import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
 import NoktaGrafik from '@/components/vitrin/NoktaGrafik';
+import BasvuruFormu from './BasvuruFormu';
 
 export type OzBaglanti = { ad: string; href: string };
 
@@ -284,3 +285,35 @@ export const sssJsonLd = (sorular: { s: string; c: string }[]) => ({
   '@type': 'FAQPage',
   mainEntity: sorular.map(x => ({ '@type': 'Question', name: x.s, acceptedAnswer: { '@type': 'Answer', text: x.c } })),
 });
+
+/** Koyu başvuru / demo bölümü: solda kısa vaat listesi, sağda ortak form (id=basvuru; #demo → demo seçili açılır).
+ *  Her özellik sayfasında SSS'ten önce yer alır. urun: lib/booking.ts → BOOKING_URUNLER */
+export function OzBasvuru({ urun, baslik = 'Sizi arayalım', metin, vaatler, formBaslik, formAciklama, formEtiket, not = true }: {
+  urun: string; baslik?: string; metin: React.ReactNode;
+  /** false → "Profiliniz yok mu?" notunu gizler */
+  not?: boolean;
+  vaatler?: { ikon: HkIkonAdi; ad: string }[];
+  formBaslik?: string; formAciklama?: string; formEtiket?: string;
+}) {
+  const liste = vaatler ?? [
+    { ikon: 'phone' as const, ad: 'Sizi arayıp anlatalım' },
+    { ikon: 'message' as const, ad: 'Canlı demo ile görün' },
+    { ikon: 'price-guide' as const, ad: 'Size özel fiyat bilgisi' },
+  ];
+  return (
+    <section id="basvuru" className="oz-bekleme">
+      <span id="demo" className="oz-capa" aria-hidden="true" />
+      <div className="container oz-bekleme__izgara">
+        <div className="oz-bekleme__yan">
+          <h2 className="vt-h2" style={{ color: '#fff' }}>{baslik}</h2>
+          <p>{metin}</p>
+          <ul>
+            {liste.map(v => <li key={v.ad}><HkIcon name={v.ikon} size={22} color="#fff" accent="#DEC283" />{v.ad}</li>)}
+          </ul>
+          {not && <p className="oz-bekleme__not">Profiliniz yok mu? <Link href="/katil">Hekimhane’ye ücretsiz ekleyin</Link>.</p>}
+        </div>
+        <BasvuruFormu urun={urun} baslik={formBaslik} aciklama={formAciklama} etiket={formEtiket} />
+      </div>
+    </section>
+  );
+}

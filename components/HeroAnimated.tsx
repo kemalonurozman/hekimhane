@@ -8,6 +8,7 @@ import { toSlug } from '@/lib/helpers';
 import HkIcon from '@/components/HkIcon';
 import type { HkIkonAdi } from '@/lib/hk-icons';
 import HkIconAnim from '@/components/HkIconAnim';
+import { useSurukle } from '@/components/vitrin/useSurukle';
 import HkLogoAnim, { HkSpinner } from '@/components/HkLogoAnim';
 
 // ── Sayaç animasyonu ─────────────────────────────────────────────────────────
@@ -589,7 +590,10 @@ export default function HeroAnimated({ stats }: Props) {
   const SURE_ILK = 7500, SURE_DIGER = 6000;   // ms — nokta göstergesindeki kısalan çubukla aynı
   const [b, setB] = useState(0);
   const [soluk, setSoluk] = useState(false);   // geçiş: önce yavaşça söner, sonra yeni başlık belirir
-  const gec = useCallback((hedef: number | null) => {
+  const [yon, setYon] = useState<1 | -1>(1);    // kayma yönü: 1 = sonraki (sağdan gelir), -1 = önceki
+  const [kaydi, setKaydi] = useState(false);    // ilk açılışta giriş animasyonu oynamasın (SSR başlığı hemen görünsün)
+  const gec = useCallback((hedef: number | null, y: 1 | -1 = 1) => {
+    setYon(y); setKaydi(true);
     setSoluk(true);
     setTimeout(() => {
       setB(n => (hedef === null ? (n + 1) % 6 : hedef));
@@ -601,6 +605,12 @@ export default function HeroAnimated({ stats }: Props) {
     const t = setTimeout(() => gec(null), b === 0 ? SURE_ILK : SURE_DIGER);
     return () => clearTimeout(t);
   }, [b, gec]);
+
+  // Parmak/fareyle sola-sağa sürükleyerek başlık değiştirme
+  const surukle = useSurukle({
+    onSonraki: () => { if (!soluk) gec(null, 1); },
+    onOnceki: () => { if (!soluk) gec((b + 5) % 6, -1); },
+  });
 
   const statItems = [
     { label: 'Diş kliniği', val: stats.klinik,    suffix: ''  },
@@ -626,7 +636,14 @@ export default function HeroAnimated({ stats }: Props) {
         /* Yavaş, sakin geçiş: söner (hafif yukarı) → yeni metin aşağıdan belirir */
         .hk-hero-don { display: block; opacity: 1; transform: none; transition: opacity .9s cubic-bezier(.4,0,.2,1), transform .9s cubic-bezier(.4,0,.2,1); }
         .hk-hero-don--alt { transition-delay: .08s; }
-        .hk-hero-don.is-soluk { opacity: 0; transform: translateY(8px); transition-duration: .6s; transition-delay: 0s; }
+        .hk-hero-don.is-soluk { opacity: 0; transform: translateX(-30px); transition-duration: .6s; transition-delay: 0s; }
+        .hk-hero-don.is-soluk.hk-yon-geri { transform: translateX(30px); }
+        .hk-hero-don.hk-giris-ileri { animation: hkGirIleri .75s cubic-bezier(.2,.8,.2,1) backwards; }
+        .hk-hero-don.hk-giris-geri { animation: hkGirGeri .75s cubic-bezier(.2,.8,.2,1) backwards; }
+        @keyframes hkGirIleri { from { opacity: 0; transform: translateX(36px); } }
+        @keyframes hkGirGeri { from { opacity: 0; transform: translateX(-36px); } }
+        .hk-hero-surukle { touch-action: pan-y; cursor: grab; }
+        .hk-hero-surukle.is-suruk { cursor: grabbing; user-select: none; }
         .hk-hero-noktalar { display: flex; justify-content: center; gap: 6px; margin: -14px 0 22px; }
         .hk-hero-noktalar button { width: 6px; height: 6px; padding: 0; border: 0; border-radius: 999px; background: #C1CEE2; cursor: pointer; transition: width .6s cubic-bezier(.4,0,.2,1), background .6s; }
         .hk-hero-noktalar button { position: relative; overflow: hidden; }
@@ -634,7 +651,7 @@ export default function HeroAnimated({ stats }: Props) {
         .hk-hero-noktalar button.is-aktif span { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; border-radius: 999px; background: #12294D; transform-origin: left center; animation: hkNoktaSure linear forwards; }
         @keyframes hkNoktaSure { from { transform: scaleX(1); } to { transform: scaleX(0); } }
         /* Hareketi azalt: kayma yok, yalnız yumuşak solma — başlık yine kendiliğinden değişir */
-        @media (prefers-reduced-motion: reduce) { .hk-hero-don, .hk-hero-don.is-soluk { transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .hk-hero-don, .hk-hero-don.is-soluk { transform: none; animation: none; } }
         /* Süre çubuğu hareketi azalt açıkken de çalışır: başlık yine kendiliğinden değiştiği için ne zaman değişeceği belli olmalı */
         .hk-hero-baslik { margin: 0 auto 16px; max-width: 900px; font-family: var(--font-display); font-size: 64px; line-height: 68px; font-weight: 800; letter-spacing: -0.035em; color: var(--brand); }
         .hk-hero-alt { margin: 0 auto 32px; max-width: 560px; font-size: 18px; line-height: 28px; color: var(--ink-secondary); }
@@ -773,16 +790,18 @@ export default function HeroAnimated({ stats }: Props) {
         <div className="hk-hero-logo"><HkLogoAnim size={38} hover={false} /></div>
 
         {/* Başlık — sırayla döner: ilki hastalara (SSR'da ve arama motorunda görünen), diğerleri hekimlere */}
-        <div className="hk-hero-baslik-kutu">
-          <h1 className="hk-hero-baslik"><span className={`hk-hero-don${soluk ? ' is-soluk' : ''}`}>{basliklar[b].baslik}</span></h1>
-        </div>
-        <div className="hk-hero-alt-kutu">
-          <p className="hk-hero-alt"><span className={`hk-hero-don hk-hero-don--alt${soluk ? ' is-soluk' : ''}`}>{basliklar[b].alt}</span></p>
+        <div className={`hk-hero-surukle${surukle.suruk ? ' is-suruk' : ''}`} {...surukle.baglar} style={surukle.stil}>
+          <div className="hk-hero-baslik-kutu">
+            <h1 className="hk-hero-baslik"><span key={b} className={`hk-hero-don${soluk ? ' is-soluk' : ''}${yon < 0 ? ' hk-yon-geri' : ''}${kaydi ? (yon < 0 ? ' hk-giris-geri' : ' hk-giris-ileri') : ''}`}>{basliklar[b].baslik}</span></h1>
+          </div>
+          <div className="hk-hero-alt-kutu">
+            <p className="hk-hero-alt"><span key={b} className={`hk-hero-don hk-hero-don--alt${soluk ? ' is-soluk' : ''}${yon < 0 ? ' hk-yon-geri' : ''}${kaydi ? (yon < 0 ? ' hk-giris-geri' : ' hk-giris-ileri') : ''}`}>{basliklar[b].alt}</span></p>
+          </div>
         </div>
         <div className="hk-hero-noktalar" role="tablist" aria-label="Başlıklar">
           {basliklar.map((x, i) => (
             <button key={x.baslik} type="button" role="tab" aria-selected={i === b} aria-label={x.baslik}
-              className={i === b ? 'is-aktif' : undefined} onClick={() => { if (i !== b) gec(i); }}>
+              className={i === b ? 'is-aktif' : undefined} onClick={() => { if (i !== b) gec(i, i > b ? 1 : -1); }}>
               {/* Kalan süre: dolgu sağdan sola kısalır; bitince sıradaki başlığa geçilir */}
               {i === b && <span key={b} style={{ animationDuration: `${b === 0 ? SURE_ILK : SURE_DIGER}ms` }} />}
             </button>
