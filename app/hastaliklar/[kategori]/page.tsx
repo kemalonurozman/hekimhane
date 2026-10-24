@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Diş dışı branşlar şimdilik gizli — arama motorlarından da çıkar
   const gizli = kat.slug !== 'dis-sagligi';
   return {
-    title: `${kat.ad} Hastalıkları | Hekimhane`,
+    title: `${kat.ad} Hastalıkları`,
     description: `${kat.ad} alanındaki hastalıklar hakkında detaylı bilgi: belirtiler, nedenler ve tedavi seçenekleri.`,
     alternates: { canonical: `https://www.hekimhane.com.tr/hastaliklar/${kat.slug}` },
     ...(gizli ? { robots: { index: false, follow: false } } : {}),

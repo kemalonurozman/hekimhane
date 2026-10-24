@@ -4,7 +4,7 @@ import { KATEGORILER, HASTALIKLAR } from '@/lib/hastaliklar-data';
 
 export const metadata: Metadata = {
   alternates: { canonical: 'https://www.hekimhane.com.tr/hastaliklar' },
-  title: 'Ağız & Diş Sağlığı Rehberi | Hekimhane',
+  title: 'Ağız & Diş Sağlığı Rehberi',
   description: 'Diş ve ağız hastalıkları, belirtileri ve tedavi yöntemleri hakkında güvenilir bilgi.',
 };
 

@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   alternates: { canonical: 'https://www.hekimhane.com.tr/kullanim' },
-  title: 'Kullanım Şartları | Hekimhane',
+  title: 'Kullanım Şartları',
   description: 'Hekimhane kullanım şartları ve koşulları. Platformumuzu kullanmadan önce lütfen okuyun.',
 };
 

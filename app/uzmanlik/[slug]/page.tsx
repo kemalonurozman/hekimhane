@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const url = `https://www.hekimhane.com.tr/uzmanlik/${r.slug}`;
   const desc = `${r.ad}: nedir, ne zaman gerekir, süreç ve sık sorulan sorular. ${r.ozet} Türkiye genelinde ${r.kisaAd.toLowerCase()} yapan diş klinikleri Hekimhane'de.`;
   return {
-    title: `${r.ad} — Nedir, Ne Zaman Gerekir? | Hekimhane`,
+    title: `${r.ad} — Nedir, Ne Zaman Gerekir?`,
     description: desc,
     keywords: [r.kisaAd, `${r.kisaAd.toLowerCase()} nedir`, `${r.kisaAd.toLowerCase()} rehberi`, r.spec, 'diş kliniği', 'diş hekimi'],
     alternates: { canonical: url },

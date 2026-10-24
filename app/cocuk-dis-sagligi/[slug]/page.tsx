@@ -15,7 +15,7 @@ export function generateMetadata({ params }: Props): Metadata {
   if (!k) return { title: 'Konu Bulunamadı' };
   const url = `https://www.hekimhane.com.tr/cocuk-dis-sagligi/${k.slug}`;
   return {
-    title: `${k.ad} — Çocuk Diş Sağlığı | Hekimhane`,
+    title: `${k.ad} — Çocuk Diş Sağlığı`,
     description: k.ozet.slice(0, 155),
     alternates: { canonical: url },
     openGraph: { title: `${k.ad} | Hekimhane`, description: k.ozet.slice(0, 155), url, type: 'article' },

@@ -92,14 +92,14 @@ async function getYazi(slug: string): Promise<Yazi | null> {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const y = await getYazi(params.slug);
-  if (!y) return { title: 'Yazı Bulunamadı | Hekimhane' };
+  if (!y) return { title: 'Yazı Bulunamadı' };
   const url = `https://www.hekimhane.com.tr/blog/${params.slug}`;
   const imgAbs = y.cover_image
     ? (y.cover_image.startsWith('http') ? y.cover_image : `https://www.hekimhane.com.tr${y.cover_image}`)
     : null;
   const ogImages = imgAbs ? [{ url: imgAbs, width: 1200, height: 675, alt: y.cover_alt || y.title }] : undefined;
   return {
-    title: `${y.title} | Hekimhane Blog`,
+    title: { absolute: `${y.title} | Hekimhane Blog` },
     description: y.summary,
     alternates: { canonical: url },
     openGraph: { title: y.title, description: y.summary, url, type: 'article', images: ogImages },

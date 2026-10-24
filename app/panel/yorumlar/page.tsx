@@ -8,7 +8,7 @@ import YorumSikayet from './YorumSikayet';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Yorum Inbox | Hekimhane Panel',
+  title: { absolute: 'Yorum Inbox | Hekimhane Panel' },
 };
 
 async function getReviews(userId: string) {

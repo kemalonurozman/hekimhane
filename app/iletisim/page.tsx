@@ -5,7 +5,7 @@ import IletisimForm from './IletisimForm';
 
 export const metadata: Metadata = {
   alternates: { canonical: 'https://www.hekimhane.com.tr/iletisim' },
-  title: 'İletişim | Hekimhane',
+  title: 'İletişim',
   description: 'Hekimhane ekibiyle iletişime geçin. Soru, öneri ve işletme ekleme talepleriniz için buradayız.',
 };
 

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { COCUK_KONULAR } from '@/lib/cocuk-dis';
 
 export const metadata: Metadata = {
-  title: 'Çocuk Diş Sağlığı (Pedodonti) — Konular ve Rehberler | Hekimhane',
+  title: 'Çocuk Diş Sağlığı (Pedodonti) — Konular ve Rehberler',
   description: 'Çocuk diş hekimliği (pedodonti) rehberi: süt dişi, arayüz çürükleri, süt dişi çekimi, koruyucu tedavi, fissür örtücü, flor uygulaması, çocuk diş dolgusu ve ağız içi dijital tarama. Çocuğunuzun diş sağlığı için bilmeniz gerekenler.',
   alternates: { canonical: 'https://www.hekimhane.com.tr/cocuk-dis-sagligi' },
 };

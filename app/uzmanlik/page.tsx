@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { UZMANLIK_REHBERLERI } from '@/lib/uzmanlik-rehberleri';
 
 export const metadata: Metadata = {
-  title: 'Diş Hekimliği Uzmanlık Rehberleri — İmplant, Ortodonti, Kanal | Hekimhane',
+  title: 'Diş Hekimliği Uzmanlık Rehberleri — İmplant, Ortodonti, Kanal',
   description: 'İmplant, ortodonti, kanal tedavisi, diş eti, estetik diş ve daha fazlası: her diş hekimliği uzmanlığının ne olduğunu, ne zaman gerektiğini ve sürecini öğrenin. Türkiye genelinde diş klinikleri Hekimhane\'de.',
   alternates: { canonical: 'https://www.hekimhane.com.tr/uzmanlik' },
 };
