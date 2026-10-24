@@ -73,7 +73,7 @@ export default function UzmanlikRehberPage({ params }: Props) {
             <span style={{ color: 'white' }}>{r.kisaAd}</span>
           </nav>
           <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--navy)', background: 'var(--gold-fill)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>Uzmanlık Rehberi</span>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px,4vw,38px)', fontWeight: 800, color: 'var(--on-gold)', lineHeight: 1.2, margin: '0 0 12px' }}>{r.ad}</h1>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px,4vw,38px)', fontWeight: 800, color: 'white', lineHeight: 1.2, margin: '0 0 12px' }}>{r.ad}</h1>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,.85)', lineHeight: 1.6, maxWidth: 700, margin: 0 }}>{r.ozet}</p>
         </div>
       </div>
