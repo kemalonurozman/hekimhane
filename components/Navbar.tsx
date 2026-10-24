@@ -6,83 +6,180 @@ import { useState, useEffect, useRef } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import HkLogoAnim from '@/components/HkLogoAnim';
 import GirisRozeti from '@/components/GirisRozeti';
+import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
 import type { User } from '@supabase/supabase-js';
 
-// Diş hekimleri "klinikler" tablosunda type='Diş Hekimi' olarak tutuluyor;
-// doktorlar tablosundaki diş kayıtları bunların kopyası olduğu için oraya gidilmez.
-// Üst menü yalnızca diş odaklı. Blog ve "Diğer Doktorlar" footer'da yer alır.
-const NAV_LINKS = [
-  // Diş klinikleri + diş hekimleri tek listede (/klinikler ikisini birlikte gösterir).
-  // Eski /dis-hekimleri linki next.config.js'te /klinikler?tip=Diş Hekimi'ye rewrite edilir (SEO/geri uyum).
-  { href: '/klinikler',                        base: '/klinikler',   label: 'Diş Hekimleri' },
-  { href: '/neden-hekimhane',                  base: '/neden-hekimhane', label: 'Neden Hekimhane?' },
-  { href: '/blog',                             base: '/blog',        label: 'Blog' },
+// ── Üst menü (Eki 2026 sadeleştirme) ────────────────────────────────────────
+// Dört öğe: Hekim Bul ▾ · Sağlık Rehberi ▾ · Özellikler ▾ · Booking (Yeni).
+// Eski düz bağlantılar (Diş Hekimleri, Neden Hekimhane?, Blog) açılır menülerin içine taşındı.
+// Diş hekimleri "klinikler" tablosunda type='Diş Hekimi' olarak tutuluyor; /klinikler ikisini birlikte gösterir.
+const NAV_LINKS: { href: string; base: string; label: string; mobilLabel?: string; yeni?: boolean }[] = [
+  // Hekimhane Booking (Ozvelo ortaklığı) — "Yeni" rozetiyle öne çıkar
+  { href: '/booking', base: '/booking', label: 'Booking', mobilLabel: 'Hekimhane Booking', yeni: true },
 ];
 
-// Header açılır menüleri (temiz beyaz ton)
+// Menüdeki "Yeni" rozeti. Masaüstünde (`ust`) yazının sağ üstüne oturur ve genişlik eklemez.
+function YeniRozet({ ust = false }: { ust?: boolean }) {
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', borderRadius: 999, flexShrink: 0,
+      background: '#0D7C79', color: '#fff', fontWeight: 800, letterSpacing: '.05em', textTransform: 'uppercase', lineHeight: 1,
+      ...(ust
+        ? { position: 'absolute', top: -9, left: 'calc(100% - 3px)', height: 14, padding: '0 5px', fontSize: 8.5 }
+        : { height: 18, padding: '0 7px', marginLeft: 8, fontSize: 10.5 }),
+    }}>Yeni</span>
+  );
+}
+
+function ProRozet() {
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', height: 17, padding: '0 6px', marginLeft: 7, borderRadius: 999, background: '#F7F0DE', boxShadow: 'inset 0 0 0 1px #EAD9AE', color: '#8A6A1F', fontSize: 9.5, fontWeight: 800, letterSpacing: '.04em', flexShrink: 0 }}>PRO</span>
+  );
+}
+
 const uz = (u: string) => `/klinikler?uzmanlik=${encodeURIComponent(u)}`;
-const HIZMETLER: [string, string][] = [
-  ['İmplant Tedavisi', uz('İmplantoloji (İmplant)')],
-  ['Ortodonti (Diş Teli)', uz('Ortodonti (Diş Teli)')],
-  ['Estetik Diş Hekimliği', uz('Estetik Diş Hekimliği')],
-  ['Kanal Tedavisi', uz('Endodonti (Kanal Tedavisi)')],
-  ['Çocuk Diş Hekimliği', uz('Pedodonti (Çocuk Diş Hekimliği)')],
-  ['Ağız, Diş ve Çene Cerrahisi', uz('Ağız Diş ve Çene Cerrahisi')],
-  ['Diş Dolgusu', uz('Restoratif Diş Tedavisi (Dolgu)')],
-  ['Genel Diş Hekimliği', uz('Genel Diş Hekimliği')],
-];
-const HASTALIKLAR: [string, string][] = [
-  ['Diş Çürüğü', '/hastaliklar/dis-sagligi/dis-curugu'],
-  ['Diş Eti İltihabı (Gingivit)', '/hastaliklar/dis-sagligi/gingivit'],
-  ['Diş Hassasiyeti', '/hastaliklar/dis-sagligi/dis-hassasiyeti'],
-  ['Ağız Kokusu', '/hastaliklar/dis-sagligi/agiz-kokusu'],
-  ['Diş Apsesi', '/hastaliklar/dis-sagligi/dis-apsesi'],
-  ['Aft (Ağız Yarası)', '/hastaliklar/dis-sagligi/aft'],
+const sp = (s: string) => `/doktorlar?spec=${encodeURIComponent(s)}`;
+
+type MenuOge = { ad: string; href: string; aciklama?: string; ikon?: HkIkonAdi; rozet?: 'yeni' | 'pro'; vurgu?: boolean };
+type Menu = {
+  id: 'bul' | 'rehber' | 'ozellik';
+  label: string;
+  genislik: number;
+  sutunlar: { baslik: string; ogeler: MenuOge[] }[];
+  alt?: { ad: string; href: string }[];
+  aktif: string[];
+};
+
+const MENULER: Menu[] = [
+  {
+    id: 'bul', label: 'Hekim Bul', genislik: 540,
+    aktif: ['/klinikler', '/dis-hekimleri', '/dis-tedavileri', '/doktorlar', '/bobath-terapistleri', '/hastaneler', '/eczaneler', '/devlet-dis-hastaneleri', '/yakin-eczane', '/karsilastir'],
+    sutunlar: [
+      { baslik: 'Diş hekimleri', ogeler: [
+        { ad: 'Tüm Diş Hekimleri ve Klinikler', href: '/klinikler', vurgu: true },
+        { ad: 'İmplant Tedavisi', href: uz('İmplantoloji (İmplant)') },
+        { ad: 'Ortodonti (Diş Teli)', href: uz('Ortodonti (Diş Teli)') },
+        { ad: 'Estetik Diş Hekimliği', href: uz('Estetik Diş Hekimliği') },
+        { ad: 'Kanal Tedavisi', href: uz('Endodonti (Kanal Tedavisi)') },
+        { ad: 'Çocuk Diş Hekimliği', href: uz('Pedodonti (Çocuk Diş Hekimliği)') },
+        { ad: 'Ağız, Diş ve Çene Cerrahisi', href: uz('Ağız Diş ve Çene Cerrahisi') },
+        { ad: 'Devlet Diş Hastaneleri', href: '/devlet-dis-hastaneleri' },
+      ]},
+      { baslik: 'Diğer sağlık hizmetleri', ogeler: [
+        { ad: 'Tüm Doktorlar', href: '/doktorlar', vurgu: true },
+        { ad: 'Fizyoterapistler (Bobath)', href: '/bobath-terapistleri' },
+        { ad: 'Fizik Tedavi ve Rehabilitasyon', href: sp('Fiziksel Tıp ve Rehabilitasyon') },
+        { ad: 'Psikiyatri Uzmanları', href: sp('Psikiyatri') },
+        { ad: 'Psikologlar', href: sp('Psikoloji') },
+        { ad: 'Hastaneler', href: '/hastaneler' },
+        { ad: 'Eczaneler', href: '/eczaneler' },
+        { ad: 'Yakınımdaki Eczane', href: '/yakin-eczane' },
+      ]},
+    ],
+    alt: [{ ad: 'Hekimleri karşılaştır', href: '/karsilastir' }],
+  },
+  {
+    id: 'rehber', label: 'Sağlık Rehberi', genislik: 500,
+    aktif: ['/hastaliklar', '/tedavi-ucretleri', '/uzmanlik', '/cocuk-dis-sagligi', '/blog'],
+    sutunlar: [
+      { baslik: 'Ağız ve diş hastalıkları', ogeler: [
+        { ad: 'Diş Çürüğü', href: '/hastaliklar/dis-sagligi/dis-curugu' },
+        { ad: 'Diş Eti İltihabı (Gingivit)', href: '/hastaliklar/dis-sagligi/gingivit' },
+        { ad: 'Diş Hassasiyeti', href: '/hastaliklar/dis-sagligi/dis-hassasiyeti' },
+        { ad: 'Ağız Kokusu', href: '/hastaliklar/dis-sagligi/agiz-kokusu' },
+        { ad: 'Diş Apsesi', href: '/hastaliklar/dis-sagligi/dis-apsesi' },
+        { ad: 'Tüm Hastalıklar', href: '/hastaliklar/dis-sagligi', vurgu: true },
+      ]},
+      { baslik: 'Rehberler', ogeler: [
+        { ad: '2026 Tedavi Ücretleri', href: '/tedavi-ucretleri' },
+        { ad: 'Uzmanlık Rehberleri', href: '/uzmanlik' },
+        { ad: 'Çocuk Diş Sağlığı', href: '/cocuk-dis-sagligi' },
+        { ad: 'Blog', href: '/blog' },
+      ]},
+    ],
+  },
+  {
+    id: 'ozellik', label: 'Özellikler', genislik: 620,
+    aktif: ['/neden-hekimhane', '/randevu-sistemi', '/randevu-modulu', '/hekimkart', '/degerlendirme-sistemi', '/mcp', '/makale-yayinla', '/pro'],
+    sutunlar: [
+      { baslik: 'Randevu ve iletişim', ogeler: [
+        { ad: 'Hekimhane Booking', href: '/booking', ikon: 'phone', rozet: 'yeni', aciklama: 'Çağrıları 7/24 yanıtlayan yapay zekâ asistanı' },
+        { ad: 'Randevu Takvimi', href: '/randevu-sistemi', ikon: 'appointment', rozet: 'pro', aciklama: 'Hastalar uygun saati profilinizden seçer' },
+        { ad: 'Sitenize Randevu Modülü', href: '/randevu-modulu', ikon: 'clinic', rozet: 'pro', aciklama: 'Kendi web sitenizden randevu alın' },
+        { ad: 'Yapay Zekâ ile Yönetim', href: '/mcp', ikon: 'message', rozet: 'pro', aciklama: 'Takviminizi yapay zekâ asistanınızla yönetin' },
+      ]},
+      { baslik: 'Profil ve görünürlük', ogeler: [
+        { ad: 'HekimKart', href: '/hekimkart', ikon: 'hekimkart', aciklama: 'Tek bağlantıda dijital kartvizit' },
+        { ad: 'Yorum Yönetimi', href: '/degerlendirme-sistemi', ikon: 'review', aciklama: 'Onaylı hasta yorumları ve yanıtlar' },
+        { ad: 'Makale Yayınlama', href: '/makale-yayinla', ikon: 'blog', aciklama: 'Uzmanlığınızı blogda paylaşın' },
+        { ad: 'Pro Üyelik', href: '/pro', ikon: 'premium', aciklama: 'Tüm özellikler tek pakette' },
+      ]},
+    ],
+    alt: [{ ad: 'Neden Hekimhane?', href: '/neden-hekimhane' }, { ad: 'Kliniğinizi ekleyin', href: '/katil' }],
+  },
 ];
 
-// Diş dışı meslekler ve kurumlar — eskiden yalnız footer'daydı, üst menüden de ulaşılsın
-const DIGER_BRANSLAR: [string, string][] = [
-  ['Fizyoterapistler (Bobath)', '/bobath-terapistleri'],
-  ['Fizik Tedavi ve Rehabilitasyon', `/doktorlar?spec=${encodeURIComponent('Fiziksel Tıp ve Rehabilitasyon')}`],
-  ['Psikiyatri Uzmanları', `/doktorlar?spec=${encodeURIComponent('Psikiyatri')}`],
-  ['Psikologlar', `/doktorlar?spec=${encodeURIComponent('Psikoloji')}`],
-  ['Devlet Diş Hastaneleri', '/devlet-dis-hastaneleri'],
-  ['Hastaneler', '/hastaneler'],
-  ['Eczaneler', '/eczaneler'],
-];
+const menuAktif = (m: Menu, pathname: string) => m.aktif.some(p => pathname.startsWith(p));
 
-function NavMenu({ label, items, allLabel, allHref, open, onToggle, innerRef, active }: {
-  label: string; items: [string, string][]; allLabel: string; allHref: string;
-  open: boolean; onToggle: () => void; innerRef: React.RefObject<HTMLDivElement>; active: boolean;
+function MegaMenu({ menu, open, onToggle, innerRef, active }: {
+  menu: Menu; open: boolean; onToggle: () => void; innerRef: React.RefObject<HTMLDivElement>; active: boolean;
 }) {
+  const hover = {
+    onMouseEnter: (e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = '#F6F7F9'; },
+    onMouseLeave: (e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = 'transparent'; },
+  };
   return (
     <div ref={innerRef} style={{ position: 'relative' }}>
-      <button onClick={onToggle} className="nav-ogesi"
-        /* Düz bağlantılarla (navLink) birebir aynı ölçü/renk: 15px, 500/600, var(--ink)/var(--brand) — eskiden 13.5px ve gri idi, menü karışık görünüyordu */
+      <button onClick={onToggle} className="nav-ogesi" aria-expanded={open}
         style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
           fontSize: 15, fontWeight: active ? 600 : 500, letterSpacing: '-.1px', color: active || open ? 'var(--brand)' : 'var(--ink)',
           background: open ? 'rgba(26,51,94,.07)' : 'transparent', transition: 'background .15s, color .15s' }}>
-        {label}
+        {menu.label}
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .18s', opacity: .6 }}><path d="M6 9l6 6 6-6" /></svg>
       </button>
       {open && (
-        <div style={{ position: 'absolute', top: 'calc(100% + 10px)', left: 0, width: 268, background: '#fff', borderRadius: 16, boxShadow: '0 16px 44px rgba(20,30,50,.14)', border: '1px solid #ECECEC', overflow: 'hidden', zIndex: 300, padding: 6 }}>
-          {items.map(([lbl, href]) => (
-            <Link key={href} href={href} onClick={onToggle}
-              style={{ display: 'block', padding: '10px 12px', borderRadius: 10, fontSize: 13.5, fontWeight: 500, color: '#3A3A3C', textDecoration: 'none', transition: 'background .12s' }}
-              onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
-              onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
-              {lbl}
-            </Link>
-          ))}
-          <div style={{ height: 1, background: '#F0F0F0', margin: '6px 6px' }} />
-          <Link href={allHref} onClick={onToggle}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px', borderRadius: 10, fontSize: 13.5, fontWeight: 700, color: '#1A335E', textDecoration: 'none' }}
-            onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F6F7F9'}
-            onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
-            {allLabel}
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-          </Link>
+        <div style={{ position: 'absolute', top: 'calc(100% + 10px)', width: menu.genislik,
+          // İlk menü düğmeden sola yaslanır, diğerleri düğmenin ortasına — 961px'te de ekrandan taşmaz
+          ...(menu.id === 'bul' ? { left: 0 } : { left: '50%', transform: 'translateX(-50%)' }), maxWidth: 'calc(100vw - 32px)', background: '#fff', borderRadius: 18, boxShadow: '0 18px 50px rgba(20,30,50,.16)', border: '1px solid #ECECEC', overflow: 'hidden', zIndex: 300 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${menu.sutunlar.length}, minmax(0, 1fr))`, gap: 4, padding: 10 }}>
+            {menu.sutunlar.map(s => (
+              <div key={s.baslik}>
+                <div style={{ padding: '8px 12px 6px', fontSize: 11, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: '#8E8E93' }}>{s.baslik}</div>
+                {s.ogeler.map(o => o.ikon ? (
+                  <Link key={o.href} href={o.href} onClick={onToggle} {...hover}
+                    style={{ display: 'flex', alignItems: 'flex-start', gap: 11, padding: '9px 10px', borderRadius: 12, textDecoration: 'none', transition: 'background .12s' }}>
+                    <span style={{ display: 'grid', placeItems: 'center', width: 36, height: 36, borderRadius: 10, background: o.rozet === 'yeni' ? '#E1F2EE' : '#EEF3FA', flexShrink: 0 }}>
+                      <HkIcon name={o.ikon} size={20} color="#12294D" />
+                    </span>
+                    <span style={{ minWidth: 0 }}>
+                      <span style={{ display: 'flex', alignItems: 'center', fontSize: 14, fontWeight: 700, color: '#1D1D1F' }}>
+                        {o.ad}{o.rozet === 'yeni' && <YeniRozet />}{o.rozet === 'pro' && <ProRozet />}
+                      </span>
+                      {o.aciklama && <span style={{ display: 'block', marginTop: 2, fontSize: 12.5, lineHeight: 1.4, color: '#6E6E73' }}>{o.aciklama}</span>}
+                    </span>
+                  </Link>
+                ) : (
+                  <Link key={o.href} href={o.href} onClick={onToggle} {...hover}
+                    style={{ display: 'block', padding: '8px 12px', borderRadius: 10, fontSize: 13.5, fontWeight: o.vurgu ? 700 : 500, color: o.vurgu ? '#1A335E' : '#3A3A3C', textDecoration: 'none', transition: 'background .12s' }}>
+                    {o.ad}
+                  </Link>
+                ))}
+              </div>
+            ))}
+          </div>
+          {menu.alt && (
+            <div style={{ display: 'flex', gap: 4, padding: '8px 10px', background: '#F8F9FB', borderTop: '1px solid #F0F0F0' }}>
+              {menu.alt.map(a => (
+                <Link key={a.href} href={a.href} onClick={onToggle}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 10, fontSize: 13.5, fontWeight: 700, color: '#1A335E', textDecoration: 'none' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#EEF1F6'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
+                  {a.ad}
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -308,20 +405,24 @@ export default function Navbar() {
                     whiteSpace: 'nowrap', padding: '6px 11px', borderRadius: 8, fontSize: 15, fontWeight: active ? 600 : 500, letterSpacing: '-.1px',
                     color: active ? 'var(--brand)' : 'var(--ink)', background: 'transparent',
                     textDecoration: 'none', transition: 'color .15s',
-                  }}>{link.label}</Link>
+                    ...(link.yeni ? { marginRight: 14 } : null),
+                  }}>{link.yeni
+                    ? <span style={{ position: 'relative', display: 'inline-block' }}>{link.label}<YeniRozet ust /></span>
+                    : link.label}</Link>
                 );
               };
               return (
                 <>
-                  {navLink(NAV_LINKS[0])}
-                  <NavMenu label="Hizmetler" items={HIZMETLER} allLabel="Tüm Diş Hekimleri" allHref="/klinikler"
-                    open={svcOpen} onToggle={() => { setSvcOpen(o => !o); setDisOpen(false); setDigOpen(false); }} innerRef={svcRef} active={pathname.startsWith('/dis-tedavileri')} />
-                  <NavMenu label="Ağız & Diş Sağlığı" items={HASTALIKLAR} allLabel="Tüm Hastalıklar" allHref="/hastaliklar/dis-sagligi"
-                    open={disOpen} onToggle={() => { setDisOpen(o => !o); setSvcOpen(false); setDigOpen(false); }} innerRef={disRef} active={pathname.startsWith('/hastaliklar')} />
-                  <NavMenu label="Diğer Branşlar" items={DIGER_BRANSLAR} allLabel="Tüm Doktorlar" allHref="/doktorlar"
-                    open={digOpen} onToggle={() => { setDigOpen(o => !o); setSvcOpen(false); setDisOpen(false); }} innerRef={digRef}
-                    active={['/doktorlar', '/bobath-terapistleri', '/hastaneler', '/eczaneler', '/devlet-dis-hastaneleri'].some(p => pathname.startsWith(p))} />
-                  {NAV_LINKS.slice(1).map(navLink)}
+                  {MENULER.map(m => {
+                    const [acik, ac, ref] = m.id === 'bul' ? [svcOpen, setSvcOpen, svcRef] as const
+                      : m.id === 'rehber' ? [disOpen, setDisOpen, disRef] as const
+                      : [digOpen, setDigOpen, digRef] as const;
+                    return (
+                      <MegaMenu key={m.id} menu={m} open={acik} innerRef={ref} active={menuAktif(m, pathname)}
+                        onToggle={() => { const yeni = !acik; setSvcOpen(false); setDisOpen(false); setDigOpen(false); ac(yeni); }} />
+                    );
+                  })}
+                  {NAV_LINKS.map(navLink)}
                 </>
               );
             })()}
@@ -594,17 +695,13 @@ export default function Navbar() {
                   borderLeft: active ? '3px solid #1A335E' : '3px solid transparent',
                 }}
               >
-                {link.label}
+                {link.mobilLabel || link.label}{link.yeni && <YeniRozet />}
               </Link>
             );
           })}
 
-          {/* Mobil: Hizmetler + Ağız & Diş Sağlığı grupları */}
-          {([
-            { baslik: 'Hizmetler', items: HIZMETLER, allLabel: 'Tüm Diş Hekimleri', allHref: '/klinikler' },
-            { baslik: 'Ağız & Diş Sağlığı', items: HASTALIKLAR, allLabel: 'Tüm Hastalıklar', allHref: '/hastaliklar/dis-sagligi' },
-            { baslik: 'Diğer Branşlar', items: DIGER_BRANSLAR, allLabel: 'Tüm Doktorlar', allHref: '/doktorlar' },
-          ] as const).map(grp => {
+          {/* Mobil: masaüstüyle aynı üç açılır menü (akordeon) */}
+          {MENULER.map(m => ({ baslik: m.label, sutunlar: m.sutunlar, alt: m.alt || [] })).map(grp => {
             const acik = mobGrp === grp.baslik;
             return (
               <div key={grp.baslik} style={{ marginBottom: 4 }}>
@@ -615,10 +712,21 @@ export default function Navbar() {
                 </button>
                 {acik && (
                   <div style={{ padding: '2px 0 6px' }}>
-                    {[...grp.items, [grp.allLabel + ' →', grp.allHref] as [string, string]].map(([lbl, href]) => (
-                      <Link key={href + lbl} href={href} onClick={() => setMobileOpen(false)}
-                        style={{ display: 'flex', alignItems: 'center', minHeight: 44, padding: '0 16px 0 28px', borderRadius: 12, fontSize: 15, fontWeight: 500, color: '#3A3A3C', textDecoration: 'none' }}>
-                        {lbl}
+                    {grp.sutunlar.map(s => (
+                      <div key={s.baslik}>
+                        <div style={{ padding: '10px 16px 4px 28px', fontSize: 11.5, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: '#8E8E93' }}>{s.baslik}</div>
+                        {s.ogeler.map(o => (
+                          <Link key={o.href} href={o.href} onClick={() => setMobileOpen(false)}
+                            style={{ display: 'flex', alignItems: 'center', minHeight: 44, padding: '0 16px 0 28px', borderRadius: 12, fontSize: 15, fontWeight: o.vurgu ? 700 : 500, color: o.vurgu ? '#1A335E' : '#3A3A3C', textDecoration: 'none' }}>
+                            {o.ad}{o.rozet === 'yeni' && <YeniRozet />}{o.rozet === 'pro' && <ProRozet />}
+                          </Link>
+                        ))}
+                      </div>
+                    ))}
+                    {grp.alt.map(a => (
+                      <Link key={a.href} href={a.href} onClick={() => setMobileOpen(false)}
+                        style={{ display: 'flex', alignItems: 'center', minHeight: 44, padding: '0 16px 0 28px', borderRadius: 12, fontSize: 15, fontWeight: 700, color: '#1A335E', textDecoration: 'none' }}>
+                        {a.ad} →
                       </Link>
                     ))}
                   </div>
@@ -761,19 +869,20 @@ export default function Navbar() {
       </div>
 
       <style jsx global>{`
-        /* Menü öğeleri tek satırda kalır; sığmayan genişlikte (≤1100px) hamburger menüye geçilir.
-           1101–1260px arası: öğeler biraz sıkılaşır. */
-        @media (max-width: 1260px) {
+        /* Menü öğeleri tek satırda kalır; sığmayan genişlikte (≤960px) hamburger menüye geçilir.
+           Eki 2026: menü 4 öğeye indi (Hekim Bul, Sağlık Rehberi, Özellikler, Booking) → 15px her genişlikte sığar.
+           Menüye öğe eklerken 961px ve 1440px'te ölç; "Giriş Yap" düğmesi tek satırda kalmalı. */
+        @media (max-width: 1060px) {
           .nav-ogesi { font-size: 14px !important; padding-left: 8px !important; padding-right: 8px !important; }
         }
-        @media (max-width: 1100px) {
+        @media (max-width: 960px) {
           .nav-links-desktop { display: none !important; }
           .nav-cta-desktop   { display: none !important; }
           .nav-user-desktop  { display: none !important; }
           .hamburger-btn     { display: flex !important; }
         }
         /* Ensure hamburger is hidden on desktop */
-        @media (min-width: 1101px) {
+        @media (min-width: 961px) {
           .hamburger-btn { display: none !important; }
         }
       `}</style>

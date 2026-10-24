@@ -1,216 +1,254 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
+import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKapanis, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
+import { PRO_FIYAT_ETIKET } from '@/lib/pro-plan';
+
+// Randevu Modülü (Pro) — özellik sayfası dili (bkz. components/ozellik/Ozellik.tsx).
+// Çizimler temsili; gerçek kişi adı/numarası/alan adı yok.
+
+const URL_ = 'https://www.hekimhane.com.tr/randevu-modulu';
 
 export const metadata: Metadata = {
-  title: 'Randevu Modülü — Her Yerden Randevu Alın | Hekimhane',
+  title: 'Randevu Modülü — Her Yerden Randevu Alın',
   description:
     'Kendi web sitenizden, HekimKart’ınızdan ve Hekimhane profilinizden gelen tüm randevu talepleri tek panelde buluşur. Randevu modülünü tek satır kodla sitenize ekleyin, her yerden randevu almaya başlayın.',
   keywords: ['randevu modülü', 'web sitesi randevu', 'diş kliniği online randevu', 'randevu iframe', 'siteme randevu ekle'],
-  alternates: { canonical: 'https://www.hekimhane.com.tr/randevu-modulu' },
+  alternates: { canonical: URL_ },
   openGraph: {
     title: 'Randevu Modülü — Her Yerden Randevu Alın',
     description: 'Kendi sitenizden ve Hekimhane’den gelen tüm randevular tek panelde. Tek satır kodla sitenize ekleyin.',
-    url: 'https://www.hekimhane.com.tr/randevu-modulu',
+    url: URL_,
     type: 'website',
   },
 };
 
-const IC: Record<string, React.ReactNode> = {
-  code:   <path d="M16 18l6-6-6-6 M8 6l-6 6 6 6" />,
-  card:   <><rect x="2" y="4" width="20" height="16" rx="3" /><path d="M2 9h20 M6 15h4" /></>,
-  globe:  <><circle cx="12" cy="12" r="9" /><path d="M3 12h18 M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z" /></>,
-  inbox:  <path d="M22 12h-6l-2 3h-4l-2-3H2 M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />,
-  bell:   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0" />,
-  wand:   <path d="M15 4V2 M15 16v-2 M8 9h2 M20 9h2 M17.8 11.8 19 13 M15 9h0 M17.8 6.2 19 5 M12.2 6.2 11 5 M4 20l7-7" />,
-  check:  <path d="M20 6L9 17l-5-5" />,
-  arrow:  <path d="M5 12h14M12 5l7 7-7 7" />,
-};
-
-function Icon({ name, size = 22, color = '#1A335E', stroke = 2 }: { name: string; size?: number; color?: string; stroke?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
-      {IC[name]}
-    </svg>
-  );
-}
-
-const NAVY = '#1A335E', GOLD = '#B8892F', TEXT = '#1c1c1e', MUTED = '#6E6E73', BORDER = '#E5E5EA';
-
-const KAYNAKLAR = [
-  { icon: 'globe', title: 'Kendi Web Siteniz', text: 'Tek satır kodla sitenize gömün.' },
-  { icon: 'card',  title: 'HekimKart’ınız', text: 'Dijital kartvizitinizde hazır.' },
-  { icon: 'inbox', title: 'Hekimhane Profiliniz', text: 'Rehberdeki profilinizden.' },
+// ── "Tüm randevularınız aynı sistemde buluşur" — üç kaynak + panel (koyu bant) ──
+const KAYNAKLAR: { baslik: string; metin: string; gorsel: React.ReactNode }[] = [
+  {
+    baslik: 'Kendi web siteniz',
+    metin: 'Tek satır kodla sitenize gömün; ziyaretçileriniz sitenizden çıkmadan randevu bırakır.',
+    gorsel: <MiniSite />,
+  },
+  {
+    baslik: 'HekimKart’ınız',
+    metin: 'Dijital kartvizitinizde randevu butonu hazır gelir; ayrıca kurmanıza gerek yok.',
+    gorsel: <MiniKart ikon="hekimkart" ust="HekimKart" />,
+  },
+  {
+    baslik: 'Hekimhane profiliniz',
+    metin: 'Rehberdeki profilinizden gelen talepler de aynı yere ulaşır.',
+    gorsel: <MiniKart ikon="doctor-profile" ust="Hekimhane profili" />,
+  },
+  {
+    baslik: 'Hepsi tek panelde',
+    metin: 'Tüm talepler panelinizdeki “Randevu Talepleri” sekmesinde toplanır; her biri için size e-posta gider.',
+    gorsel: <MiniPanel />,
+  },
 ];
 
-const FEATURES = [
-  { icon: 'code',  title: 'Sitenize Gömün', text: 'Tek satırlık HTML kodunu WordPress, Wix ya da kendi sitenize yapıştırın — kod bilgisi gerekmez.' },
-  { icon: 'card',  title: 'HekimKart’ta Hazır', text: 'Ücretsiz HekimKart sayfanızda randevu butonu baştan gelir; ayrıca kurmanıza gerek yok.' },
-  { icon: 'inbox', title: 'Tek Panelde Buluşur', text: 'Hangi kaynaktan gelirse gelsin tüm talepler Hekimhane panelinizdeki Randevu Talepleri’ne düşer.' },
-  { icon: 'bell',  title: 'Anında Bildirim', text: 'Her yeni talepte size ve ekibinize e-posta gider; hiçbir randevuyu kaçırmayın.' },
-  { icon: 'globe', title: 'Her Yerde Çalışır', text: 'Web siteniz, blog, açılış sayfası — nereye koyarsanız oradan randevu toplar.' },
-  { icon: 'wand',  title: 'Markanıza Uyar', text: 'Renk parametresiyle butonu markanıza uydurun; mobil uyumlu ve hızlı yüklenir.' },
+const OZELLIKLER: { etiket: string; ad: string; ikon: HkIkonAdi; renk: string; metin: string }[] = [
+  { etiket: 'Kurulum', ad: 'Sitenize gömün', ikon: 'clinic', renk: 'rgba(26,95,208,.4)', metin: 'Tek satırlık HTML kodunu WordPress, Wix ya da kendi sitenize yapıştırın — kod bilgisi gerekmez.' },
+  { etiket: 'HekimKart', ad: 'HekimKart’ta hazır', ikon: 'hekimkart', renk: 'rgba(184,137,47,.5)', metin: 'Ücretsiz HekimKart sayfanızda randevu butonu baştan gelir; ayrıca kurmanıza gerek yok.' },
+  { etiket: 'Panel', ad: 'Tek panelde buluşur', ikon: 'appointment', renk: 'rgba(13,124,121,.45)', metin: 'Hangi kaynaktan gelirse gelsin tüm talepler Hekimhane panelinizdeki Randevu Talepleri’ne düşer.' },
+  { etiket: 'Bildirim', ad: 'Anında haber', ikon: 'notification', renk: 'rgba(26,95,208,.4)', metin: 'Her yeni talepte size ve ekibinize e-posta gider; hiçbir randevuyu kaçırmayın.' },
+  { etiket: 'Esneklik', ad: 'Her yerde çalışır', ikon: 'share', renk: 'rgba(13,124,121,.45)', metin: 'Web siteniz, blog, açılış sayfası — nereye koyarsanız oradan randevu toplar.' },
+  { etiket: 'Görünüm', ad: 'Markanıza uyar', ikon: 'settings', renk: 'rgba(184,137,47,.5)', metin: 'Renk parametresiyle modülü markanıza uydurun; mobil uyumlu ve hızlı yüklenir.' },
 ];
 
-const STEPS = [
-  { n: '1', title: 'Panelden kodu kopyalayın', text: 'Profili Düzenle → “Siteme Ekle” sekmesinden işletmenize özel hazır kodu kopyalayın.' },
-  { n: '2', title: 'Sitenize yapıştırın', text: 'Kodu web sitenizde randevu almak istediğiniz yere ekleyin. Teknik bilgi gerekmez.' },
-  { n: '3', title: 'Randevular panele düşsün', text: 'Ziyaretçileriniz sizin sitenizden randevu bıraksın; talepler tek panelde toplansın.' },
+const ADIMLAR = [
+  { baslik: 'Panelden kodu kopyalayın', metin: 'Profili Düzenle → “Siteme Ekle” sekmesinden işletmenize özel hazır kodu kopyalayın.' },
+  { baslik: 'Sitenize yapıştırın', metin: 'Kodu web sitenizde randevu almak istediğiniz yere ekleyin. Teknik bilgi gerekmez.' },
+  { baslik: 'Randevular panele düşsün', metin: 'Ziyaretçileriniz sizin sitenizden randevu bıraksın; talepler tek panelde toplansın.' },
 ];
+
+const NERELERE = ['WordPress', 'Wix', 'Kendi web siteniz', 'Açılış sayfaları', 'Blog yazıları', 'Google İşletme profili'];
 
 const IFRAME_KODU = `<iframe src="https://www.hekimhane.com.tr/embed/randevu?type=doktor&id=..."
         width="100%" height="640" style="border:0;max-width:480px"></iframe>`;
 
+const SSS: { s: string; c: string }[] = [
+  { s: 'Randevu modülünü siteme nasıl eklerim?', c: 'Panelinizde Profili Düzenle → “Siteme Ekle” sekmesinden işletmenize özel hazır kodu kopyalayın ve web sitenizde randevu almak istediğiniz yere yapıştırın. Teknik bilgi gerekmez.' },
+  { s: 'HekimKart’ımda ayrıca kurmam gerekir mi?', c: 'Hayır. Ücretsiz HekimKart sayfanızda randevu butonu baştan gelir.' },
+  { s: 'Gelen talepler nereye düşer?', c: 'Hangi kaynaktan gelirse gelsin — web siteniz, HekimKart’ınız ya da Hekimhane profiliniz — tüm talepler panelinizdeki “Randevu Talepleri” sekmesine düşer; her yeni talepte size ve ekibinize e-posta gider.' },
+  { s: 'Modülü markamın rengine uydurabilir miyim?', c: 'Evet. Renk parametresiyle modülü markanıza uydurabilirsiniz; modül mobil uyumludur.' },
+  { s: 'Randevu modülü hangi üyelikte var?', c: `Randevu modülü Pro üyelikle kullanılır (${PRO_FIYAT_ETIKET}). Hekimhane profiliniz ücretsizdir.` },
+];
+
 export default function RandevuModuluPage() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebPage', '@id': `${URL_}#sayfa`, url: URL_,
+        name: 'Randevu Modülü — Her Yerden Randevu Alın',
+        isPartOf: { '@id': 'https://www.hekimhane.com.tr/#website' },
+      },
+      sssJsonLd(SSS),
+    ],
+  };
+
   return (
-    <div style={{ paddingTop: 64, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif', color: TEXT, background: '#fff' }}>
-      <style>{`
-        .rm-wrap{max-width:1120px;margin:0 auto;padding:0 24px;}
-        .rm-hero{position:relative;overflow:hidden;background:linear-gradient(155deg,#152A4E 0%,#1A335E 55%,#163D6E 100%);color:#fff;}
-        .rm-glow{position:absolute;border-radius:50%;filter:blur(12px);opacity:.5;pointer-events:none;}
-        .rm-cta{display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border-radius:14px;font-size:15px;font-weight:700;text-decoration:none;letter-spacing:-.2px;transition:transform .16s ease;}
-        .rm-cta:hover{transform:translateY(-2px);}
-        .rm-cta-gold{background:linear-gradient(135deg,#EBC65D,#B8892F);color:#152A4E;box-shadow:0 10px 26px rgba(184,137,47,.4);}
-        .rm-cta-ghost{background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(255,255,255,.28);}
-        .rm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
-        .rm-card{background:#fff;border:1px solid ${BORDER};border-radius:20px;padding:24px 22px;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;}
-        .rm-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(15,42,85,.1);border-color:#D6DEEC;}
-        .rm-ic{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#EEF3FB,#E3ECF9);margin-bottom:15px;}
-        .rm-hub{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;}
-        .rm-src{display:flex;flex-direction:column;gap:12px;}
-        .rm-arrow-wrap{display:flex;align-items:center;justify-content:center;}
-        @media (max-width:820px){
-          .rm-grid{grid-template-columns:1fr;}
-          .rm-hub{grid-template-columns:1fr;gap:14px;}
-          .rm-arrow-wrap{transform:rotate(90deg);}
-        }
-      `}</style>
-
-      {/* ── HERO ── */}
-      <section className="rm-hero">
-        <span className="rm-glow" style={{ width: 380, height: 380, right: -90, top: -140, background: 'rgba(184,137,47,.2)' }} />
-        <span className="rm-glow" style={{ width: 320, height: 320, left: -110, bottom: -150, background: 'rgba(78,123,192,.3)' }} />
-        <div className="rm-wrap" style={{ position: 'relative', zIndex: 1, padding: '82px 24px 90px', textAlign: 'center' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 15px', borderRadius: 999, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.2)', fontSize: 12, fontWeight: 800, letterSpacing: '1px', marginBottom: 24 }}>
-            RANDEVU MODÜLÜ
-          </span>
-          <h1 style={{ fontSize: 'clamp(32px, 5.2vw, 56px)', fontWeight: 800, letterSpacing: '-1.6px', lineHeight: 1.05, margin: '0 0 20px' }}>
-            Her yerden randevu alın
-          </h1>
-          <p style={{ fontSize: 'clamp(16px, 2.2vw, 20px)', lineHeight: 1.6, color: 'rgba(255,255,255,.84)', maxWidth: 720, margin: '0 auto 34px', fontWeight: 400 }}>
-            Kendi web sitenizden, HekimKart’ınızdan ve Hekimhane profilinizden gelen tüm randevu talepleri
-            <strong style={{ color: '#fff', fontWeight: 700 }}> tek panelde</strong> buluşur. Farklı yerlerden ve sayfalardan randevu almaya bugün başlayın.
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/katil" className="rm-cta rm-cta-gold">İşletmenizi Ekleyin<Icon name="arrow" size={17} color="#152A4E" stroke={2.4} /></Link>
-            <Link href="/neden-hekimhane" className="rm-cta rm-cta-ghost">Neden Hekimhane?</Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── TEK PANEL DİYAGRAMI ── */}
-      <section className="rm-wrap" style={{ padding: '72px 24px 20px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: GOLD, margin: '0 0 12px' }}>Tek Merkez</p>
-          <h2 style={{ fontSize: 'clamp(24px, 3.4vw, 34px)', fontWeight: 800, letterSpacing: '-1px', color: NAVY, margin: 0 }}>Tüm randevularınız aynı sistemde buluşur</h2>
-        </div>
-        <div className="rm-hub">
-          <div className="rm-src">
-            {KAYNAKLAR.map(k => (
-              <div key={k.title} style={{ display: 'flex', alignItems: 'center', gap: 13, background: '#F5F5F7', border: `1px solid ${BORDER}`, borderRadius: 16, padding: '14px 16px' }}>
-                <div style={{ width: 40, height: 40, borderRadius: 11, background: '#fff', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Icon name={k.icon} size={20} />
-                </div>
-                <div>
-                  <div style={{ fontSize: 14.5, fontWeight: 700, color: TEXT }}>{k.title}</div>
-                  <div style={{ fontSize: 12.5, color: MUTED, marginTop: 1 }}>{k.text}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="rm-arrow-wrap">
-            <div style={{ width: 46, height: 46, borderRadius: '50%', background: 'linear-gradient(135deg,#EBC65D,#B8892F)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(184,137,47,.35)' }}>
-              <Icon name="arrow" size={22} color="#152A4E" stroke={2.6} />
-            </div>
-          </div>
-          <div style={{ background: 'linear-gradient(150deg,#152A4E,#163D6E)', borderRadius: 20, padding: '28px 26px', color: '#fff', textAlign: 'center' }}>
-            <div style={{ width: 52, height: 52, borderRadius: 15, background: 'rgba(255,255,255,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
-              <Icon name="inbox" size={26} color="#EBC65D" />
-            </div>
-            <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-.3px', marginBottom: 6 }}>Hekimhane Paneli</div>
-            <div style={{ fontSize: 13.5, color: 'rgba(255,255,255,.72)', lineHeight: 1.6 }}>
-              Tüm randevu talepleri “Randevu Talepleri” sekmesinde toplanır; her biri için size e-posta gider.
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── ÖZELLİKLER ── */}
-      <section className="rm-wrap" style={{ padding: '56px 24px 20px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: GOLD, margin: '0 0 12px' }}>Neden Kolay?</p>
-          <h2 style={{ fontSize: 'clamp(24px, 3.4vw, 34px)', fontWeight: 800, letterSpacing: '-1px', color: NAVY, margin: 0 }}>Kurulumu dakikalar, etkisi kalıcı</h2>
-        </div>
-        <div className="rm-grid">
-          {FEATURES.map((f, i) => (
-            <div key={i} className="rm-card">
-              <div className="rm-ic"><Icon name={f.icon} size={22} /></div>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: TEXT, letterSpacing: '-.2px', margin: '0 0 7px' }}>{f.title}</h3>
-              <p style={{ fontSize: 13.5, color: MUTED, lineHeight: 1.6, margin: 0 }}>{f.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── NASIL EKLENİR ── */}
-      <section className="rm-wrap" style={{ padding: '56px 24px' }}>
-        <div style={{ background: '#F5F5F7', border: `1px solid ${BORDER}`, borderRadius: 26, padding: 'clamp(28px, 4vw, 44px)' }}>
-          <div style={{ textAlign: 'center', marginBottom: 32 }}>
-            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: GOLD, margin: '0 0 12px' }}>Nasıl Eklenir?</p>
-            <h2 style={{ fontSize: 'clamp(22px, 3.2vw, 30px)', fontWeight: 800, letterSpacing: '-.8px', color: NAVY, margin: 0 }}>Üç adımda sitenizde</h2>
-          </div>
-          <div className="rm-grid" style={{ marginBottom: 26 }}>
-            {STEPS.map(s => (
-              <div key={s.n} style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 18, padding: '22px 20px' }}>
-                <div style={{ width: 38, height: 38, borderRadius: 11, background: 'linear-gradient(135deg,#12305C,#1A335E)', color: '#EBC65D', fontWeight: 800, fontSize: 17, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 13 }}>{s.n}</div>
-                <h3 style={{ fontSize: 15.5, fontWeight: 800, color: TEXT, margin: '0 0 7px', letterSpacing: '-.2px' }}>{s.title}</h3>
-                <p style={{ fontSize: 13.5, color: MUTED, lineHeight: 1.6, margin: 0 }}>{s.text}</p>
-              </div>
-            ))}
-          </div>
-          <div style={{ background: '#152A4E', borderRadius: 14, padding: '16px 18px', overflowX: 'auto' }}>
-            <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(255,255,255,.4)', marginBottom: 8 }}>Örnek Kod</div>
-            <pre style={{ margin: 0, fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', fontSize: 12.5, lineHeight: 1.6, color: '#DCE6F5', whiteSpace: 'pre' }}>{IFRAME_KODU}</pre>
-          </div>
-          <p style={{ fontSize: 12.5, color: MUTED, textAlign: 'center', marginTop: 14, lineHeight: 1.6 }}>
-            İşletmenize özel gerçek kodu, panelinizdeki <strong style={{ color: NAVY }}>“Siteme Ekle”</strong> sekmesinden tek tıkla kopyalarsınız.
-          </p>
-        </div>
-      </section>
-
-      {/* ── NERELERE ── */}
-      <section className="rm-wrap" style={{ padding: '10px 24px 56px', textAlign: 'center' }}>
-        <p style={{ fontSize: 14, color: MUTED, marginBottom: 16 }}>Nerelere ekleyebilirsiniz?</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
-          {['WordPress', 'Wix', 'Kendi web siteniz', 'Açılış sayfaları', 'Blog yazıları', 'Google İşletme profili'].map(x => (
-            <span key={x} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#F5F5F7', border: `1px solid ${BORDER}`, borderRadius: 999, padding: '9px 16px', fontSize: 14, fontWeight: 600, color: TEXT }}>
-              <Icon name="check" size={15} color="#059669" stroke={3} />{x}
-            </span>
-          ))}
-        </div>
-      </section>
-
-      {/* ── CTA ── */}
-      <section style={{ background: '#F5F5F7' }}>
-        <div className="rm-wrap" style={{ padding: '64px 24px', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(24px, 3.6vw, 34px)', fontWeight: 800, letterSpacing: '-1px', color: NAVY, margin: '0 0 14px' }}>Farklı yerlerden randevu almaya başlayın</h2>
-          <p style={{ fontSize: 16, color: MUTED, lineHeight: 1.65, maxWidth: 560, margin: '0 auto 28px' }}>
-            Ücretsiz profilinizi oluşturun; randevu modülünü sitenize ekleyin, tüm talepleri tek panelde yönetin.
-          </p>
-          <Link href="/katil" className="rm-cta rm-cta-gold" style={{ boxShadow: '0 10px 26px rgba(184,137,47,.35)' }}>
-            İşletmenizi Ekleyin<Icon name="arrow" size={17} color="#152A4E" stroke={2.4} />
+    <OzSayfa jsonLd={jsonLd}>
+      <OzHero
+        rozet="Pro"
+        urun="Hekimhane | Randevu Modülü"
+        baslik={['Her yerden', 'randevu alın']}
+        govde="Kendi web sitenizden, HekimKart’ınızdan ve Hekimhane profilinizden gelen tüm randevu talepleri tek panelde buluşur. Farklı yerlerden ve sayfalardan randevu almaya bugün başlayın."
+        birincil={{ ad: 'İşletmenizi ekleyin', href: '/katil' }}
+        ikincil={{ ad: 'Neden Hekimhane?', href: '/neden-hekimhane' }}
+        sahne={<Sahne />}
+        alt={
+          <Link href="/randevu-sistemi" className="oz-ortak-not">
+            <HkIcon name="appointment" size={16} color="#12294D" />
+            <span>Randevu takvimi nasıl çalışır?</span>
           </Link>
+        }
+      />
+
+      <OzBant
+        baslik="Tüm randevularınız aynı sistemde buluşur"
+        alt="Talep nereden gelirse gelsin — sitenizden, HekimKart’ınızdan ya da Hekimhane profilinizden — aynı panele düşer."
+        kartlar={KAYNAKLAR}
+        cta={{ ad: 'İşletmenizi ekleyin', href: '/katil' }}
+      />
+
+      <OzIzgara
+        ustyazi="Neden kolay?"
+        baslik="Kurulumu dakikalar, etkisi kalıcı"
+        ogeler={OZELLIKLER}
+      />
+
+      <OzAdimlar id="nasil" ustyazi="Nasıl eklenir?" baslik="Üç adımda sitenizde" adimlar={ADIMLAR} />
+
+      {/* ── Örnek kod ── */}
+      <section className="vt-zemin vt-bolum">
+        <div className="container oz-ikili">
+          <div>
+            <p className="vt-ustyazi">Örnek kod</p>
+            <h2 className="vt-h2">Tek satır kod, sitenizde randevu</h2>
+            <p className="vt-govde">
+              Kodu web sitenizde randevu almak istediğiniz yere yapıştırın; modül sayfanızın içinde açılır, gelen talepler panelinize düşer.
+            </p>
+            <p style={{ margin: '30px 0 12px', fontSize: 15, fontWeight: 700, color: '#0E1A2C' }}>Nerelere ekleyebilirsiniz?</p>
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {NERELERE.map(x => (
+                <li key={x} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 999, background: '#fff', boxShadow: 'inset 0 0 0 1px #E6E8EC', fontSize: 14, fontWeight: 600, color: '#0E1A2C' }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1E8E5A" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+                  {x}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="oz-panel" style={{ marginTop: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <span style={{ display: 'grid', placeItems: 'center', width: 40, height: 40, borderRadius: 12, background: '#EEF3FA', flex: 'none' }}>
+                <HkIcon name="settings" size={22} color="#12294D" />
+              </span>
+              <div style={{ minWidth: 0 }}>
+                <b style={{ display: 'block', fontSize: 15, color: '#0E1A2C' }}>Siteme Ekle</b>
+                <small style={{ fontSize: 12.5, color: '#586273' }}>Panel → Profili Düzenle</small>
+              </div>
+            </div>
+            <div style={{ background: '#0E1A2C', borderRadius: 16, padding: '16px 18px', overflowX: 'auto' }}>
+              <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(255,255,255,.45)', marginBottom: 8 }}>Örnek kod</div>
+              <pre style={{ margin: 0, fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', fontSize: 12.5, lineHeight: 1.6, color: '#DCE6F5', whiteSpace: 'pre' }}>{IFRAME_KODU}</pre>
+            </div>
+            <p style={{ margin: '14px 0 0', fontSize: 13.5, lineHeight: 1.6, color: '#586273' }}>
+              İşletmenize özel gerçek kodu, panelinizdeki <strong style={{ color: '#12294D' }}>“Siteme Ekle”</strong> sekmesinden tek tıkla kopyalarsınız.
+            </p>
+          </div>
         </div>
       </section>
+
+      <OzKapanis
+        baslik="Farklı yerlerden randevu almaya başlayın"
+        metin={`Ücretsiz profilinizi oluşturun; Pro üyelikle (${PRO_FIYAT_ETIKET}) randevu modülünü sitenize ekleyin, tüm talepleri tek panelde yönetin.`}
+        birincil={{ ad: 'İşletmenizi ekleyin', href: '/katil' }}
+        ikincil={{ ad: 'Randevu takvimini inceleyin', href: '/randevu-sistemi' }}
+      />
+
+      <OzSss sorular={SSS} />
+    </OzSayfa>
+  );
+}
+
+/* ═══ Çizimler — temsili içerik, gerçek kişi/numara/alan adı yok ═══════════ */
+
+function Sahne() {
+  const saatler = ['09:30', '11:00', '14:30'];
+  return (
+    <OzSahne ikon="clinic">
+      <OzSahneBaslik ikon="clinic" baslik="Web sitenizde randevu" alt="Randevu modülü · tek satır kod" durum="Yayında" />
+      <div className="vt-h-belir" style={{ position: 'relative', overflow: 'hidden', borderRadius: 18, background: '#fff', boxShadow: '0 10px 28px -16px rgba(18,41,77,.35), inset 0 0 0 1px #E6E8EC', animationDelay: '.3s' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px', background: '#F4F6F9', borderBottom: '1px solid #E6E8EC' }}>
+          {['#E5767A', '#E8C26A', '#7BC79B'].map(c => <i key={c} style={{ width: 9, height: 9, borderRadius: '50%', background: c }} />)}
+          <span style={{ flex: 1, minWidth: 0, marginLeft: 8, padding: '4px 10px', borderRadius: 7, background: '#fff', fontSize: 11.5, color: '#586273', boxShadow: 'inset 0 0 0 1px #E6E8EC', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Web siteniz · Randevu</span>
+        </div>
+        <div style={{ padding: 16 }}>
+          <b style={{ display: 'block', fontSize: 15, color: '#0E1A2C' }}>Randevu alın</b>
+          <small style={{ display: 'block', marginTop: 2, fontSize: 12.5, color: '#586273' }}>Dr. Aksoy Muayenehanesi · Perşembe</small>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8, marginTop: 12 }}>
+            {saatler.map(s => (
+              <span key={s} className={s === '11:00' ? 'vt-h-sec' : undefined} style={{ display: 'grid', placeItems: 'center', height: 38, borderRadius: 10, fontSize: 13.5, fontWeight: 800, ...(s === '11:00' ? { background: '#BDEBE4', boxShadow: '0 0 0 2px #0D7C79', color: '#0B5F55' } : { background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE', color: '#12294D' }) }}>{s}</span>
+            ))}
+          </div>
+          <span style={{ display: 'grid', placeItems: 'center', height: 40, marginTop: 12, borderRadius: 10, background: '#DEC283', color: '#12294D', fontSize: 14, fontWeight: 700 }}>Talep gönder</span>
+        </div>
+      </div>
+      <OzOnayKart ust="Panelinize düştü" baslik="Perşembe · 11:00" alt="Mehmet T. · Kaynak: web siteniz" gecikme={1.4} />
+    </OzSahne>
+  );
+}
+
+function MiniSite() {
+  return (
+    <div style={{ width: '100%', maxWidth: 220, overflow: 'hidden', borderRadius: 12, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE' }}>
+      <div style={{ display: 'flex', gap: 4, padding: '7px 10px', background: '#F4F6F9', borderBottom: '1px solid #DCE3EE' }}>
+        {[0, 1, 2].map(i => <i key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: '#C9CED6' }} />)}
+      </div>
+      <div style={{ padding: 12 }}>
+        <span style={{ display: 'block', width: '70%', height: 8, borderRadius: 4, background: '#D6DDF0' }} />
+        <span style={{ display: 'block', width: '90%', height: 6, marginTop: 7, borderRadius: 3, background: '#E8ECF3' }} />
+        <span style={{ display: 'block', width: '60%', height: 6, marginTop: 5, borderRadius: 3, background: '#E8ECF3' }} />
+        <span style={{ display: 'grid', placeItems: 'center', height: 30, marginTop: 12, borderRadius: 8, background: '#DEC283', color: '#12294D', fontSize: 12, fontWeight: 700 }}>Randevu al</span>
+      </div>
+    </div>
+  );
+}
+
+function MiniKart({ ikon, ust }: { ikon: HkIkonAdi; ust: string }) {
+  return (
+    <div style={{ width: '100%', maxWidth: 200, padding: 14, borderRadius: 14, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE', textAlign: 'center' }}>
+      <span style={{ display: 'inline-grid', placeItems: 'center', width: 42, height: 42, borderRadius: 12, background: '#12294D' }}>
+        <HkIcon name={ikon} size={22} color="#fff" accent="#DEC283" />
+      </span>
+      <small style={{ display: 'block', marginTop: 8, fontSize: 11, fontWeight: 700, color: '#586273', textTransform: 'uppercase', letterSpacing: '.04em' }}>{ust}</small>
+      <b style={{ display: 'block', marginTop: 2, fontSize: 13.5, color: '#0E1A2C' }}>Dr. Aksoy</b>
+      <span style={{ display: 'grid', placeItems: 'center', height: 28, marginTop: 10, borderRadius: 8, background: '#DEC283', color: '#12294D', fontSize: 12, fontWeight: 700 }}>Randevu al</span>
+    </div>
+  );
+}
+
+function MiniPanel() {
+  const satirlar: { ad: string; kaynak: string; renk: string }[] = [
+    { ad: 'Zeynep K.', kaynak: 'Web sitesi', renk: '#1A5FD0' },
+    { ad: 'Mehmet T.', kaynak: 'HekimKart', renk: '#B8892F' },
+    { ad: 'Ayşe D.', kaynak: 'Profil', renk: '#0D7C79' },
+  ];
+  return (
+    <div style={{ width: '100%', maxWidth: 230, padding: 12, borderRadius: 14, background: '#12294D' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 11.5, fontWeight: 700, color: '#DEC283' }}>
+        <HkIcon name="appointment" size={15} color="#fff" accent="#DEC283" />Randevu Talepleri
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+        {satirlar.map((s, i) => (
+          <div key={s.ad} className="vt-h-belir" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '7px 9px', borderRadius: 8, background: '#fff', animationDelay: `${0.2 + i * 0.25}s` }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#0E1A2C' }}>{s.ad}</span>
+            <span style={{ padding: '2px 7px', borderRadius: 999, background: `${s.renk}1A`, color: s.renk, fontSize: 10.5, fontWeight: 800 }}>{s.kaynak}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

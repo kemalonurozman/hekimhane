@@ -78,6 +78,7 @@ async function buildSectionRaw(section: string): Promise<SmUrl[]> {
       { loc: `${BASE}/makale-yayinla`, changefreq: 'monthly', priority: 0.6 },
       { loc: `${BASE}/hakkimizda`, changefreq: 'monthly', priority: 0.5 },
       { loc: `${BASE}/randevu-sistemi`, changefreq: 'yearly', priority: 0.5 },
+      { loc: `${BASE}/booking`, changefreq: 'monthly', priority: 0.7 },
       { loc: `${BASE}/mcp`, changefreq: 'monthly', priority: 0.5 },
       { loc: `${BASE}/degerlendirme-sistemi`, changefreq: 'yearly', priority: 0.4 },
       { loc: `${BASE}/uzmanlik`, changefreq: 'monthly', priority: 0.7 },

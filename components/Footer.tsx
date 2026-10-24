@@ -14,6 +14,7 @@ export default function Footer() {
     ['2026 Tedavi Ücretleri', '/tedavi-ucretleri'],
     ['HekimKart',            '/hekimkart'],
     ['Randevu Modülü',       '/randevu-modulu'],
+    ['Hekimhane Booking',    '/booking'],
     ['Karşılaştır',          '/karsilastir'],
     ['Blog',                 '/blog'],
     ['Kliniğinizi Ekleyin',  '/katil'],

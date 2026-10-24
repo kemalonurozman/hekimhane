@@ -48,6 +48,9 @@ const nextConfig = {
         destination: 'https://hekimhane.com.tr',
         permanent: true,
       },
+      // HekimAI (eski "Çok Yakında" sayfası) → Hekimhane Booking ile aynı ürün (Eki 2026)
+      { source: '/hekim-ai', destination: '/booking', permanent: true },
+      { source: '/hekim-ai/:path*', destination: '/booking', permanent: true },
     ];
   },
 };

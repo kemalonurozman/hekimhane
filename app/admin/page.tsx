@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import type { User } from '@supabase/supabase-js';
+import BookingTab from './BookingTab';
 import MakalelerTab from './MakalelerTab';
 import { C } from './tema';
 import { LogoMark } from '@/components/Logo';
@@ -154,6 +155,7 @@ const SIDEBAR_GROUPS: { title: string | null; items: { key: string; label: strin
     { key: 'cekim',       label: 'Randevu & Çekim',   icon: IC.klinik  },
     { key: 'sikayetler',  label: 'Şikayetler',        icon: IC.flag    },
     { key: 'premium',     label: 'Premium Üyeler',    icon: IC.shield  },
+    { key: 'booking',     label: 'Booking Başvuruları',icon: IC.users   },
   ]},
   { title: 'Kayıtlar', items: [
     { key: 'klinikler',   label: 'Klinikler',         icon: IC.klinik  },
@@ -172,7 +174,7 @@ const SIDEBAR_GROUPS: { title: string | null; items: { key: string; label: strin
   ]},
 ];
 
-type TabKey = 'dashboard' | 'claims' | 'cekim' | 'sikayetler' | 'emailler' | 'premium' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
+type TabKey = 'dashboard' | 'booking' | 'claims' | 'cekim' | 'sikayetler' | 'emailler' | 'premium' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
 
 /* ═══════════════════════════════════════════════
    DASHBOARD SEKMESİ
@@ -2715,6 +2717,7 @@ export default function AdminPage() {
         {tab === 'sikayetler' && <SikayetlerTab onChanged={loadReportCount} />}
         {tab === 'emailler'   && <EmailListesiTab />}
         {tab === 'premium'    && <PremiumTab />}
+        {tab === 'booking'    && <BookingTab />}
         {tab === 'klinikler'  && <EntityTab entityType="klinikler" />}
         {tab === 'hastaneler' && <EntityTab entityType="hastaneler" />}
         {tab === 'doktorlar'  && <EntityTab entityType="doktorlar" />}

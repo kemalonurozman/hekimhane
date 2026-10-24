@@ -1,242 +1,291 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
+import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKapanis, OzSss, sssJsonLd } from '@/components/ozellik/Ozellik';
+import { PRO_FIYAT_ETIKET } from '@/lib/pro-plan';
+
+// Hekim Randevu Sistemi (Randevu Takvimi, Pro) — özellik sayfası dili (bkz. components/ozellik/Ozellik.tsx).
+// Çizimler temsili; gerçek kişi adı/numarası yok.
+
+const URL_ = 'https://www.hekimhane.com.tr/randevu-sistemi';
 
 export const metadata: Metadata = {
-  title: 'Hekim Randevu Sistemi — Online Randevu, Hatırlatma ve Takvim Yönetimi | Hekimhane',
+  title: 'Hekim Randevu Sistemi — Online Randevu, Hatırlatma ve Takvim Yönetimi',
   description: 'Hekimhane Randevu Sistemi nasıl çalışır? Hastalar uygun tarihi sistemden seçer; hem hekime hem hastaya anında onay maili gider, randevudan önce hatırlatma gönderilir. Hekimler takvimlerini kolayca açıp bloke edebilir.',
-  alternates: { canonical: 'https://www.hekimhane.com.tr/randevu-sistemi' },
+  alternates: { canonical: URL_ },
 };
 
-const KART: React.CSSProperties = { background: 'white', border: '1px solid var(--border)', borderRadius: 18, padding: '28px 30px', boxShadow: '0 1px 4px rgba(0,0,0,.05)' };
-const H2: React.CSSProperties = { fontFamily: 'var(--font-playfair,serif)', fontSize: 21, fontWeight: 800, color: 'var(--navy)', margin: '0 0 14px', letterSpacing: '-0.3px' };
-const P: React.CSSProperties = { fontSize: 15, color: '#3A3A3C', lineHeight: 1.7, margin: '0 0 12px' };
+// ── Faydalar (koyu bant) ──
+const FAYDALAR: { baslik: string; metin: string; gorsel: React.ReactNode }[] = [
+  {
+    baslik: 'Telefon beklemeden randevu',
+    metin: 'Hasta, hekimin sayfasında açık tarih ve saatleri görür, uygun olanı seçer. Telefon beklemeye, mesai saatine gerek yok.',
+    gorsel: <MiniSaatler />,
+  },
+  {
+    baslik: 'Çift taraflı onay maili',
+    metin: 'Randevu oluşunca aynı anda hem hekime hem hastaya e-posta gider. Hekim gelen hastayı, hasta randevu detaylarını yazılı olarak bilir.',
+    gorsel: <MiniCiftMail />,
+  },
+  {
+    baslik: 'Randevudan önce hatırlatma',
+    metin: 'Randevu tarihinden önce otomatik hatırlatma gider; hastadan gelemeyecekse haber vermesi rica edilir. Erken haber, o saatin başka bir hastaya açılmasını sağlar.',
+    gorsel: <MiniHatirlatma />,
+  },
+  {
+    baslik: 'Takvim sizin elinizde',
+    metin: 'İstediğiniz gün ve saat dilimini tek dokunuşla randevuya kapatır ya da yeniden açarsınız. Bloke saatler hastalara gösterilmez.',
+    gorsel: <MiniAcKapa />,
+  },
+];
 
-/* ── İkonlar (inline SVG — emoji yok) ── */
-const IcCalendarPick = (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" /><rect x="7" y="13" width="4" height="4" rx="0.6" fill="currentColor" stroke="none" /></svg>
-);
-const IcBolt = (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" /></svg>
-);
-const IcMailDouble = (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="16" height="12" rx="2" /><path d="m2 8 8 5 8-5" /><path d="M20 9v9a2 2 0 0 1-2 2H7" opacity="0.4" /></svg>
-);
-const IcBell = (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
-);
+const ADIMLAR = [
+  { baslik: 'Uygun zamanı seçin', metin: 'Hasta, hekimin sayfasından “Randevu Al” butonuna basar; açık tarih ve saat dilimini sistemden seçer.' },
+  { baslik: 'Talep anında iletilir', metin: 'Randevu talebi hekime ve Hekimhane’ye saniyeler içinde ulaşır — telefon beklemeye, mesai saatine gerek yok.' },
+  { baslik: 'Çift taraflı onay maili', metin: 'Hem hekime hem randevuyu oluşturan hastaya otomatik onay e-postası gider. İki taraf da aynı bilgiye sahiptir.' },
+  { baslik: 'Randevudan önce hatırlatma', metin: 'Randevu tarihinden önce hatırlatma maili gönderilir: “Gelemeyecekseniz lütfen bilgi verin.”' },
+];
 
-const STEP_COLORS = ['#1A335E', '#2563EB', '#059669', '#B8892F'];
+const AVANTAJLAR: { etiket: string; ad: string; ikon: HkIkonAdi; renk: string; maddeler: string[]; href?: string; rozet?: 'Pro' }[] = [
+  {
+    etiket: 'Hastalar için', ad: 'Beklemeden randevu', ikon: 'user-account', renk: 'rgba(26,95,208,.4)',
+    maddeler: ['Telefonda beklemeden, 7/24 randevu', 'Yazılı onay ve hatırlatma e-postası', 'Uygun saatleri anında görme'],
+  },
+  {
+    etiket: 'Hekimler için', ad: 'Düzenli bir program', ikon: 'doctor-profile', renk: 'rgba(13,124,121,.45)',
+    maddeler: ['Takvimi tek dokunuşla aç/bloke et', 'Her randevu için anında bildirim', 'Daha az unutulan randevu, dolu program'],
+  },
+  {
+    etiket: 'Randevu Modülü', rozet: 'Pro', ad: 'Kendi sitenizde de →', ikon: 'clinic', renk: 'rgba(184,137,47,.5)', href: '/randevu-modulu',
+    maddeler: ['Aynı takvimi web sitenize yerleştirin', 'Tek satır kodla eklenir', 'Tüm talepler tek panelde buluşur'],
+  },
+];
+
+const SSS: { s: string; c: string }[] = [
+  { s: 'Hekimhane üzerinden randevu nasıl alınır?', c: 'Hekimin veya kliniğin Hekimhane profiline gidip “Randevu Al” butonuna basın, açık tarih ve saat dilimini seçin, ad-soyad ve iletişim bilginizi bırakın. Talebiniz anında hekime iletilir ve size onay e-postası gönderilir.' },
+  { s: 'Randevu aldığımda bana e-posta gelir mi?', c: 'Evet. Randevu oluşturulduğunda hem hekime hem de randevuyu oluşturan kişiye otomatik onay e-postası gönderilir. Ayrıca randevu tarihinden önce hatırlatma e-postası iletilir.' },
+  { s: 'Randevuya gelemeyeceğim, ne yapmalıyım?', c: 'Hatırlatma e-postasındaki bilgilerle hekime en kısa sürede haber vermeniz yeterlidir. Erken bilgi vermeniz, o saatin başka bir hastaya açılmasını sağlar.' },
+  { s: 'Hekimler randevu takvimini nasıl yönetir?', c: 'Hekimler panelden istedikleri gün ve saat dilimlerini tek dokunuşla randevuya kapatabilir (bloke) veya yeniden açabilir. Bloke edilen saatler hastalara gösterilmez.' },
+];
 
 export default function RandevuSistemiPage() {
-  const adimlar = [
-    { ic: IcCalendarPick, baslik: 'Uygun zamanı seçin', metin: 'Hasta, hekimin sayfasından “Randevu Al” butonuna basar; açık tarih ve saat dilimini sistemden seçer.' },
-    { ic: IcBolt, baslik: 'Talep anında iletilir', metin: 'Randevu talebi hekime ve Hekimhane’ye saniyeler içinde ulaşır — telefon beklemeye, mesai saatine gerek yok.' },
-    { ic: IcMailDouble, baslik: 'Çift taraflı onay maili', metin: 'Hem hekime hem randevuyu oluşturan hastaya otomatik onay e-postası gider. İki taraf da aynı bilgiye sahiptir.' },
-    { ic: IcBell, baslik: 'Randevudan önce hatırlatma', metin: 'Randevu tarihinden önce hatırlatma maili gönderilir: “Gelemeyecekseniz lütfen bilgi verin.”' },
-  ];
-
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: [
-      { '@type': 'Question', name: 'Hekimhane üzerinden randevu nasıl alınır?', acceptedAnswer: { '@type': 'Answer', text: 'Hekimin veya kliniğin Hekimhane profiline gidip “Randevu Al” butonuna basın, açık tarih ve saat dilimini seçin, ad-soyad ve iletişim bilginizi bırakın. Talebiniz anında hekime iletilir ve size onay e-postası gönderilir.' } },
-      { '@type': 'Question', name: 'Randevu aldığımda bana e-posta gelir mi?', acceptedAnswer: { '@type': 'Answer', text: 'Evet. Randevu oluşturulduğunda hem hekime hem de randevuyu oluşturan kişiye otomatik onay e-postası gönderilir. Ayrıca randevu tarihinden önce hatırlatma e-postası iletilir.' } },
-      { '@type': 'Question', name: 'Randevuya gelemeyeceğim, ne yapmalıyım?', acceptedAnswer: { '@type': 'Answer', text: 'Hatırlatma e-postasındaki bilgilerle hekime en kısa sürede haber vermeniz yeterlidir. Erken bilgi vermeniz, o saatin başka bir hastaya açılmasını sağlar.' } },
-      { '@type': 'Question', name: 'Hekimler randevu takvimini nasıl yönetir?', acceptedAnswer: { '@type': 'Answer', text: 'Hekimler panelden istedikleri gün ve saat dilimlerini tek dokunuşla randevuya kapatabilir (bloke) veya yeniden açabilir. Bloke edilen saatler hastalara gösterilmez.' } },
+    '@graph': [
+      {
+        '@type': 'WebPage', '@id': `${URL_}#sayfa`, url: URL_,
+        name: 'Hekim Randevu Sistemi — Online Randevu, Hatırlatma ve Takvim Yönetimi',
+        isPartOf: { '@id': 'https://www.hekimhane.com.tr/#website' },
+      },
+      sssJsonLd(SSS),
     ],
   };
 
   return (
-    <main style={{ background: 'var(--cream)', minHeight: '100vh', paddingTop: 66 }}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+    <OzSayfa jsonLd={jsonLd}>
+      <OzHero
+        rozet="Pro"
+        urun="Hekimhane | Randevu Takvimi"
+        baslik={['Randevular telefonla değil,', 'sistemden seçilir']}
+        govde="Hem hekime hem hastaya anında e-posta gider, randevudan önce hatırlatma gönderilir; hekimler takvimlerini istedikleri gibi açıp kapatır."
+        birincil={{ ad: 'İşletmemi ekle', href: '/katil' }}
+        ikincil={{ ad: 'Nasıl çalışır?', href: '#nasil' }}
+        sahne={<Sahne />}
+        alt={
+          <Link href="/doktorlar" className="oz-ortak-not">
+            <HkIcon name="search" size={16} color="#12294D" />
+            <span>Hasta mısınız? Hekimlerden randevu alın</span>
+          </Link>
+        }
+      />
 
-      {/* Hero */}
-      <div style={{ background: 'linear-gradient(135deg, #1A335E 0%, #163D6E 100%)', padding: '52px 0 48px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: -70, top: -70, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,.04)' }} />
-        <div style={{ position: 'absolute', left: -50, bottom: -90, width: 240, height: 240, borderRadius: '50%', background: 'rgba(184,137,47,.06)' }} />
-        <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: 860 }}>
-          <nav style={{ display: 'flex', gap: 6, fontSize: 12, color: 'rgba(255,255,255,.55)', marginBottom: 16 }}>
-            <Link href="/" style={{ color: 'rgba(255,255,255,.7)', textDecoration: 'none' }}>Ana Sayfa</Link>
-            <span>›</span><span style={{ color: 'white' }}>Randevu Sistemi</span>
-          </nav>
-          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--on-deep-heading)', background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '5px 13px', marginBottom: 16 }}>
-            Doktor Randevu Sistemi
-          </span>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(28px,4.4vw,42px)', fontWeight: 800, color: 'white', lineHeight: 1.15, margin: '0 0 14px', letterSpacing: '-0.6px' }}>
-            Hekim Randevu Sistemi
-          </h1>
-          <p style={{ fontSize: 16.5, color: 'rgba(255,255,255,.85)', lineHeight: 1.65, maxWidth: 660, margin: 0 }}>
-            Randevular telefonla değil, doğrudan sistemden seçilir. Hem hekime hem hastaya anında e-posta gider,
-            randevudan önce hatırlatma gönderilir; hekimler takvimlerini istedikleri gibi açıp kapatır.
-          </p>
+      <OzBant
+        baslik="Yazılı onay, zamanında hatırlatma"
+        alt="Randevu ilk tıklamadan hatırlatmaya kadar sistemde ilerler: iki taraf da aynı bilgiye sahip olur, kimse randevuyu unutmaz."
+        kartlar={FAYDALAR}
+        cta={{ ad: 'İşletmemi ekle', href: '/katil' }}
+      />
+
+      <OzAdimlar id="nasil" baslik="Dört adımda randevu" adimlar={ADIMLAR} />
+
+      {/* ── Takvim kontrolü ── */}
+      <section className="vt-zemin vt-bolum">
+        <div className="container oz-ikili">
+          <div>
+            <p className="vt-ustyazi">Takvim kontrolü</p>
+            <h2 className="vt-h2">Hekim, takvimini istediği gibi yönetir</h2>
+            <p className="vt-govde">
+              Panelinizden istediğiniz gün ve saat dilimini tek dokunuşla randevuya kapatır (bloke) ya da yeniden açarsınız.
+              İzin, ameliyat, dolu bir gün — bloke edilen saatler hastalara hiç gösterilmez.
+            </p>
+          </div>
+          <TakvimPaneli />
         </div>
-      </div>
+      </section>
 
-      <div className="container" style={{ maxWidth: 860, padding: '38px 16px 64px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <OzIzgara
+        zemin="beyaz"
+        ustyazi="İki taraf için de kolay"
+        baslik="Hastalar beklemez, hekimler planlar"
+        govde="Aynı takvim hem hastanın randevu almasını hem hekimin programını kolaylaştırır. Dilerseniz kendi web sitenize de ekleyin."
+        ogeler={AVANTAJLAR}
+      />
 
-        {/* ── Nasıl çalışır — 4 adımlı akış ── */}
-        <section style={KART}>
-          <h2 style={H2}>Nasıl çalışır?</h2>
-          <p style={{ ...P, marginBottom: 24 }}>Randevu, ilk tıklamadan hatırlatmaya kadar dört adımda ilerler:</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, position: 'relative' }}>
-            {adimlar.map((a, i) => (
-              <div key={i} style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ position: 'relative', width: 56, height: 56, borderRadius: 16, background: `${STEP_COLORS[i]}12`, color: STEP_COLORS[i], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {a.ic}
-                  <span style={{ position: 'absolute', top: -8, right: -8, width: 24, height: 24, borderRadius: '50%', background: STEP_COLORS[i], color: 'white', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</span>
-                </div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--navy)', letterSpacing: '-0.2px' }}>{a.baslik}</div>
-                <div style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.6 }}>{a.metin}</div>
-              </div>
-            ))}
-          </div>
-        </section>
+      <OzKapanis
+        baslik="Randevu sistemini hemen kullanın"
+        metin={`Bir hekim veya klinik arıyorsanız profilinden dakikalar içinde randevu alın. İşletme sahibiyseniz Hekimhane’ye ücretsiz katılın; saat seçmeli randevu takvimini Pro üyelikle (${PRO_FIYAT_ETIKET}) açın.`}
+        birincil={{ ad: 'Hekimlerden randevu al', href: '/doktorlar' }}
+        ikincil={{ ad: 'İşletmemi ekle', href: '/katil' }}
+      />
 
-        {/* ── Çift taraflı e-posta bildirimi (grafik) ── */}
-        <section style={KART}>
-          <h2 style={H2}>Çift taraflı e-posta bildirimi</h2>
-          <p style={P}>
-            Bir randevu oluştuğunda kimse bilgi eksiği yaşamaz: <strong>aynı anda hem hekime hem de hastaya</strong> e-posta gider.
-            Hekim gelen hastayı, hasta ise randevu detaylarını yazılı olarak elinde bulundurur.
-          </p>
-          {/* Grafik: Hasta ↔ Hekimhane ↔ Hekim */}
-          <div style={{ display: 'flex', alignItems: 'stretch', justifyContent: 'center', gap: 0, flexWrap: 'wrap', marginTop: 20 }}>
-            {/* Hasta */}
-            <div style={{ flex: '1 1 130px', minWidth: 130, textAlign: 'center', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 14, padding: '18px 12px' }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 8px' }}><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /></svg>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)' }}>Hasta</div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>Randevu onayı + hatırlatma</div>
-            </div>
-            {/* Bağlantı */}
-            <div style={{ flex: '0 0 64px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
-              <svg width="56" height="24" viewBox="0 0 56 24" fill="none"><path d="M2 12h48" stroke="#B8892F" strokeWidth="2" strokeDasharray="4 4" /><path d="m44 6 8 6-8 6" stroke="#B8892F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /><path d="m12 6-8 6 8 6" stroke="#B8892F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-            </div>
-            {/* Hekimhane */}
-            <div style={{ flex: '1 1 130px', minWidth: 130, textAlign: 'center', background: 'var(--navy)', borderRadius: 14, padding: '18px 12px' }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 8px' }}><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" /></svg>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>Hekimhane</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 3 }}>Randevuyu iletir & maili gönderir</div>
-            </div>
-            {/* Bağlantı */}
-            <div style={{ flex: '0 0 64px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
-              <svg width="56" height="24" viewBox="0 0 56 24" fill="none"><path d="M2 12h48" stroke="#B8892F" strokeWidth="2" strokeDasharray="4 4" /><path d="m44 6 8 6-8 6" stroke="#B8892F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /><path d="m12 6-8 6 8 6" stroke="#B8892F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-            </div>
-            {/* Hekim */}
-            <div style={{ flex: '1 1 130px', minWidth: 130, textAlign: 'center', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 14, padding: '18px 12px' }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 8px' }}><path d="M12 2a3 3 0 0 0-3 3v1H7a2 2 0 0 0-2 2v3a7 7 0 0 0 14 0V8a2 2 0 0 0-2-2h-2V5a3 3 0 0 0-3-3Z" /><circle cx="12" cy="19" r="2" /></svg>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)' }}>Hekim</div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>Yeni randevu bildirimi</div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Hatırlatma & iptal (zaman çizelgesi grafiği) ── */}
-        <section style={KART}>
-          <h2 style={H2}>Hatırlatma & “gelemeyecekseniz haber verin”</h2>
-          <p style={P}>
-            Unutulan randevular hem hekimin saatini boşa harcar hem başka bir hastanın sırasını kapatır. Bu yüzden randevu
-            tarihinden <strong>önce otomatik hatırlatma e-postası</strong> gönderilir ve hastadan, gelemeyecekse haber vermesi rica edilir.
-          </p>
-          {/* Zaman çizelgesi */}
-          <div style={{ position: 'relative', margin: '22px 0 4px', padding: '0 8px' }}>
-            <div style={{ position: 'absolute', left: 20, right: 20, top: 15, height: 3, background: 'linear-gradient(90deg,#2563EB,#059669,#B8892F)', borderRadius: 3 }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative' }}>
-              {[
-                { t: 'Randevu oluşturuldu', d: 'Anında onay maili', c: '#2563EB' },
-                { t: 'Randevudan önce', d: 'Hatırlatma maili', c: '#059669' },
-                { t: 'Randevu günü', d: 'Hasta hekimde', c: '#B8892F' },
-              ].map((s, i) => (
-                <div key={i} style={{ flex: 1, textAlign: 'center', position: 'relative' }}>
-                  <div style={{ width: 14, height: 14, borderRadius: '50%', background: s.c, border: '3px solid white', boxShadow: '0 0 0 1px ' + s.c, margin: '9px auto 10px' }} />
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)' }}>{s.t}</div>
-                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{s.d}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── Hekim takvim kontrolü (takvim grafiği) ── */}
-        <section style={KART}>
-          <h2 style={H2}>Hekim, takvimini istediği gibi yönetir</h2>
-          <p style={P}>
-            Hekimler kendi panellerinden istedikleri <strong>gün ve saat dilimini tek dokunuşla randevuya kapatabilir</strong>
-            {' '}(bloke) veya yeniden açabilir. İzin, ameliyat, dolu bir gün — bloke edilen saatler hastalara hiç gösterilmez.
-          </p>
-          {/* Takvim grafiği: açık / bloke / dolu saat dilimleri */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(74px, 1fr))', gap: 10, marginTop: 18 }}>
-            {[
-              { s: '09:00', st: 'acik' }, { s: '10:00', st: 'bloke' }, { s: '11:00', st: 'acik' },
-              { s: '13:00', st: 'bloke' }, { s: '14:00', st: 'acik' }, { s: '15:00', st: 'acik' },
-              { s: '16:00', st: 'acik' }, { s: '17:00', st: 'bloke' },
-            ].map((slot, i) => {
-              const map: Record<string, { bg: string; bd: string; fg: string; label: string }> = {
-                acik: { bg: '#ECFDF5', bd: '#A7F3D0', fg: '#059669', label: 'Açık' },
-                bloke: { bg: '#F3F4F6', bd: '#E5E7EB', fg: '#9CA3AF', label: 'Bloke' },
-              };
-              const m = map[slot.st];
-              return (
-                <div key={i} style={{ background: m.bg, border: `1px solid ${m.bd}`, borderRadius: 11, padding: '10px 8px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)', textDecoration: slot.st === 'bloke' ? 'line-through' : 'none', opacity: slot.st === 'bloke' ? 0.55 : 1 }}>{slot.s}</div>
-                  <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.3px', textTransform: 'uppercase', color: m.fg, marginTop: 3 }}>{m.label}</div>
-                </div>
-              );
-            })}
-          </div>
-          <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginTop: 16 }}>
-            {[['#059669', 'Açık — randevuya uygun'], ['#9CA3AF', 'Bloke — hastalara gösterilmez']].map(([c, t], i) => (
-              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: 'var(--muted)' }}>
-                <span style={{ width: 11, height: 11, borderRadius: 3, background: c as string }} />{t}
-              </span>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Avantajlar ── */}
-        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-          <div style={{ ...KART, background: 'linear-gradient(135deg,#EEF2FF,#F5F8FF)', border: '1px solid #C7D2FE' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--navy)', margin: '0 0 12px' }}>Hastalar için</h3>
-            <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 9 }}>
-              {['Telefonda beklemeden, 7/24 randevu', 'Yazılı onay ve hatırlatma e-postası', 'Uygun saatleri anında görme'].map((t, i) => (
-                <li key={i} style={{ display: 'flex', gap: 9, fontSize: 14, color: '#3A3A3C', lineHeight: 1.5 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}><path d="M20 6 9 17l-5-5" /></svg>{t}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div style={{ ...KART, background: 'linear-gradient(135deg,#ECFDF5,#F0FDF4)', border: '1px solid #A7F3D0' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 800, color: '#065F46', margin: '0 0 12px' }}>Hekimler için</h3>
-            <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 9 }}>
-              {['Takvimi tek dokunuşla aç/bloke et', 'Her randevu için anında bildirim', 'Daha az unutulan randevu, dolu program'].map((t, i) => (
-                <li key={i} style={{ display: 'flex', gap: 9, fontSize: 14, color: '#065F46', lineHeight: 1.5 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}><path d="M20 6 9 17l-5-5" /></svg>{t}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        {/* ── CTA ── */}
-        <section style={{ ...KART, background: 'var(--navy)', textAlign: 'center', padding: '34px 30px' }}>
-          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 800, color: 'white', margin: '0 0 10px' }}>Randevu sistemini hemen kullanın</h2>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,.8)', lineHeight: 1.6, margin: '0 0 22px', maxWidth: 520, marginLeft: 'auto', marginRight: 'auto' }}>
-            Bir hekim veya klinik arıyorsanız profilinden dakikalar içinde randevu alın. İşletme sahibiyseniz Hekimhane’ye
-            ücretsiz katılıp randevu sistemini kullanmaya başlayın.
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/doktorlar" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--gold-fill)', color: 'var(--navy)', fontSize: 14.5, fontWeight: 700, borderRadius: 12, padding: '13px 24px', textDecoration: 'none' }}>
-              Hekimlerden randevu al →
-            </Link>
-            <Link href="/katil" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.1)', color: 'white', fontSize: 14.5, fontWeight: 700, borderRadius: 12, padding: '13px 24px', textDecoration: 'none', border: '1px solid rgba(255,255,255,.2)' }}>
-              İşletmemi ekle
-            </Link>
-          </div>
-        </section>
-
-        <p style={{ fontSize: 13, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.6, marginTop: 4 }}>
-          Sorularınız için <Link href="/iletisim" style={{ color: 'var(--navy)', fontWeight: 600 }}>iletişim</Link> sayfasından bize ulaşabilirsiniz.
+      <OzSss sorular={SSS} />
+      <div className="vt-zemin">
+        <p className="container" style={{ margin: '-48px auto 0', paddingBottom: 64, textAlign: 'center', fontSize: 14.5, color: '#586273' }}>
+          Sorularınız için <Link href="/iletisim" style={{ color: '#12294D', fontWeight: 700 }}>iletişim</Link> sayfasından bize ulaşabilirsiniz.
         </p>
       </div>
-    </main>
+    </OzSayfa>
+  );
+}
+
+/* ═══ Çizimler — temsili içerik, gerçek kişi/numara yok ═══════════════════ */
+
+const SLOT_STIL: Record<'acik' | 'secili' | 'bloke', React.CSSProperties> = {
+  acik: { background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE', color: '#12294D' },
+  secili: { background: '#BDEBE4', boxShadow: '0 0 0 2px #0D7C79', color: '#0B5F55' },
+  bloke: { background: '#EEF0F3', color: '#9AA1AD', textDecoration: 'line-through' },
+};
+
+function Sahne() {
+  const gunler = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum'];
+  const saatler: { s: string; d: 'acik' | 'secili' | 'bloke' }[] = [
+    { s: '09:00', d: 'acik' }, { s: '09:30', d: 'secili' }, { s: '10:00', d: 'bloke' },
+    { s: '11:00', d: 'acik' }, { s: '14:00', d: 'acik' }, { s: '15:30', d: 'bloke' },
+  ];
+  return (
+    <OzSahne ikon="appointment">
+      <OzSahneBaslik ikon="appointment" baslik="Randevu al" alt="Dr. Aksoy · Diş Hekimi" durum="Açık saatler" />
+      <div className="vt-h-belir" style={{ position: 'relative', padding: 18, borderRadius: 18, background: '#fff', boxShadow: '0 10px 28px -16px rgba(18,41,77,.35), inset 0 0 0 1px #E6E8EC', animationDelay: '.3s' }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#586273', marginBottom: 10 }}>Gün seçin</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: 6 }}>
+          {gunler.map(g => (
+            <span key={g} style={{ display: 'grid', placeItems: 'center', height: 38, borderRadius: 10, fontSize: 13, fontWeight: 700, ...(g === 'Sal' ? { background: '#12294D', color: '#DEC283' } : { background: '#F4F6F9', color: '#3C4A61' }) }}>{g}</span>
+          ))}
+        </div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#586273', margin: '16px 0 10px' }}>Saat seçin</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8 }}>
+          {saatler.map(x => (
+            <span key={x.s} className={x.d === 'secili' ? 'vt-h-sec' : undefined} style={{ display: 'grid', placeItems: 'center', height: 40, borderRadius: 10, fontSize: 14, fontWeight: 800, ...SLOT_STIL[x.d] }}>{x.s}</span>
+          ))}
+        </div>
+      </div>
+      <OzOnayKart ust="Onay maili gönderildi" baslik="Salı · 09:30" alt="Zeynep K. · Hekime ve hastaya" gecikme={1.4} />
+    </OzSahne>
+  );
+}
+
+function MiniSaatler() {
+  const s: ('acik' | 'secili' | 'bloke')[] = ['acik', 'bloke', 'secili', 'acik', 'acik', 'bloke'];
+  const t = ['09:00', '10:00', '11:00', '13:00', '14:00', '16:00'];
+  return (
+    <div style={{ width: '100%', maxWidth: 220, display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 7 }}>
+      {s.map((d, i) => (
+        <span key={i} className={d === 'secili' ? 'vt-h-sec' : undefined} style={{ display: 'grid', placeItems: 'center', height: 36, borderRadius: 8, fontSize: 12, fontWeight: 800, ...SLOT_STIL[d] }}>{t[i]}</span>
+      ))}
+    </div>
+  );
+}
+
+function MiniCiftMail() {
+  const dugum = (ikon: HkIkonAdi, ad: string, koyu?: boolean) => (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flex: 'none' }}>
+      <span style={{ display: 'grid', placeItems: 'center', width: 48, height: 48, borderRadius: 14, background: koyu ? '#12294D' : '#fff', boxShadow: koyu ? 'none' : 'inset 0 0 0 1px #DCE3EE' }}>
+        <HkIcon name={ikon} size={24} color={koyu ? '#fff' : '#12294D'} accent="#DEC283" />
+      </span>
+      <b style={{ fontSize: 11.5, color: '#12294D' }}>{ad}</b>
+    </div>
+  );
+  const cizgi = (
+    <span style={{ flex: 1, minWidth: 14, height: 0, marginBottom: 22, borderTop: '2px dashed #B8892F' }} />
+  );
+  return (
+    <div style={{ width: '100%', maxWidth: 240, display: 'flex', alignItems: 'center', gap: 6 }}>
+      {dugum('user-account', 'Hasta')}
+      {cizgi}
+      {dugum('appointment', 'Hekimhane', true)}
+      {cizgi}
+      {dugum('doctor-profile', 'Hekim')}
+    </div>
+  );
+}
+
+function MiniHatirlatma() {
+  return (
+    <div style={{ width: '100%', maxWidth: 230, padding: 14, borderRadius: 14, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 11.5, fontWeight: 800, color: '#0B5F55', textTransform: 'uppercase', letterSpacing: '.04em' }}>
+        <HkIcon name="notification" size={16} color="#0B5F55" />Hatırlatma
+      </div>
+      <div style={{ marginTop: 8, fontSize: 13.5, fontWeight: 700, color: '#0E1A2C' }}>Yarın 09:30 randevunuz var.</div>
+      <div style={{ marginTop: 4, fontSize: 12, lineHeight: 1.4, color: '#586273' }}>Gelemeyecekseniz lütfen bilgi verin.</div>
+    </div>
+  );
+}
+
+function MiniAcKapa() {
+  const satir = (saat: string, acik: boolean) => (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '9px 12px', borderRadius: 10, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE' }}>
+      <span style={{ fontSize: 12.5, fontWeight: 700, color: acik ? '#12294D' : '#9AA1AD', textDecoration: acik ? 'none' : 'line-through' }}>{saat}</span>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 700, color: acik ? '#0B5F55' : '#9AA1AD' }}>
+        {acik ? 'Açık' : 'Bloke'}
+        <span style={{ position: 'relative', width: 30, height: 18, borderRadius: 9, background: acik ? '#0D7C79' : '#C9CED6' }}>
+          <span style={{ position: 'absolute', top: 2, left: acik ? 14 : 2, width: 14, height: 14, borderRadius: '50%', background: '#fff' }} />
+        </span>
+      </span>
+    </div>
+  );
+  return (
+    <div style={{ width: '100%', maxWidth: 220, display: 'flex', flexDirection: 'column', gap: 7 }}>
+      {satir('Salı 11:00', true)}
+      {satir('Salı 13:00', false)}
+      {satir('Salı 14:00', true)}
+    </div>
+  );
+}
+
+function TakvimPaneli() {
+  const slotlar: { s: string; st: 'acik' | 'bloke' }[] = [
+    { s: '09:00', st: 'acik' }, { s: '10:00', st: 'bloke' }, { s: '11:00', st: 'acik' }, { s: '13:00', st: 'bloke' },
+    { s: '14:00', st: 'acik' }, { s: '15:00', st: 'acik' }, { s: '16:00', st: 'acik' }, { s: '17:00', st: 'bloke' },
+  ];
+  return (
+    <div className="oz-panel" style={{ marginTop: 0 }} aria-hidden="true">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ display: 'grid', placeItems: 'center', width: 40, height: 40, borderRadius: 12, background: '#EEF3FA' }}>
+            <HkIcon name="appointment" size={22} color="#12294D" />
+          </span>
+          <div>
+            <b style={{ display: 'block', fontSize: 15, color: '#0E1A2C' }}>Randevu takvimi</b>
+            <small style={{ fontSize: 12.5, color: '#586273' }}>Salı</small>
+          </div>
+        </div>
+        <span className="vt-pro">Pro</span>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 10 }}>
+        {slotlar.map(x => (
+          <div key={x.s} style={{ padding: '10px 4px', borderRadius: 12, textAlign: 'center', ...(x.st === 'acik' ? { background: '#E6F6F2', boxShadow: 'inset 0 0 0 1px #A8DDD3' } : { background: '#F1F2F5', boxShadow: 'inset 0 0 0 1px #E3E5EA' }) }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#12294D', textDecoration: x.st === 'bloke' ? 'line-through' : 'none', opacity: x.st === 'bloke' ? 0.5 : 1 }}>{x.s}</div>
+            <div style={{ marginTop: 3, fontSize: 10.5, fontWeight: 800, letterSpacing: '.04em', textTransform: 'uppercase', color: x.st === 'acik' ? '#0B5F55' : '#9AA1AD' }}>{x.st === 'acik' ? 'Açık' : 'Bloke'}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, marginTop: 18 }}>
+        {[['#0D7C79', 'Açık — randevuya uygun'], ['#B8BEC9', 'Bloke — hastalara gösterilmez']].map(([c, t]) => (
+          <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, color: '#586273' }}>
+            <span style={{ width: 11, height: 11, borderRadius: 3, background: c }} />{t}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }

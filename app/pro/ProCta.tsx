@@ -54,14 +54,14 @@ export default function ProCta({ boyut = 'md', koyu = false }: { boyut?: 'md' | 
   const linkRenk = koyu ? '#FFFFFF' : '#1B3A69';
   return (
     <div>
-      <button onClick={tikla} disabled={durum === 'calisiyor'}
+      {/* Görünüm: özellik sayfası dilinin altın, ışıklı ana düğmesi (vt-dugme oz-dugme--altin hk-cta-isik) */}
+      <button type="button" onClick={tikla} disabled={durum === 'calisiyor'}
+        className="vt-dugme oz-dugme--altin hk-cta-isik"
         style={{
-          padding: lg ? '15px 34px' : '13px 28px', borderRadius: 13, border: 'none',
-          background: 'var(--gold-fill)', color: 'var(--on-gold)',
-          fontSize: lg ? 16 : 14.5, fontWeight: 800, letterSpacing: '.2px',
+          border: 'none', fontFamily: 'inherit', fontWeight: 800, letterSpacing: '.2px',
+          ...(lg ? { minHeight: 58, padding: '0 34px', fontSize: 17 } : {}),
           cursor: durum === 'calisiyor' ? 'default' : 'pointer',
           opacity: durum === 'calisiyor' ? 0.7 : 1,
-          boxShadow: '0 4px 16px rgba(190,143,44,.35)', fontFamily: 'inherit',
         }}>
         {durum === 'calisiyor' ? 'Yönlendiriliyor…' : `Pro'ya Yükselt — Aylık ${PRO_AYLIK_TL} TL`}
       </button>

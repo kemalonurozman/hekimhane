@@ -7,7 +7,7 @@ import HeroAnimated from '@/components/HeroAnimated';
 import SekmeliVitrin, { type VitrinSekme } from '@/components/vitrin/SekmeliVitrin';
 import AracVitrini, { type Arac } from '@/components/vitrin/AracVitrini';
 import NoktaGrafik from '@/components/vitrin/NoktaGrafik';
-import { AramaGorsel, TakvimGorsel, YorumGorsel, RehberGorsel, KartGorsel, AsistanGorsel } from '@/components/vitrin/Gorseller';
+import { AramaGorsel, TakvimGorsel, YorumGorsel, RehberGorsel, KartGorsel, AsistanGorsel, BookingGorsel } from '@/components/vitrin/Gorseller';
 import { profilPuaniHesapla } from '@/lib/profil-puani';
 import HkIconAnim from '@/components/HkIconAnim';
 import HastalikRehberiSection from '@/components/HastalikRehberiSection';
@@ -151,6 +151,9 @@ const SEKMELER: VitrinSekme[] = [
 
 // ── Hekimlere yönelik araçlar: üzerine gelince renklenen, bağlantılı büyük kartlar ──
 const HEKIM_ARACLARI: Arac[] = [
+  { id: 'booking', ad: 'Hekimhane Booking', etiket: 'Hekimhane Booking', yeni: true, href: '/booking', renk: { zemin: '#D3EFEC', vurgu: '#0D7C79' },
+    cumle: 'Telefon çağrılarınızı ve mesajlarınızı 7/24 yanıtlayan, randevu alan yapay zekâ asistanı. Şimdi kullanımda — demo talep edin.',
+    gorsel: <BookingGorsel />, desen: <NoktaGrafik ikon="phone" size={300} /> },
   { id: 'randevu', ad: 'Randevu Takvimi', etiket: 'Randevu Takvimi', pro: true, href: '/randevu-sistemi', renk: { zemin: '#DCE8FB', vurgu: '#1A5FD0' },
     cumle: 'Hastalar profilinizden uygun saati kendisi seçer. Takviminizi siz açar, siz kapatırsınız.',
     gorsel: <TakvimGorsel />, desen: <NoktaGrafik ikon="appointment" size={300} /> },

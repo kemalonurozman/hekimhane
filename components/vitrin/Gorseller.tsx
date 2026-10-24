@@ -75,6 +75,30 @@ export function KartGorsel() {
   );
 }
 
+/** Hekimhane Booking — gelen çağrıyı yanıtlayan asistan (temsili) */
+export function BookingGorsel() {
+  const balon = (metin: string, hasta: boolean, sira = 0) => (
+    <div className="vt-h-balon" style={{ display: 'flex', justifyContent: hasta ? 'flex-end' : 'flex-start', marginBottom: 10, animationDelay: `${sira * 1.3}s` }}>
+      <span style={{
+        maxWidth: '84%', padding: '10px 14px', borderRadius: hasta ? '16px 16px 4px 16px' : '16px 16px 16px 4px', fontSize: 13, lineHeight: 1.45,
+        background: hasta ? '#DEC283' : 'rgba(255,255,255,.08)', color: hasta ? '#12294D' : 'rgba(255,255,255,.9)', fontWeight: hasta ? 600 : 400,
+      }}>{metin}</span>
+    </div>
+  );
+  return (
+    <div className="vt-cihaz vt-cihaz--genis">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', marginBottom: 14, borderRadius: 14, background: 'rgba(255,255,255,.06)' }}>
+        <span className="vt-h-nabiz" style={{ width: 10, height: 10, borderRadius: '50%', background: '#5FD6CE', flex: 'none' }} />
+        <span style={{ fontSize: 13, fontWeight: 700 }}>Gelen çağrı</span>
+        <span style={{ marginLeft: 'auto', fontSize: 12, color: 'rgba(255,255,255,.55)' }}>Mesai dışı · 21:42</span>
+      </div>
+      {balon('Merhaba, ben muayenehanenin sanal asistanıyım. Size nasıl yardımcı olabilirim?', false, 0)}
+      {balon('Salı sabahı için randevu almak istiyorum.', true, 1)}
+      {balon('Salı 09:30 uygun. Randevunuzu oluşturdum.', false, 2)}
+    </div>
+  );
+}
+
 /** Yapay zekâ asistanı ile yönetim (MCP) */
 export function AsistanGorsel() {
   const balon = (metin: string, sag: boolean, sira = 0) => (

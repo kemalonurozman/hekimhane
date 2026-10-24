@@ -577,9 +577,12 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Arama (hepsi + devlet/üniversite modları):** `aramaKelimeleri()` metni kelimelere böler (`.or()` bozan `, ( ) % *` ayıklanır), her kelime **VE** ile ve **kelime başından** eşleşir (`basla()`: `w%`, `% w%`, `%.w%`). Hekimde ad/soyad (+3 harften itibaren branş), klinikte ad. Böylece "mehmet y" → 11, "mehmet yıl" → 1 sonuç: yazdıkça aranan hekime kadar daralır. Arama varken adı yazılanla başlayan kayıt, özel/devlet ayrımından önce en üste gelir. Özel modun (`getKlinikler`) kendi arama mantığı aynen duruyor.
 - `DoktorCard`: unvan adın başında zaten varsa tekrar eklenmez ("Dt. Dt. …" düzeltildi).
 
-### Üst Menü — Diğer Branşlar (Eki 2026)
-- Diş dışı meslekler (fizyoterapist/Bobath, fizik tedavi, psikiyatri, psikolog) ve kurumlar (devlet diş hastaneleri, hastaneler, eczaneler) eskiden **yalnız footer'daydı** (commit f1c6ff5); üst menü 75ca3c1'den beri diş odaklıydı. Artık `Navbar.tsx` → `DIGER_BRANSLAR` ile **"Diğer Branşlar"** açılır menüsü (masaüstü + mobil akordeon), alt bağlantı "Tüm Doktorlar" → `/doktorlar`.
-- **Menü genişliği:** öğeler `white-space: nowrap` (`.nav-ogesi`); ≤1260px 14px/8px sıkılaşır; **≤1100px hamburger menüye geçilir** (eskiden 768px — 769–1100px arasında yazılar iki satıra kırılıyordu).
+### Üst Menü — sadeleştirilmiş yapı (Eki 2026)
+- **Dört öğe:** `Hekim Bul ▾` · `Sağlık Rehberi ▾` · `Özellikler ▾` · `Booking` (Yeni rozeti). Tek kaynak `Navbar.tsx` → `MENULER` (sütunlar + alt bağlantılar + `aktif` yol listesi) ve `NAV_LINKS` (düz bağlantı: yalnız Booking). Mobil akordeon aynı `MENULER`'den üretilir.
+- Eski düz bağlantılar menülere taşındı: "Diş Hekimleri" → Hekim Bul'un ilk satırı (`/klinikler`), "Hizmetler" ve "Diğer Branşlar" → Hekim Bul'un iki sütunu, "Ağız & Diş Sağlığı" + Blog → Sağlık Rehberi, "Neden Hekimhane?" → Özellikler'in alt bağlantısı.
+- **Özellikler** paneli ikonlu (`HkIcon`) iki sütun: Booking (Yeni), Randevu Takvimi, Randevu Modülü, Yapay Zekâ ile Yönetim (MCP) [Pro] · HekimKart, Yorum Yönetimi, Makale Yayınlama, Pro Üyelik. Yeni bir özellik sayfası açılınca buraya ekle.
+- `MegaMenu` paneli: Hekim Bul düğmeden sola yaslı, diğerleri ortalı (961px'te taşmaz — ölçüldü).
+- **Menü genişliği:** 15px; ≤1060px 14px/8px; **≤960px hamburger**. Menüye öğe eklerken 961px ve 1440px'te ölç, "Giriş Yap" tek satırda kalmalı.
 
 ### Navbar CTA ve /katil İlk Adım (Eki 2026)
 - **"Kayıt Ol" açılır menüsü kaldırıldı** (`regOpen` state'i artık kullanılmıyor). İçindeki "İşletmeni Sahiplen" yolu `/katil` sayfasındaki "İşletmeniz zaten listede mi?" bağlantısına taşındı.
@@ -607,6 +610,15 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
   - Çizimlerde küçük hareketler (`vt-h-belir/nabiz/buyu/sec/balon`): takvim sütunları sırayla belirir ve seçili saat nabız atar, asistan balonları sırayla gelir, çubuklar büyür, harita işaretleri atar. Yeni çizimler: `AramaGorsel`, `RehberGorsel`. `NoktaGrafik` `renk` alır.
   - "Hareketi azalt"ta tüm vitrin hareketleri kapanır. `color-mix()` kullanılıyor (ışıma/gölge) — eski tarayıcıda yalnız ışıma görünmez.
 - **Önizleme notu:** tarayıcı paneli kaydırılmış sayfada boş kare veriyor → uzun sayfayı görmek için `resize_window` ile yüksek bir görünüm alanı (ör. 1280×5200, mobil 390×6400) verip tek kare al.
+
+### Özellik Sayfası Dili — tek standart (Eki 2026)
+- **"Özellikler" menüsündeki tüm tanıtım sayfaları** (/booking, /randevu-sistemi, /randevu-modulu, /mcp, /hekimkart, /degerlendirme-sistemi, /makale-yayinla, /pro, /neden-hekimhane) aynı dilden konuşur. Kaynak: Booking sayfası.
+- **Bileşenler:** `components/ozellik/Ozellik.tsx` — `OzSayfa`, `OzHero` (fildişi zemin, rozet + ürün etiketi, iri başlık `[normal, teal vurgulu]`, iki düğme, sağda `sahne`), `OzSahne` + `OzSahneBaslik` + `OzBalonlar` + `OzOnayKart` (sağdaki temsili çizim), `OzBant` (koyu lacivert fayda bandı), `OzIzgara` (gri zeminde büyük kartlar, madde listesi), `OzAdimlar`, `OzKartlar` (ikonlu 4'lü), `OzKapanis` (koyu kapanış bandı), `OzSss` + `sssJsonLd`, `OzDugme`. Hook yok → server bileşeni.
+- **Stiller:** `app/globals.css` → "Özellik sayfası dili" (`oz-` öneki; Booking'in sayfa içi CSS'i buraya taşındı). Sayfaya özel stil yazma; eksik varsa sete ekle.
+- **Düğmeler:** birincil = `OzDugme tur="altin"` → `vt-dugme oz-dugme--altin hk-cta-isik` (akan altın + gelip giden ışık; hareketi azalt'ta durur). İkincil = `cerceve` (açık zemin) / `cerceveAcik` (koyu zemin). Formun gönder düğmesi de `hk-cta-isik`.
+- Yeni özellik sayfası: bu iskeletle yaz, Navbar `MENULER` → Özellikler'e ekle.
+- **Ek parçalar:** `OzHero`/`OzKapanis` → `birincilOzel` (istemci düğmesi için yuva); `OzIzgara` → `id` (çapa) ve `rozet: 'Ücretsiz'` → yeşil `.vt-ucretsiz`; `OzSss` → `alt`; koyu kod kutusu `.oz-kod`. Kart/adım sayısı `--oz-sutun` CSS değişkeniyle verilir (inline `gridTemplateColumns` YAZMA — medya sorgularını ezer, telefonda yan yana kalır).
+- **Dönüşüm notları (Eki 2026):** /pro'da satın alma (ProCta, Stripe) yasal not ile birlikte `#fiyat` bölümünde kaldı; giriş düğmesi oraya kaydırır. /makale-yayinla: `MakaleYayinlaClient.tsx` artık yalnız `SiparisFormu` ve `SoruFormu` dışa verir (form mantığı aynı). /randevu-sistemi ve /randevu-modulu kapanış metinleri Pro olduklarını söyler (`PRO_FIYAT_ETIKET`). /randevu-modulu'deki "Google İşletme profili" çipi eski listeden kaldı — oraya iframe gömülemez, gözden geçirilmeli.
 
 ### Giriş Türü Rozeti (Eki 2026)
 - `components/GirisRozeti.tsx` (hook yok) — Doktor/İşletme ve Hasta/Ziyaretçi için **tek ortak rozet**: aynı biçim ve ikon ailesi (`HkIcon`), markanın iki rengi ters çevrilmiş. `isletme` = lacivert zemin + beyaz çizgi + altın detay (`doctor-profile`); `hasta` = şampanya zemin + lacivert çizgi + altın detay (`user-account`). Tonlar `GIRIS_TON`'da. `soluk` → seçili olmayan kart.
@@ -728,7 +740,17 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Eczane profil başlığı:** ilçe boşken "Ad — , Ankara" çıkıyordu; profil sayfası da `ilceCikar` ile ilçeyi addan türetir, başlık boş parçaları atlar.
 - **Yerel test yöntemi (anahtar yokken):** scratchpad'de küçük bir PostgREST taklidi (`/rest/v1/eczaneler`, offset/limit + `id=in.()` + `slug=eq.`) ve `NEXT_PUBLIC_SUPABASE_URL=http://localhost:<port>` ile önizleme; veri canlı sayfalardan alınan herkese açık satırlardı.
 
+### Hekimhane Booking — başvuru ve demo talebi (Eki 2026)
+- **Ne:** Ozvelo.com ortaklığıyla sunulacak yapay zekâ randevu asistanı (telefon 7/24 + web sitesi balonu + Instagram/Facebook mesajları). **Sistem hazır** (telefon + mesaj yanıtlıyor): sayfa "Şimdi kullanımda" der, **başvuru (beni arayın) ya da demo talebi** toplar. Formda `talep` seçimi (`kurulum` | `demo`); "Demo talep edin" düğmesi `#demo`'ya gider ve demo seçili açılır, "Hemen başvurun" → `#basvuru`. Tablo/API adları (`booking_bekleme`) ilk sürümden kaldı. Sayfa `/booking` (`app/booking/page.tsx`, form `BeklemeFormu.tsx`). Doğrulanamayan oran/sayı yazılmadı (referans sayfadaki "%70" gibi iddialar bilerek alınmadı).
+- **Öne çıkarma:** üst menüde "Booking" + teal **Yeni** rozeti (`Navbar.tsx` → `NAV_LINKS[].yeni`, `YeniRozet`; masaüstünde rozet yazının sağ üstünde, genişlik eklemez; mobilde "Hekimhane Booking"). Ana sayfa "Hekimler için araçlar"ın ilk kartı (`Arac.yeni` → `.vt-yeni`, çizim `BookingGorsel`). Footer + sitemap'te.
+- **Veri:** `booking_bekleme` tablosu (`supabase/migrations/add_booking_bekleme.sql`; RLS açık, politika yok → yalnız service-role). Aynı e-posta tekrar gelirse satır güncellenir (`durum` korunur). Seçenekler tek kaynak `lib/booking.ts` (rol, kanal, çağrı yoğunluğu, durum).
+- **API:** `POST /api/booking-bekleme` — bot tuzağı (`website` alanı + 3 sn), il/rol/kanal beyaz liste, `izin` zorunlu; isteğe bağlı bülten kutusu → `email_aboneleri` (`kaynak='booking'`, tip `isletme`). Admin'e Resend bildirimi + başvurana onay e-postası. **Tablo yoksa** kayıt kaybolmasın diye admin e-postası uyarıyla yine gider, ziyaretçi başarı görür.
+- **Admin:** "Booking Başvuruları" sekmesi (demo talepleri rozetli) (`app/admin/BookingTab.tsx`, `GET/PATCH /api/admin/booking-bekleme`): durum (Yeni → İletişime geçildi → Teklif gönderildi → Müşteri oldu / Kapandı), admin notu, arama, CSV.
+- **Eski `/hekim-ai`** ("HekimAI — Çok Yakında", aynı ürün) kaldırıldı; `next.config.js` → `/hekim-ai` ve alt yolları kalıcı (308) `/booking`'e yönlenir.
+- **Test:** sahte PostgREST ile yerelde denendi (kayıt, tekrar, izinsiz, bot, oturumsuz admin). Canlı veritabanı ve gerçek e-posta ile denenmedi.
+
 ### Bekleyen migration'lar (kullanıcı Supabase SQL Editor'da çalıştırmalı)
+- `supabase/migrations/add_booking_bekleme.sql` — Hekimhane Booking başvuruları (`talep` kolonu dahil) (**şart**; yoksa kayıtlar yalnız admin e-postasıyla gelir).
 - `supabase/migrations/add_account_activations.sql` — **çalıştırıldı** (aktivasyon akışı için şart).
 - `supabase/migrations/add_premium_column.sql` + `add_premium_subscriptions.sql` — Stripe akışı için **şart**. `add_premium_subscriptions.sql` daha önce çalıştırıldıysa **yeniden çalıştırılmalı**: eski sürümdeki `USING (TRUE)` SELECT politikası abone e-postalarını herkese açıyordu, yeni sürüm onu `DROP` eder.
 - `supabase/migrations/add_whatsapp.sql` — `whatsapp text` kolonu (4 tablo). WhatsApp butonu bu alan doluysa görünür (telefonu körü körüne WhatsApp saymaz).

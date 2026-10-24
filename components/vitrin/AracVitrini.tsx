@@ -14,6 +14,8 @@ export interface Arac {
   /** Büyük tanıtım cümlesi */
   cumle: string;
   pro?: boolean;
+  /** "Yeni" rozeti (yeni çıkan ya da yakında gelecek ürün) */
+  yeni?: boolean;
   gorsel: React.ReactNode;
   /** Köşedeki noktalı grafik */
   desen?: React.ReactNode;
@@ -73,6 +75,7 @@ export default function AracVitrini({ baslik, araclar }: { baslik: string; aracl
               <div className="vt-arac__ust">
                 <span className="vt-arac__etiket">{a.etiket}</span>
                 {a.pro && <span className="vt-pro">Pro</span>}
+                {a.yeni && <span className="vt-yeni">Yeni</span>}
               </div>
               <p className="vt-arac__cumle">{a.cumle}</p>
               <div className="vt-arac__gorsel">{a.gorsel}</div>
