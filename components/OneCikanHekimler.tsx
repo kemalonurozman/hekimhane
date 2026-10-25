@@ -10,6 +10,9 @@ export type PremiumItem = {
   /** Yalnız sunucuda sıralama için (son güncelleme) — tarayıcıya gönderilmez. */
   guncel?: number;
   tip: 'klinik' | 'doktor';
+  /** Kartın üst etiketi — gerçek türden üretilir (Diş Hekimi / Hekim / Diş Kliniği / Hastane…).
+   *  Vitrin yalnız diş değil: sahipli FTR uzmanı, hastane vb. de girer; sabit "Diş" etiketi yanlıştı. */
+  tur?: string;
   ad: string;
   altbaslik: string;
   il: string;
@@ -54,7 +57,7 @@ export default function OneCikanHekimler({ items }: { items: PremiumItem[] }) {
               Öne Çıkan Üyeler
             </p>
             <h2 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-0.8px', color: '#1A335E', margin: 0 }}>
-              Diş Hekimleri &amp; Klinikler
+              Hekimler &amp; Klinikler
             </h2>
           </div>
           <Link href="/klinikler" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600, color: '#1A335E', textDecoration: 'none', flexShrink: 0 }}>
@@ -72,7 +75,7 @@ export default function OneCikanHekimler({ items }: { items: PremiumItem[] }) {
                 </span>
               )}
               <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--gold-text)', marginBottom: 8 }}>
-                {it.tip === 'doktor' ? 'Diş Hekimi' : 'Diş Kliniği'}
+                {it.tur || (it.tip === 'doktor' ? 'Hekim' : 'Klinik')}
               </span>
               <h3 className="ocp-ad">{it.ad}</h3>
               <div style={{ fontSize: 13.5, color: '#3C4A61', fontWeight: 500, marginBottom: 10 }}>{it.altbaslik}</div>

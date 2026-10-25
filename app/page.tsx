@@ -101,12 +101,26 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
       .map(r => ({ ...r, profil_puani: profilPuaniHesapla(tip, r).puan }));   // kartlar fotoğrafsız → görsel şartı yok
     const kPuanli = adaySec((kpRes.error ? [] : kpRes.data || []) as any[], 'klinik');
     const dPuanli = adaySec((dpRes.error ? [] : dpRes.data || []) as any[], 'doktor');
+    // Kart etiketi gerçek türden: klinikler tablosunda hastane de var (ör. Özel Ömür Hastanesi k1270),
+    // doktorlar tablosunda diş dışı branşlar da var (sahipli FTR uzmanı). Sabit "Diş …" etiketi yanlıştı.
+    const DIS = /di[şs]/i;
+    const klinikTur = (k: any): string => {
+      const t = String(k.type || '');
+      if (/hastane/i.test(t) || /hastanesi/i.test(String(k.name || ''))) return 'Hastane';
+      if (/diş hekimi/i.test(t)) return 'Diş Hekimi';
+      if (DIS.test(t) || (k.specs || []).some((x: string) => DIS.test(x))) return 'Diş Kliniği';
+      return t || 'Klinik';
+    };
     const klinikler: PremiumItem[] = [...(kRes.data as any[] || []), ...kPuanli]
       .filter(k => k.slug && k.il && k.ilce)
       .map(k => ({
         tip: 'klinik' as const,
-        ad: k.name || 'Diş Kliniği',
-        altbaslik: (k.specs || []).filter((s: string) => s && !INTERNAL_SPEC_TAGS.has(s))[0] || 'Diş Kliniği',
+        tur: klinikTur(k),
+        ad: k.name || 'Klinik',
+        // Hastanede ilk uzmanlık etiketi (çoğunlukla "Genel Diş Hekimliği") yanıltıcı → tür yazılır
+        altbaslik: klinikTur(k) === 'Hastane'
+          ? (/^özel/i.test(String(k.name || '')) ? 'Özel Hastane' : 'Hastane')
+          : ((k.specs || []).filter((s: string) => s && !INTERNAL_SPEC_TAGS.has(s))[0] || klinikTur(k)),
         il: k.il || '', ilce: k.ilce || '',
         ozellikler: (k.specs || []).filter((s: string) => s && !INTERNAL_SPEC_TAGS.has(s)).slice(0, 4),
         foto: k.logo || (k.photos || [])[0] || null,
@@ -118,8 +132,9 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
       .filter(d => d.slug)
       .map(d => ({
         tip: 'doktor' as const,
-        ad: [d.unvan, d.ad, d.soyad].filter(Boolean).join(' ') || 'Diş Hekimi',
-        altbaslik: d.spec || 'Diş Hekimi',
+        tur: DIS.test(String(d.spec || '')) ? 'Diş Hekimi' : 'Hekim',
+        ad: [d.unvan, d.ad, d.soyad].filter(Boolean).join(' ') || 'Hekim',
+        altbaslik: d.spec || 'Hekim',
         il: d.il || '', ilce: d.ilce || '',
         ozellikler: [d.spec, d.clinic_name].filter(Boolean).slice(0, 4),
         foto: d.photo || (d.photos || [])[0] || null,
