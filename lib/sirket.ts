@@ -5,7 +5,10 @@
 
 export const SIRKET = {
   /** Satıcı / veri sorumlusu unvanı */
-  unvan: 'Prague K. Onur Ozman',
+  unvan: 'Doktorio.cz',
+  /** Hekimhane'nin bağlı olduğu kuruluş (footer'da "bir Doktorio.cz kuruluşudur") */
+  anaKurulus: 'Doktorio.cz',
+  anaKurulusSite: 'https://www.doktorio.cz',
   marka: 'Hekimhane',
   site: 'https://www.hekimhane.com.tr',
   alanAdi: 'hekimhane.com.tr',

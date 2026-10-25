@@ -186,7 +186,9 @@ export default function Footer() {
         </div>
 
         <div className="hk-footer__legal" style={{ marginTop: 'var(--space-5)' }}>
-          <p>© {new Date().getFullYear()} Hekimhane — {SIRKET_BILGI.unvan} — Tüm hakları saklıdır. · <CerezTercihBaglantisi style={{ textDecoration: 'underline', textUnderlineOffset: 3 }} /></p>
+          <p>© {new Date().getFullYear()} Hekimhane — {SIRKET_BILGI.alanAdi} bir{' '}
+            <a href={SIRKET_BILGI.anaKurulusSite} target="_blank" rel="noopener" style={{ textDecoration: 'underline', textUnderlineOffset: 3 }}>{SIRKET_BILGI.anaKurulus}</a>{' '}
+            kuruluşudur. Tüm hakları saklıdır. ·{' '}<CerezTercihBaglantisi style={{ textDecoration: 'underline', textUnderlineOffset: 3 }} /></p>
           <p>Türkiye · Diş sağlığında güvenilir rehber</p>
         </div>
       </div>

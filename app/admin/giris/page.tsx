@@ -35,7 +35,7 @@ function AdminGirisContent() {
   const searchParams = useSearchParams();
   const redirect    = searchParams.get('redirect') || '/admin';
 
-  const [email,    setEmail]    = useState('kemalonurozman@gmail.com');
+  const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
   const [showPw,   setShowPw]   = useState(false);
   const [loading,  setLoading]  = useState(false);
