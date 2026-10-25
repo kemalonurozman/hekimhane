@@ -6,6 +6,7 @@
 import { supabase } from './supabase';
 import { toSlug } from './helpers';
 import type { Doktor } from './types';
+import { gercekOnayIsaretle } from './sahiplik';
 
 export const DEVLET_TAG = 'devlet-dis-hastanesi';
 
@@ -59,5 +60,6 @@ export async function getHospitalWithDoctors(ilSlug: string, slug: string): Prom
   const doctors = await fetchAll<Doktor>(
     () => supabase.from('doktorlar').select('*').contains('tags', [DEVLET_TAG]).eq('clinic_name', hospital.name));
   doctors.sort((a, b) => (a.spec || '').localeCompare(b.spec || '', 'tr') || `${a.ad} ${a.soyad}`.localeCompare(`${b.ad} ${b.soyad}`, 'tr'));
-  return { hospital, doctors };
+  // "✓ Onaylı" yalnız gerçekten sahiplenilmiş hekimde (içe aktarılan `verified` değil)
+  return { hospital, doctors: await gercekOnayIsaretle(doctors) };
 }

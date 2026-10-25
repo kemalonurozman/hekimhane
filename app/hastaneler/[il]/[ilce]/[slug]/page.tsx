@@ -9,7 +9,7 @@ import ProfilSayfasi from '@/components/ProfilSayfasi';
 import { maskReviewName } from '@/lib/helpers';
 import { bookedSlots } from '@/lib/randevu-booked';
 import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
-import { sahiplenilmisMi } from '@/lib/sahiplik';
+import { sahiplenilmisMi, gercekOnayIsaretle } from '@/lib/sahiplik';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,7 +31,8 @@ async function getData(slug: string) {
   // Bünyedeki hekimler — doktorlar.clinic_name = hastane adı ile eşleşenler (bölüm bölüm gösterilir)
   const { data: rawDocs } = await supabase.from('doktorlar').select('*')
     .eq('clinic_name', h.name).limit(500);
-  const hospitalDoctors = ((rawDocs || []) as Doktor[]);
+  // Kadro kartındaki "✓ Onaylı" = gerçek sahiplik; içe aktarılan `verified` sütunu değil.
+  const hospitalDoctors = await gercekOnayIsaretle((rawDocs || []) as Doktor[]);
   return { h, yorumlar, hospitalDoctors };
 }
 
@@ -65,6 +66,7 @@ export default async function HastaneProfilPage({ params }: Props) {
   const res = await getData(params.slug);
   if (!res) notFound();
   const { h, yorumlar, hospitalDoctors } = res;
+  if ((h as any).gizli === true) notFound();   // kaldırma talebi alınmış profil
 
   const canonical = `https://www.hekimhane.com.tr/hastaneler/${tr(h.il||'turkiye')}/${tr(h.ilce||'merkez')}/${h.slug}`;
   const sameAs = [h.website, h.instagram_url, h.facebook_url, h.linkedin_url].filter(Boolean) as string[];

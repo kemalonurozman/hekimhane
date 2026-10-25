@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { fetchAllRows } from '@/lib/fetch-all';
 import { puansiz } from '@/lib/profil-puani';
+import { gercekOnayIsaretle } from '@/lib/sahiplik';
 import { puanKolonuVar, profilSirasi } from '@/lib/profil-puani-sunucu';
 import HkIconAnim from '@/components/HkIconAnim';
 import type { Metadata } from 'next';
@@ -64,7 +65,8 @@ async function getDoktorlar(filters: Record<string, string | undefined> & { page
   if (filters.q)      query = query.or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%,spec.ilike.%${filters.q}%`);
   const { data, count, error } = await query;
   if (error) console.error(error);
-  return { data: (data || []) as Doktor[], count: count || 0 };
+  // Karttaki "Onaylı" rozeti = gerçek sahiplik (içe aktarılan `verified` değil)
+  return { data: await gercekOnayIsaretle((data || []) as Doktor[]), count: count || 0 };
 }
 
 // Filtre sayaçları yavaş değişir → 1 saat önbellek (her istekte 100k satır çekilmez).

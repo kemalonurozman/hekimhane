@@ -127,3 +127,43 @@ export async function claimedEsitle(
   }
   return { sahipVar, claimed: sahipVar, uyari: null };
 }
+
+/**
+ * Toplu sahiplik: verilen işletme kimliklerinden gerçekten sahiplenilmiş
+ * (claim_requests'te onaylı, yönetici olmayan satırı bulunan) olanların kümesi.
+ * Hata ya da service-role yokluğunda boş küme döner — rozet gösterilmez (fail-closed).
+ */
+export async function sahipliIdSeti(ids: string[]): Promise<Set<string>> {
+  const set = new Set<string>();
+  const tekil = Array.from(new Set(ids.map(String).filter(x => x && x !== 'new')));
+  if (!tekil.length) return set;
+  try {
+    const db = sahiplikIstemcisi() as any;
+    for (let i = 0; i < tekil.length; i += 200) {
+      const { data, error } = await db.from('claim_requests')
+        .select('entity_id,role')
+        .in('entity_id', tekil.slice(i, i + 200))
+        .eq('status', 'approved')
+        .limit(1000);
+      if (error) { console.error('sahiplik: toplu claim_requests okunamadı:', error.message); continue; }
+      for (const r of (data as any[]) || []) if (!yoneticiMi(r.role)) set.add(String(r.entity_id));
+    }
+  } catch (e) {
+    console.error('sahiplik: toplu okuma başarısız:', (e as Error)?.message);
+  }
+  return set;
+}
+
+/**
+ * Doktor satırlarındaki `verified`'ı GERÇEK sahiplikle değiştirir.
+ * `verified` içe aktarılan kaynaktaki "Onaylı" sütunudur (CSV'de 1.371'in 963'ü) —
+ * kartlardaki "✓ Onaylı" rozeti ve halka onu okuyordu, hastane kadrolarında
+ * sahiplenilmemiş hekimler "Onaylı" görünüyordu. Rozet artık yalnız onaylı sahip
+ * kaydı (veya `claimed` önbelleği true) olan profillerde çıkar. Kartlara giden
+ * satırı bu süzgeçten geçir; kolon/ham değeri doğrudan kullanma.
+ */
+export async function gercekOnayIsaretle<T extends { id: string; claimed?: unknown; verified?: unknown }>(rows: T[]): Promise<T[]> {
+  if (!rows.length) return rows;
+  const set = await sahipliIdSeti(rows.map(r => r.id));
+  return rows.map(r => ({ ...r, verified: set.has(String(r.id)) || r.claimed === true }));
+}

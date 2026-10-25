@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 import { fetchAllRows } from '@/lib/fetch-all';
 import { puansiz } from '@/lib/profil-puani';
+import { gercekOnayIsaretle } from '@/lib/sahiplik';
 import { puanKolonuVar, profilSirasi } from '@/lib/profil-puani-sunucu';
 import HkIconAnim from '@/components/HkIconAnim';
 import type { Metadata } from 'next';
@@ -98,6 +99,14 @@ export async function generateMetadata(
     ...(noindex ? { robots: { index: false, follow: true } } : {}),
     openGraph: { title: `${title} | Hekimhane`, description: desc, url: canonical, type: 'website' },
   };
+}
+
+/** Doktor satırlarındaki "Onaylı" rozeti = gerçek sahiplik; içe aktarılan `verified` sütunu değil. */
+async function doktorOnayla<T extends { kind: 'klinik' | 'doktor'; data: any }>(items: T[]): Promise<T[]> {
+  const docs = items.filter(it => it.kind === 'doktor').map(it => it.data as Doktor);
+  if (!docs.length) return items;
+  const onayli = new Map((await gercekOnayIsaretle(docs)).map(d => [d.id, d]));
+  return items.map(it => it.kind === 'doktor' ? { ...it, data: onayli.get(it.data.id) || it.data } : it);
 }
 
 async function getKlinikler(filters: KlinikFilters) {
@@ -336,8 +345,7 @@ async function getHepsi(filters: KlinikFilters) {
       const pa = adBaslar(a), pb = adBaslar(b);
       if (pa !== pb) return pa ? -1 : 1;
     }
-    // Pro üyeler en önde, sonra profil puanı yüksek olanlar (puan ziyaretçiye gösterilmez)
-    if (a.pro !== b.pro) return b.pro - a.pro;
+    // Profil puanı yüksek olanlar önde (puan ziyaretçiye gösterilmez). Pro sırayı ETKİLEMEZ (Eki 2026).
     if (a.puan !== b.puan) return b.puan - a.puan;
     // Özel klinikler önceliklidir → her zaman üstte; sonra devlet/üniversite hastanesi
     // hekimleri. Grup içinde puana göre sıralanır.
@@ -428,6 +436,7 @@ export default async function KliniklerPage(
     items = r.items.map(it => ({ kind: it.kind, data: it.data }));
     count = r.count;
   }
+  items = await doktorOnayla(items);
 
   const [illerWithCount, ilcelerWithCount, uzmanliklarWithCount, konumlar, kurumCounts] = await Promise.all([
     isDoc ? getDoktorIller(docTag, filters.uzmanlik) : getIller(filters.uzmanlik),
@@ -443,6 +452,7 @@ export default async function KliniklerPage(
   const fallback = (items.length === 0 && (filters.il || filters.ilce))
     ? await getFallback(filters, 5)
     : null;
+  if (fallback) fallback.items = await doktorOnayla(fallback.items);
 
   // tip='Diş Hekimi' → bireysel diş hekimleri listesi (menüdeki "Diş Hekimleri")
   const tipEtiket = filters.tip === 'Diş Hekimi' ? 'Diş Hekimleri'

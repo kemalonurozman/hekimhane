@@ -10,7 +10,7 @@ import { bookedSlots } from '@/lib/randevu-booked';
 import { buildKlinikFaq } from '@/lib/faq';
 import { openingHoursSpec } from '@/lib/seo';
 import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
-import { sahiplenilmisMi } from '@/lib/sahiplik';
+import { sahiplenilmisMi, gercekOnayIsaretle } from '@/lib/sahiplik';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +33,8 @@ async function getData(slug: string) {
   // (Bazı hastaneler klinikler tablosunda kayıtlı, ör. Özel Ömür Hastanesi k1270.)
   const { data: rawDocs } = await supabase.from('doktorlar').select('*')
     .eq('clinic_name', k.name).limit(500);
-  const hospitalDoctors = ((rawDocs || []) as Doktor[]);
+  // Kadro kartındaki "✓ Onaylı" = gerçek sahiplik; içe aktarılan `verified` sütunu değil.
+  const hospitalDoctors = await gercekOnayIsaretle((rawDocs || []) as Doktor[]);
   return { k, yorumlar, hospitalDoctors };
 }
 
@@ -76,6 +77,7 @@ export default async function KlinikProfilPage({ params }: Props) {
   const res = await getData(params.slug);
   if (!res) notFound();
   const { k, yorumlar, hospitalDoctors } = res;
+  if ((k as any).gizli === true) notFound();   // kaldırma talebi alınmış profil
 
   const trFn = (s: string) => (s||'').toLowerCase().replace(/\u0307/g, '')
     .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
