@@ -775,6 +775,7 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Test:** sahte PostgREST ile yerelde denendi (kayıt, tekrar, izinsiz, bot, oturumsuz admin). Canlı veritabanı ve gerçek e-posta ile denenmedi.
 
 ### Bekleyen migration'lar (kullanıcı Supabase SQL Editor'da çalıştırmalı)
+- `supabase/migrations/2026-10-25_web_baglantilari.sql` — `doktorlar.website` + `website2` (doktor/klinik/hastane). **Pro'ya kilitli** 2 web bağlantısı (ör. kişisel site + kurumun resmi randevu sayfası): panel "Website" ve "2. Web Bağlantısı" alanları (eczane hariç tüm türler), `update-entity` whitelist + `PRO_FIELDS`, profil **Kurum Bilgisi** kartında alan adı etiketiyle bağlantılar (yalnız `premium`) + sosyal ikonlar (Çalışma Saatleri kartından buraya taşındı); hero "Web Sitesi" düğmesi doktorda da çıkar. **Yoksa** Pro üye bu alanları yazınca kayıt "website kolonu veritabanında yok" ile reddedilir (diğer alanlar da kaydolmaz) — migration önce çalıştırılmalı.
 - `supabase/migrations/add_booking_bekleme.sql` — Hekimhane Booking başvuruları (`talep` kolonu dahil) (**şart**; yoksa kayıtlar yalnız admin e-postasıyla gelir).
 - `supabase/migrations/add_account_activations.sql` — **çalıştırıldı** (aktivasyon akışı için şart).
 - `supabase/migrations/add_premium_column.sql` + `add_premium_subscriptions.sql` — Stripe akışı için **şart**. `add_premium_subscriptions.sql` daha önce çalıştırıldıysa **yeniden çalıştırılmalı**: eski sürümdeki `USING (TRUE)` SELECT politikası abone e-postalarını herkese açıyordu, yeni sürüm onu `DROP` eder.

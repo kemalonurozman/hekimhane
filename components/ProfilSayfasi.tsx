@@ -76,6 +76,7 @@ export interface ProfilProps {
   contactHidden?: boolean | null;   // true → tel+email gizli (kişi katılana/admin açana kadar)
   whatsapp?: string | null;
   website?: string | null;
+  website2?: string | null;   // ikinci bağlantı (ör. kurum randevu sayfası) — Pro
   logo?: string | null;
   cover?: string | null;
   rat?: number;
@@ -1116,7 +1117,7 @@ function OnayliHastaRozeti() {
 }
 
 export default function ProfilSayfasi(props: ProfilProps) {
-  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, uzmanlikKurum, deneyimBaslangic, deneyimler, sertifikalar, yabanciDiller, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, randevuAktif, randevuSlotDk, bookedSlots, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug, hospitalDoctors, clinicHref } = props;
+  const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, website2, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, uzmanlikKurum, deneyimBaslangic, deneyimler, sertifikalar, yabanciDiller, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, randevuAktif, randevuSlotDk, bookedSlots, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug, hospitalDoctors, clinicHref } = props;
 
   // Gizli iletişim (ör. Bobath terapisti henüz katılmadı) → tel/email/randevu gizlenir
   const contactGizli = contactHidden === true;
@@ -1277,6 +1278,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
         : '';
   // Web sitesi: http yoksa ekle
   const webUrl = website ? (/^https?:\/\//i.test(website) ? website : `https://${website}`) : '';
+  const web2Url = website2 ? (/^https?:\/\//i.test(website2) ? website2 : `https://${website2}`) : '';
+  // Kurum Bilgisi kartındaki bağlantı etiketi: yalnız alan adı (uzun URL kartı taşırmasın)
+  const alanAdi = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return u; } };
   // İkincil aksiyon butonu ortak stili (Ara / WhatsApp / Yol Tarifi / Web Sitesi)
   const secBtnStyle: React.CSSProperties = {
     padding: '11px 8px', borderRadius: 12, fontSize: 12.5, fontWeight: 700,
@@ -2657,9 +2661,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
           {/* Çalışma saatleri + sosyal — "İletişim & Konum" kartı kaldırıldı: tel/adres/yol tarifi/web
               zaten üstteki başlıkta. Randevu widget'ı yukarı alındı; yalnız başlıkta olmayan bilgiler burada. */}
-          {(acik_24_saat || calisma_saatleri || instagram_url || facebook_url || linkedin_url) && (
+          {(acik_24_saat || calisma_saatleri) && (
           <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '20px 22px', marginBottom: 20 }}>
-            {(acik_24_saat || calisma_saatleri) && <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 15, fontWeight: 700, marginBottom: 14 }}>Çalışma Saatleri</h4>}
+            <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 15, fontWeight: 700, marginBottom: 14 }}>Çalışma Saatleri</h4>
             {(acik_24_saat || calisma_saatleri) && (
               <div style={{ display: 'flex', gap: 10, marginBottom: 10, fontSize: 13, alignItems: 'flex-start' }}>
                 <i className="fa-regular fa-clock" style={{ width: 18, color: 'var(--navy)', fontSize: 13, marginTop: 2 }} />
@@ -2693,31 +2697,6 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 </div>
               </div>
             )}
-            {(instagram_url || facebook_url || linkedin_url) && (
-              <div style={{ display: 'flex', gap: 8, paddingTop: 6, borderTop: '1px solid var(--border)', marginTop: 4 }}>
-                {instagram_url && (
-                  <a href={instagram_url} target="_blank" rel="noopener"
-                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)', color: 'white', textDecoration: 'none', fontSize: 15 }}
-                    title="Instagram">
-                    <i className="fa-brands fa-instagram" />
-                  </a>
-                )}
-                {facebook_url && (
-                  <a href={facebook_url} target="_blank" rel="noopener"
-                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: '#1877F2', color: 'white', textDecoration: 'none', fontSize: 15 }}
-                    title="Facebook">
-                    <i className="fa-brands fa-facebook-f" />
-                  </a>
-                )}
-                {linkedin_url && (
-                  <a href={linkedin_url} target="_blank" rel="noopener"
-                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: '#0A66C2', color: 'white', textDecoration: 'none', fontSize: 15 }}
-                    title="LinkedIn">
-                    <i className="fa-brands fa-linkedin-in" />
-                  </a>
-                )}
-              </div>
-            )}
           </div>
           )}
 
@@ -2742,6 +2721,46 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 <span>{r.v}</span>
               </div>
             ))}
+            {/* Web bağlantıları — Pro (panelde Pro kilidi; API PRO_FIELDS). Doktorda da var (Eki 2026):
+                1. web sitesi + 2. bağlantı (ör. kurumun resmi randevu sayfası). Etiket yalnız alan adı. */}
+            {premium && (webUrl || web2Url) && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 12, borderTop: '1px solid var(--border)', marginTop: 4 }}>
+                {[{ u: webUrl, ikon: 'fa-globe', baslik: 'Web sitesi' }, { u: web2Url, ikon: 'fa-link', baslik: 'Bağlantı' }].filter(x => x.u).map(x => (
+                  <a key={x.u} href={x.u} target="_blank" rel="noopener" title={x.baslik}
+                    style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 13, color: 'var(--navy)', fontWeight: 600, textDecoration: 'none', minWidth: 0 }}>
+                    <i className={`fa-solid ${x.ikon}`} style={{ width: 18, fontSize: 13, flexShrink: 0 }} />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{alanAdi(x.u)}</span>
+                    <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: 10, color: 'var(--muted)', marginLeft: 'auto', flexShrink: 0 }} />
+                  </a>
+                ))}
+              </div>
+            )}
+            {/* Sosyal hesaplar (Çalışma Saatleri kartından buraya taşındı) */}
+            {(instagram_url || facebook_url || linkedin_url) && (
+              <div style={{ display: 'flex', gap: 8, paddingTop: 12, borderTop: '1px solid var(--border)', marginTop: 4 }}>
+                {instagram_url && (
+                  <a href={instagram_url} target="_blank" rel="noopener"
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)', color: 'white', textDecoration: 'none', fontSize: 15 }}
+                    title="Instagram">
+                    <i className="fa-brands fa-instagram" />
+                  </a>
+                )}
+                {facebook_url && (
+                  <a href={facebook_url} target="_blank" rel="noopener"
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: '#1877F2', color: 'white', textDecoration: 'none', fontSize: 15 }}
+                    title="Facebook">
+                    <i className="fa-brands fa-facebook-f" />
+                  </a>
+                )}
+                {linkedin_url && (
+                  <a href={linkedin_url} target="_blank" rel="noopener"
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: '#0A66C2', color: 'white', textDecoration: 'none', fontSize: 15 }}
+                    title="LinkedIn">
+                    <i className="fa-brands fa-linkedin-in" />
+                  </a>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Sigorta sidebar kartı (sadece doktor) */}

@@ -30,6 +30,7 @@ export interface Klinik {
   tel: string | null;
   whatsapp: string | null;
   website: string | null;
+  website2?: string | null;   // ikinci bağlantı (ör. kurum randevu sayfası) — Pro
   maps_url: string | null;
   specs: string[] | null;
   rat: number;
@@ -66,6 +67,7 @@ export interface Hastane {
   tel: string | null;
   whatsapp: string | null;
   website: string | null;
+  website2?: string | null;   // ikinci bağlantı (ör. kurum randevu sayfası) — Pro
   maps_url: string | null;
   specs: string[] | null;
   rat: number;
@@ -131,6 +133,8 @@ export interface Doktor {
   photo360: string | null;
   tour360url: string | null;
   video_url: string | null;
+  website?: string | null;    // Pro — migration: 2026-10-25_web_baglantilari.sql
+  website2?: string | null;   // Pro — ikinci bağlantı (ör. kurumun randevu sayfası)
   instagram_url: string | null;
   facebook_url: string | null;
   linkedin_url: string | null;

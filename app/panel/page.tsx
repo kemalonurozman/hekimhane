@@ -4976,7 +4976,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
 
               <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                 <div><label style={LBL}>Telefon</label><input type="tel" value={String(formData.tel||'')} placeholder="05xx xxx xx xx" style={INP} onChange={e=>F('tel',e.target.value)} onFocus={onF} onBlur={offF}/></div>
-                {et!=='eczane'&&et!=='doktor'&&<div>
+                {et!=='eczane'&&<div>
                   <label style={{ ...LBL, display:'flex', alignItems:'center', gap:6 }}>
                     Website
                     {!pro && <a href="/pro" title="Web sitesi bağlantısı Pro üyelikte eklenir" style={{ display:'inline-flex', alignItems:'center', gap:3, padding:'1px 8px', borderRadius:999, background:'var(--gold-fill)', color:'var(--on-gold)', fontSize:9.5, fontWeight:800, letterSpacing:'.7px', textDecoration:'none' }}>
@@ -4987,6 +4987,17 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                   <input type="url" value={String(formData.website||'')} placeholder={pro?'https://':'Pro üyelikte aktif'} style={{...INP, ...(pro?{}:{ background:'#F4F4F6', color:'#9CA3AF', cursor:'not-allowed' })}} disabled={!pro} onChange={e=>F('website',e.target.value)} onFocus={onF} onBlur={offF}/>
                 </div>}
                 {et==='doktor'&&<div><label style={LBL}>Muayene Ücreti (₺)</label><input type="number" value={formData.fee??''} placeholder="500" style={INP} onChange={e=>F('fee',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>}
+                {/* İkinci bağlantı (ör. kurumun resmi randevu sayfası) — Pro; migration 2026-10-25_web_baglantilari.sql */}
+                {et!=='eczane'&&<div>
+                  <label style={{ ...LBL, display:'flex', alignItems:'center', gap:6 }}>
+                    2. Web Bağlantısı
+                    {!pro && <a href="/pro" title="İkinci web bağlantısı Pro üyelikte eklenir" style={{ display:'inline-flex', alignItems:'center', gap:3, padding:'1px 8px', borderRadius:999, background:'var(--gold-fill)', color:'var(--on-gold)', fontSize:9.5, fontWeight:800, letterSpacing:'.7px', textDecoration:'none' }}>
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.6" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      PRO
+                    </a>}
+                  </label>
+                  <input type="url" value={String((formData as any).website2||'')} placeholder={pro?'https://  (ör. kurumunuzun randevu sayfası)':'Pro üyelikte aktif'} style={{...INP, ...(pro?{}:{ background:'#F4F4F6', color:'#9CA3AF', cursor:'not-allowed' })}} disabled={!pro} onChange={e=>F('website2',e.target.value)} onFocus={onF} onBlur={offF}/>
+                </div>}
                 {et==='eczane'&&<div><label style={LBL}>Eczacı Adı</label><input value={String(formData.pharmacist||'')} placeholder="Ad Soyad" style={INP} onChange={e=>F('pharmacist',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
               </div>
 
