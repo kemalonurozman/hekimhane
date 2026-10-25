@@ -6,6 +6,9 @@ import crypto from 'crypto';
 import { sendEmail, mailShell, esc } from '@/lib/email';
 import { yeniIsletmeOlustur } from '@/lib/yeni-isletme';
 import { claimedEsitle, epostaNormal } from '@/lib/sahiplik';
+import { yoneticiMi } from '@/lib/yonetici';
+import { erkenUyeProVer, erkenUyeMailBolumu, type ErkenUyeSonuc } from '@/lib/erken-uye';
+import { ERKEN_UYE_METIN } from '@/lib/erken-uye-metin';
 
 // Güçlü, okunabilir geçici şifre (harf + rakam, 12 karakter)
 function genPassword(): string {
@@ -75,6 +78,8 @@ export async function POST(request: NextRequest) {
     //    Hata yutulmaz: kolon yoksa admin uyarıyı görür.
     let warning: string | null = null;
     let olusturulan: { id: string; slug: string; entityType: string } | null = null;
+    let erken: ErkenUyeSonuc | null = null;
+    const sahipOnayi = action === 'approve' && !yoneticiMi(claim.role);
     if (action === 'approve' && claim.entity_id === 'new') {
       // "Yeni işletme" başvurusu: listede kayıt yok → şimdi oluştur ve talebi ona bağla.
       // (Eskiden onay yalnız durumu değiştiriyordu; sahibi panelde "onaylı" görüp
@@ -92,6 +97,8 @@ export async function POST(request: NextRequest) {
         // Yeni doktor kaydı claimed'sız oluşturuluyordu (diğer türler claimed:true ile)
         const es = await claimedEsitle(admin, y.entityType, y.id);
         if (es.uyari) warning = [warning, es.uyari].filter(Boolean).join(' · ');
+        // İlk 100 işletmeye ücretsiz Pro (lib/erken-uye.ts)
+        if (sahipOnayi) erken = await erkenUyeProVer(admin, { entityType: y.entityType, entityId: y.id, entityName: claim.entity_name, email: normalEposta });
         try { revalidatePath(`/${y.tablo}`); revalidatePath('/'); revalidateTag('facets'); } catch { /* build dışı */ }
       } catch (e) {
         warning = `Talep onaylandı ama işletme kaydı oluşturulamadı: ${(e as Error).message}`;
@@ -105,6 +112,8 @@ export async function POST(request: NextRequest) {
         } else {
           const es = await claimedEsitle(admin, claim.entity_type, claim.entity_id);
           if (es.uyari) warning = `Talep onaylandı. ${es.uyari}`;
+          // İlk 100 işletmeye ücretsiz Pro (lib/erken-uye.ts) — yalnız gerçekten sahip varsa
+          if (sahipOnayi && es.sahipVar !== false) erken = await erkenUyeProVer(admin, { entityType: claim.entity_type, entityId: claim.entity_id, entityName: claim.entity_name, email: normalEposta });
           // Doktor sahiplenince gizli iletişimi (Bobath vb.) otomatik aç — best-effort
           if (claim.entity_type === 'doktor') {
             try { await admin.from(table).update({ contact_hidden: false }).eq('id', claim.entity_id); }
@@ -118,6 +127,8 @@ export async function POST(request: NextRequest) {
       const es = await claimedEsitle(admin, claim.entity_type, claim.entity_id);
       if (es.uyari) warning = `Talep reddedildi. ${es.uyari}`;
     }
+
+    if (erken?.uyari) warning = [warning, erken.uyari].filter(Boolean).join(' · ');
 
     // 5. Bildirim: admin "mail gönder" dediyse (notify) kullanıcıya mail at.
     //    Onayda hesap oluştur/varsa bildir; redde kısa bilgilendirme.
@@ -149,14 +160,18 @@ export async function POST(request: NextRequest) {
 
           // 3) Aktivasyon linkli (e-posta gömülü, şifre belirleme) markalı mail
           const aktivUrl = `https://www.hekimhane.com.tr/hesap-aktivasyon?token=${token}`;
-          const html = mailShell('İşletmeniz Onaylandı',
-            `<p style="font-size:14px;color:#1c1c1e;">Merhaba <strong>${esc(claim.claimant_name)}</strong>,</p>` +
-            `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${esc(claim.entity_name)}</strong> için sahiplenme talebiniz <strong style="color:#059669;">onaylandı</strong> 🎉</p>` +
-            `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;">Hesabınızı etkinleştirip <strong>şifrenizi belirlemek</strong> için butona tıklayın. E-postanız (<strong>${esc(email)}</strong>) otomatik dolu gelir; yeni şifrenizi <strong>iki kez</strong> girip doğrudan panele giriş yaparsınız.</p>` +
-            `<p style="margin:18px 0;"><a href="${aktivUrl}" style="display:inline-block;background:#1A335E;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Hesabımı Etkinleştir &amp; Şifre Belirle</a></p>` +
-            `<p style="font-size:12px;color:#6E6E73;line-height:1.6;">Bu bağlantı yalnızca size özeldir ve 7 gün geçerlidir. Buton çalışmazsa şu adresi tarayıcıya yapıştırın:<br><span style="color:#1A335E;word-break:break-all;">${aktivUrl}</span></p>`);
+          const pro = !!erken?.verildi;
+          const html = mailShell(pro ? 'Sahipliğiniz onaylandı — Hekimhane-Pro hediyemiz' : 'Sahipliğiniz onaylandı',
+            `<p style="font-size:14px;color:#1c1c1e;margin:0 0 12px;">Sayın <strong>${esc(claim.claimant_name || '')}</strong>,</p>` +
+            `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;margin:0 0 12px;"><strong>${esc(claim.entity_name)}</strong> profilinin sahiplik talebi incelendi ve <strong style="color:#067647;">onaylandı</strong>. Hekimhane'ye hoş geldiniz.</p>` +
+            (pro ? erkenUyeMailBolumu(claim.entity_name || 'İşletmeniz') : '') +
+            `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;margin:18px 0 0;"><strong>Hesabınızı etkinleştirin.</strong> Aşağıdaki düğme e-posta adresinizi (<strong>${esc(email)}</strong>) hazır getirir; şifrenizi iki kez girip doğrudan panelinize geçersiniz.</p>` +
+            `<p style="margin:16px 0;"><a href="${aktivUrl}" style="display:inline-block;background:#1A335E;color:#fff;text-decoration:none;padding:13px 26px;border-radius:12px;font-weight:700;font-size:14px;">Hesabımı Etkinleştir</a></p>` +
+            `<p style="font-size:13px;color:#1c1c1e;line-height:1.6;margin:0 0 6px;">Panelinizden profil bilgilerinizi, fotoğraflarınızı, randevu taleplerinizi ve hasta yorumlarını yönetebilirsiniz.</p>` +
+            `<p style="font-size:12px;color:#6E6E73;line-height:1.6;margin:14px 0 0;">Bu bağlantı yalnızca size özeldir ve 7 gün geçerlidir. Düğme çalışmazsa şu adresi tarayıcınıza yapıştırın:<br><span style="color:#1A335E;word-break:break-all;">${aktivUrl}</span></p>` +
+            `<p style="font-size:12px;color:#6E6E73;line-height:1.6;margin:10px 0 0;">Sorularınız için bu e-postayı yanıtlayabilirsiniz.<br>Hekimhane Ekibi</p>`);
 
-          await sendEmail({ to: email, subject: `İşletmeniz onaylandı — ${claim.entity_name}`, html });
+          await sendEmail({ to: email, replyTo: 'info@hekimhane.com.tr', subject: pro ? `${claim.entity_name} — sahipliğiniz onaylandı, ${ERKEN_UYE_METIN.konuEki}` : `Sahipliğiniz onaylandı — ${claim.entity_name}`, html });
           mail = { sent: true, accountCreated: !!created?.user };
         } else {
           // Reddedildi bilgisi
@@ -174,7 +189,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true, status: newStatus, mail, warning, created: olusturulan });
+    return NextResponse.json({ success: true, status: newStatus, mail, warning, created: olusturulan, erkenUye: erken ? { verildi: erken.verildi, sira: erken.sira, kalan: erken.kalan, not: erken.not } : null });
   } catch (err) {
     console.error('claim-action error:', err);
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });

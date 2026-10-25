@@ -6,6 +6,8 @@ import { revalidatePath } from 'next/cache';
 import { sendEmail, mailShell } from '@/lib/email';
 import { yoneticiMi, davetEden } from '@/lib/yonetici';
 import { claimedEsitle } from '@/lib/sahiplik';
+import { erkenUyeProVer, erkenUyeMailBolumu } from '@/lib/erken-uye';
+import { ERKEN_UYE_METIN } from '@/lib/erken-uye-metin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -96,7 +98,14 @@ export async function POST(request: NextRequest) {
 
   // "claimed" önbelleğini yeniden hesapla (claim onayıyla aynı davranış, lib/sahiplik.ts).
   // supabase-js hata fırlatmaz → eskiden try/catch hatayı hiç görmüyordu.
-  const { uyari } = await claimedEsitle(db, tip, eid);
+  const { uyari: esUyari, sahipVar } = await claimedEsitle(db, tip, eid);
+  // İlk 100 işletmeye ücretsiz Pro (lib/erken-uye.ts) — admin ataması da sahipliktir
+  const erken = sahipVar !== false
+    ? await erkenUyeProVer(db, { entityType: tip, entityId: eid, entityName: isletme, email: hedef })
+    : null;
+  const uyari = [esUyari, erken?.uyari].filter(Boolean).join(' · ') || null;
+  const proBolum = erken?.verildi ? erkenUyeMailBolumu(isletme, SITE) : '';
+  const konuEki = erken?.verildi ? ` · ${ERKEN_UYE_METIN.konuEki}` : '';
   if (tip === 'doktor') { try { await (db as any).from('doktorlar').update({ contact_hidden: false }).eq('id', eid); } catch { /* geç */ } }
 
   // Hesap + davet: createUser başarılıysa hesap YOKTU → şifre belirleme bağlantısı
@@ -114,9 +123,10 @@ export async function POST(request: NextRequest) {
         const link = `${SITE}/hesap-aktivasyon?token=${tok?.token}`;
         const r = await sendEmail({
           to: hedef, replyTo: ADMIN_EMAIL,
-          subject: `${isletme} — Hekimhane işletme hesabınız hazır`,
+          subject: `${isletme} — Hekimhane işletme hesabınız hazır${konuEki}`,
           html: mailShell('İşletmeniz hesabınıza tanımlandı', `
             <p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${esc(isletme)}</strong> profilinin yönetimi Hekimhane tarafından bu e-posta adresine tanımlandı.</p>
+            ${proBolum}
             <p style="font-size:14px;color:#1c1c1e;line-height:1.6;">Randevu taleplerini, takvimi, hastaları, yorumları ve profil bilgilerinizi yönetmek için hesabınızı oluşturun: e-postanız hazır gelir, yalnızca şifrenizi belirlersiniz.</p>
             <p style="margin:18px 0;"><a href="${link}" style="display:inline-block;background:#1A335E;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Hesabımı Oluştur ve Panele Gir</a></p>
             <p style="font-size:12px;color:#6E6E73;line-height:1.6;">Bu bağlantı size özeldir ve 7 gün geçerlidir. Beklemiyorsanız bu e-postayı yanıtlayarak bize bildirin.</p>`),
@@ -125,9 +135,10 @@ export async function POST(request: NextRequest) {
       } else {
         const r = await sendEmail({
           to: hedef, replyTo: ADMIN_EMAIL,
-          subject: `${isletme} — işletme yönetimi hesabınıza tanımlandı`,
+          subject: `${isletme} — işletme yönetimi hesabınıza tanımlandı${konuEki}`,
           html: mailShell('İşletmeniz hesabınıza tanımlandı', `
             <p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${esc(isletme)}</strong> profilinin yönetimi Hekimhane hesabınıza tanımlandı.</p>
+            ${proBolum}
             <p style="font-size:14px;color:#1c1c1e;line-height:1.6;">Panelinizde görünüyor; randevu, takvim, hasta ve profil işlemlerini oradan yapabilirsiniz.</p>
             <p style="margin:18px 0;"><a href="${SITE}/giris?redirect=/panel" style="display:inline-block;background:#1A335E;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Panele Git</a></p>
             <p style="font-size:12px;color:#6E6E73;line-height:1.6;">Şifrenizi hatırlamıyorsanız giriş sayfasındaki "Şifremi unuttum" bağlantısını kullanın.</p>`),
@@ -138,7 +149,7 @@ export async function POST(request: NextRequest) {
   }
 
   try { revalidatePath(YOL[tip] || '/', 'layout'); revalidatePath('/', 'layout'); } catch { /* geç */ }
-  return NextResponse.json({ ok: true, id: yeni.id, isletme, yeniHesap, mailGitti, uyari });
+  return NextResponse.json({ ok: true, id: yeni.id, isletme, yeniHesap, mailGitti, uyari, erkenUye: erken ? { verildi: erken.verildi, sira: erken.sira, kalan: erken.kalan, not: erken.not } : null });
 }
 
 /** Erişimi kaldır (sahip veya yönetici). Son sahip kalkarsa işletme sahiplenilmemişe döner. */

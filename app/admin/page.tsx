@@ -703,6 +703,7 @@ function SahiplikModal({ entity, entityType, onClose, onChanged }: {
         setMsj({ ok: true, text: !mailGonder ? 'Sahiplik atandı (e-posta gönderilmedi).'
           : j.yeniHesap ? `Sahiplik atandı. ${email} adresine hesap oluşturma daveti gönderildi.`
           : `Sahiplik atandı. ${email} bilgilendirildi; işletme panelinde görünüyor.` + (j.mailGitti ? '' : ' (E-posta gönderilemedi.)')
+          + (j.erkenUye?.not ? ` · ${j.erkenUye.not}` : '')
           + (j.uyari ? ` · Uyarı: ${j.uyari}` : '') });
         setEmail(''); setAd('');
         await yukle(); onChanged();
@@ -2576,7 +2577,8 @@ export default function AdminPage() {
           ? (data.mail.accountCreated ? ' · kullanıcıya hesap + mail gönderildi' : ' · kullanıcıya mail gönderildi')
           : '';
         const kayitNote = data?.created?.id ? ` · işletme kaydı oluşturuldu (${data.created.id})` : '';
-        showToast((action === 'approve' ? 'Talep onaylandı' : 'Talep reddedildi') + kayitNote + mailNote);
+        const proNote = data?.erkenUye?.verildi ? ` · ${data.erkenUye.not}` : '';
+        showToast((action === 'approve' ? 'Talep onaylandı' : 'Talep reddedildi') + kayitNote + proNote + mailNote);
         // Uyarı (eksik uzmanlık / şehir, silinmiş kayıt) toast'ta kaybolmasın
         if (data?.warning) setTimeout(() => window.alert(data.warning), 300);
         await loadStats();

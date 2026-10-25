@@ -20,6 +20,8 @@ import { ASISTAN_DURUM, asistanYetkileri, type AsistanYetki } from '@/lib/asista
 import AsistanlarTab, { AsistanErisimKarti } from './AsistanlarTab';
 import MakalelerimTab from './MakalelerimTab';
 import McpTab from './McpTab';
+import ErkenUyeKutlama from './ErkenUyeKutlama';
+import { ERKEN_UYE_METIN } from '@/lib/erken-uye-metin';
 import { DOKTOR_BRANSLARI } from '@/lib/doktor-branslari';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
@@ -162,6 +164,18 @@ function YoneticiRozeti({ title }: { title?: string }) {
 }
 
 /** Onaylı işletme satırında Pro üyeliği görünür kılan altın rozet. */
+/** İlk kullanıcılara ücretsiz Pro — Stripe aboneliği yok, yönetilecek ödeme de yok. */
+type ErkenMap = Record<string, { sira: number | null; goruldu: boolean }>;
+function ErkenProDurumu() {
+  return (
+    <span title="Hekimhane'nin ilk kullanıcılarına özel ücretsiz Pro üyeliği"
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 13px', borderRadius: 9, background: '#FFFBF0', border: '1px solid #EAD9AE', color: '#8A6A1F', fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="#B8892F" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.8 5.9 20.4l1.5-6.8L2.2 9l6.9-.7z" /></svg>
+      {ERKEN_UYE_METIN.durum}
+    </span>
+  );
+}
+
 function ProBadge() {
   return (
     <span title="Hekimhane-Pro üyeliği aktif"
@@ -266,6 +280,10 @@ export default function PanelPage() {
   const [premiumMsg, setPremiumMsg] = useState<'success' | 'cancel' | null>(null);
   const [managingId, setManagingId] = useState<string | null>(null);
   const [subsMap, setSubsMap] = useState<Record<string, SubInfo>>({});
+  // İlk kullanıcılara ücretsiz Pro: entity_id → kayıt; kutlama = bir kez gösterilen pencere
+  const [erkenMap, setErkenMap] = useState<ErkenMap>({});
+  const [kutlama, setKutlama] = useState<{ entityId: string; claimId: string; isletme: string } | null>(null);
+  const kutlamaKapatilan = useRef<Set<string>>(new Set());
   const [releasingId, setReleasingId] = useState<string | null>(null);
   // Global aktif işletme — birden çok işletmesi olan sahip sidebar'dan seçer; tüm
   // sekmeler (profil, randevu, takvim, hastalar, yorumlar, HekimKart) bununla açılır.
@@ -381,6 +399,27 @@ export default function PanelPage() {
       });
       setSubsMap(smap);
     } catch { /* abonelik detayı alınamadıysa panel yine çalışır */ }
+
+    // İlk kullanıcılara ücretsiz Pro kayıtları (yalnız sahibi olunan işletmeler; tablo yoksa boş)
+    try {
+      const r = await fetch('/api/panel/erken-uye', { cache: 'no-store' });
+      const j = r.ok ? await r.json() : { kayitlar: [] };
+      const em: ErkenMap = {};
+      for (const k of (j.kayitlar || []) as any[]) em[String(k.entity_id)] = { sira: k.sira ?? null, goruldu: !!k.kutlama_goruldu };
+      setErkenMap(em);
+      // Görülmemiş ilk kayıt → kutlama penceresi (Pro gerçekten açıksa; oturumda kapatılan tekrar açılmaz)
+      const ilk = approved.find(c => c.entity_id && em[c.entity_id] && !em[c.entity_id].goruldu && pmap[c.id] && !yoneticiMi(c.role) && !kutlamaKapatilan.current.has(String(c.entity_id)));
+      if (ilk) setKutlama({ entityId: String(ilk.entity_id), claimId: ilk.id, isletme: ilk.entity_name || 'İşletmeniz' });
+    } catch { /* kutlama gösterilemezse panel yine çalışır */ }
+  }
+
+  function kutlamaKapat(takvimeGit: boolean) {
+    const k = kutlama; if (!k) return;
+    kutlamaKapatilan.current.add(k.entityId);
+    setKutlama(null);
+    setErkenMap(p => p[k.entityId] ? { ...p, [k.entityId]: { ...p[k.entityId], goruldu: true } } : p);
+    fetch('/api/panel/erken-uye', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ entity_id: k.entityId }) }).catch(() => {});
+    if (takvimeGit) { aktifSec(k.claimId); setTab('randevumodul'); }
   }
 
   // Yükseltme artık /pro sayfasından yapılır (özellik tanıtımı + checkout tek yerde).
@@ -705,9 +744,9 @@ export default function PanelPage() {
         {tab === 'dashboard' && !sadeceAsistan && asistanClaims.length > 0 && (
           <AsistanErisimKarti kayitlar={asistanClaims} onGit={setTab} />
         )}
-        {tab === 'dashboard' && !sadeceAsistan && <DashboardTab ustEk={approvedClaims.length > 0 ? <ProfilPuaniKarti key={aktifKey} aktifEntityId={aktifClaim?.entity_id} onGit={(t, eid) => { const c = approvedClaims.find(x => String(x.entity_id) === eid); if (c) aktifSec(c.id); setTab(t as any); }} /> : null} user={user} claims={basvurular} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { aktifSec(c.id); setTab('edit'); }} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} onRelease={handleRelease} releasingId={releasingId} />}
+        {tab === 'dashboard' && !sadeceAsistan && <DashboardTab ustEk={approvedClaims.length > 0 ? <ProfilPuaniKarti key={aktifKey} aktifEntityId={aktifClaim?.entity_id} onGit={(t, eid) => { const c = approvedClaims.find(x => String(x.entity_id) === eid); if (c) aktifSec(c.id); setTab(t as any); }} /> : null} user={user} claims={basvurular} approvedClaims={approvedClaims} pendingClaims={pendingClaims} claimsLoading={claimsLoading} onTabChange={setTab} profileUrls={profileUrls} onEditClaim={(c) => { aktifSec(c.id); setTab('edit'); }} premiumMap={premiumMap} subsMap={subsMap} erkenMap={erkenMap} onManage={handleManage} managingId={managingId} onRelease={handleRelease} releasingId={releasingId} />}
         {tab === 'claims'    && <ClaimsTab claims={basvurular} loading={claimsLoading} onNewClaim={() => setTab('new')} profileUrls={profileUrls} onDeleted={() => loadClaims(user?.email || '')} />}
-        {tab === 'profile'   && <ProfileTab user={user} approvedClaims={approvedClaims} premiumMap={premiumMap} subsMap={subsMap} onManage={handleManage} managingId={managingId} />}
+        {tab === 'profile'   && <ProfileTab user={user} approvedClaims={approvedClaims} premiumMap={premiumMap} subsMap={subsMap} erkenMap={erkenMap} onManage={handleManage} managingId={managingId} />}
         {tab === 'new'       && <NewClaimTab user={user} onSuccess={() => { loadClaims(user?.email || ''); setTab('claims'); }} />}
         {tab === 'edit'      && <EditProfileTab approvedClaims={approvedClaims} selectedClaim={editListe || aktifClaim?.status !== 'approved' ? null : aktifClaim} onSelectClaim={c => { if (c) aktifSec(c.id); else setEditListe(true); }} isMobile={isMobile} />}
         {tab === 'hekimkart' && <HekimKartTab key={'hk' + aktifKey} approvedClaims={approvedClaims} profileUrls={profileUrls} user={user} aktifClaimId={aktifClaim?.status === 'approved' ? aktifClaim.id : ''} />}
@@ -719,6 +758,8 @@ export default function PanelPage() {
         {tab === 'mcp'       && <McpTab aktifIsletme={aktifClaim?.entity_id ? { id: aktifClaim.entity_id, ad: aktifClaim.entity_name || '' } : null} isletmeSayisi={isletmeler.length} />}
         {tab === 'makaleler' && <MakalelerimTab hasEntity={approvedClaims.some(c => c.entity_id && c.entity_id !== 'new')} />}
       </main>
+
+      {kutlama && <ErkenUyeKutlama isletme={kutlama.isletme} onTakvim={() => kutlamaKapat(true)} onKapat={() => kutlamaKapat(false)} />}
 
       {/* ── MOBİL ALT NAVİGASYON ── */}
       {isMobile && (
@@ -777,7 +818,7 @@ export default function PanelPage() {
 /* ═══════════════════════════════════════════════
    DASHBOARD
 ═══════════════════════════════════════════════ */
-function DashboardTab({ ustEk, user, claims, approvedClaims, pendingClaims, claimsLoading, onTabChange, profileUrls, onEditClaim, premiumMap, subsMap, onManage, managingId, onRelease, releasingId }: { ustEk?: React.ReactNode; user: User | null; claims: ClaimRequest[]; approvedClaims: ClaimRequest[]; pendingClaims: ClaimRequest[]; claimsLoading: boolean; onTabChange: (t: any) => void; profileUrls: Record<string, string>; onEditClaim: (c: ClaimRequest) => void; premiumMap: Record<string, boolean>; subsMap: Record<string, SubInfo>; onManage: (claimId: string, entityType: string, entityId: string) => void; managingId: string | null; onRelease: (claimId: string, entityName: string) => void; releasingId: string | null }) {
+function DashboardTab({ ustEk, user, claims, approvedClaims, pendingClaims, claimsLoading, onTabChange, profileUrls, onEditClaim, premiumMap, subsMap, erkenMap = {}, onManage, managingId, onRelease, releasingId }: { ustEk?: React.ReactNode; erkenMap?: ErkenMap; user: User | null; claims: ClaimRequest[]; approvedClaims: ClaimRequest[]; pendingClaims: ClaimRequest[]; claimsLoading: boolean; onTabChange: (t: any) => void; profileUrls: Record<string, string>; onEditClaim: (c: ClaimRequest) => void; premiumMap: Record<string, boolean>; subsMap: Record<string, SubInfo>; onManage: (claimId: string, entityType: string, entityId: string) => void; managingId: string | null; onRelease: (claimId: string, entityName: string) => void; releasingId: string | null }) {
   const name = user?.user_metadata?.full_name || user?.user_metadata?.name || 'Kullanıcı';
   return (
     <div>
@@ -854,6 +895,9 @@ function DashboardTab({ ustEk, user, claims, approvedClaims, pendingClaims, clai
                         {managingId === c.id ? '…' : 'Ödeme Sorunu · Kartı Güncelle'}
                       </button>
                     );
+
+                    // İlk kullanıcılara ücretsiz Pro: Stripe aboneliği yok → yönetilecek ödeme yok
+                    if (aktif && !sub && erkenMap[c.entity_id]) return <ErkenProDurumu />;
 
                     if (aktif) return (
                       <button onClick={() => onManage(c.id, c.entity_type, c.entity_id!)} disabled={managingId === c.id}
@@ -1031,7 +1075,8 @@ function ClaimsTab({ claims, loading, onNewClaim, profileUrls, onDeleted }: { cl
 /* ═══════════════════════════════════════════════
    HESABIM
 ═══════════════════════════════════════════════ */
-function ProfileTab({ user, approvedClaims, premiumMap, subsMap, onManage, managingId }: {
+function ProfileTab({ user, approvedClaims, premiumMap, subsMap, erkenMap = {}, onManage, managingId }: {
+  erkenMap?: ErkenMap;
   user: User | null;
   approvedClaims: ClaimRequest[];
   premiumMap: Record<string, boolean>;
@@ -1125,6 +1170,7 @@ function ProfileTab({ user, approvedClaims, premiumMap, subsMap, onManage, manag
                   const sub = subsMap[c.id];
                   const sorunlu = !!(sub && ODEME_SORUNLU.includes(sub.status));
                   const aktif = proAktifMi(c.id, premiumMap, subsMap);
+                  const erkenPro = aktif && !sub && !!(c.entity_id && erkenMap[c.entity_id]);
                   const bitis = sub?.period_end
                     ? new Date(sub.period_end).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })
                     : null;
@@ -1143,6 +1189,8 @@ function ProfileTab({ user, approvedClaims, premiumMap, subsMap, onManage, manag
                         <div style={{ fontSize: 12, color: sorunlu ? '#B91C1C' : T.muted, marginTop: 3, lineHeight: 1.6 }}>
                           {sorunlu
                             ? 'Son ödeme alınamadı — kartınızı güncelleyin, aksi halde üyelik kapanır.'
+                            : erkenPro
+                              ? 'Ücretsiz Pro — ilk kullanıcılara özel. Kart bilgisi istenmez, ücret tahsil edilmez.'
                             : aktif
                               ? `Aylık ${PRO_AYLIK_TL} TL${bitis ? ` · Sonraki yenileme: ${bitis}` : ''}`
                               : `Ücretsiz üyelik · Pro aylık ${PRO_AYLIK_TL} TL`}
@@ -1154,6 +1202,8 @@ function ProfileTab({ user, approvedClaims, premiumMap, subsMap, onManage, manag
                             <YoneticiRozeti />
                             Abonelik işletme sahibinde{davetEden(c.role) ? ` (${davetEden(c.role)})` : ''}
                           </span>
+                        ) : erkenPro ? (
+                          <ErkenProDurumu />
                         ) : aktif || sorunlu ? (
                           <button onClick={() => onManage(c.id, c.entity_type, c.entity_id!)} disabled={managingId === c.id}
                             title="Aboneliği iptal et, kartını değiştir veya faturalarını gör"
