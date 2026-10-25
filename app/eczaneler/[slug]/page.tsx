@@ -9,6 +9,7 @@ import { maskReviewName } from '@/lib/helpers';
 import { bookedSlots } from '@/lib/randevu-booked';
 import { buildEczaneFaq } from '@/lib/faq';
 import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
+import { sahiplenilmisMi } from '@/lib/sahiplik';
 import { ilceCikar } from '@/lib/eczane-liste';
 
 export const dynamic = 'force-dynamic';
@@ -113,7 +114,8 @@ export default async function EczaneProfilPage({ params }: Props) {
   const rvBooked = (e as any).randevu_aktif ? [...await bookedSlots(e.id), ...(Array.isArray((e as any).randevu_bloke) ? (e as any).randevu_bloke.map(String) : [])] : [];
   // HekimKart bağlantısı: kayıtlı kart varsa onun adresi (sahip panelden
   // adresi değiştirdiyse site içindeki bağlantı da onunla birlikte değişsin).
-  const kartSlug = await kartSlugCoz(e.id, e.slug);
+  // Sahiplik /sahiplen ile aynı kaynaktan (lib/sahiplik.ts) — ikisi çelişmesin.
+  const [kartSlug, claimed] = await Promise.all([kartSlugCoz(e.id, e.slug), sahiplenilmisMi(e.id, e.claimed)]);
 
   return (
     <>
@@ -127,7 +129,7 @@ export default async function EczaneProfilPage({ params }: Props) {
       rat={e.rat} rev={e.rev}
       nobetci={e.nobetci}
       pharmacist={e.pharmacist}
-      claimed={e.claimed} premium={e.premium}
+      claimed={claimed} premium={e.premium}
       photos={e.photos} photo360={e.photo360} tour360url={e.tour360url} video_url={e.video_url}
       instagram_url={e.instagram_url}
       facebook_url={e.facebook_url}

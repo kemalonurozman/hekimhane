@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { isAdminRequest } from '@/lib/admin-auth';
 import { createClient } from '@supabase/supabase-js';
 import { getStripe } from '@/lib/stripe';
+import { yoneticiMi } from '@/lib/yonetici';
 
 // Her istekte taze — premium üye listesi cache'lenmesin
 export const dynamic = 'force-dynamic';
@@ -38,7 +39,8 @@ export async function GET(request: NextRequest) {
       slug: r.slug || null,
       spec: r.spec || r.type || null,
       rat: r.rat || 0, rev: r.rev || 0,
-      claimed: r.claimed ?? r.verified ?? false,
+      // verified (içe aktarılan "Onaylı") sahiplik değildir; doktor sahipliği aşağıda claim_requests'ten eklenir
+      claimed: r.claimed === true,
       tel: r.tel || null,
     }));
 
@@ -80,6 +82,18 @@ export async function GET(request: NextRequest) {
       } catch { /* kayıt silinmişse atla */ }
     }));
     items.push(...gecmis);
+
+    // Sahiplik = onaylı sahip kaydı (lib/sahiplik.ts ile aynı kural). claimed kolonu
+    // olmayan/bayat kalan kayıtlar (özellikle doktorlar) da doğru görünsün.
+    try {
+      const ids = Array.from(new Set(items.map(it => String(it.id))));
+      if (ids.length) {
+        const { data: onayli } = await (admin as any).from('claim_requests')
+          .select('entity_id,role').eq('status', 'approved').in('entity_id', ids);
+        const sahipli = new Set(((onayli as any[]) || []).filter(c => !yoneticiMi(c.role)).map(c => String(c.entity_id)));
+        items.forEach(it => { if (sahipli.has(String(it.id))) it.claimed = true; });
+      }
+    } catch { /* liste yine döner */ }
 
     // Stripe'tan canlı durum — tek liste çağrısı, abonelik id'siyle eşlenir.
     // `cancel_at_period_end` DB'de tutulmuyor; "dönem sonunda bitecek" bilgisi

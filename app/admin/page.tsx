@@ -70,7 +70,7 @@ interface Claim {
   unvan: string | null;
   role: string | null;
   mesaj: string | null;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'dispute' | 'approved' | 'rejected';
   created_at: string;
 }
 
@@ -95,6 +95,7 @@ interface Entity {
 function StatusBadge({ status }: { status: string }) {
   const s = {
     pending:  { label: 'Bekliyor',   bg: 'rgba(245,158,11,.12)',  color: '#F59E0B', border: 'rgba(245,158,11,.25)' },
+    dispute:  { label: 'İtiraz',     bg: 'rgba(234,88,12,.12)',   color: '#EA580C', border: 'rgba(234,88,12,.28)' },
     approved: { label: 'Onaylandı', bg: 'rgba(16,185,129,.12)',  color: '#10B981', border: 'rgba(16,185,129,.25)' },
     rejected: { label: 'Reddedildi',bg: 'rgba(239,68,68,.12)',   color: '#EF4444', border: 'rgba(239,68,68,.25)' },
   }[status] || { label: status, bg: C.soft, color: C.muted, border: C.border };
@@ -294,13 +295,14 @@ function ClaimsTab({ claims, loading, onAction, actionId }: {
 
   const counts = {
     all:      claims.length,
-    pending:  claims.filter(c => c.status === 'pending').length,
+    // İtiraz (dispute) da bekleyen iştir — eskiden hiçbir sayaçta/filtrede yoktu, onay düğmesi çıkmıyordu.
+    pending:  claims.filter(c => c.status === 'pending' || c.status === 'dispute').length,
     approved: claims.filter(c => c.status === 'approved').length,
     rejected: claims.filter(c => c.status === 'rejected').length,
   };
 
   const filtered = claims
-    .filter(c => filter === 'all' || c.status === filter)
+    .filter(c => filter === 'all' || c.status === filter || (filter === 'pending' && c.status === 'dispute'))
     .filter(c => !search || [c.entity_name, c.email, c.ad_soyad, c.claimant_name].some(v => v?.toLowerCase().includes(search.toLowerCase())));
 
   return (
@@ -343,7 +345,11 @@ function ClaimsTab({ claims, loading, onAction, actionId }: {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {filtered.map(c => {
             const isExpanded = expanded === c.id;
-            const isPending = c.status === 'pending';
+            const isPending = c.status === 'pending' || c.status === 'dispute';
+            // Bu işletmeye şu an erişimi olan hesaplar (itirazda admin gerçek itiraz mı görsün)
+            const mevcutErisim = c.entity_id && c.entity_id !== 'new'
+              ? claims.filter(x => x.id !== c.id && x.status === 'approved' && x.entity_id === c.entity_id)
+              : [];
             const meta = ENTITY_META[c.entity_type] || { color: C.blue, icon: IC.hastane, label: c.entity_type };
             return (
               <div key={c.id} style={{ background: C.card, borderRadius: 14, border: `1px solid ${isPending ? 'rgba(245,158,11,.2)' : C.border}`, overflow: 'hidden', transition: 'border-color .15s' }}>
@@ -394,6 +400,9 @@ function ClaimsTab({ claims, loading, onAction, actionId }: {
                       <DR label="Ad" value={c.entity_name || '—'} />
                       <DR label="Tür" value={meta.label} />
                       {c.entity_id && c.entity_id !== 'new' && <DR label="ID" value={c.entity_id} />}
+                      {c.entity_id && c.entity_id !== 'new' && (
+                        <DR label="Şu an yöneten" value={mevcutErisim.length ? mevcutErisim.map(x => x.email).join(', ') : (c.status === 'dispute' ? 'Onaylı hesap yok — itiraz yanlış işaretten doğmuş olabilir, normal başvuru gibi değerlendirin' : 'Yok')} />
+                      )}
                       {c.entity_id === 'new' && <DR label="Kayıt" value={c.status === 'approved' ? 'Listede kayıt YOK — oluşturulmalı' : 'Yeni işletme (listede yok; onayda oluşturulur)'} />}
                     </div>
                     <div>
@@ -459,7 +468,6 @@ interface EditField { key: string; label: string; type?: 'text'|'number'|'textar
 const EDIT_FIELDS: Record<string, EditField[]> = {
   klinik:  [
     { key:'premium',   label:'👑 Premium Hesap (true/false)', type:'select', options:['true','false'] },
-    { key:'claimed',   label:'✅ Sahiplenildi (true/false)', type:'select', options:['true','false'] },
     { key:'name',      label:'Klinik Adı' },
     { key:'type',      label:'Tür' },
     { key:'il',        label:'İl' },
@@ -475,7 +483,6 @@ const EDIT_FIELDS: Record<string, EditField[]> = {
   ],
   hastane: [
     { key:'premium',   label:'👑 Premium Hesap (true/false)', type:'select', options:['true','false'] },
-    { key:'claimed',   label:'✅ Sahiplenildi (true/false)', type:'select', options:['true','false'] },
     { key:'name',      label:'Hastane Adı' },
     { key:'type',      label:'Tür', type:'select', options:['Devlet','Özel','Üniversite'] },
     { key:'il',        label:'İl' },
@@ -511,7 +518,6 @@ const EDIT_FIELDS: Record<string, EditField[]> = {
   ],
   eczane: [
     { key:'premium',    label:'👑 Premium Hesap (true/false)', type:'select', options:['true','false'] },
-    { key:'claimed',    label:'✅ Sahiplenildi (true/false)', type:'select', options:['true','false'] },
     { key:'name',       label:'Eczane Adı' },
     { key:'pharmacist', label:'Eczacı Adı' },
     { key:'il',         label:'İl' },
@@ -549,13 +555,13 @@ function EditModal({ entity, entityType, onClose, onSaved }: {
 
   async function handleSave() {
     setSaving(true); setErr('');
-    // photos → string[], claimed → boolean dönüşümleri
+    // photos → string[], premium → boolean dönüşümleri (claimed düzenlenmez: "Sahip" düğmesi)
     const payload = { ...form };
     fields.forEach(f => {
       if (f.type === 'photos' && typeof payload[f.key] === 'string') {
         payload[f.key] = payload[f.key].split('\n').map((u: string) => u.trim()).filter(Boolean);
       }
-      if (f.key === 'claimed' || f.key === 'premium') {
+      if (f.key === 'premium') {
         payload[f.key] = payload[f.key] === 'true' || payload[f.key] === true;
       }
     });
@@ -696,7 +702,8 @@ function SahiplikModal({ entity, entityType, onClose, onChanged }: {
       if (r.ok && j.ok) {
         setMsj({ ok: true, text: !mailGonder ? 'Sahiplik atandı (e-posta gönderilmedi).'
           : j.yeniHesap ? `Sahiplik atandı. ${email} adresine hesap oluşturma daveti gönderildi.`
-          : `Sahiplik atandı. ${email} bilgilendirildi; işletme panelinde görünüyor.` + (j.mailGitti ? '' : ' (E-posta gönderilemedi.)') });
+          : `Sahiplik atandı. ${email} bilgilendirildi; işletme panelinde görünüyor.` + (j.mailGitti ? '' : ' (E-posta gönderilemedi.)')
+          + (j.uyari ? ` · Uyarı: ${j.uyari}` : '') });
         setEmail(''); setAd('');
         await yukle(); onChanged();
       } else setMsj({ ok: false, text: j.error || 'Atanamadı.' });
@@ -710,7 +717,7 @@ function SahiplikModal({ entity, entityType, onClose, onChanged }: {
     try {
       const r = await fetch('/api/admin/sahiplik', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: e.id }) });
       const j = await r.json();
-      if (r.ok) { setMsj({ ok: true, text: j.sahipsiz ? 'Erişim kaldırıldı — profil sahiplenilmemiş duruma döndü.' : 'Erişim kaldırıldı.' }); await yukle(); onChanged(); }
+      if (r.ok) { setMsj({ ok: true, text: (j.sahipsiz ? 'Erişim kaldırıldı — profil sahiplenilmemiş duruma döndü.' : 'Erişim kaldırıldı.') + (j.uyari ? ` · Uyarı: ${j.uyari}` : '') }); await yukle(); onChanged(); }
       else setMsj({ ok: false, text: j.error || 'Kaldırılamadı.' });
     } catch { setMsj({ ok: false, text: 'Bağlantı hatası.' }); }
     setCalisan(false);
@@ -2534,6 +2541,19 @@ export default function AdminPage() {
       } catch { showToast('Bağlantı hatası'); }
       setActionId(null);
       return;
+    }
+    // Onaylamadan önce: bu işletmeye zaten erişimi olan biri var mı? (itiraz ya da
+    // ikinci başvuru). Onay eski erişimi kaldırmaz — iki kişi de tam erişir.
+    if (action === 'approve') {
+      const hedef = claims.find(c => c.id === id);
+      const digerler = hedef?.entity_id && hedef.entity_id !== 'new'
+        ? claims.filter(c => c.id !== id && c.status === 'approved' && c.entity_id === hedef.entity_id)
+        : [];
+      if (digerler.length && !window.confirm(
+        `Bu işletmeye şu an erişimi olan hesap(lar):\n${digerler.map(d => '• ' + d.email).join('\n')}\n\n` +
+        'Onaylarsanız başvuran da TAM erişim kazanır; mevcut erişim kaldırılmaz.\n' +
+        'Sahipliği devretmek için onaydan sonra İşletmeler sekmesindeki "Sahip" düğmesinden eski erişimi kaldırın.\n\nDevam edilsin mi?',
+      )) return;
     }
     // Kullanıcıya mail gönderilsin mi? (onayda hesap + giriş bilgisi maili,
     // redde bilgilendirme). Tamam = mail gönder, İptal = sadece işlem yap.

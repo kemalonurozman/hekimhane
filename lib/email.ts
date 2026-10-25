@@ -51,7 +51,8 @@ export function mailShell(baslik: string, govde: string): string {
   </div></body></html>`;
 }
 
-const esc = (s: string) => String(s || '').replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c] || c));
+/** Kullanıcıdan gelen metni mail HTML'ine gömmeden önce kaçış (metin + öznitelik güvenli). */
+export const esc = (s: string | null | undefined) => String(s || '').replace(/[<>&"']/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c] || c));
 
 // Randevu talebi satırı (etiket + değer)
 export function satir(etiket: string, deger: string | null | undefined): string {

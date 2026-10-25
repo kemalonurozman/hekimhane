@@ -5,6 +5,7 @@ import { randomBytes } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { sendEmail, mailShell } from '@/lib/email';
 import { yoneticiMi, davetEden } from '@/lib/yonetici';
+import { claimedEsitle } from '@/lib/sahiplik';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -93,8 +94,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Sahiplik atanamadı.' }, { status: 500 });
   }
 
-  // İşletmeyi sahiplenilmiş yap (claim onayıyla aynı davranış)
-  try { await (db as any).from(TABLO[tip]).update({ claimed: true }).eq('id', eid); } catch { /* kolon yoksa geç */ }
+  // "claimed" önbelleğini yeniden hesapla (claim onayıyla aynı davranış, lib/sahiplik.ts).
+  // supabase-js hata fırlatmaz → eskiden try/catch hatayı hiç görmüyordu.
+  const { uyari } = await claimedEsitle(db, tip, eid);
   if (tip === 'doktor') { try { await (db as any).from('doktorlar').update({ contact_hidden: false }).eq('id', eid); } catch { /* geç */ } }
 
   // Hesap + davet: createUser başarılıysa hesap YOKTU → şifre belirleme bağlantısı
@@ -136,7 +138,7 @@ export async function POST(request: NextRequest) {
   }
 
   try { revalidatePath(YOL[tip] || '/', 'layout'); revalidatePath('/', 'layout'); } catch { /* geç */ }
-  return NextResponse.json({ ok: true, id: yeni.id, isletme, yeniHesap, mailGitti });
+  return NextResponse.json({ ok: true, id: yeni.id, isletme, yeniHesap, mailGitti, uyari });
 }
 
 /** Erişimi kaldır (sahip veya yönetici). Son sahip kalkarsa işletme sahiplenilmemişe döner. */
@@ -155,13 +157,8 @@ export async function DELETE(request: NextRequest) {
 
   // Başka sahip kalmadıysa profil "sahiplenilmemiş" olur. premium'a DOKUNULMAZ:
   // Stripe aboneliği sürüyor olabilir — kapatma admin Premium sekmesinden yapılır.
-  let sahipsiz = false;
-  const { data: kalan } = await (db as any).from('claim_requests')
-    .select('role').eq('entity_id', kayit.entity_id).eq('status', 'approved');
-  if (!((kalan as any[]) || []).some(r => !yoneticiMi(r.role))) {
-    sahipsiz = true;
-    try { await (db as any).from(TABLO[kayit.entity_type]).update({ claimed: false }).eq('id', kayit.entity_id); } catch { /* geç */ }
-  }
+  const { sahipVar, uyari } = await claimedEsitle(db, kayit.entity_type, kayit.entity_id);
+  const sahipsiz = sahipVar === false;
   try { revalidatePath(YOL[kayit.entity_type] || '/', 'layout'); revalidatePath('/', 'layout'); } catch { /* geç */ }
-  return NextResponse.json({ ok: true, sahipsiz });
+  return NextResponse.json({ ok: true, sahipsiz, uyari });
 }

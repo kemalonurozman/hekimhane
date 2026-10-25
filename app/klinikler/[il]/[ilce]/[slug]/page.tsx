@@ -10,6 +10,7 @@ import { bookedSlots } from '@/lib/randevu-booked';
 import { buildKlinikFaq } from '@/lib/faq';
 import { openingHoursSpec } from '@/lib/seo';
 import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
+import { sahiplenilmisMi } from '@/lib/sahiplik';
 
 export const dynamic = 'force-dynamic';
 
@@ -143,7 +144,8 @@ export default async function KlinikProfilPage({ params }: Props) {
   const rvBooked = (k as any).randevu_aktif ? [...await bookedSlots(k.id), ...(Array.isArray((k as any).randevu_bloke) ? (k as any).randevu_bloke.map(String) : [])] : [];
   // HekimKart bağlantısı: kayıtlı kart varsa onun adresi (sahip panelden
   // adresi değiştirdiyse site içindeki bağlantı da onunla birlikte değişsin).
-  const kartSlug = await kartSlugCoz(k.id, k.slug);
+  // Sahiplik /sahiplen ile aynı kaynaktan (lib/sahiplik.ts) — ikisi çelişmesin.
+  const [kartSlug, claimed] = await Promise.all([kartSlugCoz(k.id, k.slug), sahiplenilmisMi(k.id, k.claimed)]);
 
   return (
     <>
@@ -164,7 +166,7 @@ export default async function KlinikProfilPage({ params }: Props) {
       deneyimBaslangic={(k as any).deneyim_baslangic}
       deneyimler={(k as any).deneyimler}
       sertifikalar={(k as any).sertifikalar}
-      claimed={k.claimed} online={k.online} acil={k.acil} premium={k.premium}
+      claimed={claimed} online={k.online} acil={k.acil} premium={k.premium}
       tour360url={k.tour360url}
       video_url={k.video_url}
       instagram_url={k.instagram_url}

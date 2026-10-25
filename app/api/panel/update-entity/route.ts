@@ -105,6 +105,16 @@ export async function POST(request: NextRequest) {
     }
     // Uzmanlık etiketleri kanonik yazımla saklanır (serbest yazım varyantları → hazır liste)
     if ('specs' in safeFields) safeFields.specs = normalizeSpecList(safeFields.specs);
+    // text[] kolonları: panel "Kabul Edilen Sigortalar" kutusu düz metin ("SGK, Özel Sigorta")
+    // gönderiyor → PostgREST "malformed array literal" verip AYNI kayıttaki telefon/klinik
+    // değişikliğini de düşürüyordu. Metin gelirse virgülle bölünür; boş → [] (null değil:
+    // tags null olursa /doktorlar'daki not-cs filtreleri satırı listeden düşürür).
+    for (const k of ['sigorta', 'conditions', 'tags']) {
+      if (!(k in safeFields)) continue;
+      const v = safeFields[k];
+      if (typeof v === 'string') safeFields[k] = v.split(/[,;\n]/).map(x => x.trim()).filter(Boolean);
+      else if (v == null) safeFields[k] = [];
+    }
 
     // Pro'ya kilitli alanlar — panel bunları zaten devre dışı gösterir ama
     // API doğrudan çağrılırsa da yazılamamalı. Premium değilse sessizce

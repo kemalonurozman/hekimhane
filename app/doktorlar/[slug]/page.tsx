@@ -9,6 +9,7 @@ import { bookedSlots } from '@/lib/randevu-booked';
 import { buildDoktorFaq } from '@/lib/faq';
 import { openingHoursSpec } from '@/lib/seo';
 import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
+import { sahiplenilmisMi } from '@/lib/sahiplik';
 
 export const dynamic = 'force-dynamic';
 
@@ -146,7 +147,10 @@ export default async function DoktorProfilPage({ params }: Props) {
   const rvBooked = (d as any).randevu_aktif ? [...await bookedSlots(d.id), ...(Array.isArray((d as any).randevu_bloke) ? (d as any).randevu_bloke.map(String) : [])] : [];
   // HekimKart bağlantısı: kayıtlı kart varsa onun adresi (sahip panelden
   // adresi değiştirdiyse site içindeki bağlantı da onunla birlikte değişsin).
-  const kartSlug = await kartSlugCoz(d.id, d.slug);
+  // Sahiplik: onaylı claim_requests ya da claimed önbelleği (lib/sahiplik.ts).
+  // verified (içe aktarılan "Onaylı") sahiplik değildir — eskiden hiç geçilmiyordu,
+  // her doktor "Sahiplenilmemiş" görünüyordu.
+  const [kartSlug, claimed] = await Promise.all([kartSlugCoz(d.id, d.slug), sahiplenilmisMi(d.id, d.claimed)]);
 
   return (
     <>
@@ -167,7 +171,7 @@ export default async function DoktorProfilPage({ params }: Props) {
       specs={d.tags && d.tags.length ? d.tags : undefined}
       fee={d.fee} exp={d.exp}
       online={d.online}
-      premium={d.premium} verified={d.verified}
+      claimed={claimed} premium={d.premium} verified={d.verified}
       unvan={d.unvan}
       bio={d.bio}
       okul={d.okul}

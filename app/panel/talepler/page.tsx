@@ -14,12 +14,13 @@ interface ClaimRequest {
   email: string;
   phone: string;
   role: string | null;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'dispute' | 'approved' | 'rejected';
   created_at: string;
 }
 
 const STATUS_MAP: Record<string, { label: string; bg: string; color: string; border: string }> = {
   pending:  { label: 'İncelemede', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
+  dispute:  { label: 'İtiraz inceleniyor', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
   approved: { label: 'Onaylandı',  bg: '#F0FDF4', color: '#166534', border: '#86EFAC' },
   rejected: { label: 'Reddedildi', bg: '#FEF2F2', color: '#991B1B', border: '#FCA5A5' },
 };
@@ -100,7 +101,7 @@ export default function TaleplerPage() {
   }, [router]);
 
   const approved = claims.filter(c => c.status === 'approved');
-  const pending  = claims.filter(c => c.status === 'pending');
+  const pending  = claims.filter(c => c.status === 'pending' || c.status === 'dispute');
   const rejected = claims.filter(c => c.status === 'rejected');
 
   return (

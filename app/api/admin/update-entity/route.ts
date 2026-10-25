@@ -20,11 +20,14 @@ const TABLE_MAP: Record<string, string> = {
   eczane:  'eczaneler',
 };
 
+// claimed burada YOK: sahiplik claim_requests'ten türetilir (lib/sahiplik.ts) ve
+// "Sahip" düğmesiyle yönetilir. Düzenleme penceresi eski bir anlık görüntüden
+// her kayıtta claimed yazıyor, araya giren onayı geri alabiliyordu.
 const ALLOWED_FIELDS: Record<string, string[]> = {
-  klinik:  ['name','type','il','ilce','adres','tel','website','maps_url','specs','online','acil','logo','cover','photos','photo360','tour360url','claimed','premium'],
-  hastane: ['name','type','il','ilce','adres','tel','website','maps_url','docs','beds','founded','logo','cover','photos','photo360','tour360url','claimed','premium'],
+  klinik:  ['name','type','il','ilce','adres','tel','website','maps_url','specs','online','acil','logo','cover','photos','photo360','tour360url','premium'],
+  hastane: ['name','type','il','ilce','adres','tel','website','maps_url','docs','beds','founded','logo','cover','photos','photo360','tour360url','premium'],
   doktor:  ['ad','soyad','spec','il','ilce','clinic_name','tel','fee','bio','okul','sigorta','tags','unvan','online','photo','photos','photo360','tour360url','verified','premium'],
-  eczane:  ['name','pharmacist','il','ilce','address','tel','nobetci','chamber','cover','photos','photo360','tour360url','claimed','premium'],
+  eczane:  ['name','pharmacist','il','ilce','address','tel','nobetci','chamber','cover','photos','photo360','tour360url','premium'],
 };
 
 export async function POST(request: NextRequest) {

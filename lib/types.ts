@@ -104,7 +104,10 @@ export interface Doktor {
   fee: number;
   premium: boolean;
   online: boolean;
+  /** İçe aktarılan kaynaktaki "Onaylı" bilgisi — sahiplik DEĞİL (bkz. lib/sahiplik.ts). */
   verified: boolean;
+  /** Sahiplik önbelleği (add_eczaneler_updated_at_doktorlar_claimed.sql); kolon yoksa undefined. */
+  claimed?: boolean | null;
   tel: string | null;
   email: string | null;
   contact_hidden: boolean | null;

@@ -3,8 +3,9 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { isAdminRequest } from '@/lib/admin-auth';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
-import { sendEmail, mailShell, satir } from '@/lib/email';
+import { sendEmail, mailShell, esc } from '@/lib/email';
 import { yeniIsletmeOlustur } from '@/lib/yeni-isletme';
+import { claimedEsitle, epostaNormal } from '@/lib/sahiplik';
 
 // Güçlü, okunabilir geçici şifre (harf + rakam, 12 karakter)
 function genPassword(): string {
@@ -55,18 +56,23 @@ export async function POST(request: NextRequest) {
 
     const newStatus = action === 'approve' ? 'approved' : 'rejected';
 
-    // 3. Talep durumunu güncelle
+    // 3. Talep durumunu güncelle. E-posta küçük harfe çekilir: panel erişimi
+    //    Auth e-postasıyla (küçük harf) birebir eşleşir; "Ali@x.com" yazan
+    //    sahip onaylansa da paneline erişemiyordu.
+    const normalEposta = epostaNormal(claim.email);
     const { error: updateErr } = await admin
       .from('claim_requests')
-      .update({ status: newStatus })
+      .update(normalEposta && normalEposta !== claim.email ? { status: newStatus, email: normalEposta } : { status: newStatus })
       .eq('id', claimId);
 
     if (updateErr) {
       return NextResponse.json({ error: updateErr.message }, { status: 500 });
     }
 
-    // 4. Onaylandıysa → işletmeyi "claimed = true" yap
-    //    Hata yutulmaz: kolon yoksa (doktorlar'da yoktu) admin bunu görmeli.
+    // 4. "claimed" önbelleğini claim_requests'e göre yeniden hesapla (lib/sahiplik.ts).
+    //    Onayda true olur; "Onayı Kaldır"da başka onaylı erişim kalmadıysa false olur
+    //    (eskiden redde dokunulmuyordu → sahipsiz kayıt "Sahiplenildi" kalıyordu).
+    //    Hata yutulmaz: kolon yoksa admin uyarıyı görür.
     let warning: string | null = null;
     let olusturulan: { id: string; slug: string; entityType: string } | null = null;
     if (action === 'approve' && claim.entity_id === 'new') {
@@ -83,6 +89,9 @@ export async function POST(request: NextRequest) {
         claim.entity_type = y.entityType;
         olusturulan = { id: y.id, slug: y.slug, entityType: y.entityType };
         if (y.uyari) warning = y.uyari;
+        // Yeni doktor kaydı claimed'sız oluşturuluyordu (diğer türler claimed:true ile)
+        const es = await claimedEsitle(admin, y.entityType, y.id);
+        if (es.uyari) warning = [warning, es.uyari].filter(Boolean).join(' · ');
         try { revalidatePath(`/${y.tablo}`); revalidatePath('/'); revalidateTag('facets'); } catch { /* build dışı */ }
       } catch (e) {
         warning = `Talep onaylandı ama işletme kaydı oluşturulamadı: ${(e as Error).message}`;
@@ -94,11 +103,8 @@ export async function POST(request: NextRequest) {
         if (!mevcut) {
           warning = `Talep onaylandı ama bağlı işletme kaydı (${claim.entity_id}) listede yok — silinmiş olabilir. Sahibi panelde düzenleyecek kayıt bulamaz.`;
         } else {
-          const { error: claimedErr } = await admin.from(table).update({ claimed: true }).eq('id', claim.entity_id);
-          if (claimedErr) {
-            console.error('claim-action claimed update:', claimedErr.message);
-            warning = `Talep onaylandı ama işletme "sahiplenildi" olarak işaretlenemedi: ${claimedErr.message}`;
-          }
+          const es = await claimedEsitle(admin, claim.entity_type, claim.entity_id);
+          if (es.uyari) warning = `Talep onaylandı. ${es.uyari}`;
           // Doktor sahiplenince gizli iletişimi (Bobath vb.) otomatik aç — best-effort
           if (claim.entity_type === 'doktor') {
             try { await admin.from(table).update({ contact_hidden: false }).eq('id', claim.entity_id); }
@@ -106,6 +112,11 @@ export async function POST(request: NextRequest) {
           }
         }
       }
+    } else if (action === 'reject' && claim.entity_id && claim.entity_id !== 'new' && TABLE_MAP[claim.entity_type]) {
+      // Onaylı bir erişim geri alındıysa işaret yeniden hesaplanır; bekleyen bir
+      // başvurunun reddi sonucu değiştirmez (aynı hesap, zararsız).
+      const es = await claimedEsitle(admin, claim.entity_type, claim.entity_id);
+      if (es.uyari) warning = `Talep reddedildi. ${es.uyari}`;
     }
 
     // 5. Bildirim: admin "mail gönder" dediyse (notify) kullanıcıya mail at.
@@ -139,9 +150,9 @@ export async function POST(request: NextRequest) {
           // 3) Aktivasyon linkli (e-posta gömülü, şifre belirleme) markalı mail
           const aktivUrl = `https://www.hekimhane.com.tr/hesap-aktivasyon?token=${token}`;
           const html = mailShell('İşletmeniz Onaylandı',
-            `<p style="font-size:14px;color:#1c1c1e;">Merhaba <strong>${claim.claimant_name || ''}</strong>,</p>` +
-            `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${claim.entity_name}</strong> için sahiplenme talebiniz <strong style="color:#059669;">onaylandı</strong> 🎉</p>` +
-            `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;">Hesabınızı etkinleştirip <strong>şifrenizi belirlemek</strong> için butona tıklayın. E-postanız (<strong>${email}</strong>) otomatik dolu gelir; yeni şifrenizi <strong>iki kez</strong> girip doğrudan panele giriş yaparsınız.</p>` +
+            `<p style="font-size:14px;color:#1c1c1e;">Merhaba <strong>${esc(claim.claimant_name)}</strong>,</p>` +
+            `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${esc(claim.entity_name)}</strong> için sahiplenme talebiniz <strong style="color:#059669;">onaylandı</strong> 🎉</p>` +
+            `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;">Hesabınızı etkinleştirip <strong>şifrenizi belirlemek</strong> için butona tıklayın. E-postanız (<strong>${esc(email)}</strong>) otomatik dolu gelir; yeni şifrenizi <strong>iki kez</strong> girip doğrudan panele giriş yaparsınız.</p>` +
             `<p style="margin:18px 0;"><a href="${aktivUrl}" style="display:inline-block;background:#1A335E;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;">Hesabımı Etkinleştir &amp; Şifre Belirle</a></p>` +
             `<p style="font-size:12px;color:#6E6E73;line-height:1.6;">Bu bağlantı yalnızca size özeldir ve 7 gün geçerlidir. Buton çalışmazsa şu adresi tarayıcıya yapıştırın:<br><span style="color:#1A335E;word-break:break-all;">${aktivUrl}</span></p>`);
 
@@ -153,8 +164,8 @@ export async function POST(request: NextRequest) {
             to: email,
             subject: `Sahiplenme talebiniz hakkında — ${claim.entity_name}`,
             html: mailShell('Sahiplenme Talebiniz Değerlendirildi',
-              `<p style="font-size:14px;color:#1c1c1e;">Merhaba <strong>${claim.claimant_name || ''}</strong>,</p>` +
-              `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${claim.entity_name}</strong> için sahiplenme talebiniz şu an için onaylanamadı. Sorularınız için bu e-postayı yanıtlayabilirsiniz.</p>`),
+              `<p style="font-size:14px;color:#1c1c1e;">Merhaba <strong>${esc(claim.claimant_name)}</strong>,</p>` +
+              `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${esc(claim.entity_name)}</strong> için sahiplenme talebiniz şu an için onaylanamadı. Sorularınız için bu e-postayı yanıtlayabilirsiniz.</p>`),
           });
           mail = { sent: true, accountCreated: false };
         }

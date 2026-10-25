@@ -1210,9 +1210,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
         .eq('entity_id', id)
         .eq('entity_type', entityType)
         .eq('status', 'approved')
-        .eq('email', user.email)
-        .maybeSingle();
-      if (data) {
+        .eq('email', (user.email || '').toLowerCase())
+        .limit(1);   // maybeSingle aynı e-postanın iki onaylı satırında hata verip sahibi "yabancı" sayıyordu
+      if (Array.isArray(data) && data.length) {
         setIsOwner(true);
         setOwnerEditUrl('/panel');
       }
@@ -1297,7 +1297,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
   // Kamu hastanesi (Devlet/Üniversite, sahiplenilmemiş) → randevular MHRS'den; talep formu kapalı.
   // (Önceden kural yalnız hekimleri kapsıyordu; hastanelere gelen talepleri kimse aramıyordu.)
   const isKamuHastane = entityType === 'hastane' && ['Devlet', 'Üniversite'].includes(String(type || '')) && !claimed;
-  const randevuKapali = isDevletDoktor || isKamuHastane;
+  // İletişimi gizli ve SAHİPSİZ profil (ör. içe aktarılan Bobath terapisti, henüz katılmadı): talep
+  // formu da kapalı. Eskiden üstteki düğme gizleniyor ama sekme/yan kutu formu açık kalıyor, hasta
+  // bilgisi kişinin içe aktarılan e-postasına gidiyordu. Sahiplenmiş hekim iletişimini gizlese de
+  // randevu almaya devam eder. Sunucu (randevu-talebi) aynı kuralla ayrıca reddeder.
+  const katilmamisGizli = contactGizli && !claimed && !isKamuHastane && !isDevletDoktor;
+  const randevuKapali = isDevletDoktor || isKamuHastane || katilmamisGizli;
 
   const typeLabel = entityType === 'klinik'  ? (type || 'Diş Kliniği')
     : entityType === 'hastane' ? (type || 'Hastane')
@@ -2514,7 +2519,10 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 48, color: '#B45309', display: 'block', marginBottom: 16 }} />
                   <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Online Randevu Kapalı</div>
                   <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 480, margin: '0 auto' }}>
-                    {isKamuHastane ? (<>
+                    {katilmamisGizli ? (<>
+                      <strong style={{ color: 'var(--text)' }}>{name}</strong> henüz Hekimhane&apos;ye katılmadı; iletişim bilgileri gizli olduğu için
+                      bu profil üzerinden randevu talebi iletilemiyor.
+                    </>) : isKamuHastane ? (<>
                       <strong style={{ color: 'var(--text)' }}>{name}</strong> bir <strong>kamu hastanesidir</strong>. Randevular Sağlık Bakanlığı
                       <strong> MHRS</strong> (Merkezi Hekim Randevu Sistemi) üzerinden alınır; Hekimhane üzerinden randevu talebi iletilemez.
                     </>) : (<>
@@ -2523,7 +2531,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                       Randevu için hastaneyi arayın veya <strong>MHRS</strong>&apos;yi kullanın.
                     </>)}
                   </p>
-                  <MhrsDugmeleri tel={tel} />
+                  {(isKamuHastane || isDevletDoktor) && <MhrsDugmeleri tel={tel} />}
                 </>) : (<>
                   <i className="fa-regular fa-calendar-check" style={{ fontSize: 48, color: '#059669', display: 'block', marginBottom: 16 }} />
                   <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Sizi Arayalım, Randevunuzu Oluşturalım</div>
@@ -2574,11 +2582,13 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 28, color: '#B45309', display: 'block', marginBottom: 8 }} />
                   <div style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--text)' }}>Online randevu kapalı</div>
                   <p style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6, margin: '6px 0 0' }}>
-                    {isKamuHastane
+                    {katilmamisGizli
+                      ? 'Bu profil henüz Hekimhane’ye katılmadı; randevu talebi alınamıyor.'
+                      : isKamuHastane
                       ? 'Kamu hastanesi — randevular Sağlık Bakanlığı MHRS sistemi üzerinden alınır.'
                       : 'Devlet hastanesine bağlı hekim — randevu için hastaneyi arayın veya MHRS’yi kullanın.'}
                   </p>
-                  <MhrsDugmeleri tel={tel} />
+                  {(isKamuHastane || isDevletDoktor) && <MhrsDugmeleri tel={tel} />}
                 </div>
               ) : (<>
               {randevuAktif ? (
@@ -2754,7 +2764,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
       {/* Randevu modal */}
       <RandevuModal name={name} entityType={entityType} entityId={id} open={randevuModal} onClose={() => { setRandevuModal(false); setPreselectDate(''); }}
-        devlet={randevuKapali} kamuHastane={isKamuHastane} hospital={devletHospital} hospitalTel={tel}
+        devlet={isDevletDoktor || isKamuHastane} kamuHastane={isKamuHastane} hospital={devletHospital} hospitalTel={tel}
         aktif={randevuAktif} slotDk={randevuSlotDk} calismaSaatleri={calisma_saatleri} acik24={acik_24_saat} booked={bookedSlots} initialDate={preselectDate} />
 
       {/* ── Lightbox ── */}

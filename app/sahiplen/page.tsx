@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { sahiplenilmisMi } from '@/lib/sahiplik';
 import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
 import SahiplenForm from './SahiplenForm';
 import GeriDugme from './GeriDugme';
@@ -36,38 +37,18 @@ async function getEntityInfo(type: string, id: string): Promise<{ name: string; 
   const table = TABLE_MAP[type];
   if (!table) return null;
 
-  if (type === 'doktor') {
-    const { data } = await supabase.from('doktorlar').select('ad, soyad, verified').eq('id', id).single();
-    if (!data) return null;
-    const d = data as any;
-    return {
-      name:    `${d.ad || ''} ${d.soyad || ''}`.trim() || '',
-      claimed: !!d.verified,
-    };
-  }
-
-  if (type === 'eczane') {
-    // eczaneler tablosunda claimed kolonu henüz eklenmemiş olabilir — yalnızca name sorgula
-    const { data } = await supabase.from('eczaneler').select('name, claimed').eq('id', id).single();
-    if (!data) {
-      // claimed kolonu yoksa sadece name ile tekrar dene
-      const { data: d2 } = await supabase.from('eczaneler').select('name').eq('id', id).single();
-      if (!d2) return null;
-      const d = d2 as any;
-      return { name: d.name ?? '', claimed: false };
-    }
-    const d = data as any;
-    return { name: d.name ?? '', claimed: !!d.claimed };
-  }
-
-  const { data } = await supabase.from(table as 'klinikler' | 'hastaneler')
-    .select('name, claimed')
-    .eq('id', id)
-    .single();
-
+  // select('*'): claimed kolonu olmayan tabloda (eski doktorlar/eczaneler) sorgu düşmesin.
+  const { data } = await (supabase as any).from(table).select('*').eq('id', id).maybeSingle();
   if (!data) return null;
   const d = data as any;
-  return { name: d.name ?? '', claimed: !!d.claimed };
+  const name = type === 'doktor'
+    ? [d.unvan, d.ad, d.soyad].filter(Boolean).join(' ').trim()
+    : String(d.name ?? '');
+
+  // Sahiplik profil sayfasıyla AYNI kaynaktan (lib/sahiplik.ts). Doktorda
+  // eskiden verified (içe aktarılan "Onaylı") kullanılıyordu: profil
+  // "Sahiplenilmemiş" derken burası "zaten sahiplenilmiş" diyordu.
+  return { name, claimed: await sahiplenilmisMi(id, d.claimed) };
 }
 
 export default async function SahiplenPage(

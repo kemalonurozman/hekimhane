@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { claimedEsitle } from '@/lib/sahiplik';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +28,9 @@ const TABLE_MAP: Record<string, string> = {
 /**
  * Kullanıcı kendi sahiplenme başvurusunu iptal edip siler.
  * - E-postayı SESSION'dan alır; yalnızca kendi (email eşleşen) başvurusunu silebilir.
- * - Başvuru onaylıysa ilgili işletmenin claimed'ını false yapar (sahiplik serbest kalır).
+ * - Başvuru onaylıysa silindikten sonra işletmenin claimed önbelleği yeniden hesaplanır:
+ *   başka sahip kalmadıysa false olur (eskiden yönetici kendi satırını silse ya da
+ *   ikinci sahip olsa da koşulsuz false yazılıyordu).
  */
 export async function POST(request: NextRequest) {
   try {
@@ -48,18 +51,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Bu başvuruyu silme yetkiniz yok' }, { status: 403 });
     }
 
-    // Onaylı sahiplik varsa işletmeyi serbest bırak (hata olursa silmeyi engelleme)
-    if (claim.status === 'approved' && claim.entity_id && claim.entity_id !== 'new') {
-      const table = TABLE_MAP[claim.entity_type];
-      if (table) {
-        try { await admin.from(table).update({ claimed: false }).eq('id', claim.entity_id); } catch { /* geç */ }
-      }
-    }
-
     const { error: dErr } = await admin.from('claim_requests').delete().eq('id', claimId);
     if (dErr) {
       console.error('delete-claim error:', dErr.message);
       return NextResponse.json({ error: 'Başvuru silinemedi' }, { status: 500 });
+    }
+
+    // Onaylı erişim silindiyse "claimed" önbelleğini yeniden hesapla (hata silmeyi engellemez)
+    if (claim.status === 'approved' && claim.entity_id && claim.entity_id !== 'new' && TABLE_MAP[claim.entity_type]) {
+      await claimedEsitle(admin, claim.entity_type, claim.entity_id);
     }
     return NextResponse.json({ success: true });
   } catch (e) {

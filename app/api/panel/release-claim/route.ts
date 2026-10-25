@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { yoneticiMi } from '@/lib/yonetici';
+import { claimedEsitle, epostaNormal } from '@/lib/sahiplik';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
       .select('id, entity_type, entity_id, email, status, role')
       .eq('id', claimId).single();
     const c = claim as { id: string; entity_type: string; entity_id: string | null; email: string | null; status: string; role: string | null } | null;
-    if (!c || c.email !== session.user.email || c.status !== 'approved') {
+    if (!c || epostaNormal(c.email) !== epostaNormal(session.user.email) || c.status !== 'approved') {
       return NextResponse.json({ error: 'Bu işletmenin sahipliğini bırakma yetkiniz yok' }, { status: 403 });
     }
 
@@ -55,16 +56,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, yonetici: true });
     }
 
-    // 3. Entity'yi sahiplenilmemiş yap (premium + online randevu da kapanır)
+    // 3. Claim kaydını sil — sahiplik bırakılır (kullanıcı dilerse yeniden sahiplenebilir)
+    await admin.from('claim_requests').delete().eq('id', claimId);
+
+    // 4. "claimed" önbelleğini yeniden hesapla (lib/sahiplik.ts). Yalnız SON sahip
+    //    ayrıldıysa premium + online randevu kapanır — eskiden başka sahip kalsa da
+    //    claimed=false/premium=false yazılıyordu; claimed kolonu olmayan tabloda
+    //    (doktorlar) birleşik update tümden düşüp premium da kapanmıyordu.
     const table = TABLE_MAP[c.entity_type];
     if (table && c.entity_id && c.entity_id !== 'new') {
-      await (admin as any).from(table).update({ claimed: false, premium: false }).eq('id', c.entity_id);
-      // randevu_aktif kolonu yoksa akış bozulmasın — best-effort
-      try { await (admin as any).from(table).update({ randevu_aktif: false }).eq('id', c.entity_id); } catch { /* kolon yok */ }
+      // Karar kolonun yazılabilmesine değil claim_requests'e bağlı (kolon yoksa da kapanır)
+      const { sahipVar } = await claimedEsitle(admin, c.entity_type, c.entity_id);
+      if (sahipVar === false) {
+        await (admin as any).from(table).update({ premium: false }).eq('id', c.entity_id);
+        // randevu_aktif kolonu yoksa akış bozulmasın — best-effort (hata döner, fırlatmaz)
+        await (admin as any).from(table).update({ randevu_aktif: false }).eq('id', c.entity_id);
+      }
     }
-
-    // 4. Claim kaydını sil — sahiplik tamamen bırakılır (kullanıcı dilerse yeniden sahiplenebilir)
-    await admin.from('claim_requests').delete().eq('id', claimId);
 
     // 5. Cache tazele — liste + profil "sahiplenilmemiş" olarak görünsün
     const basePath = PATH_MAP[c.entity_type];

@@ -99,7 +99,7 @@ interface ClaimRequest {
   entity_type: string;
   entity_name: string;
   entity_id: string | null;
-  status: 'pending' | 'approved' | 'rejected' | 'asistan';
+  status: 'pending' | 'dispute' | 'approved' | 'rejected' | 'asistan';
   created_at: string;
   ad_soyad: string;
   email: string;
@@ -182,6 +182,7 @@ function ProBadge() {
 function Badge({ status }: { status: string }) {
   const map: Record<string, { label: string; bg: string; color: string; border: string }> = {
     pending:  { label: 'İncelemede', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
+    dispute:  { label: 'İtiraz inceleniyor', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
     approved: { label: 'Onaylandı',  bg: '#F0FDF4', color: '#166534', border: '#86EFAC' },
     rejected: { label: 'Reddedildi', bg: '#FEF2F2', color: '#991B1B', border: '#FCA5A5' },
   };
@@ -504,7 +505,7 @@ export default function PanelPage() {
     setAktifId(id); setEditListe(false);
     try { localStorage.setItem('hk_panel_aktif', id); } catch {}
   };
-  const pendingClaims  = claims.filter(c => c.status === 'pending');
+  const pendingClaims  = claims.filter(c => c.status === 'pending' || c.status === 'dispute');
 
   const navItems = [
     { key: 'dashboard'  as const, label: 'Genel Bakış',       icon: 'dashboard' },
@@ -1455,13 +1456,21 @@ function NewClaimTab({ user, onSuccess }: { user: User | null; onSuccess: () => 
 
     let results: SuggEntity[] = [];
     if (typeVal === 'doktor') {
-      const { data } = await (supabase as any).from('doktorlar')
-        .select('id, ad, soyad, il, ilce, verified')
-        .or(`ad.ilike.%${q}%,soyad.ilike.%${q}%`)
-        .limit(8);
+      // Tam ad ("Osman Alper Arslan") da bulunsun: her kelime ad VEYA soyadda geçmeli.
+      // PostgREST or() sözdizimini bozan karakterler atılır.
+      const kelimeler = q.replace(/[,()%*\\]/g, ' ').split(/\s+/).filter(Boolean).slice(0, 4);
+      const doktorAra = (kolonlar: string) => {
+        let dq = (supabase as any).from('doktorlar').select(kolonlar);
+        for (const k of kelimeler) dq = dq.or(`ad.ilike.%${k}%,soyad.ilike.%${k}%`);
+        return dq.limit(8);
+      };
+      // Sahiplik claimed önbelleğinden (verified = içe aktarılan "Onaylı", sahiplik değil).
+      // Kolon yoksa claimed'sız tekrar dene; asıl karar zaten /api/claim'de sunucuda.
+      let { data, error } = await doktorAra('id, ad, soyad, il, ilce, claimed');
+      if (error) ({ data } = await doktorAra('id, ad, soyad, il, ilce'));
       results = (data || []).map((d: any) => ({
         id: d.id, name: `${d.ad || ''} ${d.soyad || ''}`.trim(),
-        il: d.il, ilce: d.ilce, claimed: !!d.verified,
+        il: d.il, ilce: d.ilce, claimed: d.claimed === true,
       }));
     } else {
       const { data } = await (supabase as any).from(table)
@@ -1542,7 +1551,8 @@ function NewClaimTab({ user, onSuccess }: { user: User | null; onSuccess: () => 
           claimant_name: form.ad_soyad.trim(),
           phone:         form.tel.trim(),
           email:         form.email.trim(),
-          role:          [form.unvan.trim() || null, form.mesaj || null, selectedEntity.claimed ? 'SAHİPLENME İTİRAZI' : 'SAHİPLENME TALEBİ'].filter(Boolean).join(' | ') || null,
+          // İtiraz mı normal başvuru mu kararını /api/claim sunucuda verir (status yok sayılır)
+          role:          [form.unvan.trim() || null, form.mesaj || null].filter(Boolean).join(' | ') || null,
           status:        selectedEntity.claimed ? 'dispute' : 'pending',
         }
       : {
@@ -4956,10 +4966,13 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                 {et==='eczane' && ilBox}
               </div>
 
-              <div><label style={LBL}>Adres</label>
+              {/* Doktorlar tablosunda adres kolonu yok: kutu doktorda görünüp yazılanı sessizce
+                  atıyor, yine de "başarıyla güncellendi" diyordu. Doktor profili konum olarak
+                  çalıştığı kurumu gösterir (aşağıdaki "Çalıştığı Klinik / Hastane"). */}
+              {et!=='doktor' && <div><label style={LBL}>Adres</label>
                 <input value={String(formData.adres||formData.address||'')} placeholder="Sokak, bina no, kat..." style={INP}
                   onChange={e=>F(et==='eczane'?'address':'adres',e.target.value)} onFocus={onF} onBlur={offF}/>
-              </div>
+              </div>}
 
               <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                 <div><label style={LBL}>Telefon</label><input type="tel" value={String(formData.tel||'')} placeholder="05xx xxx xx xx" style={INP} onChange={e=>F('tel',e.target.value)} onFocus={onF} onBlur={offF}/></div>

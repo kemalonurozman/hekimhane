@@ -41,7 +41,8 @@ export async function GET(request: NextRequest) {
       admin.from('eczaneler').select('*', { count: 'exact', head: true }),
       admin.from('klinikler').select('*', { count: 'exact', head: true }).eq('claimed', true),
       admin.from('hastaneler').select('*', { count: 'exact', head: true }).eq('claimed', true),
-      admin.from('claim_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+      // Bekleyen = yeni başvuru + itiraz (dispute eskiden hiçbir sayaca girmiyordu)
+      admin.from('claim_requests').select('*', { count: 'exact', head: true }).in('status', ['pending', 'dispute']),
       admin.from('claim_requests').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
       admin.from('claim_requests').select('*', { count: 'exact', head: true }).eq('status', 'rejected'),
       admin.from('claim_requests').select('id,entity_type,entity_name,claimant_name,ad_soyad,email,status,created_at')

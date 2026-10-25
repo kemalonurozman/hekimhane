@@ -338,9 +338,10 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
             <div>
               <h2>Bu işletme zaten sahiplenilmiş</h2>
               <p>
-                <strong>{entityName}</strong> başka bir kullanıcı tarafından sahiplenilmiş.
-                Eğer bu işletmenin gerçek sahibi sizseniz, mevcut sahipliğe itiraz eden bir talep gönderebilirsiniz.
-                Ekibimiz her iki tarafla iletişime geçerek doğrulama yapacaktır.
+                <strong>{entityName}</strong> profili onaylı bir hesap tarafından yönetiliyor.
+                Bu profil size aitse ve yöneten hesap sizin değilse itiraz talebi gönderebilirsiniz.
+                Ekibimiz belgeleri inceler, gerekirse profili yöneten hesapla da iletişime geçer.
+                Profili zaten siz yönetiyorsanız panelden giriş yapmanız yeterli.
               </p>
             </div>
           </div>
@@ -349,7 +350,7 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
             <h3>İtiraz süreci</h3>
             {[
               'İtiraz talebinizi gönderin',
-              'Ekibimiz her iki tarafla iletişime geçer',
+              'Ekibimiz başvurunuzu ve mevcut kaydı inceler',
               'Belgeler incelenerek doğrulama yapılır',
               'Sonuç e-posta ile bildirilir (çoğunlukla birkaç saat, en geç 24 saat)',
             ].map((t, i) => (

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { sahipEpostasi } from '@/lib/yonetici';
+import { sahiplenilmisMi } from '@/lib/sahiplik';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir, satirTel } from '@/lib/email';
 import { isletmeBilgisi, profilSatiri } from '@/lib/entity-link';
@@ -208,14 +209,22 @@ export async function POST(req: NextRequest) {
     const MHRS_MESAJ = 'Bu kurum kamu hastanesidir; randevular MHRS (mhrs.gov.tr veya ALO 182) üzerinden alınır.';
     try {
       if (entity_type === 'hastane') {
-        const { data: hs } = await (admin as any).from('hastaneler').select('type,claimed').eq('id', String(entity_id)).maybeSingle();
-        if (hs && ['Devlet', 'Üniversite'].includes(String(hs.type || '')) && !hs.claimed) {
+        // select('*') + sahiplenilmisMi: profil sayfasıyla aynı sahiplik kaynağı (lib/sahiplik.ts)
+        const { data: hs } = await (admin as any).from('hastaneler').select('*').eq('id', String(entity_id)).maybeSingle();
+        if (hs && ['Devlet', 'Üniversite'].includes(String(hs.type || '')) && !(await sahiplenilmisMi(String(entity_id), hs.claimed))) {
           return NextResponse.json({ error: MHRS_MESAJ }, { status: 400 });
         }
       } else if (entity_type === 'doktor') {
-        const { data: dk } = await (admin as any).from('doktorlar').select('tags').eq('id', String(entity_id)).maybeSingle();
+        // select('*'): contact_hidden kolonu olmayan şemada sorgu düşüp kontrol atlanmasın
+        const { data: dk } = await (admin as any).from('doktorlar').select('*').eq('id', String(entity_id)).maybeSingle();
         if (dk && Array.isArray(dk.tags) && dk.tags.includes('devlet-dis-hastanesi')) {
           return NextResponse.json({ error: MHRS_MESAJ }, { status: 400 });
+        }
+        // İletişimi gizli ve SAHİPSİZ profil (içe aktarılan, henüz katılmamış kişi): hasta
+        // bilgisi kişinin içe aktarılan e-postasına gitmesin. Sahiplenmiş hekim iletişimini
+        // gizlese de talep almaya devam eder (profil ile aynı kural).
+        if (dk && dk.contact_hidden === true && !(await sahiplenilmisMi(String(entity_id), dk.claimed))) {
+          return NextResponse.json({ error: 'Bu hekim henüz Hekimhane\'ye katılmadı; bu profil üzerinden randevu talebi iletilemiyor.' }, { status: 400 });
         }
       }
     } catch { /* kontrol yapılamazsa talebi engelleme */ }

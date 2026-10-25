@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
+import { sahiplikIstemcisi } from '@/lib/sahiplik';
+import { yoneticiMi } from '@/lib/yonetici';
 import KategoriKartlari from '@/components/KategoriKartlari';
 import HeroAnimated from '@/components/HeroAnimated';
 import SekmeliVitrin, { type VitrinSekme } from '@/components/vitrin/SekmeliVitrin';
@@ -79,10 +81,15 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
     ]);
     // Adaylar: Pro üyeler + sahibi tarafından yönetilen profiller. Puan canlı hesaplanır
     // (kolon/migration'a bağlı değil) ve ziyaretçiye gösterilmez. Sahiplik: klinikte `claimed`, doktorda
-    // onaylı claim kaydı (doktorlar tablosunda claimed kolonu yok).
-    const { data: dClaims } = await (supabase as any).from('claim_requests')
-      .select('entity_id').eq('entity_type', 'doktor').eq('status', 'approved').limit(200);
-    const dIds = Array.from(new Set(((dClaims || []) as any[]).map(c => String(c.entity_id))));
+    // onaylı sahip kaydı (doktorlar.claimed canlıda olmayabilir). claim_requests anon istemciye RLS
+    // yüzünden BOŞ döner → service-role ile okunur (eskiden sahipli doktorlar vitrine hiç giremiyordu).
+    let dClaims: any[] = [];
+    try {
+      const { data } = await (sahiplikIstemcisi() as any).from('claim_requests')
+        .select('entity_id,role').eq('entity_type', 'doktor').eq('status', 'approved').limit(300);
+      dClaims = ((data || []) as any[]).filter(c => !yoneticiMi(c.role));
+    } catch { /* service-role yoksa vitrin yalnız Pro doktorlarla devam eder */ }
+    const dIds = Array.from(new Set(dClaims.map(c => String(c.entity_id)))).slice(0, 200);
     const [kpRes, dpRes] = await Promise.all([
       (supabase as any).from('klinikler').select('*').eq('claimed', true).order('updated_at', { ascending: false }).limit(60),
       dIds.length
