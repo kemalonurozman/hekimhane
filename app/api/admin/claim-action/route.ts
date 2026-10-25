@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
         // Yeni doktor kaydı claimed'sız oluşturuluyordu (diğer türler claimed:true ile)
         const es = await claimedEsitle(admin, y.entityType, y.id);
         if (es.uyari) warning = [warning, es.uyari].filter(Boolean).join(' · ');
-        // İlk 100 işletmeye ücretsiz Pro (lib/erken-uye.ts)
+        // İlk 150 işletmeye ücretsiz Pro (lib/erken-uye.ts)
         if (sahipOnayi) erken = await erkenUyeProVer(admin, { entityType: y.entityType, entityId: y.id, entityName: claim.entity_name, email: normalEposta });
         try { revalidatePath(`/${y.tablo}`); revalidatePath('/'); revalidateTag('facets'); } catch { /* build dışı */ }
       } catch (e) {
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
         } else {
           const es = await claimedEsitle(admin, claim.entity_type, claim.entity_id);
           if (es.uyari) warning = `Talep onaylandı. ${es.uyari}`;
-          // İlk 100 işletmeye ücretsiz Pro (lib/erken-uye.ts) — yalnız gerçekten sahip varsa
+          // İlk 150 işletmeye ücretsiz Pro (lib/erken-uye.ts) — yalnız gerçekten sahip varsa
           if (sahipOnayi && es.sahipVar !== false) erken = await erkenUyeProVer(admin, { entityType: claim.entity_type, entityId: claim.entity_id, entityName: claim.entity_name, email: normalEposta });
           // Doktor sahiplenince gizli iletişimi (Bobath vb.) otomatik aç — best-effort
           if (claim.entity_type === 'doktor') {

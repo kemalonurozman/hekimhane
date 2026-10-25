@@ -9,7 +9,7 @@
 // ─────────────────────────────────────────────────────────────────
 
 /** Otomatik ücretsiz Pro verilecek işletme sayısı. */
-export const ERKEN_UYE_KOTA = 100;
+export const ERKEN_UYE_KOTA = 150;
 
 /** Pro ile açılan, gerçekten var olan özellikler (panel + e-posta aynı liste). */
 export const ERKEN_UYE_OZELLIKLER: { baslik: string; aciklama: string }[] = [

@@ -2,7 +2,7 @@
 //  İlk kullanıcılara ücretsiz Pro — SUNUCU (Eki 2026).
 //  Sahiplenme onayı (/api/admin/claim-action) ve admin sahiplik ataması
 //  (/api/admin/sahiplik) sahibi olan işletmeyi bununla Pro'ya geçirir.
-//  Kural: ilk ERKEN_UYE_KOTA (100) işletme; işletme başına bir kez; zaten
+//  Kural: ilk ERKEN_UYE_KOTA (150) işletme; işletme başına bir kez; zaten
 //  Pro olan (ör. Stripe ile ödeyen) işletmeye dokunulmaz. Stripe kaydı
 //  açılmaz → admin Premium listesinde "elle açılmış premium" olarak görünür.
 //  Migration: supabase/migrations/2026-10-25_erken_uye_pro.sql
@@ -21,7 +21,7 @@ export type ErkenUyeSonuc = {
   kayitli: boolean;
   sira: number | null;
   kalan: number | null;
-  /** Admin'e gösterilecek kısa not ("Ücretsiz Pro verildi (3/100)" vb.) */
+  /** Admin'e gösterilecek kısa not ("Ücretsiz Pro verildi (3/150)" vb.) */
   not: string | null;
   uyari: string | null;
 };

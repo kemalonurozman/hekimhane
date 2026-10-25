@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { unstable_noStore as noStore } from 'next/cache';
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 import { sahiplikIstemcisi } from '@/lib/sahiplik';
 import { yoneticiMi } from '@/lib/yonetici';
 import KategoriKartlari from '@/components/KategoriKartlari';
 import HeroAnimated from '@/components/HeroAnimated';
+import ErkenUyeKampanya from '@/components/ErkenUyeKampanya';
 import SekmeliVitrin, { type VitrinSekme } from '@/components/vitrin/SekmeliVitrin';
 import AracVitrini, { type Arac } from '@/components/vitrin/AracVitrini';
 import NoktaGrafik from '@/components/vitrin/NoktaGrafik';
@@ -28,6 +29,21 @@ export const metadata: Metadata = {
     type: 'website',
   },
 };
+
+// İlk ERKEN_UYE_KOTA (150) işletmeye ücretsiz Pro — dolan kontenjan (erken_uye_pro, yalnız service-role okur).
+// Tablo yoksa ya da okunamazsa null → bant gösterilmez: o durumda Pro verilmiyor,
+// vaat edilmemeli (lib/erken-uye.ts fail-closed).
+async function getErkenUyeKullanilan(): Promise<number | null> {
+  noStore();
+  try {
+    const { count, error } = await (supabaseAdmin() as any).from('erken_uye_pro')
+      .select('id', { count: 'exact', head: true }).eq('kaynak', 'otomatik');
+    if (error) return null;
+    return count || 0;
+  } catch {
+    return null;
+  }
+}
 
 async function getStats() {
   try {
@@ -201,7 +217,7 @@ function IconArrow() {
 }
 
 export default async function HomePage() {
-  const [stats, oneCikanlar, premiumler] = await Promise.all([getStats(), getOneCikanMakaleler(), getOneCikanPremium()]);
+  const [stats, oneCikanlar, premiumler, erkenUyeKullanilan] = await Promise.all([getStats(), getOneCikanMakaleler(), getOneCikanPremium(), getErkenUyeKullanilan()]);
 
   const BASE = 'https://www.hekimhane.com.tr';
   const homeJsonLd = {
@@ -269,6 +285,9 @@ export default async function HomePage() {
 
       {/* Not: Ayrı "Şikayetinizi Anlatın" ve "Hekimhane AI" arama bölümleri kaldırıldı;
           tek arama hero'da (yazı + hızlı filtre butonları) toplandı. */}
+
+      {/* ── İLK 150 İŞLETMEYE ÜCRETSİZ PRO — hero ile vitrin arasındaki geçiş ── */}
+      {erkenUyeKullanilan !== null && <ErkenUyeKampanya kullanilan={erkenUyeKullanilan} />}
 
       {/* ── KOYU SEKMELİ VİTRİN — hareketli, her sekme kendi renginde ── */}
       <SekmeliVitrin sekmeler={SEKMELER} />

@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
   // "claimed" önbelleğini yeniden hesapla (claim onayıyla aynı davranış, lib/sahiplik.ts).
   // supabase-js hata fırlatmaz → eskiden try/catch hatayı hiç görmüyordu.
   const { uyari: esUyari, sahipVar } = await claimedEsitle(db, tip, eid);
-  // İlk 100 işletmeye ücretsiz Pro (lib/erken-uye.ts) — admin ataması da sahipliktir
+  // İlk 150 işletmeye ücretsiz Pro (lib/erken-uye.ts) — admin ataması da sahipliktir
   const erken = sahipVar !== false
     ? await erkenUyeProVer(db, { entityType: tip, entityId: eid, entityName: isletme, email: hedef })
     : null;
