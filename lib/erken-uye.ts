@@ -9,7 +9,8 @@
 //  Yoksa hiçbir şey verilmez (fail-closed) ve admin'e uyarı döner.
 // ─────────────────────────────────────────────────────────────────
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { ERKEN_UYE_BASLANGIC, ERKEN_UYE_KOTA, ERKEN_UYE_METIN, ERKEN_UYE_OZELLIKLER } from '@/lib/erken-uye-metin';
+import { ERKEN_UYE_KOTA, ERKEN_UYE_METIN, ERKEN_UYE_OZELLIKLER } from '@/lib/erken-uye-metin';
+import { kontenjanOku } from '@/lib/erken-uye-sayac';
 import { esc } from '@/lib/email';
 
 const TABLO: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
@@ -54,11 +55,10 @@ export async function erkenUyeProVer(
     if (ent.premium === true) return { ...bos, not: 'İşletme zaten Pro; ücretsiz Pro kotası kullanılmadı.' };
 
     // 3) Kota
-    const { count, error: e2 } = await d.from('erken_uye_pro')
-      .select('id', { count: 'exact', head: true }).eq('kaynak', 'otomatik');
-    if (e2) return { ...bos, uyari: `Ücretsiz Pro kotası okunamadı: ${e2.message}` };
-    // Sayaç sistem öncesi sahiplenmelerle (ERKEN_UYE_BASLANGIC) başlar — bantla aynı hesap.
-    const kullanilan = ERKEN_UYE_BASLANGIC + (count || 0);
+    // Ana sayfa bandıyla aynı hesap: başlangıç dolgusu + gerçek kayıtlar + kayıtsız geçen günler.
+    const { hata: e2, sonuc: kont } = await kontenjanOku(db);
+    if (e2 || !kont) return { ...bos, uyari: `Ücretsiz Pro kotası okunamadı: ${e2}` };
+    const kullanilan = kont.dolu;
     if (kullanilan >= ERKEN_UYE_KOTA) return { ...bos, kalan: 0, not: `İlk ${ERKEN_UYE_KOTA} üye kotası doldu; ücretsiz Pro verilmedi.` };
 
     // 4) Önce kayıt (benzersiz indeks çift vermeyi engeller), sonra premium

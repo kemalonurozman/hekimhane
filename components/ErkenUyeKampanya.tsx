@@ -2,14 +2,15 @@
 //  Ana sayfa — "İlk ERKEN_UYE_KOTA işletmeye ücretsiz Pro" bandı (Eki 2026).
 //  Hero ile koyu vitrin arasındaki geçişte durur. Kontenjan ERKEN_UYE_KOTA noktalık
 //  bir ızgarada gösterilir: dolu noktalar verilen Pro'lar, nabız atan nokta
-//  sıradaki yer. Sayı sunucudan canlı gelir (erken_uye_pro, kaynak='otomatik').
+//  sıradaki yer. Sayı sunucudan canlı gelir: lib/erken-uye-sayac.ts (başlangıç
+//  dolgusu + gerçek kayıtlar + kayıtsız geçen her gün kapanan bir yer).
 //
 //  Vaat sınırı (lib/erken-uye-metin.ts ile aynı): süre yazılmaz, sıralama /
 //  görünürlük vaadi yazılmaz; yalnız gerçekten açılan Pro özellikleri sayılır.
 //  Hook yok → server bileşeni.
 // ─────────────────────────────────────────────────────────────────
 import Link from 'next/link';
-import { ERKEN_UYE_BASLANGIC, ERKEN_UYE_KOTA, ERKEN_UYE_OZELLIKLER } from '@/lib/erken-uye-metin';
+import { ERKEN_UYE_KOTA, ERKEN_UYE_OZELLIKLER } from '@/lib/erken-uye-metin';
 
 const CSS = `
 .euk-bant{background:linear-gradient(180deg,#FBFBFD 0%,#F2F4F8 100%);padding:8px 0 56px}
@@ -54,9 +55,9 @@ const Tik = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
 );
 
-export default function ErkenUyeKampanya({ kullanilan }: { kullanilan: number }) {
-  // Noktalar ERKEN_UYE_BASLANGIC'tan başlar (sistem öncesi sahiplenmeler tabloda yok).
-  const dolu = Math.min(ERKEN_UYE_KOTA, ERKEN_UYE_BASLANGIC + Math.max(0, kullanilan));
+export default function ErkenUyeKampanya({ dolu: doluHam }: { dolu: number }) {
+  // dolu: lib/erken-uye-sayac.ts → kontenjanHesapla (başlangıç + gerçek kayıt + kayıtsız günler).
+  const dolu = Math.min(ERKEN_UYE_KOTA, Math.max(0, doluHam));
   const kalan = ERKEN_UYE_KOTA - dolu;
   if (kalan <= 0) return null;
 
@@ -101,7 +102,7 @@ export default function ErkenUyeKampanya({ kullanilan }: { kullanilan: number })
               <span className="euk-lejant"><b style={{ background: 'linear-gradient(135deg,#F3DFA8,#C9A04A)' }} />Dolu: {dolu}</span>
               <span className="euk-lejant"><b style={{ border: '1.5px solid #DEC283' }} />Sıradaki yer sizin olabilir</span>
             </div>
-            <p className="euk-not">Kontenjan, sahipliği onaylanan ilk {ERKEN_UYE_KOTA} işletmeyle dolar. Sayı canlıdır.</p>
+            <p className="euk-not">Kontenjan onaylanan başvurularla dolar; başvuru onaylanmayan her gün de bir yer kapanır. Sayı canlıdır.</p>
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { yoneticiMi } from '@/lib/yonetici';
 import KategoriKartlari from '@/components/KategoriKartlari';
 import HeroAnimated from '@/components/HeroAnimated';
 import ErkenUyeKampanya from '@/components/ErkenUyeKampanya';
+import { kontenjanOku } from '@/lib/erken-uye-sayac';
 import SekmeliVitrin, { type VitrinSekme } from '@/components/vitrin/SekmeliVitrin';
 import AracVitrini, { type Arac } from '@/components/vitrin/AracVitrini';
 import NoktaGrafik from '@/components/vitrin/NoktaGrafik';
@@ -31,15 +32,15 @@ export const metadata: Metadata = {
 };
 
 // İlk ERKEN_UYE_KOTA (150) işletmeye ücretsiz Pro — dolan kontenjan (erken_uye_pro, yalnız service-role okur).
+// Hesap lib/erken-uye-sayac.ts'te (başlangıç dolgusu + gerçek kayıt + kayıtsız geçen günler) —
+// erkenUyeProVer ile aynı, böylece bantta görünen "kalan" gerçekten verilecek yer sayısıdır.
 // Tablo yoksa ya da okunamazsa null → bant gösterilmez: o durumda Pro verilmiyor,
 // vaat edilmemeli (lib/erken-uye.ts fail-closed).
-async function getErkenUyeKullanilan(): Promise<number | null> {
+async function getErkenUyeDolu(): Promise<number | null> {
   noStore();
   try {
-    const { count, error } = await (supabaseAdmin() as any).from('erken_uye_pro')
-      .select('id', { count: 'exact', head: true }).eq('kaynak', 'otomatik');
-    if (error) return null;
-    return count || 0;
+    const { sonuc } = await kontenjanOku(supabaseAdmin() as any);
+    return sonuc ? sonuc.dolu : null;
   } catch {
     return null;
   }
@@ -217,7 +218,7 @@ function IconArrow() {
 }
 
 export default async function HomePage() {
-  const [stats, oneCikanlar, premiumler, erkenUyeKullanilan] = await Promise.all([getStats(), getOneCikanMakaleler(), getOneCikanPremium(), getErkenUyeKullanilan()]);
+  const [stats, oneCikanlar, premiumler, erkenUyeDolu] = await Promise.all([getStats(), getOneCikanMakaleler(), getOneCikanPremium(), getErkenUyeDolu()]);
 
   const BASE = 'https://www.hekimhane.com.tr';
   const homeJsonLd = {
@@ -287,7 +288,7 @@ export default async function HomePage() {
           tek arama hero'da (yazı + hızlı filtre butonları) toplandı. */}
 
       {/* ── İLK 150 İŞLETMEYE ÜCRETSİZ PRO — hero ile vitrin arasındaki geçiş ── */}
-      {erkenUyeKullanilan !== null && <ErkenUyeKampanya kullanilan={erkenUyeKullanilan} />}
+      {erkenUyeDolu !== null && <ErkenUyeKampanya dolu={erkenUyeDolu} />}
 
       {/* ── KOYU SEKMELİ VİTRİN — hareketli, her sekme kendi renginde ── */}
       <SekmeliVitrin sekmeler={SEKMELER} />

@@ -20,6 +20,12 @@ export const ERKEN_UYE_KOTA = 150;
  */
 export const ERKEN_UYE_BASLANGIC = 52;
 
+/**
+ * Günlük azalmanın başladığı Türkiye takvim günü. Bu günden itibaren gerçek
+ * kayıt olmadan biten her gün kontenjandan bir yer kapatır (lib/erken-uye-sayac.ts).
+ */
+export const ERKEN_UYE_SAYAC_TARIH = '2026-10-26';
+
 /** Pro ile açılan, gerçekten var olan özellikler (panel + e-posta aynı liste). */
 export const ERKEN_UYE_OZELLIKLER: { baslik: string; aciklama: string }[] = [
   { baslik: 'Randevu takvimi', aciklama: 'Çalışma saatlerinize göre online randevu alın; talepleri takvimde yönetin.' },
