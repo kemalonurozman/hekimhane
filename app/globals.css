@@ -1289,7 +1289,6 @@ select.kf-in option { color: #0E1A2C; font-weight: 500; }
 /* Pro üye kartları — hastalık/tedavi sayfalarının altındaki kompakt bölüm (components/PremiumHekimler.tsx) */
 .pk-bolum { margin-bottom: 24px; }
 .pk-ust { background: linear-gradient(135deg,#FBF4DD,#FDF9EE); border: 1px solid #E9CE7E; border-radius: 14px; padding: 14px 16px; }
-.pk-etiket { display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: #8A6A16; background: rgba(255,255,255,.7); border: 1px solid #E9CE7E; border-radius: 20px; padding: 3px 10px; margin-bottom: 8px; }
 .pk-baslik { font-size: 16px; font-weight: 800; color: var(--navy); margin: 0 0 4px; letter-spacing: -.2px; }
 .pk-aciklama { font-size: 12.5px; color: #6B5B2E; line-height: 1.55; margin: 0; }
 .pk-izgara { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 10px; margin-top: 10px; }

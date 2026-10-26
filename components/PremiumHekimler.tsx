@@ -10,11 +10,11 @@ import { urlParca } from '@/lib/entity-link';
  * Hastalık/tedavi sayfalarının altındaki "bu alanda hizmet veren Pro üyeler" bölümü.
  *
  * Yasal çerçeve (Eki 2026): sitede hiçbir hekim "önerilen / tavsiye edilen" diye
- * sunulmaz. Bu bölüm yalnız **profilinde sayfanın uzmanlığını belirten** Hekimhane
- * Pro üyesi klinikleri listeler; başlık ve açıklama bunun bir öneri ya da nitelik
- * değerlendirmesi olmadığını söyler. Uzmanlığı eşleşen üye yoksa başlık genel olur
- * ("Hekimhane Pro üyesi diş hekimleri") — eşleşmeyen klinik, eşleşiyormuş gibi
- * gösterilmez. Pro üye hiç yoksa bölüm hiç çizilmez.
+ * sunulmaz. Bu bölüm yalnız **profilinde sayfanın uzmanlığını belirten** Pro üyesi
+ * klinikleri listeler (Pro etiketi ziyaretçiye gösterilmez); açıklama tek cümle:
+ * liste bir öneri ya da nitelik değerlendirmesi değildir. Uzmanlığı eşleşen üye yoksa
+ * başlık genel olur ("Hekimhane'de hizmet veren diş hekimleri") — eşleşmeyen klinik,
+ * eşleşiyormuş gibi gösterilmez. Pro üye hiç yoksa bölüm hiç çizilmez.
  */
 export default async function PremiumHekimler({ uzmanlik, limit = 3 }: { uzmanlik?: string; limit?: number }) {
   let klinikler: Klinik[] = [];
@@ -41,21 +41,15 @@ export default async function PremiumHekimler({ uzmanlik, limit = 3 }: { uzmanli
   const genelDis = /^diş hekimliği$/i.test((uzmanlik || '').trim());
   const baslik = eslesenler.length
     ? (genelDis ? 'Bu konuda hizmet veren diş hekimleri' : `${uzmanlik} alanında hizmet veren diş hekimleri`)
-    : 'Hekimhane Pro üyesi diş hekimleri';
-  const aciklama = eslesenler.length
-    ? (genelDis
-        ? 'Profilinde diş hekimliği hizmetlerini belirten Hekimhane Pro üyesi klinikler.'
-        : `Profilinde ${uzmanlik} uzmanlığını belirten Hekimhane Pro üyesi klinikler.`)
-    : 'Hekimhane Pro üyesi diş klinikleri.';
+    : 'Hekimhane\'de hizmet veren diş hekimleri';
 
   return (
     <section className="pk-bolum" aria-label={baslik}>
       <div className="pk-ust">
-        <span className="pk-etiket">Hekimhane Pro üyeleri</span>
         <h2 className="pk-baslik">{baslik}</h2>
         <p className="pk-aciklama">
-          {aciklama} Liste bir öneri, tavsiye ya da nitelik değerlendirmesi değildir; profilden telefon veya randevu
-          ile iletişime geçebilirsiniz.
+          Liste bir öneri, tavsiye ya da nitelik değerlendirmesi değildir; profilden telefon veya randevu ile
+          iletişime geçebilirsiniz.
         </p>
       </div>
       <div className="pk-izgara">
