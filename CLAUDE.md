@@ -782,6 +782,7 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Panel:** Stripe aboneliği olmayan erken üyede "Aboneliği Yönet · İptal" yerine **"Ücretsiz Pro · İlk kullanıcılara özel"** rozeti (Genel Bakış + Hesabım; portal açılmaya çalışılmaz).
 - **E-posta:** onay maili yeniden yazıldı (emoji yok, `replyTo` info@); Pro verildiyse `erkenUyeMailBolumu()` altın kutusu + konu satırına ek. Admin atama mailleri de aynı bölümü alır. `notify=false` onayda mail gitmez ama Pro + pencere yine çalışır.
 - **Admin:** claim-action / sahiplik yanıtında `erkenUye {verildi, sira, kalan, not}` → toast'ta "Ücretsiz Pro verildi (3/100, kalan 97)". Admin Premium listesinde bunlar "elle açılmış premium" olarak görünür; kapatmak = "Premium'u Kapat".
+- **Başlangıç dolgusu 92 (2026-10-26):** sistem öncesi sahiplenmeler tabloda olmadığı için sayaç `ERKEN_UYE_BASLANGIC` (92) + `kaynak='otomatik'` satırları sayar — bant noktaları, kota kontrolü ve `sira` aynı hesap. Otomatik verilecek yer = 150 − 92 = 58.
 - **Bilinen sınır:** son sahip `release-claim` ile ayrılınca premium kapanır; kayıt kaldığı için aynı işletmenin yeni sahibi tekrar ücretsiz Pro almaz (gerekirse admin elle açar). Test: sahte PostgREST ile 10 senaryo (ilk/tekrar/zaten Pro/kayıt yok/'new'/100. ve 101./tablo yok/HTML kaçış); canlı veritabanı ve gerçek mail ile denenmedi.
 
 ### Bekleyen migration'lar (kullanıcı Supabase SQL Editor'da çalıştırmalı)

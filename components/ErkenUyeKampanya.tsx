@@ -9,7 +9,7 @@
 //  Hook yok → server bileşeni.
 // ─────────────────────────────────────────────────────────────────
 import Link from 'next/link';
-import { ERKEN_UYE_KOTA, ERKEN_UYE_OZELLIKLER } from '@/lib/erken-uye-metin';
+import { ERKEN_UYE_BASLANGIC, ERKEN_UYE_KOTA, ERKEN_UYE_OZELLIKLER } from '@/lib/erken-uye-metin';
 
 const CSS = `
 .euk-bant{background:linear-gradient(180deg,#FBFBFD 0%,#F2F4F8 100%);padding:8px 0 56px}
@@ -55,7 +55,8 @@ const Tik = () => (
 );
 
 export default function ErkenUyeKampanya({ kullanilan }: { kullanilan: number }) {
-  const dolu = Math.min(ERKEN_UYE_KOTA, Math.max(0, kullanilan));
+  // Noktalar ERKEN_UYE_BASLANGIC'tan başlar (sistem öncesi sahiplenmeler tabloda yok).
+  const dolu = Math.min(ERKEN_UYE_KOTA, ERKEN_UYE_BASLANGIC + Math.max(0, kullanilan));
   const kalan = ERKEN_UYE_KOTA - dolu;
   if (kalan <= 0) return null;
 

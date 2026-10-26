@@ -8,8 +8,17 @@
 //  Pro sıralamayı etkilemez → "öne çıkma / görünürlük" vaadi de yazılmaz.
 // ─────────────────────────────────────────────────────────────────
 
-/** Otomatik ücretsiz Pro verilecek işletme sayısı. */
+/** Otomatik ücretsiz Pro verilecek işletme sayısı (kontenjanın tamamı). */
 export const ERKEN_UYE_KOTA = 150;
+
+/**
+ * Kontenjanın başlangıç dolgusu: bu sistem kurulmadan önce sahiplenen
+ * işletmeler `erken_uye_pro` tablosunda yok. Sahibinin bilgisiyle sayaç
+ * 92'den başlar (Eki 2026); ana sayfa bandı, kota hesabı ve admin notu
+ * hepsi `ERKEN_UYE_BASLANGIC + otomatik kayıt` sayar. Otomatik verilecek
+ * Pro sayısı = ERKEN_UYE_KOTA − ERKEN_UYE_BASLANGIC (58).
+ */
+export const ERKEN_UYE_BASLANGIC = 92;
 
 /** Pro ile açılan, gerçekten var olan özellikler (panel + e-posta aynı liste). */
 export const ERKEN_UYE_OZELLIKLER: { baslik: string; aciklama: string }[] = [
