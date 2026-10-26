@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Bronş ağacıyla stilize iki akciğer, yanında altın renkli solunum eğrisi gösteren ekran ve büyüteç">
+  <defs>
+    <linearGradient id="akc_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="akc_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="akc_glow" cx="0.55" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <linearGradient id="akc_lung" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <linearGradient id="akc_screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16325C"/><stop offset="1" stop-color="#0E2240"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#akc_bg)"/>
+  <rect width="1200" height="675" fill="url(#akc_glow)"/>
+  <circle cx="1070" cy="570" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="1010" cy="100" r="150" fill="#fff" opacity="0.025"/>
+  <g transform="translate(-150 15) scale(1.0)"><path d="M535 232 C 495 222 438 250 408 318 C 382 378 372 458 382 520 C 390 562 430 574 472 558 C 506 545 530 532 546 516 C 550 430 547 320 535 232 Z" fill="url(#akc_lung)"/><path d="M585 232 C 625 222 682 250 712 318 C 738 378 748 458 738 520 C 730 562 690 574 650 558 C 626 548 610 537 600 522 C 612 502 622 472 604 452 C 592 432 593 330 585 232 Z" fill="url(#akc_lung)"/><g fill="none" stroke="#8FA2C2" stroke-linecap="round" stroke-linejoin="round"><path d="M560 130 L560 262" stroke-width="22"/><path d="M560 258 C 545 272 525 285 505 300" stroke-width="15"/><path d="M560 258 C 575 272 595 285 615 300" stroke-width="15"/><path d="M505 300 C 480 310 460 300 445 285" stroke-width="9"/><path d="M505 300 C 495 340 485 380 470 420" stroke-width="10"/><path d="M470 420 C 450 450 430 470 415 495" stroke-width="7"/><path d="M470 420 C 475 460 480 490 495 520" stroke-width="7"/><path d="M490 355 C 465 360 440 365 420 380" stroke-width="7"/><path d="M445 285 L 430 262" stroke-width="5"/><path d="M445 285 L 420 300" stroke-width="5"/><path d="M420 380 L 400 370" stroke-width="4"/><path d="M420 380 L 405 405" stroke-width="4"/><path d="M415 495 L 398 505" stroke-width="4"/><path d="M415 495 L 420 525" stroke-width="4"/><path d="M495 520 L 480 545" stroke-width="4"/><path d="M495 520 L 515 530" stroke-width="4"/><path d="M470 420 L 445 425" stroke-width="4"/><path d="M615 300 C 640 310 660 300 675 285" stroke-width="9"/><path d="M615 300 C 625 340 640 380 655 420" stroke-width="10"/><path d="M655 420 C 675 450 695 470 708 495" stroke-width="7"/><path d="M655 420 C 650 460 650 490 640 525" stroke-width="7"/><path d="M630 355 C 655 360 680 365 700 380" stroke-width="7"/><path d="M675 285 L 690 262" stroke-width="5"/><path d="M675 285 L 700 300" stroke-width="5"/><path d="M700 380 L 720 370" stroke-width="4"/><path d="M700 380 L 715 405" stroke-width="4"/><path d="M708 495 L 724 505" stroke-width="4"/><path d="M708 495 L 702 527" stroke-width="4"/><path d="M640 525 L 655 548" stroke-width="4"/><path d="M655 420 L 680 425" stroke-width="4"/></g><path d="M425 330 C 438 300 455 282 478 270" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity="0.45"/><path d="M695 330 C 685 305 670 288 650 276" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity="0.3"/></g>
+  <g transform="translate(700 150)">
+    <rect x="0" y="0" width="400" height="270" rx="22" fill="#EEF2F8" opacity="0.14"/>
+    <rect x="14" y="14" width="372" height="242" rx="14" fill="url(#akc_screen)"/>
+    <g stroke="#9DB4D6" stroke-width="1.2" opacity="0.22">
+      <line x1="14" y1="74" x2="386" y2="74"/><line x1="14" y1="134" x2="386" y2="134"/><line x1="14" y1="194" x2="386" y2="194"/>
+      <line x1="88" y1="14" x2="88" y2="256"/><line x1="162" y1="14" x2="162" y2="256"/><line x1="236" y1="14" x2="236" y2="256"/><line x1="310" y1="14" x2="310" y2="256"/>
+    </g>
+    <line x1="44" y1="170" x2="360" y2="170" stroke="#9DB4D6" stroke-width="2.5" opacity="0.6"/>
+    <line x1="50" y1="36" x2="50" y2="236" stroke="#9DB4D6" stroke-width="2.5" opacity="0.6"/>
+    <path d="M50 170 C 54 120 66 52 86 44 C 100 40 112 62 150 96 C 210 140 290 164 350 170" fill="none" stroke="url(#akc_gold)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M50 170 C 70 238 330 238 350 170" fill="none" stroke="#9DB4D6" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+    <rect x="170" y="270" width="60" height="30" fill="#EEF2F8" opacity="0.14"/>
+    <rect x="130" y="298" width="140" height="12" rx="6" fill="#EEF2F8" opacity="0.14"/>
+  </g>
+  <g transform="translate(540 470)">
+    <circle r="78" fill="#fff" opacity="0.10"/>
+    <circle r="78" fill="none" stroke="url(#akc_gold)" stroke-width="14"/>
+    <circle cx="30" cy="-30" r="8" fill="url(#akc_gold)" opacity="0.9"/>
+    <path d="M-40 -46 A 60 60 0 0 1 10 -62" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity="0.6"/>
+    <rect x="62" y="-13" width="110" height="26" rx="13" transform="rotate(45)" fill="url(#akc_gold)"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

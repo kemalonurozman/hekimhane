@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Karşılıklı konuşan yetişkin ve çocuk siluetleri, konuşma balonları ve aralarında gelişimi simgeleyen altın basamaklar">
+  <defs>
+    <linearGradient id="knb_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="knb_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="knb_head" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <radialGradient id="knb_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#knb_bg)"/>
+  <rect width="1200" height="675" fill="url(#knb_glow)"/>
+  <circle cx="1080" cy="120" r="170" fill="#fff" opacity="0.025"/>
+  <circle cx="160" cy="600" r="200" fill="#fff" opacity="0.03"/>
+
+  <!-- Yetişkin (sağa bakıyor) -->
+  <g transform="translate(110 150) scale(0.82)">
+    <path d="M200 675 C 214 600 280 552 330 532 L 432 532 C 486 552 552 600 566 675 Z" fill="#C7D2E4"/>
+    <path d="M362 176 C 292 178 250 236 252 304 C 254 362 288 402 328 430 L 330 540 L 432 540 L 430 456 C 446 446 460 430 466 410 C 470 402 478 400 480 392 C 482 386 476 382 478 376 C 482 372 481 366 476 362 C 481 356 488 352 490 344 C 492 336 484 330 478 320 C 476 304 478 284 472 264 C 457 206 422 176 362 176 Z" fill="url(#knb_head)"/>
+    <circle cx="442" cy="296" r="6" fill="#1F4274" opacity="0.7"/>
+  </g>
+
+  <!-- Çocuk (sola bakıyor, daha küçük) -->
+  <g transform="translate(1250 300) scale(-0.56 0.56)">
+    <path d="M200 675 C 214 600 280 552 330 532 L 432 532 C 486 552 552 600 566 675 Z" fill="#C7D2E4"/>
+    <path d="M362 176 C 292 178 250 236 252 304 C 254 362 288 402 328 430 L 330 540 L 432 540 L 430 456 C 446 446 460 430 466 410 C 470 402 478 400 480 392 C 482 386 476 382 478 376 C 482 372 481 366 476 362 C 481 356 488 352 490 344 C 492 336 484 330 478 320 C 476 304 478 284 472 264 C 457 206 422 176 362 176 Z" fill="url(#knb_head)"/>
+    <circle cx="442" cy="296" r="7" fill="#1F4274" opacity="0.7"/>
+  </g>
+
+  <!-- Yetişkinin konuşma balonu -->
+  <g>
+    <rect x="470" y="140" width="210" height="110" rx="34" fill="#EEF2F8" opacity="0.92"/>
+    <path d="M500 240 L 480 286 L 540 246 Z" fill="#EEF2F8" opacity="0.92"/>
+    <g fill="#9DB4D6"><circle cx="535" cy="195" r="10"/><circle cx="575" cy="195" r="10"/><circle cx="615" cy="195" r="10"/></g>
+  </g>
+
+  <!-- Çocuğun konuşma balonu -->
+  <g>
+    <rect x="740" y="230" width="140" height="80" rx="28" fill="url(#knb_gold)"/>
+    <path d="M846 300 L 872 336 L 822 306 Z" fill="#D6AE4E"/>
+    <g fill="#FFF7E0"><circle cx="790" cy="270" r="8"/><circle cx="822" cy="270" r="8"/></g>
+  </g>
+
+  <!-- Gelişim basamakları -->
+  <path d="M590 562 L 590 530 L 640 530 L 640 498 L 690 498 L 690 466 L 740 466 L 740 434 L 790 434 L 790 562 Z" fill="url(#knb_gold)"/>
+  <g stroke="#FFF7E0" stroke-width="4" stroke-linecap="round" opacity="0.55">
+    <line x1="596" y1="530" x2="634" y2="530"/><line x1="646" y1="498" x2="684" y2="498"/><line x1="696" y1="466" x2="734" y2="466"/><line x1="746" y1="434" x2="784" y2="434"/>
+  </g>
+  <line x1="566" y1="576" x2="814" y2="576" stroke="#9DB4D6" stroke-width="3" stroke-linecap="round" opacity="0.45"/>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

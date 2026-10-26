@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="HPV ve HPV aşısı — yüzeyi çıkıntılarla kaplı virüs parçacığı ve önünde altın renkli onay işaretli kalkan">
+  <defs>
+    <linearGradient id="hpv_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="hpv_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="hpv_glow" cx="0.5" cy="0.5" r="0.65"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.9"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <radialGradient id="hpv_virus" cx="0.4" cy="0.36" r="0.75"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#9FB0CC"/></radialGradient>
+    <radialGradient id="hpv_cap" cx="0.4" cy="0.35" r="0.7"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></radialGradient>
+    <linearGradient id="hpv_shield" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#hpv_bg)"/>
+  <rect width="1200" height="675" fill="url(#hpv_glow)"/>
+  <circle cx="1080" cy="600" r="200" fill="#fff" opacity="0.03"/>
+  <circle cx="160" cy="590" r="150" fill="#fff" opacity="0.025"/>
+
+  <!-- Virüs parçacığı (arka planda, sol) -->
+  <g transform="translate(470 330)">
+    <circle r="190" fill="none" stroke="#9DB4D6" stroke-width="2" opacity="0.3" stroke-dasharray="3 12" stroke-linecap="round"/>
+    <circle r="150" fill="url(#hpv_virus)"/>
+    <!-- kapsomerler -->
+    <g fill="url(#hpv_cap)" stroke="#9FB0CC" stroke-width="2">
+      <circle cx="0" cy="0" r="22"/>
+      <circle cx="0" cy="-56" r="21"/><circle cx="48" cy="-28" r="21"/><circle cx="48" cy="28" r="21"/><circle cx="0" cy="56" r="21"/><circle cx="-48" cy="28" r="21"/><circle cx="-48" cy="-28" r="21"/>
+      <circle cx="0" cy="-110" r="18"/><circle cx="56" cy="-96" r="18"/><circle cx="96" cy="-56" r="18"/><circle cx="110" cy="0" r="18"/><circle cx="96" cy="56" r="18"/><circle cx="56" cy="96" r="18"/>
+      <circle cx="0" cy="110" r="18"/><circle cx="-56" cy="96" r="18"/><circle cx="-96" cy="56" r="18"/><circle cx="-110" cy="0" r="18"/><circle cx="-96" cy="-56" r="18"/><circle cx="-56" cy="-96" r="18"/>
+    </g>
+    <!-- kenar çıkıntıları -->
+    <g fill="#C7D2E4">
+      <circle cx="0" cy="-160" r="13"/><circle cx="80" cy="-139" r="13"/><circle cx="139" cy="-80" r="13"/><circle cx="160" cy="0" r="13"/><circle cx="139" cy="80" r="13"/><circle cx="80" cy="139" r="13"/>
+      <circle cx="0" cy="160" r="13"/><circle cx="-80" cy="139" r="13"/><circle cx="-139" cy="80" r="13"/><circle cx="-160" cy="0" r="13"/><circle cx="-139" cy="-80" r="13"/><circle cx="-80" cy="-139" r="13"/>
+    </g>
+  </g>
+
+  <!-- Kalkan (önde, sağ) -->
+  <g transform="translate(760 360)">
+    <path d="M0 -190 C 70 -150 130 -140 180 -140 C 180 -20 150 110 0 190 C -150 110 -180 -20 -180 -140 C -130 -140 -70 -150 0 -190 Z" fill="#12294B" opacity="0.55" transform="translate(10 12)"/>
+    <path d="M0 -190 C 70 -150 130 -140 180 -140 C 180 -20 150 110 0 190 C -150 110 -180 -20 -180 -140 C -130 -140 -70 -150 0 -190 Z" fill="url(#hpv_shield)"/>
+    <path d="M0 -158 C 58 -126 108 -116 150 -114 C 148 -14 122 90 0 156 C -122 90 -148 -14 -150 -114 C -108 -116 -58 -126 0 -158 Z" fill="none" stroke="#FFF7E0" stroke-width="4" opacity="0.6"/>
+    <path d="M-66 0 L -16 50 L 76 -52" fill="none" stroke="#fff" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

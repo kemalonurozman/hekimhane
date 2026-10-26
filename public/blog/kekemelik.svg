@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Bir çocuk başı silueti ve ağzından çıkan, kesik başlayıp akıcılaşan altın renkli ses dalgaları">
+  <defs>
+    <linearGradient id="kek_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="kek_gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="kek_head" gradientUnits="userSpaceOnUse" x1="0" y1="170" x2="0" y2="540"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <radialGradient id="kek_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#kek_bg)"/>
+  <rect width="1200" height="675" fill="url(#kek_glow)"/>
+  <circle cx="1080" cy="570" r="200" fill="#fff" opacity="0.03"/>
+  <circle cx="1010" cy="110" r="140" fill="#fff" opacity="0.025"/>
+  <circle cx="370" cy="360" r="210" fill="#fff" opacity="0.03"/>
+
+  <!-- Omuzlar -->
+  <path d="M200 675 C 214 600 280 552 330 532 L 432 532 C 486 552 552 600 566 675 Z" fill="#C7D2E4"/>
+  <!-- Çocuk başı profili (sağa bakıyor) -->
+  <path d="M362 176 C 292 178 250 236 252 304 C 254 362 288 402 328 430 L 330 540 L 432 540 L 430 456 C 446 446 460 430 466 410 C 470 402 478 400 480 392 C 482 386 476 382 478 376 C 482 372 481 366 476 362 C 481 356 488 352 490 344 C 492 336 484 330 478 320 C 476 304 478 284 472 264 C 457 206 422 176 362 176 Z" fill="url(#kek_head)"/>
+  <!-- Kulak -->
+  <ellipse cx="338" cy="322" rx="17" ry="24" fill="none" stroke="#9FB0CC" stroke-width="5" opacity="0.7"/>
+  <!-- Göz -->
+  <circle cx="442" cy="296" r="6" fill="#1F4274" opacity="0.7"/>
+
+  <!-- Kesik başlayan tekrarlar -->
+  <g fill="none" stroke="#9DB4D6" stroke-width="6" stroke-linecap="round">
+    <path d="M520 344 q 10 22 0 44" opacity="0.9"/>
+    <path d="M546 336 q 14 30 0 60" opacity="0.75"/>
+    <path d="M574 344 q 10 22 0 44" opacity="0.6"/>
+  </g>
+  <g fill="#9DB4D6" opacity="0.7">
+    <circle cx="604" cy="366" r="5"/><circle cx="624" cy="366" r="5"/>
+  </g>
+
+  <!-- Akıcılaşan ses dalgası -->
+  <path d="M650 366 C 670 346 690 346 710 366 C 730 386 750 386 770 366 C 795 336 820 336 845 366 C 870 396 895 396 920 366 C 950 330 980 330 1010 366 C 1040 402 1070 402 1100 366" fill="none" stroke="url(#kek_gold)" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

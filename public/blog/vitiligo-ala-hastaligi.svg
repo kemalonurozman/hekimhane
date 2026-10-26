@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Vitiligo (ala hastalığı) — açık renkli düzensiz alanlar içeren deri yüzeyi, alan içinde yeniden renklenen noktalar ve kenarlarda altın renkli pigment hücreleri">
+  <defs>
+    <linearGradient id="vit_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="vit_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="vit_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <linearGradient id="vit_skin" gradientUnits="userSpaceOnUse" x1="0" y1="170" x2="0" y2="570"><stop offset="0" stop-color="#B6C3DA"/><stop offset="1" stop-color="#9FB0CC"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#vit_bg)"/>
+  <rect width="1200" height="675" fill="url(#vit_glow)"/>
+  <circle cx="1080" cy="580" r="200" fill="#fff" opacity="0.03"/>
+  <circle cx="1030" cy="100" r="140" fill="#fff" opacity="0.025"/>
+
+  <!-- Deri yüzeyi -->
+  <path d="M220 214 C 420 170 820 168 990 206 C 1030 214 1048 240 1046 280 L 1032 500 C 1030 540 1006 560 970 564 C 760 586 430 588 236 560 C 200 554 182 532 182 498 L 186 262 C 186 236 198 220 220 214 Z" fill="url(#vit_skin)"/>
+
+  <!-- Renk kaybı alanları -->
+  <path d="M470 270 C 520 236 610 240 680 262 C 744 282 770 330 756 382 C 742 434 690 470 620 466 C 560 462 520 488 470 470 C 420 452 408 402 424 360 C 436 326 440 292 470 270 Z" fill="#F7F9FC"/>
+  <path d="M820 420 C 846 398 896 402 916 426 C 936 452 918 490 884 496 C 852 502 816 490 808 466 C 802 448 806 432 820 420 Z" fill="#F7F9FC"/>
+  <path d="M280 300 C 300 286 334 290 344 310 C 354 332 338 352 314 354 C 292 356 270 344 268 326 C 266 314 270 306 280 300 Z" fill="#F7F9FC"/>
+
+  <!-- Kıl köklerinden başlayan yeniden renklenme -->
+  <circle cx="560" cy="330" r="8" fill="#8496B6" opacity="0.8"/><circle cx="600" cy="380" r="8" fill="#8496B6" opacity="0.8"/><circle cx="530" cy="400" r="10" fill="#8496B6" opacity="0.8"/><circle cx="640" cy="310" r="8" fill="#8496B6" opacity="0.8"/><circle cx="700" cy="420" r="8" fill="#8496B6" opacity="0.8"/>
+
+  <!-- Pigment hücreleri -->
+  <g fill="none" stroke="#E2B856" stroke-width="6.3" stroke-linecap="round"><path d="M800 300 Q 821 310 842 309"/><circle cx="842" cy="309" r="4.7" fill="#E8C56A" stroke="none"/><path d="M800 300 Q 797 327 807 349"/><circle cx="807" cy="349" r="4.7" fill="#E8C56A" stroke="none"/><path d="M800 300 Q 777 302 761 313"/><circle cx="761" cy="313" r="4.7" fill="#E8C56A" stroke="none"/><path d="M800 300 Q 787 281 769 273"/><circle cx="769" cy="273" r="4.7" fill="#E8C56A" stroke="none"/><path d="M800 300 Q 821 282 829 259"/><circle cx="829" cy="259" r="4.7" fill="#E8C56A" stroke="none"/></g><circle cx="800" cy="300" r="19" fill="url(#vit_gold)"/><circle cx="795" cy="295" r="6" fill="#FFF3D1"/>
+  <g fill="none" stroke="#E2B856" stroke-width="5.7" stroke-linecap="round"><path d="M400 480 Q 420 499 443 504"/><circle cx="443" cy="504" r="4.3" fill="#E8C56A" stroke="none"/><path d="M400 480 Q 382 497 376 518"/><circle cx="376" cy="518" r="4.3" fill="#E8C56A" stroke="none"/><path d="M400 480 Q 380 472 362 475"/><circle cx="362" cy="475" r="4.3" fill="#E8C56A" stroke="none"/><path d="M400 480 Q 395 457 381 441"/><circle cx="381" cy="441" r="4.3" fill="#E8C56A" stroke="none"/><path d="M400 480 Q 419 470 428 454"/><circle cx="428" cy="454" r="4.3" fill="#E8C56A" stroke="none"/></g><circle cx="400" cy="480" r="17" fill="url(#vit_gold)"/><circle cx="395" cy="475" r="6" fill="#FFF3D1"/>
+  <g fill="none" stroke="#E2B856" stroke-width="4.8" stroke-linecap="round"><path d="M940 520 Q 957 517 968 506"/><circle cx="968" cy="506" r="3.6" fill="#E8C56A" stroke="none"/><path d="M940 520 Q 948 538 962 548"/><circle cx="962" cy="548" r="3.6" fill="#E8C56A" stroke="none"/><path d="M940 520 Q 923 531 916 547"/><circle cx="916" cy="547" r="3.6" fill="#E8C56A" stroke="none"/><path d="M940 520 Q 924 509 906 508"/><circle cx="906" cy="508" r="3.6" fill="#E8C56A" stroke="none"/><path d="M940 520 Q 945 501 941 484"/><circle cx="941" cy="484" r="3.6" fill="#E8C56A" stroke="none"/></g><circle cx="940" cy="520" r="14" fill="url(#vit_gold)"/><circle cx="936" cy="516" r="5" fill="#FFF3D1"/>
+
+  <g fill="none" stroke="#E8C56A" stroke-width="2.5" stroke-dasharray="3 11" stroke-linecap="round" opacity="0.55">
+    <path d="M760 300 C 740 290 726 290 712 296"/>
+    <path d="M430 470 C 444 460 452 452 458 440"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

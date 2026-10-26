@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Altın renkli kalp simgesinden çıkıp dallanan akıcı damar çizgileri ve kalbin üzerinden geçen nabız eğrisi">
+  <defs>
+    <linearGradient id="erd_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="erd_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="erd_glow" cx="0.55" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <linearGradient id="erd_heart" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F0D182"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#erd_bg)"/>
+  <rect width="1200" height="675" fill="url(#erd_glow)"/>
+  <circle cx="1070" cy="570" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="1010" cy="100" r="150" fill="#fff" opacity="0.025"/>
+  <g fill="none" stroke-linecap="round">
+    <path d="M560 330 C 700 300 760 230 900 210 C 980 200 1050 215 1140 190" stroke="#C7D2E4" stroke-width="16" opacity="0.9"/>
+    <path d="M560 360 C 720 360 800 330 920 345 C 1000 355 1060 340 1160 350" stroke="#C7D2E4" stroke-width="14" opacity="0.8"/>
+    <path d="M560 395 C 700 440 780 500 900 505 C 990 510 1050 480 1140 500" stroke="#C7D2E4" stroke-width="12" opacity="0.7"/>
+    <path d="M900 210 C 950 170 990 150 1040 140" stroke="#C7D2E4" stroke-width="7" opacity="0.6"/>
+    <path d="M920 345 C 960 380 1010 395 1060 410" stroke="#C7D2E4" stroke-width="6" opacity="0.55"/>
+    <path d="M900 505 C 950 545 1000 570 1050 585" stroke="#C7D2E4" stroke-width="6" opacity="0.5"/>
+    <path d="M760 245 C 790 200 820 175 850 160" stroke="#C7D2E4" stroke-width="5" opacity="0.45"/>
+    <path d="M780 470 C 800 520 830 555 860 575" stroke="#C7D2E4" stroke-width="5" opacity="0.45"/>
+  </g>
+  <g fill="url(#erd_gold)" opacity="0.9">
+    <circle cx="700" cy="296" r="6"/><circle cx="820" cy="232" r="5"/><circle cx="980" cy="204" r="5"/>
+    <circle cx="740" cy="360" r="6"/><circle cx="860" cy="340" r="5"/><circle cx="1040" cy="345" r="4.5"/>
+    <circle cx="720" cy="452" r="5"/><circle cx="840" cy="500" r="4.5"/><circle cx="1000" cy="505" r="4"/>
+  </g>
+  <g transform="translate(440 370)">
+    <circle r="230" fill="#fff" opacity="0.035"/>
+    <path d="M0 150 C -60 105 -190 30 -190 -70 C -190 -140 -140 -180 -90 -180 C -45 -180 -15 -150 0 -120 C 15 -150 45 -180 90 -180 C 140 -180 190 -140 190 -70 C 190 30 60 105 0 150 Z" fill="url(#erd_heart)"/>
+    <path d="M-150 -95 C -145 -135 -115 -158 -85 -158" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" opacity="0.45"/>
+  </g>
+  <path d="M160 380 L 330 380 L 355 340 L 385 440 L 420 270 L 455 470 L 485 380 L 520 380 L 540 360 L 560 380 L 720 380" fill="none" stroke="#F2F5FA" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

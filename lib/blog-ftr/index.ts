@@ -4,6 +4,7 @@
 import type { BlogYazi } from '../blog-data';
 import { parseGovde, okumaSuresi } from '../makale-icerik';
 import type { FtrKaynak } from './tip';
+import { TAKVIM } from '../blog-takvim';
 
 import y01 from './01-kas-iskelet-sistemi-hastaliklari-tani-ve-tedavi';
 import y02 from './02-emg-elektromiyografi-nedir';
@@ -33,10 +34,11 @@ export const FTR_YAZILARI: BlogYazi[] = KAYNAKLAR.map(k => ({
   summary: k.summary,
   category: FTR_KATEGORI,
   author: 'Hekimhane Editör',
-  created_at: k.created_at,
+  created_at: TAKVIM[k.slug] ?? k.created_at,
   okumaDk: okumaSuresi(k.metin),
   cover_image: `/blog/${k.slug}.svg`,
   cover_alt: k.cover_alt,
   views: 0,
   govde: [...parseGovde(k.metin), { tip: 'p', metin: UYARI }],
+  brans: 'Fiziksel Tıp ve Rehabilitasyon',
 }));

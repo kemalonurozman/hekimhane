@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Sırttan görülen gövde silueti içinde S biçiminde yana eğrilmiş omurga ve altın renkli düz eksen çizgisi">
+  <defs>
+    <linearGradient id="sko_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="sko_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="sko_bone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <radialGradient id="sko_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#sko_bg)"/>
+  <rect width="1200" height="675" fill="url(#sko_glow)"/>
+  <circle cx="1060" cy="560" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="1010" cy="110" r="140" fill="#fff" opacity="0.025"/>
+  <circle cx="160" cy="580" r="160" fill="#fff" opacity="0.025"/>
+
+  <!-- Sırttan gövde silueti -->
+  <path d="M560 40 C 560 70 556 88 540 96 C 500 112 430 112 380 130 C 336 146 318 186 314 240 C 310 300 330 360 360 410 C 384 452 392 490 384 530 C 376 570 360 620 352 690 L 848 690 C 840 620 824 570 816 530 C 808 490 816 452 840 410 C 870 360 890 300 886 240 C 882 186 864 146 820 130 C 770 112 700 112 660 96 C 644 88 640 70 640 40 Z" fill="#fff" opacity="0.06"/>
+  <!-- Kürek kemikleri -->
+  <g fill="#fff" opacity="0.045">
+    <path d="M420 170 C 470 160 520 176 528 200 C 520 250 490 300 462 320 C 440 290 420 230 420 170 Z"/>
+    <path d="M780 178 C 730 168 680 184 672 208 C 680 258 710 308 738 328 C 760 298 780 238 780 178 Z"/>
+  </g>
+  <!-- Leğen kemiği kanatları -->
+  <g fill="none" stroke="#9DB4D6" stroke-width="10" stroke-linecap="round" opacity="0.35">
+    <path d="M470 610 C 500 580 550 578 580 600"/>
+    <path d="M730 610 C 700 580 650 578 620 600"/>
+  </g>
+
+  <!-- Omurga -->
+  <path d="M600.0 118.0 L 602.8 122.0 L 605.6 126.0 L 608.4 130.0 L 611.1 134.0 L 613.8 138.0 L 616.5 142.0 L 619.1 146.0 L 621.7 150.0 L 624.2 154.0 L 626.6 158.0 L 628.9 162.0 L 631.2 166.0 L 633.3 170.0 L 635.4 174.0 L 637.3 178.0 L 639.1 182.0 L 640.8 186.0 L 642.3 190.0 L 643.8 194.0 L 645.0 198.0 L 646.2 202.0 L 647.2 206.0 L 648.0 210.0 L 648.7 214.0 L 649.3 218.0 L 649.7 222.0 L 649.9 226.0 L 650.0 230.0 L 649.9 234.0 L 649.7 238.0 L 649.3 242.0 L 648.7 246.0 L 648.0 250.0 L 647.2 254.0 L 646.2 258.0 L 645.0 262.0 L 643.8 266.0 L 642.3 270.0 L 640.8 274.0 L 639.1 278.0 L 637.3 282.0 L 635.4 286.0 L 633.3 290.0 L 631.2 294.0 L 628.9 298.0 L 626.6 302.0 L 624.2 306.0 L 621.7 310.0 L 619.1 314.0 L 616.5 318.0 L 613.8 322.0 L 611.1 326.0 L 608.4 330.0 L 605.6 334.0 L 602.8 338.0 L 600.0 342.0 L 597.2 346.0 L 594.4 350.0 L 591.6 354.0 L 588.9 358.0 L 586.2 362.0 L 583.5 366.0 L 580.9 370.0 L 578.3 374.0 L 575.8 378.0 L 573.4 382.0 L 571.1 386.0 L 568.8 390.0 L 566.7 394.0 L 564.6 398.0 L 562.7 402.0 L 560.9 406.0 L 559.2 410.0 L 557.7 414.0 L 556.2 418.0 L 555.0 422.0 L 553.8 426.0 L 552.8 430.0 L 552.0 434.0 L 551.3 438.0 L 550.7 442.0 L 550.3 446.0 L 550.1 450.0 L 550.0 454.0 L 550.1 458.0 L 550.3 462.0 L 550.7 466.0 L 551.3 470.0 L 552.0 474.0 L 552.8 478.0 L 553.8 482.0 L 555.0 486.0 L 556.2 490.0 L 557.7 494.0 L 559.2 498.0 L 560.9 502.0 L 562.7 506.0 L 564.6 510.0 L 566.7 514.0 L 568.8 518.0 L 571.1 522.0 L 573.4 526.0 L 575.8 530.0 L 578.3 534.0 L 580.9 538.0 L 583.5 542.0 L 586.2 546.0 L 588.9 550.0 L 591.6 554.0 L 594.4 558.0 L 597.2 562.0 L 600.0 566.0" fill="none" stroke="#9DB4D6" stroke-width="30" stroke-linecap="round" opacity="0.55"/>
+    <g transform="translate(600.0 118.0) rotate(-19.3)"><rect x="-46.0" y="-4" width="92.0" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-30.0" y="-11.0" width="60.0" height="22.0" rx="7" fill="url(#sko_bone)"/></g>
+    <g transform="translate(623.2 152.5) rotate(-17.5)"><rect x="-47.3" y="-4" width="94.6" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-31.3" y="-11.4" width="62.6" height="22.8" rx="7" fill="url(#sko_bone)"/></g>
+    <g transform="translate(641.1 186.9) rotate(-11.9)"><rect x="-48.6" y="-4" width="97.2" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-32.6" y="-11.8" width="65.2" height="23.6" rx="7" fill="url(#sko_bone)"/></g>
+    <g transform="translate(649.6 221.4) rotate(-2.7)"><rect x="-49.9" y="-4" width="99.8" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-33.9" y="-12.2" width="67.8" height="24.4" rx="7" fill="url(#sko_gold)"/></g>
+    <g transform="translate(646.8 255.8) rotate(7.7)"><rect x="-51.2" y="-4" width="102.4" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-35.2" y="-12.6" width="70.4" height="25.2" rx="7" fill="url(#sko_bone)"/></g>
+    <g transform="translate(633.2 290.3) rotate(15.2)"><rect x="-52.5" y="-4" width="105.0" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-36.5" y="-13.0" width="73.0" height="26.0" rx="7" fill="url(#sko_bone)"/></g>
+    <g transform="translate(612.0 324.8) rotate(18.8)"><rect x="-53.8" y="-4" width="107.6" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-37.8" y="-13.4" width="75.6" height="26.8" rx="7" fill="url(#sko_bone)"/></g>
+    <g transform="translate(588.0 359.2) rotate(18.8)"><rect x="-55.1" y="-4" width="110.2" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-39.1" y="-13.8" width="78.2" height="27.6" rx="7" fill="url(#sko_bone)"/></g>
+    <g transform="translate(566.8 393.7) rotate(15.2)"><rect x="-56.4" y="-4" width="112.8" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-40.4" y="-14.2" width="80.8" height="28.4" rx="7" fill="url(#sko_bone)"/></g>
+    <g transform="translate(553.2 428.2) rotate(7.7)"><rect x="-57.7" y="-4" width="115.4" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-41.7" y="-14.6" width="83.4" height="29.2" rx="7" fill="url(#sko_bone)"/></g>
+    <g transform="translate(550.4 462.6) rotate(-2.7)"><rect x="-59.0" y="-4" width="118.0" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-43.0" y="-15.0" width="86.0" height="30.0" rx="7" fill="url(#sko_gold)"/></g>
+    <g transform="translate(558.9 497.1) rotate(-11.9)"><rect x="-60.3" y="-4" width="120.6" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-44.3" y="-15.4" width="88.6" height="30.8" rx="7" fill="url(#sko_bone)"/></g>
+    <g transform="translate(576.8 531.5) rotate(-17.5)"><rect x="-61.6" y="-4" width="123.2" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-45.6" y="-15.8" width="91.2" height="31.6" rx="7" fill="url(#sko_bone)"/></g>
+    <g transform="translate(600.0 566.0) rotate(-19.3)"><rect x="-62.9" y="-4" width="125.8" height="9" rx="4.5" fill="#C7D2E4" opacity="0.8"/><rect x="-46.9" y="-16.2" width="93.8" height="32.4" rx="7" fill="url(#sko_bone)"/></g>
+  <!-- Düz eksen -->
+  <line x1="600" y1="92" x2="600" y2="604" stroke="#E8C56A" stroke-width="4" stroke-dasharray="4 14" stroke-linecap="round" opacity="0.9"/>
+
+  <!-- Eğrilik açısı yayları -->
+  <g fill="none" stroke="#E8C56A" stroke-linecap="round">
+    <path d="M690 180 A 80 80 0 0 1 690 270" stroke-width="3.5" opacity="0.75"/>
+    <path d="M510 404 A 80 80 0 0 0 510 494" stroke-width="3.5" opacity="0.75"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

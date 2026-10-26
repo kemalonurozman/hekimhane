@@ -1,8 +1,10 @@
-// Statik blog yazıları (diş + Fizik Tedavi ve Rehabilitasyon dizisi).
+// Statik blog yazıları (diş + FTR dizisi + sağlık/hastalık dizisi).
 // /blog listesi bunları blog_posts tablosuyla birleştirir; /blog/[slug] render eder.
-// Zamanlı yayın: yazı `created_at` günü Türkiye saatiyle 09:00'da görünür olur.
+// Zamanlı yayın: `created_at` tam zaman damgasıysa (lib/blog-takvim.ts) o anda,
+// yalnız gün ise o gün 09:00 TR'de görünür olur.
 // Dışarıya yalnız yayındakiler verilir → yayindakiBlogYazilari() / getBlogYazi().
 import { FTR_YAZILARI } from './blog-ftr';
+import { SAGLIK_YAZILARI } from './blog-saglik';
 
 export type BlogBlok =
   | { tip: 'p'; metin: string }
@@ -17,12 +19,13 @@ export interface BlogYazi {
   summary: string;
   category: string;
   author: string;
-  created_at: string;   // YYYY-MM-DD
+  created_at: string;   // YYYY-MM-DD ya da YYYY-MM-DDTHH:MM:SS+03:00 (yayın anı)
   okumaDk: number;
   cover_image: string | null;
   cover_alt?: string;   // görsel SEO — kapak için açıklayıci alt metni
   views: number;
   govde: BlogBlok[];
+  brans?: string;       // doktorlar.spec — yazı altındaki "uzmanları gör" kutusu
 }
 
 const UYARI =
@@ -251,11 +254,13 @@ const DIS_YAZILARI: BlogYazi[] = [
   },
 ];
 
-const TUM_YAZILAR: BlogYazi[] = [...DIS_YAZILARI, ...FTR_YAZILARI];
+const TUM_YAZILAR: BlogYazi[] = [...DIS_YAZILARI, ...FTR_YAZILARI, ...SAGLIK_YAZILARI];
 
-/** Yayın anı: created_at günü 09:00 (Europe/Istanbul, UTC+3). */
+/** Yayın anı: tam zaman damgası varsa o an, yalnız gün varsa o gün 09:00 (UTC+3). */
 export function yayinZamani(y: Pick<BlogYazi, 'created_at'>): number {
-  return Date.parse(`${y.created_at.slice(0, 10)}T09:00:00+03:00`);
+  return y.created_at.includes('T')
+    ? Date.parse(y.created_at)
+    : Date.parse(`${y.created_at.slice(0, 10)}T09:00:00+03:00`);
 }
 
 export function yayindaMi(y: Pick<BlogYazi, 'created_at'>, simdi: Date = new Date()): boolean {
@@ -273,3 +278,20 @@ export const getBlogYazi = (slug: string): BlogYazi | undefined => {
   const y = TUM_YAZILAR.find(x => x.slug === slug);
   return y && yayindaMi(y) ? y : undefined;
 };
+
+/** Statik bir yazı mı? (tarihi gelmemiş olsa da) */
+const statikSlug = new Set(TUM_YAZILAR.map(y => y.slug));
+
+/** Henüz yayında olmayan statik yazılara giden [metin](/blog/slug) bağlantılarını düz metne çevirir.
+ *  Yazı yayına girince bağlantı kendiliğinden geri gelir (render anında hesaplanır). */
+export function yayinlanmamisBaglantilariSuz(bloklar: BlogBlok[], simdi: Date = new Date()): BlogBlok[] {
+  const suz = (t: string) => t.replace(/\[([^\]]+)\]\(\/blog\/([a-z0-9-]+)\)/g, (m, metin, slug) => {
+    if (!statikSlug.has(slug)) return m;
+    const y = TUM_YAZILAR.find(x => x.slug === slug)!;
+    return yayindaMi(y, simdi) ? m : metin;
+  });
+  return bloklar.map(b =>
+    b.tip === 'liste' ? { ...b, ogeler: b.ogeler.map(suz) }
+    : b.tip === 'p' || b.tip === 'h' || b.tip === 'alinti' ? { ...b, metin: suz(b.metin) }
+    : b);
+}

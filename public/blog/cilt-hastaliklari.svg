@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Cilt hastalıkları — katmanları görünen stilize deri kesiti, kıl kökü ve yüzeydeki döküntüyü inceleyen büyüteç">
+  <defs>
+    <linearGradient id="cil_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="cil_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="cil_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <linearGradient id="cil_top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7F9FC"/><stop offset="1" stop-color="#E4EAF3"/></linearGradient>
+    <clipPath id="cil_lens"><circle cx="760" cy="250" r="92"/></clipPath>
+  </defs>
+  <rect width="1200" height="675" fill="url(#cil_bg)"/>
+  <rect width="1200" height="675" fill="url(#cil_glow)"/>
+  <circle cx="1080" cy="580" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="1020" cy="110" r="140" fill="#fff" opacity="0.025"/>
+
+  <!-- Üst yüzey -->
+  <path d="M290 340 L 420 236 L 990 236 L 860 340 Z" fill="url(#cil_top)"/>
+  <!-- Yüzeydeki döküntü -->
+  <g fill="#E8C56A" opacity="0.9">
+    <ellipse cx="700" cy="262" rx="11" ry="6"/><ellipse cx="736" cy="280" rx="9" ry="5"/><ellipse cx="768" cy="256" rx="12" ry="6.5"/>
+    <ellipse cx="800" cy="282" rx="8" ry="4.5"/><ellipse cx="742" cy="246" rx="7" ry="4"/><ellipse cx="812" cy="250" rx="7" ry="4"/>
+  </g>
+  <g fill="#C7D2E4"><ellipse cx="480" cy="300" rx="5" ry="3"/><ellipse cx="560" cy="270" rx="5" ry="3"/><ellipse cx="610" cy="312" rx="5" ry="3"/><ellipse cx="900" cy="262" rx="5" ry="3"/></g>
+
+  <!-- Sağ yüz -->
+  <path d="M860 340 L 990 236 L 990 268 L 860 372 Z" fill="#E4EAF3"/>
+  <path d="M860 372 L 990 268 L 990 380 L 860 484 Z" fill="#AEBDD5"/>
+  <path d="M860 484 L 990 380 L 990 470 L 860 574 Z" fill="#8FA2C2"/>
+
+  <!-- Ön yüz: epidermis, dermis, deri altı -->
+  <rect x="290" y="340" width="570" height="32" fill="#F2F5FA"/>
+  <path d="M290 372 L 860 372 L 860 484 L 290 484 Z" fill="#C7D2E4"/>
+  <path d="M290 372 C 310 392 330 392 350 372 C 370 392 390 392 410 372 C 430 392 450 392 470 372 C 490 392 510 392 530 372 C 550 392 570 392 590 372 C 610 392 630 392 650 372 C 670 392 690 392 710 372 C 730 392 750 392 770 372 C 790 392 810 392 830 372 C 845 388 855 388 860 384 L 860 372 Z" fill="#F2F5FA"/>
+  <rect x="290" y="484" width="570" height="90" fill="#B6C3DA"/>
+  <g fill="#C7D2E4" stroke="#9FB0CC" stroke-width="2">
+    <ellipse cx="330" cy="520" rx="30" ry="22"/><ellipse cx="398" cy="540" rx="32" ry="24"/><ellipse cx="470" cy="516" rx="30" ry="22"/>
+    <ellipse cx="610" cy="538" rx="32" ry="24"/><ellipse cx="680" cy="514" rx="28" ry="21"/><ellipse cx="748" cy="540" rx="30" ry="23"/><ellipse cx="818" cy="516" rx="28" ry="21"/>
+  </g>
+  <!-- Damarlar -->
+  <g fill="none" stroke-width="5" stroke-linecap="round">
+    <path d="M300 456 C 380 440 440 470 520 452 C 600 436 660 468 740 450 C 790 440 830 452 856 446" stroke="#8496B6" opacity="0.7"/>
+  </g>
+  <!-- Kıl kökü ve yağ bezi -->
+  <path d="M552 340 L 552 372 C 552 410 548 440 540 470 C 534 494 548 508 562 506 C 578 504 588 490 582 470 C 574 440 570 410 570 372 L 570 340 Z" fill="#DCE4F0" stroke="#9FB0CC" stroke-width="2"/>
+  <ellipse cx="561" cy="494" rx="16" ry="12" fill="#9FB0CC"/>
+  <ellipse cx="583" cy="414" rx="15" ry="11" fill="url(#cil_gold)" opacity="0.9"/>
+  <path d="M561 494 C 562 430 562 370 566 300 C 568 270 576 250 586 236" fill="none" stroke="#5B7299" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Ön yüz çerçeve vurgusu -->
+  <path d="M290 340 L 860 340" stroke="#fff" stroke-width="3" opacity="0.6"/>
+
+  <!-- Büyüteç -->
+  <circle cx="760" cy="250" r="92" fill="#F7F9FC" opacity="0.92"/>
+  <g clip-path="url(#cil_lens)">
+    <g fill="url(#cil_gold)">
+      <ellipse cx="732" cy="240" rx="24" ry="13"/><ellipse cx="790" cy="230" rx="20" ry="11"/><ellipse cx="772" cy="284" rx="26" ry="14"/><ellipse cx="716" cy="292" rx="14" ry="8"/><ellipse cx="822" cy="270" rx="12" ry="7"/>
+    </g>
+    <g fill="#FFF3D1" opacity="0.85"><ellipse cx="726" cy="236" rx="8" ry="4"/><ellipse cx="784" cy="226" rx="7" ry="3.5"/><ellipse cx="764" cy="279" rx="8" ry="4"/></g>
+  </g>
+  <path d="M694 214 A 78 78 0 0 1 752 172" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity="0.75"/>
+  <g transform="translate(760 250) rotate(-40)">
+    <rect x="98" y="-17" width="36" height="34" rx="7" fill="#C99A34"/>
+    <rect x="130" y="-21" width="130" height="42" rx="21" fill="url(#cil_gold)"/>
+  </g>
+  <circle cx="760" cy="250" r="98" fill="none" stroke="url(#cil_gold)" stroke-width="15"/>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

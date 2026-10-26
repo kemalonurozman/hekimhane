@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Boyun omurları arasında altın renkli taşan disk ve kola doğru uzanan tahriş olmuş sinir kökü çizimi">
+  <defs>
+    <linearGradient id="boyf_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="boyf_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="boyf_bone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <radialGradient id="boyf_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <radialGradient id="boyf_hot" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#E8C56A" stop-opacity="0.5"/><stop offset="1" stop-color="#E8C56A" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#boyf_bg)"/>
+  <rect width="1200" height="675" fill="url(#boyf_glow)"/>
+  <circle cx="1080" cy="140" r="160" fill="#fff" opacity="0.025"/>
+  <circle cx="150" cy="590" r="190" fill="#fff" opacity="0.025"/>
+
+  <!-- Baş, boyun ve omuz silueti -->
+  <path d="M600 -150 C 690 -150 735 -80 735 10 C 735 80 705 128 690 150 L 690 330 C 700 400 760 430 860 450 C 980 474 1080 520 1140 600 L 1180 690 L 20 690 L 60 600 C 120 520 220 474 340 450 C 440 430 500 400 510 330 L 510 150 C 495 128 465 80 465 10 C 465 -80 510 -150 600 -150 Z" fill="#fff" opacity="0.06"/>
+
+  <!-- Omurilik -->
+  <rect x="588" y="140" width="24" height="440" rx="12" fill="#9DB4D6" opacity="0.4"/>
+
+  <!-- Sinir kökleri -->
+  <g fill="none" stroke="#9DB4D6" stroke-width="5" stroke-linecap="round" opacity="0.7">
+    <path d="M542 210.0 C 510 212.0 488 222.0 468 240.0" />
+    <path d="M658 210.0 C 690 212.0 712 222.0 732 240.0" />
+    <path d="M542 270.0 C 510 272.0 488 282.0 468 300.0" />
+    <path d="M658 270.0 C 690 272.0 712 282.0 732 300.0" />
+    <path d="M542 330.0 C 510 332.0 488 342.0 468 360.0" />
+    <path d="M658 330.0 C 690 332.0 712 342.0 732 360.0" />
+    <path d="M542 390.0 C 510 392.0 488 402.0 468 420.0" />
+    <path d="M658 390.0 C 690 392.0 712 402.0 732 420.0" />
+    <path d="M542 450.0 C 510 452.0 488 462.0 468 480.0" />
+    <path d="M542 510.0 C 510 512.0 488 522.0 468 540.0" />
+    <path d="M658 510.0 C 690 512.0 712 522.0 732 540.0" />
+  </g>
+
+  <!-- Diskler -->
+    <rect x="547.0" y="201.0" width="106" height="18" rx="9" fill="#9DB4D6"/>
+    <rect x="545.0" y="261.0" width="110" height="18" rx="9" fill="#9DB4D6"/>
+    <rect x="543.0" y="321.0" width="114" height="18" rx="9" fill="#9DB4D6"/>
+    <rect x="541.0" y="381.0" width="118" height="18" rx="9" fill="#9DB4D6"/>
+    <rect x="537.0" y="501.0" width="126" height="18" rx="9" fill="#9DB4D6"/>
+
+  <!-- Omurlar -->
+    <g transform="translate(600 180)">
+      <rect x="-108.0" y="-6" width="216" height="14" rx="7" fill="#C7D2E4"/>
+      <rect x="-56.0" y="-21" width="112" height="42" rx="12" fill="url(#boyf_bone)"/>
+      <path d="M-16 -12 L 16 -12" stroke="#9FB0CC" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    </g>
+    <g transform="translate(600 240)">
+      <rect x="-110.0" y="-6" width="220" height="14" rx="7" fill="#C7D2E4"/>
+      <rect x="-58.0" y="-21" width="116" height="42" rx="12" fill="url(#boyf_bone)"/>
+      <path d="M-16 -12 L 16 -12" stroke="#9FB0CC" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    </g>
+    <g transform="translate(600 300)">
+      <rect x="-112.0" y="-6" width="224" height="14" rx="7" fill="#C7D2E4"/>
+      <rect x="-60.0" y="-21" width="120" height="42" rx="12" fill="url(#boyf_bone)"/>
+      <path d="M-16 -12 L 16 -12" stroke="#9FB0CC" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    </g>
+    <g transform="translate(600 360)">
+      <rect x="-114.0" y="-6" width="228" height="14" rx="7" fill="#C7D2E4"/>
+      <rect x="-62.0" y="-21" width="124" height="42" rx="12" fill="url(#boyf_bone)"/>
+      <path d="M-16 -12 L 16 -12" stroke="#9FB0CC" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    </g>
+    <g transform="translate(600 420)">
+      <rect x="-116.0" y="-6" width="232" height="14" rx="7" fill="#C7D2E4"/>
+      <rect x="-64.0" y="-21" width="128" height="42" rx="12" fill="url(#boyf_bone)"/>
+      <path d="M-16 -12 L 16 -12" stroke="#9FB0CC" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    </g>
+    <g transform="translate(600 480)">
+      <rect x="-118.0" y="-6" width="236" height="14" rx="7" fill="#C7D2E4"/>
+      <rect x="-66.0" y="-21" width="132" height="42" rx="12" fill="url(#boyf_bone)"/>
+      <path d="M-16 -12 L 16 -12" stroke="#9FB0CC" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    </g>
+    <g transform="translate(600 540)">
+      <rect x="-120.0" y="-6" width="240" height="14" rx="7" fill="#C7D2E4"/>
+      <rect x="-68.0" y="-21" width="136" height="42" rx="12" fill="url(#boyf_bone)"/>
+      <path d="M-16 -12 L 16 -12" stroke="#9FB0CC" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    </g>
+
+  <!-- Tahriş olan kök ve kola uzanan yol -->
+  <circle cx="695" cy="454.0" r="95" fill="url(#boyf_hot)"/>
+  <path d="M658 450.0 C 730 454.0 790 470.0 850 498.0 C 920 530.0 980 580.0 1020 660.0" fill="none" stroke="url(#boyf_gold)" stroke-width="8" stroke-linecap="round" stroke-dasharray="1 0"/>
+  <path d="M1020 660.0 C 1035 690.0 1045 700.0 1052 730.0" fill="none" stroke="#E8C56A" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 14" opacity="0.8"/>
+  <!-- Fıtıklaşan disk -->
+  <g transform="translate(600 450.0)">
+    <rect x="-61" y="-9" width="122" height="18" rx="9" fill="url(#boyf_gold)"/>
+    <path d="M50 -10 C 72 -14 92 -8 94 0 C 96 10 76 16 52 11 Z" fill="url(#boyf_gold)"/>
+  </g>
+  <g fill="none" stroke="#E8C56A" stroke-linecap="round">
+    <path d="M730 410.0 A 50 50 0 0 1 742 490.0" stroke-width="3.5" opacity="0.8"/>
+    <path d="M756 386.0 A 80 80 0 0 1 772 512.0" stroke-width="3" opacity="0.5"/>
+    <path d="M782 362.0 A 110 110 0 0 1 802 534.0" stroke-width="2.5" opacity="0.28"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

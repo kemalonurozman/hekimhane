@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Solda soluk boş bir bardak silueti, sağa doğru yükselen altın basamaklar ve basamakların üzerinde parlayan güneş dairesi">
+  <defs>
+    <linearGradient id="alk_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="alk_gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#B8892C"/></linearGradient>
+    <radialGradient id="alk_sun" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#F6DE9A"/><stop offset="0.7" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></radialGradient>
+    <radialGradient id="alk_glow" cx="0.72" cy="0.38" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.9"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <linearGradient id="alk_glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C7D2E4" stop-opacity="0.16"/><stop offset="1" stop-color="#9DB4D6" stop-opacity="0.06"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#alk_bg)"/>
+  <rect width="1200" height="675" fill="url(#alk_glow)"/>
+  <circle cx="170" cy="610" r="190" fill="#fff" opacity="0.025"/>
+
+  <!-- Güneş ve halkalar -->
+  <g fill="none" stroke="#E8C56A">
+    <circle cx="1010" cy="200" r="120" stroke-width="2.5" opacity="0.35"/>
+    <circle cx="1010" cy="200" r="165" stroke-width="2" opacity="0.18" stroke-dasharray="4 12"/>
+  </g>
+  <circle cx="1010" cy="200" r="78" fill="url(#alk_sun)"/>
+
+  <!-- Ufuk -->
+  <line x1="60" y1="560" x2="1140" y2="560" stroke="#9DB4D6" stroke-width="3" stroke-linecap="round" opacity="0.45"/>
+
+  <!-- Soluk bardak -->
+  <g opacity="0.75">
+    <path d="M168 330 L 312 330 L 296 548 C 295 556 289 560 281 560 L 199 560 C 191 560 185 556 184 548 Z" fill="url(#alk_glass)" stroke="#9DB4D6" stroke-width="4" stroke-linejoin="round"/>
+    <line x1="190" y1="520" x2="290" y2="520" stroke="#9DB4D6" stroke-width="3" opacity="0.5"/>
+    <path d="M196 352 L 186 500" stroke="#DCE4F0" stroke-width="5" stroke-linecap="round" opacity="0.35"/>
+  </g>
+
+  <!-- Yükselen basamaklar -->
+  <g>
+    <path d="M380 560 L 380 514 L 464 514 L 464 468 L 548 468 L 548 422 L 632 422 L 632 376 L 716 376 L 716 330 L 800 330 L 800 284 L 884 284 L 884 560 Z" fill="url(#alk_gold)" opacity="0.9" stroke-linejoin="round"/>
+    <path d="M386 514 L 458 514 M470 468 L 542 468 M554 422 L 626 422 M638 376 L 710 376 M722 330 L 794 330 M806 284 L 878 284" stroke="#FFF3CF" stroke-width="5" stroke-linecap="round" opacity="0.8"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

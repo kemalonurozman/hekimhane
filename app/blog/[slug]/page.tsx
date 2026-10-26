@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { yayindakiBlogYazilari, getBlogYazi, type BlogBlok } from '@/lib/blog-data';
-import { FTR_KATEGORI } from '@/lib/blog-ftr';
+import { yayindakiBlogYazilari, getBlogYazi, yayinlanmamisBaglantilariSuz, type BlogBlok } from '@/lib/blog-data';
 import { supabase } from '@/lib/supabase';
 import { parseGovde, okumaSuresi } from '@/lib/makale-icerik';
 import MakaleGovde from '@/components/MakaleGovde';
@@ -32,6 +31,7 @@ interface Yazi {
   website: string | null;
   cover_image: string | null;
   cover_alt: string | null;
+  brans: string | null;
 }
 
 async function getYazi(slug: string): Promise<Yazi | null> {
@@ -40,9 +40,10 @@ async function getYazi(slug: string): Promise<Yazi | null> {
     return {
       title: statik.title, summary: statik.summary, category: statik.category,
       author: statik.author, authorHref: null, created_at: statik.created_at, okumaDk: statik.okumaDk,
-      govde: statik.govde, sponsorlu: false, website: null,
+      govde: yayinlanmamisBaglantilariSuz(statik.govde), sponsorlu: false, website: null,
       cover_image: statik.cover_image,
       cover_alt: statik.cover_alt || null,
+      brans: statik.brans || null,
     };
   }
 
@@ -86,6 +87,7 @@ async function getYazi(slug: string): Promise<Yazi | null> {
       website: p.website || null,
       cover_image: p.cover_image || null,
       cover_alt: p.cover_alt || null,
+      brans: null,
     };
   } catch {
     return null;
@@ -127,14 +129,13 @@ export default async function BlogDetayPage({ params }: Props) {
     ...digerAday.filter(x => x.category !== y.category),
   ].slice(0, 3);
 
-  // Yazının konusuna göre hekim bulma kutusu
-  const ftr = y.category === FTR_KATEGORI;
-  const cta = ftr
+  // Yazının konusuna göre hekim bulma kutusu (statik yazıdaki `brans` = doktorlar.spec)
+  const cta = y.brans
     ? {
-        baslik: 'Fiziksel tıp ve rehabilitasyon uzmanı mı arıyorsunuz?',
-        metin: 'Size yakın FTR uzmanlarını Hekimhane\'de bulun, profillerini inceleyin.',
-        href: `/doktorlar?spec=${encodeURIComponent('Fiziksel Tıp ve Rehabilitasyon')}`,
-        dugme: 'FTR Uzmanlarını Gör',
+        baslik: `${y.brans} uzmanı mı arıyorsunuz?`,
+        metin: 'Size yakın uzmanları Hekimhane\'de bulun, profillerini inceleyin.',
+        href: `/doktorlar?spec=${encodeURIComponent(y.brans)}`,
+        dugme: 'Uzmanları Gör',
       }
     : {
         baslik: 'Diş hekimi mi arıyorsunuz?',

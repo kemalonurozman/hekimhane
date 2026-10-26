@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Damar hastalıkları — yandan görülen bacakta açık mavi kıvrımlı toplardamar ve altın renkli atardamar, büyüteç içinde toplardamar kapakçığı">
+  <defs>
+    <linearGradient id="dam_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="dam_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="dam_skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <linearGradient id="dam_screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16325C"/><stop offset="1" stop-color="#0E2240"/></linearGradient>
+    <radialGradient id="dam_glow" cx="0.55" cy="0.48" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <clipPath id="dam_clip"><circle cx="900" cy="330" r="156"/></clipPath>
+  </defs>
+  <rect width="1200" height="675" fill="url(#dam_bg)"/>
+  <rect width="1200" height="675" fill="url(#dam_glow)"/>
+  <circle cx="1070" cy="570" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="1010" cy="110" r="150" fill="#fff" opacity="0.025"/>
+
+  <!-- Bacak (yandan, ayak sağa bakıyor) -->
+  <path d="M392 0 L 566 0 C 574 110 592 240 590 330 C 588 410 574 486 566 558 C 600 584 662 600 708 612 C 724 618 724 642 706 644 L 512 644 C 484 642 476 612 484 586 C 492 562 494 542 488 522 C 466 482 418 458 422 410 C 426 370 452 350 456 322 C 452 240 420 130 392 0 Z" fill="url(#dam_skin)"/>
+  <path d="M478 40 C 496 140 512 230 516 320" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity="0.4"/>
+
+  <!-- Atardamar -->
+  <path d="M530 0 C 538 120 556 240 556 330 C 556 420 542 500 538 560 C 560 590 610 602 660 614" fill="none" stroke="url(#dam_gold)" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- Toplardamar (kıvrımlı, varisli) -->
+  <path d="M440 0 C 452 80 462 160 470 240 C 476 290 462 318 474 346 C 486 374 456 392 466 422 C 476 452 494 456 484 490 C 476 520 500 540 502 566 C 504 590 520 608 560 616" fill="none" stroke="#7F98C2" stroke-width="10" stroke-linecap="round"/>
+  <path d="M440 0 C 452 80 462 160 470 240 C 476 290 462 318 474 346 C 486 374 456 392 466 422 C 476 452 494 456 484 490 C 476 520 500 540 502 566 C 504 590 520 608 560 616" fill="none" stroke="#C7D2E4" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Büyüteç bağlantısı -->
+  <path d="M494 424 L 742 338" stroke="#9DB4D6" stroke-width="3" stroke-dasharray="3 10" stroke-linecap="round" opacity="0.8"/>
+  <circle cx="466" cy="420" r="34" fill="none" stroke="#9DB4D6" stroke-width="3" opacity="0.9"/>
+
+  <!-- Büyüteç: toplardamar kapakçığı -->
+  <circle cx="900" cy="330" r="160" fill="#12294B"/>
+  <circle cx="900" cy="330" r="160" fill="#2A4E82" opacity="0.45"/>
+  <circle cx="900" cy="330" r="160" fill="none" stroke="url(#dam_gold)" stroke-width="8"/>
+  <g clip-path="url(#dam_clip)"><rect x="842" y="166" width="116" height="330" fill="#9DB4D6" opacity="0.35"/>
+  <rect x="852" y="166" width="96" height="330" fill="#5C7299" opacity="0.55"/></g>
+  <g fill="#F2F5FA">
+    <path d="M852 392 C 868 362 886 336 898 304 L 898 296 C 880 322 862 346 852 360 Z"/>
+    <path d="M948 392 C 932 362 914 336 902 304 L 902 296 C 920 322 938 346 948 360 Z"/>
+  </g>
+  <g fill="none" stroke="url(#dam_gold)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M900 460 L 900 404 M 884 420 L 900 402 L 916 420"/>
+    <path d="M900 270 L 900 214 M 884 230 L 900 212 L 916 230"/>
+  </g>
+  <line x1="1013" y1="443" x2="1080" y2="510" stroke="#C7D2E4" stroke-width="22" stroke-linecap="round"/>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

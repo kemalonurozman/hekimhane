@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Nörolojik hastalıklar — altın vurgulu sinir ağıyla omuriliğe bağlanan stilize beyin şeması ve yanında nörolojik muayene çekici">
+  <defs>
+    <linearGradient id="nrl_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="nrl_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="nrl_glow" cx="0.5" cy="0.45" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <linearGradient id="nrl_brain" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <linearGradient id="nrl_handle" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#DCE4F0"/><stop offset="0.5" stop-color="#F2F5FA"/><stop offset="1" stop-color="#B3C1D8"/></linearGradient>
+    <clipPath id="nrl_clip"><path d="M420 330 C 395 260 420 180 500 150 C 560 122 650 116 722 138 C 795 160 836 222 824 292 C 818 332 792 352 762 362 C 732 396 664 402 622 382 C 592 398 540 398 510 382 C 468 392 430 372 420 330 Z"/></clipPath>
+  </defs>
+  <rect width="1200" height="675" fill="url(#nrl_bg)"/>
+  <rect width="1200" height="675" fill="url(#nrl_glow)"/>
+  <circle cx="1090" cy="580" r="200" fill="#fff" opacity="0.03"/>
+  <circle cx="1020" cy="100" r="130" fill="#fff" opacity="0.025"/>
+
+  <g transform="translate(-60 0)">
+    <!-- Sinir dalları (omurilikten) -->
+    <g fill="none" stroke="url(#nrl_gold)" stroke-width="3.5" stroke-linecap="round" opacity="0.85">
+      <path d="M600 470 C 560 480 520 470 480 490 C 450 505 430 500 400 512"/>
+      <path d="M612 470 C 652 480 692 470 732 490 C 762 505 782 500 812 512"/>
+      <path d="M600 530 C 556 545 520 540 470 566 C 440 580 410 578 380 592"/>
+      <path d="M614 530 C 658 545 694 540 744 566 C 774 580 804 578 834 592"/>
+      <path d="M602 590 C 566 604 534 610 500 636"/>
+      <path d="M614 590 C 650 604 682 610 716 636"/>
+    </g>
+    <g fill="url(#nrl_gold)">
+      <circle cx="400" cy="512" r="6"/><circle cx="812" cy="512" r="6"/>
+      <circle cx="380" cy="592" r="6"/><circle cx="834" cy="592" r="6"/>
+      <circle cx="500" cy="636" r="5"/><circle cx="716" cy="636" r="5"/>
+    </g>
+
+    <!-- Beyin sapı ve omurilik -->
+    <path d="M582 378 C 590 430 596 520 594 700 L 622 700 C 622 520 622 430 618 380 Z" fill="#B3C1D8"/>
+    <!-- Beyincik -->
+    <ellipse cx="510" cy="392" rx="66" ry="40" fill="#C7D2E4"/>
+    <g fill="none" stroke="#9FB0CC" stroke-width="3" stroke-linecap="round" opacity="0.8">
+      <path d="M458 384 C 490 376 530 376 566 386"/>
+      <path d="M462 400 C 494 394 530 394 562 402"/>
+    </g>
+
+    <!-- Beyin -->
+    <path d="M420 330 C 395 260 420 180 500 150 C 560 122 650 116 722 138 C 795 160 836 222 824 292 C 818 332 792 352 762 362 C 732 396 664 402 622 382 C 592 398 540 398 510 382 C 468 392 430 372 420 330 Z" fill="url(#nrl_brain)"/>
+    <g clip-path="url(#nrl_clip)">
+      <g fill="none" stroke="#9FB0CC" stroke-width="4" stroke-linecap="round" opacity="0.75">
+        <path d="M612 128 C 600 170 630 200 612 240 C 598 272 620 300 606 340"/>
+        <path d="M470 180 C 500 196 520 180 540 206 C 560 232 530 260 556 286"/>
+        <path d="M440 260 C 470 250 490 272 520 262"/>
+        <path d="M700 150 C 690 180 722 196 712 222"/>
+        <path d="M760 190 C 740 214 770 240 750 270"/>
+        <path d="M800 270 C 770 280 760 300 730 300"/>
+        <path d="M520 320 C 560 300 600 340 650 320 C 690 304 720 330 760 320"/>
+        <path d="M470 330 C 490 312 470 290 500 280"/>
+        <path d="M660 360 C 690 350 710 368 740 356"/>
+      </g>
+      <!-- Sinir ağı -->
+      <g fill="none" stroke="url(#nrl_gold)" stroke-width="3" stroke-linecap="round" opacity="0.9">
+        <path d="M520 220 L 600 270 L 690 230 L 760 280"/>
+        <path d="M600 270 L 640 340"/>
+        <path d="M690 230 L 660 170"/>
+      </g>
+      <g fill="url(#nrl_gold)">
+        <circle cx="520" cy="220" r="8"/><circle cx="600" cy="270" r="10"/><circle cx="690" cy="230" r="8"/><circle cx="760" cy="280" r="7"/><circle cx="640" cy="340" r="7"/><circle cx="660" cy="170" r="7"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Refleks çekici -->
+  <g transform="translate(930 330) rotate(28)">
+    <rect x="-9" y="-10" width="18" height="250" rx="9" fill="url(#nrl_handle)"/>
+    <rect x="-12" y="200" width="24" height="44" rx="10" fill="#9FB0CC" opacity="0.6"/>
+    <path d="M-92 -40 C -60 -62 60 -62 92 -40 C 100 -34 100 -22 90 -18 L 10 12 C 4 14 -4 14 -10 12 L -90 -18 C -100 -22 -100 -34 -92 -40 Z" fill="url(#nrl_gold)"/>
+    <path d="M-80 -38 C -40 -52 40 -52 80 -38" fill="none" stroke="#FFF3D0" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+    <circle cx="0" cy="-8" r="10" fill="#E4EAF3"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

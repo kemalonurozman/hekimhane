@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Kısırlık ve tüp bebek — altın renkli halkayla çevrili yumurta hücresine yaklaşan üç sperm hücresi">
+  <defs>
+    <linearGradient id="krl_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="krl_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="krl_glow" cx="0.58" cy="0.5" r="0.65"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.9"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <radialGradient id="krl_egg" cx="0.42" cy="0.38" r="0.7"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></radialGradient>
+    <radialGradient id="krl_nuc" cx="0.4" cy="0.4" r="0.7"><stop offset="0" stop-color="#DCE4F0"/><stop offset="1" stop-color="#9FB0CC"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#krl_bg)"/>
+  <rect width="1200" height="675" fill="url(#krl_glow)"/>
+  <circle cx="1080" cy="590" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="1010" cy="100" r="140" fill="#fff" opacity="0.025"/>
+
+  <!-- Dış ışıma halkaları -->
+  <g fill="none" stroke="url(#krl_gold)" stroke-linecap="round">
+    <circle cx="740" cy="345" r="245" stroke-width="2" opacity="0.22" stroke-dasharray="2 14"/>
+    <circle cx="740" cy="345" r="285" stroke-width="2" opacity="0.14" stroke-dasharray="2 18"/>
+  </g>
+
+  <!-- Korona radiata: yumurtayı saran hücre katmanı -->
+  <g fill="url(#krl_gold)" opacity="0.85">
+    <circle cx="740" cy="147" r="11"/><circle cx="808" cy="159" r="10"/><circle cx="868" cy="193" r="11"/><circle cx="912" cy="245" r="10"/><circle cx="936" cy="310" r="11"/>
+    <circle cx="936" cy="380" r="10"/><circle cx="912" cy="445" r="11"/><circle cx="868" cy="497" r="10"/><circle cx="808" cy="531" r="11"/><circle cx="740" cy="543" r="10"/>
+    <circle cx="672" cy="531" r="11"/><circle cx="612" cy="497" r="10"/><circle cx="568" cy="445" r="11"/><circle cx="544" cy="380" r="10"/><circle cx="544" cy="310" r="11"/>
+    <circle cx="568" cy="245" r="10"/><circle cx="612" cy="193" r="11"/><circle cx="672" cy="159" r="10"/>
+  </g>
+  <g fill="#E8C56A" opacity="0.45">
+    <circle cx="775" cy="128" r="6"/><circle cx="842" cy="168" r="6"/><circle cx="895" cy="216" r="6"/><circle cx="930" cy="277" r="6"/><circle cx="944" cy="345" r="6"/>
+    <circle cx="930" cy="413" r="6"/><circle cx="895" cy="474" r="6"/><circle cx="842" cy="522" r="6"/><circle cx="775" cy="562" r="6"/><circle cx="705" cy="562" r="6"/>
+    <circle cx="638" cy="522" r="6"/><circle cx="585" cy="474" r="6"/><circle cx="550" cy="413" r="6"/><circle cx="536" cy="345" r="6"/><circle cx="550" cy="277" r="6"/>
+    <circle cx="585" cy="216" r="6"/><circle cx="638" cy="168" r="6"/><circle cx="705" cy="128" r="6"/>
+  </g>
+
+  <!-- Zona pellucida ve yumurta -->
+  <circle cx="740" cy="345" r="172" fill="#9DB4D6" opacity="0.28"/>
+  <circle cx="740" cy="345" r="172" fill="none" stroke="#DCE4F0" stroke-width="3" opacity="0.6"/>
+  <circle cx="740" cy="345" r="148" fill="url(#krl_egg)"/>
+  <circle cx="770" cy="370" r="46" fill="url(#krl_nuc)"/>
+  <circle cx="760" cy="360" r="12" fill="#F2F5FA" opacity="0.8"/>
+  <path d="M640 280 A 118 118 0 0 1 720 222" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- Spermler -->
+  <g>
+    <path d="M520 262 C 480 250 470 228 430 226 C 390 224 380 250 340 246 C 300 242 292 220 252 222" fill="none" stroke="#C7D2E4" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="540" cy="268" rx="22" ry="14" transform="rotate(14 540 268)" fill="#F2F5FA"/>
+  </g>
+  <g>
+    <path d="M512 356 C 470 340 452 370 410 362 C 368 354 360 326 318 330 C 276 334 262 360 222 352" fill="none" stroke="#C7D2E4" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="534" cy="358" rx="22" ry="14" transform="rotate(4 534 358)" fill="#F2F5FA"/>
+  </g>
+  <g>
+    <path d="M532 454 C 494 470 478 444 438 456 C 398 468 394 494 352 492 C 310 490 300 466 262 470" fill="none" stroke="#C7D2E4" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="552" cy="448" rx="22" ry="14" transform="rotate(-18 552 448)" fill="#F2F5FA"/>
+  </g>
+
+  <!-- Küçük parıltılar -->
+  <g fill="#E8C56A">
+    <path d="M1040 190 l6 16 l16 6 l-16 6 l-6 16 l-6 -16 l-16 -6 l16 -6 z" opacity="0.8"/>
+    <path d="M200 540 l4 11 l11 4 l-11 4 l-4 11 l-4 -11 l-11 -4 l11 -4 z" opacity="0.6"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

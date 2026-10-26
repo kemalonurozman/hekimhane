@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="İltihaplanmış eklem zarı altın renkle vurgulanmış parmak eklemi şeması, çevresinde antikorlar ve bir ilaç kapsülü">
+  <defs>
+    <linearGradient id="ra_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="ra_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="ra_bone" gradientUnits="userSpaceOnUse" x1="0" y1="270" x2="0" y2="430"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <radialGradient id="ra_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ra_heat" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#E8C56A" stop-opacity="0.38"/><stop offset="0.6" stop-color="#C99A34" stop-opacity="0.12"/><stop offset="1" stop-color="#C99A34" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#ra_bg)"/>
+  <rect width="1200" height="675" fill="url(#ra_glow)"/>
+  <circle cx="1070" cy="570" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="1010" cy="110" r="150" fill="#fff" opacity="0.025"/>
+
+  <!-- İltihap ışıması -->
+  <ellipse cx="600" cy="350" rx="230" ry="190" fill="url(#ra_heat)"/>
+
+  <!-- Eklem kapsülü (kalınlaşmış sinovyum) -->
+  <path d="M470 252 C 520 205 680 205 730 252 C 760 280 760 420 730 448 C 680 495 520 495 470 448 C 440 420 440 280 470 252 Z" fill="#E8C56A" opacity="0.12"/>
+  <path d="M470 252 C 520 205 680 205 730 252 C 760 280 760 420 730 448 C 680 495 520 495 470 448 C 440 420 440 280 470 252 Z" fill="none" stroke="url(#ra_gold)" stroke-width="9" stroke-linejoin="round"/>
+  <g fill="none" stroke="#E8C56A" stroke-width="4" stroke-linecap="round" opacity="0.75">
+    <path d="M520 236 q 12 -10 24 0 q 12 10 24 0 q 12 -10 24 0 q 12 10 24 0 q 12 -10 24 0 q 12 10 24 0"/>
+    <path d="M520 464 q 12 10 24 0 q 12 -10 24 0 q 12 10 24 0 q 12 -10 24 0 q 12 10 24 0 q 12 -10 24 0"/>
+  </g>
+
+  <!-- Sol kemik (başlı uç) -->
+  <path d="M228 306 C 260 314 300 318 330 318 L 470 318 C 510 318 530 300 556 300 C 590 300 612 322 612 350 C 612 378 590 400 556 400 C 530 400 510 382 470 382 L 330 382 C 300 382 260 386 228 394 Z" fill="url(#ra_bone)"/>
+  <path d="M556 304 C 592 306 607 326 607 350 C 607 374 592 394 556 396" fill="none" stroke="#9DB4D6" stroke-width="7" stroke-linecap="round"/>
+  <!-- Sağ kemik (çukur taban) -->
+  <path d="M972 306 C 940 314 900 318 870 318 L 730 318 C 690 318 670 300 640 300 L 606 302 C 618 318 626 334 626 350 C 626 366 618 382 606 398 L 640 400 C 670 400 690 382 730 382 L 870 382 C 900 382 940 386 972 394 Z" fill="url(#ra_bone)"/>
+  <path d="M613 307 C 625 321 631 336 631 350 C 631 364 625 379 613 393" fill="none" stroke="#9DB4D6" stroke-width="7" stroke-linecap="round"/>
+  <!-- Erozyon izleri -->
+  <g fill="#1F4274" opacity="0.55">
+    <ellipse cx="524" cy="314" rx="9" ry="5" transform="rotate(-25 524 314)"/>
+    <ellipse cx="682" cy="388" rx="9" ry="5" transform="rotate(-25 682 388)"/>
+  </g>
+  <!-- Kemik iç çizgileri -->
+  <g stroke="#9FB0CC" stroke-width="3" stroke-linecap="round" opacity="0.5">
+    <line x1="290" y1="350" x2="470" y2="350"/>
+    <line x1="740" y1="350" x2="920" y2="350"/>
+  </g>
+
+  <!-- Antikorlar (Y biçimi, kolları ekleme dönük) -->
+  <g fill="none" stroke="#C7D2E4" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="translate(350 140) rotate(-40)"><path d="M0 0 L 0 34 M0 34 L -20 58 M0 34 L 20 58"/></g>
+    <g transform="translate(850 140) rotate(40)"><path d="M0 0 L 0 34 M0 34 L -20 58 M0 34 L 20 58"/></g>
+    <g transform="translate(350 560) rotate(220)"><path d="M0 0 L 0 34 M0 34 L -20 58 M0 34 L 20 58"/></g>
+    <g transform="translate(850 560) rotate(140)"><path d="M0 0 L 0 34 M0 34 L -20 58 M0 34 L 20 58"/></g>
+    <g transform="translate(600 112)" opacity="0.8"><path d="M0 0 L 0 30 M0 30 L -17 52 M0 30 L 17 52"/></g>
+  </g>
+
+  <!-- İlaç kapsülü -->
+  <g transform="translate(1000 520) rotate(-35)">
+    <rect x="-80" y="-30" width="160" height="60" rx="30" fill="#EEF2F8"/>
+    <path d="M0 -30 L 50 -30 A 30 30 0 0 1 50 30 L 0 30 Z" fill="url(#ra_gold)"/>
+    <rect x="-62" y="-20" width="50" height="9" rx="4.5" fill="#fff" opacity="0.7"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

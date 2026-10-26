@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Tiroid hastalıkları — boyun önünde altın renkli kelebek biçimli tiroid bezi ve iki yanında azalan ve artan hormon düzeyini simgeleyen oklar">
+  <defs>
+    <linearGradient id="tir_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="tir_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="tir_skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <linearGradient id="tir_screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16325C"/><stop offset="1" stop-color="#0E2240"/></linearGradient>
+    <radialGradient id="tir_glow" cx="0.55" cy="0.48" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#tir_bg)"/>
+  <rect width="1200" height="675" fill="url(#tir_glow)"/>
+  <circle cx="1070" cy="570" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="1010" cy="110" r="150" fill="#fff" opacity="0.025"/>
+
+  <!-- Hormon göstergeleri -->
+  <g>
+    <circle cx="300" cy="330" r="84" fill="#fff" opacity="0.05"/>
+    <circle cx="300" cy="330" r="84" fill="none" stroke="#9DB4D6" stroke-width="4" opacity="0.7"/>
+    <path d="M300 286 L 300 370 M 270 342 L 300 374 L 330 342" fill="none" stroke="#C7D2E4" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="900" cy="330" r="84" fill="#fff" opacity="0.05"/>
+    <circle cx="900" cy="330" r="84" fill="none" stroke="url(#tir_gold)" stroke-width="4" opacity="0.9"/>
+    <path d="M900 374 L 900 290 M 870 318 L 900 286 L 930 318" fill="none" stroke="url(#tir_gold)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g fill="none" stroke="#9DB4D6" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round" opacity="0.6">
+    <path d="M390 330 L 500 330"/><path d="M700 330 L 810 330"/>
+  </g>
+
+  <!-- Baş, boyun ve omuzlar -->
+  <path d="M536 200 C 535 300 530 400 502 460 C 420 502 318 560 300 675 L 900 675 C 882 560 780 502 698 460 C 670 400 665 300 664 200 Z" fill="url(#tir_skin)"/>
+  <ellipse cx="600" cy="120" rx="112" ry="132" fill="url(#tir_skin)"/>
+  <path d="M536 214 C 552 240 572 252 600 254 C 628 252 648 240 664 214 L 664 226 C 646 256 626 268 600 270 C 574 268 554 256 536 226 Z" fill="#C7D2E4" opacity="0.8"/>
+
+  <!-- Soluk borusu ve gırtlak -->
+  <rect x="576" y="276" width="48" height="196" rx="18" fill="#C7D2E4" opacity="0.9"/>
+  <g stroke="#9FB0CC" stroke-width="3" stroke-linecap="round">
+    <line x1="584" y1="314" x2="616" y2="314"/><line x1="582" y1="420" x2="618" y2="420"/><line x1="582" y1="444" x2="618" y2="444"/><line x1="582" y1="468" x2="618" y2="468"/>
+  </g>
+  <path d="M574 276 L 626 276 L 616 304 L 584 304 Z" fill="#9FB0CC" opacity="0.8"/>
+
+  <!-- Tiroid bezi -->
+  <g fill="url(#tir_gold)">
+    <ellipse cx="562" cy="372" rx="32" ry="58" transform="rotate(-14 562 372)"/>
+    <ellipse cx="638" cy="372" rx="32" ry="58" transform="rotate(14 638 372)"/>
+    <rect x="560" y="378" width="80" height="28" rx="13"/>
+  </g>
+  <g fill="#FFF7E0" opacity="0.45">
+    <ellipse cx="554" cy="352" rx="9" ry="20" transform="rotate(-14 554 352)"/>
+    <ellipse cx="630" cy="352" rx="9" ry="20" transform="rotate(14 630 352)"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

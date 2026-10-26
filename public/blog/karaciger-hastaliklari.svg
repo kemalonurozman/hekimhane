@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Karaciğer hastalıkları — stilize karaciğer ve safra kesesi şeması ile çevresinde yağ damlası, virüs parçacığı ve nodül simgeleri">
+  <defs>
+    <linearGradient id="krc_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="krc_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="krc_liver" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <radialGradient id="krc_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#krc_bg)"/>
+  <rect width="1200" height="675" fill="url(#krc_glow)"/>
+  <circle cx="1070" cy="580" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="1020" cy="110" r="150" fill="#fff" opacity="0.025"/>
+
+  <!-- Bağlantı çizgileri -->
+  <g fill="none" stroke="#9DB4D6" stroke-width="2" stroke-dasharray="4 8" opacity="0.55">
+    <path d="M420 430 C 380 480 340 510 300 528"/>
+    <path d="M830 300 C 880 330 910 380 925 420"/>
+    <path d="M760 200 C 800 160 840 140 880 132"/>
+  </g>
+
+  <!-- Safra kesesi -->
+  <path d="M548 400 C 560 440 560 486 530 500 C 500 512 482 488 490 456 C 496 430 512 410 530 398 Z" fill="url(#krc_gold)"/>
+  <path d="M548 400 C 540 380 560 360 580 352" fill="none" stroke="#C99A34" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Karaciğer -->
+  <path d="M370 262 C 392 186 520 164 650 174 C 772 184 864 206 892 248 C 912 280 870 304 806 324 C 726 352 646 400 566 448 C 506 484 432 488 402 440 C 370 390 356 314 370 262 Z" fill="url(#krc_liver)"/>
+  <!-- Lob ayrımı (falsiform bağ) -->
+  <path d="M652 176 C 640 240 626 310 612 398" fill="none" stroke="#9FB0CC" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  <!-- Damar dalları -->
+  <g fill="none" stroke="#C7D2E4" stroke-width="6" stroke-linecap="round" opacity="0.9">
+    <path d="M580 360 C 540 320 500 300 450 296"/>
+    <path d="M540 328 C 520 290 500 260 470 240"/>
+    <path d="M600 352 C 640 320 700 296 780 276"/>
+    <path d="M660 314 C 680 282 700 260 730 240"/>
+  </g>
+  <!-- Parlama -->
+  <path d="M410 268 C 430 220 500 200 560 198" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- Yağ damlası simgesi -->
+  <g transform="translate(262 548)">
+    <circle r="58" fill="#16325C" stroke="url(#krc_gold)" stroke-width="3"/>
+    <path d="M0 -32 C 14 -12 24 2 24 14 C 24 28 13 36 0 36 C -13 36 -24 28 -24 14 C -24 2 -14 -12 0 -32 Z" fill="url(#krc_gold)"/>
+    <ellipse cx="-8" cy="14" rx="5" ry="9" fill="#FFF7E0" opacity="0.55"/>
+  </g>
+
+  <!-- Virüs simgesi -->
+  <g transform="translate(948 470)">
+    <circle r="58" fill="#16325C" stroke="url(#krc_gold)" stroke-width="3"/>
+    <g stroke="#C7D2E4" stroke-width="4" stroke-linecap="round">
+      <line x1="0" y1="-22" x2="0" y2="-36"/><line x1="0" y1="22" x2="0" y2="36"/><line x1="-22" y1="0" x2="-36" y2="0"/><line x1="22" y1="0" x2="36" y2="0"/>
+      <line x1="15.6" y1="-15.6" x2="25.5" y2="-25.5"/><line x1="-15.6" y1="15.6" x2="-25.5" y2="25.5"/><line x1="-15.6" y1="-15.6" x2="-25.5" y2="-25.5"/><line x1="15.6" y1="15.6" x2="25.5" y2="25.5"/>
+    </g>
+    <g fill="#E8C56A">
+      <circle cx="0" cy="-37" r="4.5"/><circle cx="0" cy="37" r="4.5"/><circle cx="-37" cy="0" r="4.5"/><circle cx="37" cy="0" r="4.5"/>
+      <circle cx="26" cy="-26" r="4.5"/><circle cx="-26" cy="26" r="4.5"/><circle cx="-26" cy="-26" r="4.5"/><circle cx="26" cy="26" r="4.5"/>
+    </g>
+    <circle r="23" fill="#C7D2E4"/>
+    <circle cx="-6" cy="-5" r="6" fill="#9FB0CC"/><circle cx="8" cy="4" r="4.5" fill="#9FB0CC"/><circle cx="-2" cy="10" r="3.5" fill="#9FB0CC"/>
+  </g>
+
+  <!-- Nodül simgesi -->
+  <g transform="translate(936 128)">
+    <circle r="58" fill="#16325C" stroke="url(#krc_gold)" stroke-width="3"/>
+    <path d="M-34 -6 C -30 -26 -10 -34 8 -32 C 26 -30 36 -14 34 4 C 32 22 18 34 0 34 C -20 34 -36 16 -34 -6 Z" fill="#C7D2E4"/>
+    <g fill="#9FB0CC"><circle cx="-14" cy="-12" r="9"/><circle cx="8" cy="-16" r="8"/><circle cx="20" cy="2" r="8.5"/><circle cx="-18" cy="10" r="8.5"/><circle cx="2" cy="6" r="8"/><circle cx="8" cy="23" r="7"/><circle cx="-8" cy="25" r="6"/></g>
+    <circle cx="20" cy="2" r="8.5" fill="url(#krc_gold)"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

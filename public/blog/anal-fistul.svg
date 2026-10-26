@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Kanal duvarı ile cilt yüzeyi arasında uzanan altın renkli kesikli tünel ve kas katmanlarını gösteren şema">
+  <defs>
+    <linearGradient id="fst_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="fst_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="fst_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <linearGradient id="fst_ext" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#AFC0DA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <linearGradient id="fst_skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DCE4F0"/><stop offset="1" stop-color="#AFC0DA"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#fst_bg)"/>
+  <rect width="1200" height="675" fill="url(#fst_glow)"/>
+  <circle cx="1070" cy="560" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="1010" cy="110" r="150" fill="#fff" opacity="0.025"/>
+
+  <!-- Rektum duvarı (üstte genişleyen) -->
+  <path d="M420 110 C 430 190 480 230 500 280 L 500 520 L 470 520 L 470 290 C 450 240 395 200 380 110 Z" fill="#9FB0CC" opacity="0.55"/>
+  <path d="M700 110 C 690 190 640 230 620 280 L 620 520 L 650 520 L 650 290 C 670 240 725 200 740 110 Z" fill="#9FB0CC" opacity="0.55"/>
+
+  <!-- Dış sfinkter -->
+  <rect x="400" y="300" width="56" height="240" rx="28" fill="url(#fst_ext)"/>
+  <rect x="664" y="300" width="56" height="240" rx="28" fill="url(#fst_ext)"/>
+  <!-- İç sfinkter -->
+  <rect x="502" y="290" width="26" height="220" rx="13" fill="#F2F5FA"/>
+  <rect x="592" y="290" width="26" height="220" rx="13" fill="#F2F5FA"/>
+  <!-- Kanal -->
+  <rect x="532" y="120" width="56" height="440" rx="28" fill="#0F2546" opacity="0.55"/>
+
+  <!-- Cilt yüzeyi -->
+  <path d="M230 560 C 330 552 430 548 520 556 L 532 572 L 588 572 L 600 556 C 690 548 820 552 970 560 L 970 600 L 230 600 Z" fill="url(#fst_skin)" opacity="0.9"/>
+  <path d="M250 566 C 350 558 440 556 510 562" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+
+  <!-- Fistül tüneli -->
+  <path d="M592 400 C 640 404 700 430 742 468 C 772 496 790 522 806 556" fill="none" stroke="url(#fst_gold)" stroke-width="9" stroke-dasharray="2 16" stroke-linecap="round"/>
+  <path d="M592 400 C 640 404 700 430 742 468 C 772 496 790 522 806 556" fill="none" stroke="#E8C56A" stroke-width="22" stroke-linecap="round" opacity="0.12"/>
+  <circle cx="590" cy="400" r="10" fill="url(#fst_gold)"/>
+  <circle cx="808" cy="556" r="12" fill="url(#fst_gold)"/>
+  <circle cx="808" cy="556" r="24" fill="none" stroke="#E8C56A" stroke-width="3" opacity="0.5"/>
+
+  <!-- Dekoratif halkalar -->
+  <g fill="none" stroke="url(#fst_gold)" stroke-linecap="round" opacity="0.35">
+    <path d="M870 300 A 140 140 0 0 1 900 470" stroke-width="2.5" stroke-dasharray="3 12"/>
+    <path d="M920 260 A 190 190 0 0 1 960 500" stroke-width="2" stroke-dasharray="2 14"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

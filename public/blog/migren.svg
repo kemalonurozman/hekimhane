@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Migren — başın bir yarısında altın renkli zonklama dalgaları ve gözün önünde zikzak aura çizgileri bulunan profil silueti">
+  <defs>
+    <linearGradient id="mig_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="mig_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="mig_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <linearGradient id="mig_head" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <radialGradient id="mig_pain" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#E8C56A" stop-opacity="0.95"/><stop offset="0.55" stop-color="#E8C56A" stop-opacity="0.35"/><stop offset="1" stop-color="#E8C56A" stop-opacity="0"/></radialGradient>
+    <clipPath id="mig_clip"><path d="M470 700 C 470 580 455 530 445 475 C 420 385 430 285 500 232 C 560 186 660 180 720 225 C 765 258 780 300 778 330 C 778 345 790 355 806 378 C 812 388 806 396 790 398 C 794 410 796 418 788 426 C 794 436 792 446 782 452 C 784 468 780 488 760 498 C 735 510 705 505 690 520 C 682 560 686 610 690 700 Z"/></clipPath>
+  </defs>
+  <rect width="1200" height="675" fill="url(#mig_bg)"/>
+  <rect width="1200" height="675" fill="url(#mig_glow)"/>
+  <circle cx="1080" cy="570" r="200" fill="#fff" opacity="0.03"/>
+  <circle cx="1010" cy="100" r="140" fill="#fff" opacity="0.025"/>
+
+  <!-- Zonklama dalgaları (başın dışında) -->
+  <g fill="none" stroke="url(#mig_gold)" stroke-linecap="round">
+    <path d="M598 150 A 150 150 0 0 1 748 182" stroke-width="5" opacity="0.85"/>
+    <path d="M574 104 A 200 200 0 0 1 792 150" stroke-width="4" opacity="0.55"/>
+    <path d="M552 60 A 250 250 0 0 1 836 118" stroke-width="3" opacity="0.3"/>
+  </g>
+
+  <!-- Baş silueti -->
+  <path d="M470 700 C 470 580 455 530 445 475 C 420 385 430 285 500 232 C 560 186 660 180 720 225 C 765 258 780 300 778 330 C 778 345 790 355 806 378 C 812 388 806 396 790 398 C 794 410 796 418 788 426 C 794 436 792 446 782 452 C 784 468 780 488 760 498 C 735 510 705 505 690 520 C 682 560 686 610 690 700 Z" fill="url(#mig_head)"/>
+
+  <!-- Ağrı odağı: başın bir yarısı -->
+  <g clip-path="url(#mig_clip)">
+    <circle cx="635" cy="272" r="150" fill="url(#mig_pain)"/>
+    <g fill="none" stroke="#C99A34" stroke-linecap="round" opacity="0.7">
+      <circle cx="635" cy="272" r="34" stroke-width="5"/>
+      <circle cx="635" cy="272" r="68" stroke-width="4" opacity="0.7"/>
+      <circle cx="635" cy="272" r="102" stroke-width="3" opacity="0.45"/>
+    </g>
+  </g>
+
+  <!-- Kapalı göz ve kaş -->
+  <path d="M732 326 C 741 335 754 335 763 327" fill="none" stroke="#5C7299" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Görsel aura: zikzak hilal -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M900 190 L 922 214 L 898 236 L 926 256 L 900 280 L 930 300 L 904 324 L 932 344 L 904 368 L 928 390 L 898 410 L 918 436" stroke="url(#mig_gold)" stroke-width="6"/>
+    <path d="M960 214 L 976 236 L 958 258 L 980 276 L 960 300 L 984 318 L 962 342 L 982 362 L 958 384 L 974 408" stroke="#F2F5FA" stroke-width="4" opacity="0.55"/>
+  </g>
+  <g fill="#FFF3D0">
+    <circle cx="872" cy="230" r="4" opacity="0.8"/>
+    <circle cx="1010" cy="300" r="3.5" opacity="0.6"/>
+    <circle cx="878" cy="400" r="3" opacity="0.7"/>
+    <circle cx="1000" cy="420" r="4" opacity="0.5"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

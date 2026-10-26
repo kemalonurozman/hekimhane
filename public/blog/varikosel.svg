@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Kıvrımlı ve genişlemiş stilize bir toplardamar, içinde geri akışı gösteren altın oklar ve üzerinde büyüteç">
+  <defs>
+    <linearGradient id="vrk_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="vrk_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="vrk_glow" cx="0.55" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <clipPath id="vrk_lens"><circle cx="860" cy="360" r="128"/></clipPath>
+    <linearGradient id="vrk_vein" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#AFC0DA"/><stop offset="0.5" stop-color="#F2F5FA"/><stop offset="1" stop-color="#AFC0DA"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#vrk_bg)"/>
+  <rect width="1200" height="675" fill="url(#vrk_glow)"/>
+  <circle cx="1070" cy="570" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="1010" cy="100" r="150" fill="#fff" opacity="0.025"/>
+  <path d="M330 110 C 335 250 325 420 332 600" fill="none" stroke="#9DB4D6" stroke-width="14" stroke-linecap="round" opacity="0.55"/>
+  <path d="M318 230 L331 214 L344 230" fill="none" stroke="#C7D2E4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+  <path d="M318 370 L331 354 L344 370" fill="none" stroke="#C7D2E4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+  <path d="M318 510 L331 494 L344 510" fill="none" stroke="#C7D2E4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+  <path d="M575.0 130.0 C 583.3 142.5 627.5 180.0 625.0 205.0 C 622.5 230.0 557.5 258.3 560.0 280.0 C 562.5 301.7 638.3 311.7 640.0 335.0 C 641.7 358.3 571.7 397.5 570.0 420.0 C 568.3 442.5 629.2 449.2 630.0 470.0 C 630.8 490.8 584.2 532.5 575.0 545.0" fill="none" stroke="#C7D2E4" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+  <path d="M575.0 130.0 C 583.3 142.5 627.5 180.0 625.0 205.0 C 622.5 230.0 557.5 258.3 560.0 280.0 C 562.5 301.7 638.3 311.7 640.0 335.0 C 641.7 358.3 571.7 397.5 570.0 420.0 C 568.3 442.5 629.2 449.2 630.0 470.0 C 630.8 490.8 584.2 532.5 575.0 545.0" fill="none" stroke="#F2F5FA" stroke-width="6.0" stroke-linecap="round" opacity="0.30" transform="translate(-5 -2)"/>
+  <path d="M548.0 120.0 C 540.0 130.0 493.8 160.8 500.0 180.0 C 506.2 199.2 581.7 215.0 585.0 235.0 C 588.3 255.0 517.5 280.8 520.0 300.0 C 522.5 319.2 604.2 331.7 600.0 350.0 C 595.8 368.3 496.7 390.0 495.0 410.0 C 493.3 430.0 585.8 450.0 590.0 470.0 C 594.2 490.0 525.0 510.0 520.0 530.0 C 515.0 550.0 553.3 580.0 560.0 590.0" fill="none" stroke="#C7D2E4" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" opacity="0.72"/>
+  <path d="M548.0 120.0 C 540.0 130.0 493.8 160.8 500.0 180.0 C 506.2 199.2 581.7 215.0 585.0 235.0 C 588.3 255.0 517.5 280.8 520.0 300.0 C 522.5 319.2 604.2 331.7 600.0 350.0 C 595.8 368.3 496.7 390.0 495.0 410.0 C 493.3 430.0 585.8 450.0 590.0 470.0 C 594.2 490.0 525.0 510.0 520.0 530.0 C 515.0 550.0 553.3 580.0 560.0 590.0" fill="none" stroke="#F2F5FA" stroke-width="8.4" stroke-linecap="round" opacity="0.43" transform="translate(-5 -2)"/>
+  <path d="M560.0 95.0 C 564.2 104.2 590.0 132.5 585.0 150.0 C 580.0 167.5 525.5 181.3 530.0 200.0 C 534.5 218.7 617.0 242.0 612.0 262.0 C 607.0 282.0 497.3 299.5 500.0 320.0 C 502.7 340.5 626.0 363.3 628.0 385.0 C 630.0 406.7 516.7 430.0 512.0 450.0 C 507.3 470.0 595.7 486.7 600.0 505.0 C 604.3 523.3 543.8 542.5 538.0 560.0 C 532.2 577.5 560.5 601.7 565.0 610.0" fill="none" stroke="#C7D2E4" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" opacity="1.0"/>
+  <path d="M560.0 95.0 C 564.2 104.2 590.0 132.5 585.0 150.0 C 580.0 167.5 525.5 181.3 530.0 200.0 C 534.5 218.7 617.0 242.0 612.0 262.0 C 607.0 282.0 497.3 299.5 500.0 320.0 C 502.7 340.5 626.0 363.3 628.0 385.0 C 630.0 406.7 516.7 430.0 512.0 450.0 C 507.3 470.0 595.7 486.7 600.0 505.0 C 604.3 523.3 543.8 542.5 538.0 560.0 C 532.2 577.5 560.5 601.7 565.0 610.0" fill="none" stroke="#F2F5FA" stroke-width="12.0" stroke-linecap="round" opacity="0.60" transform="translate(-5 -2)"/>
+  <ellipse cx="612" cy="262" rx="30" ry="24" fill="#D6DFEC"/><ellipse cx="606" cy="255" rx="12.0" ry="7.2" fill="#fff" opacity="0.6"/>
+  <ellipse cx="500" cy="320" rx="28" ry="24" fill="#D6DFEC"/><ellipse cx="494" cy="313" rx="11.2" ry="7.2" fill="#fff" opacity="0.6"/>
+  <ellipse cx="628" cy="385" rx="32" ry="26" fill="#D6DFEC"/><ellipse cx="622" cy="378" rx="12.8" ry="7.8" fill="#fff" opacity="0.6"/>
+  <ellipse cx="512" cy="450" rx="26" ry="22" fill="#D6DFEC"/><ellipse cx="506" cy="443" rx="10.4" ry="6.6" fill="#fff" opacity="0.6"/>
+  <path d="M541 169 L552 184 L563 169" fill="none" stroke="#D4A843" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M549 281 L560 296 L571 281" fill="none" stroke="#D4A843" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M555 409 L566 424 L577 409" fill="none" stroke="#D4A843" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M564 521 L575 536 L586 521" fill="none" stroke="#D4A843" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="860" cy="360" r="128" fill="#16325C"/>
+  <g clip-path="url(#vrk_lens)">
+    <rect x="800" y="220" width="120" height="290" fill="url(#vrk_vein)"/>
+    <path d="M800 220 L800 510 M920 220 L920 510" stroke="#9FB0CC" stroke-width="6"/>
+    <path d="M803 330 Q 830 350 848 380" fill="none" stroke="#8FA2C2" stroke-width="9" stroke-linecap="round"/>
+    <path d="M917 330 Q 890 350 872 380" fill="none" stroke="#8FA2C2" stroke-width="9" stroke-linecap="round"/>
+    <path d="M860 300 L860 440" stroke="#D4A843" stroke-width="9" stroke-linecap="round"/>
+    <path d="M840 418 L860 446 L880 418" fill="none" stroke="url(#vrk_gold)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <circle cx="860" cy="360" r="128" fill="none" stroke="url(#vrk_gold)" stroke-width="16"/>
+  <path d="M770 300 A 105 105 0 0 1 830 250" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity="0.45"/>
+  <rect x="0" y="-15" width="130" height="30" rx="15" transform="translate(955 455) rotate(45)" fill="url(#vrk_gold)"/>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

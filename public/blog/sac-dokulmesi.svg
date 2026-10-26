@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Saç dökülmesi — büyüme, geçiş ve dinlenme evrelerindeki üç stilize kıl kökü ile dökülen tek bir saç teli">
+  <defs>
+    <linearGradient id="sac_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="sac_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="sac_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <linearGradient id="sac_derm" gradientUnits="userSpaceOnUse" x1="0" y1="300" x2="0" y2="620"><stop offset="0" stop-color="#C7D2E4"/><stop offset="1" stop-color="#C7D2E4" stop-opacity="0.2"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#sac_bg)"/>
+  <rect width="1200" height="675" fill="url(#sac_glow)"/>
+  <circle cx="1080" cy="110" r="150" fill="#fff" opacity="0.025"/>
+  <circle cx="130" cy="600" r="170" fill="#fff" opacity="0.025"/>
+
+  <!-- Deri -->
+  <rect x="200" y="300" width="800" height="300" rx="24" fill="url(#sac_derm)"/>
+  <rect x="200" y="300" width="800" height="28" fill="#F2F5FA"/>
+  <line x1="200" y1="300" x2="1000" y2="300" stroke="#fff" stroke-width="3" opacity="0.7"/>
+
+  <!-- Büyüme (anajen) -->
+  <path d="M366 300 L 364 500 C 340 510 336 552 360 566 C 372 572 388 572 400 566 C 424 552 420 510 396 500 L 394 300 Z" fill="#E4EAF3" stroke="#9FB0CC" stroke-width="3"/>
+  <ellipse cx="380" cy="556" rx="14" ry="12" fill="url(#sac_gold)"/>
+  <path d="M380 544 C 380 480 380 380 381 300 C 382 240 392 190 412 150" fill="none" stroke="#5B7299" stroke-width="7" stroke-linecap="round"/>
+  <g fill="#E8C56A" opacity="0.8"><circle cx="404" cy="380" r="11"/><circle cx="410" cy="400" r="8"/></g>
+
+  <!-- Geçiş (katajen) -->
+  <path d="M588 300 L 588 420 C 586 440 594 460 600 470 C 606 460 614 440 612 420 L 612 300 Z" fill="#E4EAF3" stroke="#9FB0CC" stroke-width="3"/>
+  <path d="M600 470 C 600 488 600 500 600 512" stroke="#9FB0CC" stroke-width="3" stroke-dasharray="4 6"/>
+  <ellipse cx="600" cy="522" rx="10" ry="8" fill="url(#sac_gold)" opacity="0.9"/>
+  <path d="M600 452 C 600 400 600 340 601 300 C 602 250 610 210 626 176" fill="none" stroke="#5B7299" stroke-width="5.5" stroke-linecap="round"/>
+  <g fill="#E8C56A" opacity="0.7"><circle cx="622" cy="370" r="9"/></g>
+
+  <!-- Dinlenme (telojen) -->
+  <path d="M808 300 L 808 400 C 806 418 814 430 820 432 C 826 430 834 418 832 400 L 832 300 Z" fill="#E4EAF3" stroke="#9FB0CC" stroke-width="3"/>
+  <circle cx="820" cy="404" r="9" fill="#F7F9FC" stroke="#9FB0CC" stroke-width="2"/>
+  <ellipse cx="820" cy="462" rx="9" ry="7" fill="url(#sac_gold)" opacity="0.85"/>
+  <path d="M820 396 C 820 360 820 330 821 300 C 822 262 830 226 844 196" fill="none" stroke="#5B7299" stroke-width="5" stroke-linecap="round"/>
+  <g fill="#E8C56A" opacity="0.6"><circle cx="840" cy="350" r="7"/></g>
+
+  <!-- Dökülen saç teli -->
+  <g transform="translate(985 105) rotate(32)">
+    <path d="M0 0 C 6 40 -4 90 4 150" fill="none" stroke="#5B7299" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="4" cy="154" r="8" fill="#F7F9FC" stroke="#9FB0CC" stroke-width="2"/>
+  </g>
+  <g fill="none" stroke="#9DB4D6" stroke-width="2.5" stroke-dasharray="3 10" stroke-linecap="round" opacity="0.6">
+    <path d="M862 196 C 890 170 920 160 950 168"/>
+  </g>
+
+  <!-- Döngü oku -->
+  <g fill="none" stroke="url(#sac_gold)" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 12" opacity="0.85">
+    <path d="M820 620 C 760 660 440 660 386 620"/>
+  </g>
+  <path d="M376 612 L 398 614 L 386 632 Z" fill="#E2B856"/>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

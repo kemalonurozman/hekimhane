@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Kolon kanseri — stilize kalın bağırsak şeması içinde ilerleyen kolonoskop, ucundaki ışıkla aydınlanan küçük polip ve büyüteçte polipin yakın görünümü">
+  <defs>
+    <linearGradient id="kln_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="kln_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="kln_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <linearGradient id="kln_beam" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#F0D27F" stop-opacity="0.8"/><stop offset="1" stop-color="#F0D27F" stop-opacity="0"/></linearGradient>
+    <linearGradient id="kln_lens" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#20416F"/><stop offset="1" stop-color="#16325C"/></linearGradient>
+    <clipPath id="kln_mag"><circle cx="985" cy="330" r="88"/></clipPath>
+  </defs>
+  <rect width="1200" height="675" fill="url(#kln_bg)"/>
+  <rect width="1200" height="675" fill="url(#kln_glow)"/>
+  <circle cx="1070" cy="580" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="160" cy="560" r="170" fill="#fff" opacity="0.025"/>
+
+  <!-- Kalın bağırsak -->
+  <g fill="none" stroke-linejoin="round">
+    <path d="M420 500 L 420 260 C 420 220 450 200 490 200 L 710 200 C 750 200 780 220 780 260 L 780 450 C 780 510 740 530 700 520 C 660 510 600 500 600 560 L 600 640" stroke="#C7D2E4" stroke-width="84" stroke-linecap="round"/>
+    <path d="M420 500 L 420 260 C 420 220 450 200 490 200 L 710 200 C 750 200 780 220 780 260 L 780 450 C 780 510 740 530 700 520 C 660 510 600 500 600 560 L 600 640" stroke="#9FB0CC" stroke-width="84" stroke-dasharray="4 30" opacity="0.9"/>
+    <path d="M420 500 L 420 260 C 420 220 450 200 490 200 L 710 200 C 750 200 780 220 780 260 L 780 450 C 780 510 740 530 700 520 C 660 510 600 500 600 560 L 600 640" stroke="#F2F5FA" stroke-width="54" stroke-linecap="round"/>
+  </g>
+  <!-- Apendiks -->
+  <path d="M410 536 C 398 566 384 576 370 570" fill="none" stroke="#C7D2E4" stroke-width="14" stroke-linecap="round"/>
+
+  <!-- Kolonoskop -->
+  <path d="M600 700 L 600 560 C 600 500 660 510 700 520 C 740 530 780 510 780 450 L 780 260 C 780 220 750 200 710 200 L 578 200" fill="none" stroke="#1B3A69" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+  <path d="M600 700 L 600 560 C 600 500 660 510 700 520 C 740 530 780 510 780 450 L 780 260 C 780 220 750 200 710 200 L 578 200" fill="none" stroke="url(#kln_gold)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Işık -->
+  <path d="M566 200 L 470 176 L 470 224 Z" fill="url(#kln_beam)"/>
+  <circle cx="570" cy="200" r="10" fill="#C99A34"/>
+  <circle cx="567" cy="200" r="4.5" fill="#FFF7E0"/>
+
+  <!-- Polip -->
+  <path d="M500 173 C 500 188 508 194 516 194 C 524 194 532 188 532 173 Z" fill="url(#kln_gold)"/>
+  <circle cx="516" cy="182" r="27" fill="none" stroke="url(#kln_gold)" stroke-width="2.5" opacity="0.75" stroke-dasharray="3 7" stroke-linecap="round"/>
+  <path d="M528 156 Q 790 30 912 270" fill="none" stroke="#9DB4D6" stroke-width="2" stroke-dasharray="4 8" opacity="0.55"/>
+
+  <!-- Büyüteç -->
+  <g>
+    <line x1="1050" y1="395" x2="1104" y2="449" stroke="#C7D2E4" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="985" cy="330" r="95" fill="url(#kln_lens)"/>
+    <g clip-path="url(#kln_mag)">
+      <path d="M880 372 C 920 360 950 356 985 356 C 1020 356 1050 360 1090 372 L 1090 430 L 880 430 Z" fill="#C7D2E4"/>
+      <path d="M880 392 C 920 382 950 378 985 378 C 1020 378 1050 382 1090 392" fill="none" stroke="#9FB0CC" stroke-width="3" opacity="0.8"/>
+      <path d="M975 358 L 975 318 L 995 318 L 995 358 Z" fill="#D8AE4C"/>
+      <ellipse cx="985" cy="300" rx="36" ry="30" fill="url(#kln_gold)"/>
+      <ellipse cx="972" cy="290" rx="10" ry="7" fill="#FFF7E0" opacity="0.55"/>
+    </g>
+    <circle cx="985" cy="330" r="95" fill="none" stroke="#C7D2E4" stroke-width="7"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

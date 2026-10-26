@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Kadın hastalıkları — rahim ve yumurtalıkların sade şeması ile altın onay işaretli kontrol listesi">
+  <defs>
+    <linearGradient id="kdh_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="kdh_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="kdh_glow" cx="0.45" cy="0.5" r="0.65"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.9"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <linearGradient id="kdh_organ" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <linearGradient id="kdh_card" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#DCE4F0"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#kdh_bg)"/>
+  <rect width="1200" height="675" fill="url(#kdh_glow)"/>
+  <circle cx="1080" cy="600" r="200" fill="#fff" opacity="0.03"/>
+  <circle cx="1030" cy="90" r="130" fill="#fff" opacity="0.025"/>
+
+  <!-- Arka halka -->
+  <circle cx="460" cy="350" r="250" fill="none" stroke="url(#kdh_gold)" stroke-width="2" opacity="0.25" stroke-dasharray="2 14" stroke-linecap="round"/>
+
+  <!-- Rahim şeması -->
+  <g>
+    <!-- tüpler -->
+    <path d="M412 252 C 360 228 320 212 290 236 C 268 254 258 286 252 312" fill="none" stroke="#C7D2E4" stroke-width="16" stroke-linecap="round"/>
+    <path d="M508 252 C 560 228 600 212 630 236 C 652 254 662 286 668 312" fill="none" stroke="#C7D2E4" stroke-width="16" stroke-linecap="round"/>
+    <!-- saçaklar -->
+    <g fill="none" stroke="#C7D2E4" stroke-width="7" stroke-linecap="round">
+      <path d="M252 312 L 236 336"/><path d="M252 312 L 252 342"/><path d="M252 312 L 268 338"/>
+      <path d="M668 312 L 652 338"/><path d="M668 312 L 668 342"/><path d="M668 312 L 684 336"/>
+    </g>
+    <!-- yumurtalıklar -->
+    <ellipse cx="318" cy="318" rx="40" ry="27" transform="rotate(-20 318 318)" fill="url(#kdh_gold)"/>
+    <ellipse cx="602" cy="318" rx="40" ry="27" transform="rotate(20 602 318)" fill="url(#kdh_gold)"/>
+    <!-- rahim gövdesi ve rahim ağzı -->
+    <path d="M396 246 C 392 196 528 196 524 246 C 524 300 506 352 486 384 L 486 450 C 486 466 434 466 434 450 L 434 384 C 414 352 396 300 396 236 Z" fill="url(#kdh_organ)"/>
+    <!-- rahim boşluğu -->
+    <path d="M424 248 L 496 248 C 490 296 474 330 460 352 C 446 330 430 296 424 248 Z" fill="#9FB0CC" opacity="0.55"/>
+    <path d="M460 352 L 460 446" stroke="#9FB0CC" stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+    <path d="M410 250 C 412 232 430 226 448 226" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity="0.7"/>
+  </g>
+
+  <!-- Kontrol listesi kartı -->
+  <g transform="translate(790 170)">
+    <rect x="0" y="0" width="290" height="350" rx="26" fill="url(#kdh_card)"/>
+    <rect x="105" y="-16" width="80" height="32" rx="12" fill="#9DB4D6"/>
+    <g>
+      <circle cx="52" cy="92" r="20" fill="url(#kdh_gold)"/>
+      <path d="M42 92 L 50 100 L 64 84" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="88" y="84" width="160" height="16" rx="8" fill="#9FB0CC"/>
+      <circle cx="52" cy="172" r="20" fill="url(#kdh_gold)"/>
+      <path d="M42 172 L 50 180 L 64 164" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="88" y="164" width="130" height="16" rx="8" fill="#9FB0CC"/>
+      <circle cx="52" cy="252" r="20" fill="none" stroke="#9FB0CC" stroke-width="4"/>
+      <rect x="88" y="244" width="150" height="16" rx="8" fill="#C7D2E4"/>
+    </g>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

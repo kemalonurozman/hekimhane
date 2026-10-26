@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Baş silueti içinde kendi etrafında dönen altın döngünün açılarak serbest bir çizgiye dönüştüğü soyut çizim">
+  <defs>
+    <linearGradient id="okb_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="okb_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="okb_head" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA" stop-opacity="0.22"/><stop offset="1" stop-color="#9DB4D6" stop-opacity="0.10"/></linearGradient>
+    <radialGradient id="okb_glow" cx="0.6" cy="0.48" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#okb_bg)"/>
+  <rect width="1200" height="675" fill="url(#okb_glow)"/>
+  <circle cx="190" cy="560" r="200" fill="#fff" opacity="0.03"/>
+  <circle cx="1080" cy="600" r="150" fill="#fff" opacity="0.025"/>
+
+  <!-- Sola bakan baş silueti -->
+  <g transform="translate(1340 0) scale(-1 1)">
+    <path d="M556 675 L 556 572 C 480 530 432 446 440 350 C 452 230 560 150 690 150 C 810 150 892 228 900 330 L 902 352 L 938 420 C 944 432 936 440 924 440 L 906 440 L 908 468 C 910 478 902 484 896 486 C 904 492 904 500 896 506 L 890 540 C 884 562 860 570 830 566 L 780 560 L 780 675 Z" fill="url(#okb_head)" stroke="#DCE4F0" stroke-width="4" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Tekrarlayan döngünün izleri -->
+  <g fill="none" stroke="#9DB4D6" stroke-width="2.5">
+    <circle cx="780" cy="340" r="118" opacity="0.28" stroke-dasharray="6 10"/>
+    <circle cx="780" cy="340" r="66" opacity="0.32"/>
+    <circle cx="780" cy="340" r="44" opacity="0.22" stroke-dasharray="3 8"/>
+  </g>
+
+  <!-- Altın döngü ve açılan çizgi -->
+  <g fill="none" stroke="url(#okb_gold)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M756.2 251.1 L760.9 250.0 L765.6 249.1 L770.4 248.5 L775.2 248.1 L780.0 248.0 L784.8 248.1 L789.6 248.5 L794.4 249.1 L799.1 250.0 L803.8 251.1 L808.4 252.5 L813.0 254.1 L817.4 256.0 L821.8 258.0 L826.0 260.3 L830.1 262.8 L834.1 265.6 L837.9 268.5 L841.6 271.6 L845.1 274.9 L848.4 278.4 L851.5 282.1 L854.4 285.9 L857.2 289.9 L859.7 294.0 L862.0 298.2 L864.0 302.6 L865.9 307.0 L867.5 311.6 L868.9 316.2 L870.0 320.9 L870.9 325.6 L871.5 330.4 L871.9 335.2 L872.0 340.0 L871.9 344.8 L871.5 349.6 L870.9 354.4 L870.0 359.1 L868.9 363.8 L867.5 368.4 L865.9 373.0 L864.0 377.4 L862.0 381.8 L859.7 386.0 L857.2 390.1 L854.4 394.1 L851.5 397.9 L848.4 401.6 L845.1 405.1 L841.6 408.4 L837.9 411.5 L834.1 414.4 L830.1 417.2 L826.0 419.7 L821.8 422.0 L817.4 424.0 L813.0 425.9 L808.4 427.5 L803.8 428.9 L799.1 430.0 L794.4 430.9 L789.6 431.5 L784.8 431.9 L780.0 432.0 L775.2 431.9 L770.4 431.5 L765.6 430.9 L760.9 430.0 L756.2 428.9 L751.6 427.5 L747.0 425.9 L742.6 424.0 L738.2 422.0 L734.0 419.7 L729.9 417.2 L725.9 414.4 L722.1 411.5 L718.4 408.4 L714.9 405.1 L711.6 401.6 L708.5 397.9 L705.6 394.1 L702.8 390.1 L700.3 386.0 L698.0 381.8 L696.0 377.4 L694.1 373.0 L692.5 368.4 L691.1 363.8 L690.0 359.1 L689.1 354.4 L688.5 349.6 L688.1 344.8 L688.0 340.0 L688.1 335.2 L688.5 330.4 L689.1 325.6 L690.0 320.9 L691.1 316.2 L692.5 311.6 L694.1 307.0 L696.0 302.6 L698.0 298.2 L700.3 294.0 L702.8 289.9 L705.6 285.9 L708.5 282.1 L711.6 278.4 L714.9 274.9" stroke-width="8"/>
+    <path d="M850.9 418.8 L 817.4 424.0 L 832.2 398.0" stroke-width="7"/>
+    <path d="M714.9 274.9 C 752.9 236.9 794.9 196.9 854.9 174.9 C 934.9 144.9 1014.9 178.9 1094.9 142.9" stroke-width="7"/>
+  </g>
+  <circle cx="1094.9" cy="142.9" r="11" fill="url(#okb_gold)"/>
+  <circle cx="1094.9" cy="142.9" r="25" fill="none" stroke="#E8C56A" stroke-width="2.5" opacity="0.45"/>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Terzi mankeni biçiminde soyut gövde silueti, altın mezura, simetri çizgileri ve yanında yuvarlak protez şeması">
+  <defs>
+    <linearGradient id="gog_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="gog_gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="gog_gold2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="gog_form" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#C7D2E4"/><stop offset="0.45" stop-color="#F2F5FA"/><stop offset="1" stop-color="#B4C3DB"/></linearGradient>
+    <radialGradient id="gog_impl" cx="0.4" cy="0.35" r="0.7"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#9FB0CC"/></radialGradient>
+    <radialGradient id="gog_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#gog_bg)"/>
+  <rect width="1200" height="675" fill="url(#gog_glow)"/>
+  <circle cx="1070" cy="580" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="170" cy="560" r="160" fill="#fff" opacity="0.025"/>
+
+  <!-- Simetri çizgileri -->
+  <g fill="none" stroke="#9DB4D6" stroke-width="2" stroke-dasharray="4 10" opacity="0.55">
+    <line x1="540" y1="96" x2="540" y2="520"/>
+    <line x1="330" y1="262" x2="750" y2="262"/>
+    <line x1="330" y1="360" x2="750" y2="360"/>
+  </g>
+  <g fill="#9DB4D6" opacity="0.7"><circle cx="330" cy="262" r="5"/><circle cx="750" cy="262" r="5"/><circle cx="330" cy="360" r="5"/><circle cx="750" cy="360" r="5"/></g>
+
+  <!-- Manken ayağı -->
+  <g stroke="#9DB4D6" stroke-linecap="round" fill="none">
+    <line x1="540" y1="480" x2="540" y2="600" stroke-width="12"/>
+    <path d="M540 600 L 470 640 M540 600 L 610 640 M540 600 L 540 646" stroke-width="9"/>
+  </g>
+
+  <!-- Terzi mankeni gövdesi -->
+  <rect x="512" y="118" width="56" height="30" rx="10" fill="#9DB4D6"/>
+  <path d="M514 146 C 488 158 440 160 420 178 C 404 194 408 226 418 256 C 430 296 454 328 474 360 C 464 392 440 420 440 460 L 440 486 L 640 486 L 640 460 C 640 420 616 392 606 360 C 626 328 650 296 662 256 C 672 226 676 194 660 178 C 640 160 592 158 566 146 Z" fill="url(#gog_form)"/>
+  <path d="M440 486 L 640 486" stroke="#9FB0CC" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Mezura -->
+  <path d="M414 250 C 470 292 610 292 666 250" fill="none" stroke="url(#gog_gold)" stroke-width="16" stroke-linecap="round"/>
+  <g stroke="#7A5A16" stroke-width="2" opacity="0.6">
+    <line x1="450" y1="270" x2="452" y2="262"/><line x1="480" y1="279" x2="481" y2="271"/><line x1="510" y1="283" x2="510" y2="275"/><line x1="540" y1="284" x2="540" y2="276"/><line x1="570" y1="283" x2="570" y2="275"/><line x1="600" y1="279" x2="599" y2="271"/><line x1="630" y1="270" x2="628" y2="262"/>
+  </g>
+  <path d="M666 250 C 700 250 716 290 708 340 C 700 390 718 420 740 436" fill="none" stroke="url(#gog_gold)" stroke-width="16" stroke-linecap="round"/>
+
+  <!-- Protez şeması: üstten ve yandan -->
+  <g transform="translate(900 270)">
+    <circle r="96" fill="none" stroke="url(#gog_gold2)" stroke-width="3" stroke-dasharray="3 10"/>
+    <circle r="74" fill="url(#gog_impl)"/>
+    <ellipse cx="-22" cy="-26" rx="22" ry="12" fill="#fff" opacity="0.6"/>
+  </g>
+  <g transform="translate(900 470)">
+    <path d="M-86 24 C -80 -40 80 -40 86 24 Z" fill="url(#gog_impl)"/>
+    <line x1="-96" y1="24" x2="96" y2="24" stroke="#9DB4D6" stroke-width="4" stroke-linecap="round"/>
+    <path d="M-110 -40 L -110 24" stroke="#D9B04F" stroke-width="3" stroke-linecap="round"/>
+    <path d="M-118 -40 L -102 -40 M-118 24 L -102 24" stroke="#D9B04F" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>
