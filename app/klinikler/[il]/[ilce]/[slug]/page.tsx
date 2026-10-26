@@ -1,4 +1,5 @@
 import { puansiz } from '@/lib/profil-puani';
+import { profilYayindaDegil } from '@/lib/uyum';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -78,7 +79,7 @@ export default async function KlinikProfilPage({ params }: Props) {
   const res = await getData(params.slug);
   if (!res) notFound();
   const { k, yorumlar, hospitalDoctors } = res;
-  if ((k as any).gizli === true) notFound();   // kaldırma talebi alınmış profil
+  if (profilYayindaDegil(k as any)) notFound();   // kaldırma talebi: gizli ya da 48 saat dolup duraklatılmış   // kaldırma talebi alınmış profil
 
   const trFn = (s: string) => (s||'').toLowerCase().replace(/\u0307/g, '')
     .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')

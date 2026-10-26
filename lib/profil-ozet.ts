@@ -3,7 +3,7 @@
 import { supabase } from '@/lib/supabase';
 import { SAHIPLIK_TABLO } from '@/lib/sahiplik';
 import { urlParca } from '@/lib/entity-link';
-import type { UyumTur } from '@/lib/uyum';
+import { profilYayindaDegil, type UyumTur } from '@/lib/uyum';
 
 export const TUR_ETIKETI: Record<UyumTur, string> = {
   klinik: 'Diş Kliniği', hastane: 'Hastane', eczane: 'Eczane', doktor: 'Doktor',
@@ -28,7 +28,7 @@ export async function profilOzeti(tur: UyumTur, id: string): Promise<ProfilOzeti
       : tur === 'doktor' ? `/doktorlar/${d.slug}`
       : tur === 'eczane' ? `/eczaneler/${d.slug}`
       : `/${tablo}/${urlParca(d.il || 'turkiye')}/${urlParca(d.ilce || 'merkez')}/${d.slug}`;
-    return { id: String(d.id), tur, ad, il: d.il || null, ilce: d.ilce || null, href, gizli: d.gizli === true };
+    return { id: String(d.id), tur, ad, il: d.il || null, ilce: d.ilce || null, href, gizli: profilYayindaDegil(d) };
   } catch {
     return null;
   }

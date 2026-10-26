@@ -1,5 +1,12 @@
 {
   "crons": [
-    { "path": "/api/cron/randevu-hatirlatma", "schedule": "0 9 * * *" }
+    {
+      "path": "/api/cron/randevu-hatirlatma",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/kaldirma-zamanasimi",
+      "schedule": "30 7 * * *"
+    }
   ]
 }

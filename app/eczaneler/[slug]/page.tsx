@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { profilYayindaDegil } from '@/lib/uyum';
 import { notFound } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
@@ -53,7 +54,7 @@ export default async function EczaneProfilPage({ params }: Props) {
   const res = await getData(params.slug);
   if (!res) notFound();
   const { e, yorumlar } = res;
-  if ((e as any).gizli === true) notFound();   // kaldırma talebi alınmış profil
+  if (profilYayindaDegil(e as any)) notFound();   // kaldırma talebi: gizli ya da 48 saat dolup duraklatılmış   // kaldırma talebi alınmış profil
 
   const canonical = `https://www.hekimhane.com.tr/eczaneler/${e.slug}`;
   const sameAs = [e.instagram_url, e.facebook_url, e.linkedin_url].filter(Boolean) as string[];

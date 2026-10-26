@@ -1,4 +1,5 @@
 import { puansiz } from '@/lib/profil-puani';
+import { profilYayindaDegil } from '@/lib/uyum';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -67,7 +68,7 @@ export default async function HastaneProfilPage({ params }: Props) {
   const res = await getData(params.slug);
   if (!res) notFound();
   const { h, yorumlar, hospitalDoctors } = res;
-  if ((h as any).gizli === true) notFound();   // kaldırma talebi alınmış profil
+  if (profilYayindaDegil(h as any)) notFound();   // kaldırma talebi: gizli ya da 48 saat dolup duraklatılmış   // kaldırma talebi alınmış profil
 
   const canonical = `https://www.hekimhane.com.tr/hastaneler/${tr(h.il||'turkiye')}/${tr(h.ilce||'merkez')}/${h.slug}`;
   const sameAs = [h.website, h.instagram_url, h.facebook_url, h.linkedin_url].filter(Boolean) as string[];

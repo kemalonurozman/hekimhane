@@ -6,6 +6,7 @@ import type { User } from '@supabase/supabase-js';
 import BookingTab from './BookingTab';
 import MakalelerTab from './MakalelerTab';
 import YorumlarTab from './YorumlarTab';
+import KaldirmaTab from './KaldirmaTab';
 import { C } from './tema';
 import { LogoMark } from '@/components/Logo';
 
@@ -157,6 +158,7 @@ const SIDEBAR_GROUPS: { title: string | null; items: { key: string; label: strin
     { key: 'cekim',       label: 'Randevu & Çekim',   icon: IC.klinik  },
     { key: 'yorumlar',    label: 'Yorumlar',          icon: IC.star    },
     { key: 'sikayetler',  label: 'Şikayetler',        icon: IC.flag    },
+    { key: 'kaldirma',    label: 'Kaldırma Talepleri', icon: IC.x      },
     { key: 'premium',     label: 'Premium Üyeler',    icon: IC.shield  },
     { key: 'booking',     label: 'Booking Başvuruları',icon: IC.users   },
   ]},
@@ -177,7 +179,7 @@ const SIDEBAR_GROUPS: { title: string | null; items: { key: string; label: strin
   ]},
 ];
 
-type TabKey = 'dashboard' | 'booking' | 'claims' | 'cekim' | 'yorumlar' | 'sikayetler' | 'emailler' | 'premium' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
+type TabKey = 'dashboard' | 'booking' | 'claims' | 'cekim' | 'yorumlar' | 'sikayetler' | 'kaldirma' | 'emailler' | 'premium' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
 
 /* ═══════════════════════════════════════════════
    DASHBOARD SEKMESİ
@@ -2457,6 +2459,7 @@ export default function AdminPage() {
   const [randevuPending, setRandevuPending] = useState(0);
   const [reportPending, setReportPending] = useState(0);
   const [yorumPending,  setYorumPending]  = useState(0);   // onay bekleyen + belge istenen yorumlar
+  const [kaldirmaPending, setKaldirmaPending] = useState(0); // karar bekleyen + duraklatılmış kaldırma talepleri
   const [makalePending, setMakalePending] = useState(0);
 
   const loadMakaleCount = useCallback(async () => {
@@ -2474,6 +2477,15 @@ export default function AdminPage() {
       if (!res.ok) return;
       const data = await res.json();
       setYorumPending((data.reviews || []).filter((r: any) => r.report_status === 'onay-bekliyor' || r.report_status === 'onay-belge').length);
+    } catch {}
+  }, []);
+
+  const loadKaldirmaCount = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/kaldirma', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setKaldirmaPending((data.talepler || []).filter((t: any) => t.status === 'bekliyor' || t.status === 'duraklatildi').length);
     } catch {}
   }, []);
 
@@ -2502,6 +2514,7 @@ export default function AdminPage() {
         loadClaims();
         loadReportCount();
         loadYorumCount();
+        loadKaldirmaCount();
         loadMakaleCount();
       }
     });
@@ -2710,8 +2723,9 @@ export default function AdminPage() {
                   : item.key === 'claims' ? pendingCount
                   : item.key === 'sikayetler' ? reportPending
                   : item.key === 'yorumlar' ? yorumPending
+                  : item.key === 'kaldirma' ? kaldirmaPending
                   : item.key === 'blog' ? makalePending : 0;
-                const badgeColor = item.key === 'cekim' ? C.green : item.key === 'sikayetler' ? C.red : C.amber;
+                const badgeColor = item.key === 'cekim' ? C.green : (item.key === 'sikayetler' || item.key === 'kaldirma') ? C.red : C.amber;
                 return (
                   <button key={item.key} onClick={() => { setTab(item.key as TabKey); setMobileMenuOpen(false); }}
                     className={active ? '' : 'adm-nav'}
@@ -2752,6 +2766,7 @@ export default function AdminPage() {
         {tab === 'cekim'      && <CekimTalepleriTab />}
         {tab === 'yorumlar'   && <YorumlarTab onChanged={loadYorumCount} />}
         {tab === 'sikayetler' && <SikayetlerTab onChanged={loadReportCount} />}
+        {tab === 'kaldirma'   && <KaldirmaTab onChanged={loadKaldirmaCount} />}
         {tab === 'emailler'   && <EmailListesiTab />}
         {tab === 'premium'    && <PremiumTab />}
         {tab === 'booking'    && <BookingTab />}

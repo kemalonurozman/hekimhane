@@ -27,9 +27,22 @@ export const UYUM_SURE = {
   kaldirma_ust_gun: 30,
   /** Kaldırma talebinin genellikle sonuçlandığı süre (iş günü) */
   kaldirma_tipik_is_gunu: 3,
-  /** Kaldırma onay bağlantısının geçerlilik süresi (saat) */
+  /** Kaldırma talebindeki e-posta doğrulama bağlantısının geçerlilik süresi (saat) */
   kaldirma_token_saat: 72,
+  /** Yönetici bu süre içinde karar vermezse profil duraklatılır (yayından alınır) — saat */
+  kaldirma_duraklatma_saat: 48,
+  /** Kaldırılan profilin tam yedeği (yanlış/yetkisiz talebe karşı geri yükleme) — gün.
+   *  Süre dolunca yedek boşaltılır; yalnız ad, il, tarih kalır. Avukat onayı bekler. */
+  kaldirma_yedek_gun: 30,
 } as const;
+
+/** Profil yayında olmamalı mı? Kaldırma talebi nedeniyle gizli ya da 48 saat dolup duraklatılmış.
+ *  Detay sayfaları satırı zaten okuduğu için ek sorgu gerekmez. Kolon yoksa undefined → yayında. */
+export function profilYayindaDegil(row: { gizli?: boolean | null; duraklat_at?: string | null } | null | undefined): boolean {
+  if (!row) return false;
+  if (row.gizli === true) return true;
+  return !!row.duraklat_at && new Date(row.duraklat_at).getTime() <= Date.now();
+}
 
 /** Profil türüne göre kutu/rozet dilindeki özne ("doktor" / "işletme"). */
 export function uyumOzne(tur: UyumTur): 'doktor' | 'klinik' | 'işletme' {
@@ -138,4 +151,11 @@ export const RANDEVU_EPOSTA_ALT_NOTU =
 /** Randevu formunda, yalnız hasta not yazdığında görünen açık rıza kutusunun metni. */
 export function saglikRizaMetni(isletmeAdi: string): string {
   return `Randevu talebime eklediğim şikâyet ve sağlık durumu bilgilerimin, talebimin ${isletmeAdi} adlı doktora veya kuruma iletilmesi amacıyla Hekimhane tarafından işlenmesine ve bu doktora veya kuruma aktarılmasına açık rıza veriyorum. Bu onayı vermesem de randevu talebimi sağlık bilgisi olmadan iletebileceğimi biliyorum.`;
+}
+
+/** Türkiye cep telefonu → "05XXXXXXXXX" (geçersizse null). +90 / 90 / 0 önekleri ve boşluk/tire kabul edilir. */
+export function cepTelefonu(v: unknown): string | null {
+  const d = String(v ?? '').replace(/\D/g, '');
+  const yerel = d.startsWith('90') && d.length === 12 ? d.slice(2) : d.startsWith('0') && d.length === 11 ? d.slice(1) : d;
+  return /^5\d{9}$/.test(yerel) ? '0' + yerel : null;
 }

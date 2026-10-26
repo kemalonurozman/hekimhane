@@ -88,7 +88,7 @@ const BOLUMLER: YasalBolum[] = [
   {
     baslik: '5. Saklama süreleri',
     icerik: [
-      'Profil verileriniz profil yayında kaldığı sürece saklanır. Kaldırma talebiniz onaylandığı anda profil kaydınız silinir; talep bize ulaştığı anda ise profil yayından çekilir.',
+      'Profil verileriniz profil yayında kaldığı sürece saklanır. Kaldırma talebiniz yönetici tarafından incelenir; 48 saat içinde karar verilmezse profil geçici olarak yayından alınır. Kaldırma kararından sonra kayıt yayından ve etkin veritabanından silinir; yanlış ya da yetkisiz taleplere karşı 30 gün boyunca geri yüklenebilir bir yedek tutulur ve bu süre sonunda yedek de silinir. Yeniden eklenmemeniz için yalnızca adınız, iliniz ve talep tarihiniz kaldırılanlar listesinde kalır.',
       'Kaldırılanlar listesindeki adınız, iliniz ve talep tarihiniz, profilinizin yeniden eklenmesini önleme amacı sürdüğü sürece tutulur. Kimlik doğrulama için yüklediğiniz belgeler doğrulama tamamlandıktan sonra silinir.',
       'Fatura ve muhasebe kayıtları ilgili mevzuatta öngörülen süreler boyunca saklanır. Bu süre Türk Ticaret Kanunu uyarınca 10 yıldır.',
     ],

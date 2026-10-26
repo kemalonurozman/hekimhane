@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
         `<p style="font-size:14px;color:#1c1c1e;margin:0 0 10px;">Merhaba ${escHtml(String(y.author || ''))},</p>` +
         `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;margin:0 0 14px;"><strong>${escHtml(isletme)}</strong> hakkında bıraktığınız yorumu yayına almadan önce, ziyaretinizi doğrulayan bir belge rica ediyoruz (ör. randevu kaydı, fatura/fiş, muayene belgesi). Kişisel verilerinizi gizleyerek gönderebilirsiniz.</p>` +
         (adminNote ? `<div style="margin:0 0 14px;padding:12px 14px;background:#F8FAFF;border-left:3px solid #1A335E;border-radius:8px;"><div style="font-size:11px;font-weight:700;color:#6E6E73;letter-spacing:.4px;margin-bottom:4px;">İSTENEN BELGE</div><div style="font-size:14px;color:#1c1c1e;line-height:1.6;">${escHtml(adminNote).replace(/\n/g, '<br>')}</div></div>` : '') +
-        satir('Yorumunuz', y.text ? escHtml(String(y.text).slice(0, 300)) : null) +
+        satir('Yorumunuz', y.text ? String(y.text).slice(0, 300) : null) +
         `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;margin:14px 0 0;">Belgeyi <strong>bu e-postayı yanıtlayarak</strong> gönderebilirsiniz. Belge gelmezse yorum yayına alınmaz.</p>` +
         `<p style="font-size:12px;color:#6E6E73;margin-top:12px;">Belge yalnızca doğrulama için kullanılır, sitede ve işletmeyle paylaşılmaz.</p>`);
       const r = await sendEmail({ to: String(y.author_email), subject: `Yorumunuz için belge talebi — ${isletme}`, html, replyTo: ADMIN_EMAIL });

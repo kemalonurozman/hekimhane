@@ -1,13 +1,14 @@
 'use client';
 
 // "Kaldırılmasını iste" formu — kısa tutulur: hesap açılmaz, kimlik numarası
-// istenmez (uyum belgesi, Form metinleri §3). Gönderince profil anında gizlenir,
-// onay bağlantısı e-postaya gider.
+// istenmez (uyum belgesi, Form metinleri §3). Kaldırma nedeni ve cep telefonu zorunlu.
+// Gönderince talep yönetici paneline düşer; profil yayında kalır, 48 saat içinde
+// karar verilmezse duraklatılır. E-postaya yalnız doğrulama bağlantısı gider.
 import { useState } from 'react';
 import Link from 'next/link';
 import HkIcon from '@/components/HkIcon';
 import { SIRKET } from '@/lib/sirket';
-import { AYDINLATMA_YOL, UYUM_SURE } from '@/lib/uyum';
+import { AYDINLATMA_YOL, UYUM_SURE, cepTelefonu } from '@/lib/uyum';
 
 interface Props { entityId: string; entityType: string; entityName: string }
 
@@ -26,7 +27,7 @@ export default function KaldirForm({ entityId, entityType, entityName }: Props) 
   const [hatalar, setHatalar] = useState<Partial<Record<keyof typeof f, string>>>({});
   const [saving, setSaving] = useState(false);
   const [hata, setHata] = useState('');
-  const [sonuc, setSonuc] = useState<{ onayBaglantisi: boolean } | null>(null);
+  const [sonuc, setSonuc] = useState<{ kayitli: boolean } | null>(null);
   const [hp, setHp] = useState('');
 
   const degis = (k: keyof typeof f) => (v: string) => {
@@ -40,9 +41,12 @@ export default function KaldirForm({ entityId, entityType, entityName }: Props) 
     const h: typeof hatalar = {};
     if (f.ad_soyad.trim().length < 3) h.ad_soyad = 'Ad soyad zorunludur';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email.trim())) h.email = 'Geçerli bir e-posta girin';
+    if (!cepTelefonu(f.tel)) h.tel = 'Geçerli bir cep telefonu girin (05XX XXX XX XX)';
+    if (f.aciklama.trim().length < 10) h.aciklama = 'Profilin neden kaldırılması gerektiğini yazın (en az 10 karakter)';
     setHatalar(h);
     if (Object.keys(h).length) {
-      document.getElementById(h.ad_soyad ? 'pk-ad' : 'pk-email')?.focus();
+      const ilk = h.ad_soyad ? 'pk-ad' : h.email ? 'pk-email' : h.tel ? 'pk-tel' : 'pk-aciklama';
+      document.getElementById(ilk)?.focus();
       return;
     }
     setSaving(true); setHata('');
@@ -53,8 +57,11 @@ export default function KaldirForm({ entityId, entityType, entityName }: Props) 
       });
       const j = await r.json();
       setSaving(false);
-      if (!r.ok) { setHata(j.error || 'Talep gönderilemedi.'); return; }
-      setSonuc({ onayBaglantisi: j.onayBaglantisi !== false });
+      if (!r.ok) {
+        if (j.alan === 'tel' || j.alan === 'aciklama') setHatalar(x => ({ ...x, [j.alan]: j.error }));
+        setHata(j.error || 'Talep gönderilemedi.'); return;
+      }
+      setSonuc({ kayitli: j.kayitli !== false });
     } catch {
       setSaving(false); setHata('Bağlantı hatası, lütfen tekrar deneyin.');
     }
@@ -67,11 +74,10 @@ export default function KaldirForm({ entityId, entityType, entityName }: Props) 
           <HkIcon name="success" size={56} />
           <h2 style={{ margin: '6px 0 0', fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 800, letterSpacing: '-.03em', color: '#0E1A2C' }}>Talebinizi aldık</h2>
           <p style={{ margin: 0, maxWidth: 460, fontSize: 15, lineHeight: 1.65, color: '#586273' }}>
-            <strong style={{ color: '#0E1A2C' }}>{entityName}</strong> profili şu anda yayında değil.{' '}
-            {sonuc.onayBaglantisi
-              ? <>E-posta adresinize gönderdiğimiz bağlantıyı onayladığınızda kaldırma işlemi tamamlanacak.</>
-              : <>Ekibimiz talebinizi en geç {UYUM_SURE.kaldirma_tipik_is_gunu} iş günü içinde tamamlayıp size e-postayla bildirecek.</>}
-            {' '}Bağlantı gelmezse <a href={`mailto:${SIRKET.eposta}`} style={{ color: '#12294D', fontWeight: 600 }}>{SIRKET.eposta}</a> adresine yazabilirsiniz.
+            <strong style={{ color: '#0E1A2C' }}>{entityName}</strong> profili için talebiniz yönetici incelemesine alındı.
+            Karar en geç {UYUM_SURE.kaldirma_duraklatma_saat} saat içinde verilir; verilmezse profil geçici olarak yayından alınır.{' '}
+            {sonuc.kayitli && <>Lütfen e-postanıza gönderdiğimiz bağlantıyla adresinizi doğrulayın. </>}
+            E-posta gelmezse <a href={`mailto:${SIRKET.eposta}`} style={{ color: '#12294D', fontWeight: 600 }}>{SIRKET.eposta}</a> adresine yazabilirsiniz.
           </p>
           <Link href="/" className="kf-geri" style={{ marginTop: 10, padding: '10px 18px' }}>Ana sayfa</Link>
         </div>
@@ -82,7 +88,7 @@ export default function KaldirForm({ entityId, entityType, entityName }: Props) 
   return (
     <form onSubmit={gonder} style={{ display: 'block' }} noValidate>
       <h1 className="kf-baslik">Profilin kaldırılmasını isteyin</h1>
-      <p className="kf-alt">Profilinizin Hekimhane&apos;den kaldırılmasını isteyebilirsiniz. Talebiniz bize ulaştığı anda profiliniz yayından gizlenir.</p>
+      <p className="kf-alt">Profilinizin Hekimhane&apos;den kaldırılmasını isteyebilirsiniz. Talebiniz yönetici tarafından incelenir; {UYUM_SURE.kaldirma_duraklatma_saat} saat içinde karar verilmezse profil geçici olarak yayından alınır.</p>
 
       <section className="kf-grup">
         <h2 className="kf-grup__baslik">Talep</h2>
@@ -113,18 +119,21 @@ export default function KaldirForm({ entityId, entityType, entityName }: Props) 
                   aria-invalid={!!hatalar.email} onChange={e => degis('email')(e.target.value)} />
                 <span className="kf-tik" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg></span>
               </div>
-              <p className="kf-not" style={{ margin: '6px 0 0', textAlign: 'left' }}>Onay bağlantısı bu adrese gönderilir.</p>
+              <p className="kf-not" style={{ margin: '6px 0 0', textAlign: 'left' }}>Doğrulama bağlantısı ve sonuç bu adrese gönderilir.</p>
             </Alan>
-            <Alan id="pk-tel" label="Telefon" opsiyonel>
+            <Alan id="pk-tel" label="Cep telefonu" zorunlu hata={hatalar.tel}>
               <div className="kf-giris">
-                <input id="pk-tel" type="tel" className={cls('tel')} value={f.tel} autoComplete="tel" placeholder="0500 000 00 00" onChange={e => degis('tel')(e.target.value)} />
+                <input id="pk-tel" type="tel" inputMode="tel" className={cls('tel')} value={f.tel} autoComplete="tel" placeholder="05XX XXX XX XX"
+                  aria-invalid={!!hatalar.tel} onChange={e => degis('tel')(e.target.value)} />
                 <span className="kf-tik" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg></span>
               </div>
+              <p className="kf-not" style={{ margin: '6px 0 0', textAlign: 'left' }}>Yönetici talebi doğrulamak için arayabilir. Sitede yayımlanmaz.</p>
             </Alan>
           </div>
-          <Alan id="pk-aciklama" label="Açıklama" opsiyonel>
-            <textarea id="pk-aciklama" rows={3} className={cls('aciklama')} value={f.aciklama} placeholder="Neden yazmak zorunlu değildir."
-              onChange={e => degis('aciklama')(e.target.value)} />
+          <Alan id="pk-aciklama" label="Kaldırma nedeni" zorunlu hata={hatalar.aciklama}>
+            <textarea id="pk-aciklama" rows={3} className={cls('aciklama')} value={f.aciklama}
+              placeholder="Profilin neden kaldırılması gerektiğini kısaca yazın. Örn. artık bu kurumda çalışmıyorum, mesleği bıraktım, bilgiler bana ait değil."
+              aria-invalid={!!hatalar.aciklama} onChange={e => degis('aciklama')(e.target.value)} />
           </Alan>
           {/* bot tuzağı */}
           <input type="text" name="website" value={hp} onChange={e => setHp(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }} />
@@ -134,9 +143,9 @@ export default function KaldirForm({ entityId, entityType, entityName }: Props) 
       <p className="kf-ipucu" style={{ marginBottom: 14 }}>
         <HkIcon name="info" size={16} accent={false} />
         <span>
-          Talebin size ait olduğunu doğrulamak için yazdığınız e-posta adresine bir onay bağlantısı göndereceğiz. Doktor adına başvuruyorsanız yetki belgesi isteyebiliriz.
-          Talebiniz en geç {UYUM_SURE.kaldirma_ust_gun} gün içinde, genellikle {UYUM_SURE.kaldirma_tipik_is_gunu} iş günü içinde sonuçlandırılır.
-          Profilinizin daha sonra yeniden eklenmemesi için adınızı, ilinizi ve talep tarihinizi bir kaldırılanlar listesinde tutarız.{' '}
+          Talebin size ait olduğunu doğrulamak için e-posta adresinize bir doğrulama bağlantısı göndeririz; yönetici gerekirse sizi arar ya da ek bilgi ve yetki belgesi ister.
+          Talebiniz en geç {UYUM_SURE.kaldirma_ust_gun} gün içinde sonuçlandırılır; {UYUM_SURE.kaldirma_duraklatma_saat} saat içinde karar verilmezse profil geçici olarak yayından alınır.
+          Kaldırılan profil, yanlış ya da yetkisiz taleplere karşı {UYUM_SURE.kaldirma_yedek_gun} gün geri yüklenebilir biçimde saklanır; sonrasında yeniden eklenmemesi için yalnız adınız, iliniz ve talep tarihiniz tutulur.{' '}
           <Link href={AYDINLATMA_YOL.profesyonel} style={{ color: '#12294D', fontWeight: 600 }}>Kişisel verileriniz nasıl işleniyor?</Link>
         </span>
       </p>

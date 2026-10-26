@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { profilYayindaDegil } from '@/lib/uyum';
 import { notFound } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
@@ -82,7 +83,7 @@ export default async function DoktorProfilPage({ params }: Props) {
   if (!res) notFound();
   const { d, yorumlar, clinicHref } = res;
   // Kaldırma talebi alınmış profil anında yayından çekilir (gizli kolonu yoksa undefined → gösterilir)
-  if ((d as any).gizli === true) notFound();
+  if (profilYayindaDegil(d as any)) notFound();   // kaldırma talebi: gizli ya da 48 saat dolup duraklatılmış
 
   const fullName = `${d.ad} ${d.soyad}`.trim();
   const displayLabel = d.unvan ? `${d.unvan} ${fullName}` : fullName;

@@ -16,12 +16,12 @@ export async function adminOnayBildir(admin: any, y: { entity_type: string; enti
       subject: `Onay bekleyen yorum — ${isletme}`,
       html: mailShell('Onay Bekleyen Yorum',
         `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;margin:0 0 14px;">Bir ziyaretçi yorum bıraktı. Yorum siz onaylayana kadar <strong>yayınlanmaz</strong>.</p>` +
-        satir('İşletme', esc(isletme)) +
+        satir('İşletme', isletme) +
         satir('Puan', `${y.rating} / 5`) +
-        satir('Yazan', esc(y.author)) +
-        satir('E-posta', y.email ? esc(y.email) : null) +
+        satir('Yazan', y.author) +
+        satir('E-posta', y.email || null) +
         (y.verified ? satir('Kaynak', 'Onaylı hasta bağlantısı') : '') +
-        satir('Yorum', esc(y.text.slice(0, 800))) +
+        satir('Yorum', y.text.slice(0, 800)) +
         `<p style="margin:18px 0 0;"><a href="https://www.hekimhane.com.tr/admin" style="display:inline-block;background:#1A335E;color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:700;font-size:13px;">Yorum Onayı sekmesini aç</a></p>` +
         (b.url ? `<p style="font-size:12px;color:#6E6E73;margin-top:12px;">Profil: <a href="${b.url}">${esc(b.url)}</a></p>` : '')),
     });
