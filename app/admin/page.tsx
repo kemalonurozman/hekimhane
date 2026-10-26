@@ -5,6 +5,7 @@ import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import type { User } from '@supabase/supabase-js';
 import BookingTab from './BookingTab';
 import MakalelerTab from './MakalelerTab';
+import YorumlarTab from './YorumlarTab';
 import { C } from './tema';
 import { LogoMark } from '@/components/Logo';
 
@@ -154,6 +155,7 @@ const SIDEBAR_GROUPS: { title: string | null; items: { key: string; label: strin
   { title: 'Talepler & Üyelik', items: [
     { key: 'claims',      label: 'Sahiplenme',        icon: IC.claims  },
     { key: 'cekim',       label: 'Randevu & Çekim',   icon: IC.klinik  },
+    { key: 'yorumlar',    label: 'Yorumlar',          icon: IC.star    },
     { key: 'sikayetler',  label: 'Şikayetler',        icon: IC.flag    },
     { key: 'premium',     label: 'Premium Üyeler',    icon: IC.shield  },
     { key: 'booking',     label: 'Booking Başvuruları',icon: IC.users   },
@@ -175,7 +177,7 @@ const SIDEBAR_GROUPS: { title: string | null; items: { key: string; label: strin
   ]},
 ];
 
-type TabKey = 'dashboard' | 'booking' | 'claims' | 'cekim' | 'sikayetler' | 'emailler' | 'premium' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
+type TabKey = 'dashboard' | 'booking' | 'claims' | 'cekim' | 'yorumlar' | 'sikayetler' | 'emailler' | 'premium' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
 
 /* ═══════════════════════════════════════════════
    DASHBOARD SEKMESİ
@@ -2454,6 +2456,7 @@ export default function AdminPage() {
   const [pendingCount, setPendingCount] = useState(0);
   const [randevuPending, setRandevuPending] = useState(0);
   const [reportPending, setReportPending] = useState(0);
+  const [yorumPending,  setYorumPending]  = useState(0);   // onay bekleyen + belge istenen yorumlar
   const [makalePending, setMakalePending] = useState(0);
 
   const loadMakaleCount = useCallback(async () => {
@@ -2462,6 +2465,15 @@ export default function AdminPage() {
       if (!res.ok) return;
       const data = await res.json();
       setMakalePending((data.makaleler || []).filter((m: any) => (m.status || (m.published ? 'published' : 'pending')) === 'pending').length);
+    } catch {}
+  }, []);
+
+  const loadYorumCount = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/reported-yorumlar?tip=onay', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setYorumPending((data.reviews || []).filter((r: any) => r.report_status === 'onay-bekliyor' || r.report_status === 'onay-belge').length);
     } catch {}
   }, []);
 
@@ -2489,6 +2501,7 @@ export default function AdminPage() {
         loadStats();
         loadClaims();
         loadReportCount();
+        loadYorumCount();
         loadMakaleCount();
       }
     });
@@ -2696,6 +2709,7 @@ export default function AdminPage() {
                 const badge = item.key === 'cekim' ? randevuPending
                   : item.key === 'claims' ? pendingCount
                   : item.key === 'sikayetler' ? reportPending
+                  : item.key === 'yorumlar' ? yorumPending
                   : item.key === 'blog' ? makalePending : 0;
                 const badgeColor = item.key === 'cekim' ? C.green : item.key === 'sikayetler' ? C.red : C.amber;
                 return (
@@ -2736,6 +2750,7 @@ export default function AdminPage() {
         {tab === 'dashboard'  && <DashboardTab stats={stats} onTabChange={setTab} />}
         {tab === 'claims'     && <ClaimsTab claims={claims} loading={claimsLoading} onAction={handleClaimAction} actionId={actionId} />}
         {tab === 'cekim'      && <CekimTalepleriTab />}
+        {tab === 'yorumlar'   && <YorumlarTab onChanged={loadYorumCount} />}
         {tab === 'sikayetler' && <SikayetlerTab onChanged={loadReportCount} />}
         {tab === 'emailler'   && <EmailListesiTab />}
         {tab === 'premium'    && <PremiumTab />}

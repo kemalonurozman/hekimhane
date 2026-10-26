@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { onayBekleyenAlanlar, YORUM_ONAY_MESAJI, gecerliYorumcuEposta } from '@/lib/yorum-onay';
+import { adminOnayBildir } from '@/lib/yorum-onay-sunucu';
 
 function adminClient() {
   return createClient(
@@ -49,7 +51,7 @@ async function resolveEntityFromUrl(
   return null;
 }
 
-/* ── POST: yorum kaydet (auth gerekmez — herkese açık) ── */
+/* ── POST: yorum kaydet (auth gerekmez — herkese açık). Kayıt ONAY BEKLER: admin onaylamadan yayınlanmaz. ── */
 export async function POST(request: NextRequest) {
   let body: Record<string, unknown>;
   try {
@@ -58,7 +60,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Geçersiz istek.' }, { status: 400 });
   }
 
-  const { entity_id, entity_type, hekimhane_url: bodyHekimhaneUrl, slug, name, rating, text, date } = body as {
+  const { entity_id, entity_type, hekimhane_url: bodyHekimhaneUrl, slug, name, rating, text, date, email } = body as {
     entity_id?: string | null;
     entity_type?: string | null;
     hekimhane_url?: string | null;
@@ -67,6 +69,7 @@ export async function POST(request: NextRequest) {
     rating?: number;
     text?: string;
     date?: string;
+    email?: string;
   };
 
   // Zorunlu alanlar
@@ -75,6 +78,11 @@ export async function POST(request: NextRequest) {
   }
   if (!text || !text.trim()) {
     return NextResponse.json({ error: 'Yorum metni boş olamaz.' }, { status: 400 });
+  }
+  // Yazan kişi belli olsun: e-posta zorunlu (admin belge isteyebilir). Ziyaretçiye gösterilmez.
+  const authorEmail = gecerliYorumcuEposta(email) ? String(email).trim().toLowerCase().slice(0, 150) : null;
+  if (!authorEmail) {
+    return NextResponse.json({ error: 'Geçerli bir e-posta adresi girin.' }, { status: 400 });
   }
 
   const admin = adminClient();
@@ -122,24 +130,32 @@ export async function POST(request: NextRequest) {
     resolvedEntityType = resolvedEntityType || 'kart';
   }
 
-  const { data, error } = await (admin as any)
-    .from('yorumlar')
-    .insert({
-      entity_id:   resolvedEntityId,
-      entity_type: resolvedEntityType,
-      author:      (name || 'Anonim').slice(0, 100),
-      rating:      Number(rating),
-      text:        text.trim().slice(0, 2000),
-      date:        (date || new Date().toISOString().slice(0, 7)).slice(0, 10),
-      created_at:  new Date().toISOString(),
-    })
-    .select()
-    .single();
+  const kayit = {
+    entity_id:   resolvedEntityId,
+    entity_type: resolvedEntityType,
+    author:      (name || 'Anonim').slice(0, 100),
+    rating:      Number(rating),
+    text:        text.trim().slice(0, 2000),
+    date:        (date || new Date().toISOString().slice(0, 7)).slice(0, 10),
+    created_at:  new Date().toISOString(),
+    ...onayBekleyenAlanlar(),   // admin onaylayana kadar gizli
+  };
+  let { data, error } = await (admin as any).from('yorumlar').insert({ ...kayit, author_email: authorEmail }).select().single();
+  if (error && /author_email/i.test(error.message || '')) {
+    // 2026-10-26_yorum_onay.sql çalışmamış: e-postasız kaydet (yorum yine onay bekler)
+    ({ data, error } = await (admin as any).from('yorumlar').insert(kayit).select().single());
+  }
 
   if (error) {
     console.error('yorum insert error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // Moderasyon kolonları yoksa (add_yorum_moderation.sql çalışmamış) onaysız yayınlamak yerine
+    // kaydı reddet — onay olmadan yorum yayınlanmaz (fail-closed).
+    const kolonYok = /hidden|report_status|reported_at|column|schema cache/i.test(error.message || '');
+    return NextResponse.json({ error: kolonYok ? 'Yorum sistemi şu an bakımda, lütfen daha sonra tekrar deneyin.' : error.message }, { status: kolonYok ? 503 : 500 });
   }
 
-  return NextResponse.json({ ok: true, id: data.id, yorum: data });
+  await adminOnayBildir(admin, { entity_type: String(resolvedEntityType), entity_id: String(resolvedEntityId), author: kayit.author, rating: Number(rating), text: text.trim(), email: authorEmail });
+
+  // Yorum döndürülmez: istemci listeye eklemesin — onaylanana kadar kimse görmez.
+  return NextResponse.json({ ok: true, id: data?.id ?? null, bekliyor: true, mesaj: YORUM_ONAY_MESAJI });
 }

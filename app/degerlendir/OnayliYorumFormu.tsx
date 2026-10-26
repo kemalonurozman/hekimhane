@@ -34,7 +34,7 @@ export default function OnayliYorumFormu({ token, varsayilanAd, profil }: { toke
     return (
       <div style={{ background: '#fff', borderRadius: 24, padding: '32px 28px', textAlign: 'center', boxShadow: 'inset 0 0 0 1px #E6E8EC' }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, letterSpacing: '-0.02em', color: '#0E1A2C' }}>Teşekkürler</div>
-        <p style={{ margin: '10px 0 22px', fontSize: 15, lineHeight: 1.6, color: '#586273' }}>Değerlendirmeniz Onaylı hasta işaretiyle yayımlandı.</p>
+        <p style={{ margin: '10px 0 22px', fontSize: 15, lineHeight: 1.6, color: '#586273' }}>Değerlendirmeniz alındı. Yönetici onayından sonra Onaylı hasta işaretiyle yayımlanacak.</p>
         {profil && <Link href={profil} className="vt-dugme vt-dugme--koyu">Profile git</Link>}
       </div>
     );

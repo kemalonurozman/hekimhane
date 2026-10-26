@@ -85,6 +85,22 @@
         "3108"
       ],
       "port": 3108
+    },
+    {
+      "name": "hekimhane-onizleme-mock-3109",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3996",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3109"
+      ],
+      "port": 3109
     }
   ]
 }

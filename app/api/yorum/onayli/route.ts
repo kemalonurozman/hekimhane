@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { yorumTokeniCoz, talepYorumDurumu, ONAYLI_YORUM_TURU } from '@/lib/onayli-yorum';
-import { sendEmail, mailShell, satir } from '@/lib/email';
+import { onayBekleyenAlanlar } from '@/lib/yorum-onay';
+import { adminOnayBildir } from '@/lib/yorum-onay-sunucu';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -38,23 +39,25 @@ export async function POST(request: NextRequest) {
   }).select('id').single();
   if (iErr) return NextResponse.json({ error: 'Yorum kaydedilemedi, lütfen tekrar deneyin.' }, { status: 500 });
 
-  const { data, error } = await (db as any).from('yorumlar').insert({
+  const kayit = {
     entity_id: String(t.entity_id), entity_type: t.entity_type,
     author: ad, rating, text: text.slice(0, 2000),
     date: simdi.toISOString().slice(0, 7), created_at: simdi.toISOString(),
     verified: true,
-  }).select('id').single();
+    ...onayBekleyenAlanlar(simdi),   // onaylı hasta yorumu da admin onayından sonra yayınlanır
+  };
+  const authorEmail = t.email && String(t.email).includes('@') ? String(t.email).trim().toLowerCase() : null;
+  let { data, error } = await (db as any).from('yorumlar').insert({ ...kayit, author_email: authorEmail }).select('id').single();
+  if (error && /author_email/i.test(error.message || '')) {
+    ({ data, error } = await (db as any).from('yorumlar').insert(kayit).select('id').single());   // migration yoksa e-postasız
+  }
   if (error) {
     await (db as any).from('cekim_talepleri').delete().eq('id', isaret.id);
     return NextResponse.json({ error: 'Yorum kaydedilemedi, lütfen tekrar deneyin.' }, { status: 500 });
   }
 
-  // Bilgi: admin'e kısa bildirim (best-effort)
-  try {
-    await sendEmail({
-      to: 'kemalonurozman@gmail.com', subject: `Onaylı yorum — ${t.entity_name}`,
-      html: mailShell('Yeni Onaylı Yorum', satir('İşletme', t.entity_name) + satir('Puan', `${rating} / 5`) + satir('Yazan', ad) + satir('Yorum', text.slice(0, 600))),
-    });
-  } catch { /* yoksay */ }
-  return NextResponse.json({ ok: true, id: data.id });
+  // Admin'e "onay bekleyen yorum" bildirimi (best-effort)
+  await adminOnayBildir(db, { entity_type: String(t.entity_type), entity_id: String(t.entity_id), author: ad, rating, text, verified: true, email: authorEmail });
+
+  return NextResponse.json({ ok: true, id: data.id, bekliyor: true });
 }

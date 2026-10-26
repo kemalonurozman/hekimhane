@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     // Yorumu bul
     const { data: yorum, error: yErr } = await (admin as any)
       .from('yorumlar')
-      .select('id, entity_id, entity_type, author, rating, text, report_status')
+      .select('id, entity_id, entity_type, author, rating, text, report_status, hidden')
       .eq('id', yorumId)
       .maybeSingle();
 
@@ -75,6 +75,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Yorum moderasyon sistemi henüz etkin değil. Lütfen daha sonra tekrar deneyin.' }, { status: 503 });
     }
     if (!yorum) return NextResponse.json({ error: 'Yorum bulunamadı.' }, { status: 404 });
+
+    if (yorum.hidden) {
+      return NextResponse.json({ success: true, note: 'Bu yorum şu an yayında değil.' });
+    }
 
     // Zaten sonuçlanmış / incelemedeyse tekrar bildirime gerek yok
     if (yorum.report_status === 'resolved') {

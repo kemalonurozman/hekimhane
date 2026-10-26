@@ -8,6 +8,7 @@
 //  anahtar sahibinin onaylı işletmeleri kapsamında.
 // ─────────────────────────────────────────────────────────────────
 import { NextRequest } from 'next/server';
+import { sahibeGorunenYorumlar } from '@/lib/yorum-onay';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { mcpIcBasliklari } from '@/lib/panel-oturum';
 import { gunSlotlari } from '@/lib/takvim-slot';
@@ -262,8 +263,9 @@ export async function aracCalistir(ad: string, args: Record<string, any>, email:
       const limit = Math.min(Math.max(Number(args.limit) || 20, 1), 100);
       let sorgu = (db as any).from('yorumlar').select('*').in('entity_id', hedefIds).order('created_at', { ascending: false }).limit(limit);
       if (args.sadece_yanitsiz) sorgu = sorgu.is('reply_text', null);
-      const { data, error } = await sorgu;
+      const { data: ham, error } = await sorgu;
       if (error) return hata('Yorumlar alınamadı.');
+      const data = sahibeGorunenYorumlar(ham as any[]);   // admin onayı bekleyen/reddedilen yorumlar sahibe açılmaz
       const ad = Object.fromEntries(isletmeler.map(x => [x.entity_id, x.entity_name]));
       return json({
         adet: (data || []).length,

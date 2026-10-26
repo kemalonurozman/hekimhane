@@ -126,6 +126,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
 
   // Yorum formu state
   const [revName,     setRevName]     = useState('');
+  const [revEmail,    setRevEmail]    = useState('');
   const [revRating,   setRevRating]   = useState(0);
   const [revText,     setRevText]     = useState('');
   const [revMonth,    setRevMonth]    = useState('');
@@ -169,6 +170,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
     const adParcalari = revName.trim().split(/\s+/).filter(w => w.length >= 2);
     if (adParcalari.length < 2) { setRevErr('Lütfen ad ve soyadınızı tam yazın.'); return; }
     if (!revText.trim()) { setRevErr('Yorum metni zorunludur.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(revEmail.trim())) { setRevErr('Geçerli bir e-posta adresi girin.'); return; }
     setRevSending(true); setRevErr('');
     try {
       const body: Record<string, unknown> = {
@@ -177,6 +179,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         hekimhane_url: d.hekimhane_url || null,  // sunucu tarafında çözülmüş URL
         slug:          d.slug,
         name:          revName.trim(),  // tam ad saklanır; herkese açık sayfada maskelenir
+        email:         revEmail.trim(), // yalnız yönetici görür — belge istenirse buradan ulaşılır
         rating:        revRating,
         text:          revText.trim(),
         date:          buildRevDate(),
@@ -203,7 +206,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
   }
 
   const openReview = () => {
-    setRevName(''); setRevRating(0); setRevText(''); setRevMonth(''); setRevYear('');
+    setRevName(''); setRevEmail(''); setRevRating(0); setRevText(''); setRevMonth(''); setRevYear('');
     setRevDone(false); setRevErr(''); setRevSending(false);
     setShowReview(true);
   };
@@ -986,7 +989,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
                 <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1A335E', marginBottom: 8 }}>Yorumunuz Alındı!</h3>
                 <p style={{ fontSize: 13.5, color: '#4A5568', lineHeight: 1.6 }}>
                   Değerlendirmeniz için teşekkürler.<br />
-                  Yorumunuz incelendikten sonra yayınlanacak.
+                  Yorumunuz yönetici onayından sonra yayınlanacak.
                 </p>
 
                 {revRating === 5 ? (
@@ -1045,6 +1048,21 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
                     <div style={{ fontSize: 11, color: '#4A5568', lineHeight: 1.5 }}>
                       Adınız sayfada <strong>tam ve açık gösterilmez</strong> (ör. “Elif K.”). Tam adınızı yalnızca değerlendirdiğiniz hekim görür; yorumun gerçek bir hastadan geldiğinin doğrulanması için gereklidir.
                     </div>
+                  </div>
+                </div>
+
+                {/* E-posta (zorunlu — sayfada görünmez; yönetici doğrulama için belge isteyebilir) */}
+                <div style={{ marginBottom: 10 }}>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: '#4A5568', letterSpacing: '.3px', textTransform: 'uppercase', marginBottom: 5 }}>E-posta *</label>
+                  <input
+                    className="rev-inp"
+                    type="email"
+                    value={revEmail}
+                    onChange={e => setRevEmail(e.target.value)}
+                    placeholder="ornek@mail.com"
+                  />
+                  <div style={{ fontSize: 11, color: '#4A5568', lineHeight: 1.5, marginTop: 6 }}>
+                    Sayfada görünmez. Yorumlar yayına alınmadan önce incelenir; gerekirse ziyaretinizi doğrulayan bir belge bu adresten istenebilir.
                   </div>
                 </div>
 

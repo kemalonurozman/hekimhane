@@ -13,10 +13,10 @@ export async function puanEkleri(admin: any, tip: PuanTip, id: string): Promise<
   const ek: PuanEk = {};
   try {
     const [y, kart] = await Promise.all([
-      admin.from('yorumlar').select('reply_text').eq('entity_type', tip).eq('entity_id', String(id)).limit(500),
+      admin.from('yorumlar').select('reply_text,hidden').eq('entity_type', tip).eq('entity_id', String(id)).limit(500),
       admin.from('hekimkartlar').select('id').eq('entity_id', String(id)).limit(1),
     ]);
-    const yorumlar = (y.data || []) as { reply_text?: string | null }[];
+    const yorumlar = ((y.data || []) as { reply_text?: string | null; hidden?: boolean | null }[]).filter(x => !x.hidden);   // yalnız yayındakiler
     ek.yorumToplam = yorumlar.length;
     ek.yorumYanitli = yorumlar.filter(x => x.reply_text && String(x.reply_text).trim()).length;
     ek.hekimKart = !!(kart.data && kart.data.length);

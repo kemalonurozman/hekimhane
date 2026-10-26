@@ -42,7 +42,7 @@ export const yorumBaglantisi = (token: string) => `https://www.hekimhane.com.tr/
 export async function talepYorumDurumu(admin: any, talepId: string) {
   noStore();   // Data Cache bayat durum döndürmesin (yazıldıktan sonra form yeniden açılıyordu)
   const { data: talep } = await admin.from('randevu_talepleri')
-    .select('id,entity_id,entity_type,entity_name,ad_soyad,status').eq('id', talepId).maybeSingle();
+    .select('id,entity_id,entity_type,entity_name,ad_soyad,email,status').eq('id', talepId).maybeSingle();
   if (!talep) return { durum: 'yok' as const };
   if (talep.status !== 'tamamlandi') return { durum: 'tamamlanmadi' as const, talep };
   const { data: var_ } = await admin.from('cekim_talepleri').select('id')

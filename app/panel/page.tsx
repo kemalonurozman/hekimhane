@@ -1,6 +1,7 @@
 'use client';
 
 import OnayliYorumDugmesi from './OnayliYorumDugmesi';
+import { sahibeGorunenYorumlar } from '@/lib/yorum-onay';
 import { PANEL_MODERASYON_NOTU } from '@/lib/uyum';
 import ProfilPuaniKarti from './ProfilPuaniKarti';
 import React, { useState, useEffect, useRef } from 'react';
@@ -4082,7 +4083,7 @@ function YorumlarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
     if (entityIds.length === 0) { setLoadingY(false); return; }
     const sb = createSupabaseBrowser();
     sb.from('yorumlar').select('*').in('entity_id', entityIds).order('created_at', { ascending: false })
-      .then(({ data }) => { setYorumlar((data || []) as Yorum[]); setLoadingY(false); });
+      .then(({ data }) => { setYorumlar(sahibeGorunenYorumlar((data || []) as Yorum[]) as Yorum[]); setLoadingY(false); });   // onay bekleyenler sahibe görünmez
   }, [approvedClaims.length]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   function entityName(eid: string) {

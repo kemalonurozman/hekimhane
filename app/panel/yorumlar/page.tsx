@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { createSupabaseServer, getProfile } from '@/lib/supabase-server';
 import YorumYanitla from './YorumYanitla';
 import YorumSikayet from './YorumSikayet';
+import { sahibeGorunenYorumlar } from '@/lib/yorum-onay';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,7 +37,8 @@ async function getReviews(userId: string) {
     .in('entity_id', entityIds)
     .order('created_at', { ascending: false });
 
-  return { reviews: (data || []) as any[], entityMap };
+  // Onay bekleyen / reddedilen yorumlar sahibe de gösterilmez — admin onaylayana kadar yok sayılır
+  return { reviews: sahibeGorunenYorumlar((data || []) as any[]), entityMap };
 }
 
 export default async function YorumlarPage() {
