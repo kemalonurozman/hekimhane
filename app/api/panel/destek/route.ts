@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir } from '@/lib/email';
 
@@ -34,9 +34,7 @@ function rateLimited(k: string): boolean {
  */
 export async function POST(request: NextRequest) {
   try {
-    const sess = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: { get: (n: string) => request.cookies.get(n)?.value, set() {}, remove() {} } });
-    const { data: { session } } = await sess.auth.getSession();
+    const session = await dogrulanmisOturum(request);
     const email = session?.user?.email;
     if (!email) return NextResponse.json({ error: 'Giriş yapmanız gerekiyor.' }, { status: 401 });
 

@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import KurumRozeti from '@/components/KurumRozeti';
 import type { Klinik } from '@/lib/types';
-import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
 import HkAvatar from '@/components/HkAvatar';
 import { puanYaz, AZ_DEGERLENDIRME_SINIRI } from '@/lib/hk';
@@ -27,7 +26,7 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
   const adres = k.adres ? `${k.adres.slice(0, 60)}${k.adres.length > 60 ? '…' : ''}` : '';
 
   return (
-    <article className={`hk-doctor hk-satir${k.premium ? ' hk-doctor--featured' : ''}`} onClick={() => router.push(profileUrl)}>
+    <article className="hk-doctor hk-satir" onClick={() => router.push(profileUrl)}>
       <CompareButton item={{
         type: 'klinik', id: k.id, name: k.name, url: profileUrl,
         rat: k.rat, rev: k.rev, il: k.il, ilce: k.ilce, tel: k.tel, image: k.logo,
@@ -38,7 +37,6 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
       {/* Logo veya baş harfler — onaylı klinikte dönen halka */}
       <div className={k.claimed ? 'hk-ring' : undefined} style={{ position: 'relative', flexShrink: 0, borderRadius: '50%' }}>
         <HkAvatar src={k.logo} name={k.name} />
-        {k.premium && <PremiumBadge />}
       </div>
 
       <div className="hk-doctor__body">
@@ -47,7 +45,6 @@ export default function KlinikCard({ klinik: k }: { klinik: Klinik }) {
             <Link href={profileUrl} onClick={e => e.stopPropagation()} style={{ color: 'inherit' }}>{k.name}</Link>
           </h3>
           <KurumRozeti kurum={k.kurum || 'ozel'} />
-          {k.premium && <span className="hk-badge hk-badge--premium">PREMIUM</span>}
         </div>
 
         {specs.length > 0 && (

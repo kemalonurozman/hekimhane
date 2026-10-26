@@ -12,6 +12,31 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 import { type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import type { User } from '@supabase/supabase-js';
+
+/**
+ * Çerezdeki Supabase oturumunu Auth SUNUCUSUNDA doğrular; geçerliyse { user } döner.
+ *
+ * Neden getSession() değil: sunucuda getSession() çerezdeki JSON'u imzasını
+ * doğrulamadan okur. Başka bir sahibin e-postasıyla elle yazılmış bir
+ * `sb-<ref>-auth-token` çerezi, rotaları o kişi adına service-role işlem
+ * yapmaya (hasta verisi, MCP anahtarı…) götürürdü. getUser() token'ı Auth
+ * sunucusuna doğrulatır — sahte, süresi dolmuş ya da iptal edilmiş oturum geçmez.
+ *
+ * Sunucuda kimliği çerezden alan HER rota bunu (ya da panelOturum'u) kullanır;
+ * doğrudan auth.getSession() kullanılmaz. Hata/ağ sorunu → null (fail-closed → 401).
+ */
+export async function dogrulanmisOturum(request: NextRequest): Promise<{ user: User } | null> {
+  try {
+    const sb = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+      cookies: { get: (n: string) => request.cookies.get(n)?.value, set() {}, remove() {} },
+    });
+    const { data: { user }, error } = await sb.auth.getUser();
+    return !error && user ? { user } : null;
+  } catch {
+    return null;
+  }
+}
 
 const icSir = () => process.env.MCP_INTERNAL_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
@@ -41,9 +66,6 @@ export async function panelOturum(request: NextRequest): Promise<PanelOturum> {
     return { user: { email } };
   }
 
-  const sb = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    cookies: { get: (n: string) => request.cookies.get(n)?.value, set() {}, remove() {} },
-  });
-  const { data: { session } } = await sb.auth.getSession();
+  const session = await dogrulanmisOturum(request);
   return session?.user?.email ? { user: { email: session.user.email } } : null;
 }

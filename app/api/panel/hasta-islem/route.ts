@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
+import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { yetkiliEntityIdleri } from '@/lib/erisim';
@@ -10,13 +10,6 @@ function adminClient() {
     { auth: { autoRefreshToken: false, persistSession: false } },
   );
 }
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get(n: string) { return request.cookies.get(n)?.value; }, set() {}, remove() {} } },
-  );
-}
 // Onaylı erişim (sahip/yönetici) + 'hastalar' yetkili asistan — lib/erisim.ts
 async function ownedEntityIds(admin: ReturnType<typeof adminClient>, email: string): Promise<string[]> {
   return yetkiliEntityIdleri(admin, email, ['hastalar']);
@@ -25,7 +18,7 @@ async function ownedEntityIds(admin: ReturnType<typeof adminClient>, email: stri
 /* GET — Sahibin işletmelerine ait tüm hasta işlemleri. */
 export async function GET(request: NextRequest) {
   try {
-    const { data: { session } } = await sessionClient(request).auth.getSession();
+    const session = await dogrulanmisOturum(request);
     if (!session?.user?.email) return NextResponse.json({ error: 'Oturum yok' }, { status: 401 });
     const admin = adminClient();
     const ids = await ownedEntityIds(admin, session.user.email);
@@ -42,7 +35,7 @@ export async function GET(request: NextRequest) {
 /* POST — Yeni işlem ekle. */
 export async function POST(request: NextRequest) {
   try {
-    const { data: { session } } = await sessionClient(request).auth.getSession();
+    const session = await dogrulanmisOturum(request);
     if (!session?.user?.email) return NextResponse.json({ error: 'Oturum yok' }, { status: 401 });
     const b = await request.json();
     const entityId = String(b.entityId || '').trim();
@@ -75,7 +68,7 @@ export async function POST(request: NextRequest) {
 /* DELETE — İşlem sil (?id=). */
 export async function DELETE(request: NextRequest) {
   try {
-    const { data: { session } } = await sessionClient(request).auth.getSession();
+    const session = await dogrulanmisOturum(request);
     if (!session?.user?.email) return NextResponse.json({ error: 'Oturum yok' }, { status: 401 });
     const id = request.nextUrl.searchParams.get('id');
     if (!id) return NextResponse.json({ error: 'id gerekli' }, { status: 400 });

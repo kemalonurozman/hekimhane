@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir } from '@/lib/email';
 import { makaleSlug, okumaSuresi, icerikGecerli } from '@/lib/makale-icerik';
@@ -16,19 +16,6 @@ function adminClient() {
   );
 }
 
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) { return request.cookies.get(name)?.value; },
-        set() {}, remove() {},
-      },
-    },
-  );
-}
-
 const SELECT = 'id,title,slug,summary,category,cover_image,content,status,published,red_notu,entity_name,website,views,created_at,updated_at';
 
 // Migration çalışmadıysa yeni kolonlar yok — bunu tek yerden anlayalım.
@@ -40,8 +27,7 @@ const MIGRATION_UYARISI =
 
 /** Oturum + en az bir onaylı claim → yazar kimliği. */
 async function yazarKimligi(request: NextRequest) {
-  const sess = sessionClient(request);
-  const { data: { session } } = await sess.auth.getSession();
+  const session = await dogrulanmisOturum(request);
   if (!session?.user?.email) return { hata: 'Giriş yapılmamış', kod: 401 as const };
 
   const email = session.user.email;

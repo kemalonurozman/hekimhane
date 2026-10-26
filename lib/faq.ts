@@ -250,11 +250,9 @@ export function buildDoktorFaq(input: DoktorFaqInput): FaqItem[] {
       soru: `${label} hangi alanda uzman ve hangi şikâyetlere bakar?`,
       cevap: `${label}, ${spec} alanında hizmet vermektedir. ${spec} ile ilgili şikâyet ve sağlık durumlarınız için randevu alarak muayene olabilirsiniz. Teşhis ve tedavi süreci muayene sonucunda hekiminiz tarafından belirlenir.`,
     } : null,
-    // 4) Muayene ücreti (yalnızca kayıtlı ücret varsa)
-    (fee && fee > 0) ? {
-      soru: `${label} muayene ücreti ne kadar?`,
-      cevap: `Muayene ücreti ${fee} TL'den başlamaktadır. Güncel ücret, ödeme ve anlaşmalı kurum bilgileri için Hekimhane profil sayfasını inceleyebilir ya da doğrudan iletişime geçebilirsiniz.`,
-    } : null,
+    // 4) Muayene ücreti sorusu KALDIRILDI (Eki 2026): Tanıtım Yönetmeliği gereği profilde ücret
+    //    bilgisi yayınlanmaz; `fee` parametresi geriye uyum için duruyor, kullanılmıyor.
+    fee ? null : null,
     // 5) Telefon (yalnızca kayıtlı numara varsa)
     tel ? {
       soru: `${label} telefon numarası nedir?`,

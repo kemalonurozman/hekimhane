@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
+import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -15,21 +15,6 @@ function adminClient() {
   );
 }
 
-// Cookie-tabanlı session — kullanıcıyı doğrular
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) { return request.cookies.get(name)?.value; },
-        set() {},
-        remove() {},
-      },
-    }
-  );
-}
-
 /**
  * Giriş yapmış kullanıcının kendi sahiplenme taleplerini döndürür.
  * E-postayı SESSION'dan alır (istemciden gelen parametreye güvenmez) ve
@@ -37,8 +22,7 @@ function sessionClient(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
+    const session = await dogrulanmisOturum(request);
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
     }

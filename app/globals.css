@@ -1268,3 +1268,20 @@ select.kf-in.dolu ~ .kf-tik { display: none; }
 @media (max-width: 760px) { .sahiplen-kutu__dugme.vt-dugme { width: 100%; } .sahiplen-kutu { padding: 18px; } }
 select.kf-in:not(.dolu) { color: #9AA1AD; font-weight: 400; }
 select.kf-in option { color: #0E1A2C; font-weight: 500; }
+
+/* Profil "Bu profil size mi ait?" kutusu — üç eşit düğme (uyum belgesi, Eki 2026).
+   "Kaldırılmasını iste" soluk ya da küçük yazıyla saklanmaz: üçü aynı boyut, aynı renk. */
+.sahiplen-kutu--uclu { display: flex; flex-direction: column; gap: 14px; }
+.sahiplen-kutu__dugmeler { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.sahiplen-kutu__secenek { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #12294D; background: #fff; color: #12294D; font-size: 14px; font-weight: 700; letter-spacing: -.01em; text-align: center; text-decoration: none; transition: background .18s, color .18s, transform .18s; }
+.sahiplen-kutu__secenek:hover { background: #12294D; color: #fff; transform: translateY(-1px); }
+.sahiplen-kutu__secenek:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(18,41,77,.18); }
+.sahiplen-kutu__kvkk { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12.5px; color: #586273; }
+.sahiplen-kutu__kvkk a { color: #12294D; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 640px) { .sahiplen-kutu__dugmeler { grid-template-columns: minmax(0, 1fr); } }
+
+/* Footer — genel bildirim bloğu */
+.hk-footer__bildirim { border-top: 1px solid rgba(255,255,255,.12); margin-top: var(--space-7); padding-top: var(--space-6); }
+.hk-footer__bildirim p { margin: 0 0 8px; font-size: 12.5px; line-height: 1.7; color: var(--on-deep-muted); max-width: 980px; }
+.hk-footer__bildirim-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 12.5px; color: var(--on-deep-muted); }
+.hk-footer__bildirim-meta a { color: var(--on-deep); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }

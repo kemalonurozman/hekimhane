@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import type { Hastane } from '@/lib/types';
-import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
 import SafeLogo from '@/components/SafeLogo';
 
@@ -217,7 +216,7 @@ export default function HastaneCard({ hastane: h }: { hastane: Hastane }) {
         }
       `}</style>
 
-      <div className={`hc${isPremium ? ' hc--premium' : ''}`} onClick={() => router.push(profileUrl)}>
+      <div className="hc" onClick={() => router.push(profileUrl)}>
 
         {/* ── Üst: fotoğraf + içerik ── */}
         <div className="hc__top">
@@ -231,7 +230,6 @@ export default function HastaneCard({ hastane: h }: { hastane: Hastane }) {
                     <path d="M3 21h18M9 21V7l6-4v18M9 11H3v10M15 11h6v10M9 7h6M12 11v4"/>
                   </svg>} />
             </div>
-            {isPremium && <PremiumBadge />}
           </div>
 
           {/* İçerik */}
@@ -251,7 +249,6 @@ export default function HastaneCard({ hastane: h }: { hastane: Hastane }) {
             {/* Rozetler — fotoğraf dışında */}
             <div className="hc__badges">
               {h.type    && <span className="badge badge-gold" style={{ fontSize: '11px' }}>{h.type}</span>}
-              {isPremium && <span className="badge" style={{ fontSize: '11px', background: 'linear-gradient(135deg,#FEF3C7,#FDE68A)', color: '#92400E', border: '1px solid #F59E0B' }}>👑 Premium</span>}
               {h.claimed && <span className="badge" style={{ fontSize: '11px', background: '#065F46', color: 'white', border: 'none' }}>✓ Sahiplenildi</span>}
               {(h as any).acil && <span className="badge badge-red" style={{ fontSize: '11px' }}>🚑 7/24 Acil</span>}
             </div>

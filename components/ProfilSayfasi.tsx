@@ -14,6 +14,7 @@ import HkIcon from '@/components/HkIcon';
 import SafeLogo from '@/components/SafeLogo';
 import { basHarfler } from '@/lib/hk';
 import type { Doktor } from '@/lib/types';
+import { sahiplenKutusu, yonetiliyorNotu, derlenmisNotu, rozetAciklamasi, YORUM_NOTU, saglikRizaMetni, AYDINLATMA_YOL } from '@/lib/uyum';
 
 // ── Türkiye İl Merkez Koordinatları ──────────────────────────────
 const IL_MERKEZ: Record<string, [number, number]> = {
@@ -867,6 +868,9 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
   const [saving, setSaving]   = useState(false);
   const [hata, setHata]       = useState('');
   const [bulten, setBulten] = useState(false); // e-posta bülteni izni — isteğe bağlı, varsayılan kapalı
+  // Not alanına yazılan metin ancak ayrı AÇIK RIZA ile iletilir (sağlık verisi olabilir — KVKK m.6);
+  // kutu işaretlenmezse not gönderilmez, talep yine gider.
+  const [saglikRiza, setSaglikRiza] = useState(false);
   const [website, setWebsite] = useState(''); // honeypot — botlar doldurur, insanlar görmez
 
   // Widget'tan bir güne tıklanarak açıldıysa o tarihi ön-seç (doğrudan saat seçimine)
@@ -894,7 +898,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
     const tercih = [tarihStr, saat].filter(Boolean).join(' · ');
     const payload: Record<string, unknown> = {
       entity_type: entityType, entity_id: entityId, entity_name: name,
-      ad_soyad: adSoyad, tel, email, tercih, mesaj, website, bulten,
+      ad_soyad: adSoyad, tel, email, tercih, mesaj: saglikRiza ? mesaj : '', saglik_rizasi: saglikRiza, website, bulten,
     };
     if (aktif && tarih && saat) payload.randevu_slot = `${tarih} ${saat}`;
     try {
@@ -1074,14 +1078,20 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
               </div>
               <div>
                 <label style={labelStyle}>Notunuz <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
-                <textarea value={mesaj} onChange={e => setMesaj(e.target.value)} rows={2} placeholder="Eklemek istedikleriniz (ayrıntılı sağlık bilgisi yazmanız gerekmez)"
+                <textarea value={mesaj} onChange={e => setMesaj(e.target.value)} rows={2} placeholder="Ör. uygun olduğunuz günler. Sağlık durumunuzu yazmanız gerekmez."
                   style={{ ...inputStyle, resize: 'none' }} />
+                {mesaj.trim() !== '' && (
+                  <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 12, color: 'var(--muted)', margin: '10px 0 0', cursor: 'pointer', lineHeight: 1.6, padding: '10px 12px', background: '#F6F8FB', borderRadius: 10, border: '1px solid var(--border)' }}>
+                    <input type="checkbox" checked={saglikRiza} onChange={e => setSaglikRiza(e.target.checked)} style={{ marginTop: 2, accentColor: '#059669', flexShrink: 0 }} />
+                    <span>{saglikRizaMetni(name)} <span style={{ opacity: .8 }}>Kutuyu işaretlemezseniz notunuz iletilmez; randevu talebiniz yine gönderilir.</span></span>
+                  </label>
+                )}
               </div>
             </div>
 
             <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 12, color: 'var(--muted)', margin: '16px 0 18px', cursor: 'pointer', lineHeight: 1.6 }}>
               <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} style={{ marginTop: 2, accentColor: '#059669', flexShrink: 0 }} />
-              <span><a href="/kvkk" target="_blank" rel="noopener" style={{ color: '#059669', fontWeight: 600 }}>KVKK Aydınlatma Metni</a>&apos;ni okudum; ad, telefon, e-posta ve notumun randevu oluşturulması amacıyla bu işletmeyle paylaşılmasına açık rıza veriyorum.</span>
+              <span><a href={AYDINLATMA_YOL.hasta} target="_blank" rel="noopener" style={{ color: '#059669', fontWeight: 600 }}>Hasta ve Ziyaretçi Aydınlatma Metni</a>&apos;ni okudum; ad, telefon ve e-postamın randevu talebimin iletilmesi amacıyla bu doktor veya kuruma aktarılmasını kabul ediyorum.</span>
             </label>
             {/* Ticari ileti izni ayrı ve isteğe bağlı — randevu onayına bağlanamaz */}
             <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 12, color: 'var(--muted)', margin: '-8px 0 18px', cursor: 'pointer', lineHeight: 1.6 }}>
@@ -1313,13 +1323,21 @@ export default function ProfilSayfasi(props: ProfilProps) {
     : entityType === 'eczane'  ? 'Eczane'
     : (spec || 'Doktor');
 
+  // Uyum belgesi: yorumların hemen üstünde duran not + "Bu profil size mi ait?" kutusu metinleri
+  const bildirHref = `/hatali-bilgi?id=${id}&type=${entityType}`;
+  const yorumNotu = (
+    <p className="profil-uyum-not" style={{ margin: '0 0 12px', padding: '10px 14px', borderRadius: 12, background: '#F6F8FB', border: '1px solid var(--border)', fontSize: 12.5, lineHeight: 1.6, color: 'var(--muted)' }}>
+      {YORUM_NOTU} Kurallarımıza aykırı bir görüş gördüğünüzde <Link href={`${bildirHref}&konu=yorum`} style={{ color: 'var(--navy)', fontWeight: 700 }}>bildirin</Link>.
+    </p>
+  );
+  const kutu = sahiplenKutusu(entityType);
+
   // Info grid satırları
   const infoRows = entityType === 'doktor'
     ? [
         // Şehir / ilçe / telefon üst bölümde zaten var → burada tekrar edilmez.
         // Geriye bilgi kalmazsa kart hiç çıkmaz (aşağıda infoDolu kontrolü).
         { l: 'Deneyim', v: exp ? `${exp} yıl` : '—' },
-        { l: 'Seans Ücreti', v: fee ? `${fee.toLocaleString('tr')} ₺` : '—' },
         { l: 'E-posta', v: emailVisible || '—' },
       ]
     : entityType === 'eczane'
@@ -1472,10 +1490,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
           style={{ left: sealTip.x, top: sealTip.y }}>
           <span className="hk-tip-kicker">Sahiplenilmemiş profil</span>
           <span className="hk-tip-title">Bu profil henüz doğrulanmadı</span>
-          <span className="hk-tip-text">
-            Buradaki bilgiler herkese açık kaynaklardan derlenmiştir ve işletme tarafından
-            henüz onaylanmamıştır. İşletme sahibi profili sahiplendiğinde bilgiler güncellenir.
-          </span>
+          <span className="hk-tip-text">{derlenmisNotu(entityType)}</span>
           <span className="hk-tip-dismiss">Kapatmak için tıklayın</span>
           <span className="hk-tip-arrow" />
         </span>
@@ -1545,9 +1560,10 @@ export default function ProfilSayfasi(props: ProfilProps) {
                     : ['#9DB0CC', '#5B7399'];
                   const golge = durum === 'premium' ? 'drop-shadow(0 3px 9px rgba(198,144,43,.55))'
                     : 'drop-shadow(0 3px 9px rgba(26,51,94,.32))';
-                  const etiket = durum === 'premium' ? 'Doğrulanmış premium işletme'
-                    : durum === 'claimed' ? 'Sahibi tarafından yönetilen profil'
-                    : 'Bu profil henüz sahiplenilmemiş — sahiplenmek için tıklayın';
+                  // Rozet metni uyum belgesinden: doğrulama + yönetim; nitelik değerlendirmesi DEĞİL.
+                  const etiket = durum === 'open'
+                    ? 'Bu profil henüz sahiplenilmemiş — sahiplenmek için tıklayın'
+                    : rozetAciklamasi(entityType);
 
                   const muhur = (
                     <svg className="hk-seal" width="44" height="44" viewBox="0 0 24 24" fill="none" style={{ filter: golge }}>
@@ -1605,7 +1621,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 {nobetci && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#EDE9FE', color: '#6D28D9', border: '1px solid #DDD6FE' }}>Nöbetçi</span>}
                 {/* Premium rozeti kaldırıldı — premium, logo + altın mühür ve sunulan özelliklerle belli oluyor */}
                 {claimed
-                  ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: 'linear-gradient(135deg,var(--navy),var(--navy2))', color: 'white' }}>✓ Sahiplenildi</span>
+                  ? <span title={rozetAciklamasi(entityType)} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: 'linear-gradient(135deg,var(--navy),var(--navy2))', color: 'white', cursor: 'help' }}>✓ Sahiplenilmiş</span>
                   : <Link href={`/sahiplen?id=${id}&type=${entityType}`}
                       style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 0, borderRadius: 999, fontSize: 11, fontWeight: 700, overflow: 'hidden', textDecoration: 'none', border: '1px solid rgba(184,137,47,.65)', boxShadow: '0 4px 14px rgba(184,137,47,.4)' }}>
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px', background: 'linear-gradient(135deg,#EBC65D,#B8892F)', color: '#1A335E', fontWeight: 900, letterSpacing: '0.4px' }}>
@@ -1646,7 +1662,6 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   ? <span><Stars rat={avg} /> <strong style={{ color: hName, fontSize: 16 }}>{avg}</strong></span>
                   : <span>Henüz değerlendirme yok</span>}
                 {yorumlar.length > 0 && <span>{yorumlar.length} yorum</span>}
-                {entityType === 'doktor' && fee ? <span>💰 {fee.toLocaleString('tr')} ₺</span> : null}
               </div>
             </div>
 
@@ -1726,6 +1741,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
         {/* SOL KOLON */}
         <div>
+          {/* Sahiplenilmemiş profil notu — kaynak ve doğrulama durumu herkese görünür (uyum belgesi) */}
+          {!claimed && (
+            <p className="profil-uyum-not profil-uyum-not--derlenmis" style={{ margin: '0 0 16px', padding: '12px 16px', borderRadius: 14, background: '#FFF8E6', border: '1px solid #F1DFAF', fontSize: 13.5, lineHeight: 1.6, color: '#5B4A1E' }}>
+              {derlenmisNotu(entityType)}
+            </p>
+          )}
 
           {/* ── GENEL TAB ── */}
           {activeTab === 'genel' && (
@@ -1936,22 +1957,36 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 </div>
               ) : null}
 
-              {/* Sahiplen CTA — sade kart, tek altın ışıklı düğme */}
-              {!claimed && (
-                <div className="profil-sahiplen-cta sahiplen-kutu">
-                  <span className="sahiplen-kutu__ikon"><HkIcon name="verified" size={26} color="#fff" accent="#DEC283" /></span>
-                  <div className="sahiplen-kutu__metin">
-                    <div className="sahiplen-kutu__baslik">Bu işletmenin sahibi misiniz? <span className="vt-ucretsiz">Ücretsiz</span></div>
-                    <div className="sahiplen-kutu__alt">Sayfayı sahiplenerek bilgileri güncelleyin, fotoğraf ekleyin ve müşterilerinize daha kolay ulaşın.</div>
+              {/* "Bu profil size mi ait?" kutusu — üç düğme AYNI boyut ve görünürlükte (uyum belgesi);
+                  sahiplenilmişte yerine "yönetiliyor" notu + hatalı bilgi bağlantısı */}
+              {!claimed ? (
+                <div className="profil-sahiplen-cta sahiplen-kutu sahiplen-kutu--uclu">
+                  <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                    <span className="sahiplen-kutu__ikon"><HkIcon name="verified" size={26} color="#fff" accent="#DEC283" /></span>
+                    <div className="sahiplen-kutu__metin">
+                      <div className="sahiplen-kutu__baslik">{kutu.baslik} <span className="vt-ucretsiz">Ücretsiz</span></div>
+                      <div className="sahiplen-kutu__alt">{kutu.metin}</div>
+                    </div>
                   </div>
-                  <Link href={`/sahiplen?id=${id}&type=${entityType}`} className="vt-dugme oz-dugme--altin hk-cta-isik sahiplen-kutu__dugme">
-                    <span className="oz-dugme__yazi">Profili sahiplen</span>
-                    <svg className="oz-dugme__ok" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                  </Link>
+                  <div className="sahiplen-kutu__dugmeler">
+                    <Link href={`/sahiplen?id=${id}&type=${entityType}`} className="sahiplen-kutu__secenek">{kutu.sahiplen}</Link>
+                    <Link href={`/bilgileri-duzelt?id=${id}&type=${entityType}`} className="sahiplen-kutu__secenek">Bilgileri düzelt</Link>
+                    <Link href={`/profil-kaldir?id=${id}&type=${entityType}`} className="sahiplen-kutu__secenek">Kaldırılmasını iste</Link>
+                  </div>
+                  <div className="sahiplen-kutu__kvkk">
+                    <Link href={AYDINLATMA_YOL.profesyonel}>Kişisel verileriniz nasıl işleniyor?</Link>
+                    <span aria-hidden="true">·</span>
+                    <Link href={bildirHref}>Hatalı bilgi mi gördünüz? Bildirin.</Link>
+                  </div>
                 </div>
+              ) : (
+                <p className="profil-uyum-not" style={{ margin: '0 0 16px', padding: '12px 16px', borderRadius: 14, background: '#fff', border: '1px solid var(--border)', fontSize: 13.5, lineHeight: 1.6, color: 'var(--muted)' }}>
+                  {yonetiliyorNotu(entityType)} Hatalı bilgi mi gördünüz? <Link href={bildirHref} style={{ color: 'var(--navy)', fontWeight: 700 }}>Bildirin</Link>.
+                </p>
               )}
 
               {/* Değerlendirmeler */}
+              {yorumNotu}
               <div style={sc}>
                 <div style={scHd}>
                   <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Değerlendirmeler</h3>
@@ -2461,6 +2496,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               ) : (
                 <YorumForm entityId={id} entityType={entityType} onSubmit={y => setYorumlar(prev => [y, ...prev])} />
               )}
+              {yorumNotu}
               <div style={sc}>
                 <div style={scHd}>
                   <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Yorumlar</h3>

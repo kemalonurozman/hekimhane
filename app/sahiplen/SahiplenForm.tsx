@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import HkIcon from '@/components/HkIcon';
 import type { User } from '@supabase/supabase-js';
+import { AYDINLATMA_YOL, UYUM_SURE } from '@/lib/uyum';
 
 interface Props {
   entityId: string;
@@ -66,8 +67,8 @@ function YerelStil() {
 function Baslik() {
   return (
     <>
-      <h1 className="kf-baslik">İşletmeyi sahiplenin</h1>
-      <p className="kf-alt">Birkaç bilgiyle işletmenizi talep edin; ekibimiz doğrulayıp onaylasın.</p>
+      <h1 className="kf-baslik">Profili sahiplenin</h1>
+      <p className="kf-alt">Profilinizi sahiplendiğinizde bilgilerinizi kendiniz güncelleyebilir, hasta görüşlerine yanıt verebilir ve profilinizde &quot;Sahiplenilmiş&quot; rozeti görünür. Sahiplenme ücretsizdir.</p>
     </>
   );
 }
@@ -179,6 +180,15 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
   const [saving,    setSaving]    = useState(false);
   const [error,     setError]     = useState('');
 
+  /* ── Onaylar (uyum belgesi): Kullanım Şartları zorunlu; aydınlatma için kutu yok, yalnız bağlantı;
+        ticari ileti izni kanal kanal, ayrı ve HİÇBİR ZAMAN önceden işaretli değil. ── */
+  const [sartlar, setSartlar] = useState(false);
+  const [izin, setIzin] = useState({ eposta: false, sms: false, tel: false });
+  const izinMetni = () => {
+    const k = [izin.eposta && 'e-posta', izin.sms && 'SMS', izin.tel && 'telefon'].filter(Boolean);
+    return k.length ? `İletişim izni: ${k.join(', ')}` : 'İletişim izni: yok';
+  };
+
   /* ── Oturum kontrolü ── */
   useEffect(() => {
     const supabase = createSupabaseBrowser();
@@ -188,14 +198,16 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
     });
   }, []);
 
-  /* ── Giriş yapılmış: gönder ── */
+  /* ── E-posta listesine yalnız e-posta kanalı için AÇIK izin varsa ── */
   async function saveToAboneList(email: string, isim?: string) {
+    if (!izin.eposta) return;
     try {
       await fetch('/api/abone', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
+          izin:        true,
           isim:        isim || undefined,
           tip:         'isletme',
           kaynak:      'sahiplenme',
@@ -213,6 +225,7 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
     if (!loggedForm.unvan.trim()) { setUnvanError('Ünvan zorunludur'); hasErr = true; } else { setUnvanError(''); }
     if (!loggedForm.tel.trim())   { setTelError('Telefon zorunludur'); hasErr = true; } else { setTelError(''); }
     if (hasErr) return;
+    if (!sartlar) { setError('Devam etmek için Kullanım Şartları\'nı kabul etmeniz gerekir.'); return; }
     setSaving(true); setError('');
 
     const name = user!.user_metadata?.full_name || user!.user_metadata?.name || '';
@@ -227,7 +240,7 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
           claimant_name: name,
           phone:         loggedForm.tel.trim(),
           email:         user!.email,
-          role:          [loggedForm.unvan.trim(), loggedForm.mesaj.trim()].filter(Boolean).join(' — ') || null,
+          role:          [loggedForm.unvan.trim(), loggedForm.mesaj.trim(), izinMetni()].filter(Boolean).join(' — ') || null,
           status:        isClaimed ? 'dispute' : 'pending',
         }),
       });
@@ -251,6 +264,7 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
     if (!guestForm.email.trim())    errs.email    = 'E-posta zorunludur';
     setGuestErrors(errs);
     if (Object.keys(errs).length) return;
+    if (!sartlar) { setError('Devam etmek için Kullanım Şartları\'nı kabul etmeniz gerekir.'); return; }
 
     setSaving(true); setError('');
     try {
@@ -264,7 +278,7 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
           claimant_name: guestForm.ad_soyad.trim(),
           phone:         guestForm.tel.trim(),
           email:         guestForm.email.trim(),
-          role:          [guestForm.unvan.trim(), guestForm.mesaj.trim()].filter(Boolean).join(' — ') || null,
+          role:          [guestForm.unvan.trim(), guestForm.mesaj.trim(), izinMetni()].filter(Boolean).join(' — ') || null,
           status:        isClaimed ? 'dispute' : 'pending',
         }),
       });
@@ -395,13 +409,36 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
 
   const gonder = (
     <>
+      <Grup baslik="Onaylar">
+        <label className="sh-onay">
+          <input type="checkbox" checked={sartlar} onChange={e => { setSartlar(e.target.checked); if (e.target.checked) setError(''); }} />
+          <span><b style={{ display: 'inline' }}>Kullanım Şartları</b>&apos;nı okudum ve kabul ediyorum. <span style={{ color: '#B42318' }}>(zorunlu)</span> — <a href="/kullanim" target="_blank" rel="noopener" style={{ color: '#12294D', fontWeight: 600 }}>metni aç</a></span>
+        </label>
+        <p className="kf-not" style={{ textAlign: 'left', margin: 0 }}>
+          Kişisel verilerinizin nasıl işlendiğini <a href={AYDINLATMA_YOL.profesyonel} target="_blank" rel="noopener" style={{ color: '#12294D', fontWeight: 600 }}>Profesyoneller Aydınlatma Metni</a>&apos;nde okuyabilirsiniz.
+        </p>
+        <div style={{ borderTop: '1px solid #E5E7EE', paddingTop: 14 }}>
+          <p style={{ margin: '0 0 10px', fontSize: 13.5, lineHeight: 1.6, color: '#0E1A2C' }}>
+            Hekimhane&apos;nin yeni özellikler, paketler ve fırsatlar hakkında bana ticari elektronik ileti göndermesine ve bu amaçla iletişim bilgilerimin işlenmesine onay veriyorum: <span className="o" style={{ display: 'inline' }}>isteğe bağlı</span>
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 18px' }}>
+            {([['eposta', 'E-posta'], ['sms', 'SMS'], ['tel', 'Telefon araması']] as const).map(([k, ad]) => (
+              <label key={k} className="sh-onay" style={{ gap: 8 }}>
+                <input type="checkbox" checked={izin[k]} onChange={e => setIzin(x => ({ ...x, [k]: e.target.checked }))} />
+                <span style={{ fontSize: 14, color: '#0E1A2C', fontWeight: 600 }}>{ad}</span>
+              </label>
+            ))}
+          </div>
+          <p className="kf-not" style={{ textAlign: 'left', margin: '10px 0 0' }}>Bu onay profilinizi sahiplenmek için şart değildir. Onayınızı istediğiniz zaman, her iletinin altındaki bağlantıdan geri alabilirsiniz.</p>
+        </div>
+      </Grup>
       {errorBox}
       <button type="submit" disabled={saving} className="kf-gonder hk-cta-isik">
         <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 9 }}>
           {saving ? <><IcSpin />Gönderiliyor...</> : gonderYazi}
         </span>
       </button>
-      <p className="kf-not">Bilgileriniz yalnızca doğrulama amacıyla kullanılacak ve üçüncü taraflarla paylaşılmayacaktır.</p>
+      <p className="kf-not">Bilgileriniz yalnızca kimliğinizi doğrulamak için kullanılır; doğrulama için paylaştığınız belgeler doğrulama tamamlandıktan sonra silinir. Belgeyle doğrulamada editörlerimiz en geç {UYUM_SURE.inceleme_is_gunu} iş günü içinde e-postayla döner.</p>
     </>
   );
 

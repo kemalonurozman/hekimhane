@@ -37,6 +37,54 @@
         "3105"
       ],
       "port": 3105
+    },
+    {
+      "name": "hekimhane-onizleme-mock",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3999",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3106"
+      ],
+      "port": 3106
+    },
+    {
+      "name": "hekimhane-eu-3107",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3998",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3107"
+      ],
+      "port": 3107
+    },
+    {
+      "name": "hekimhane-onizleme-mock-3108",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3997",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3108"
+      ],
+      "port": 3108
     }
   ]
 }

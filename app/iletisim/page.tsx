@@ -62,7 +62,7 @@ export default function IletisimPage() {
             <div style={{ fontSize: 22, marginBottom: 8 }}>🏥</div>
             <h3 style={{ fontWeight: 800, fontSize: 15, color: 'var(--navy)', marginBottom: 6 }}>İşletmenizi listeleyin</h3>
             <p style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.6, marginBottom: 16 }}>
-              Kliniğinizi, hastanenizi veya eczanenizi Hekimhane'ye ücretsiz ekleyin, daha fazla hastaya ulaşın.
+              Kliniğinizi, hastanenizi veya eczanenizi Hekimhane'ye ücretsiz ekleyin; bilgilerinizi kendiniz yönetin.
             </p>
             <Link href="/katil" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 18px', background: 'var(--navy)', color: 'white', borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
               <i className="fa-solid fa-plus" />Ücretsiz Ekle

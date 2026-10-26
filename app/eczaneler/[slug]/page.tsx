@@ -52,6 +52,7 @@ export default async function EczaneProfilPage({ params }: Props) {
   const res = await getData(params.slug);
   if (!res) notFound();
   const { e, yorumlar } = res;
+  if ((e as any).gizli === true) notFound();   // kaldırma talebi alınmış profil
 
   const canonical = `https://www.hekimhane.com.tr/eczaneler/${e.slug}`;
   const sameAs = [e.instagram_url, e.facebook_url, e.linkedin_url].filter(Boolean) as string[];

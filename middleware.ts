@@ -75,7 +75,13 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Session'ı yenile ve al
+  // Session'ı yenile ve al.
+  // getSession() burada BİLEREK kalıyor: yalnız süresi dolan çerezi yeniler ve
+  // /panel, /admin sayfalarında girişe yönlendirir — kimlik/yetki kararı vermez.
+  // Sahte çerez bu kapıyı geçse de yalnız boş sayfa kabuğu görür; veri veren her
+  // sunucu rotası kimliği getUser() ile doğrular (lib/panel-oturum.ts →
+  // dogrulanmisOturum, lib/admin-auth.ts → isAdminRequest). Buradaki session'dan
+  // e-posta/kimlik okuyup yetki vermeyin.
   const { data: { session } } = await supabase.auth.getSession();
 
   // /panel altındaki sayfalar için auth zorunlu

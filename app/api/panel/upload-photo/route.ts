@@ -4,7 +4,7 @@
  * Bucket: "hekimhane-photos" (otomatik oluşturulur)
  */
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { createClient } from '@supabase/supabase-js';
 
 const BUCKET      = 'hekimhane-photos';
@@ -23,24 +23,10 @@ function adminClient() {
   );
 }
 
-function sessionClient(req: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) { return req.cookies.get(name)?.value; },
-        set() {}, remove() {},
-      },
-    }
-  );
-}
-
 export async function POST(req: NextRequest) {
   try {
     // Auth
-    const sess = sessionClient(req);
-    const { data: { session } } = await sess.auth.getSession();
+    const session = await dogrulanmisOturum(req);
     if (!session) return NextResponse.json({ error: 'Oturum açınız' }, { status: 401 });
 
     // Form data

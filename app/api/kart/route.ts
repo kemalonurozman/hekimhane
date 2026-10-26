@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { createClient } from '@supabase/supabase-js';
 import { kartSlugify, kartSlugTemel, kisalt, bos, entityKartAlanlari } from '@/lib/hekimkart';
 
@@ -8,20 +8,6 @@ function adminClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } }
-  );
-}
-
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) { return request.cookies.get(name)?.value; },
-        set() {},
-        remove() {},
-      },
-    }
   );
 }
 
@@ -121,8 +107,7 @@ async function erisilenEntityIdleri(admin: any, email: string): Promise<Set<stri
    İkincisi olmadan aynı işletmenin ikinci sahibi "kart yok" görüp
    mükerrer kart oluşturuyor, iki farklı adres ortaya çıkıyordu. */
 export async function GET(request: NextRequest) {
-  const sess = sessionClient(request);
-  const { data: { session } } = await sess.auth.getSession();
+  const session = await dogrulanmisOturum(request);
   if (!session) return NextResponse.json({ error: 'Giriş yapılmamış' }, { status: 401 });
 
   const email = session.user.email!;
@@ -154,8 +139,7 @@ export async function GET(request: NextRequest) {
 
 /* ── POST: kart oluştur veya güncelle ── */
 export async function POST(request: NextRequest) {
-  const sess = sessionClient(request);
-  const { data: { session } } = await sess.auth.getSession();
+  const session = await dogrulanmisOturum(request);
   if (!session) return NextResponse.json({ error: 'Giriş yapılmamış' }, { status: 401 });
 
   const body = await request.json();

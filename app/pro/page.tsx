@@ -13,7 +13,7 @@ const URL_ = 'https://www.hekimhane.com.tr/pro';
 
 export const metadata: Metadata = {
   title: 'Hekimhane-Pro — İşletmeniz İçin Profesyonel Üyelik',
-  description: `Randevu yönetimi, hasta listesi, sitenize rezervasyon modülü, otomatik e-posta bilgilendirme ve profesyonel profil görünümü. Aylık ${PRO_AYLIK_TL} TL, istediğiniz an iptal.`,
+  description: `Muayenehane yönetim araçları: randevu takvimi, hasta listesi, sitenize rezervasyon modülü, otomatik e-posta bilgilendirme ve yapay zekâ ile yönetim. Aylık ${PRO_AYLIK_TL} TL, istediğiniz an iptal. Pro sıralamayı değiştirmez.`,
   alternates: { canonical: URL_ },
   openGraph: {
     title: 'Hekimhane-Pro | Hekimhane',
@@ -41,8 +41,8 @@ const FAYDALAR: { baslik: string; metin: string; gorsel?: React.ReactNode; ikon?
     gorsel: <MiniProfil />,
   },
   {
-    baslik: 'Doğru sayfalarda görünün',
-    metin: 'Ana sayfada ve sağlık rehberinde öne çıkarılır, hastalık sayfalarında önerilen hekimler arasında yer alırsınız.',
+    baslik: 'Yapay zekâ ile yönetim',
+    metin: 'Claude gibi asistanlardan randevularınızı listeleyin, ekleyin, taşıyın; yorumlara yanıt verin. Kişisel anahtar, anında iptal.',
     gorsel: <MiniGorunur />,
   },
 ];
@@ -59,12 +59,12 @@ const DAHIL: { etiket: string; ad: string; ikon: HkIkonAdi; renk: string; maddel
     ],
   },
   {
-    etiket: 'Profil ve görünürlük', ad: 'Profesyonel görünüm, öne çıkma', ikon: 'verified', renk: 'rgba(184,137,47,.5)',
+    etiket: 'Profil', ad: 'Profesyonel profil görünümü', ikon: 'verified', renk: 'rgba(184,137,47,.5)',
     maddeler: [
-      'Altın doğrulama mührü ve arama sonuçlarında Pro rozeti',
+      'Altın Pro mührü profil sayfanızda',
       'Hareketli kapak, renk teması, WhatsApp ve web sitesi düğmeleri',
-      'Ana sayfada ve sağlık rehberinde öne çıkarma',
-      'Hastalık sayfalarında önerilen hekimler, karşılaştırmada Pro etiketi',
+      'Sosyal medya bağlantıları ve randevu bildirimi için 2 e-posta adresi',
+      'Arama sonuçlarındaki sıranız ve görünürlüğünüz değişmez',
     ],
   },
   {
@@ -95,16 +95,15 @@ const GUVEN: { ikon: HkIkonAdi; baslik: string; metin: string }[] = [
 const FIYAT_MADDELERI = [
   'Randevu yönetimi ve takvim',
   'Hasta listesi, not ve dosyalar',
-  'Altın mühür + Pro rozeti',
-  'Ana sayfada ve rehberde öne çıkarma',
+  'Altın Pro mührü, WhatsApp ve web sitesi düğmeleri',
+  'Yapay zekâ asistanından yönetim (MCP)',
   'Sitenize gömülebilir randevu modülü',
   'Otomatik e-posta bilgilendirmeleri',
-  'WhatsApp ve web sitesi butonları',
 ];
 
 const SSS: { s: string; c: string }[] = [
   { s: 'Aboneliği nasıl iptal ederim?', c: 'Panel → "Pro Üyeliği Yönet" ile Stripe müşteri portalına gidersiniz; iptal tek tıktır. Dönem sonuna kadar Pro özellikleri açık kalır, sonrasında ücret alınmaz.' },
-  { s: 'Ücretsiz hesapla farkı ne?', c: 'İşletmenizi sahiplenmek ve profilinizi yönetmek ücretsizdir. Pro; profesyonel profil görünümü, öne çıkarma ve Pro rozetiyle işletmenizi görünür kılar, tüm randevu ve hasta yönetimi araçlarını içerir.' },
+  { s: 'Ücretsiz hesapla farkı ne?', c: 'İşletmenizi sahiplenmek, bilgilerinizi güncellemek ve hasta görüşlerine yanıt vermek ücretsizdir. Pro; randevu takvimi, randevu taleplerinin tek ekrandan takibi, sitenize randevu modülü ve yapay zekâ ile yönetim gibi muayenehane yönetim araçlarını içerir. Pro, arama sonuçlarındaki sıranızı veya görünürlüğünüzü değiştirmez.' },
   { s: 'Ödeme güvenli mi?', c: 'Ödemeler dünyanın en yaygın ödeme altyapılarından Stripe üzerinden alınır. Kart bilgileriniz Hekimhane sunucularına hiçbir zaman ulaşmaz.' },
   { s: 'Birden fazla işletmem var, ne yapmalıyım?', c: 'Pro üyelik işletme başınadır. Her işletmeniz için panelden ayrı ayrı Pro’ya geçebilirsiniz.' },
 ];
@@ -129,8 +128,8 @@ export default function ProPage() {
       <OzHero
         rozet="Pro"
         urun="Hekimhane-Pro · Profesyonel üyelik"
-        baslik={['İşletmenizi', 'bir adım öne taşıyın']}
-        govde={<>Randevularınızı yönetin, hastalarınızı takip edin, profilinizi profesyonelleştirin. Tek üyelik, tüm araçlar — aylık {PRO_AYLIK_TL} TL, istediğiniz an iptal.</>}
+        baslik={['Muayenehanenizi', 'tek ekrandan yönetin']}
+        govde={<>Hekimhane Pro, muayenehanenizi yönetmeniz için tasarlanmış araçlar sunar: çevrim içi randevu takvimi, gelen taleplerin tek ekrandan takibi, hasta bilgilendirme. Aylık {PRO_AYLIK_TL} TL, istediğiniz an iptal.</>}
         birincil={{ ad: `Pro’ya yükseltin — aylık ${PRO_AYLIK_TL} TL`, href: '#fiyat' }}
         ikincil={{ ad: 'Demo talep edin', href: '#demo' }}
         sahne={<Sahne />}
@@ -139,7 +138,7 @@ export default function ProPage() {
 
       <OzBant
         baslik="Tek üyelik, tüm araçlar"
-        alt="İşletmenizi yönetmek için ihtiyacınız olan her şey tek pakette: randevu, hasta iletişimi, profil ve görünürlük."
+        alt="Muayenehanenizi yönetmek için ihtiyacınız olan her şey tek pakette: randevu, hasta iletişimi, profil ve yapay zekâ bağlantısı."
         kartlar={FAYDALAR}
         cta={{ ad: 'Pro’ya yükseltin', href: '#fiyat' }}
       />
@@ -175,7 +174,8 @@ export default function ProPage() {
                   <span style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(44px, 5.4vw, 64px)', fontWeight: 800, letterSpacing: '-0.045em', lineHeight: 1, color: '#0E1A2C' }}>{PRO_AYLIK_TL} TL</span>
                   <span style={{ fontSize: 17, fontWeight: 600, color: '#586273' }}>/ ay</span>
                 </div>
-                <p style={{ margin: '10px 0 28px', fontSize: 15, color: '#586273' }}>Taahhüt yok — istediğiniz an iptal edin.</p>
+                <p style={{ margin: '10px 0 10px', fontSize: 15, color: '#586273' }}>Taahhüt yok — istediğiniz an iptal edin.</p>
+                <p style={{ margin: '0 0 28px', fontSize: 13.5, lineHeight: 1.6, color: '#586273' }}>Pro paket, profilinizin arama sonuçlarındaki sırasını veya görünürlüğünü değiştirmez. Profilinizi sahiplenmek, bilgilerinizi güncellemek ve hasta görüşlerine yanıt vermek ücretsizdir.</p>
                 <ProCta boyut="lg" />
               </div>
               <ul className="oz-madde" style={{ gap: 14 }}>
@@ -315,9 +315,9 @@ function MiniGorunur() {
   );
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%', maxWidth: 230 }}>
-      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.04em', textTransform: 'uppercase', color: '#12294D' }}>Ana sayfa · Öne çıkanlar</div>
-      {satir('Örnek Muayenehane', 'Dahiliye · Ankara', false)}
-      {satir('Örnek Diş Kliniği', 'Diş hekimi · İstanbul', true)}
+      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.04em', textTransform: 'uppercase', color: '#12294D' }}>Asistan · randevular</div>
+      {satir('Yarın 14:30 · Ayşe K.', 'Onaylandı · hastaya e-posta gitti', true)}
+      {satir('Cuma 10:00 · Mehmet D.', 'Bekliyor · asistan hatırlatacak', false)}
     </div>
   );
 }

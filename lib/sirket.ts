@@ -20,6 +20,12 @@ export const SIRKET = {
   ulke: '',
   vergiNo: '',      // vergi / kimlik / ticaret sicil numarası
   telefon: '',
+  /** MERSİS ve KEP — aydınlatma metinlerinde veri sorumlusu künyesi (boşsa yazılmaz) */
+  mersis: '',
+  kep: '',
+  /** Footer'daki "Editör: ad, e-posta" satırı — ad boşsa satır çıkmaz */
+  editorAd: '',
+  editorEposta: 'info@hekimhane.com.tr',
 } as const;
 
 /** Yasal metinlerin son güncelleme tarihi (hepsi birlikte güncellendi). */
@@ -31,6 +37,8 @@ export function sirketKunyesi(): { etiket: string; deger: string }[] {
     { etiket: 'Unvan', deger: SIRKET.unvan },
     { etiket: 'Adres', deger: [SIRKET.adres, SIRKET.ulke].filter(Boolean).join(', ') },
     { etiket: 'Vergi / sicil no', deger: SIRKET.vergiNo },
+    { etiket: 'MERSİS', deger: SIRKET.mersis },
+    { etiket: 'KEP', deger: SIRKET.kep },
     { etiket: 'Telefon', deger: SIRKET.telefon },
     { etiket: 'E-posta', deger: SIRKET.eposta },
     { etiket: 'İnternet sitesi', deger: SIRKET.alanAdi },

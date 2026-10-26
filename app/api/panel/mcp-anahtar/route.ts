@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { createClient } from '@supabase/supabase-js';
 import { anahtarlar, anahtarUret, sahipIsletmeleri, MAKS_ANAHTAR, type AnahtarKaydi } from '@/lib/mcp/anahtar';
 
@@ -18,9 +18,7 @@ function admin() {
 }
 
 async function kullanici(request: NextRequest) {
-  const sb = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get: (n: string) => request.cookies.get(n)?.value, set() {}, remove() {} } });
-  const { data: { session } } = await sb.auth.getSession();
+  const session = await dogrulanmisOturum(request);
   if (!session?.user?.id || !session.user.email) return null;
   const { data } = await admin().auth.admin.getUserById(session.user.id);
   return data?.user || null;

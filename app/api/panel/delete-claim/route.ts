@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
+import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { claimedEsitle } from '@/lib/sahiplik';
@@ -10,14 +10,6 @@ function adminClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } },
-  );
-}
-
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get(name: string) { return request.cookies.get(name)?.value; }, set() {}, remove() {} } },
   );
 }
 
@@ -34,8 +26,7 @@ const TABLE_MAP: Record<string, string> = {
  */
 export async function POST(request: NextRequest) {
   try {
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
+    const session = await dogrulanmisOturum(request);
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
     }

@@ -1,6 +1,7 @@
 'use client';
 
 import OnayliYorumDugmesi from './OnayliYorumDugmesi';
+import { PANEL_MODERASYON_NOTU } from '@/lib/uyum';
 import ProfilPuaniKarti from './ProfilPuaniKarti';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -2085,7 +2086,7 @@ const ENTITY_FIELDS: Record<string, FieldDef[]> = {
     { key: 'ilce',        label: 'İlçe',                                    type: 'text',    placeholder: 'Kadıköy' },
     { key: 'clinic_name', label: 'Çalıştığı Klinik / Hastane',              type: 'text',    placeholder: 'Özel Xyz Hastanesi', fullWidth: true },
     { key: 'tel',         label: 'Telefon',                                 type: 'tel',     placeholder: '0212 xxx xx xx' },
-    { key: 'fee',         label: 'Muayene Ücreti (₺)',                      type: 'number',  placeholder: '500' },
+    // 'fee' (muayene ücreti) kaldırıldı — Tanıtım Yönetmeliği: profilde ücret bilgisi yayınlanmaz (Eki 2026)
     { key: 'okul',        label: 'Mezun Olduğu Okul',                       type: 'text',    placeholder: 'İstanbul Üniversitesi Tıp Fakültesi', fullWidth: true },
     { key: 'sigorta',     label: 'Kabul Edilen Sigortalar',                 type: 'text',    placeholder: 'SGK, Özel Sigorta', fullWidth: true },
     { key: 'bio',         label: 'Biyografi',                               type: 'textarea', placeholder: 'Doktor hakkında kısa bilgi...', fullWidth: true },
@@ -4814,7 +4815,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   /* ── EMPTY STATE ── */
   if (approvedClaims.length === 0) return (
     <div>
-      <div style={{ marginBottom:28 }}><h1 style={{ fontSize:22, fontWeight:800, color:T.text, letterSpacing:'-0.4px' }}>Profilimi Düzenle</h1><p style={{ fontSize:13, color:T.muted, marginTop:3 }}>Onaylı işletmenizin profil bilgilerini güncelleyin.</p></div>
+      <div style={{ marginBottom:28 }}><h1 style={{ fontSize:22, fontWeight:800, color:T.text, letterSpacing:'-0.4px' }}>Profilimi Düzenle</h1><p style={{ fontSize:13, color:T.muted, marginTop:3 }}>Onaylı işletmenizin profil bilgilerini güncelleyin.</p><p style={{ fontSize:12.5, lineHeight:1.6, color:'#5B4A1E', background:'#FFF8E6', border:'1px solid #F1DFAF', borderRadius:12, padding:'10px 14px', marginTop:12 }}>{PANEL_MODERASYON_NOTU}</p></div>
       <div style={{ background:T.white, borderRadius:16, border:`1px solid ${T.border}`, padding:'52px 32px', textAlign:'center' }}>
         <div style={{ width:64, height:64, borderRadius:'50%', background:'#FFF7ED', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px', color:'#EA580C' }}><Ic d={icons.info} size={28}/></div>
         <h2 style={{ fontSize:17, fontWeight:800, color:T.text, marginBottom:8 }}>Onaylı işletmeniz yok</h2>
@@ -4826,7 +4827,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   /* ── PICKER ── */
   if (!selectedClaim) return (
     <div>
-      <div style={{ marginBottom:28 }}><h1 style={{ fontSize:22, fontWeight:800, color:T.text, letterSpacing:'-0.4px' }}>Profilimi Düzenle</h1><p style={{ fontSize:13, color:T.muted, marginTop:3 }}>Onaylı işletmenizin profil bilgilerini güncelleyin.</p></div>
+      <div style={{ marginBottom:28 }}><h1 style={{ fontSize:22, fontWeight:800, color:T.text, letterSpacing:'-0.4px' }}>Profilimi Düzenle</h1><p style={{ fontSize:13, color:T.muted, marginTop:3 }}>Onaylı işletmenizin profil bilgilerini güncelleyin.</p><p style={{ fontSize:12.5, lineHeight:1.6, color:'#5B4A1E', background:'#FFF8E6', border:'1px solid #F1DFAF', borderRadius:12, padding:'10px 14px', marginTop:12 }}>{PANEL_MODERASYON_NOTU}</p></div>
       <div style={{ background:T.white, borderRadius:16, border:`1px solid ${T.border}`, overflow:'hidden' }}>
         <div style={{ padding:'14px 22px', borderBottom:`1px solid ${T.border}` }}><span style={{ fontSize:13, fontWeight:800, color:T.text }}>Düzenlemek İstediğiniz İşletmeyi Seçin</span></div>
         <div style={{ padding:'16px 22px', display:'flex', flexDirection:'column', gap:10 }}>
@@ -4853,7 +4854,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
      (b) işletme sonradan silinmiş. Boş form yerine durumu açıkça söyle. */
   if (selectedClaim.entity_id === 'new' || (!loading && kayitYok)) return (
     <div>
-      <div style={{ marginBottom:28 }}><h1 style={{ fontSize:22, fontWeight:800, color:T.text, letterSpacing:'-0.4px' }}>Profilimi Düzenle</h1><p style={{ fontSize:13, color:T.muted, marginTop:3 }}>Onaylı işletmenizin profil bilgilerini güncelleyin.</p></div>
+      <div style={{ marginBottom:28 }}><h1 style={{ fontSize:22, fontWeight:800, color:T.text, letterSpacing:'-0.4px' }}>Profilimi Düzenle</h1><p style={{ fontSize:13, color:T.muted, marginTop:3 }}>Onaylı işletmenizin profil bilgilerini güncelleyin.</p><p style={{ fontSize:12.5, lineHeight:1.6, color:'#5B4A1E', background:'#FFF8E6', border:'1px solid #F1DFAF', borderRadius:12, padding:'10px 14px', marginTop:12 }}>{PANEL_MODERASYON_NOTU}</p></div>
       <div style={{ background:T.white, borderRadius:16, border:`1px solid ${T.border}`, padding:'52px 32px', textAlign:'center' }}>
         <div style={{ width:64, height:64, borderRadius:'50%', background:'#FFF7ED', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px', color:'#EA580C' }}><Ic d={icons.info} size={28}/></div>
         <h2 style={{ fontSize:17, fontWeight:800, color:T.text, marginBottom:8 }}>{selectedClaim.entity_name} için işletme kaydı henüz hazır değil</h2>
@@ -5036,7 +5037,6 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                   </label>
                   <input type="url" value={String(formData.website||'')} placeholder={pro?'https://':'Pro üyelikte aktif'} style={{...INP, ...(pro?{}:{ background:'#F4F4F6', color:'#9CA3AF', cursor:'not-allowed' })}} disabled={!pro} onChange={e=>F('website',e.target.value)} onFocus={onF} onBlur={offF}/>
                 </div>}
-                {et==='doktor'&&<div><label style={LBL}>Muayene Ücreti (₺)</label><input type="number" value={formData.fee??''} placeholder="500" style={INP} onChange={e=>F('fee',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>}
                 {/* İkinci bağlantı (ör. kurumun resmi randevu sayfası) — Pro; migration 2026-10-25_web_baglantilari.sql */}
                 {et!=='eczane'&&<div>
                   <label style={{ ...LBL, display:'flex', alignItems:'center', gap:6 }}>
@@ -5048,6 +5048,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                   </label>
                   <input type="url" value={String((formData as any).website2||'')} placeholder={pro?'https://  (ör. kurumunuzun randevu sayfası)':'Pro üyelikte aktif'} style={{...INP, ...(pro?{}:{ background:'#F4F4F6', color:'#9CA3AF', cursor:'not-allowed' })}} disabled={!pro} onChange={e=>F('website2',e.target.value)} onFocus={onF} onBlur={offF}/>
                 </div>}
+                {/* Muayene ücreti alanı kaldırıldı — profilde ücret bilgisi yayınlanmaz (Tanıtım Yönetmeliği, Eki 2026) */}
                 {et==='eczane'&&<div><label style={LBL}>Eczacı Adı</label><input value={String(formData.pharmacist||'')} placeholder="Ad Soyad" style={INP} onChange={e=>F('pharmacist',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
               </div>
 

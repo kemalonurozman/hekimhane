@@ -61,9 +61,11 @@ export async function puanKolonuVar(db: any): Promise<boolean> {
   return v;
 }
 
-/** Liste sırası: Pro → profil puanı → hasta puanı. `puanli=false` iken puan adımı atlanır. */
+/** Liste sırası: profil puanı → hasta puanı. `puanli=false` iken puan adımı atlanır.
+ *  Eki 2026: Pro üyelik sıralamadan ÇIKARILDI — ücretli paket sırayı/görünürlüğü
+ *  etkilemez (Tanıtım Yönetmeliği; footer'daki cümle buna dayanır). Geri ekleme. */
 export function profilSirasi<T>(q: T, puanli: boolean): T {
-  let s: any = (q as any).order('premium', { ascending: false, nullsFirst: false });
+  let s: any = q;
   if (puanli) s = s.order('profil_puani', { ascending: false, nullsFirst: false });
   return s.order('rat', { ascending: false });
 }

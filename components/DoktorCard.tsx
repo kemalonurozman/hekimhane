@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Doktor } from '@/lib/types';
-import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
 import HkAvatar from '@/components/HkAvatar';
 import KurumRozeti, { kurumBul } from '@/components/KurumRozeti';
@@ -31,7 +30,7 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
     .filter((t, i, a) => a.findIndex(x => x.toLocaleLowerCase('tr') === t.toLocaleLowerCase('tr')) === i);
 
   return (
-    <article className={`hk-doctor hk-satir${d.premium ? ' hk-doctor--featured' : ''}`} onClick={() => router.push(profileUrl)}>
+    <article className="hk-doctor hk-satir" onClick={() => router.push(profileUrl)}>
       <CompareButton item={{
         type: 'doktor', id: d.id, name: displayName, url: profileUrl,
         rat: d.rat, rev: d.rev, il: d.il, ilce: d.ilce, tel: d.tel, image: d.photo,
@@ -42,7 +41,6 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
       {/* Fotoğraf veya baş harfler — onaylı hekimde dönen halka */}
       <div className={d.verified ? 'hk-ring' : undefined} style={{ position: 'relative', flexShrink: 0, borderRadius: '50%' }}>
         <HkAvatar src={d.photo} name={displayName} />
-        {d.premium && <PremiumBadge />}
       </div>
 
       <div className="hk-doctor__body">
@@ -51,7 +49,6 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
             <Link href={profileUrl} onClick={e => e.stopPropagation()} style={{ color: 'inherit' }}>{displayName}</Link>
           </h3>
           <KurumRozeti kurum={kurumBul((d as any).tags)} />
-          {d.premium && <span className="hk-badge hk-badge--premium">PREMIUM</span>}
         </div>
 
         {etiketler.length > 0 && (
@@ -69,7 +66,7 @@ export default function DoktorCard({ doktor: d }: { doktor: Doktor }) {
             </span>
           )}
           {d.exp > 0 && <span>{d.exp} yıl deneyim</span>}
-          {d.fee > 0 && <span>Muayene {d.fee.toLocaleString('tr-TR')} ₺</span>}
+          {/* Ücret bilgisi listede gösterilmez — Tanıtım Yönetmeliği (Eki 2026) */}
           {d.rev > 0 && (
             <span className="hk-doctor__rating">
               <i className="fa-solid fa-star hk-icon" style={{ fontSize: 14 }} />

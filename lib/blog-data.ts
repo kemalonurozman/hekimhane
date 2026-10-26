@@ -211,8 +211,8 @@ export const BLOG_YAZILARI: BlogYazi[] = [
       { tip: 'h', metin: 'Görünürlük: Doğru hastanın karşısına çıkın' },
       { tip: 'p', metin: 'Hekimhane\'de aramalar il, ilçe ve uzmanlık alanına göre yapılır. Profilinizi tamamladığınızda, aradığı hizmeti tam olarak sunan hastaların önüne çıkarsınız; genel bir listede kaybolmazsınız.' },
       { tip: 'liste', ogeler: [
-        'Karşılaştırmalı sıralama: Puan, yorum ve profil bütünlüğüne göre en iyi işletmeler arama sonuçlarında öne çıkar. Eksiksiz ve güncel bir profil, sizi rakiplerinizin önüne taşır.',
-        'İl ve ilçe bazında öne çıkma: Bulunduğunuz bölgede ve uzmanlık alanınızda görünürlüğünüz yükseltilir; kendi çevrenizdeki hastalar sizi ilk sıralarda görür.',
+        'Şeffaf sıralama: Arama sonuçları uzmanlık, konum ve profil bilgilerinin güncelliğine göre sıralanır; ücretli paket sırayı etkilemez. Eksiksiz ve güncel bir profil, hastaların aradığı bilgiyi bulmasını kolaylaştırır.',
+        'Doğru bölgede listelenme: Bulunduğunuz il, ilçe ve uzmanlık sayfalarında yer alırsınız; çevrenizdeki hastalar sizi arama ölçütlerine göre bulur.',
         'Karşılaştırma araçları: Ziyaretçiler işletmeleri yan yana kıyaslarken; şeffaf, doğru ve zengin bir profil güven verir ve tercih edilme oranınızı artırır.',
       ] },
 
@@ -240,10 +240,10 @@ export const BLOG_YAZILARI: BlogYazi[] = [
       ] },
 
       { tip: 'h', metin: 'Ayrıcalık: Yeniliklerden ilk siz haberdar olun' },
-      { tip: 'p', metin: 'Hekimhane sürekli gelişen bir platform. Kayıtlı işletme olarak yeni özellikleri, kampanyaları ve fırsatları öncelikli olarak öğrenir; rakiplerinizden bir adım önde başlarsınız.' },
+      { tip: 'p', metin: 'Hekimhane sürekli gelişen bir platform. Kayıtlı işletme olarak yeni özellikleri panelinizden ilk siz görürsünüz.' },
 
       { tip: 'h', metin: 'Özetle' },
-      { tip: 'p', metin: 'Hekimhane\'ye kayıt olmak; daha fazla görünürlük, daha güçlü güven işaretleri, profesyonel bir profil ve hasta yönetimini kolaylaştıran araçlar demektir. İl ve ilçenizde uzmanlık alanınızda öne çıkmak, onaylı bir işletme olarak hastalarla uzun soluklu bir bağ kurmak elinizin altında.' },
+      { tip: 'p', metin: 'Hekimhane\'ye kayıt olmak; doğru ve güncel bir profil, "Sahiplenilmiş" rozeti ve hasta yönetimini kolaylaştıran araçlar demektir. İl ve ilçenizde uzmanlık alanınızda doğru bilgiyle listelenmek ve hastalarla uzun soluklu bir bağ kurmak elinizin altında.' },
       { tip: 'p', metin: 'İşletmenizi sahiplenmek ve profilinizi oluşturmak için Katıl sayfasından başvurunuzu iletebilir; kısa sürede değerlendirilip panelinize erişim kazanabilirsiniz.' },
     ],
   },

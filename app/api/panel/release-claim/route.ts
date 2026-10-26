@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
+import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { yoneticiMi } from '@/lib/yonetici';
 import { claimedEsitle, epostaNormal } from '@/lib/sahiplik';
 import { NextResponse, type NextRequest } from 'next/server';
@@ -14,15 +14,6 @@ function adminClient() {
   );
 }
 
-// Cookie tabanlı session — kullanıcıyı doğrular
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get(name: string) { return request.cookies.get(name)?.value; }, set() {}, remove() {} } }
-  );
-}
-
 const TABLE_MAP: Record<string, string> = {
   klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler',
 };
@@ -33,8 +24,7 @@ const PATH_MAP: Record<string, string> = {
 export async function POST(request: NextRequest) {
   try {
     // 1. Oturum
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
+    const session = await dogrulanmisOturum(request);
     if (!session) return NextResponse.json({ error: 'Giriş yapılmamış' }, { status: 401 });
 
     const { claimId } = await request.json();

@@ -9,6 +9,8 @@ export interface YasalBolum { baslik: string; icerik: YasalBlok[] }
 
 const DIGER = [
   ['KVKK Aydınlatma Metni', '/kvkk'],
+  ['Profesyoneller Aydınlatma Metni', '/aydinlatma/profesyoneller'],
+  ['Hasta ve Ziyaretçi Aydınlatma Metni', '/aydinlatma/hasta'],
   ['Gizlilik Politikası', '/gizlilik'],
   ['Çerez Politikası', '/cerez'],
   ['Kullanım Şartları', '/kullanim'],
@@ -23,8 +25,10 @@ function zengin(s: string) {
     p.startsWith('**') ? <strong key={i} style={{ color: 'var(--ink)', fontWeight: 600 }}>{p.slice(2, -2)}</strong> : p);
 }
 
-export default function YasalSayfa({ baslik, ozet, bolumler, yol, children }: {
-  baslik: string; ozet: string; bolumler: YasalBolum[]; yol: string; children?: React.ReactNode;
+export default function YasalSayfa({ baslik, ozet, bolumler, yol, guncelleme, children }: {
+  baslik: string; ozet: string; bolumler: YasalBolum[]; yol: string;
+  /** Sayfaya özel son güncelleme tarihi; verilmezse ortak YASAL_GUNCELLEME */
+  guncelleme?: string; children?: React.ReactNode;
 }) {
   return (
     <div style={{ paddingTop: 66, background: 'var(--canvas)', minHeight: '100vh' }}>
@@ -37,7 +41,7 @@ export default function YasalSayfa({ baslik, ozet, bolumler, yol, children }: {
           </nav>
           <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 30, lineHeight: '36px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--ink)' }}>{baslik}</h1>
           <p style={{ margin: '8px 0 0', maxWidth: 720, fontSize: 15, lineHeight: '24px', color: 'var(--ink-secondary)' }}>{ozet}</p>
-          <p style={{ margin: '10px 0 0', fontSize: 13, color: 'var(--ink-tertiary)' }}>Son güncelleme: {YASAL_GUNCELLEME}</p>
+          <p style={{ margin: '10px 0 0', fontSize: 13, color: 'var(--ink-tertiary)' }}>Son güncelleme: {guncelleme || YASAL_GUNCELLEME}</p>
         </div>
       </div>
 

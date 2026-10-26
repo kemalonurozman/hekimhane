@@ -80,6 +80,8 @@ export default async function DoktorProfilPage({ params }: Props) {
   const res = await getData(params.slug);
   if (!res) notFound();
   const { d, yorumlar, clinicHref } = res;
+  // Kaldırma talebi alınmış profil anında yayından çekilir (gizli kolonu yoksa undefined → gösterilir)
+  if ((d as any).gizli === true) notFound();
 
   const fullName = `${d.ad} ${d.soyad}`.trim();
   const displayLabel = d.unvan ? `${d.unvan} ${fullName}` : fullName;

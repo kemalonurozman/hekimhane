@@ -4,6 +4,7 @@ import { toSlug } from '@/lib/helpers';
 import FooterBulten from '@/components/FooterBulten';
 import { CerezTercihBaglantisi } from '@/components/CerezOnay';
 import { SIRKET as SIRKET_BILGI } from '@/lib/sirket';
+import { AYDINLATMA_YOL, FOOTER_BILDIRIMI, FOOTER_BILDIRIMI_GUNCELLEME } from '@/lib/uyum';
 
 export default function Footer() {
   const PLATFORM = [
@@ -51,7 +52,8 @@ export default function Footer() {
     ['Mesafeli Satış Sözleşmesi', '/mesafeli-satis-sozlesmesi'],
     ['Ön Bilgilendirme Formu', '/on-bilgilendirme-formu'],
     ['İptal ve İade',       '/iptal-iade'],
-    ['Abonelik İptali',     '/abonelik-iptali'],
+    ['Profesyoneller Aydınlatma Metni', '/aydinlatma/profesyoneller'],
+    ['Hasta ve Ziyaretçi Aydınlatma Metni', '/aydinlatma/hasta'],
   ];
 
   // SEO iç-linkleme: popüler şehirler + diş tedavileri
@@ -96,7 +98,7 @@ export default function Footer() {
     { baslik: 'PLATFORM', linkler: PLATFORM },
     { baslik: 'DİĞER SAĞLIK', linkler: DIGER_SAGLIK },
     { baslik: 'ŞİRKET', linkler: [...SIRKET, ['Site Haritası', '/site-haritasi'], ['RSS', '/rss.xml']] },
-    { baslik: 'YASAL', linkler: YASAL },
+    { baslik: 'YASAL', linkler: [...YASAL, ['Abonelik İptali', '/abonelik-iptali']] },
   ];
 
   // Sosyal hesaplar — href boşken ilgili ikon gizlenir. Hesap açıldıkça doldurun.
@@ -176,6 +178,28 @@ export default function Footer() {
               </ul>
             </div>
           ))}
+        </div>
+
+        {/* Genel bildirim — uyum belgesi "Footer metni" (lib/uyum.ts). Tüm sayfaların en altında. */}
+        <div className="hk-footer__bildirim">
+          {FOOTER_BILDIRIMI.map((p, i) => <p key={i}>{p}</p>)}
+          <div className="hk-footer__bildirim-meta">
+            <span>Son güncelleme: {FOOTER_BILDIRIMI_GUNCELLEME}</span>
+            {SIRKET_BILGI.editorAd && (
+              <span>Editör: {SIRKET_BILGI.editorAd}, <a href={`mailto:${SIRKET_BILGI.editorEposta}`}>{SIRKET_BILGI.editorEposta}</a></span>
+            )}
+          </div>
+          <div className="hk-footer__bildirim-meta">
+            <Link href="/katil">Profilinizi yönetin</Link>
+            <span aria-hidden="true">·</span>
+            <Link href="/kvkk">Kişisel Verilerin Korunması</Link>
+            <span aria-hidden="true">·</span>
+            <Link href={AYDINLATMA_YOL.profesyonel}>Profesyoneller Aydınlatma Metni</Link>
+            <span aria-hidden="true">·</span>
+            <Link href={AYDINLATMA_YOL.hasta}>Hasta ve Ziyaretçi Aydınlatma Metni</Link>
+            <span aria-hidden="true">·</span>
+            <Link href="/cerez">Çerez Politikası</Link>
+          </div>
         </div>
 
         {/* Acil durum bandı */}

@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
+import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -9,13 +9,6 @@ function adminClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } },
-  );
-}
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get(n: string) { return request.cookies.get(n)?.value; }, set() {}, remove() {} } },
   );
 }
 async function ownedEntityIds(admin: ReturnType<typeof adminClient>, email: string): Promise<string[]> {
@@ -30,7 +23,7 @@ async function ownedEntityIds(admin: ReturnType<typeof adminClient>, email: stri
    Telefon normalize edilerek (yalnız rakamlar) eşleştirilir. Geri alınamaz. */
 export async function POST(request: NextRequest) {
   try {
-    const { data: { session } } = await sessionClient(request).auth.getSession();
+    const session = await dogrulanmisOturum(request);
     if (!session?.user?.email) return NextResponse.json({ error: 'Oturum yok' }, { status: 401 });
 
     const b = await request.json();

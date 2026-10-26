@@ -4,6 +4,9 @@ import { sahiplenilmisMi } from '@/lib/sahiplik';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir, satirTel } from '@/lib/email';
 import { isletmeBilgisi, profilSatiri } from '@/lib/entity-link';
+import { AYDINLATMA_YOL, RANDEVU_EPOSTA_ALT_NOTU } from '@/lib/uyum';
+
+const SITE = 'https://www.hekimhane.com.tr';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
@@ -83,11 +86,16 @@ async function sendRandevuBildirimleri(admin: ReturnType<typeof adminClient>, ka
       // Admin zaten yukarıda bildirim aldı; aynı adrese ikinci kez gönderme
       const hedef = isletmeEmailleri.filter(a => a.toLowerCase() !== ADMIN_EMAIL.toLowerCase());
       if (hedef.length) {
+        // Alt not (uyum belgesi, e-posta şablonu 4): aydınlatma + profili sahiplen / düzelt / kaldır bağlantıları.
+        // Yalnız işlem bilgisi — Pro/paket/kampanya cümlesi eklenmez (ticari ileti sayılır).
+        const yonetimUrl = `${SITE}/sahiplen?id=${encodeURIComponent(kayit.entity_id)}&type=${encodeURIComponent(kayit.entity_type)}`;
+        const kaldirUrl = `${SITE}/profil-kaldir?id=${encodeURIComponent(kayit.entity_id)}&type=${encodeURIComponent(kayit.entity_type)}`;
+        const altNot = `<p style="margin-top:18px;padding-top:12px;border-top:1px solid #E5E5EA;font-size:11.5px;line-height:1.6;color:#6E6E73;">${RANDEVU_EPOSTA_ALT_NOTU} Kişisel verilerinizin nasıl işlendiğini <a href="${SITE}${AYDINLATMA_YOL.profesyonel}" style="color:#1A335E;">Profesyoneller Aydınlatma Metni</a> sayfasında okuyabilirsiniz. Profilinizi sahiplenmek veya bilgilerinizi düzeltmek için <a href="${yonetimUrl}" style="color:#1A335E;">profil yönetimi</a>, profilinizin kaldırılmasını istemek için <a href="${kaldirUrl}" style="color:#1A335E;">kaldırma talebi</a> bağlantısını kullanabilirsiniz.</p>`;
         const sahipHtml = mailShell('Yeni Randevu Talebiniz Var',
           `<p style="font-size:14px;color:#1c1c1e;line-height:1.6;"><strong>${kayit.entity_name}</strong> işletmeniz için yeni bir randevu talebi geldi. Talep sahibiyle en kısa sürede iletişime geçebilirsiniz:</p>` +
           detay +
           calBtn +
-          `<p style="margin-top:14px;font-size:12px;color:#6E6E73;">Bu bildirim Hekimhane üzerinden gönderilmiştir.</p>`);
+          altNot);
         await sendEmail({
           to: hedef,
           subject: `Yeni randevu talebiniz var — ${kayit.entity_name}`,
@@ -179,7 +187,10 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { entity_type, entity_id, entity_name, ad_soyad, tel, email, tercih, mesaj, website, randevu_slot, bulten } = body || {};
+    const { entity_type, entity_id, entity_name, ad_soyad, tel, email, tercih, website, randevu_slot, bulten, saglik_rizasi } = body || {};
+    // Not alanı sağlık verisi içerebilir (KVKK m.6): yalnız hasta AYRI açık rıza kutusunu
+    // işaretlediyse alınır; aksi hâlde hiç kaydedilmez ve e-postaya girmez (uyum belgesi md.17).
+    const mesaj = saglik_rizasi === true ? body?.mesaj : null;
     // E-posta listesine yalnız hasta AÇIKÇA işaretlediyse eklenir (ticari ileti izni randevuya bağlanamaz)
     const bultenIzni = bulten === true;
     // Slot formatı: "YYYY-MM-DD HH:MM" (yerel; saat dilimi dönüşümü yok)

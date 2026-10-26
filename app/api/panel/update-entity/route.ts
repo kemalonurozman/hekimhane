@@ -1,6 +1,7 @@
 import { puanGuncelle } from '@/lib/profil-puani-sunucu';
 import { createServerClient } from '@supabase/ssr';
 import { panelOturum } from '@/lib/panel-oturum';
+import { yasakIfade } from '@/lib/uyum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath, revalidateTag } from 'next/cache';
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
     const ALLOWED_FIELDS: Record<string, string[]> = {
       klinik:  ['name','sorumlu_hekim','type','il','ilce','adres','tel','whatsapp','website','website2','maps_url','specs','yabanci_diller','bio','okul','uzmanlik_kurum','deneyim_baslangic','deneyimler','sertifikalar','online','acil','logo','cover','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','randevu_email','randevu_aktif','randevu_slot_dk','randevu_bloke','lat','lng'],
       hastane: ['name','sorumlu_hekim','type','il','ilce','adres','tel','whatsapp','website','website2','maps_url','specs','yabanci_diller','docs','beds','founded','logo','cover','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','randevu_email','randevu_aktif','randevu_slot_dk','randevu_bloke','lat','lng'],
-      doktor:  ['ad','soyad','spec','il','ilce','clinic_name','tel','email','contact_hidden','whatsapp','fee','website','website2','bio','okul','uzmanlik_kurum','deneyim_baslangic','deneyimler','sertifikalar','yabanci_diller','sigorta','tags','conditions','unvan','online','photo','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','randevu_email','randevu_aktif','randevu_slot_dk','randevu_bloke','lat','lng'],
+      doktor:  ['ad','soyad','spec','il','ilce','clinic_name','tel','email','contact_hidden','whatsapp','website','website2','bio','okul','uzmanlik_kurum','deneyim_baslangic','deneyimler','sertifikalar','yabanci_diller','sigorta','tags','conditions','unvan','online','photo','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','randevu_email','randevu_aktif','randevu_slot_dk','randevu_bloke','lat','lng'],
       eczane:  ['name','pharmacist','il','ilce','address','tel','whatsapp','chamber','yabanci_diller','logo','photos','photo360','tour360url','video_url','instagram_url','facebook_url','linkedin_url','calisma_saatleri','acik_24_saat','randevu_email','randevu_aktif','randevu_slot_dk','randevu_bloke','lat','lng'],
     };
 
@@ -102,6 +103,15 @@ export async function POST(request: NextRequest) {
     for (const key of allowed) {
       if (asistanAlanlari && !asistanAlanlari.includes(key)) continue;
       if (key in fields) safeFields[key] = fields[key];
+    }
+    // Tanıtım Yönetmeliği: serbest metinlerde ücret/indirim/kampanya/"en iyi"/garanti/önce-sonra
+    // ifadeleri yayınlanamaz (uyum belgesi md.16). Eşleşme varsa kayıt reddedilir; hangi ifade
+    // olduğu söylenir. Bu alanlar panelden ayrıca editör kontrolüne de düşer (cekim_talepleri).
+    for (const alan of ['bio', 'name', 'clinic_name'] as const) {
+      const sorun = alan in safeFields ? yasakIfade(safeFields[alan]) : null;
+      if (sorun) {
+        return NextResponse.json({ error: `Profil metninde ${sorun} ifadesi yayınlanamaz (Sağlık Hizmetlerinde Tanıtım ve Bilgilendirme Yönetmeliği). Lütfen bu ifadeyi kaldırıp tekrar kaydedin.` }, { status: 400 });
+      }
     }
     // Uzmanlık etiketleri kanonik yazımla saklanır (serbest yazım varyantları → hazır liste)
     if ('specs' in safeFields) safeFields.specs = normalizeSpecList(safeFields.specs);

@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
+import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { yetkiliEntityIdleri } from '@/lib/erisim';
@@ -12,13 +12,6 @@ function adminClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } },
-  );
-}
-function sessionClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get(n: string) { return request.cookies.get(n)?.value; }, set() {}, remove() {} } },
   );
 }
 // Onaylı erişim (sahip/yönetici) + 'hastalar' yetkili asistan — lib/erisim.ts
@@ -35,7 +28,7 @@ async function ensureBucket(admin: ReturnType<typeof adminClient>) {
 /* GET — liste (meta) veya ?signed=<id> ile 5 dk geçerli imzalı URL. */
 export async function GET(request: NextRequest) {
   try {
-    const { data: { session } } = await sessionClient(request).auth.getSession();
+    const session = await dogrulanmisOturum(request);
     if (!session?.user?.email) return NextResponse.json({ error: 'Oturum yok' }, { status: 401 });
     const admin = adminClient();
     const ids = await ownedEntityIds(admin, session.user.email);
@@ -62,7 +55,7 @@ export async function GET(request: NextRequest) {
 /* POST (multipart) — dosya yükle. */
 export async function POST(request: NextRequest) {
   try {
-    const { data: { session } } = await sessionClient(request).auth.getSession();
+    const session = await dogrulanmisOturum(request);
     if (!session?.user?.email) return NextResponse.json({ error: 'Oturum yok' }, { status: 401 });
 
     const form = await request.formData();
@@ -101,7 +94,7 @@ export async function POST(request: NextRequest) {
 /* DELETE ?id= — dosyayı sil (storage + kayıt). */
 export async function DELETE(request: NextRequest) {
   try {
-    const { data: { session } } = await sessionClient(request).auth.getSession();
+    const session = await dogrulanmisOturum(request);
     if (!session?.user?.email) return NextResponse.json({ error: 'Oturum yok' }, { status: 401 });
     const id = request.nextUrl.searchParams.get('id');
     if (!id) return NextResponse.json({ error: 'id gerekli' }, { status: 400 });

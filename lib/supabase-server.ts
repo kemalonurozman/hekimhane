@@ -26,23 +26,31 @@ export function createSupabaseServer() {
   );
 }
 
-/** Oturum açmış kullanıcıyı döndürür (yoksa null) */
-export async function getSession() {
-  const supabase = createSupabaseServer();
-  const { data: { session } } = await supabase.auth.getSession();
-  return session;
+/**
+ * Oturum açmış kullanıcıyı Auth SUNUCUSUNDA doğrulayıp döndürür (yoksa null).
+ * getSession() kullanılmaz: sunucuda çerezdeki JWT'yi imzasını doğrulamadan
+ * okur (bkz. lib/panel-oturum.ts → dogrulanmisOturum).
+ */
+export async function getUser() {
+  try {
+    const supabase = createSupabaseServer();
+    const { data: { user }, error } = await supabase.auth.getUser();
+    return !error && user ? user : null;
+  } catch {
+    return null;
+  }
 }
 
 /** Mevcut kullanıcı profilini döndürür */
 export async function getProfile() {
-  const session = await getSession();
-  if (!session) return null;
+  const user = await getUser();
+  if (!user) return null;
 
   const supabase = createSupabaseServer();
   const { data } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .single();
 
   return data;

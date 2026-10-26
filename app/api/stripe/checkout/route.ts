@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { yoneticiMi } from '@/lib/yonetici';
-import { createServerClient } from '@supabase/ssr';
+import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { createClient } from '@supabase/supabase-js';
 import { getStripe, getProPriceId, ENTITY_TABLE } from '@/lib/stripe';
 
@@ -22,16 +22,10 @@ function adminClient() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } });
 }
-function sessionClient(request: NextRequest) {
-  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get: (n: string) => request.cookies.get(n)?.value, set() {}, remove() {} } });
-}
-
 export async function POST(request: NextRequest) {
   try {
     // 1) Oturum
-    const sess = sessionClient(request);
-    const { data: { session } } = await sess.auth.getSession();
+    const session = await dogrulanmisOturum(request);
     const email = session?.user?.email;
     if (!email) return NextResponse.json({ error: 'Giriş yapmanız gerekiyor.' }, { status: 401 });
 

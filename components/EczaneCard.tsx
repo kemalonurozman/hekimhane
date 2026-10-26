@@ -3,7 +3,6 @@
 import AraDugmesi from '@/components/AraDugmesi';
 import { useRouter } from 'next/navigation';
 import type { Eczane } from '@/lib/types';
-import PremiumBadge from '@/components/PremiumBadge';
 import CompareButton from '@/components/CompareButton';
 import SafeLogo from '@/components/SafeLogo';
 import { formatTel } from '@/lib/helpers';
@@ -129,7 +128,6 @@ export default function EczaneCard({ eczane: e }: { eczane: Eczane }) {
                     <path d="m8.5 8.5 7 7"/>
                   </svg>} />
             </div>
-            {e.premium && <PremiumBadge />}
           </div>
 
           <div className="eczane-card__info">
