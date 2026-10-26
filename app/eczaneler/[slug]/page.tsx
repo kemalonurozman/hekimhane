@@ -6,6 +6,7 @@ import { openingHoursSpec } from '@/lib/seo';
 import type { Eczane, Yorum } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
 import { maskReviewName } from '@/lib/helpers';
+import { yorumJsonLd } from '@/lib/yorum-jsonld';
 import { bookedSlots } from '@/lib/randevu-booked';
 import { buildEczaneFaq } from '@/lib/faq';
 import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
@@ -74,16 +75,7 @@ export default async function EczaneProfilPage({ params }: Props) {
     ...(openingHoursSpec(e.calisma_saatleri, e.acik_24_saat) ? { openingHoursSpecification: openingHoursSpec(e.calisma_saatleri, e.acik_24_saat) } : {}),
     ...(e.il ? { areaServed: { '@type': 'City', name: e.il } } : {}),
     ...(e.lat && e.lng ? { geo: { '@type': 'GeoCoordinates', latitude: e.lat, longitude: e.lng } } : {}),
-    ...(e.rat && e.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: e.rat, reviewCount: e.rev, bestRating: 5, worstRating: 1 } } : {}),
-    ...(yorumlar.filter(y => (y.text || '').trim()).length ? {
-      review: yorumlar.filter(y => (y.text || '').trim()).slice(0, 5).map(y => ({
-        '@type': 'Review',
-        author: { '@type': 'Person', name: maskReviewName(y.author) },
-        reviewRating: { '@type': 'Rating', ratingValue: y.rating, bestRating: 5, worstRating: 1 },
-        reviewBody: y.text,
-        ...(y.date ? { datePublished: y.date } : {}),
-      })),
-    } : {}),
+    ...yorumJsonLd(yorumlar, maskReviewName),
   };
 
   const breadcrumb = {

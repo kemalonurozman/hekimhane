@@ -1,6 +1,7 @@
 'use client';
 
 import AraDugmesi from './AraDugmesi';
+import { YORUM_ONAY_MESAJI } from '@/lib/yorum-onay';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
@@ -13,6 +14,7 @@ import { ToothGlyph } from '@/components/Logo';
 import HkIcon from '@/components/HkIcon';
 import SafeLogo from '@/components/SafeLogo';
 import { basHarfler } from '@/lib/hk';
+import { yorumOrtalama } from '@/lib/yorum-jsonld';
 import type { Doktor } from '@/lib/types';
 import { sahiplenKutusu, yonetiliyorNotu, derlenmisNotu, rozetAciklamasi, YORUM_NOTU, saglikRizaMetni, AYDINLATMA_YOL } from '@/lib/uyum';
 
@@ -161,13 +163,8 @@ function Stars({ rat, size = 13 }: { rat: number; size?: number }) {
   );
 }
 
-function bayesian(reviews: YorumItem[]) {
-  const C = 4.2, m = 8;
-  if (!reviews.length) return C;
-  const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
-  const w = (m * C + reviews.length * avg) / (m + reviews.length);
-  return +w.toFixed(1);
-}
+/** Puan hesabı lib/yorum-jsonld.ts'te — JSON-LD aggregateRating ile aynı değer. */
+const bayesian = yorumOrtalama;
 
 /** YouTube/Vimeo URL veya iframe embed kodu → embed src'e dönüştürür */
 /**
@@ -514,7 +511,7 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
   const [saving, setSaving]       = useState(false);
   const [toast, setToast]         = useState('');
 
-  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
+  const showToast = (msg: string, sure = 3000) => { setToast(msg); setTimeout(() => setToast(''), sure); };
 
   function buildDateStr() {
     if (visitYear && visitMonth) return `${visitYear}-${String(TR_MONTHS.indexOf(visitMonth) + 1).padStart(2,'0')}`;
@@ -538,13 +535,13 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           entity_id: entityId, entity_type: entityType,
-          name: author, rating: star, text: txt,
+          name: author, rating: star, text: txt, email: email.trim(),
           date: buildDateStr(),
         }),
       });
       const res = await r.json();
       if (!r.ok) { setSaving(false); showToast(res.error || 'Hata oluştu, tekrar deneyin.'); return; }
-      data = (res.yorum as YorumItem) || null;
+      data = (res.yorum as YorumItem) || null;   // onay akışında sunucu yorumu döndürmez → listeye eklenmez
     } catch {
       setSaving(false); showToast('Bağlantı hatası, tekrar deneyin.'); return;
     }
@@ -552,7 +549,7 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
     if (data) onSubmit(data);
     setOpen(false); setStar(0); setTxt(''); setAd(''); setSoyad(''); setEmail('');
     setVisitMonth(''); setVisitYear('');
-    showToast('Yorumunuz eklendi, teşekkürler! ✅');
+    showToast(YORUM_ONAY_MESAJI, 6000);
   }
 
   const starLabels = ['', 'Çok Kötü', 'Kötü', 'Orta', 'İyi', 'Mükemmel'];

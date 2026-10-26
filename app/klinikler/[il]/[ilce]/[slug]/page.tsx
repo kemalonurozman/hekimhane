@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import type { Klinik, Yorum, Doktor } from '@/lib/types';
 import ProfilSayfasi from '@/components/ProfilSayfasi';
 import { maskReviewName } from '@/lib/helpers';
+import { yorumJsonLd } from '@/lib/yorum-jsonld';
 import { bookedSlots } from '@/lib/randevu-booked';
 import { buildKlinikFaq } from '@/lib/faq';
 import { openingHoursSpec } from '@/lib/seo';
@@ -102,19 +103,10 @@ export default async function KlinikProfilPage({ params }: Props) {
     ...(sameAs.length ? { sameAs } : {}),
     ...(((k.cover && !k.cover.startsWith('preset:') ? k.cover : null) || k.logo) ? { image: (k.cover && !k.cover.startsWith('preset:') ? k.cover : null) || k.logo } : {}),
     ...(k.il ? { areaServed: { '@type': 'City', name: k.il } } : {}),
-    ...(k.rat && k.rev ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: k.rat, reviewCount: k.rev, bestRating: 5, worstRating: 1 } } : {}),
     ...(k.lat && k.lng ? { geo: { '@type': 'GeoCoordinates', latitude: k.lat, longitude: k.lng } } : {}),
     ...((k.specs || []).length ? { medicalSpecialty: k.specs } : {}),
     ...(openingHoursSpec(k.calisma_saatleri, k.acik_24_saat) ? { openingHoursSpecification: openingHoursSpec(k.calisma_saatleri, k.acik_24_saat) } : {}),
-    ...(yorumlar.filter(y => (y.text || '').trim()).length ? {
-      review: yorumlar.filter(y => (y.text || '').trim()).slice(0, 5).map(y => ({
-        '@type': 'Review',
-        author: { '@type': 'Person', name: maskReviewName(y.author) },
-        reviewRating: { '@type': 'Rating', ratingValue: y.rating, bestRating: 5, worstRating: 1 },
-        reviewBody: y.text,
-        ...(y.date ? { datePublished: y.date } : {}),
-      })),
-    } : {}),
+    ...yorumJsonLd(yorumlar, maskReviewName),
   };
 
   const breadcrumb = {
