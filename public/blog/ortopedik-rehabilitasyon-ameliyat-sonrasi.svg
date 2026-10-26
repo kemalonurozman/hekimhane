@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Ameliyat sonrası ortopedik rehabilitasyon — diz protezinin metal ve altın parçalarıyla önden kesiti, yanında ilerlemeyi simgeleyen dört nokta">
+  <defs>
+    <linearGradient id="orto_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="orto_gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="orto_metal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#C7D2E4"/><stop offset="0.5" stop-color="#F2F5FA"/><stop offset="1" stop-color="#9FB0CC"/></linearGradient>
+    <radialGradient id="orto_glow" cx="0.5" cy="0.45" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#orto_bg)"/>
+  <rect width="1200" height="675" fill="url(#orto_glow)"/>
+  <circle cx="1060" cy="120" r="220" fill="#fff" opacity="0.035"/>
+  <circle cx="150" cy="580" r="180" fill="#fff" opacity="0.03"/>
+
+  <g transform="translate(-60 0)">
+    <!-- Femur -->
+    <path d="M552 0 L 648 0 L 650 210 C 652 245 700 255 708 300 L 492 300 C 500 255 548 245 550 210 Z" fill="#DCE5F2"/>
+    <!-- Femoral bileşen (metal) -->
+    <path d="M488 286 L 712 286 L 714 330 C 714 362 690 378 664 376 C 640 374 628 356 600 356 C 572 356 560 374 536 376 C 510 378 486 362 486 330 Z" fill="url(#orto_metal)"/>
+    <path d="M512 300 L 688 300" stroke="#8CA0BE" stroke-width="3" opacity="0.5"/>
+    <!-- Tibia -->
+    <path d="M498 410 L 702 410 C 700 450 654 470 646 510 L 642 675 L 558 675 L 554 510 C 546 470 500 450 498 410 Z" fill="#DCE5F2"/>
+    <!-- Polietilen insert -->
+    <path d="M506 384 C 530 378 570 380 600 388 C 630 380 670 378 694 384 L 696 404 L 504 404 Z" fill="#FFFFFF"/>
+    <!-- Tibial plato + sap (altın) -->
+    <rect x="496" y="402" width="208" height="16" rx="5" fill="url(#orto_gold)"/>
+    <path d="M582 418 L 618 418 L 610 492 Q 600 502 590 492 Z" fill="url(#orto_gold)"/>
+  </g>
+
+  <!-- İlerleme noktaları -->
+  <g transform="translate(0 0)">
+    <path d="M760 540 C 830 520 900 440 1000 250" fill="none" stroke="url(#orto_gold)" stroke-width="4" stroke-dasharray="10 12" opacity="0.6"/>
+    <circle cx="772" cy="536" r="12" fill="#9DB4D6"/>
+    <circle cx="860" cy="488" r="16" fill="#C7D2E4"/>
+    <circle cx="936" cy="390" r="21" fill="#EEF2F8"/>
+    <circle cx="996" cy="262" r="28" fill="url(#orto_gold)"/>
+    <circle cx="996" cy="262" r="44" fill="none" stroke="#E8C56A" stroke-width="3" opacity="0.35"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

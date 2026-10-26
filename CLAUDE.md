@@ -467,6 +467,12 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Blog tarafı:** `/blog` listesi DB + statik yazıları **birleştirir** (eskiden DB doluysa statikler gizleniyordu). `/blog/[slug]` statikte bulamazsa `blog_posts`'tan okur (async, `revalidate=300`), `sponsorlu` ise "İş Ortağı İçeriği" şeridi ve `website` bağlantısı gösterir.
 - **Tuzak:** blog listesinde `noStore()` **şart** — Next Data Cache sabit Supabase sorgusunu süresiz cache'ler, yeni onaylanan makale görünmez ([[nextjs-datacache-filter-stale]] ile aynı tuzak).
 
+### Zamanlı Statik Blog Yazıları — FTR dizisi (Eki 2026)
+- **Dizi:** `lib/blog-ftr/NN-slug.ts` (14 Fizik Tedavi ve Rehabilitasyon yazısı, 26 Eki–8 Kas 2026, günde 1). Biçim `lib/blog-ftr/tip.ts` (`metin` düz metin, `parseGovde` kuralları); `lib/blog-ftr/index.ts` bunları `BlogYazi`'ye çevirir, kategori `FTR_KATEGORI`, sona uyarı paragrafı ekler. Kapaklar `public/blog/<slug>.svg` (sol üstte standart "hekimhane / SAĞLIK REHBERİ" logosu).
+- **Zamanlama DB'siz:** `lib/blog-data.ts` → statik yazı `created_at` günü **09:00 TR**'de görünür (`yayindaMi`). Dışarıya yalnız `yayindakiBlogYazilari()` / `getBlogYazi()` (tarihi gelmemişse undefined → 404). `BLOG_YAZILARI` export'u **kaldırıldı** — yeni kullanıcı bu fonksiyonları kullanmalı, yoksa gelecek tarihli yazı sızar. Liste `noStore`, detay `revalidate=300`, RSS ve sitemap-genel `revalidate=3600`, /site-haritasi 12 saat gecikmeli.
+- **Dizi içi bağlantı kuralı:** yazı yalnız kendisinden **önce** yayınlanan yazılara `/blog/<slug>` bağlantısı verir. `MakaleGovde` artık site içi `[metin](/yol)` bağlantılarını aynı sekmede açar.
+- Detay sayfası FTR kategorisinde "FTR Uzmanlarını Gör" kutusu (`/doktorlar?spec=Fiziksel Tıp ve Rehabilitasyon`) ve aynı kategoriden "Diğer Yazılar" gösterir.
+
 ### Diş Tedavileri Combo Sayfaları — 404 yerine dürüst fallback
 - **Sorun:** `/dis-tedavileri/[il]/[...seg]` bölgede o hizmetle etiketli klinik yoksa 404 veriyordu. Ölçüm: 44 il × 11 uzmanlık = 484 kombinasyonun **367'si** boştu (yalnızca "Genel Diş Hekimliği" tam doluydu) — çünkü import kaynağı kliniklerin çoğuna sadece jenerik etiket veriyor.
 - **İki gerçek hata düzeltildi (`lib/uzmanlik-data.ts`):**

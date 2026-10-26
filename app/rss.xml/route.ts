@@ -1,4 +1,7 @@
-import { BLOG_YAZILARI } from '@/lib/blog-data';
+import { yayindakiBlogYazilari } from '@/lib/blog-data';
+
+// Zamanlı yazılar yayın saatinde düşsün diye saatlik yeniden üretilir.
+export const revalidate = 3600;
 
 const BASE = 'https://www.hekimhane.com.tr';
 
@@ -7,7 +10,7 @@ function esc(s = '') {
 }
 
 export async function GET() {
-  const posts = [...BLOG_YAZILARI].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+  const posts = [...yayindakiBlogYazilari()].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
   const lastBuild = posts[0]?.created_at ? new Date(posts[0].created_at).toUTCString() : new Date().toUTCString();
 
   const items = posts.map(p => `
@@ -23,9 +26,9 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Hekimhane Blog — Ağız ve Diş Sağlığı</title>
+    <title>Hekimhane Blog — Sağlık Rehberi</title>
     <link>${BASE}/blog</link>
-    <description>Türkiye'nin diş sağlığı rehberi Hekimhane'den güncel yazılar, tedavi rehberleri ve hasta bilgilendirmeleri.</description>
+    <description>Hekimhane'den diş sağlığı, fizik tedavi ve rehabilitasyon başta olmak üzere tedavi rehberleri ve hasta bilgilendirmeleri.</description>
     <language>tr</language>
     <lastBuildDate>${lastBuild}</lastBuildDate>
     <atom:link href="${BASE}/rss.xml" rel="self" type="application/rss+xml" />${items}

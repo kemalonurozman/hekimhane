@@ -1,14 +1,17 @@
 import type { BlogBlok } from '@/lib/blog-data';
 
-// Satır içi biçimlendirme: **kalın** ve [metin](https://link)
+// Satır içi biçimlendirme: **kalın**, [metin](https://link) ve site içi [metin](/yol)
 export function renderInline(text: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
-  const re = /(\*\*([^*]+)\*\*)|(\[([^\]]+)\]\((https?:\/\/[^\s)]+)\))/g;
+  const re = /(\*\*([^*]+)\*\*)|(\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/(?!\/)[^\s)]*)\))/g;
   let last = 0; let m: RegExpExecArray | null; let key = 0;
   while ((m = re.exec(text)) !== null) {
     if (m.index > last) nodes.push(text.slice(last, m.index));
     if (m[2]) nodes.push(<strong key={key++}>{m[2]}</strong>);
-    else if (m[4]) nodes.push(<a key={key++} href={m[5]} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--navy)', fontWeight: 600, textDecoration: 'underline' }}>{m[4]}</a>);
+    else if (m[4]) {
+      const ic = m[5].startsWith('/');   // site içi bağlantı aynı sekmede açılır
+      nodes.push(<a key={key++} href={m[5]} {...(ic ? {} : { target: '_blank', rel: 'noopener noreferrer' })} style={{ color: 'var(--navy)', fontWeight: 600, textDecoration: 'underline' }}>{m[4]}</a>);
+    }
     last = re.lastIndex;
   }
   if (last < text.length) nodes.push(text.slice(last));

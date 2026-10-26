@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { BLOG_YAZILARI, getBlogYazi, type BlogBlok } from '@/lib/blog-data';
+import { yayindakiBlogYazilari, getBlogYazi, type BlogBlok } from '@/lib/blog-data';
+import { FTR_KATEGORI } from '@/lib/blog-ftr';
 import { supabase } from '@/lib/supabase';
 import { parseGovde, okumaSuresi } from '@/lib/makale-icerik';
 import MakaleGovde from '@/components/MakaleGovde';
 
 interface Props { params: { slug: string } }
 
-// Statik yazılar önceden üretilir; panel/admin üzerinden yayınlananlar
-// istek anında Supabase'den okunur (dynamicParams varsayılan olarak açık).
+// Derleme anında yayında olan statik yazılar önceden üretilir; zamanlı
+// (gelecek tarihli) yazılar ve panel/admin yazıları istek anında üretilir
+// (dynamicParams açık). Tarihi gelmemiş yazı getBlogYazi'de 404 olur.
 export function generateStaticParams() {
-  return BLOG_YAZILARI.map(y => ({ slug: y.slug }));
+  return yayindakiBlogYazilari().map(y => ({ slug: y.slug }));
 }
 
 export const revalidate = 300;
@@ -116,7 +118,30 @@ export default async function BlogDetayPage({ params }: Props) {
   const y = await getYazi(params.slug);
   if (!y) notFound();
 
-  const digerYazilar = BLOG_YAZILARI.filter(x => x.slug !== params.slug).slice(0, 3);
+  // Önce aynı kategoriden (en yeni), sonra diğerlerinden 3 yazı
+  const digerAday = yayindakiBlogYazilari()
+    .filter(x => x.slug !== params.slug)
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+  const digerYazilar = [
+    ...digerAday.filter(x => x.category === y.category),
+    ...digerAday.filter(x => x.category !== y.category),
+  ].slice(0, 3);
+
+  // Yazının konusuna göre hekim bulma kutusu
+  const ftr = y.category === FTR_KATEGORI;
+  const cta = ftr
+    ? {
+        baslik: 'Fiziksel tıp ve rehabilitasyon uzmanı mı arıyorsunuz?',
+        metin: 'Size yakın FTR uzmanlarını Hekimhane\'de bulun, profillerini inceleyin.',
+        href: `/doktorlar?spec=${encodeURIComponent('Fiziksel Tıp ve Rehabilitasyon')}`,
+        dugme: 'FTR Uzmanlarını Gör',
+      }
+    : {
+        baslik: 'Diş hekimi mi arıyorsunuz?',
+        metin: 'Size en yakın uzman diş hekimini Hekimhane\'de bulun.',
+        href: '/dis-hekimleri',
+        dugme: 'Diş Hekimlerini Gör',
+      };
 
   const imgAbs = y.cover_image
     ? (y.cover_image.startsWith('http') ? y.cover_image : `https://www.hekimhane.com.tr${y.cover_image}`)
@@ -207,11 +232,11 @@ export default async function BlogDetayPage({ params }: Props) {
         {/* Randevu CTA */}
         <div style={{ marginTop: 32, background: 'white', border: '1px solid var(--border)', borderRadius: 16, padding: '22px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>
-            <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--navy)', marginBottom: 4 }}>Diş hekimi mi arıyorsunuz?</div>
-            <div style={{ fontSize: 14, color: 'var(--muted)' }}>Size en yakın uzman diş hekimini Hekimhane&apos;de bulun.</div>
+            <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--navy)', marginBottom: 4 }}>{cta.baslik}</div>
+            <div style={{ fontSize: 14, color: 'var(--muted)' }}>{cta.metin}</div>
           </div>
-          <Link href="/dis-hekimleri" style={{ flexShrink: 0, padding: '11px 22px', borderRadius: 11, background: 'var(--navy)', color: 'white', fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>
-            Diş Hekimlerini Gör
+          <Link href={cta.href} style={{ flexShrink: 0, padding: '11px 22px', borderRadius: 11, background: 'var(--navy)', color: 'white', fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>
+            {cta.dugme}
           </Link>
         </div>
       </article>

@@ -4,16 +4,17 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import BlogInteractive from './BlogInteractive';
 import { HASTALIKLAR, KATEGORILER } from '@/lib/hastaliklar-data';
-import { BLOG_YAZILARI } from '@/lib/blog-data';
+import { yayindakiBlogYazilari } from '@/lib/blog-data';
 
 export const metadata: Metadata = {
   alternates: { canonical: 'https://www.hekimhane.com.tr/blog' },
-  title: { absolute: 'Blog | Hekimhane — Diş Sağlığı Yazıları' },
-  description: 'Diş sağlığı, tedaviler ve hasta rehberleri. Uzman gözünden ağız ve diş sağlığı içerikleri.',
+  title: { absolute: 'Blog | Hekimhane — Sağlık Yazıları' },
+  description: 'Diş sağlığı, fizik tedavi ve rehabilitasyon, tedaviler ve hasta rehberleri. Uzman gözünden sağlık içerikleri.',
 };
 
-// Statik diş odaklı yazılar — DB'den gelen yazılarla birleştirilir
-const STATIK_POSTS = BLOG_YAZILARI.map((y, i) => ({
+// Statik yazılar — DB'den gelen yazılarla birleştirilir. İstek anında süzülür:
+// tarihi gelmemiş (zamanlı) yazılar listede görünmez.
+const statikPosts = () => yayindakiBlogYazilari().map((y, i) => ({
   id: String(i + 1), slug: y.slug, title: y.title, summary: y.summary,
   category: y.category, author: y.author, created_at: y.created_at,
   cover_image: y.cover_image, cover_alt: y.cover_alt || null, views: y.views,
@@ -36,10 +37,10 @@ async function getPosts() {
 
     const dbPosts = data || [];
     const dbSlugs = new Set(dbPosts.map((p: any) => p.slug));
-    return [...dbPosts, ...STATIK_POSTS.filter(p => !dbSlugs.has(p.slug))]
+    return [...dbPosts, ...statikPosts().filter(p => !dbSlugs.has(p.slug))]
       .sort((a: any, b: any) => String(b.created_at).localeCompare(String(a.created_at)));
   } catch {
-    return STATIK_POSTS;
+    return statikPosts();
   }
 }
 
@@ -90,7 +91,7 @@ export default async function BlogPage() {
             Hekimhane Blog
           </h1>
           <p style={{ color: 'rgba(255,255,255,.7)', fontSize: 15, maxWidth: 500 }}>
-            Diş sağlığı, tedaviler ve hasta rehberleri.
+            Diş sağlığı, fizik tedavi ve rehabilitasyon, tedaviler ve hasta rehberleri.
           </p>
         </div>
       </div>

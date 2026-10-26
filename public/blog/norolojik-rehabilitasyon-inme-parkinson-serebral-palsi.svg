@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Nörolojik rehabilitasyon — altın renkli sinir bağlantılarıyla çizilmiş beyin silueti ve ondan yükselen bir yola uzanan ayak izleri">
+  <defs>
+    <linearGradient id="nrr_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="nrr_gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="nrr_brain" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F7FB"/><stop offset="1" stop-color="#D3DDEC"/></linearGradient>
+    <radialGradient id="nrr_glow" cx="0.4" cy="0.45" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <radialGradient id="nrr_halo" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#E8C56A" stop-opacity="0.22"/><stop offset="1" stop-color="#E8C56A" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#nrr_bg)"/>
+  <rect width="1200" height="675" fill="url(#nrr_glow)"/>
+  <circle cx="1060" cy="120" r="220" fill="#fff" opacity="0.035"/>
+  <circle cx="150" cy="590" r="180" fill="#fff" opacity="0.03"/>
+
+  <!-- Path of recovery -->
+  <path d="M470 560 C 620 600, 760 560, 860 460 S 1010 250, 1090 190" fill="none" stroke="#9DB4D6" stroke-width="3" stroke-dasharray="2 14" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- Footprints (alternating L/R along path, rising) -->
+  <g>
+    <g transform="translate(560 572) rotate(95)" fill="#C7D2E4" opacity="0.55">
+      <ellipse cx="0" cy="0" rx="11" ry="20"/><ellipse cx="0" cy="27" rx="8" ry="9"/>
+    </g>
+    <g transform="translate(650 556) rotate(70)" fill="#D5DEEC" opacity="0.7">
+      <ellipse cx="0" cy="0" rx="11" ry="20"/><ellipse cx="0" cy="27" rx="8" ry="9"/>
+    </g>
+    <g transform="translate(735 528) rotate(62)" fill="#E6ECF5" opacity="0.85">
+      <ellipse cx="0" cy="0" rx="11" ry="20"/><ellipse cx="0" cy="27" rx="8" ry="9"/>
+    </g>
+    <g transform="translate(808 478) rotate(52)" fill="#F2F5FA">
+      <ellipse cx="0" cy="0" rx="11" ry="20"/><ellipse cx="0" cy="27" rx="8" ry="9"/>
+    </g>
+    <g transform="translate(876 420) rotate(48)" fill="url(#nrr_gold)" opacity="0.8">
+      <ellipse cx="0" cy="0" rx="11" ry="20"/><ellipse cx="0" cy="27" rx="8" ry="9"/>
+    </g>
+    <g transform="translate(930 350) rotate(42)" fill="url(#nrr_gold)" opacity="0.9">
+      <ellipse cx="0" cy="0" rx="11" ry="20"/><ellipse cx="0" cy="27" rx="8" ry="9"/>
+    </g>
+    <g transform="translate(990 290) rotate(52)" fill="url(#nrr_gold)">
+      <ellipse cx="0" cy="0" rx="11" ry="20"/><ellipse cx="0" cy="27" rx="8" ry="9"/>
+    </g>
+  </g>
+
+  <!-- Goal marker -->
+  <g transform="translate(1092 188)">
+    <circle r="62" fill="url(#nrr_halo)"/>
+    <circle r="30" fill="none" stroke="url(#nrr_gold)" stroke-width="5"/>
+    <circle r="15" fill="url(#nrr_gold)"/>
+  </g>
+
+  <!-- Brain (lateral view, facing left) -->
+  <g transform="translate(-30 10)">
+    <circle cx="430" cy="300" r="230" fill="url(#nrr_halo)" opacity="0.6"/>
+    <!-- Brainstem -->
+    <path d="M470 380 C 478 410, 476 440, 470 476 L 500 476 C 498 440, 502 410, 512 382 Z" fill="#B9C6DB"/>
+    <!-- Cerebellum -->
+    <path d="M488 392 C 500 446, 600 456, 628 404 C 620 380, 560 376, 488 392 Z" fill="#C7D2E4"/>
+    <g fill="none" stroke="#9FB0CC" stroke-width="3" stroke-linecap="round" opacity="0.8">
+      <path d="M514 410 C 548 420, 590 418, 616 406"/>
+      <path d="M522 428 C 554 436, 588 434, 608 422"/>
+    </g>
+    <!-- Cerebrum -->
+    <path d="M232 352 C 200 296, 222 214, 292 180 C 352 148, 452 136, 524 160 C 594 182, 644 238, 640 306 C 638 350, 612 382, 574 392 C 540 400, 506 394, 474 386 C 444 410, 382 416, 340 402 C 298 396, 250 386, 232 352 Z" fill="url(#nrr_brain)"/>
+    <!-- Sulci / gyri -->
+    <g fill="none" stroke="#A9B9D2" stroke-width="5" stroke-linecap="round" opacity="0.9">
+      <!-- Lateral (Sylvian) fissure -->
+      <path d="M300 338 C 350 330, 400 316, 446 300 C 470 292, 492 282, 506 266"/>
+      <!-- Central sulcus -->
+      <path d="M452 150 C 444 180, 452 206, 438 232 C 426 256, 432 280, 420 304"/>
+      <!-- Frontal gyri -->
+      <path d="M300 214 C 330 200, 360 212, 388 196"/>
+      <path d="M262 270 C 296 256, 320 274, 356 258 C 380 248, 392 262, 410 252"/>
+      <path d="M346 168 C 352 196, 336 214, 352 240"/>
+      <!-- Parietal / occipital gyri -->
+      <path d="M500 168 C 494 196, 514 214, 506 238"/>
+      <path d="M540 230 C 566 222, 584 240, 612 232"/>
+      <path d="M560 290 C 584 284, 600 302, 626 296"/>
+      <!-- Temporal gyri -->
+      <path d="M330 372 C 366 366, 398 378, 436 364"/>
+      <path d="M470 330 C 500 340, 526 326, 556 340"/>
+    </g>
+    <!-- Neural network (gold) -->
+    <g stroke="url(#nrr_gold)" stroke-width="3" stroke-linecap="round" opacity="0.95">
+      <line x1="318" y1="240" x2="404" y2="226"/>
+      <line x1="404" y1="226" x2="476" y2="262"/>
+      <line x1="476" y1="262" x2="560" y2="252"/>
+      <line x1="404" y1="226" x2="428" y2="178"/>
+      <line x1="476" y1="262" x2="420" y2="340"/>
+      <line x1="560" y1="252" x2="590" y2="322"/>
+      <line x1="420" y1="340" x2="520" y2="356"/>
+      <line x1="520" y1="356" x2="590" y2="322"/>
+      <line x1="428" y1="178" x2="534" y2="196"/>
+      <line x1="534" y1="196" x2="560" y2="252"/>
+    </g>
+    <g fill="url(#nrr_gold)">
+      <circle cx="318" cy="240" r="8"/>
+      <circle cx="404" cy="226" r="11"/>
+      <circle cx="476" cy="262" r="13"/>
+      <circle cx="560" cy="252" r="10"/>
+      <circle cx="428" cy="178" r="8"/>
+      <circle cx="534" cy="196" r="8"/>
+      <circle cx="420" cy="340" r="9"/>
+      <circle cx="520" cy="356" r="8"/>
+      <circle cx="590" cy="322" r="9"/>
+    </g>
+    <g fill="#fff" opacity="0.6">
+      <circle cx="473" cy="258" r="4"/><circle cx="401" cy="222" r="3.5"/>
+    </g>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

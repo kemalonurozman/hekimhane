@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Kuru iğneleme — gergin kas lifleri arasındaki tetik noktaya açılı olarak giren ince tedavi iğnesi">
+  <defs>
+    <linearGradient id="dn_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="dn_gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="dn_glow" cx="0.5" cy="0.45" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <linearGradient id="dn_muscle" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDB0A7"/><stop offset="1" stop-color="#D98C83"/></linearGradient>
+    <linearGradient id="dn_metal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#C7D2E4"/><stop offset="0.5" stop-color="#F2F5FA"/><stop offset="1" stop-color="#9FB0CC"/></linearGradient>
+    <radialGradient id="dn_tp"><stop offset="0" stop-color="#F2D27E" stop-opacity="0.9"/><stop offset="0.4" stop-color="#E8C56A" stop-opacity="0.45"/><stop offset="1" stop-color="#C99A34" stop-opacity="0"/></radialGradient>
+    <clipPath id="dn_clip"><path d="M250 390 C 330 300 470 262 600 262 C 730 262 870 300 950 390 C 870 480 730 518 600 518 C 470 518 330 480 250 390 Z"/></clipPath>
+  </defs>
+  <rect width="1200" height="675" fill="url(#dn_bg)"/>
+  <rect width="1200" height="675" fill="url(#dn_glow)"/>
+  <circle cx="1060" cy="560" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="160" cy="120" r="170" fill="#fff" opacity="0.03"/>
+  <!-- Tendons -->
+  <path d="M120 384 L 260 378 L 260 402 L 120 396 Z" fill="#E6ECF5" opacity="0.9"/>
+  <path d="M1080 384 L 940 378 L 940 402 L 1080 396 Z" fill="#E6ECF5" opacity="0.9"/>
+  <!-- Muscle belly -->
+  <path d="M250 390 C 330 300 470 262 600 262 C 730 262 870 300 950 390 C 870 480 730 518 600 518 C 470 518 330 480 250 390 Z" fill="url(#dn_muscle)"/>
+  <g clip-path="url(#dn_clip)" fill="none" stroke-linecap="round">
+    <path d="M240 390 C 380 329.5 470 280 600 280 C 730 280 820 329.5 960 390" stroke="#F6D3CD" stroke-width="3" opacity="0.55"/>
+    <path d="M240 390 C 380 341.6 470 302 600 302 C 730 302 820 341.6 960 390" stroke="#F6D3CD" stroke-width="3" opacity="0.55"/>
+    <path d="M240 390 C 380 353.7 470 324 600 324 C 730 324 820 353.7 960 390" stroke="#F6D3CD" stroke-width="3" opacity="0.55"/>
+    <path d="M240 390 C 380 365.8 470 346 600 346 C 730 346 820 365.8 960 390" stroke="#F6D3CD" stroke-width="3" opacity="0.55"/>
+    <path d="M240 390 C 380 377.9 470 368 600 368 C 730 368 820 377.9 960 390" stroke="#F6D3CD" stroke-width="3" opacity="0.55"/>
+    <path d="M240 390 C 380 390.0 470 390 600 390 C 730 390 820 390.0 960 390" stroke="#F6D3CD" stroke-width="3" opacity="0.55"/>
+    <path d="M240 390 C 380 402.1 470 412 600 412 C 730 412 820 402.1 960 390" stroke="#F6D3CD" stroke-width="3" opacity="0.55"/>
+    <path d="M240 390 C 380 414.2 470 434 600 434 C 730 434 820 414.2 960 390" stroke="#F6D3CD" stroke-width="3" opacity="0.55"/>
+    <path d="M240 390 C 380 426.3 470 456 600 456 C 730 456 820 426.3 960 390" stroke="#F6D3CD" stroke-width="3" opacity="0.55"/>
+    <path d="M240 390 C 380 438.4 470 478 600 478 C 730 478 820 438.4 960 390" stroke="#F6D3CD" stroke-width="3" opacity="0.55"/>
+    <path d="M240 390 C 380 450.5 470 500 600 500 C 730 500 820 450.5 960 390" stroke="#F6D3CD" stroke-width="3" opacity="0.55"/>
+    <path d="M240 390 C 380 382 470 376 600 376 C 730 376 820 382 960 390" stroke="#FBE6E2" stroke-width="16" opacity="0.55"/>
+  </g>
+  <!-- Trigger point -->
+  <circle cx="640" cy="377" r="70" fill="url(#dn_tp)"/>
+  <g fill="none" stroke="url(#dn_gold)" stroke-linecap="round">
+    <path d="M588 357 A 56 56 0 0 1 620 325" stroke-width="4" opacity="0.8"/>
+    <path d="M692 397 A 56 56 0 0 1 660 429" stroke-width="4" opacity="0.8"/>
+    <path d="M562 395 A 80 80 0 0 0 604 449" stroke-width="3" opacity="0.5"/>
+  </g>
+  <ellipse cx="640" cy="377" rx="24" ry="17" fill="url(#dn_gold)"/>
+  <ellipse cx="633" cy="372" rx="7" ry="4.5" fill="#fff" opacity="0.5"/>
+  <!-- Needle -->
+  <line x1="648" y1="367" x2="820.1" y2="121.3" stroke="#F2F5FA" stroke-width="3.2" stroke-linecap="round"/>
+  <g transform="translate(820.1 121.3) rotate(-55.0)">
+    <rect x="0" y="-9" width="110" height="18" rx="5" fill="url(#dn_gold)"/>
+    <g stroke="#B88A2C" stroke-width="2" opacity="0.7"><line x1="12" y1="-8" x2="6" y2="8"/><line x1="24" y1="-8" x2="18" y2="8"/><line x1="36" y1="-8" x2="30" y2="8"/><line x1="48" y1="-8" x2="42" y2="8"/><line x1="60" y1="-8" x2="54" y2="8"/><line x1="72" y1="-8" x2="66" y2="8"/><line x1="84" y1="-8" x2="78" y2="8"/><line x1="96" y1="-8" x2="90" y2="8"/></g>
+    <rect x="-14" y="-4" width="16" height="8" rx="2" fill="url(#dn_metal)"/>
+    <circle cx="116" cy="0" r="9" fill="url(#dn_gold)"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

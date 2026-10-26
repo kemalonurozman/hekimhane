@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { KATEGORILER, HASTALIKLAR } from '@/lib/hastaliklar-data';
-import { BLOG_YAZILARI } from '@/lib/blog-data';
+import { yayindakiBlogYazilari } from '@/lib/blog-data';
 import { TREATMENTS } from '@/lib/uzmanlik-data';
 
 export const revalidate = 43200; // 12 saat
@@ -71,7 +71,7 @@ export default async function SiteHaritasi() {
     {
       title: 'Blog Yazıları',
       href: '/blog',
-      links: BLOG_YAZILARI.map(b => ({ label: b.title, href: `/blog/${b.slug}` })),
+      links: yayindakiBlogYazilari().map(b => ({ label: b.title, href: `/blog/${b.slug}` })),
     },
     {
       title: 'Kurumsal',

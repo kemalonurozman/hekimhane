@@ -5,7 +5,7 @@ import { supabase } from './supabase';
 import { toSlug } from './helpers';
 import { canonicalDentalSpec, TREATMENTS, DENTAL_PROBLEMS } from './uzmanlik-data';
 import { KATEGORILER, HASTALIKLAR } from './hastaliklar-data';
-import { BLOG_YAZILARI } from './blog-data';
+import { yayindakiBlogYazilari } from './blog-data';
 import { TEDAVI_SLUGS } from './tedavi-detaylari';
 import { UZMANLIK_REHBERLERI } from './uzmanlik-rehberleri';
 import { COCUK_KONULAR } from './cocuk-dis';
@@ -97,7 +97,7 @@ async function buildSectionRaw(section: string): Promise<SmUrl[]> {
       .map(k => ({ loc: `${BASE}/hastaliklar/${k.slug}`, changefreq: 'weekly', priority: 0.75 }));
     const hastalik = HASTALIKLAR.filter(h => h.kategoriSlug === 'dis-sagligi')
       .map(h => ({ loc: `${BASE}/hastaliklar/${h.kategoriSlug}/${h.slug}`, changefreq: 'weekly', priority: 0.7 }));
-    const blog = BLOG_YAZILARI.map(b => ({
+    const blog = yayindakiBlogYazilari().map(b => ({
       loc: `${BASE}/blog/${b.slug}`, changefreq: 'monthly', priority: 0.6, lastmod: new Date(b.created_at).toISOString(),
       images: b.cover_image ? [{ loc: b.cover_image.startsWith('http') ? b.cover_image : `${BASE}${b.cover_image}`, caption: b.cover_alt || b.title, title: b.title }] : undefined,
     }));

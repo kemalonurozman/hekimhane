@@ -19,6 +19,7 @@ export const MAKALE_KATEGORILERI = [
   'Tedaviler',
   'Estetik',
   'Çocuk Diş Sağlığı',
+  'Fizik Tedavi ve Rehabilitasyon',
   'Hasta Rehberi',
   'İşletmeler İçin',
 ];

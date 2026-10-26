@@ -14,6 +14,7 @@ const categoryColors: Record<string, { bg: string; color: string }> = {
   'Çocuk Diş Sağlığı': { bg: '#EFF6FF', color: '#1D4ED8' },
   'Hastalıklar':       { bg: '#FEF2F2', color: '#991B1B' },
   'İşletmeler İçin':   { bg: '#FEFCE8', color: '#854D0E' },
+  'Fizik Tedavi ve Rehabilitasyon': { bg: '#ECFDF5', color: '#047857' },
 };
 
 function catStyle(cat: string | null) {

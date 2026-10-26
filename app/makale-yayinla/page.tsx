@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
-import { BLOG_YAZILARI } from '@/lib/blog-data';
+import { yayindakiBlogYazilari } from '@/lib/blog-data';
 import { MAKALE_FIYAT, KDV_ORANI, KDV_TUTAR, TOPLAM, PAKET_ICERIK, tl } from '@/lib/makale-fiyat';
 import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
 import { OzSayfa, OzHero, OzSahne, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKartlar, OzKapanis, OzSss, OzDugme, sssJsonLd } from '@/components/ozellik/Ozellik';
@@ -113,7 +113,7 @@ export default async function MakaleYayinlaPage() {
   const stats = await getStats();
   const klinikSayisi = stats.klinik || 1000;
   const hekimSayisi = stats.hekim || 2500;
-  const makaleSayisi = BLOG_YAZILARI.length;
+  const makaleSayisi = yayindakiBlogYazilari().length;
 
   const jsonLd = {
     '@context': 'https://schema.org',

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Osteoporoz ve MBST — süngerimsi iç yapısı seyrelmiş kemik kesiti ve çevresini saran manyetik alan halkaları">
+  <defs>
+    <linearGradient id="ost_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="ost_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <radialGradient id="ost_glow" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <clipPath id="ost_clip" transform="translate(600 352)"><rect x="-210" y="-26" width="420" height="52" rx="-2"/><circle cx="-250" cy="-44" r="50"/><circle cx="-250" cy="44" r="50"/><circle cx="250" cy="-44" r="50"/><circle cx="250" cy="44" r="50"/><path d="M-190 -26 C -220 -26 -230 -58 -250 -68 L -250 68 C -230 58 -220 26 -190 26 Z"/><path d="M190 -26 C 220 -26 230 -58 250 -68 L 250 68 C 230 58 220 26 190 26 Z"/></clipPath>
+  </defs>
+  <rect width="1200" height="675" fill="url(#ost_bg)"/>
+  <rect width="1200" height="675" fill="url(#ost_glow)"/>
+  <circle cx="1070" cy="560" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="1000" cy="110" r="150" fill="#fff" opacity="0.025"/>
+
+  <!-- Manyetik alan çizgileri -->
+  <g fill="none" stroke="url(#ost_gold)" stroke-width="2.5" opacity="0.35" stroke-dasharray="3 12" stroke-linecap="round">
+    <path d="M250 352 C 330 150 870 150 950 352"/>
+    <path d="M250 352 C 330 554 870 554 950 352"/>
+    <path d="M190 352 C 280 80 920 80 1010 352"/>
+    <path d="M190 352 C 280 624 920 624 1010 352"/>
+  </g>
+
+  <!-- Halkaların arka yarısı -->
+  <g fill="none" stroke="#9A8150" stroke-width="10">
+    <path d="M520 182 a 46 170 0 0 0 0 340"/>
+    <path d="M680 182 a 46 170 0 0 0 0 340"/>
+  </g>
+
+  <!-- Kemik -->
+  <g transform="translate(600 352)" fill="#C7D2E4"><rect x="-210" y="-38" width="420" height="76" rx="10"/><circle cx="-250" cy="-44" r="62"/><circle cx="-250" cy="44" r="62"/><circle cx="250" cy="-44" r="62"/><circle cx="250" cy="44" r="62"/><path d="M-190 -38 C -220 -38 -230 -70 -250 -80 L -250 80 C -230 70 -220 38 -190 38 Z"/><path d="M190 -38 C 220 -38 230 -70 250 -80 L 250 80 C 230 70 220 38 190 38 Z"/></g>
+  <g transform="translate(600 352)" fill="#F2F5FA"><rect x="-210" y="-26" width="420" height="52" rx="-2"/><circle cx="-250" cy="-44" r="50"/><circle cx="-250" cy="44" r="50"/><circle cx="250" cy="-44" r="50"/><circle cx="250" cy="44" r="50"/><path d="M-190 -26 C -220 -26 -230 -58 -250 -68 L -250 68 C -230 58 -220 26 -190 26 Z"/><path d="M190 -26 C 220 -26 230 -58 250 -68 L 250 68 C 230 58 220 26 190 26 Z"/></g>
+  <!-- İlik kanalı -->
+  <rect x="408" y="334" width="384" height="36" rx="18" fill="#DCE4F0"/>
+  <!-- Trabeküler boşluklar: solda yoğun, sağda seyrelmiş -->
+  <g clip-path="url(#ost_clip)"><g transform="translate(600 352)" fill="#9FB0CC" opacity="0.85"><ellipse cx="-269.6" cy="71.9" rx="5.5" ry="3.9" transform="rotate(57 -269.6 71.9)"/><ellipse cx="-230.0" cy="-22.7" rx="8.9" ry="6.4" transform="rotate(164 -230.0 -22.7)"/><ellipse cx="-225.5" cy="17.6" rx="6.8" ry="6.5" transform="rotate(125 -225.5 17.6)"/><ellipse cx="-278.0" cy="-22.2" rx="5.4" ry="4.4" transform="rotate(67 -278.0 -22.2)"/><ellipse cx="-258.8" cy="-3.6" rx="5.3" ry="5.1" transform="rotate(39 -258.8 -3.6)"/><ellipse cx="-285.2" cy="-61.5" rx="5.9" ry="5.7" transform="rotate(6 -285.2 -61.5)"/><ellipse cx="-237.3" cy="-81.2" rx="5.1" ry="4.3" transform="rotate(67 -237.3 -81.2)"/><ellipse cx="-235.6" cy="62.5" rx="5.4" ry="4.9" transform="rotate(138 -235.6 62.5)"/><ellipse cx="-234.3" cy="-55.3" rx="6.1" ry="5.9" transform="rotate(9 -234.3 -55.3)"/><ellipse cx="-231.6" cy="44.1" rx="5.4" ry="3.8" transform="rotate(14 -231.6 44.1)"/><ellipse cx="-250.0" cy="-70.9" rx="6.4" ry="4.6" transform="rotate(32 -250.0 -70.9)"/><ellipse cx="-255.5" cy="40.4" rx="8.1" ry="6.7" transform="rotate(164 -255.5 40.4)"/><ellipse cx="-263.1" cy="-50.9" rx="5.8" ry="4.6" transform="rotate(92 -263.1 -50.9)"/><ellipse cx="-212.4" cy="-47.0" rx="5.2" ry="3.7" transform="rotate(37 -212.4 -47.0)"/><ellipse cx="-261.1" cy="11.3" rx="5.2" ry="5.0" transform="rotate(36 -261.1 11.3)"/><ellipse cx="-271.6" cy="26.5" rx="7.7" ry="6.6" transform="rotate(51 -271.6 26.5)"/><ellipse cx="-257.0" cy="-86.4" rx="5.5" ry="4.2" transform="rotate(119 -257.0 -86.4)"/><ellipse cx="-248.4" cy="-39.8" rx="5.1" ry="4.6" transform="rotate(143 -248.4 -39.8)"/><ellipse cx="-289.4" cy="-38.1" rx="5.6" ry="5.4" transform="rotate(154 -289.4 -38.1)"/><ellipse cx="-261.0" cy="57.8" rx="5.4" ry="3.8" transform="rotate(170 -261.0 57.8)"/><ellipse cx="-235.1" cy="81.5" rx="6.8" ry="5.5" transform="rotate(35 -235.1 81.5)"/><ellipse cx="-256.1" cy="81.8" rx="6.1" ry="5.6" transform="rotate(19 -256.1 81.8)"/><ellipse cx="-288.4" cy="38.6" rx="7.5" ry="5.4" transform="rotate(112 -288.4 38.6)"/><ellipse cx="-216.5" cy="-70.0" rx="5.5" ry="5.4" transform="rotate(67 -216.5 -70.0)"/><ellipse cx="-246.6" cy="19.5" rx="5.3" ry="4.6" transform="rotate(53 -246.6 19.5)"/><ellipse cx="-216.3" cy="53.5" rx="6.5" ry="5.1" transform="rotate(110 -216.3 53.5)"/><ellipse cx="-240.8" cy="1.5" rx="6.5" ry="4.8" transform="rotate(177 -240.8 1.5)"/><ellipse cx="-248.8" cy="-16.7" rx="5.3" ry="4.4" transform="rotate(93 -248.8 -16.7)"/><ellipse cx="-268.0" cy="-75.7" rx="5.3" ry="4.7" transform="rotate(125 -268.0 -75.7)"/><ellipse cx="-283.3" cy="57.5" rx="6.3" ry="4.9" transform="rotate(127 -283.3 57.5)"/><ellipse cx="-207.8" cy="36.3" rx="6.8" ry="4.9" transform="rotate(124 -207.8 36.3)"/><ellipse cx="-280.2" cy="11.5" rx="5.1" ry="4.7" transform="rotate(8 -280.2 11.5)"/><ellipse cx="-207.4" cy="-33.2" rx="5.3" ry="4.7" transform="rotate(158 -207.4 -33.2)"/><ellipse cx="232.2" cy="30.6" rx="19.7" ry="17.8" transform="rotate(20 232.2 30.6)"/><ellipse cx="234.7" cy="-42.6" rx="14.3" ry="12.2" transform="rotate(130 234.7 -42.6)"/><ellipse cx="269.6" cy="72.3" rx="15.2" ry="12.8" transform="rotate(75 269.6 72.3)"/><ellipse cx="273.8" cy="-29.2" rx="19.8" ry="18.4" transform="rotate(169 273.8 -29.2)"/><ellipse cx="273.9" cy="21.6" rx="11.9" ry="11.6" transform="rotate(153 273.9 21.6)"/><ellipse cx="240.5" cy="-75.9" rx="11.1" ry="9.7" transform="rotate(149 240.5 -75.9)"/><ellipse cx="236.9" cy="-9.8" rx="11.2" ry="8.4" transform="rotate(49 236.9 -9.8)"/><ellipse cx="234.4" cy="77.3" rx="12.3" ry="12.1" transform="rotate(12 234.4 77.3)"/></g></g>
+
+  <!-- Halkaların ön yarısı -->
+  <g fill="none" stroke="url(#ost_gold)" stroke-width="10" stroke-linecap="round">
+    <path d="M520 182 a 46 170 0 0 1 0 340"/>
+    <path d="M680 182 a 46 170 0 0 1 0 340"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

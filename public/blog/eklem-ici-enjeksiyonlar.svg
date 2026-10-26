@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Eklem içi enjeksiyon — önden görünüşte diz eklemi kemikleri ve eklem aralığına yönelmiş bir enjektör iğnesi">
+  <defs>
+    <linearGradient id="eie_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="eie_gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="eie_goldh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="eie_bone" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#D9E1EE"/><stop offset="0.45" stop-color="#F6F8FB"/><stop offset="1" stop-color="#C3CFE2"/></linearGradient>
+    <linearGradient id="eie_metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#9FB0CC"/></linearGradient>
+    <radialGradient id="eie_glow" cx="0.45" cy="0.45" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <radialGradient id="eie_joint" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#E8C56A" stop-opacity="0.45"/><stop offset="1" stop-color="#E8C56A" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#eie_bg)"/>
+  <rect width="1200" height="675" fill="url(#eie_glow)"/>
+  <circle cx="1060" cy="560" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="170" cy="130" r="170" fill="#fff" opacity="0.03"/>
+
+  <g transform="translate(520 0)">
+    <!-- Leg silhouette (soft tissue) -->
+    <path d="M-150 -10 C -150 120, -140 220, -132 300 C -126 360, -128 400, -118 440 C -110 520, -102 600, -96 690 L 96 690 C 102 600, 110 520, 118 440 C 128 400, 126 360, 132 300 C 140 220, 150 120, 150 -10 Z" fill="#2E5487" opacity="0.55"/>
+
+    <!-- Joint capsule -->
+    <path d="M-118 280 C -132 320, -132 400, -112 440 L 112 440 C 132 400, 132 320, 118 280 Z" fill="none" stroke="#9DB4D6" stroke-width="3" stroke-dasharray="8 8" opacity="0.7"/>
+
+    <!-- Joint space glow -->
+    <ellipse cx="0" cy="372" rx="130" ry="40" fill="url(#eie_joint)"/>
+
+    <!-- Femur: shaft + condyles -->
+    <path d="M-42 -10 L 42 -10 C 44 120, 46 200, 62 250 C 80 290, 108 300, 110 330 C 112 356, 92 362, 66 360 C 44 358, 30 346, 14 346 C -2 346, -10 350 -16 350 C -30 350, -42 360, -66 360 C -94 362, -112 354, -110 328 C -108 300, -80 290, -62 250 C -46 200, -44 120, -42 -10 Z" fill="url(#eie_bone)"/>
+
+    <!-- Tibia: plateau + shaft -->
+    <path d="M-112 392 C -114 384, -100 380, -70 380 C -40 380, -20 386, 0 384 C 20 386, 40 380, 70 380 C 100 380, 114 384, 112 392 C 110 420, 80 436, 56 452 C 42 470, 38 520, 36 690 L -36 690 C -38 520, -42 470, -56 452 C -80 436, -110 420, -112 392 Z" fill="url(#eie_bone)"/>
+
+    <!-- Fibula (lateral, viewer's right) -->
+    <path d="M86 446 C 104 444, 114 454, 112 470 C 110 484, 104 492, 102 510 L 100 690 L 80 690 L 82 512 C 80 494, 74 486, 74 470 C 74 456, 76 448, 86 446 Z" fill="#C7D2E4"/>
+
+    <!-- Patella (front, faint) -->
+    <ellipse cx="0" cy="300" rx="44" ry="52" fill="#FFFFFF" opacity="0.28"/>
+
+    <!-- Fluid droplets in joint space -->
+    <g fill="url(#eie_gold)">
+      <circle cx="-48" cy="371" r="7"/>
+      <circle cx="-14" cy="368" r="5"/>
+      <circle cx="22" cy="372" r="6"/>
+      <circle cx="58" cy="369" r="5"/>
+    </g>
+  </g>
+
+  <!-- Syringe approaching joint space from lateral side -->
+  <g transform="translate(606 372) rotate(-24)">
+    <!-- Needle -->
+    <rect x="0" y="-2.5" width="150" height="5" rx="2" fill="url(#eie_metal)"/>
+    <path d="M0 -2.5 L -10 2.5 L 0 2.5 Z" fill="#F2F5FA"/>
+    <!-- Hub -->
+    <rect x="148" y="-10" width="26" height="20" rx="4" fill="url(#eie_gold)"/>
+    <!-- Barrel -->
+    <rect x="172" y="-30" width="230" height="60" rx="12" fill="#EEF2F8" opacity="0.95"/>
+    <rect x="182" y="-20" width="130" height="40" rx="8" fill="url(#eie_goldh)" opacity="0.85"/>
+    <g stroke="#9FB0CC" stroke-width="3" stroke-linecap="round">
+      <line x1="210" y1="-30" x2="210" y2="-14"/><line x1="250" y1="-30" x2="250" y2="-14"/><line x1="290" y1="-30" x2="290" y2="-14"/><line x1="330" y1="-30" x2="330" y2="-14"/><line x1="370" y1="-30" x2="370" y2="-14"/>
+    </g>
+    <!-- Plunger -->
+    <rect x="312" y="-26" width="12" height="52" rx="3" fill="#C7D2E4"/>
+    <rect x="400" y="-44" width="14" height="88" rx="5" fill="#FFFFFF"/>
+    <rect x="414" y="-8" width="80" height="16" rx="6" fill="#D5DEEC"/>
+    <rect x="490" y="-34" width="14" height="68" rx="5" fill="#FFFFFF"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">SAĞLIK REHBERİ</text>
+  </g>
+</svg>

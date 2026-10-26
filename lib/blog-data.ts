@@ -1,6 +1,8 @@
-// Diş odaklı blog makaleleri — statik veri.
-// blog_posts tablosu boş olduğunda bu içerikler gösterilir ve
-// /blog/[slug] detay sayfası bunları render eder.
+// Statik blog yazıları (diş + Fizik Tedavi ve Rehabilitasyon dizisi).
+// /blog listesi bunları blog_posts tablosuyla birleştirir; /blog/[slug] render eder.
+// Zamanlı yayın: yazı `created_at` günü Türkiye saatiyle 09:00'da görünür olur.
+// Dışarıya yalnız yayındakiler verilir → yayindakiBlogYazilari() / getBlogYazi().
+import { FTR_YAZILARI } from './blog-ftr';
 
 export type BlogBlok =
   | { tip: 'p'; metin: string }
@@ -26,7 +28,7 @@ export interface BlogYazi {
 const UYARI =
   'Bu içerik yalnızca genel bilgilendirme amaçlıdır ve diş hekimi muayenesinin yerini tutmaz. Şikâyetiniz için mutlaka bir diş hekimine başvurun.';
 
-export const BLOG_YAZILARI: BlogYazi[] = [
+const DIS_YAZILARI: BlogYazi[] = [
   {
     slug: 'dis-hekimi-secerken-dikkat-edilmesi-gerekenler',
     title: 'Diş Hekimi Seçerken Dikkat Edilmesi Gereken 7 Kriter',
@@ -249,4 +251,25 @@ export const BLOG_YAZILARI: BlogYazi[] = [
   },
 ];
 
-export const getBlogYazi = (slug: string) => BLOG_YAZILARI.find(y => y.slug === slug);
+const TUM_YAZILAR: BlogYazi[] = [...DIS_YAZILARI, ...FTR_YAZILARI];
+
+/** Yayın anı: created_at günü 09:00 (Europe/Istanbul, UTC+3). */
+export function yayinZamani(y: Pick<BlogYazi, 'created_at'>): number {
+  return Date.parse(`${y.created_at.slice(0, 10)}T09:00:00+03:00`);
+}
+
+export function yayindaMi(y: Pick<BlogYazi, 'created_at'>, simdi: Date = new Date()): boolean {
+  const t = yayinZamani(y);
+  return Number.isNaN(t) || t <= simdi.getTime();
+}
+
+/** Şu an yayında olan statik yazılar (gelecek tarihliler gizli). */
+export function yayindakiBlogYazilari(simdi: Date = new Date()): BlogYazi[] {
+  return TUM_YAZILAR.filter(y => yayindaMi(y, simdi));
+}
+
+/** Slug ile yayındaki statik yazı; tarihi gelmemişse undefined. */
+export const getBlogYazi = (slug: string): BlogYazi | undefined => {
+  const y = TUM_YAZILAR.find(x => x.slug === slug);
+  return y && yayindaMi(y) ? y : undefined;
+};
