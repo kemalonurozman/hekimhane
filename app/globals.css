@@ -1285,3 +1285,32 @@ select.kf-in option { color: #0E1A2C; font-weight: 500; }
 .hk-footer__bildirim p { margin: 0 0 8px; font-size: 12.5px; line-height: 1.7; color: var(--on-deep-muted); max-width: 980px; }
 .hk-footer__bildirim-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 12.5px; color: var(--on-deep-muted); }
 .hk-footer__bildirim-meta a { color: var(--on-deep); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Pro üye kartları — hastalık/tedavi sayfalarının altındaki kompakt bölüm (components/PremiumHekimler.tsx) */
+.pk-bolum { margin-bottom: 24px; }
+.pk-ust { background: linear-gradient(135deg,#FBF4DD,#FDF9EE); border: 1px solid #E9CE7E; border-radius: 14px; padding: 14px 16px; }
+.pk-etiket { display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: #8A6A16; background: rgba(255,255,255,.7); border: 1px solid #E9CE7E; border-radius: 20px; padding: 3px 10px; margin-bottom: 8px; }
+.pk-baslik { font-size: 16px; font-weight: 800; color: var(--navy); margin: 0 0 4px; letter-spacing: -.2px; }
+.pk-aciklama { font-size: 12.5px; color: #6B5B2E; line-height: 1.55; margin: 0; }
+.pk-izgara { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 10px; margin-top: 10px; }
+.pk-kart { display: flex; flex-direction: column; gap: 8px; background: white; border: 1px solid var(--border); border-radius: 14px; padding: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.04); min-width: 0; }
+.pk-kart__ust { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.pk-kart__kimlik { min-width: 0; flex: 1; }
+.pk-kart__ad { font-size: 14px; font-weight: 700; line-height: 1.25; margin: 0; color: var(--navy); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.pk-kart__ad a { color: inherit; text-decoration: none; }
+.pk-kart__ad a:hover { text-decoration: underline; }
+.pk-kart__uzmanlik { display: flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 12px; color: var(--muted); min-width: 0; }
+.pk-kart__uzmanlik > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.pk-kart__arti { flex-shrink: 0; font-size: 11px; font-weight: 700; color: var(--navy); background: #EEF2F7; border-radius: 10px; padding: 1px 6px; }
+.pk-kart__meta { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); min-width: 0; }
+.pk-kart__konum { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.pk-kart__konum i { color: var(--gold); font-size: 11px; }
+.pk-kart__puan { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pk-kart__puan i { color: var(--gold); font-size: 11px; }
+.pk-kart__puan b { color: var(--navy); }
+.pk-kart__puan--yok { font-size: 11.5px; }
+.pk-kart__act { display: flex; gap: 6px; margin-top: auto; }
+.pk-kart__act .hk-btn { flex: 1; justify-content: center; white-space: nowrap; }
+@media (max-width: 640px) {
+  .pk-izgara { grid-template-columns: minmax(0, 1fr); }
+}

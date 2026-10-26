@@ -15,7 +15,7 @@ export interface CocukKonu {
   sss: { soru: string; cevap: string }[];
 }
 
-/** Pedodonti uzmanlık etiketi — alt sayfalardaki "önerilen hekimler" bu alana göre önceliklenir */
+/** Pedodonti uzmanlık etiketi — alt sayfalardaki Pro üye listesi bu uzmanlığa göre süzülür */
 export const COCUK_UZMANLIK = 'Pedodonti (Çocuk Diş Hekimliği)';
 
 // Her konunun ilgili TDB 2026 tarife kalem kodları — alt sayfada "yaklaşık ücret"

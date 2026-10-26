@@ -345,7 +345,7 @@ export default function HastalıkDetayPage({ params }: Props) {
             );
           })()}
 
-          {/* Premium ekipten önerilen diş hekimleri — yalnız diş sağlığı hastalıklarında */}
+          {/* Bu alanda hizmet veren Pro üyeler — yalnız diş sağlığı hastalıklarında */}
           {kat.slug === 'dis-sagligi' && <PremiumHekimler uzmanlik={h.uzmanlik} />}
 
         </article>

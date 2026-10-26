@@ -121,7 +121,7 @@ export default function CocukKonuDetayPage({ params }: Props) {
           </section>
         )}
 
-        {/* Premium önerilen çocuk diş hekimleri */}
+        {/* Pedodonti alanında hizmet veren Pro üyeler */}
         <PremiumHekimler uzmanlik={COCUK_UZMANLIK} />
 
         {/* CTA */}
