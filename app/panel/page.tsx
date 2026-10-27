@@ -29,6 +29,7 @@ import { DOKTOR_BRANSLARI } from '@/lib/doktor-branslari';
 import GelistirmeEtiketleri from '@/components/yorum/GelistirmeEtiketleri';
 import YorumToplaKarti from './YorumToplaKarti';
 import ProfilFotoKarti, { type FotoDurum } from './ProfilFotoKarti';
+import { SecimKutusu, Segment, SecenekKartlari, AnahtarSatir, Anahtar, BolumBaslik, Grup } from './FormParcalari';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
@@ -4812,32 +4813,29 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
     inp.click();
   }
 
-  const INP: React.CSSProperties = { width:'100%', padding:'10px 13px', borderRadius:10, border:`1.5px solid ${T.border}`, fontSize:13.5, fontFamily:'inherit', color:T.text, outline:'none', background:'white', transition:'border-color .15s', boxSizing:'border-box' };
-  const LBL: React.CSSProperties = { display:'block', fontSize:11, fontWeight:700, color:T.muted, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 };
-  const onF  = (e: React.FocusEvent<any>) => { e.currentTarget.style.borderColor=T.navy; e.currentTarget.style.boxShadow='0 0 0 3px rgba(26,51,94,.08)'; };
-  const offF = (e: React.FocusEvent<any>) => { e.currentTarget.style.borderColor=T.border; e.currentTarget.style.boxShadow='none'; };
+  // Apple dili: 48px alan, 15px okunaklı yazı, ince gri kenar; odakta lacivert kenar + yumuşak halka.
+  // (Telefonda globals.css yazıyı 16px'e çeker — iOS yakınlaştırmaz.) Stiller: globals.css → pf-
+  const ALAN_KENAR = '#D2D2D7';
+  const INP: React.CSSProperties = { width:'100%', minHeight:48, padding:'12px 16px', borderRadius:12, border:`1px solid ${ALAN_KENAR}`, fontSize:15, lineHeight:1.4, letterSpacing:'-0.1px', fontFamily:'inherit', color:'#1D1D1F', outline:'none', background:'white', transition:'border-color .15s, box-shadow .15s', boxSizing:'border-box' };
+  const KAPALI_ALAN: React.CSSProperties = { background:'#F5F5F7', borderColor:'#E5E5EA', color:'#A1A1A6', cursor:'not-allowed' };
+  const LBL: React.CSSProperties = { display:'block', fontSize:13, fontWeight:600, color:'#1D1D1F', letterSpacing:'-0.08px', marginBottom:8 };
+  const onF  = (e: React.FocusEvent<any>) => { e.currentTarget.style.borderColor=T.navy; e.currentTarget.style.boxShadow='0 0 0 4px rgba(26,51,94,.12)'; };
+  const offF = (e: React.FocusEvent<any>) => { e.currentTarget.style.borderColor=ALAN_KENAR; e.currentTarget.style.boxShadow='none'; };
 
   // İl/İlçe seçici kutuları — il seçilince ilçe otomatik dolar. Mevcut (listede olmayan) değer korunur.
   const curIl = String(formData.il || '');
   const curIlce = String(formData.ilce || '');
   const ilBox = (
     <div><label style={LBL}>İl</label>
-      <select value={curIl} style={{ ...INP, cursor:'pointer' }}
-        onChange={e=>{ F('il', e.target.value); F('ilce',''); }} onFocus={onF} onBlur={offF}>
-        <option value="">İl seçin…</option>
-        {curIl && !IL_LISTE.includes(curIl) && <option value={curIl}>{curIl}</option>}
-        {IL_LISTE.map(il => <option key={il} value={il}>{il}</option>)}
-      </select>
+      <SecimKutusu baslik="İl" placeholder="İl seçin" value={curIl} secenekler={IL_LISTE}
+        onChange={v=>{ if (v!==curIl) { F('il', v); F('ilce',''); } }}/>
     </div>
   );
   const ilceBox = (
     <div><label style={LBL}>İlçe</label>
-      <select value={curIlce} disabled={!curIl} style={{ ...INP, cursor: curIl ? 'pointer' : 'not-allowed', opacity: curIl ? 1 : 0.6 }}
-        onChange={e=>F('ilce', e.target.value)} onFocus={onF} onBlur={offF}>
-        <option value="">{curIl ? 'İlçe seçin…' : 'Önce il seçin'}</option>
-        {curIlce && !ILCELER(curIl).includes(curIlce) && <option value={curIlce}>{curIlce}</option>}
-        {ILCELER(curIl).map(ic => <option key={ic} value={ic}>{ic}</option>)}
-      </select>
+      <SecimKutusu baslik={curIl ? `${curIl} ilçeleri` : 'İlçe'} placeholder={curIl ? 'İlçe seçin' : 'Önce il seçin'}
+        value={curIlce} secenekler={ILCELER(curIl)} disabled={!curIl} arama={ILCELER(curIl).length > 10}
+        onChange={v=>F('ilce', v)}/>
     </div>
   );
 
@@ -4961,19 +4959,19 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
             return (
               <a href={href} target="_blank" rel="noopener noreferrer"
                 title="Profilinizi yeni sekmede açar (kayıtlı hâli)"
-                style={{ padding:'9px 16px', borderRadius:10, border:`1.5px solid ${T.border}`, background:'white', color:T.navy, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', textDecoration:'none', display:'flex', alignItems:'center', gap:6 }}>
+                style={{ padding:'9px 16px', borderRadius:999, border:'1px solid #D2D2D7', background:'white', color:'#1D1D1F', fontSize:13.5, fontWeight:500, letterSpacing:'-0.1px', cursor:'pointer', fontFamily:'inherit', textDecoration:'none', display:'flex', alignItems:'center', gap:6 }}>
                 <Ic d="M15 3h6v6 M10 14 21 3 M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" size={13}/>{!isMobile && 'Önizle'}
               </a>
             );
           })()}
           {!isMobile && (
           <button onClick={()=>{setFormData(entityData||{});setSaveMsg(null);}}
-            style={{ padding:'9px 18px', borderRadius:10, border:`1.5px solid ${T.border}`, background:'white', color:T.muted, fontSize:13, fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>
+            style={{ padding:'9px 18px', borderRadius:999, border:'1px solid #D2D2D7', background:'white', color:'#1D1D1F', fontSize:13.5, fontWeight:500, letterSpacing:'-0.1px', cursor:'pointer', fontFamily:'inherit' }}>
             Sıfırla
           </button>
           )}
           <button onClick={handleSave} disabled={saving}
-            style={{ padding:'9px 22px', borderRadius:10, border:'none', background:saving?'#9CA3AF':T.navy, color:'white', fontSize:13, fontWeight:700, cursor:saving?'not-allowed':'pointer', display:'flex', alignItems:'center', gap:7, fontFamily:'inherit' }}>
+            style={{ padding:'9px 22px', borderRadius:999, border:'none', background:saving?'#A1A1A6':T.navy, color:'white', fontSize:13.5, fontWeight:600, letterSpacing:'-0.1px', cursor:saving?'not-allowed':'pointer', display:'flex', alignItems:'center', gap:7, fontFamily:'inherit' }}>
             {saving
               ? <><svg width="13" height="13" viewBox="0 0 18 18" fill="none" style={{ animation:'spin .9s linear infinite' }}><circle cx="9" cy="9" r="7" stroke="rgba(255,255,255,.3)" strokeWidth="2"/><path d="M9 2a7 7 0 0 1 7 7" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>Kaydediliyor</>
               : <><Ic d={icons.check} size={14}/>Kaydet</>
@@ -4993,335 +4991,275 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
           {/* Masaüstü: tek sıra, sığmazsa yatay kaydırma. Telefon: yatay kaydırmaya
               güvenilmez (keşfedilmiyor, bazı durumlarda kaymıyor) → sekmeler satırlara
               SARILIR, 7'si de görünür ve dokunulabilir. */}
-          <div className={isMobile ? undefined : 'panel-sec-tabs'}
-            style={{ background:T.white, borderRadius:14, border:`1px solid ${T.border}`, padding:5, display:'flex', gap:isMobile ? 4 : 3, flexWrap: isMobile ? 'wrap' : 'nowrap', maxWidth:'100%' }}>
+          {/* iOS bölümlü kontrol görünümü: gri ray, seçili sekme beyaz ve hafif gölgeli */}
+          <div role="tablist" aria-label="Profil bölümleri" className={isMobile ? 'pf-sekmeler' : 'panel-sec-tabs pf-sekmeler'}
+            style={{ display:'flex', gap:isMobile ? 4 : 2, flexWrap: isMobile ? 'wrap' : 'nowrap', maxWidth:'100%' }}>
             {SECS.map(s=>(
-              <button key={s.key} onClick={()=>setSec(s.key)}
-                style={{ flex: isMobile ? '1 1 30%' : '1 0 auto', minWidth: isMobile ? 0 : 74, padding: isMobile ? '10px 6px' : '9px 10px', whiteSpace:'nowrap', borderRadius:10, border:'none', cursor:'pointer', fontFamily:'inherit', fontSize: isMobile ? 11.5 : 11, fontWeight:sec===s.key?700:500, color:sec===s.key?'white':T.muted, background:sec===s.key?T.navy:'transparent', transition:'all .15s', display:'flex', flexDirection:'column', alignItems:'center', gap:4, minHeight: isMobile ? 48 : undefined }}>
-                <Ic d={s.icon} size={isMobile ? 16 : 14}/>{s.label}
+              <button key={s.key} role="tab" aria-selected={sec===s.key} onClick={()=>setSec(s.key)}
+                className={sec===s.key ? 'secili' : undefined}
+                style={{ flex: isMobile ? '1 1 30%' : '1 0 auto', minWidth: isMobile ? 0 : 74, padding: isMobile ? '10px 6px' : '9px 12px', whiteSpace:'nowrap', display:'flex', flexDirection:'column', alignItems:'center', gap:4, minHeight: isMobile ? 52 : undefined }}>
+                <Ic d={s.icon} size={isMobile ? 17 : 15}/>{s.label}
               </button>
             ))}
           </div>
 
           {/* Form bölümü — minHeight ile sekme geçişinde yükseklik zıplaması önlenir */}
-          <div style={{ background:T.white, borderRadius:14, border:`1px solid ${T.border}`, padding:'20px 18px', display:'flex', flexDirection:'column', gap:14, minHeight:460, maxWidth:'100%', overflowX:'hidden' }}>
+          <div className="pf-form" style={{ background:T.white, borderRadius:18, border:'1px solid #E5E5EA', boxShadow:'0 1px 2px rgba(0,0,0,.03)', padding: isMobile ? '24px 16px 28px' : '34px 32px 36px', display:'flex', flexDirection:'column', gap:24, minHeight:460, maxWidth:'100%', overflowX:'hidden' }}>
 
             {/* ── PROFİL BİLGİLERİ ── */}
-            {sec==='info' && (<>
-              <div style={{ fontSize:12, fontWeight:700, color:T.navy, textTransform:'uppercase', letterSpacing:'0.6px', paddingBottom:10, borderBottom:`2px solid #E8F0FE` }}>Profil Bilgileri</div>
+            {sec==='info' && (()=>{
+              // Pro'ya kilitli alanların etiket rozeti
+              const proRozet = (title: string) => !pro && (
+                <a href="/pro" title={title} style={{ display:'inline-flex', alignItems:'center', gap:3, padding:'2px 8px', borderRadius:999, background:'var(--gold-fill)', color:'var(--on-gold)', fontSize:10, fontWeight:700, letterSpacing:'.6px', textDecoration:'none' }}>
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.6" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  PRO
+                </a>
+              );
+              const bilgiIkon = <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>;
+              const turListe = ['Özel','Devlet','Üniversite'];
+              const tur = String(formData.type||'');
+              const turSecenekleri = tur && !turListe.includes(tur) ? [...turListe, tur] : turListe;
 
-              <ProfilFotoKarti url={profUrl} tip={et} durum={fotoDurum} puanli={et==='doktor'||et==='klinik'}
-                onDosya={profilFotoYukle} onKaldir={profilFotoKaldir}/>
+              // Çalışma saatleri — JSON metin olarak saklanır (calisma_saatleri)
+              const GUNLER = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
+              const GUN_KISA: Record<string,string> = { Pazartesi:'Pzt', Salı:'Sal', Çarşamba:'Çar', Perşembe:'Per', Cuma:'Cum', Cumartesi:'Cmt', Pazar:'Paz' };
+              const DEF_BITIS = (g:string) => g==='Cumartesi'?'14:00':'18:00';
+              const SAATLER = Array.from({length:48},(_,i)=>`${Math.floor(i/2).toString().padStart(2,'0')}:${i%2===0?'00':'30'}`);
+              type GunSaati = {acik:boolean;baslangic:string;bitis:string};
+              const raw = formData.calisma_saatleri;
+              let schedule: Record<string,GunSaati> = {};
+              try { if(typeof raw==='string'&&raw.startsWith('{')) schedule=JSON.parse(raw); } catch{}
+              const getGun = (g:string): GunSaati => schedule[g] || { acik: g!=='Pazar', baslangic:'09:00', bitis: DEF_BITIS(g) };
+              const setGun = (g:string, patch: Partial<GunSaati>) => F('calisma_saatleri', JSON.stringify({ ...schedule, [g]: { ...getGun(g), ...patch } }));
 
-              {et==='doktor' ? (
-                <div><label style={LBL}>Ad — Soyad</label>
-                  <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                    <input value={String(formData.ad||'')} placeholder="Ad" style={INP} onChange={e=>F('ad',e.target.value)} onFocus={onF} onBlur={offF}/>
-                    <input value={String(formData.soyad||'')} placeholder="Soyad" style={INP} onChange={e=>F('soyad',e.target.value)} onFocus={onF} onBlur={offF}/>
-                  </div>
-                </div>
-              ) : (
-                <div><label style={LBL}>{et==='eczane'?'Eczane Adı':'İşletme Adı'}</label>
-                  <input value={String(formData.name||'')} placeholder="İşletme adı" style={INP} onChange={e=>F('name',e.target.value)} onFocus={onF} onBlur={offF}/>
-                </div>
-              )}
+              return (<>
+              <BolumBaslik baslik="Profil bilgileri" alt="Hastaların sizi tanıdığı temel bilgiler."/>
 
-              {/* İşletme adı uyarısı */}
-              <div style={{ display:'flex', gap:9, padding:'10px 13px', background:'#FFFBEB', borderRadius:10, border:'1px solid #FDE68A' }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0, marginTop:1 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                <p style={{ fontSize:12, color:'#92400E', lineHeight:1.55, margin:0 }}>
-                  İşletmenizin gerçek adını yazınız — ilk harf büyük, devamı küçük harf kullanın.
-                </p>
-              </div>
+              {/* ── Kimlik ── */}
+              <Grup baslik={et==='doktor' ? 'Kimlik' : 'İşletme'} alt={et==='doktor' ? 'Hastaların ilk gördüğü bilgiler.' : 'Profilinizin vitrini.'}>
+                <ProfilFotoKarti url={profUrl} tip={et} durum={fotoDurum} puanli={et==='doktor'||et==='klinik'}
+                  onDosya={profilFotoYukle} onKaldir={profilFotoKaldir}/>
 
-              {et !== 'eczane' && (
-                <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                  {et==='doktor' ? (
-                    <div><label style={LBL}>Uzmanlık</label>
-                      <input value={String(formData.spec||'')} placeholder="Kardiyoloji" style={INP}
-                        onChange={e=>F('spec',e.target.value)} onFocus={onF} onBlur={offF}/>
+                {et==='doktor' ? (<>
+                  <div>
+                    <div className="pf-izgara">
+                      <div><label style={LBL}>Ad</label><input value={String(formData.ad||'')} placeholder="Ad" style={INP} onChange={e=>F('ad',e.target.value)} onFocus={onF} onBlur={offF}/></div>
+                      <div><label style={LBL}>Soyad</label><input value={String(formData.soyad||'')} placeholder="Soyad" style={INP} onChange={e=>F('soyad',e.target.value)} onFocus={onF} onBlur={offF}/></div>
                     </div>
-                  ) : (
-                    <div><label style={LBL}>Tür</label>
-                      <select value={String(formData.type||'')} style={INP}
-                        onChange={e=>F('type',e.target.value)} onFocus={onF} onBlur={offF}>
-                        <option value="">Seçiniz…</option>
-                        <option value="Özel">Özel</option>
-                        <option value="Devlet">Devlet</option>
-                        <option value="Üniversite">Üniversite</option>
-                        {formData.type && !['Özel','Devlet','Üniversite'].includes(String(formData.type)) && (
-                          <option value={String(formData.type)}>{String(formData.type)}</option>
-                        )}
-                      </select>
+                    <p className="pf-ipucu pf-ipucu--ikon">{bilgiIkon}Adınızı gerçek hâliyle yazın — ilk harf büyük, devamı küçük harf.</p>
+                  </div>
+                  <div className="pf-izgara">
+                    <div><label style={LBL}>Uzmanlık</label><input value={String(formData.spec||'')} placeholder="Kardiyoloji" style={INP} onChange={e=>F('spec',e.target.value)} onFocus={onF} onBlur={offF}/></div>
+                    <div><label style={LBL}>Ünvan</label><input value={String(formData.unvan||'')} placeholder="Uzm. Dr." style={INP} onChange={e=>F('unvan',e.target.value)} onFocus={onF} onBlur={offF}/></div>
+                  </div>
+                </>) : (<>
+                  <div>
+                    <label style={LBL}>{et==='eczane' ? 'Eczane adı' : 'İşletme adı'}</label>
+                    <input value={String(formData.name||'')} placeholder={et==='eczane' ? 'Eczane adı' : 'İşletme adı'} style={INP} onChange={e=>F('name',e.target.value)} onFocus={onF} onBlur={offF}/>
+                    <p className="pf-ipucu pf-ipucu--ikon">{bilgiIkon}İşletmenizin gerçek adını yazın — ilk harf büyük, devamı küçük harf.</p>
+                  </div>
+                  {et==='eczane' && <div><label style={LBL}>Eczacı adı</label><input value={String(formData.pharmacist||'')} placeholder="Ad Soyad" style={INP} onChange={e=>F('pharmacist',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
+                  {et!=='eczane' && (
+                    <div><label style={LBL}>Kurum türü</label>
+                      <Segment baslik="Kurum türü" value={tur} secenekler={turSecenekleri} onChange={v=>F('type',v)}/>
                     </div>
                   )}
-                  {et==='doktor' && <div><label style={LBL}>Ünvan</label><input value={String(formData.unvan||'')} placeholder="Uzm. Dr." style={INP} onChange={e=>F('unvan',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
-                  {et!=='doktor' && ilBox}
+                </>)}
+              </Grup>
+
+              {/* ── Konum ── */}
+              <Grup baslik="Konum" alt={et==='doktor' ? 'Nerede hizmet verdiğinizi gösterin.' : 'Hastalar sizi kolayca bulsun.'}>
+                <div className="pf-izgara">{ilBox}{ilceBox}</div>
+                {/* Doktorlar tablosunda adres kolonu yok: kutu doktorda görünüp yazılanı sessizce
+                    atıyor, yine de "başarıyla güncellendi" diyordu. Doktor profili konum olarak
+                    çalıştığı kurumu gösterir (aşağıdaki "Çalıştığı klinik / hastane"). */}
+                {et==='doktor' ? (
+                  <div><label style={LBL}>Çalıştığı klinik / hastane</label><input value={String(formData.clinic_name||'')} placeholder="Özel Xyz Hastanesi" style={INP} onChange={e=>F('clinic_name',e.target.value)} onFocus={onF} onBlur={offF}/></div>
+                ) : (<>
+                  <div><label style={LBL}>Adres</label>
+                    <input value={String(formData.adres||formData.address||'')} placeholder="Sokak, bina no, kat" style={INP}
+                      onChange={e=>F(et==='eczane'?'address':'adres',e.target.value)} onFocus={onF} onBlur={offF}/>
+                  </div>
+                  <div><label style={LBL}>Google Haritalar bağlantısı</label>
+                    <input type="url" value={String(formData.maps_url||'')} placeholder="https://maps.google.com/…" style={INP} onChange={e=>F('maps_url',e.target.value)} onFocus={onF} onBlur={offF}/>
+                    <p className="pf-ipucu">Haritadaki yerinizi ayrıca <strong style={{ fontWeight:600, color:'#1D1D1F' }}>Konum</strong> sekmesinden işaretleyebilirsiniz.</p>
+                  </div>
+                </>)}
+              </Grup>
+
+              {/* ── İletişim ── */}
+              <Grup baslik="İletişim" alt="Size nasıl ulaşılacağını seçin.">
+                <div className="pf-izgara">
+                  <div><label style={LBL}>Telefon</label><input type="tel" value={String(formData.tel||'')} placeholder="0xxx xxx xx xx" style={INP} onChange={e=>F('tel',e.target.value)} onFocus={onF} onBlur={offF}/></div>
+                  {et!=='eczane' && <div>
+                    <label style={{ ...LBL, display:'flex', alignItems:'center', gap:8 }}>Web sitesi {proRozet('Web sitesi bağlantısı Pro üyelikte eklenir')}</label>
+                    <input type="url" value={String(formData.website||'')} placeholder={pro?'https://':'Pro üyelikte açılır'} style={{...INP, ...(pro?{}:KAPALI_ALAN)}} disabled={!pro} onChange={e=>F('website',e.target.value)} onFocus={onF} onBlur={offF}/>
+                  </div>}
                 </div>
-              )}
-
-              <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                {et==='doktor' && ilBox}
-                {ilceBox}
-                {et==='eczane' && ilBox}
-              </div>
-
-              {/* Doktorlar tablosunda adres kolonu yok: kutu doktorda görünüp yazılanı sessizce
-                  atıyor, yine de "başarıyla güncellendi" diyordu. Doktor profili konum olarak
-                  çalıştığı kurumu gösterir (aşağıdaki "Çalıştığı Klinik / Hastane"). */}
-              {et!=='doktor' && <div><label style={LBL}>Adres</label>
-                <input value={String(formData.adres||formData.address||'')} placeholder="Sokak, bina no, kat..." style={INP}
-                  onChange={e=>F(et==='eczane'?'address':'adres',e.target.value)} onFocus={onF} onBlur={offF}/>
-              </div>}
-
-              <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                <div><label style={LBL}>Telefon</label><input type="tel" value={String(formData.tel||'')} placeholder="05xx xxx xx xx" style={INP} onChange={e=>F('tel',e.target.value)} onFocus={onF} onBlur={offF}/></div>
-                {et!=='eczane'&&<div>
-                  <label style={{ ...LBL, display:'flex', alignItems:'center', gap:6 }}>
-                    Website
-                    {!pro && <a href="/pro" title="Web sitesi bağlantısı Pro üyelikte eklenir" style={{ display:'inline-flex', alignItems:'center', gap:3, padding:'1px 8px', borderRadius:999, background:'var(--gold-fill)', color:'var(--on-gold)', fontSize:9.5, fontWeight:800, letterSpacing:'.7px', textDecoration:'none' }}>
-                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.6" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                      PRO
-                    </a>}
-                  </label>
-                  <input type="url" value={String(formData.website||'')} placeholder={pro?'https://':'Pro üyelikte aktif'} style={{...INP, ...(pro?{}:{ background:'#F4F4F6', color:'#9CA3AF', cursor:'not-allowed' })}} disabled={!pro} onChange={e=>F('website',e.target.value)} onFocus={onF} onBlur={offF}/>
-                </div>}
                 {/* İkinci bağlantı (ör. kurumun resmi randevu sayfası) — Pro; migration 2026-10-25_web_baglantilari.sql */}
-                {et!=='eczane'&&<div>
-                  <label style={{ ...LBL, display:'flex', alignItems:'center', gap:6 }}>
-                    2. Web Bağlantısı
-                    {!pro && <a href="/pro" title="İkinci web bağlantısı Pro üyelikte eklenir" style={{ display:'inline-flex', alignItems:'center', gap:3, padding:'1px 8px', borderRadius:999, background:'var(--gold-fill)', color:'var(--on-gold)', fontSize:9.5, fontWeight:800, letterSpacing:'.7px', textDecoration:'none' }}>
-                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.6" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                      PRO
-                    </a>}
-                  </label>
-                  <input type="url" value={String((formData as any).website2||'')} placeholder={pro?'https://  (ör. kurumunuzun randevu sayfası)':'Pro üyelikte aktif'} style={{...INP, ...(pro?{}:{ background:'#F4F4F6', color:'#9CA3AF', cursor:'not-allowed' })}} disabled={!pro} onChange={e=>F('website2',e.target.value)} onFocus={onF} onBlur={offF}/>
+                {et!=='eczane' && <div>
+                  <label style={{ ...LBL, display:'flex', alignItems:'center', gap:8 }}>İkinci web bağlantısı {proRozet('İkinci web bağlantısı Pro üyelikte eklenir')}</label>
+                  <input type="url" value={String((formData as any).website2||'')} placeholder={pro?'https://':'Pro üyelikte açılır'} style={{...INP, ...(pro?{}:KAPALI_ALAN)}} disabled={!pro} onChange={e=>F('website2',e.target.value)} onFocus={onF} onBlur={offF}/>
+                  <p className="pf-ipucu">Örneğin kurumunuzun resmî randevu sayfası.</p>
                 </div>}
                 {/* Muayene ücreti alanı kaldırıldı — profilde ücret bilgisi yayınlanmaz (Tanıtım Yönetmeliği, Eki 2026) */}
-                {et==='eczane'&&<div><label style={LBL}>Eczacı Adı</label><input value={String(formData.pharmacist||'')} placeholder="Ad Soyad" style={INP} onChange={e=>F('pharmacist',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
-              </div>
 
-              {/* Doktor — e-posta + iletişim görünürlüğü (hekim kendisi seçer) */}
-              {et==='doktor'&&(<>
-                <div><label style={LBL}>E-posta <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600, color:T.muted }}>· iletişim için</span></label>
-                  <input type="email" value={String(formData.email||'')} placeholder="ornek@mail.com" style={INP} onChange={e=>F('email',e.target.value)} onFocus={onF} onBlur={offF}/>
-                </div>
+                {/* Doktor — e-posta + iletişim görünürlüğü (hekim kendisi seçer) */}
+                {et==='doktor'&&(<>
+                  <div><label style={LBL}>E-posta</label>
+                    <input type="email" value={String(formData.email||'')} placeholder="ornek@mail.com" style={INP} onChange={e=>F('email',e.target.value)} onFocus={onF} onBlur={offF}/>
+                  </div>
+                  <div>
+                    <label style={LBL}>Telefon ve e-postam</label>
+                    <SecenekKartlari baslik="Telefon ve e-posta görünürlüğü" value={formData.contact_hidden===true}
+                      onChange={v=>F('contact_hidden', v)}
+                      secenekler={[
+                        { value:false, baslik:'Görünür', aciklama:'Ziyaretçiler telefon ve e-postanızı görebilir.', ikon:<Ic d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9A3 3 0 1 0 12 15a3 3 0 0 0 0-6z" size={15}/> },
+                        { value:true,  baslik:'Gizli',    aciklama:'Profilinizde gösterilmez; dilediğiniz zaman açabilirsiniz.', ikon:<Ic d="M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z M7 11V7a5 5 0 0 1 10 0v4" size={15}/> },
+                      ]}/>
+                  </div>
+                </>)}
+
+                {/* WhatsApp — işletmeye aktif mi diye sorulur; Pro üyelikte profilde görünür */}
                 <div>
-                  <label style={LBL}>İletişim Bilgilerim <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600, color:T.muted }}>· telefon ve e-posta</span></label>
-                  <div style={{ display:'flex', gap:8 }}>
-                    {([[false,'Görünür','Ziyaretçiler telefon ve e-postanızı görebilir','M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9A3 3 0 1 0 12 15a3 3 0 0 0 0-6z'],[true,'Gizli','Profilinizde gösterilmez','M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z M7 11V7a5 5 0 0 1 10 0v4']] as const).map(([val,lbl,desc,icon])=>{
-                      const active = (formData.contact_hidden===true) === val;
+                  <label style={LBL}>WhatsApp <span className="pf-etiket-ek">· Pro üyelikte profilde görünür</span></label>
+                  <Segment baslik="WhatsApp" value={waMode}
+                    secenekler={[{ value:'off', label:'Yok' },{ value:'same', label:'Telefonla aynı' },{ value:'custom', label:'Farklı numara' }]}
+                    onChange={v=>{
+                      const m = v as 'off'|'same'|'custom';
+                      setWaMode(m);
+                      if (m==='off')      F('whatsapp','');
+                      else if (m==='same') F('whatsapp','same');
+                      else                 F('whatsapp', String(formData.whatsapp||'')==='same' ? '' : String(formData.whatsapp||''));
+                    }}/>
+                  {waMode==='custom' && (
+                    <input type="tel" value={String(formData.whatsapp||'')==='same'?'':String(formData.whatsapp||'')}
+                      placeholder="WhatsApp numarası — 05xx xxx xx xx" style={{...INP, marginTop:10}}
+                      onChange={e=>F('whatsapp', e.target.value)} onFocus={onF} onBlur={offF}/>
+                  )}
+                  <p className="pf-ipucu">
+                    {waMode==='off' ? 'Profilinizde WhatsApp düğmesi gösterilmez.'
+                      : waMode==='same' ? 'Üstteki telefon numaranız WhatsApp düğmesinde kullanılır.'
+                      : 'Bu numara yalnız WhatsApp düğmesinde kullanılır.'}
+                  </p>
+                </div>
+              </Grup>
+
+              {/* ── Hakkında — profilde "Hakkında" bölümünün en üstünde görünür ── */}
+              {(et==='klinik'||et==='doktor') && (
+                <Grup baslik="Hakkında" alt={et==='klinik' ? 'Kliniğinizi hastalara tanıtın.' : 'Kendinizi kısaca anlatın.'}>
+                  <div>
+                    <label style={LBL}>{et==='klinik' ? 'Klinik hakkında' : 'Biyografi'}</label>
+                    <textarea rows={6} maxLength={et==='klinik' ? 2000 : undefined} value={String(formData.bio||'')}
+                      placeholder={et==='klinik'
+                        ? 'Ne zamandan beri hizmet veriyorsunuz, ekibiniz, öne çıkan tedavileriniz, kullandığınız teknoloji, hastaya yaklaşımınız…'
+                        : 'Eğitiminiz, ilgi alanlarınız ve hastalarınıza yaklaşımınız…'}
+                      style={{...INP, resize:'vertical', lineHeight:1.6, minHeight:150}} onChange={e=>F('bio', e.target.value)} onFocus={onF} onBlur={offF}/>
+                    <p className="pf-ipucu" style={{ display:'flex', justifyContent:'space-between', gap:12 }}>
+                      <span>{et==='klinik'
+                        ? 'Profilinizde "Hakkında" başlığıyla en üstte görünür. Paragraflar arasında boş satır bırakın.'
+                        : 'Profilinizde "Hakkında" bölümünde görünür. Paragraflar arasında boş satır bırakın.'}</span>
+                      {et==='klinik' && <span style={{ flexShrink:0, fontVariantNumeric:'tabular-nums' }}>{String(formData.bio||'').length} / 2000</span>}
+                    </p>
+                  </div>
+                </Grup>
+              )}
+
+              {/* ── Çalışma saatleri ── */}
+              <Grup baslik="Çalışma saatleri" alt="Açık olduğunuz gün ve saatler.">
+                <div className="pf-liste">
+                  <AnahtarSatir etiket="24 saat açık" aciklama="Açıkken günlük saatler profilde gösterilmez."
+                    acik={!!formData.acik_24_saat} onChange={v=>F('acik_24_saat', v)}/>
+                </div>
+                {!formData.acik_24_saat && (
+                  <div className="pf-liste">
+                    {GUNLER.map(g=>{
+                      const gun = getGun(g);
                       return (
-                        <button key={String(val)} type="button" onClick={()=>F('contact_hidden', val)}
-                          style={{ flex:1, padding:'11px 13px', borderRadius:10, textAlign:'left', cursor:'pointer', fontFamily:'inherit',
-                            border:`1.5px solid ${active?T.navy:T.border}`, background: active?'rgba(26,51,94,.06)':'white' }}>
-                          <div style={{ fontSize:12.5, fontWeight:700, color: active?T.navy:T.text, display:'flex', alignItems:'center', gap:6 }}>
-                            <Ic d={icon} size={13}/> {lbl}
-                          </div>
-                          <div style={{ fontSize:11, color:T.muted, marginTop:3, lineHeight:1.4 }}>{desc}</div>
-                        </button>
+                        <div key={g} className="pf-saat">
+                          <span className={`pf-saat__gun${gun.acik ? '' : ' kapali'}`}><span className="uzun">{g}</span><span className="kisa">{GUN_KISA[g]}</span></span>
+                          {gun.acik ? (
+                            <div className="pf-saat__aralik">
+                              <SecimKutusu kompakt baslik={`${g} açılış saati`} value={gun.baslangic} secenekler={SAATLER} arama={false} onChange={v=>setGun(g,{baslangic:v})}/>
+                              <span aria-hidden>–</span>
+                              <SecimKutusu kompakt baslik={`${g} kapanış saati`} value={gun.bitis} secenekler={SAATLER} arama={false} onChange={v=>setGun(g,{bitis:v})}/>
+                            </div>
+                          ) : (
+                            <span className="pf-saat__kapali">Kapalı</span>
+                          )}
+                          <Anahtar acik={gun.acik} etiket={`${g} açık`} onChange={v=>setGun(g,{acik:v})}/>
+                        </div>
                       );
                     })}
                   </div>
-                  <p style={{ fontSize:11, color:T.muted, marginTop:6, lineHeight:1.6 }}>
-                    &quot;Gizli&quot; seçerseniz telefon ve e-posta adresiniz profilinizde ziyaretçilere gösterilmez; dilediğiniz zaman &quot;Görünür&quot; yapabilirsiniz.
-                  </p>
-                </div>
-              </>)}
-
-              {/* WhatsApp — işletmeye aktif mi diye sorulur; premium üyelikte profilde görünür */}
-              <div>
-                <label style={LBL}>WhatsApp <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600, color:T.muted }}>· Premium üyelikte profilde görünür</span></label>
-                <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-                  {([['off','Yok'],['same','Telefonla aynı'],['custom','Farklı numara']] as const).map(([m,lbl])=>(
-                    <button key={m} type="button"
-                      onClick={()=>{
-                        setWaMode(m);
-                        if (m==='off')      F('whatsapp','');
-                        else if (m==='same') F('whatsapp','same');
-                        else                 F('whatsapp', String(formData.whatsapp||'')==='same' ? '' : String(formData.whatsapp||''));
-                      }}
-                      style={{ flex:'1 1 100px', padding:'9px 10px', borderRadius:9, fontSize:12.5, fontWeight:700, cursor:'pointer', fontFamily:'inherit',
-                        border:`1.5px solid ${waMode===m?T.navy:T.border}`, background: waMode===m?'rgba(26,51,94,.06)':'white', color: waMode===m?T.navy:T.muted, transition:'.15s' }}>
-                      {lbl}
-                    </button>
-                  ))}
-                </div>
-                {waMode==='custom' && (
-                  <input type="tel" value={String(formData.whatsapp||'')==='same'?'':String(formData.whatsapp||'')}
-                    placeholder="WhatsApp numarası — 05xx xxx xx xx" style={{...INP, marginTop:8}}
-                    onChange={e=>F('whatsapp', e.target.value)} onFocus={onF} onBlur={offF}/>
                 )}
-                <p style={{ fontSize:11, color:T.muted, marginTop:5, lineHeight:1.6 }}>
-                  &quot;Telefonla aynı&quot; seçilirse üstteki telefon numaranız WhatsApp butonunda kullanılır. &quot;Yok&quot; ise WhatsApp butonu gösterilmez.
-                </p>
-              </div>
+              </Grup>
 
-              {et!=='doktor'&&<div><label style={LBL}>Google Maps Bağlantısı</label><input type="url" value={String(formData.maps_url||'')} placeholder="https://maps.google.com/..." style={INP} onChange={e=>F('maps_url',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
-
-              {/* Klinik tanıtımı — profilde "Hakkında" bölümünün en üstünde görünür */}
-              {et==='klinik'&&<div style={{ gridColumn:'1 / -1' }}>
-                <label style={LBL}>Klinik Hakkında</label>
-                <textarea rows={5} maxLength={2000} value={String(formData.bio||'')} placeholder="Kliniğinizi hastalara tanıtın: ne zamandan beri hizmet veriyorsunuz, ekibiniz, öne çıkan tedavileriniz, kullandığınız teknoloji, hastaya yaklaşımınız…" style={{...INP,resize:'vertical',lineHeight:1.6}} onChange={e=>F('bio', e.target.value)} onFocus={onF} onBlur={offF}/>
-                <p style={{ fontSize:11, color:T.muted, marginTop:5, lineHeight:1.6 }}>
-                  Profil sayfanızda &quot;Hakkında&quot; başlığıyla en üstte gösterilir. Paragraflar arasında boş satır bırakın. Mesleki Bilgiler bölümündeki başlangıç yılı da burada "kaç yıldır hizmette" olarak görünür.
-                </p>
-              </div>}
-
-              {et==='doktor'&&<>
-                <div><label style={LBL}>Çalıştığı Klinik / Hastane</label><input value={String(formData.clinic_name||'')} placeholder="Özel Xyz Hastanesi" style={INP} onChange={e=>F('clinic_name',e.target.value)} onFocus={onF} onBlur={offF}/></div>
-                <div><label style={LBL}>Biyografi</label><textarea rows={3} value={String(formData.bio||'')} placeholder="Doktor hakkında..." style={{...INP,resize:'vertical',lineHeight:1.6}} onChange={e=>F('bio',e.target.value)} onFocus={onF} onBlur={offF}/></div>
-              </>}
-
-              {/* ── ÇALIŞMA SAATLERİ ── */}
-              {(()=>{
-                const GUNLER = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
-                const DEF_BITIS = (g:string) => g==='Cumartesi'?'14:00':g==='Pazar'?'18:00':'18:00';
-                const SAATLER = Array.from({length:48},(_,i)=>{
-                  const h=Math.floor(i/2).toString().padStart(2,'0');
-                  const m=i%2===0?'00':'30';
-                  return `${h}:${m}`;
-                });
-                // JSON parse eden yardımcı
-                type GunSaati = {acik:boolean;baslangic:string;bitis:string};
-                const raw = formData.calisma_saatleri;
-                let schedule: Record<string,GunSaati> = {};
-                try { if(typeof raw==='string'&&raw.startsWith('{')) schedule=JSON.parse(raw); } catch{}
-                const getGun = (g:string): GunSaati =>
-                  schedule[g] || { acik: g!=='Pazar', baslangic:'09:00', bitis: DEF_BITIS(g) };
-                const setGun = (g:string, patch: Partial<GunSaati>) => {
-                  const next = { ...schedule, [g]: { ...getGun(g), ...patch } };
-                  F('calisma_saatleri', JSON.stringify(next));
-                };
-                const selStyle: React.CSSProperties = {
-                  padding:'5px 8px', borderRadius:8, border:`1px solid ${T.border}`,
-                  background:'white', color:T.text, fontSize:12, fontFamily:'inherit',
-                  cursor:'pointer', outline:'none', appearance:'none' as any, minWidth:0,
-                };
-                return (
-                  <div style={{ borderTop:`1px solid ${T.border}`, paddingTop:14 }}>
-                    <label style={{ ...LBL, marginBottom:10 }}>Çalışma Saatleri</label>
-                    {/* 24 saat toggle */}
-                    <div onClick={()=>F('acik_24_saat',!formData.acik_24_saat)}
-                      style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 13px', background:T.bg, borderRadius:10, border:`1.5px solid ${formData.acik_24_saat?T.navy:T.border}`, cursor:'pointer', marginBottom:10 }}>
-                      <div style={{ width:20, height:20, borderRadius:6, border:`2px solid ${formData.acik_24_saat?T.navy:T.border}`, background:formData.acik_24_saat?T.navy:'white', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                        {formData.acik_24_saat&&<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                      </div>
-                      <span style={{ fontSize:13, fontWeight:600, color:T.text }}>24 Saat Açık</span>
-                    </div>
-                    {/* Günlük saat seçici */}
-                    {!formData.acik_24_saat && (
-                      <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-                        {GUNLER.map(g=>{
-                          const gun = getGun(g);
-                          return (
-                            <div key={g} style={{ display:'grid', gridTemplateColumns:'90px 1fr', gap:8, alignItems:'center', padding:'7px 10px', borderRadius:9, background: gun.acik ? T.bg : 'rgba(0,0,0,.02)', border:`1px solid ${gun.acik?T.border:'#E5E7EB'}` }}>
-                              {/* Gün adı + açık/kapalı toggle */}
-                              <div style={{ display:'flex', alignItems:'center', gap:7 }}>
-                                <div onClick={()=>setGun(g,{acik:!gun.acik})}
-                                  style={{ width:34, height:20, borderRadius:10, background:gun.acik?T.navy:'#D1D5DB', cursor:'pointer', position:'relative', transition:'background .2s', flexShrink:0 }}>
-                                  <div style={{ position:'absolute', top:2, left: gun.acik?16:2, width:16, height:16, borderRadius:'50%', background:'white', boxShadow:'0 1px 3px rgba(0,0,0,.2)', transition:'left .2s' }}/>
-                                </div>
-                                <span style={{ fontSize:12, fontWeight: gun.acik?600:400, color: gun.acik?T.text:T.muted, whiteSpace:'nowrap' }}>{g.slice(0,3)}</span>
-                              </div>
-                              {/* Saatler veya kapalı etiketi */}
-                              {gun.acik ? (
-                                <div style={{ display:'flex', alignItems:'center', gap:5 }}>
-                                  <select value={gun.baslangic} onChange={e=>setGun(g,{baslangic:e.target.value})} style={selStyle}>
-                                    {SAATLER.map(s=><option key={s} value={s}>{s}</option>)}
-                                  </select>
-                                  <span style={{ fontSize:11, color:T.muted }}>–</span>
-                                  <select value={gun.bitis} onChange={e=>setGun(g,{bitis:e.target.value})} style={selStyle}>
-                                    {SAATLER.map(s=><option key={s} value={s}>{s}</option>)}
-                                  </select>
-                                </div>
-                              ) : (
-                                <span style={{ fontSize:12, color:T.muted, fontStyle:'italic' }}>Kapalı</span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
-
-              {/* ── SOSYAL MEDYA — Pro'ya kilitli ── */}
-              <div style={{ borderTop:`1px solid ${T.border}`, paddingTop:14 }}>
-                <label style={{ ...LBL, marginBottom:10 }}>Sosyal Medya</label>
-                <div style={{ display:'flex', flexDirection:'column', gap:8, ...(pro?{}:{ opacity:.55, pointerEvents:'none' as const }) }}>
+              {/* ── Sosyal medya — Pro'ya kilitli ── */}
+              <Grup baslik="Sosyal medya" alt="Pro üyelikte profilinizde görünür.">
+                <div style={{ display:'flex', flexDirection:'column', gap:10, ...(pro?{}:{ opacity:.55, pointerEvents:'none' as const }) }}>
                   {[
                     { key:'instagram_url', label:'Instagram', placeholder:'https://instagram.com/hesap_adi', color:'#E1306C' },
                     { key:'facebook_url',  label:'Facebook',  placeholder:'https://facebook.com/sayfa_adi', color:'#1877F2' },
-                    { key:'linkedin_url',  label:'LinkedIn',  placeholder:'https://linkedin.com/in/...', color:'#0A66C2' },
+                    { key:'linkedin_url',  label:'LinkedIn',  placeholder:'https://linkedin.com/in/…', color:'#0A66C2' },
                   ].map(s=>(
-                    <div key={s.key} style={{ display:'flex', alignItems:'center', gap:8 }}>
-                      <div style={{ width:32, height:32, borderRadius:9, background:s.color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                        {s.key==='instagram_url'&&<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>}
-                        {s.key==='facebook_url'&&<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>}
-                        {s.key==='linkedin_url'&&<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>}
+                    <div key={s.key} style={{ display:'flex', alignItems:'center', gap:12 }}>
+                      <div title={s.label} style={{ width:40, height:40, borderRadius:11, background:s.color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                        {s.key==='instagram_url'&&<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>}
+                        {s.key==='facebook_url'&&<svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>}
+                        {s.key==='linkedin_url'&&<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>}
                       </div>
-                      <input
-                        type="url"
+                      <input type="url" aria-label={s.label}
                         value={String((formData as any)[s.key]||'')}
-                        placeholder={pro?s.placeholder:'Pro üyelikte aktif'}
-                        style={{...INP, flex:1, ...(pro?{}:{ background:'#F4F4F6', color:'#9CA3AF' })}}
+                        placeholder={pro?s.placeholder:'Pro üyelikte açılır'}
+                        style={{...INP, flex:1, minWidth:0, ...(pro?{}:KAPALI_ALAN)}}
                         disabled={!pro}
                         onChange={e=>F(s.key,e.target.value)}
-                        onFocus={onF} onBlur={offF}
-                      />
+                        onFocus={onF} onBlur={offF}/>
                     </div>
                   ))}
                 </div>
                 {!pro && (
-                  <div style={{ marginTop:10 }}>
-                    <ProKilit kucuk baslik="Sosyal medya bağlantıları Pro'da"
-                      aciklama="Instagram, Facebook ve LinkedIn hesaplarınız profilinizde ziyaretçilere gösterilir." />
-                  </div>
+                  <ProKilit kucuk baslik="Sosyal medya bağlantıları Pro'da"
+                    aciklama="Instagram, Facebook ve LinkedIn hesaplarınız profilinizde ziyaretçilere gösterilir." />
                 )}
-              </div>
-            </>)}
+              </Grup>
+              </>);
+            })()}
 
             {/* ── DETAYLAR ── */}
             {sec==='details' && (<>
-              <div style={{ fontSize:12, fontWeight:700, color:T.navy, textTransform:'uppercase', letterSpacing:'0.6px', paddingBottom:10, borderBottom:`2px solid #E8F0FE` }}>Detaylar & Özellikler</div>
+              <BolumBaslik baslik="Detaylar" alt="Hizmetleriniz ve uzmanlık alanlarınız."/>
 
               {et==='hastane'&&<div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                <div><label style={LBL}>Doktor Sayısı</label><input type="number" value={formData.docs??''} placeholder="50" style={INP} onChange={e=>F('docs',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>
-                <div><label style={LBL}>Yatak Sayısı</label><input type="number" value={formData.beds??''} placeholder="200" style={INP} onChange={e=>F('beds',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>
-                <div style={{ gridColumn:'1/-1' }}><label style={LBL}>Kuruluş Yılı</label><input type="number" value={formData.founded??''} placeholder="1990" style={INP} onChange={e=>F('founded',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>
+                <div><label style={LBL}>Doktor sayısı</label><input type="number" value={formData.docs??''} placeholder="50" style={INP} onChange={e=>F('docs',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>
+                <div><label style={LBL}>Yatak sayısı</label><input type="number" value={formData.beds??''} placeholder="200" style={INP} onChange={e=>F('beds',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>
+                <div style={{ gridColumn:'1/-1' }}><label style={LBL}>Kuruluş yılı</label><input type="number" value={formData.founded??''} placeholder="1990" style={INP} onChange={e=>F('founded',e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/></div>
               </div>}
 
               {(et==='klinik'||et==='doktor')&&(
-                <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                <div className="pf-liste">
                   {[
-                    ...(et==='klinik'?[{key:'online',label:'Online Randevu'},{key:'acil',label:'Acil Servis'}]:[]),
-                    ...(et==='doktor'?[{key:'online',label:'Online Konsültasyon'}]:[]),
+                    ...(et==='klinik'?[{key:'online',label:'Online randevu'},{key:'acil',label:'Acil hasta kabulü'}]:[]),
+                    ...(et==='doktor'?[{key:'online',label:'Online konsültasyon'}]:[]),
                   ].map(cb=>(
-                    <div key={cb.key} onClick={()=>F(cb.key,!formData[cb.key])}
-                      style={{ display:'flex', alignItems:'center', gap:10, padding:'11px 14px', background:T.bg, borderRadius:10, border:`1.5px solid ${formData[cb.key]?T.navy:T.border}`, cursor:'pointer' }}>
-                      <div style={{ width:20, height:20, borderRadius:6, border:`2px solid ${formData[cb.key]?T.navy:T.border}`, background:formData[cb.key]?T.navy:'white', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                        {formData[cb.key]&&<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                      </div>
-                      <span style={{ fontSize:13, fontWeight:600, color:T.text }}>{cb.label}</span>
-                    </div>
+                    <AnahtarSatir key={cb.key} etiket={cb.label} acik={!!formData[cb.key]} onChange={v=>F(cb.key, v)}/>
                   ))}
                 </div>
               )}
 
-              {et==='doktor'&&<div><label style={LBL}>Kabul Edilen Sigortalar</label><input value={String(formData.sigorta||'')} placeholder="SGK, Özel Sigorta..." style={INP} onChange={e=>F('sigorta',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
+              {et==='doktor'&&<div><label style={LBL}>Kabul edilen sigortalar</label><input value={String(formData.sigorta||'')} placeholder="SGK, Özel Sigorta..." style={INP} onChange={e=>F('sigorta',e.target.value)} onFocus={onF} onBlur={offF}/></div>}
 
 
               {(et==='klinik'||et==='hastane'||et==='doktor')&&(
-                <div><label style={{ ...LBL, marginBottom:10 }}>Uzmanlık Alanları</label>
+                <div><label style={{ ...LBL, marginBottom:10 }}>Uzmanlık alanları</label>
                   <SpecPicker value={specs} onChange={val=>F(et==='doktor'?'tags':'specs',val)} entityType={et}/>
                 </div>
               )}
 
               {/* Baktığı hastalıklar: uzmanlık seçildikten SONRA — öneriler branşa göre gelir */}
               {et==='doktor'&&(
-                <div><label style={{ ...LBL, marginBottom:10 }}>Baktığınız Hastalıklar <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600 }}>· hastalar profilinizde görür</span></label>
+                <div><label style={{ ...LBL, marginBottom:10 }}>Baktığınız hastalıklar <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600 }}>· hastalar profilinizde görür</span></label>
                   <HastalikSecici value={formData.conditions as string[]|string|null|undefined} onChange={val=>F('conditions',val)} spec={String(formData.spec||'')}/>
                 </div>
               )}
@@ -5334,7 +5272,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                 const PRESET=['İngilizce','Almanca','Fransızca','Arapça','Rusça','Ukraynaca','Azerice'];
                 return (
                   <div>
-                    <label style={{ ...LBL, marginBottom:10 }}>Yabancı Diller <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600 }}>· konuşulan diller</span></label>
+                    <label style={{ ...LBL, marginBottom:10 }}>Yabancı diller <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600 }}>· konuşulan diller</span></label>
                     {diller.length>0 && (
                       <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:10 }}>
                         {diller.map((d,i)=>(
@@ -5381,24 +5319,24 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
               const miniBtn: React.CSSProperties = { display:'inline-flex', alignItems:'center', gap:6, padding:'8px 13px', borderRadius:9, border:`1.5px dashed ${T.navy}`, background:'rgba(26,51,94,.04)', color:T.navy, fontSize:12.5, fontWeight:700, cursor:'pointer', fontFamily:'inherit' };
               const delBtn: React.CSSProperties = { width:28, height:28, borderRadius:8, border:`1px solid ${T.border}`, background:'white', color:T.red, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 };
               return (<>
-                <div style={{ fontSize:12, fontWeight:700, color:T.navy, textTransform:'uppercase', letterSpacing:'0.6px', paddingBottom:10, borderBottom:`2px solid #E8F0FE` }}>Mesleki Bilgiler</div>
+                <BolumBaslik baslik="Mesleki bilgiler" alt={et==='doktor' ? 'Eğitiminiz, deneyiminiz ve sertifikalarınız.' : 'Ekibinizin eğitimi, deneyimi ve sertifikaları.'}/>
 
                 {/* Deneyim başlangıcı + kurumlar */}
                 <div className="panel-form-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                   <div>
-                    <label style={LBL}>Mesleğe Başlangıç Yılı</label>
+                    <label style={LBL}>Mesleğe başlangıç yılı</label>
                     <input type="number" value={formData.deneyim_baslangic??''} placeholder="2013" style={INP}
                       onChange={e=>F('deneyim_baslangic', e.target.value===''?null:Number(e.target.value))} onFocus={onF} onBlur={offF}/>
                     {yilFarki>0 && <div style={{ fontSize:11, color:T.muted, marginTop:4 }}>≈ {yilFarki} yıllık deneyim olarak gösterilir</div>}
                   </div>
                   <div>
-                    <label style={LBL}>Diploma Aldığı Kurum</label>
+                    <label style={LBL}>Diploma aldığı kurum</label>
                     <input value={String(formData.okul||'')} placeholder="İstanbul Üniversitesi" style={INP}
                       onChange={e=>F('okul', e.target.value)} onFocus={onF} onBlur={offF}/>
                   </div>
                 </div>
                 <div>
-                  <label style={LBL}>Uzmanlık Aldığı Kurum</label>
+                  <label style={LBL}>Uzmanlık aldığı kurum</label>
                   <input value={String(formData.uzmanlik_kurum||'')} placeholder="Üsküdar Üniversitesi" style={INP}
                     onChange={e=>F('uzmanlik_kurum', e.target.value)} onFocus={onF} onBlur={offF}/>
                 </div>
@@ -5473,7 +5411,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                   const PRESET = ['İngilizce', 'Almanca', 'Fransızca', 'Arapça', 'İspanyolca', 'Rusça'];
                   return (
                     <div style={{ borderTop: `1px solid ${T.border}`, paddingTop: 14 }}>
-                      <label style={{ ...LBL, marginBottom: 10 }}>Yabancı Diller <span style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 600 }}>· bildiği diller</span></label>
+                      <label style={{ ...LBL, marginBottom: 10 }}>Yabancı diller <span style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 600 }}>· bildiği diller</span></label>
                       {diller.length > 0 && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
                           {diller.map((d, i) => (
@@ -5515,7 +5453,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                 try { navigator.clipboard.writeText(iframeKodu); setEmbedCopied(true); setTimeout(()=>setEmbedCopied(false), 2000); } catch {}
               };
               return (<>
-                <div style={{ fontSize:12, fontWeight:700, color:T.navy, textTransform:'uppercase', letterSpacing:'0.6px', paddingBottom:10, borderBottom:`2px solid #E8F0FE` }}>Randevu Modülünü Sitenize Ekleyin</div>
+                <BolumBaslik baslik="Sitenize ekleyin" alt="Randevu modülünü kendi web sitenize yerleştirin."/>
                 <p style={{ fontSize:13, color:T.muted, lineHeight:1.6, margin:0 }}>
                   Aşağıdaki kodu kendi web sitenize yapıştırın; ziyaretçileriniz doğrudan sizin sitenizden randevu talebi bıraksın.
                   Talepler yine Hekimhane panelinizdeki <strong style={{ color:T.text }}>Randevu Talepleri</strong> sekmesine düşer ve size e-posta gönderilir.
@@ -5523,7 +5461,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
 
                 {/* Kod kutusu */}
                 <div>
-                  <label style={LBL}>HTML Kodu</label>
+                  <label style={LBL}>HTML kodu</label>
                   <textarea readOnly value={iframeKodu} onFocus={e=>e.currentTarget.select()}
                     style={{ ...INP, minHeight:88, fontFamily:'ui-monospace,SFMono-Regular,Menlo,monospace', fontSize:12, lineHeight:1.5, resize:'vertical', background:'#F8FAFF' }} />
                   <button onClick={kopyala}
@@ -5554,11 +5492,11 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
 
             {/* ── FOTOĞRAFLAR ── */}
             {sec==='photos' && (<>
-              <div style={{ fontSize:12, fontWeight:700, color:T.navy, textTransform:'uppercase', letterSpacing:'0.6px', paddingBottom:10, borderBottom:`2px solid #E8F0FE` }}>Fotoğraflar</div>
+              <BolumBaslik baslik="Fotoğraflar" alt="Mekânınızı hastalara gösterin."/>
 
               {/* Profil Fotoğrafı */}
               <div>
-                <label style={LBL}>Profil Fotoğrafı</label>
+                <label style={LBL}>Profil fotoğrafı</label>
                 <div style={{ display:'flex', alignItems:'flex-start', gap:14 }}>
                   {/* Kare drag-drop alanı */}
                   <div
@@ -5622,7 +5560,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
 
               {/* Galeri */}
               <div>
-                <label style={LBL}>Galeri Fotoğrafları ({gall.length}/8)</label>
+                <label style={LBL}>Galeri fotoğrafları ({gall.length}/8)</label>
                 <div style={{ display:'grid', gridTemplateColumns:'repeat(4, minmax(0, 1fr))', gap:8 }}>
                   {Array.from({length:8}).map((_,i)=>{
                     const url      = gall[i]||'';
@@ -5687,7 +5625,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
               {(et==='klinik' || et==='hastane') && (
                 <div style={{ marginTop:24, paddingTop:20, borderTop:`1px solid ${T.border}` }}>
                   <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
-                    <label style={{ ...LBL, margin:0 }}>Profil Arka Planı</label>
+                    <label style={{ ...LBL, margin:0 }}>Profil arka planı</label>
                   </div>
                   <p style={{ fontSize:11.5, color:T.muted, marginBottom:12, lineHeight:1.6 }}>
                     Apple tarzı, hafif hareketli arka planlardan birini seçin. Profil sayfanızın üst kısmında görünür; yazılar okunur kalır.
@@ -5741,9 +5679,9 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
 
             {/* ── 360° TUR ── */}
             {sec==='tour' && (<>
-              <div style={{ fontSize:12, fontWeight:700, color:T.navy, textTransform:'uppercase', letterSpacing:'0.6px', paddingBottom:10, borderBottom:`2px solid #E8F0FE` }}>360° Sanal Tur</div>
+              <BolumBaslik baslik="360° sanal tur" alt="Hastalar içeriyi gelmeden gezsin."/>
               <div>
-                <label style={LBL}>Sanal Tur — URL veya iframe kodu</label>
+                <label style={LBL}>Sanal tur — bağlantı ya da iframe kodu</label>
                 <textarea rows={4} value={String(formData.tour360url||'')}
                   placeholder={'https://my.matterport.com/show/?m=...\nveya\n<iframe src="https://..." allowfullscreen></iframe>'}
                   style={{...INP,resize:'vertical',lineHeight:1.6,fontFamily:'monospace',fontSize:12}}
@@ -5751,15 +5689,15 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                 <p style={{ fontSize:11, color:T.muted, marginTop:5, lineHeight:1.6 }}>Matterport, Google Street View veya herhangi bir 360° platform desteklenmektedir.</p>
               </div>
               <div>
-                <label style={LBL}>360° Panorama Fotoğraf (equirectangular .jpg/.png)</label>
+                <label style={LBL}>360° panorama fotoğrafı (equirectangular .jpg/.png)</label>
                 <textarea rows={3} value={String(formData.photo360||'')}
                   placeholder={'https://ornek.com/foto.jpg\nveya iframe kodu'}
                   style={{...INP,resize:'vertical',lineHeight:1.6,fontFamily:'monospace',fontSize:12}}
                   onChange={e=>F('photo360',e.target.value)} onFocus={onF} onBlur={offF}/>
               </div>
-              <div style={{ fontSize:12, fontWeight:700, color:T.navy, textTransform:'uppercase', letterSpacing:'0.6px', paddingBottom:10, borderBottom:`2px solid #E8F0FE`, marginTop:8 }}>Tanıtım Videosu</div>
+              <h3 style={{ margin:'8px 0 0', paddingTop:28, borderTop:'1px solid #E8E8ED', fontSize:19, fontWeight:600, letterSpacing:'-0.35px', color:'#1D1D1F' }}>Tanıtım videosu.<span style={{ color:'#86868B' }}> Kendinizi kısa bir videoyla anlatın.</span></h3>
               <div>
-                <label style={LBL}>Video — YouTube / Instagram / Vimeo linki veya embed kodu</label>
+                <label style={LBL}>Video — YouTube, Instagram ya da Vimeo bağlantısı veya embed kodu</label>
                 <textarea rows={4} value={String(formData.video_url||'')}
                   placeholder={'https://youtube.com/watch?v=...\nveya\nhttps://www.instagram.com/reel/...\nveya\n<iframe src="https://www.youtube.com/embed/..." ...></iframe>'}
                   style={{...INP,resize:'vertical',lineHeight:1.6,fontFamily:'monospace',fontSize:12}}
@@ -5797,14 +5735,14 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
             )}
             <div style={{ display:'flex', gap:10, width: isMobile ? '100%' : undefined }}>
               <button onClick={()=>{setFormData(entityData||{});setSaveMsg(null);}}
-                style={{ padding:'12px 20px', borderRadius:11, border:`1.5px solid ${T.border}`, background:'white', color:T.muted, fontSize:13.5, fontWeight:600, cursor:'pointer', fontFamily:'inherit', flex: isMobile ? '1 1 0' : undefined, whiteSpace:'nowrap' }}>
+                style={{ minHeight:48, padding:'12px 22px', borderRadius:999, border:'1px solid #D2D2D7', background:'white', color:'#1D1D1F', fontSize:15, fontWeight:500, letterSpacing:'-0.2px', cursor:'pointer', fontFamily:'inherit', flex: isMobile ? '1 1 0' : undefined, whiteSpace:'nowrap' }}>
                 Sıfırla
               </button>
               <button onClick={handleSave} disabled={saving}
-                style={{ padding:'12px 24px', borderRadius:11, border:'none', background:saving?'#9CA3AF':T.navy, color:'white', fontSize:13.5, fontWeight:700, cursor:saving?'not-allowed':'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:7, fontFamily:'inherit', flex: isMobile ? '2 1 0' : undefined, whiteSpace:'nowrap' }}>
+                style={{ minHeight:48, padding:'12px 26px', borderRadius:999, border:'none', background:saving?'#A1A1A6':T.navy, color:'white', fontSize:15, fontWeight:600, letterSpacing:'-0.2px', cursor:saving?'not-allowed':'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:7, fontFamily:'inherit', flex: isMobile ? '2 1 0' : undefined, whiteSpace:'nowrap' }}>
                 {saving
                   ? <><svg width="13" height="13" viewBox="0 0 18 18" fill="none" style={{ animation:'spin .9s linear infinite' }}><circle cx="9" cy="9" r="7" stroke="rgba(255,255,255,.3)" strokeWidth="2"/><path d="M9 2a7 7 0 0 1 7 7" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>Kaydediliyor</>
-                  : <><Ic d={icons.check} size={14}/>Değişiklikleri Kaydet</>
+                  : <><Ic d={icons.check} size={15}/>Değişiklikleri kaydet</>
                 }
               </button>
             </div>
