@@ -9,6 +9,7 @@ import { yayindakiBlogYazilari } from './blog-data';
 import { TEDAVI_SLUGS } from './tedavi-detaylari';
 import { UZMANLIK_REHBERLERI } from './uzmanlik-rehberleri';
 import { COCUK_KONULAR } from './cocuk-dis';
+import { COCUK_OYUNLAR } from './cocuk-oyunlar';
 
 export const BASE = 'https://www.hekimhane.com.tr';
 
@@ -85,6 +86,8 @@ async function buildSectionRaw(section: string): Promise<SmUrl[]> {
       ...UZMANLIK_REHBERLERI.map(r => ({ loc: `${BASE}/uzmanlik/${r.slug}`, changefreq: 'monthly' as const, priority: 0.72 })),
       { loc: `${BASE}/cocuk-dis-sagligi`, changefreq: 'monthly', priority: 0.7 },
       ...COCUK_KONULAR.map(k => ({ loc: `${BASE}/cocuk-dis-sagligi/${k.slug}`, changefreq: 'monthly' as const, priority: 0.68 })),
+      { loc: `${BASE}/cocuk-dis-sagligi/oyunlar`, changefreq: 'monthly', priority: 0.6 },
+      ...COCUK_OYUNLAR.map(o => ({ loc: `${BASE}/cocuk-dis-sagligi/oyunlar/${o.slug}`, changefreq: 'monthly' as const, priority: 0.6 })),
       { loc: `${BASE}/iletisim`, changefreq: 'monthly', priority: 0.5 },
       { loc: `${BASE}/gizlilik`, changefreq: 'yearly', priority: 0.3 },
       { loc: `${BASE}/kvkk`, changefreq: 'yearly', priority: 0.3 },

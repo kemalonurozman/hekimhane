@@ -11,7 +11,7 @@ export default function CompareBar() {
   const items = useCompare();
   const pathname = usePathname();
 
-  if (items.length === 0 || pathname === '/karsilastir') return null;
+  if (items.length === 0 || pathname === '/karsilastir' || pathname?.startsWith('/embed')) return null;
 
   const tur = items[0]?.type;
 

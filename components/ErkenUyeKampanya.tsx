@@ -11,9 +11,10 @@
 // ─────────────────────────────────────────────────────────────────
 import Link from 'next/link';
 import { ERKEN_UYE_KOTA, ERKEN_UYE_OZELLIKLER } from '@/lib/erken-uye-metin';
+import ErkenUyeDavet from '@/components/ErkenUyeDavet';
 
 const CSS = `
-.euk-bant{background:linear-gradient(180deg,#FBFBFD 0%,#F2F4F8 100%);padding:8px 0 56px}
+.euk-bant{background:linear-gradient(180deg,#FBFBFD 0%,#F2F4F8 100%);padding:8px 0 56px;scroll-margin-top:72px}
 .euk-kart{position:relative;overflow:hidden;border-radius:28px;background:radial-gradient(120% 140% at 100% 0%,#1E4A82 0%,#12294D 46%,#0B1B35 100%);color:#fff;padding:44px 48px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:44px;align-items:center;box-shadow:0 24px 60px -28px rgba(18,41,77,.55)}
 .euk-kart::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(222,194,131,.10) 48%,transparent 62%);transform:translateX(-60%);animation:eukIsik 7s ease-in-out infinite;pointer-events:none}
 .euk-rozet{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#DEC283;background:rgba(222,194,131,.12);border:1px solid rgba(222,194,131,.35);border-radius:999px;padding:6px 12px}
@@ -44,11 +45,22 @@ const CSS = `
 .euk-lejant{display:inline-flex;align-items:center;gap:6px}
 .euk-lejant b{width:10px;height:10px;border-radius:50%;display:inline-block}
 .euk-not{font-size:12px;color:rgba(255,255,255,.5);margin:14px 0 0;line-height:1.5}
+.eud{margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.12)}
+.eud-baslik{font-size:15px;font-weight:700;color:#fff;margin:0 0 3px;letter-spacing:-.2px}
+.eud-alt{font-size:12.5px;color:rgba(255,255,255,.6);margin:0 0 12px}
+.eud-dugmeler{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.eud-d{min-width:0;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:46px;padding:0 14px;border-radius:13px;font:inherit;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;border:0;transition:transform .15s ease,filter .15s ease}
+.eud-d:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.eud-d:focus-visible{outline:2px solid #DEC283;outline-offset:2px}
+.eud-d--wa{background:#25D366;color:#0B2A17}
+.eud-d--ig{color:#fff;background:linear-gradient(45deg,#F58529 0%,#DD2A7B 45%,#8134AF 75%,#515BD4 100%)}
+.eud-d--kopya{grid-column:1/-1;min-height:42px;font-size:13.5px;font-weight:600;color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2)}
+.eud-not{font-size:12.5px;color:#DEC283;margin:8px 0 0;min-height:18px;line-height:1.45;word-break:break-word}
 @keyframes eukBelir{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
 @keyframes eukNabiz{0%{box-shadow:0 0 0 0 rgba(222,194,131,.7)}100%{box-shadow:0 0 0 9px rgba(222,194,131,0)}}
 @keyframes eukIsik{0%,100%{transform:translateX(-60%)}50%{transform:translateX(60%)}}
 @media (max-width:900px){.euk-kart{grid-template-columns:minmax(0,1fr);padding:30px 22px;gap:28px;border-radius:22px}.euk-bant{padding:4px 0 40px}.euk-sayi{font-size:44px}.euk-kont{max-width:none;justify-self:stretch}.euk-kont-ust{flex-direction:column;align-items:flex-start;gap:6px}.euk-etiket{text-align:left}.euk-etiket br{display:none}.euk-d{flex:1 1 220px;justify-content:center}}
-@media (prefers-reduced-motion:reduce){.euk-kart::before,.euk-rozet i,.euk-nokta,.euk-nokta--sira{animation:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.euk-kart::before,.euk-rozet i,.euk-nokta,.euk-nokta--sira{animation:none;opacity:1}.eud-d{transition:none}.eud-d:hover{transform:none}}
 `;
 
 const Tik = () => (
@@ -62,7 +74,7 @@ export default function ErkenUyeKampanya({ dolu: doluHam }: { dolu: number }) {
   if (kalan <= 0) return null;
 
   return (
-    <section className="euk-bant" aria-labelledby="euk-baslik">
+    <section id="erken-uye" className="euk-bant" aria-labelledby="euk-baslik">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="container">
         <div className="euk-kart">
@@ -86,7 +98,8 @@ export default function ErkenUyeKampanya({ dolu: doluHam }: { dolu: number }) {
             <p className="euk-guvence">Kart bilgisi istenmez, hiçbir ücret alınmaz.</p>
           </div>
 
-          <div className="euk-kont" role="img" aria-label={`${ERKEN_UYE_KOTA} yerlik kontenjanın ${dolu} yeri doldu, ${kalan} yer kaldı`}>
+          <div className="euk-kont">
+            <div role="img" aria-label={`${ERKEN_UYE_KOTA} yerlik kontenjanın ${dolu} yeri doldu, ${kalan} yer kaldı`}>
             <div className="euk-kont-ust">
               <div className="euk-sayi">{kalan}<small>yer kaldı</small></div>
               <div className="euk-etiket">Ücretsiz Pro{' '}<br />kontenjanı</div>
@@ -103,6 +116,8 @@ export default function ErkenUyeKampanya({ dolu: doluHam }: { dolu: number }) {
               <span className="euk-lejant"><b style={{ border: '1.5px solid #DEC283' }} />Sıradaki yer sizin olabilir</span>
             </div>
             <p className="euk-not">Kontenjan onaylanan başvurularla dolar; başvuru onaylanmayan her gün de bir yer kapanır. Sayı canlıdır.</p>
+            </div>
+            <ErkenUyeDavet kalan={kalan} />
           </div>
         </div>
       </div>

@@ -357,6 +357,9 @@ export default function Navbar() {
   const name     = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || '';
   const initials = name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase();
 
+  // Başka sitelere gömülen sayfalar (/embed/...) kendi çerçevesini çizer
+  if (pathname?.startsWith('/embed')) return null;
+
   return (
     <>
       <nav className="site-nav" style={{

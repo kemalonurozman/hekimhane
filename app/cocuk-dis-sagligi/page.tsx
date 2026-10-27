@@ -52,6 +52,18 @@ export default function CocukDisHubPage() {
       </div>
 
       <div className="container" style={{ maxWidth: 960, padding: '36px 16px 64px' }}>
+        <Link href="/cocuk-dis-sagligi/oyunlar/dis-fircalama" className="oy-serit">
+          <span className="oy-serit__ikon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1B3A69" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 2" /><path d="M9.5 2.5h5" stroke="#D4A843" />
+            </svg>
+          </span>
+          <span className="oy-serit__metin">
+            <b>Yeni: 2 Dakika Fırçala oyunu</b>
+            <span>Çocuğunuz doğru fırçalama süresini ve sırasını oynayarak öğrensin. Ücretsiz, üyelik yok.</span>
+          </span>
+          <span className="oy-serit__git">Oyna →</span>
+        </Link>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 18 }}>
           {COCUK_KONULAR.map(k => (
             <Link key={k.slug} href={`/cocuk-dis-sagligi/${k.slug}`}

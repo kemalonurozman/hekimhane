@@ -8,6 +8,6 @@ import Footer from '@/components/Footer';
  *  pazarlama footer'ı orada gizlenir — sidebar'ın altına girmesin. */
 export default function SiteFooter() {
   const pathname = usePathname() || '';
-  if (pathname.startsWith('/panel') || pathname.startsWith('/admin')) return null;
+  if (pathname.startsWith('/panel') || pathname.startsWith('/admin') || pathname.startsWith('/embed')) return null;
   return <Footer />;
 }
