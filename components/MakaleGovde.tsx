@@ -1,16 +1,17 @@
 import type { BlogBlok } from '@/lib/blog-data';
 
-// Satır içi biçimlendirme: **kalın**, [metin](https://link) ve site içi [metin](/yol)
+// Satır içi biçimlendirme: **kalın**, *italik*, [metin](https://link) ve site içi [metin](/yol)
 export function renderInline(text: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
-  const re = /(\*\*([^*]+)\*\*)|(\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/(?!\/)[^\s)]*)\))/g;
+  const re = /(\*\*([^*]+)\*\*)|(\*([^*\s](?:[^*]*[^*\s])?)\*)|(\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/(?!\/)[^\s)]*)\))/g;
   let last = 0; let m: RegExpExecArray | null; let key = 0;
   while ((m = re.exec(text)) !== null) {
     if (m.index > last) nodes.push(text.slice(last, m.index));
     if (m[2]) nodes.push(<strong key={key++}>{m[2]}</strong>);
-    else if (m[4]) {
-      const ic = m[5].startsWith('/');   // site içi bağlantı aynı sekmede açılır
-      nodes.push(<a key={key++} href={m[5]} {...(ic ? {} : { target: '_blank', rel: 'noopener noreferrer' })} style={{ color: 'var(--navy)', fontWeight: 600, textDecoration: 'underline' }}>{m[4]}</a>);
+    else if (m[4]) nodes.push(<em key={key++}>{m[4]}</em>);
+    else if (m[6]) {
+      const ic = m[7].startsWith('/');   // site içi bağlantı aynı sekmede açılır
+      nodes.push(<a key={key++} href={m[7]} {...(ic ? {} : { target: '_blank', rel: 'noopener noreferrer' })} style={{ color: 'var(--navy)', fontWeight: 600, textDecoration: 'underline' }}>{m[6]}</a>);
     }
     last = re.lastIndex;
   }
@@ -36,7 +37,7 @@ export default function MakaleGovde({ bloklar }: { bloklar: BlogBlok[] }) {
         );
         if (b.tip === 'gorsel') return (
           // eslint-disable-next-line @next/next/no-img-element
-          <img key={i} src={b.url} alt={b.alt || ''} style={{ display: 'block', width: '100%', borderRadius: 14, border: '1px solid var(--border)', margin: '18px 0' }} />
+          <img key={i} src={b.url} alt={b.alt || ''} loading="lazy" decoding="async" style={{ display: 'block', width: '100%', borderRadius: 14, border: '1px solid var(--border)', margin: '22px 0 26px' }} />
         );
         if (b.tip === 'alinti') return (
           <blockquote key={i} style={{ margin: '20px 0', padding: '14px 20px', borderLeft: '4px solid var(--gold)', background: '#F6F8FB', borderRadius: '0 12px 12px 0', fontSize: 16.5, lineHeight: 1.7, color: 'var(--text)', fontStyle: 'italic' }}>{renderInline(b.metin)}</blockquote>

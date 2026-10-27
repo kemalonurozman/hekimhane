@@ -126,6 +126,15 @@ export async function POST(request: NextRequest) {
       else if (v == null) safeFields[k] = [];
     }
 
+    // "Baktığınız hastalıklar": temiz metin, tekrarsız, en fazla 30 konu (anahtar kelime doldurmayı önler)
+    if (Array.isArray(safeFields.conditions)) {
+      const goruldu = new Set<string>();
+      safeFields.conditions = (safeFields.conditions as unknown[])
+        .map(x => String(x ?? '').replace(/\s+/g, ' ').trim().slice(0, 80))
+        .filter(x => { const k = x.toLocaleLowerCase('tr-TR'); if (!x || goruldu.has(k)) return false; goruldu.add(k); return true; })
+        .slice(0, 30);
+    }
+
     // Pro'ya kilitli alanlar — panel bunları zaten devre dışı gösterir ama
     // API doğrudan çağrılırsa da yazılamamalı. Premium değilse sessizce
     // düşürülür (form tüm formData'yı gönderdiği için hata dönmek her

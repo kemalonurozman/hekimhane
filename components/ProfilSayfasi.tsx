@@ -1,6 +1,7 @@
 'use client';
 
 import AraDugmesi from './AraDugmesi';
+import { hastalikBlogSlug } from '@/lib/hastalik-secenekleri';
 import { YORUM_ONAY_MESAJI } from '@/lib/yorum-onay';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -1924,7 +1925,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {/* ── Sigorta & Koşullar (doktor) ── */}
               {entityType === 'doktor' && (sigorta?.length || conditions?.length) ? (
                 <div style={sc}>
-                  <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Sigorta & Tedavi Alanları</h3></div>
+                  <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Sigorta & Baktığı Hastalıklar</h3></div>
                   <div style={scBody}>
                     {sigorta && sigorta.length > 0 && (
                       <div style={{ marginBottom: conditions?.length ? 20 : 0 }}>
@@ -1940,13 +1941,15 @@ export default function ProfilSayfasi(props: ProfilProps) {
                     )}
                     {conditions && conditions.length > 0 && (
                       <div>
-                        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 10 }}>Tedavi Ettiği Durumlar</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 10 }}>Baktığı Hastalıklar</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                          {conditions.map(c => (
-                            <span key={c} style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 500, background: '#F9FBFF', color: 'var(--navy)', border: '1px solid var(--border)' }}>
-                              {c.replace(/-/g, ' ')}
-                            </span>
-                          ))}
+                          {conditions.map(c => {
+                            const yazi = hastalikBlogSlug(c);   // blogda yayında bir rehber yazısı varsa chip ona bağlanır
+                            const st = { padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 500, background: '#F9FBFF', color: 'var(--navy)', border: '1px solid var(--border)' } as const;
+                            return yazi
+                              ? <Link key={c} href={yazi} title="Bu konudaki sağlık rehberini oku" style={{ ...st, textDecoration: 'none', fontWeight: 600 }}>{c.replace(/-/g, ' ')} <span style={{ fontSize: 10, opacity: .6 }}>↗</span></Link>
+                              : <span key={c} style={st}>{c.replace(/-/g, ' ')}</span>;
+                          })}
                         </div>
                       </div>
                     )}

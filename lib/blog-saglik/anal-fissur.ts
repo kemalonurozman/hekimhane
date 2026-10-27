@@ -8,18 +8,18 @@ const yazi: SaglikKaynak = {
   brans: 'Genel Cerrahi',
   cover_alt: 'Gevşeyen dalga halkalarıyla çevrili, küçük altın çizgi işaretli soyut halka şeması ve lif yaprağı',
   metin: `
-Anal fissür, makat girişini döşeyen ince derinin dışkılama sırasında yırtılmasıyla oluşan küçük bir çatlaktır. Boyu çoğu zaman birkaç milimetreyi geçmez, ama yol açtığı ağrı boyutuyla kıyaslanamayacak kadar şiddetli olabilir. Yeni oluşmuş çatlakların önemli bir kısmı birkaç hafta içinde basit önlemlerle iyileşir.
+**Anal fissür**, makat girişini döşeyen ince derinin dışkılama sırasında yırtılmasıyla oluşan küçük bir çatlaktır. Boyu çoğu zaman birkaç milimetreyi geçmez, ama yol açtığı ağrı boyutuyla kıyaslanamayacak kadar şiddetli olabilir. Yeni oluşmuş çatlakların önemli bir kısmı **birkaç hafta içinde** basit önlemlerle iyileşir.
 
 ## Fissürü düşündüren belirtiler
 
-- Dışkılama sırasında keskin, kesici, "cam kırığı geçiyormuş gibi" ağrı
+- Dışkılama sırasında keskin, kesici, "*cam kırığı geçiyormuş gibi*" ağrı
 - Dışkılamadan sonra dakikalarca, bazen saatlerce süren yanma ve zonklama
-- Tuvalet kâğıdında az miktarda parlak kırmızı kan
+- Tuvalet kâğıdında az miktarda **parlak kırmızı kan**
 - Ağrı korkusuyla tuvaleti erteleme ve buna bağlı kabızlık
 - Uzun süren çatlaklarda makat girişinde küçük bir deri çıkıntısı
 - Kaşıntı ya da hafif akıntı
 
-Dışkılamadan sonra süren yanmanın nedeni iç makat kasının (iç sfinkter) kasılmasıdır. Kasılma bölgedeki kan akımını azaltır ve iyileşmeyi geciktirir. Böylece ağrı, kas kasılması ve kabızlık birbirini besleyen bir döngüye dönüşür; tedavinin amacı bu döngüyü kırmaktır.
+Dışkılamadan sonra süren yanmanın nedeni iç makat kasının (*iç sfinkter*) kasılmasıdır. Kasılma bölgedeki kan akımını azaltır ve iyileşmeyi geciktirir. Böylece ağrı, kas kasılması ve kabızlık birbirini besleyen bir döngüye dönüşür; tedavinin amacı bu döngüyü kırmaktır.
 
 ## Neden olur?
 
@@ -29,7 +29,7 @@ Dışkılamadan sonra süren yanmanın nedeni iç makat kasının (iç sfinkter)
 - Doğum
 - İç makat kasının olağandan gergin olması
 
-Çatlakların büyük çoğunluğu makatın arka orta hattında, bir kısmı ön tarafta görülür; ön taraftaki çatlaklar doğum yapmış kadınlarda daha sıktır. Yan taraflarda yerleşen, birden fazla olan ya da tedaviye rağmen iyileşmeyen çatlaklar Crohn hastalığı, bazı enfeksiyonlar ya da nadiren tümör gibi başka nedenleri düşündürür ve ayrıca araştırılır.
+Çatlakların büyük çoğunluğu makatın arka orta hattında, bir kısmı ön tarafta görülür; ön taraftaki çatlaklar doğum yapmış kadınlarda daha sıktır. Yan taraflarda yerleşen, birden fazla olan ya da tedaviye rağmen iyileşmeyen çatlaklar [Crohn hastalığı](/blog/bagirsak-hastaliklari), bazı enfeksiyonlar ya da nadiren tümör gibi başka nedenleri düşündürür ve ayrıca araştırılır.
 
 ## Akut mu, kronik mi?
 
@@ -38,13 +38,13 @@ Dışkılamadan sonra süren yanmanın nedeni iç makat kasının (iç sfinkter)
 
 ## Muayenede neler olur?
 
-Bu şikâyette başvurulacak bölüm genel cerrahidir. Tanı çoğu zaman yalnızca kalçaların nazikçe aralanmasıyla yapılan bakıyla konur. Ağrı şiddetliyse parmakla muayene ve iç bakı ertelenebilir; bu nedenle muayeneden çekinmenize gerek yoktur. Kanamanın başka bir nedeninden şüphelenilirse, yaşınıza ve belirtilerinize göre kolonoskopi önerilebilir.
+Bu şikâyette başvurulacak bölüm genel cerrahidir. Tanı çoğu zaman yalnızca kalçaların nazikçe aralanmasıyla yapılan bakıyla konur. Ağrı şiddetliyse parmakla muayene ve iç bakı ertelenebilir; bu nedenle *muayeneden çekinmenize gerek yoktur*. Kanamanın başka bir nedeninden şüphelenilirse, yaşınıza ve belirtilerinize göre [kolonoskopi](/blog/kolon-kanseri) önerilebilir.
 
 ## Tedavi basamakları
 
 **Her fissürde:** Dışkıyı yumuşatmak ve ağrıyı azaltmak tedavinin temelidir. Yeni çatlakların yaklaşık yarısı ya da daha fazlası yalnızca bu önlemlerle birkaç haftada kapanır.
 
-**Kronik fissürde ilaçlar:** Makat kasını gevşeten ve bölgenin kanlanmasını artıran kremler altı-sekiz hafta düzenli olarak sürülür. Nitrat içeren kremler baş ağrısı yapabilir; kalsiyum kanal blokeri içerenler genellikle daha iyi tolere edilir. Lokal anestezik kremler ağrıyı geçici olarak hafifletir.
+**Kronik fissürde ilaçlar:** Makat kasını gevşeten ve bölgenin kanlanmasını artıran kremler **altı-sekiz hafta** düzenli olarak sürülür. Nitrat içeren kremler baş ağrısı yapabilir; *kalsiyum kanal blokeri* içerenler genellikle daha iyi tolere edilir. Lokal anestezik kremler ağrıyı geçici olarak hafifletir.
 
 **Botulinum toksini:** Makat kasına yapılan enjeksiyon kası birkaç ay gevşeterek çatlağın iyileşmesine fırsat verir. Geçici gaz kaçırma olabilir; tekrar oranı cerrahiden yüksektir.
 
@@ -54,15 +54,15 @@ Sfinkterotomi genellikle günübirlik yapılan kısa bir işlemdir. Çoğu hasta
 
 ## Çocuklarda fissür
 
-Bebek ve küçük çocuklarda bezde ya da dışkının üzerinde görülen az miktarda parlak kan çoğu zaman makat çatlağından kaynaklanır ve genellikle kabızlığın sonucudur. Ağrıdan korkan çocuk dışkısını tutmaya başlar, dışkı sertleşir ve çatlak tekrarlar. Tedavi kabızlığı çözmeye yöneliktir; beslenme düzenlemesi ve gerektiğinde çocuk doktorunun önereceği yumuşatıcılarla çoğu kısa sürede iyileşir. Kanama tekrarlıyorsa, çocuk iştahsız ve kilo alamıyorsa ya da ishal eşlik ediyorsa mutlaka çocuk doktoruna başvurun.
+Bebek ve küçük çocuklarda bezde ya da dışkının üzerinde görülen az miktarda parlak kan çoğu zaman makat çatlağından kaynaklanır ve genellikle kabızlığın sonucudur. Ağrıdan korkan çocuk dışkısını *tutmaya* başlar, dışkı sertleşir ve çatlak tekrarlar. Tedavi kabızlığı çözmeye yöneliktir; beslenme düzenlemesi ve gerektiğinde çocuk doktorunun önereceği yumuşatıcılarla çoğu kısa sürede iyileşir. Kanama tekrarlıyorsa, çocuk iştahsız ve kilo alamıyorsa ya da ishal eşlik ediyorsa mutlaka çocuk doktoruna başvurun.
 
 ## Evde iyileşme kontrol listesi
 
-- Günde yaklaşık 25–30 gram lif alın: sebze, meyve, baklagil ve tam tahıl; yetmezse hekiminizin önerdiği lif takviyesini kullanın.
+- Günde yaklaşık **25–30 gram lif** alın: sebze, meyve, baklagil ve tam tahıl; yetmezse hekiminizin önerdiği lif takviyesini kullanın.
 - Gün boyu yeterince su için.
 - Dışkı hâlâ sertse hekiminize dışkı yumuşatıcı ilaçları sorun.
-- Dışkılamadan sonra ve gün içinde birkaç kez 10–15 dakika ılık oturma banyosu yapın; kası gevşetir, ağrıyı azaltır.
-- Tuvalette ıkınmayın, uzun oturmayın, ihtiyaç hissettiğinizde ertelemeyin.
+- Dışkılamadan sonra ve gün içinde birkaç kez **10–15 dakika** ılık *oturma banyosu* yapın; kası gevşetir, ağrıyı azaltır.
+- Tuvalette **ıkınmayın**, uzun oturmayın, ihtiyaç hissettiğinizde ertelemeyin.
 - Temizliği suyla yapın, yumuşak bir havluyla bastırarak kurulayın; parfümlü ıslak mendil ve sabun kullanmayın.
 - Size önerilen kremi, ağrı geçse bile belirtilen süre boyunca düzenli kullanın.
 - Ağrı için hekiminizin önerdiği basit ağrı kesicileri kullanın; kabızlığı artırabilecek güçlü ağrı kesicileri kendi başınıza almayın.
@@ -71,9 +71,9 @@ Bebek ve küçük çocuklarda bezde ya da dışkının üzerinde görülen az mi
 
 ## Ne zaman hekime gitmeli?
 
-- Ağrı bir-iki haftada azalmıyorsa
-- Kanama artıyor ya da kan dışkıyla karışık geliyorsa
-- Ateş, makat çevresinde şişlik, kızarıklık ya da akıntı varsa; bu belirtiler apseyi düşündürür (apse ve fistül için [anal fistül yazısına](/blog/anal-fistul) bakabilirsiniz)
+- Ağrı **bir-iki haftada** azalmıyorsa
+- **Kanama artıyor** ya da kan dışkıyla karışık geliyorsa
+- **Ateş, makat çevresinde şişlik**, kızarıklık ya da akıntı varsa; bu belirtiler apseyi düşündürür (apse ve fistül için [anal fistül yazısına](/blog/anal-fistul) bakabilirsiniz)
 - Çatlak altı-sekiz haftada iyileşmediyse ya da sık tekrarlıyorsa
 - Kilo kaybı, ishal ya da karın ağrısı gibi başka şikâyetler eşlik ediyorsa
 

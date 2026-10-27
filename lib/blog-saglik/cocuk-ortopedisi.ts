@@ -8,7 +8,7 @@ const yazi: SaglikKaynak = {
   brans: 'Ortopedi ve Travmatoloji',
   cover_alt: 'Yuvasına oturan kalça eklemi şeması, kemer çizgisi işaretli ayak izi ve O ile X dizilimindeki stilize çocuk bacakları',
   metin: `
-Bez değiştirirken bebeğin bir bacağının daha zor açıldığını fark etmek, yeni yürüyen çocuğun bacaklarını parantez gibi görmek ya da ayak tabanında kemer olmadığını düşünmek, anne babaları sık sık ortopedi kapısına getirir. Bu dört durum ilk bakışta benzer kaygılar uyandırsa da seyirleri çok farklıdır. Kalça displazisi ve doğuştan çarpık ayak ilk haftalarda başlanan tedaviyle en iyi sonucu verir. Düztabanlık ve O-X bacak ise çoğu çocukta büyümenin doğal bir evresidir ve yalnızca izlenir. Önemli olan, hangi durumun beklenebileceğini, hangisinin beklenmemesi gerektiğini ayırt etmektir.
+Bez değiştirirken bebeğin *bir bacağının daha zor açıldığını fark etmek, yeni yürüyen çocuğun bacaklarını parantez gibi görmek* ya da ayak tabanında kemer olmadığını düşünmek, anne babaları sık sık ortopedi kapısına getirir. Bu dört durum ilk bakışta benzer kaygılar uyandırsa da seyirleri çok farklıdır. **Kalça displazisi** ve **doğuştan çarpık ayak** ilk haftalarda başlanan tedaviyle en iyi sonucu verir. **Düztabanlık** ve **O-X bacak** ise çoğu çocukta büyümenin doğal bir evresidir ve yalnızca izlenir. Önemli olan, hangi durumun beklenebileceğini, hangisinin beklenmemesi gerektiğini ayırt etmektir.
 
 ## Dört durum bir bakışta
 
@@ -19,40 +19,40 @@ Bez değiştirirken bebeğin bir bacağının daha zor açıldığını fark etm
 
 ## Gelişimsel kalça displazisi
 
-Kalça ekleminde uyluk kemiğinin yuvarlak başı, leğen kemiğindeki yuvaya oturur. Displazide yuva sığdır ve baş gevşek kalır; ağır durumda yuvanın dışına çıkar. Eskiden "doğuştan kalça çıkığı" denirdi; bugün "gelişimsel" deniyor, çünkü sorun doğumdan sonraki aylarda da gelişebilir.
+Kalça ekleminde uyluk kemiğinin yuvarlak başı, leğen kemiğindeki yuvaya oturur. Displazide yuva sığdır ve baş gevşek kalır; ağır durumda yuvanın dışına çıkar. Eskiden *"doğuştan kalça çıkığı"* denirdi; bugün *"gelişimsel"* deniyor, çünkü sorun doğumdan sonraki aylarda da gelişebilir.
 
-**Kimlerde daha sık?** Kız bebeklerde, ilk gebeliklerde, makat geliş bebeklerde, ailesinde kalça displazisi olanlarda ve anne karnında sıvının az olduğu gebeliklerde. Bacakları düz uzatıp sıkıca bağlayan geleneksel kundak da riski artırır. Kundak yapılacaksa kalça ve dizler hafif bükülü kalmalı, bacaklar rahatça yana açılabilmelidir.
+**Kimlerde daha sık?** Kız bebeklerde, ilk gebeliklerde, makat geliş bebeklerde, ailesinde kalça displazisi olanlarda ve anne karnında sıvının az olduğu gebeliklerde. Bacakları düz uzatıp sıkıca bağlayan **geleneksel kundak** da riski artırır. Kundak yapılacaksa kalça ve dizler hafif bükülü kalmalı, bacaklar rahatça yana açılabilmelidir.
 
-**Nasıl fark edilir?** Bebeğinizin doğumdan sonraki kontrollerinde hekim kalçaları özel manevralarla muayene eder; ülkemizde kalça muayenesi ve ilk haftalarda yapılan kalça ultrasonu tarama programının parçasıdır, randevuyu kaçırmayın. Evde dikkat çekebilecek bulgular:
+**Nasıl fark edilir?** Bebeğinizin doğumdan sonraki kontrollerinde hekim kalçaları özel manevralarla muayene eder; ülkemizde kalça muayenesi ve ilk haftalarda yapılan kalça ultrasonu tarama programının parçasıdır, **randevuyu kaçırmayın**. Evde dikkat çekebilecek bulgular:
 
 - Bez değiştirirken bir bacağın diğerine göre daha az açılması
 - Dizler bükülüyken iki diz yüksekliğinin farklı görünmesi, bacak boyu farkı
-- Yürümeye başlayan çocukta topallama ya da iki taraflı durumda ördekvari yürüyüş
+- Yürümeye başlayan çocukta topallama ya da iki taraflı durumda *ördekvari* yürüyüş
 
 Uyluktaki deri kıvrımlarının asimetrisi tek başına güvenilir bir işaret değildir; pek çok sağlıklı bebekte de görülür.
 
-**Tedavi:** İlk aylarda tanı konan bebeklerin çoğunda Pavlik bandajı kullanılır. Bu yumuşak askı, kalçaları bükülü ve açık tutarak uyluk başının yuvaya oturmasını ve yuvanın derinleşmesini sağlar; haftalar süren kullanım ultrasonla izlenir. Bandajın kayışlarını hekiminizin izni olmadan gevşetmeyin ya da çıkarmayın; bez değişimi ve giydirme bandaj takılıyken nasıl yapılacak, ilk uygulamada size gösterilir. Daha geç fark edilen bebeklerde genel anestezi altında kalçanın yerine oturtulması ve alçı, bazı çocuklarda ameliyat gerekebilir. Tedavi edilmeyen displazi topallamaya ve genç yaşta kalça kireçlenmesine yol açabilir.
+**Tedavi:** İlk aylarda tanı konan bebeklerin çoğunda **Pavlik bandajı** kullanılır. Bu yumuşak askı, kalçaları bükülü ve açık tutarak uyluk başının yuvaya oturmasını ve yuvanın derinleşmesini sağlar; haftalar süren kullanım ultrasonla izlenir. Bandajın kayışlarını **hekiminizin izni olmadan gevşetmeyin ya da çıkarmayın**; bez değişimi ve giydirme bandaj takılıyken nasıl yapılacak, ilk uygulamada size gösterilir. Daha geç fark edilen bebeklerde genel anestezi altında kalçanın yerine oturtulması ve alçı, bazı çocuklarda ameliyat gerekebilir. Tedavi edilmeyen displazi topallamaya ve genç yaşta kalça kireçlenmesine yol açabilir.
 
-Ultrason raporunda ilk üç ayda "olgunlaşmamış kalça" yazması sık görülür. Bu kalçaların çoğu kendiliğinden gelişir; hekiminiz birkaç hafta sonra kontrol ultrasonu ister. Kalça ultrasonu ilk aylarda değerlidir, daha büyük bebekte değerlendirme röntgenle yapılır.
+Ultrason raporunda ilk üç ayda *"olgunlaşmamış kalça"* yazması sık görülür. Bu kalçaların çoğu kendiliğinden gelişir; hekiminiz birkaç hafta sonra kontrol ultrasonu ister. Kalça ultrasonu ilk aylarda değerlidir, daha büyük bebekte değerlendirme röntgenle yapılır.
 
 ## Doğuştan çarpık ayak
 
-Doğuştan çarpık ayak (pes ekinovarus) yaklaşık her bin doğumdan birinde görülür, erkeklerde daha sıktır ve olguların yaklaşık yarısında iki taraflıdır. Ayak aşağı ve içe dönüktür, taban içeri bakar; elle düz konuma getirilemez. Bazen gebelik ultrasonunda önceden fark edilir.
+Doğuştan çarpık ayak (*pes ekinovarus*) yaklaşık her bin doğumdan birinde görülür, erkeklerde daha sıktır ve olguların yaklaşık yarısında iki taraflıdır. Ayak aşağı ve içe dönüktür, taban içeri bakar; elle düz konuma getirilemez. Bazen gebelik ultrasonunda önceden fark edilir.
 
 Bundan ayırt edilmesi gereken durum, anne karnındaki duruşa bağlı **pozisyonel ayak** ya da ön ayağın hilal gibi içe kıvrıldığı durumlardır. Bunlar esnektir; ayak elle kolayca düzeltilebilir ve çoğu zaman kendiliğinden ya da basit germe egzersizleriyle düzelir.
 
-**Tedavi (Ponseti yöntemi):** Doğumdan sonraki ilk haftalarda başlar. Ayak haftada bir yeniden şekillendirilip alçıya alınır; genellikle beş ila yedi alçı yeterlidir. Bebeklerin çoğunda son aşamada topuktaki aşil tendonu, lokal anestezi altında küçük bir kesiyle gevşetilir. Ardından ayakları dışa dönük tutan çubuklu ayakkabı ortezine geçilir: ilk üç ay neredeyse tüm gün, sonra uyku saatlerinde, dört beş yaşına kadar. Ortezin aksatılması yinelemenin en sık nedenidir. İlk günlerde bebeğin huzursuz olması beklenen bir durumdur ve genellikle birkaç günde alışır; ayakta kızarıklık ya da su toplaması görürseniz ortezi bırakmadan önce hekiminize danışın. Düzenli tedavi alan çocukların büyük çoğunluğu yaşıtları gibi yürür, koşar ve spor yapar. Hekim aynı muayenede kalçaları ve omurgayı da değerlendirir.
+**Tedavi (Ponseti yöntemi):** Doğumdan sonraki ilk haftalarda başlar. Ayak haftada bir yeniden şekillendirilip alçıya alınır; genellikle **beş ila yedi alçı** yeterlidir. Bebeklerin çoğunda son aşamada topuktaki aşil tendonu, lokal anestezi altında küçük bir kesiyle gevşetilir. Ardından ayakları dışa dönük tutan çubuklu ayakkabı ortezine geçilir: ilk üç ay neredeyse tüm gün, sonra uyku saatlerinde, **dört beş yaşına kadar**. **Ortezin aksatılması** yinelemenin en sık nedenidir. İlk günlerde bebeğin huzursuz olması beklenen bir durumdur ve genellikle birkaç günde alışır; ayakta kızarıklık ya da su toplaması görürseniz ortezi bırakmadan önce hekiminize danışın. Düzenli tedavi alan çocukların büyük çoğunluğu yaşıtları gibi yürür, koşar ve spor yapar. Hekim aynı muayenede kalçaları ve omurgayı da değerlendirir.
 
 ## Düztabanlık
 
-Bebek ve küçük çocuğun ayak tabanı, yağ yastıkçığı ve esnek bağlar nedeniyle düz görünür. Kemer çoğu çocukta altı yaşına kadar yavaş yavaş belirginleşir; bazı insanlar ise ömür boyu düz tabanla hiçbir sorun yaşamadan yaşar.
+Bebek ve küçük çocuğun ayak tabanı, yağ yastıkçığı ve esnek bağlar nedeniyle düz görünür. Kemer çoğu çocukta **altı yaşına kadar** yavaş yavaş belirginleşir; bazı insanlar ise ömür boyu düz tabanla hiçbir sorun yaşamadan yaşar.
 
-**Esnek düztaban** normal kabul edilir: çocuk parmak ucunda yükseldiğinde ya da ayak başparmağı yukarı kaldırıldığında kemer ortaya çıkar, ağrı yoktur, çocuk koşup oynar. Ağrısız esnek düztabanda tabanlık ya da özel ortopedik ayakkabının kemeri oluşturduğu gösterilmemiştir; gerekmez. Güvenli zeminde yalınayak yürümek ve esnek tabanlı, ayağa uygun ayakkabı yeterlidir.
+**Esnek düztaban** normal kabul edilir: çocuk parmak ucunda yükseldiğinde ya da ayak başparmağı yukarı kaldırıldığında kemer ortaya çıkar, ağrı yoktur, çocuk koşup oynar. Ağrısız esnek düztabanda tabanlık ya da özel ortopedik ayakkabının kemeri oluşturduğu gösterilmemiştir; **gerekmez.** Güvenli zeminde yalınayak yürümek ve esnek tabanlı, ayağa uygun ayakkabı yeterlidir.
 
 Muayene gerektiren düztaban belirtileri:
 
 - Ayakta, bacakta ya da dizde ağrı, çabuk yorulma, oyundan kaçma
-- Parmak ucunda yükselince kemerin oluşmaması (sert düztaban)
+- Parmak ucunda yükselince kemerin oluşmaması (*sert düztaban*)
 - Tek ayakta belirgin düzlük ya da sık burkulma
 - Topuğun belirgin dışa kaçması, ayakkabıların çok hızlı ve tek taraflı aşınması
 - Ergenlikte başlayan ağrılı ve sertleşen düztaban (ayak kemikleri arasındaki doğuştan kaynaşmalar bu yaşta belirti verebilir)
@@ -63,14 +63,14 @@ Ağrılı durumlarda tabanlık, germe egzersizleri ve altta yatan nedenin tedavi
 
 Çocukların bacak dizilimi büyürken belirli bir sırayı izler:
 
-- Doğumdan iki yaşına kadar bacakların O şeklinde olması normaldir
+- Doğumdan iki yaşına kadar bacakların O şeklinde olması **normaldir**
 - 18–24 ay civarında bacaklar düzleşir
 - 3–4 yaş civarında X bacak en belirgin hale gelir
 - 7–8 yaşına doğru erişkindeki hafif X duruşuna yerleşir
 
 İki taraflı, simetrik, hafif ve ağrısız eğrilik, boy uzaması da normalse yalnızca izlenir. Bu dönemdeki eğrilikler için atel, özel ayakkabı ya da egzersiz gerekmez.
 
-İnceleme gerektiren durumlar ise şunlardır: iki yaşından sonra artan O bacak, tek bacakta ya da belirgin asimetrik eğrilik, 7–8 yaşından sonra da süren belirgin X bacak, boy kısalığı, ağrı ya da topallama. Hekim bu durumlarda raşitizmi (D vitamini eksikliğine bağlı kemik yumuşaması), erken yürüyen ve kilolu çocuklarda kaval kemiğinin üst büyüme kıkırdağını etkileyen Blount hastalığını, iskelet gelişimiyle ilgili kalıtsal durumları ve geçirilmiş kırıkları araştırır. Bebeklik döneminde önerilen D vitamini desteğinin düzenli verilmesi raşitizmden korunmanın en kolay yoludur.
+İnceleme gerektiren durumlar ise şunlardır: iki yaşından sonra artan O bacak, tek bacakta ya da belirgin asimetrik eğrilik, 7–8 yaşından sonra da süren belirgin X bacak, boy kısalığı, ağrı ya da topallama. Hekim bu durumlarda *raşitizmi* (D vitamini eksikliğine bağlı kemik yumuşaması), erken yürüyen ve kilolu çocuklarda kaval kemiğinin üst büyüme kıkırdağını etkileyen *Blount hastalığını*, iskelet gelişimiyle ilgili kalıtsal durumları ve geçirilmiş kırıkları araştırır. Bebeklik döneminde önerilen **D vitamini desteğinin düzenli verilmesi** raşitizmden korunmanın en kolay yoludur.
 
 Tedavi nedene göre değişir: raşitizmde vitamin ve mineral tedavisi, erken dönem Blount hastalığında ortez, büyüme devam eden çocukta büyüme kıkırdağını yönlendiren küçük bir cerrahi, ileri durumlarda kemiğin düzeltilmesi.
 
@@ -96,9 +96,9 @@ Tedavi nedene göre değişir: raşitizmde vitamin ve mineral tedavisi, erken d�
 **Gecikmeden başvurun:**
 
 - Doğumda çarpık ayak: tedavi ilk haftalarda başlamalıdır
-- Yürüyen çocukta yeni başlayan ve geçmeyen topallama
-- Ateşle birlikte bacağını kullanmama, basmayı reddetme: eklem enfeksiyonu olabilir, aynı gün acil servise
-- Ergenlikte, özellikle kilolu çocukta kalça, kasık ya da diz ağrısıyla topallama: kalçadaki büyüme kıkırdağının kayması olabilir; aynı gün değerlendirilmeli, beklerken yük vermemeye çalışılmalıdır
+- Yürüyen çocukta **yeni başlayan ve geçmeyen topallama**
+- Ateşle birlikte bacağını kullanmama, basmayı reddetme: eklem enfeksiyonu olabilir, **aynı gün acil servise**
+- Ergenlikte, özellikle kilolu çocukta kalça, kasık ya da diz ağrısıyla topallama: kalçadaki büyüme kıkırdağının kayması olabilir; **aynı gün değerlendirilmeli**, beklerken yük vermemeye çalışılmalıdır
 
 ## Yanlış bilinenler
 

@@ -5,6 +5,8 @@ import { yayindakiBlogYazilari, getBlogYazi, yayinlanmamisBaglantilariSuz, type 
 import { supabase } from '@/lib/supabase';
 import { parseGovde, okumaSuresi } from '@/lib/makale-icerik';
 import MakaleGovde from '@/components/MakaleGovde';
+import { HASTALIK_YAZILARI } from '@/lib/hastalik-yazilari';
+import { profilYayindaDegil } from '@/lib/uyum';
 
 interface Props { params: { slug: string } }
 
@@ -32,6 +34,36 @@ interface Yazi {
   cover_image: string | null;
   cover_alt: string | null;
   brans: string | null;
+  kapakIcte: boolean;   // kapak görseli sayfa başında değil, 2.–4. paragraftan sonra gövdede gösterilir
+}
+
+/** Kapağı gövdeye yerleştirir: yazıya göre 2., 3. ya da 4. paragraftan sonra (slug'a göre sabit, yazılar arası değişir). */
+function kapagiGovdeyeKoy(govde: BlogBlok[], slug: string, url: string, alt: string): BlogBlok[] {
+  let h = 0;
+  for (const c of slug) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  const hedef = 2 + (h % 3);
+  const paragraflar = govde.map((b, i) => (b.tip === 'p' ? i : -1)).filter(i => i >= 0);
+  if (!paragraflar.length) return govde;
+  const idx = paragraflar[Math.min(hedef, paragraflar.length) - 1];
+  return [...govde.slice(0, idx + 1), { tip: 'gorsel', url, alt }, ...govde.slice(idx + 1)];
+}
+
+/** Bu yazının konusunu "Baktığı hastalıklar" listesine ekleyen hekimler (en çok 6). Hata olursa kutu gizlenir. */
+async function konuHekimleri(slug: string): Promise<{ ad: string; hekimler: { href: string; isim: string; alt: string }[] } | null> {
+  const konu = HASTALIK_YAZILARI.find(h => h.slug === slug);
+  if (!konu) return null;
+  try {
+    const { data } = await supabase.from('doktorlar').select('*').contains('conditions', [konu.ad]).limit(12);
+    const liste = ((data || []) as any[])
+      .filter(d => d.slug && !profilYayindaDegil(d))
+      .slice(0, 6)
+      .map(d => ({
+        href: `/doktorlar/${d.slug}`,
+        isim: [d.unvan, d.ad, d.soyad].filter(Boolean).join(' ').trim(),
+        alt: [d.spec, d.il].filter(Boolean).join(' · '),
+      }));
+    return liste.length ? { ad: konu.ad, hekimler: liste } : null;
+  } catch { return null; }
 }
 
 async function getYazi(slug: string): Promise<Yazi | null> {
@@ -44,6 +76,7 @@ async function getYazi(slug: string): Promise<Yazi | null> {
       cover_image: statik.cover_image,
       cover_alt: statik.cover_alt || null,
       brans: statik.brans || null,
+      kapakIcte: !!statik.cover_image,
     };
   }
 
@@ -88,6 +121,7 @@ async function getYazi(slug: string): Promise<Yazi | null> {
       cover_image: p.cover_image || null,
       cover_alt: p.cover_alt || null,
       brans: null,
+      kapakIcte: false,
     };
   } catch {
     return null;
@@ -147,6 +181,7 @@ export default async function BlogDetayPage({ params }: Props) {
   const imgAbs = y.cover_image
     ? (y.cover_image.startsWith('http') ? y.cover_image : `https://www.hekimhane.com.tr${y.cover_image}`)
     : null;
+  const konuKutusu = await konuHekimleri(params.slug);
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -193,7 +228,7 @@ export default async function BlogDetayPage({ params }: Props) {
       </div>
 
       {/* Kapak görseli */}
-      {y.cover_image && (
+      {y.cover_image && !y.kapakIcte && (
         <div className="container" style={{ maxWidth: 760, padding: '28px 32px 0' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={y.cover_image} alt={y.cover_alt || y.title} width={1200} height={675}
@@ -202,7 +237,7 @@ export default async function BlogDetayPage({ params }: Props) {
       )}
 
       {/* Gövde */}
-      <article className="container" style={{ maxWidth: 760, padding: y.cover_image ? '24px 32px 24px' : '40px 32px 24px' }}>
+      <article className="container" style={{ maxWidth: 760, padding: y.cover_image && !y.kapakIcte ? '24px 32px 24px' : '40px 32px 24px' }}>
         {y.sponsorlu && (
           <div style={{ background: '#FDF6E3', border: '1px solid #F0DFB4', borderRadius: 14, padding: '14px 18px', marginBottom: 26 }}>
             <div style={{ fontSize: 11, fontWeight: 800, color: '#B8860B', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 5 }}>
@@ -218,7 +253,7 @@ export default async function BlogDetayPage({ params }: Props) {
         <p style={{ fontSize: 18, lineHeight: 1.7, color: 'var(--text)', fontWeight: 500, marginBottom: 28, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
           {y.summary}
         </p>
-        <MakaleGovde bloklar={y.govde} />
+        <MakaleGovde bloklar={y.kapakIcte && y.cover_image ? kapagiGovdeyeKoy(y.govde, params.slug, y.cover_image, y.cover_alt || y.title) : y.govde} />
 
         {/* Yazarın sitesi — panel/iş ortağı makalelerinde */}
         {y.website && (
@@ -227,6 +262,21 @@ export default async function BlogDetayPage({ params }: Props) {
             <a href={y.website} target="_blank" rel="noopener" style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--navy)', textDecoration: 'none' }}>
               {y.website.replace(/^https?:\/\//, '')} ↗
             </a>
+          </div>
+        )}
+
+        {/* Bu konuda bakan hekimler — hekimin panelde "Baktığınız hastalıklar" listesine eklediği konu */}
+        {konuKutusu && (
+          <div style={{ marginTop: 32, background: '#F9FBFF', border: '1px solid var(--border)', borderRadius: 16, padding: '20px 22px' }}>
+            <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--navy)', marginBottom: 12 }}>{konuKutusu.ad} konusuna bakan hekimler</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 10 }}>
+              {konuKutusu.hekimler.map(h => (
+                <Link key={h.href} href={h.href} style={{ textDecoration: 'none', background: 'white', border: '1px solid var(--border)', borderRadius: 12, padding: '11px 14px', display: 'block' }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy)', lineHeight: 1.3 }}>{h.isim}</div>
+                  {h.alt && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>{h.alt}</div>}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 

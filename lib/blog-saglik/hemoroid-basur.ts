@@ -8,16 +8,16 @@ const yazi: SaglikKaynak = {
   brans: 'Genel Cerrahi',
   cover_alt: 'Halka biçimli kanal çevresinde üç yumuşak yastıkçık, yanında lif yaprağı ve su damlası içeren soyut şema',
   metin: `
-Basur ya da tıbbi adıyla hemoroid, en sık görülen makat sorunlarından biridir ve pek çok kişi utandığı için hekime geç başvurur. Oysa genel cerrahlar bu şikâyetle her gün karşılaşır; hemoroid çoğu zaman basit önlemlerle ya da kısa poliklinik işlemleriyle kontrol altına alınır. Muayene birkaç dakika sürer ve büyük ölçüde ağrısızdır.
+**Basur** ya da tıbbi adıyla *hemoroid*, en sık görülen makat sorunlarından biridir ve pek çok kişi utandığı için hekime geç başvurur. Oysa genel cerrahlar bu şikâyetle her gün karşılaşır; hemoroid çoğu zaman basit önlemlerle ya da kısa poliklinik işlemleriyle kontrol altına alınır. **Muayene birkaç dakika sürer** ve büyük ölçüde ağrısızdır.
 
 ## Hemoroid nedir?
 
-Hemoroidler aslında herkeste bulunan normal yapılardır: anüs kanalının iç yüzünde, damar ve bağ dokudan oluşan yumuşak yastıkçıklardır. Makatın tam kapanmasına, gaz ve dışkının tutulmasına yardım ederler. Bu yastıkçıklar büyüyüp aşağı doğru kaydığında, kanadığında ya da dışarı sarktığında **hemoroid hastalığından** söz edilir.
+Hemoroidler aslında *herkeste bulunan normal yapılardır*: anüs kanalının iç yüzünde, damar ve bağ dokudan oluşan yumuşak yastıkçıklardır. Makatın tam kapanmasına, gaz ve dışkının tutulmasına yardım ederler. Bu yastıkçıklar büyüyüp aşağı doğru kaydığında, kanadığında ya da dışarı sarktığında **hemoroid hastalığından** söz edilir.
 
 İki tipi vardır:
 
 - **İç hemoroid:** Anüs kanalının içinde, ağrı sinirlerinin az olduğu bölgededir. Çoğunlukla ağrısız kanama ve dışarı sarkma yapar.
-- **Dış hemoroid:** Makat girişinde, deriyle örtülü bölgededir. Genellikle sessizdir; ancak içinde pıhtı oluştuğunda (tromboze dış hemoroid) aniden ortaya çıkan, sert, mor-mavi renkli ve çok ağrılı bir şişlik yapar.
+- **Dış hemoroid:** Makat girişinde, deriyle örtülü bölgededir. Genellikle sessizdir; ancak içinde pıhtı oluştuğunda (*tromboze dış hemoroid*) aniden ortaya çıkan, sert, mor-mavi renkli ve çok ağrılı bir şişlik yapar.
 
 İç hemoroidler sarkma derecesine göre dört evreye ayrılır:
 
@@ -45,7 +45,7 @@ Yastıkçıkları büyüten temel etken, anüs bölgesindeki basıncın uzun sü
 - Kaşıntı, ıslaklık, sümüksü akıntı ve çamaşırda lekelenme
 - Tam boşalamama hissi
 
-İç hemoroidler genellikle ağrı yapmaz. Belirgin ağrı varsa pıhtılaşmış dış hemoroid, sıkışmış iç hemoroid ya da başka bir neden düşünülür. Dışkılarken keskin, kesici bir ağrı ve sonrasında süren yanma daha çok makat çatlağını düşündürür; ayrıntılar için [anal fissür yazısına](/blog/anal-fissur) bakabilirsiniz.
+İç hemoroidler genellikle **ağrı yapmaz**. Belirgin ağrı varsa pıhtılaşmış dış hemoroid, sıkışmış iç hemoroid ya da başka bir neden düşünülür. Dışkılarken *keskin, kesici bir ağrı* ve sonrasında süren yanma daha çok makat çatlağını düşündürür; ayrıntılar için [anal fissür yazısına](/blog/anal-fissur) bakabilirsiniz.
 
 ## Tanı: muayenede neler olur?
 
@@ -55,7 +55,7 @@ Hemoroidi genel cerrahlar değerlendirir ve tedavi eder. Muayene çoğunlukla ya
 - **Parmakla muayene:** Eldivenli ve kayganlaştırıcılı parmakla anüs kanalı ve rektumun son bölümü değerlendirilir.
 - **Anoskopi:** Kısa ve ince bir aletle anüs kanalının içine bakılır; iç hemoroidler en iyi böyle görülür.
 
-Makattan kanama her zaman hemoroid demek değildir. Kalın bağırsak polipleri, kalın bağırsak kanseri ve iltihabi bağırsak hastalıkları da benzer kanama yapabilir. Bu nedenle şu durumlarda hekim **kolonoskopi** isteyebilir:
+Makattan kanama her zaman hemoroid demek değildir. Kalın bağırsak polipleri, kalın bağırsak kanseri ve [iltihabi bağırsak hastalıkları](/blog/bagirsak-hastaliklari) da benzer kanama yapabilir. Bu nedenle şu durumlarda hekim **kolonoskopi** isteyebilir:
 
 - 50 yaşın üzerinde olup son 10 yıl içinde kolonoskopi yaptırmamış olmak
 - Ailede kalın bağırsak kanseri öyküsü
@@ -65,23 +65,23 @@ Makattan kanama her zaman hemoroid demek değildir. Kalın bağırsak polipleri,
 
 Kolonoskopi ve tarama programı hakkında [kolon kanseri yazısı](/blog/kolon-kanseri) yol gösterici olabilir.
 
-Halk arasında makattaki her şişlik ya da kanama "basur" diye adlandırılır, ancak muayenede başka bir sorun çıkabilir:
+Halk arasında makattaki her şişlik ya da kanama *"basur"* diye adlandırılır, ancak muayenede başka bir sorun çıkabilir:
 
 - **Deri katlantısı (skin tag):** Eski bir dış hemoroid ya da çatlaktan geriye kalan yumuşak, ağrısız deri fazlalığıdır; temizlikte zorluk yaratmıyorsa tedavi gerekmez.
-- **Perianal apse ve fistül:** Makat çevresinde ateşle birlikte artan, zonklayıcı ağrı ve şişlik ya da tekrarlayan akıntı yapar.
+- **Perianal apse ve fistül:** Makat çevresinde ateşle birlikte artan, zonklayıcı ağrı ve şişlik ya da tekrarlayan akıntı yapar; [anal fistül](/blog/anal-fistul) yazısında ayrıntılı anlatılır.
 - **Rektal prolapsus:** Hemoroidden farklı olarak rektumun tüm duvarının dışarı sarkmasıdır.
 - **Anal siğil ve nadiren anüs kanseri:** Geçmeyen sertlik, yara ya da büyüyen kitle mutlaka değerlendirilmelidir.
 
 ## Tedavi seçenekleri
 
-Tedavi şikâyetin türüne ve evreye göre basamaklıdır. Belirti vermeyen hemoroid tedavi gerektirmez.
+Tedavi şikâyetin türüne ve evreye göre basamaklıdır. Belirti vermeyen hemoroid **tedavi gerektirmez**.
 
 **Yaşam ve tuvalet alışkanlıkları** her evrede tedavinin temelidir; 1. ve 2. evrede çoğu hastada tek başına yeterli olur. Ayrıntıları aşağıdaki bölümde bulabilirsiniz.
 
 **İlaçlar:**
 
 - Lif takviyeleri ve dışkı yumuşatıcılar ıkınmayı azaltarak kanamayı belirgin biçimde azaltır.
-- Lokal anestezik ya da kortizon içeren krem ve fitiller kaşıntı ve yanmayı kısa sürede rahatlatabilir, ancak hemoroidi küçültmez. Kortizonlu ürünler deriyi incelttiği için yalnızca kısa süreli ve hekim önerisiyle kullanılmalıdır.
+- Lokal anestezik ya da kortizon içeren krem ve fitiller kaşıntı ve yanmayı kısa sürede rahatlatabilir, ancak hemoroidi küçültmez. Kortizonlu ürünler deriyi incelttiği için **yalnızca kısa süreli ve hekim önerisiyle** kullanılmalıdır.
 - Damar duvarını desteklediği düşünülen flavonoid grubu ilaçlar kanamalı ataklarda yardımcı olabilir; etkileri sınırlıdır ve kalıcı çözüm sağlamaz.
 
 **Poliklinik işlemleri:**
@@ -97,34 +97,34 @@ Tedavi şikâyetin türüne ve evreye göre basamaklıdır. Belirti vermeyen hem
 - **Doppler eşliğinde arter bağlama:** Hemoroidi besleyen damarlar bulunup bağlanır, gerekirse sarkan doku yukarı asılır. Ağrısı azdır; ileri evrelerde tekrar olasılığı daha yüksektir.
 - **Lazer hemoroidoplasti:** Daha az ağrılı olduğu bildirilen yeni bir yöntemdir; uzun dönem sonuçlarına ilişkin veriler henüz sınırlıdır.
 
-Ameliyattan sonra ilk dışkılamalar kaygı verebilir; dışkıyı yumuşak tutmak ve ağrı kesiciyi düzenli almak bu dönemi belirgin biçimde kolaylaştırır. Hafif kanama ve akıntı birkaç hafta sürebilir. Masa başı işlere çoğu hasta bir-iki hafta içinde döner.
+Ameliyattan sonra *ilk dışkılamalar kaygı verebilir*; **dışkıyı yumuşak tutmak ve ağrı kesiciyi düzenli almak** bu dönemi belirgin biçimde kolaylaştırır. Hafif kanama ve akıntı birkaç hafta sürebilir. Masa başı işlere çoğu hasta bir-iki hafta içinde döner.
 
 Hangi yöntemin size uygun olduğuna evre, şikâyetleriniz, eşlik eden hastalıklarınız ve beklentileriniz birlikte değerlendirilerek karar verilir.
 
-**Pıhtılaşmış dış hemoroid:** Ağrı ilk iki-üç gün içindeyse pıhtının lokal anestezi altında küçük bir işlemle çıkarılması hızlı rahatlama sağlayabilir. Daha geç başvuranlarda ağrı genellikle kendiliğinden azalmaya başladığından oturma banyosu ve ağrı kesicilerle izlenir; şişlik birkaç haftada geriler.
+**Pıhtılaşmış dış hemoroid:** Ağrı **ilk iki-üç gün** içindeyse pıhtının lokal anestezi altında küçük bir işlemle çıkarılması hızlı rahatlama sağlayabilir. Daha geç başvuranlarda ağrı genellikle kendiliğinden azalmaya başladığından oturma banyosu ve ağrı kesicilerle izlenir; şişlik birkaç haftada geriler.
 
 ## Günlük yaşamda yapabilecekleriniz
 
-- Günde yaklaşık 25–30 gram lif hedefleyin: sebze, meyve, baklagiller ve tam tahıllar. Lif miktarını birkaç hafta içinde yavaş yavaş artırın; yetmezse hekiminiz lif takviyesi önerebilir.
-- Yeterince su için; idrarınızın açık renkli olması iyi bir göstergedir.
-- Tuvalet ihtiyacını ertelemeyin. Tuvalette telefonla oyalanmayın, birkaç dakikadan uzun oturmayın ve ıkınmayın.
+- Günde yaklaşık **25–30 gram lif** hedefleyin: sebze, meyve, baklagiller ve tam tahıllar. Lif miktarını birkaç hafta içinde yavaş yavaş artırın; yetmezse hekiminiz lif takviyesi önerebilir.
+- Yeterince su için; *idrarınızın açık renkli olması iyi bir göstergedir.*
+- Tuvalet ihtiyacını **ertelemeyin**. Tuvalette telefonla oyalanmayın, **birkaç dakikadan uzun oturmayın** ve **ıkınmayın**.
 - Ayaklarınızın altına alçak bir tabure koymak dışkılamayı kolaylaştırabilir.
-- Şikâyetli dönemlerde günde birkaç kez, 10–15 dakikalık ılık su oturma banyosu yapın.
+- Şikâyetli dönemlerde günde birkaç kez, **10–15 dakikalık ılık su oturma banyosu** yapın.
 - Kuru kâğıtla sert silmek yerine ılık suyla yıkayıp yumuşakça kurulayın; parfümlü ıslak mendil ve sabunlardan kaçının.
 - Düzenli yürüyüş ve hareket bağırsak düzenine yardımcı olur.
 
 ## Ne zaman hemen hekime başvurmalı?
 
-- Bol miktarda ya da durmayan kanama, baş dönmesi, çarpıntı
-- Koyu kırmızı, siyah ya da dışkıyla karışık kan
-- Dışarı sarkıp geri girmeyen, giderek sertleşen, morlaşan ve çok ağrıyan şişlik
-- Ateşle birlikte makat çevresinde artan ağrı ve şişlik
+- Bol miktarda ya da **durmayan kanama**, baş dönmesi, çarpıntı
+- Koyu kırmızı, **siyah ya da dışkıyla karışık kan**
+- Dışarı sarkıp geri girmeyen, **giderek sertleşen, morlaşan ve çok ağrıyan şişlik**
+- **Ateşle birlikte** makat çevresinde artan ağrı ve şişlik
 - Kanamaya kilo kaybı, halsizlik ya da dışkılama alışkanlığında değişikliğin eşlik etmesi
 
 ## Sık sorulan sorular
 
 **Hemoroid kansere dönüşür mü?**
-Hayır, hemoroid kansere dönüşmez. Ancak kalın bağırsak kanseri de makattan kanama yapabildiği için kanamanın nedenini bir hekimin değerlendirmesi gerekir.
+**Hayır, hemoroid kansere dönüşmez.** Ancak kalın bağırsak kanseri de makattan kanama yapabildiği için kanamanın nedenini bir hekimin değerlendirmesi gerekir.
 
 **Gebelikte hemoroid tedavi edilir mi?**
 Gebelikte hemoroid sıktır ve genellikle doğumdan sonraki haftalarda belirgin biçimde geriler. Bu dönemde lif, sıvı, oturma banyosu ve gebelikte kullanımı uygun bulunan topikal ürünlerle yetinilir; ameliyat nadiren gerekir. Kullanacağınız her ürünü kadın doğum uzmanınıza danışın.
@@ -133,7 +133,7 @@ Gebelikte hemoroid sıktır ve genellikle doğumdan sonraki haftalarda belirgin 
 Kremler belirtileri hafifletir ama hemoroidi ortadan kaldırmaz. Kalıcı rahatlama için tuvalet alışkanlıklarını düzeltmek esastır; birkaç haftada geçmeyen şikâyetlerde muayene gerekir.
 
 **Ameliyattan sonra hemoroid tekrar eder mi?**
-Hiçbir yöntemde tekrar olasılığı sıfır değildir; kabızlık ve ıkınma sürerse yeni hemoroidler gelişebilir. Klasik hemoroidektomi tekrar oranı en düşük yöntemdir.
+Hiçbir yöntemde *tekrar olasılığı sıfır değildir*; kabızlık ve ıkınma sürerse yeni hemoroidler gelişebilir. Klasik hemoroidektomi tekrar oranı en düşük yöntemdir.
 
 Şikâyetleriniz birkaç haftada geçmiyorsa ya da kanamanın nedeninden emin değilseniz [bölgenizdeki genel cerrahlardan randevu alabilirsiniz](/hekim-bul).
 `,

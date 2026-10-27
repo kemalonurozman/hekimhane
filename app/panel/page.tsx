@@ -4,6 +4,7 @@ import OnayliYorumDugmesi from './OnayliYorumDugmesi';
 import { sahibeGorunenYorumlar } from '@/lib/yorum-onay';
 import { PANEL_MODERASYON_NOTU } from '@/lib/uyum';
 import ProfilPuaniKarti from './ProfilPuaniKarti';
+import HastalikSecici from './HastalikSecici';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
@@ -5273,6 +5274,13 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
 
               {/* Yabancı Diller (hastane/eczane — doktor & klinik'te ayrı Mesleki Bilgiler sekmesinde) */}
               {et!=='doktor' && et!=='klinik' && (()=>{
+              {/* Baktığı hastalıklar: uzmanlık seçildikten SONRA — öneriler branşa göre gelir */}
+              {et==='doktor'&&(
+                <div><label style={{ ...LBL, marginBottom:10 }}>Baktığınız Hastalıklar <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600 }}>· hastalar profilinizde görür</span></label>
+                  <HastalikSecici value={formData.conditions as string[]|string|null|undefined} onChange={val=>F('conditions',val)} spec={String(formData.spec||'')}/>
+                </div>
+              )}
+
                 const diller: string[] = Array.isArray(formData.yabanci_diller) ? formData.yabanci_diller : [];
                 const addDil = (v:string) => { const t=v.trim(); if(t && !diller.some(d=>d.toLocaleLowerCase('tr')===t.toLocaleLowerCase('tr'))) F('yabanci_diller',[...diller,t]); setDilInput(''); };
                 const delDil = (i:number) => F('yabanci_diller', diller.filter((_,j)=>j!==i));
