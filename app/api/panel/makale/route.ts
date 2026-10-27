@@ -3,6 +3,8 @@ import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir } from '@/lib/email';
 import { makaleSlug, okumaSuresi, icerikGecerli } from '@/lib/makale-icerik';
+import { makaleHakki, haftaBaslangici, MAKALE_HAFTALIK_PRO, type MakaleHakki } from '@/lib/makale-hak';
+import { makaleKategorileri, kategoriDogrula } from '@/lib/makale-kategori-sunucu';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +18,8 @@ function adminClient() {
   );
 }
 
+const TABLO: Record<string, string> = { klinik: 'klinikler', hastane: 'hastaneler', doktor: 'doktorlar', eczane: 'eczaneler' };
+
 const SELECT = 'id,title,slug,summary,category,cover_image,content,status,published,red_notu,entity_name,website,views,created_at,updated_at';
 
 // Migration çalışmadıysa yeni kolonlar yok — bunu tek yerden anlayalım.
@@ -25,30 +29,61 @@ const kolonYok = (msg?: string) =>
 const MIGRATION_UYARISI =
   'Makale kolonları veritabanında yok. Supabase SQL Editor\'da "add_makale_gonderim.sql" migration\'ını çalıştırın.';
 
-/** Oturum + en az bir onaylı claim → yazar kimliği. */
-async function yazarKimligi(request: NextRequest) {
+/** Oturum + onaylı claim → yazar kimliği. `entityId` verilirse o işletme (panelde Aktif İşletme),
+ *  yoksa ilk onaylı işletme. Başkasının işletmesi seçilemez. */
+async function yazarKimligi(request: NextRequest, entityId?: string | null) {
   const session = await dogrulanmisOturum(request);
   if (!session?.user?.email) return { hata: 'Giriş yapılmamış', kod: 401 as const };
 
   const email = session.user.email;
   const admin = adminClient();
 
-  const { data: claim } = await (admin as any)
+  const { data: claims } = await (admin as any)
     .from('claim_requests')
     .select('entity_id, entity_type, entity_name')
     .eq('email', email)
     .eq('status', 'approved')
-    .limit(1)
-    .maybeSingle();
+    .not('entity_id', 'is', null)
+    .neq('entity_id', 'new');
 
-  return { email, admin, claim: claim || null };
+  const liste = (claims || []) as { entity_id: string; entity_type: string; entity_name: string }[];
+  // Seçilen işletmede tam erişim yoksa (ör. yalnız asistan) başka işletmeye sessizce geçilmez
+  const claim = entityId ? (liste.find(c => String(c.entity_id) === String(entityId)) || null) : (liste[0] || null);
+
+  return { email, admin, claim };
+}
+
+/** İşletmenin Pro durumu + bu haftaki gönderim sayısı → hak. Hata olursa kapalı (fail-closed). */
+async function hakHesapla(admin: any, claim: { entity_id: string; entity_type: string } | null): Promise<MakaleHakki> {
+  if (!claim) return makaleHakki(false, 0);
+  let pro = false;
+  try {
+    const tablo = TABLO[claim.entity_type];
+    if (tablo) {
+      const { data } = await admin.from(tablo).select('premium').eq('id', claim.entity_id).maybeSingle();
+      pro = data?.premium === true;
+    }
+  } catch { pro = false; }
+  let buHafta = MAKALE_HAFTALIK_PRO;   // sayılamazsa hak kapalı
+  try {
+    const { count, error } = await admin.from('blog_posts')
+      .select('id', { count: 'exact', head: true })
+      .eq('entity_id', String(claim.entity_id))
+      .eq('kaynak', 'panel')
+      .in('status', ['pending', 'published'])
+      .gte('created_at', haftaBaslangici());
+    if (!error) buHafta = count || 0;
+  } catch { /* kapalı kalır */ }
+  return makaleHakki(pro, buHafta);
 }
 
 /* ── GET: kullanıcının kendi makaleleri ── */
 export async function GET(request: NextRequest) {
   try {
-    const k = await yazarKimligi(request);
+    const k = await yazarKimligi(request, request.nextUrl.searchParams.get('entity_id'));
     if ('hata' in k) return NextResponse.json({ error: k.hata }, { status: k.kod });
+    const hak = await hakHesapla(k.admin, k.claim);
+    const kategoriler = makaleKategorileri();
 
     const { data, error } = await (k.admin as any)
       .from('blog_posts')
@@ -57,11 +92,11 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false });
 
     if (error) {
-      if (kolonYok(error.message)) return NextResponse.json({ makaleler: [], migrationGerekli: true });
+      if (kolonYok(error.message)) return NextResponse.json({ makaleler: [], migrationGerekli: true, hak, kategoriler });
       console.error('panel/makale GET:', error.message);
       return NextResponse.json({ error: 'Makaleler alınamadı' }, { status: 500 });
     }
-    return NextResponse.json({ makaleler: data || [], isletme: k.claim?.entity_name || null });
+    return NextResponse.json({ makaleler: data || [], isletme: k.claim?.entity_name || null, hak, kategoriler });
   } catch {
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
   }
@@ -70,16 +105,25 @@ export async function GET(request: NextRequest) {
 /* ── POST: yeni makale gönder (onaya düşer) ── */
 export async function POST(request: NextRequest) {
   try {
-    const k = await yazarKimligi(request);
+    const b = await request.json();
+    const k = await yazarKimligi(request, b.entity_id);
     if ('hata' in k) return NextResponse.json({ error: k.hata }, { status: k.kod });
     if (!k.claim) {
       return NextResponse.json({ error: 'Makale gönderebilmek için onaylanmış bir işletmeniz olmalı.' }, { status: 403 });
     }
 
-    const b = await request.json();
+    // Hak: yalnız Pro, haftada MAKALE_HAFTALIK_PRO yazı (lib/makale-hak.ts)
+    const hak = await hakHesapla(k.admin, k.claim);
+    if (!hak.pro) {
+      return NextResponse.json({ error: 'Panelden makale yayınlama Hekimhane Pro üyelere özeldir (haftada 1 makale ücretsiz).', hak }, { status: 403 });
+    }
+    if (!hak.acik) {
+      return NextResponse.json({ error: 'Bu haftaki ücretsiz makale hakkınızı kullandınız. Yeni hakkınız Pazartesi açılır.', hak }, { status: 429 });
+    }
+
     const title    = String(b.title    || '').trim().slice(0, 160);
     const summary  = String(b.summary  || '').trim().slice(0, 400);
-    const category = String(b.category || '').trim().slice(0, 60);
+    const category = kategoriDogrula(b.category);   // listede yoksa kategorisiz
     const content  = String(b.content  || '').trim().slice(0, 40000);
     const cover    = String(b.cover_image || '').trim().slice(0, 500) || null;
     const website  = String(b.website  || '').trim().slice(0, 200) || null;
@@ -94,7 +138,7 @@ export async function POST(request: NextRequest) {
     if (mevcut) slug = `${slug}-${Math.floor(Date.now() / 1000) % 100000}`;
 
     const kayit = {
-      title, slug, summary, category: category || 'Diş Sağlığı',
+      title, slug, summary, category,
       content,
       author: k.claim.entity_name || 'Hekimhane',
       cover_image: cover,
@@ -126,7 +170,7 @@ export async function POST(request: NextRequest) {
         satir('Başlık', title) +
         satir('Gönderen', k.claim.entity_name || '—') +
         satir('E-posta', k.email) +
-        satir('Kategori', kayit.category) +
+        satir('Kategori', kayit.category || 'Kategorisiz') +
         satir('Özet', summary) +
         '<p style="margin:16px 0 0;"><a href="https://www.hekimhane.com.tr/admin" style="color:#1A335E;font-weight:700;">Admin → Makaleler</a></p>'),
     });
@@ -160,14 +204,14 @@ export async function PUT(request: NextRequest) {
     const title    = String(b.title    || '').trim().slice(0, 160);
     const summary  = String(b.summary  || '').trim().slice(0, 400);
     const content  = String(b.content  || '').trim().slice(0, 40000);
-    const category = String(b.category || '').trim().slice(0, 60);
+    const category = kategoriDogrula(b.category);   // listede yoksa kategorisiz
 
     if (title.length < 10)   return NextResponse.json({ error: 'Başlık en az 10 karakter olmalı.' }, { status: 400 });
     if (summary.length < 40) return NextResponse.json({ error: 'Özet en az 40 karakter olmalı.' }, { status: 400 });
     if (!icerikGecerli(content)) return NextResponse.json({ error: 'Makale metni en az 300 karakter olmalı.' }, { status: 400 });
 
     const { error } = await (k.admin as any).from('blog_posts').update({
-      title, summary, content, category: category || 'Diş Sağlığı',
+      title, summary, content, category,
       cover_image: String(b.cover_image || '').trim().slice(0, 500) || null,
       website: String(b.website || '').trim().slice(0, 200) || null,
       okuma_dk: okumaSuresi(content),

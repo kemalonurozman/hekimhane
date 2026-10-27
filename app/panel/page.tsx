@@ -26,6 +26,9 @@ import McpTab from './McpTab';
 import ErkenUyeKutlama from './ErkenUyeKutlama';
 import { ERKEN_UYE_METIN } from '@/lib/erken-uye-metin';
 import { DOKTOR_BRANSLARI } from '@/lib/doktor-branslari';
+import GelistirmeEtiketleri from '@/components/yorum/GelistirmeEtiketleri';
+import YorumToplaKarti from './YorumToplaKarti';
+import ProfilFotoKarti, { type FotoDurum } from './ProfilFotoKarti';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 
@@ -759,7 +762,7 @@ export default function PanelPage() {
         {tab === 'hastalar'  && <HastalarTab key={'ha' + aktifKey} approvedClaims={yetkiliListe('hastalar')} aktifEntityId={aktifClaim?.entity_id || ''} takvimIds={takvimIds} tamIds={tamIds} />}
         {tab === 'asistanlar' && <AsistanlarTab aktifEntityId={aktifClaim?.entity_id || ''} onGit={setTab} />}
         {tab === 'mcp'       && <McpTab aktifIsletme={aktifClaim?.entity_id ? { id: aktifClaim.entity_id, ad: aktifClaim.entity_name || '' } : null} isletmeSayisi={isletmeler.length} />}
-        {tab === 'makaleler' && <MakalelerimTab hasEntity={approvedClaims.some(c => c.entity_id && c.entity_id !== 'new')} />}
+        {tab === 'makaleler' && <MakalelerimTab key={'mk' + aktifKey} hasEntity={approvedClaims.some(c => c.entity_id && c.entity_id !== 'new')} aktifEntityId={aktifClaim?.entity_id && aktifClaim.entity_id !== 'new' ? aktifClaim.entity_id : null} aktifAd={aktifClaim?.entity_name || null} />}
       </main>
 
       {kutlama && <ErkenUyeKutlama isletme={kutlama.isletme} onTakvim={() => kutlamaKapat(true)} onKapat={() => kutlamaKapat(false)} />}
@@ -2125,7 +2128,7 @@ function arrayToTags(val: unknown): string {
 /* ═══════════════════════════════════════════════
    YORUMLAR TAB
 ═══════════════════════════════════════════════ */
-interface Yorum { id: string; entity_id: string; entity_type: string; author: string; rating: number; text: string; created_at: string; reply_text?: string | null; reply_at?: string | null; hidden?: boolean | null; report_status?: string | null; report_reason?: string | null; admin_note?: string | null; }
+interface Yorum { id: string; entity_id: string; entity_type: string; author: string; rating: number; text: string; created_at: string; reply_text?: string | null; reply_at?: string | null; hidden?: boolean | null; report_status?: string | null; report_reason?: string | null; admin_note?: string | null; gelistirme?: string[] | null; }
 
 // ── Randevu Talepleri (işletme sahibi görünümü) ──────────────────
 interface RandevuTalep {
@@ -4193,6 +4196,14 @@ function YorumlarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
         </div>
       )}
 
+      {/* Yorum toplama: ofis posteri + hastaya e-posta daveti (seçili işletme; "Tümü"nde ilk işletme) */}
+      {(() => {
+        const hedef = entities.find(c => c.entity_id === selectedEntity) || entities[0];
+        return hedef?.entity_id
+          ? <YorumToplaKarti key={hedef.entity_id} entityId={hedef.entity_id} entityType={hedef.entity_type} />
+          : null;
+      })()}
+
       {/* Yanıt durumu filtre butonları */}
       <div style={{ display:'flex', gap:6, marginBottom:20, flexWrap:'wrap' }}>
         {(['all','unanswered','answered'] as const).map(f => (
@@ -4238,6 +4249,7 @@ function YorumlarTab({ approvedClaims, aktifEntityId }: { approvedClaims: ClaimR
                     </div>
                     <Stars n={yorum.rating || 0} />
                     {yorum.text && <p style={{ fontSize:13, color:'#374151', lineHeight:1.6, margin:'8px 0 0', fontStyle:'italic' }}>"{yorum.text}"</p>}
+                    <GelistirmeEtiketleri secimler={yorum.gelistirme} />
                   </div>
                   {/* Durum rozeti */}
                   <div style={{ flexShrink:0 }}>
@@ -4633,7 +4645,8 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   const [certDrag,   setCertDrag]  = useState<number | null>(null);           // üzerine dosya sürüklenen slot (index)
   const [embedCopied, setEmbedCopied] = useState(false);                      // randevu embed kodu kopyalandı
   const [dilInput,   setDilInput]  = useState('');                            // yabancı dil ekleme kutusu
-  const [kayitYok,   setKayitYok]  = useState(false);                         // onaylı talebin işletme satırı DB'de yok (silinmiş / hiç oluşmamış)
+  const [kayitYok,   setKayitYok]  = useState(false);
+  const [fotoDurum,  setFotoDurum] = useState<FotoDurum>(null);                 // Profil Bilgileri → profil fotoğrafı kartı                         // onaylı talebin işletme satırı DB'de yok (silinmiş / hiç oluşmamış)
 
   // Geniş ekranda (≥1100px) sağda canlı önizleme; daha darda form tek sütun, önizleme gizli.
   // (isMobile <768 üst bileşenden gelir; 768–1099 arası "tablet" burada ölçülür.)
@@ -4652,7 +4665,7 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
   }, [selectedClaim]);
 
   async function loadEntity(claim: ClaimRequest) {
-    setLoading(true); setED(null); setFormData({}); setSaveMsg(null);
+    setLoading(true); setED(null); setFormData({}); setSaveMsg(null); setFotoDurum(null);
     const TM: Record<string,string> = { klinik:'klinikler', hastane:'hastaneler', doktor:'doktorlar', eczane:'eczaneler' };
     const table = TM[claim.entity_type];
     if (!table) { setLoading(false); return; }
@@ -4744,6 +4757,37 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
     inp.type = 'file'; inp.accept = 'image/*';
     inp.onchange = () => { const f = inp.files?.[0]; if (f) uploadFile(f, slot); };
     inp.click();
+  }
+
+  // Profil fotoğrafı kartı: yükle + yalnız fotoğraf alanını hemen kaydet (ayrıca "Kaydet" gerekmez).
+  // Formdaki diğer kaydedilmemiş değişikliklere dokunmaz; entityData da güncellenir ki "Sıfırla" fotoğrafı geri almasın.
+  async function profilFotoKaydet(yeni: string) {
+    if (!selectedClaim?.entity_id) return false;
+    const res = await fetch('/api/panel/update-entity', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entityType: et, entityId: selectedClaim.entity_id, fields: { [profKey]: yeni } }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || !json.success) { setFotoDurum({ tur: 'hata', metin: json.error || 'Kaydedilemedi, tekrar deneyin.' }); return false; }
+    F(profKey, yeni);
+    setED(p => ({ ...(p || {}), [profKey]: yeni }));
+    return true;
+  }
+  async function profilFotoYukle(file: File) {
+    setFotoDurum({ tur: 'yukleniyor' });
+    try {
+      const hazir = await dosyayiHazirla(file);   // iPhone HEIC / büyük PNG → küçültülmüş JPEG
+      const fd = new FormData(); fd.append('file', hazir);
+      const res = await fetch('/api/panel/upload-photo', { method: 'POST', body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) { setFotoDurum({ tur: 'hata', metin: data.error || 'Yüklenemedi, tekrar deneyin.' }); return; }
+      if (await profilFotoKaydet(data.url)) setFotoDurum({ tur: 'kaydedildi', metin: 'Kaydedildi, profilinizde görünüyor' });
+    } catch { setFotoDurum({ tur: 'hata', metin: 'Bağlantı hatası, tekrar deneyin.' }); }
+  }
+  async function profilFotoKaldir() {
+    setFotoDurum({ tur: 'yukleniyor' });
+    try { if (await profilFotoKaydet('')) setFotoDurum({ tur: 'kaydedildi', metin: 'Fotoğraf kaldırıldı' }); }
+    catch { setFotoDurum({ tur: 'hata', metin: 'Bağlantı hatası, tekrar deneyin.' }); }
   }
 
   // Sertifika görseli yükle → sertifikalar[idx].url güncellenir
@@ -4965,6 +5009,9 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
             {/* ── PROFİL BİLGİLERİ ── */}
             {sec==='info' && (<>
               <div style={{ fontSize:12, fontWeight:700, color:T.navy, textTransform:'uppercase', letterSpacing:'0.6px', paddingBottom:10, borderBottom:`2px solid #E8F0FE` }}>Profil Bilgileri</div>
+
+              <ProfilFotoKarti url={profUrl} tip={et} durum={fotoDurum} puanli={et==='doktor'||et==='klinik'}
+                onDosya={profilFotoYukle} onKaldir={profilFotoKaldir}/>
 
               {et==='doktor' ? (
                 <div><label style={LBL}>Ad — Soyad</label>
@@ -5272,8 +5319,6 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                 </div>
               )}
 
-              {/* Yabancı Diller (hastane/eczane — doktor & klinik'te ayrı Mesleki Bilgiler sekmesinde) */}
-              {et!=='doktor' && et!=='klinik' && (()=>{
               {/* Baktığı hastalıklar: uzmanlık seçildikten SONRA — öneriler branşa göre gelir */}
               {et==='doktor'&&(
                 <div><label style={{ ...LBL, marginBottom:10 }}>Baktığınız Hastalıklar <span style={{ textTransform:'none', letterSpacing:0, fontWeight:600 }}>· hastalar profilinizde görür</span></label>
@@ -5281,6 +5326,8 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
                 </div>
               )}
 
+              {/* Yabancı Diller (hastane/eczane — doktor & klinik'te ayrı Mesleki Bilgiler sekmesinde) */}
+              {et!=='doktor' && et!=='klinik' && (()=>{
                 const diller: string[] = Array.isArray(formData.yabanci_diller) ? formData.yabanci_diller : [];
                 const addDil = (v:string) => { const t=v.trim(); if(t && !diller.some(d=>d.toLocaleLowerCase('tr')===t.toLocaleLowerCase('tr'))) F('yabanci_diller',[...diller,t]); setDilInput(''); };
                 const delDil = (i:number) => F('yabanci_diller', diller.filter((_,j)=>j!==i));

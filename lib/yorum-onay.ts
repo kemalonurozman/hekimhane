@@ -44,3 +44,30 @@ export function sahibeGorunenYorumlar<T extends YorumGibi>(rows: T[] | null | un
 
 /** Ziyaretçiye gönderim sonrası gösterilen metin. */
 export const YORUM_ONAY_MESAJI = 'Yorumunuz alındı. Yönetici onayından sonra profilde yayınlanacak.';
+
+/** Ziyaretçiye (profil sayfası, HekimKart) giden yorum alanları — e-posta, yönetici notu,
+ *  belge kaydı, şikayet gerekçesi, "geliştirilebilir noktalar" ve kabul kaydı sayfaya GİTMEZ. */
+const HERKESE_ACIK_ALANLAR = ['id', 'entity_type', 'entity_id', 'author', 'rating', 'text', 'date', 'helpful', 'verified', 'created_at', 'reply_text', 'reply_at'] as const;
+
+/** Ad soyadı "Elif K." biçimine indirir (lib/helpers.ts → maskReviewName ile aynı kural). */
+const adKisalt = (n: unknown): string | null => {
+  const p = String(n ?? '').trim().split(/\s+/).filter(Boolean);
+  if (!p.length) return null;
+  return p.length === 1 ? p[0] : `${p[0]} ${p.slice(1).map(w => w.charAt(0).toLocaleUpperCase('tr') + '.').join(' ')}`;
+};
+
+/**
+ * Yayındaki yorumları sayfaya verilecek biçime getirir: gizlileri eler, yalnız herkese açık
+ * alanları bırakır, tam adı sunucuda kısaltır (sayfa kaynağında tam ad görünmesin).
+ * Profil/kart sayfasında yorumları istemci bileşenine verirken HER ZAMAN bunu kullan.
+ */
+export function herkeseAcikYorumlar<T = any>(rows: unknown[] | null | undefined): T[] {
+  return (rows || [])
+    .filter((y: any) => y && !y.hidden)
+    .map((y: any) => {
+      const o: Record<string, unknown> = {};
+      for (const k of HERKESE_ACIK_ALANLAR) if (k in y) o[k] = y[k];
+      o.author = adKisalt(y.author);
+      return o as T;
+    });
+}

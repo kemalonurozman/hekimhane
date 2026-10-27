@@ -75,14 +75,16 @@ export async function GET(request: NextRequest) {
     const onayListesi = `(${YORUM_ONAY_DURUMLARI.map(d => `"${d}"`).join(',')})`;
     let data: any[] | null = null; let error: any = null;
     if (onay) {
-      // Onay sürecindekilerin tamamı + yayına alınmış son 300 yorum (işletmelere yazılan yorumlar tek yerde)
-      const [sure, yayin] = await Promise.all([
+      // Onay sürecindekilerin tamamı + yayından kaldırılanların tamamı + yayına alınmış son 300 yorum
+      // (işletmelere yazılan yorumlar tek yerde; kaldırılanlar 300 sınırına takılmasın)
+      const [sure, kaldirilan, yayin] = await Promise.all([
         (admin as any).from('yorumlar').select('*').in('report_status', [...YORUM_ONAY_DURUMLARI]).order('created_at', { ascending: false }),
+        (admin as any).from('yorumlar').select('*').eq('hidden', true).or('report_status.is.null,report_status.not.in.' + onayListesi).order('created_at', { ascending: false }),
         (admin as any).from('yorumlar').select('*').or('report_status.is.null,report_status.not.in.' + onayListesi).order('created_at', { ascending: false }).limit(300),
       ]);
-      error = sure.error || yayin.error;
+      error = sure.error || kaldirilan.error || yayin.error;
       const gorulen = new Set<string>();
-      data = [...(sure.data || []), ...(yayin.data || [])].filter((r: any) => (gorulen.has(r.id) ? false : (gorulen.add(r.id), true)));
+      data = [...(sure.data || []), ...(kaldirilan.data || []), ...(yayin.data || [])].filter((r: any) => (gorulen.has(r.id) ? false : (gorulen.add(r.id), true)));
     } else {
       ({ data, error } = await (admin as any).from('yorumlar').select('*')
         .not('report_status', 'is', null).not('report_status', 'in', onayListesi)

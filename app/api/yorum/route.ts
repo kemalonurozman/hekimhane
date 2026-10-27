@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { onayBekleyenAlanlar, YORUM_ONAY_MESAJI, gecerliYorumcuEposta } from '@/lib/yorum-onay';
-import { adminOnayBildir } from '@/lib/yorum-onay-sunucu';
+import { adminOnayBildir, yorumEkle } from '@/lib/yorum-onay-sunucu';
+import { yorumGirdiHatasi, kurallarKabulAlanlari, gelistirmeSuz, YORUM_MAX_KARAKTER } from '@/lib/yorum-kurallari';
 
 function adminClient() {
   return createClient(
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Geçersiz istek.' }, { status: 400 });
   }
 
-  const { entity_id, entity_type, hekimhane_url: bodyHekimhaneUrl, slug, name, rating, text, date, email } = body as {
+  const { entity_id, entity_type, hekimhane_url: bodyHekimhaneUrl, slug, name, rating, text, date, email, gelistirme } = body as {
     entity_id?: string | null;
     entity_type?: string | null;
     hekimhane_url?: string | null;
@@ -70,6 +71,7 @@ export async function POST(request: NextRequest) {
     text?: string;
     date?: string;
     email?: string;
+    gelistirme?: unknown;
   };
 
   // Zorunlu alanlar
@@ -79,6 +81,9 @@ export async function POST(request: NextRequest) {
   if (!text || !text.trim()) {
     return NextResponse.json({ error: 'Yorum metni boş olamaz.' }, { status: 400 });
   }
+  // Yorum Yayınlama Kuralları kabul edilmeden ve kısa metinle yorum alınmaz.
+  const girdiHatasi = yorumGirdiHatasi(body);
+  if (girdiHatasi) return NextResponse.json({ error: girdiHatasi }, { status: 400 });
   // Yazan kişi belli olsun: e-posta zorunlu (admin belge isteyebilir). Ziyaretçiye gösterilmez.
   const authorEmail = gecerliYorumcuEposta(email) ? String(email).trim().toLowerCase().slice(0, 150) : null;
   if (!authorEmail) {
@@ -135,16 +140,13 @@ export async function POST(request: NextRequest) {
     entity_type: resolvedEntityType,
     author:      (name || 'Anonim').slice(0, 100),
     rating:      Number(rating),
-    text:        text.trim().slice(0, 2000),
+    text:        text.trim().slice(0, YORUM_MAX_KARAKTER),
     date:        (date || new Date().toISOString().slice(0, 7)).slice(0, 10),
     created_at:  new Date().toISOString(),
     ...onayBekleyenAlanlar(),   // admin onaylayana kadar gizli
   };
-  let { data, error } = await (admin as any).from('yorumlar').insert({ ...kayit, author_email: authorEmail }).select().single();
-  if (error && /author_email/i.test(error.message || '')) {
-    // 2026-10-26_yorum_onay.sql çalışmamış: e-postasız kaydet (yorum yine onay bekler)
-    ({ data, error } = await (admin as any).from('yorumlar').insert(kayit).select().single());
-  }
+  // Eksik kolon (author_email / kurallar_* / gelistirme) varsa onsuz yeniden dener — yorum yine onay bekler.
+  const { data, error } = await yorumEkle(admin, { ...kayit, author_email: authorEmail, ...kurallarKabulAlanlari(gelistirme) });
 
   if (error) {
     console.error('yorum insert error:', error);
@@ -154,7 +156,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: kolonYok ? 'Yorum sistemi şu an bakımda, lütfen daha sonra tekrar deneyin.' : error.message }, { status: kolonYok ? 503 : 500 });
   }
 
-  await adminOnayBildir(admin, { entity_type: String(resolvedEntityType), entity_id: String(resolvedEntityId), author: kayit.author, rating: Number(rating), text: text.trim(), email: authorEmail });
+  await adminOnayBildir(admin, { entity_type: String(resolvedEntityType), entity_id: String(resolvedEntityId), author: kayit.author, rating: Number(rating), text: text.trim(), email: authorEmail, gelistirme: gelistirmeSuz(gelistirme) });
 
   // Yorum döndürülmez: istemci listeye eklemesin — onaylanana kadar kimse görmez.
   return NextResponse.json({ ok: true, id: data?.id ?? null, bekliyor: true, mesaj: YORUM_ONAY_MESAJI });

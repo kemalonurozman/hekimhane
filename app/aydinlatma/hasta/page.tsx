@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import YasalSayfa, { KunyeKutusu, type YasalBolum } from '@/components/YasalSayfa';
 import { SIRKET, sirketKunyesi } from '@/lib/sirket';
-import { AYDINLATMA_YOL, UYUM_GUNCELLEME, UYUM_SURE, saglikRizaMetni } from '@/lib/uyum';
+import { AYDINLATMA_YOL, UYUM_SURE, saglikRizaMetni } from '@/lib/uyum';
 
 // Hasta ve Ziyaretçi Aydınlatma Metni — uyum belgesi taslağı. Açık rıza metni
 // ayrı bölümde; randevu formunda yalnız hasta not yazdığında görünen kutu ile aynı
@@ -51,12 +51,14 @@ const BOLUMLER: YasalBolum[] = [
           ['Yapay zekâ asistanıyla sohbet', 'Sohbet içeriği', 'm.5/2-c sözleşmenin kurulması ve ifası'],
           ['Randevu talebinizi seçtiğiniz doktora iletmek', 'Ad soyad, telefon, e-posta, seçtiğiniz doktor, uygun zaman', 'm.5/2-c sözleşmenin kurulması ve ifası'],
           ['Randevu talebinize eklemek istediğiniz sağlık bilgisi', 'Şikâyet, bölüm, sağlık durumu', 'Yalnızca KVKK m.6 kapsamında ayrıca verdiğiniz açık rıza'],
-          ['Görüşlerin yayınlanması', 'Ad veya rumuz, görüşün içeriği, randevu doğrulama bilgisi', 'm.5/2-c sözleşmenin ifası'],
+          ['Görüşlerin incelenmesi ve yayınlanması', 'Ad soyad (profilde kısaltılmış) veya rumuz, e-posta (yayınlanmaz), puan, görüşün içeriği, ziyaret tarihi, randevu doğrulama bilgisi', 'm.5/2-c sözleşmenin kurulması ve ifası'],
+          ['"Geliştirilebilir noktalar" geri bildirimi', 'Görüş formunda isteğe bağlı seçtiğiniz başlıklar (profilde yayınlanmaz; ilgili doktora veya kuruma iletilir)', 'm.5/2-c sözleşmenin ifası, m.5/2-f meşru menfaat'],
+          ['Görüşün doğrulanması ve kurallara uygunluğun kanıtlanması', 'E-posta yazışmaları, istenirse ilettiğiniz ziyaret belgesi, Yorum Yayınlama Kuralları\'nı kabul ettiğiniz zaman ve kural sürümü', 'm.5/2-e bir hakkın tesisi, kullanılması veya korunması, m.5/2-f meşru menfaat'],
           ['Hatalı bilgi bildirimleri', 'E-posta, bildirimin içeriği', 'm.5/2-f meşru menfaat'],
           ['Hak başvurularının yanıtlanması', 'Kimlik ve iletişim bilgileri, talebin içeriği', 'm.5/2-ç hukuki yükümlülük'],
         ],
       } },
-      '**Asistan sizden sağlık bilgisi istemez ve tıbbi tavsiye vermez.** Görüşlerinizde sağlık durumunuzla ilgili ayrıntı yazmamanızı rica ederiz. Bu tür ayrıntılar yayından önce çıkarılır.',
+      '**Asistan sizden sağlık bilgisi istemez ve tıbbi tavsiye vermez.** Görüşler **Yorum Yayınlama Kuralları** çerçevesinde yayından önce incelenir. Görüşlerinizde sağlık durumunuzla ilgili ayrıntı yazmamanızı rica ederiz. Bu tür ayrıntılar yayından önce çıkarılır.',
     ],
   },
   {
@@ -74,7 +76,7 @@ const BOLUMLER: YasalBolum[] = [
   {
     baslik: '4. Saklama süreleri',
     icerik: [
-      'Randevu talepleri, talebin sonuçlandırılması ve olası uyuşmazlıkların çözümü için gerekli süre boyunca; asistan sohbet kayıtları hizmetin sunulması için gerekli süre boyunca saklanır. Görüşler yayında kaldığı sürece saklanır. Erişim kayıtları ilgili mevzuatta öngörülen süre boyunca tutulur. Süre sonunda veriler silinir veya anonim hale getirilir.',
+      'Randevu talepleri, talebin sonuçlandırılması ve olası uyuşmazlıkların çözümü için gerekli süre boyunca; asistan sohbet kayıtları hizmetin sunulması için gerekli süre boyunca saklanır. Görüşler yayında kaldığı sürece; yayınlanmayan veya yayından kaldırılan görüşler ile bunlara ilişkin onay ve doğrulama kayıtları, olası itiraz ve hukuki taleplerin çözümü için gerekli süre boyunca saklanır. Erişim kayıtları ilgili mevzuatta öngörülen süre boyunca tutulur. Süre sonunda veriler silinir veya anonim hale getirilir.',
     ],
   },
   {
@@ -101,13 +103,14 @@ export default function HastaAydinlatmaPage() {
       ozet="Hekimhane'yi ziyaret eden, randevu talebi ileten, görüş yazan veya asistanı kullanan kişiler için: hangi verileriniz hangi amaçla işlenir, kimlere aktarılır, haklarınız nelerdir."
       bolumler={BOLUMLER}
       yol={AYDINLATMA_YOL.hasta}
-      guncelleme={UYUM_GUNCELLEME}
+      guncelleme="26 Ekim 2026"
     >
       <KunyeKutusu baslik="Veri sorumlusu" satirlar={sirketKunyesi()} />
       <p style={{ margin: '0 0 14px', fontSize: 14, lineHeight: 1.7, color: 'var(--ink-secondary)' }}>
         Doktorlar ve sağlık kuruluşları için ayrı metin:{' '}
         <Link href={AYDINLATMA_YOL.profesyonel} style={{ color: 'var(--brand)', fontWeight: 600 }}>Profesyoneller Aydınlatma Metni</Link>.
-        Çerezler için <Link href="/cerez" style={{ color: 'var(--brand)', fontWeight: 600 }}>Çerez Politikası</Link>.
+        Çerezler için <Link href="/cerez" style={{ color: 'var(--brand)', fontWeight: 600 }}>Çerez Politikası</Link>, görüşler için{' '}
+        <Link href="/yorum-kurallari" style={{ color: 'var(--brand)', fontWeight: 600 }}>Yorum Yayınlama Kuralları</Link>.
       </p>
     </YasalSayfa>
   );

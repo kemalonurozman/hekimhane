@@ -40,9 +40,10 @@ export async function GET(request: NextRequest) {
     }
     const db = adminClient() as any;
 
-    // 'onayli-yorum' satırları onaylı yorumun tek kullanım işaretidir, talep değil → listelenmez.
+    // 'onayli-yorum' (onaylı yorumun tek kullanım işareti) ve 'yorum-daveti' (hekimin hastasına
+    // gönderdiği yorum daveti kaydı) talep değildir → listelenmez.
     const { data: cekimData, error: cErr } = await db.from('cekim_talepleri')
-      .select('*').or('isletme_turu.is.null,isletme_turu.neq.onayli-yorum')
+      .select('*').or('isletme_turu.is.null,isletme_turu.not.in.(onayli-yorum,yorum-daveti)')
       .order('created_at', { ascending: false });
     if (cErr && !tabloYok(cErr.message)) {
       return NextResponse.json({ error: cErr.message }, { status: 500 });

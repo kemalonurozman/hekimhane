@@ -11,8 +11,10 @@ import { yorumJsonLd } from '@/lib/yorum-jsonld';
 import { bookedSlots } from '@/lib/randevu-booked';
 import { buildEczaneFaq } from '@/lib/faq';
 import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
+import { profilMakaleleri } from '@/lib/makale-profil';
 import { sahiplenilmisMi } from '@/lib/sahiplik';
 import { ilceCikar } from '@/lib/eczane-liste';
+import { herkeseAcikYorumlar } from '@/lib/yorum-onay';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,7 +30,7 @@ async function getData(slug: string) {
   const { data: rawYorumlar } = await supabase.from('yorumlar').select('*')
     .eq('entity_type', 'eczane').eq('entity_id', e.id)
     .order('created_at', { ascending: false }).limit(50);
-  const yorumlar = ((rawYorumlar || []) as Yorum[]).filter((y: any) => !y.hidden);
+  const yorumlar = herkeseAcikYorumlar<Yorum>(rawYorumlar);
   return { e, yorumlar };
 }
 
@@ -109,7 +111,7 @@ export default async function EczaneProfilPage({ params }: Props) {
   // HekimKart bağlantısı: kayıtlı kart varsa onun adresi (sahip panelden
   // adresi değiştirdiyse site içindeki bağlantı da onunla birlikte değişsin).
   // Sahiplik /sahiplen ile aynı kaynaktan (lib/sahiplik.ts) — ikisi çelişmesin.
-  const [kartSlug, claimed] = await Promise.all([kartSlugCoz(e.id, e.slug), sahiplenilmisMi(e.id, e.claimed)]);
+  const [kartSlug, claimed, makaleler] = await Promise.all([kartSlugCoz(e.id, e.slug), sahiplenilmisMi(e.id, e.claimed), profilMakaleleri(e.id)]);
 
   return (
     <>
@@ -134,6 +136,7 @@ export default async function EczaneProfilPage({ params }: Props) {
       faq={faq}
       yorumlar={yorumlar}
       kartSlug={kartSlug}
+      makaleler={makaleler}
       listHref="/eczaneler"
       breadcrumb={[
         { label: 'Ana Sayfa', href: '/' },

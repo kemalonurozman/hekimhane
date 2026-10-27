@@ -54,6 +54,7 @@ export default function Footer() {
     ['İptal ve İade',       '/iptal-iade'],
     ['Profesyoneller Aydınlatma Metni', '/aydinlatma/profesyoneller'],
     ['Hasta ve Ziyaretçi Aydınlatma Metni', '/aydinlatma/hasta'],
+    ['Yorum Yayınlama Kuralları', '/yorum-kurallari'],
   ];
 
   // SEO iç-linkleme: popüler şehirler + diş tedavileri
@@ -197,6 +198,8 @@ export default function Footer() {
             <Link href={AYDINLATMA_YOL.profesyonel}>Profesyoneller Aydınlatma Metni</Link>
             <span aria-hidden="true">·</span>
             <Link href={AYDINLATMA_YOL.hasta}>Hasta ve Ziyaretçi Aydınlatma Metni</Link>
+            <span aria-hidden="true">·</span>
+            <Link href="/yorum-kurallari">Yorum Yayınlama Kuralları</Link>
             <span aria-hidden="true">·</span>
             <Link href="/cerez">Çerez Politikası</Link>
           </div>

@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { MAKALE_KATEGORILERI, ICERIK_IPUCU, okumaSuresi, parseGovde } from '@/lib/makale-icerik';
+import { ICERIK_IPUCU, okumaSuresi, parseGovde } from '@/lib/makale-icerik';
+import { MAKALE_HAFTALIK_PRO, type MakaleHakki } from '@/lib/makale-hak';
+import KategoriSecici, { type KategoriSecenek } from './KategoriSecici';
 import MakaleGorselYukle from '@/components/MakaleGorselYukle';
 import MakaleGovde from '@/components/MakaleGovde';
 
@@ -33,7 +35,17 @@ const DURUM: Record<string, { label: string; bg: string; fg: string; bd: string 
   rejected:  { label: 'Reddedildi',  bg: '#FEF2F2', fg: '#991B1B', bd: '#FECACA' },
 };
 
-const BOS = { title: '', summary: '', category: MAKALE_KATEGORILERI[0], content: '', cover_image: '', website: '' };
+const BOS = { title: '', summary: '', category: '', content: '', cover_image: '', website: '' };
+
+/* Biçim araç çubuğu ikonları (emoji yok — inline SVG) */
+const ARAC_IKON: Record<string, JSX.Element> = {
+  baslik: <span style={{ fontWeight: 800 }}>H</span>,
+  madde:  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M9 6h11M9 12h11M9 18h11" /><circle cx="4" cy="6" r="1" /><circle cx="4" cy="12" r="1" /><circle cx="4" cy="18" r="1" /></svg>,
+  kalin:  <span style={{ fontWeight: 900 }}>B</span>,
+  link:   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" /><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" /></svg>,
+  gorsel: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="9" cy="9" r="1.8" /><path d="m21 15-5-5L5 21" /></svg>,
+  alinti: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6c-2.2 0-4 1.8-4 4v8h7v-7H6c0-1.7 1.3-3 3-3V6H7zm10 0c-2.2 0-4 1.8-4 4v8h7v-7h-4c0-1.7 1.3-3 3-3V6h-2z" /></svg>,
+};
 
 const ICERIK_PH = 'Giriş paragrafı…\n\n## Ara başlık\n\nParagraf metni…\n\n- Madde bir\n- Madde iki';
 
@@ -93,7 +105,10 @@ const MK_HL_CSS = `
 .mk-ph { color: #9AA7BF; }
 `;
 
-export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
+export default function MakalelerimTab({ hasEntity, aktifEntityId, aktifAd }: { hasEntity: boolean; aktifEntityId: string | null; aktifAd: string | null }) {
+  const [hak,       setHak]       = useState<MakaleHakki | null>(null);
+  const [kategoriler, setKategoriler] = useState<KategoriSecenek[]>([]);
+  const [isletme,   setIsletme]   = useState<string | null>(null);
   const [makaleler, setMakaleler] = useState<PanelMakale[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [mod,       setMod]       = useState<'liste' | 'form'>('liste');
@@ -146,9 +161,12 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
   async function yukle() {
     setLoading(true);
     try {
-      const res = await fetch('/api/panel/makale');
+      const res = await fetch(`/api/panel/makale${aktifEntityId ? `?entity_id=${encodeURIComponent(aktifEntityId)}` : ''}`);
       const d = res.ok ? await res.json() : { makaleler: [] };
       setMakaleler(d.makaleler || []);
+      setHak(d.hak || null);
+      setIsletme(d.isletme || null);
+      setKategoriler(d.kategoriler || []);
       if (d.migrationGerekli) setErr('Makale tablosu henüz hazır değil — yönetici "add_makale_gonderim.sql" migration\'ını çalıştırmalı.');
     } catch { setMakaleler([]); }
     setLoading(false);
@@ -156,12 +174,12 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
 
   useEffect(() => { yukle(); }, []);
 
-  function yeniAc() { setEditId(null); setForm({ ...BOS }); setErr(''); setOnizle(false); setMod('form'); }
+  function yeniAc() { if (!hak?.acik) return; setEditId(null); setForm({ ...BOS }); setErr(''); setOnizle(false); setMod('form'); }
   function duzenleAc(m: PanelMakale) {
     setEditId(m.id); setOnizle(false);
     setForm({
       title: m.title || '', summary: m.summary || '',
-      category: m.category || MAKALE_KATEGORILERI[0],
+      category: m.category || '',
       content: m.content || '', cover_image: m.cover_image || '', website: m.website || '',
     });
     setErr(''); setMod('form');
@@ -174,9 +192,10 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
       const res = await fetch('/api/panel/makale', {
         method: editId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editId ? { id: editId, ...form } : form),
+        body: JSON.stringify(editId ? { id: editId, ...form } : { ...form, entity_id: aktifEntityId }),
       });
       const d = await res.json().catch(() => ({}));
+      if (d?.hak) setHak(d.hak);
       if (!res.ok) throw new Error(d?.error || 'Gönderilemedi');
       setMod('liste'); setEditId(null); setForm({ ...BOS });
       bildir('Makaleniz editör onayına gönderildi.');
@@ -245,9 +264,7 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
 
         <div>
           <label style={lbl}>Kategori</label>
-          <select style={{ ...inp, maxWidth: 320 }} value={form.category} onChange={e => F('category', e.target.value)}>
-            {MAKALE_KATEGORILERI.map(k => <option key={k} value={k}>{k}</option>)}
-          </select>
+          <KategoriSecici secenekler={kategoriler} value={form.category} onChange={v => F('category', v)} />
         </div>
 
         <div>
@@ -280,17 +297,17 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
           {!onizle && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, margin: '10px 0' }}>
               {([
-                ['baslik', 'Başlık', 'H'],
-                ['madde', 'Madde', '•'],
-                ['kalin', 'Kalın', 'B'],
-                ['link', 'Bağlantı', '🔗'],
-                ['gorsel', 'Görsel', '🖼'],
-                ['alinti', 'Alıntı', '"'],
-              ] as const).map(([t, etiket, sim]) => (
+                ['baslik', 'Başlık'],
+                ['madde', 'Madde'],
+                ['kalin', 'Kalın'],
+                ['link', 'Bağlantı'],
+                ['gorsel', 'Görsel'],
+                ['alinti', 'Alıntı'],
+              ] as const).map(([t, etiket]) => (
                 <button key={t} type="button" onClick={() => bicimle(t)}
                   title={etiket}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 11px', borderRadius: 8, border: `1px solid ${T.border}`, background: T.white, color: T.text, cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 600 }}>
-                  <span style={{ fontWeight: 800, color: T.navy }}>{sim}</span>{etiket}
+                  <span style={{ display: 'inline-flex', color: T.navy }}>{ARAC_IKON[t]}</span>{etiket}
                 </button>
               ))}
             </div>
@@ -354,8 +371,9 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
     <div>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14, marginBottom: 22, flexWrap: 'wrap' }}>
         <Baslik />
-        <button onClick={yeniAc}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 20px', borderRadius: 11, border: 'none', background: T.navy, color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+        <button onClick={yeniAc} disabled={!hak?.acik}
+          title={hak?.acik ? '' : !hak?.pro ? 'Pro üyelere özel' : 'Bu haftaki hakkınızı kullandınız'}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 20px', borderRadius: 11, border: 'none', background: hak?.acik ? T.navy : '#C7CFDD', color: 'white', fontSize: 14, fontWeight: 700, cursor: hak?.acik ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
           Yeni Makale
         </button>
@@ -365,6 +383,8 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
         <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', color: '#92400E', fontSize: 13, borderRadius: 12, padding: '12px 16px', marginBottom: 16 }}>{err}</div>
       )}
 
+      {!loading && <HakKarti hak={hak} isletme={isletme || aktifAd} yetkiYok={!isletme} />}
+
       {loading ? (
         <div style={{ padding: 40, textAlign: 'center', color: T.muted }}>Yükleniyor…</div>
       ) : makaleler.length === 0 ? (
@@ -372,12 +392,14 @@ export default function MakalelerimTab({ hasEntity }: { hasEntity: boolean }) {
           <div style={{ fontSize: 15, fontWeight: 700, color: T.text, marginBottom: 6 }}>Henüz makaleniz yok</div>
           <div style={{ fontSize: 13.5, color: T.muted, lineHeight: 1.7, maxWidth: 420, margin: '0 auto 18px' }}>
             Uzmanlık alanınızla ilgili bir yazı gönderin. Editör onayından sonra Hekimhane
-            blogunda kliniğinizin adıyla yayınlanır.
+            blogunda ve profil sayfanızın “Makalelerimiz” bölümünde yayınlanır.
           </div>
-          <button onClick={yeniAc}
-            style={{ padding: '11px 24px', borderRadius: 11, border: 'none', background: T.navy, color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-            İlk makaleni yaz
-          </button>
+          {hak?.acik && (
+            <button onClick={yeniAc}
+              style={{ padding: '11px 24px', borderRadius: 11, border: 'none', background: T.navy, color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              İlk makaleni yaz
+            </button>
+          )}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -442,8 +464,69 @@ function Baslik() {
     <div>
       <h1 style={{ fontSize: 24, fontWeight: 800, color: T.text, margin: 0, letterSpacing: '-0.5px' }}>Makalelerim</h1>
       <p style={{ fontSize: 13, color: T.muted, marginTop: 4 }}>
-        Hekimhane blogunda yayınlanmak üzere yazı gönderin — editör onayından sonra yayına girer.
+        Pro üyelikte haftada {MAKALE_HAFTALIK_PRO} makale ücretsiz. Editör onayından sonra blogda ve profilinizde yayınlanır.
       </p>
+    </div>
+  );
+}
+
+/* ── Haftalık hak kartı ── */
+function HakKarti({ hak, isletme, yetkiYok }: { hak: MakaleHakki | null; isletme: string | null; yetkiYok: boolean }) {
+  const kutu: React.CSSProperties = { borderRadius: 16, padding: '16px 18px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' };
+  const ikon = (renk: string, bg: string, d: string) => (
+    <span style={{ width: 40, height: 40, borderRadius: 12, background: bg, color: renk, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>
+    </span>
+  );
+  const tarih = (iso: string) => { try { return new Date(iso).toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Istanbul' }); } catch { return 'Pazartesi'; } };
+
+  if (yetkiYok) return (
+    <div style={{ ...kutu, background: '#F8FAFF', border: `1px solid ${T.border}` }}>
+      {ikon(T.muted, '#EEF2FB', 'M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z')}
+      <div style={{ flex: '1 1 240px', fontSize: 13.5, color: T.muted, lineHeight: 1.6 }}>
+        Aktif işletmede makale göndermek için işletmenin sahibi ya da yöneticisi olmalısınız. Kenar çubuğundan başka bir işletme seçebilirsiniz.
+      </div>
+    </div>
+  );
+  if (!hak) return null;
+
+  if (!hak.pro) return (
+    <div style={{ ...kutu, background: 'linear-gradient(135deg,#FFFBF0,#FFF6E0)', border: '1px solid #F0DFB4' }}>
+      {ikon('#8A6A1F', '#FCEFCB', 'M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z')}
+      <div style={{ flex: '1 1 260px', minWidth: 0 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: T.text }}>Haftada {MAKALE_HAFTALIK_PRO} makale Pro üyeliğe dahil</div>
+        <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, marginTop: 3 }}>
+          {isletme ? <><strong>{isletme}</strong> için </> : ''}panelden makale yayınlamak Pro üyelere özeldir. Onaylanan yazılar blogda ve profilinizin “Makalelerimiz” bölümünde yayınlanır.
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <a href="/pro" style={{ padding: '10px 18px', borderRadius: 11, background: T.navy, color: 'white', fontSize: 13.5, fontWeight: 700, textDecoration: 'none' }}>Pro'yu incele</a>
+        <a href="/makale-yayinla" style={{ padding: '10px 16px', borderRadius: 11, background: 'white', border: `1px solid ${T.border}`, color: T.navy, fontSize: 13.5, fontWeight: 700, textDecoration: 'none' }}>Tek makale siparişi</a>
+      </div>
+    </div>
+  );
+
+  const kalan = Math.max(0, hak.hak - hak.buHafta);
+  return (
+    <div style={{ ...kutu, background: T.white, border: `1px solid ${T.border}`, boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}>
+      {hak.acik
+        ? ikon(T.green, '#ECFDF5', 'M20 6 9 17l-5-5')
+        : ikon(T.navy, '#EEF2FB', 'M12 7v5l3 2M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z')}
+      <div style={{ flex: '1 1 260px', minWidth: 0 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: T.text }}>
+          {hak.acik ? `Bu hafta ${kalan} ücretsiz makale hakkınız var` : 'Bu haftaki makale hakkınızı kullandınız'}
+        </div>
+        <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, marginTop: 3 }}>
+          {hak.acik
+            ? 'Pro üyelikte her hafta 1 makale ücretsiz. Reddedilen yazı hakkınızı geri verir; bekleyen yazıyı düzenlemek hak harcamaz.'
+            : <>Yeni hakkınız <strong>{tarih(hak.sonraki || '')}</strong> açılır. Bekleyen ya da reddedilen yazınızı bu arada düzenleyebilirsiniz.</>}
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 5 }} aria-label={`${hak.buHafta}/${hak.hak} kullanıldı`}>
+        {Array.from({ length: hak.hak }).map((_, i) => (
+          <span key={i} style={{ width: 26, height: 6, borderRadius: 3, background: i < hak.buHafta ? T.navy : '#E2E8F4' }} />
+        ))}
+      </div>
     </div>
   );
 }

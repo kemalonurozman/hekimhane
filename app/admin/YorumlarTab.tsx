@@ -5,6 +5,7 @@
  *   Bekleyen      → yeni yorum, admin onaylamadan yayınlanmaz
  *   Belge istendi → admin yorumcudan ziyaret belgesi istedi (istek + alındı kaydı kartta durur)
  *   Yayında       → onaylanmış yorumlar (son 300)
+ *   Kaldırılan    → yayına alınmışken sonradan yayından kaldırılanlar (tamamı) — yeniden yayınla / kalıcı sil
  *   Reddedilen    → kayıt durur, kimse görmez
  * Kimin yazdığı: ad soyad + e-posta (yalnız burada görünür).
  * Veri: /api/admin/reported-yorumlar?tip=onay · aksiyon: /api/admin/yorum-action
@@ -13,6 +14,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { C } from './tema';
 import { YORUM_ONAY_BEKLIYOR, YORUM_ONAY_BELGE, YORUM_ONAY_RED } from '@/lib/yorum-onay';
+import { gelistirmeAdi } from '@/lib/yorum-kurallari';
 
 interface YorumSatiri {
   id: string;
@@ -32,10 +34,13 @@ interface YorumSatiri {
   belge_alindi_at?: string | null;
   belge_notu?: string | null;
   reply_text?: string | null;
+  gelistirme?: string[] | null;
+  kurallar_onay_at?: string | null;
+  kurallar_surum?: string | null;
 }
 
-type Filtre = 'bekleyen' | 'belge' | 'yayinda' | 'red' | 'tumu';
-type Aksiyon = 'approve' | 'reject' | 'request_docs' | 'docs_received' | 'hide' | 'delete';
+type Filtre = 'bekleyen' | 'belge' | 'yayinda' | 'kaldirilan' | 'red' | 'tumu';
+type Aksiyon = 'approve' | 'reject' | 'request_docs' | 'docs_received' | 'hide' | 'unhide' | 'delete';
 
 const TUR: Record<string, { label: string; color: string }> = {
   klinik:  { label: 'Diş Kliniği', color: C.cyan },
@@ -52,6 +57,7 @@ const IK = {
   x:       'M18 6L6 18M6 6l12 12',
   doc:     'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8',
   inbox:   'M22 12h-6l-2 3h-4l-2-3H2 M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z',
+  eye:     'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
   eyeOff:  'M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24 M1 1l22 22',
   trash:   'M3 6h18 M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2',
   refresh: 'M23 4v6h-6 M1 20v-6h6 M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15',
@@ -75,7 +81,7 @@ function durumu(r: YorumSatiri): { key: Filtre; etiket: string; renk: string } {
   if (r.report_status === YORUM_ONAY_BEKLIYOR) return { key: 'bekleyen', etiket: 'ONAY BEKLİYOR', renk: C.amber };
   if (r.report_status === YORUM_ONAY_BELGE)    return { key: 'belge', etiket: r.belge_alindi_at ? 'BELGE ALINDI' : 'BELGE İSTENDİ', renk: r.belge_alindi_at ? C.blue : C.orange };
   if (r.report_status === YORUM_ONAY_RED)      return { key: 'red', etiket: 'REDDEDİLDİ', renk: C.muted };
-  if (r.hidden)                                return { key: 'tumu', etiket: 'GİZLİ (ŞİKAYET)', renk: C.red };
+  if (r.hidden)                                return { key: 'kaldirilan', etiket: 'YAYINDAN KALDIRILDI', renk: C.red };
   return { key: 'yayinda', etiket: 'YAYINDA', renk: C.green };
 }
 
@@ -106,6 +112,7 @@ export default function YorumlarTab({ onChanged }: { onChanged: () => void }) {
 
   async function act(r: YorumSatiri, action: Aksiyon) {
     if (action === 'delete' && !window.confirm('Bu yorum KALICI olarak silinecek. Geri alınamaz. Devam edilsin mi?')) return;
+    if (action === 'unhide' && !window.confirm('Yorum yeniden yayına alınacak ve profilde görünecek. Devam edilsin mi?')) return;
     if (action === 'reject' && !window.confirm('Yorum reddedilecek; yayınlanmaz, kayıt burada durur. Devam edilsin mi?')) return;
     if (action === 'request_docs' && !(notlar[r.id] || '').trim() && !window.confirm('Belge notu boş. Genel bir belge talebi (randevu kaydı / fiş / muayene belgesi) gönderilsin mi?')) return;
     setBusy(r.id);
@@ -118,7 +125,7 @@ export default function YorumlarTab({ onChanged }: { onChanged: () => void }) {
       if (!res.ok) { setSonuc({ ok: false, text: data.error || 'İşlem başarısız' }); setBusy(null); return; }
       const AD: Record<Aksiyon, string> = {
         approve: 'Yorum onaylandı ve yayına alındı', reject: 'Yorum reddedildi', request_docs: 'Belge talebi gönderildi',
-        docs_received: 'Belge alındı olarak işaretlendi', hide: 'Yorum yayından kaldırıldı', delete: 'Yorum kalıcı olarak silindi',
+        docs_received: 'Belge alındı olarak işaretlendi', hide: 'Yorum yayından kaldırıldı · Yayından kaldırılanlar listesinde', unhide: 'Yorum yeniden yayına alındı', delete: 'Yorum kalıcı olarak silindi',
       };
       const ek = action === 'request_docs'
         ? (data.yorumcuMail?.sent ? ` · ${data.yorumcuMail.to}` : ` · e-posta gönderilemedi: ${data.yorumcuMail?.reason || '?'}`)
@@ -141,6 +148,7 @@ export default function YorumlarTab({ onChanged }: { onChanged: () => void }) {
     { key: 'bekleyen', label: 'Bekleyen',      renk: C.amber },
     { key: 'belge',    label: 'Belge istendi', renk: C.orange },
     { key: 'yayinda',  label: 'Yayında',       renk: C.green },
+    { key: 'kaldirilan', label: 'Yayından kaldırılan', renk: C.red },
     { key: 'red',      label: 'Reddedilen',    renk: C.muted },
     { key: 'tumu',     label: 'Tümü',          renk: C.navy },
   ];
@@ -192,6 +200,15 @@ export default function YorumlarTab({ onChanged }: { onChanged: () => void }) {
             </span>
           </div>
           {r.text && <p style={{ fontSize: 13.5, color: C.text, lineHeight: 1.6, margin: '0 0 12px', whiteSpace: 'pre-wrap' }}>“{r.text}”</p>}
+          {!!r.gelistirme?.length && (
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', margin: '0 0 12px' }}>
+              <span style={{ fontSize: 11.5, color: C.muted }}>Geliştirilebilir (yayınlanmaz):</span>
+              {r.gelistirme.map(g => <span key={g} style={{ fontSize: 11.5, fontWeight: 600, color: C.orange, background: 'rgba(217,96,26,.08)', border: '1px solid rgba(217,96,26,.2)', borderRadius: 8, padding: '2px 8px' }}>{gelistirmeAdi(g)}</span>)}
+            </div>
+          )}
+          <div style={{ fontSize: 11.5, color: C.muted, margin: '0 0 12px' }}>
+            {r.kurallar_onay_at ? `Yorum kuralları kabul edildi: ${tarih(r.kurallar_onay_at)}${r.kurallar_surum ? ` · sürüm ${r.kurallar_surum}` : ''}` : 'Yorum kuralları kabul kaydı yok (eski yorum)'}
+          </div>
           {r.reply_text && <div style={{ fontSize: 12.5, color: C.muted, margin: '0 0 12px', paddingLeft: 10, borderLeft: `2px solid ${C.border}` }}>İşletme yanıtı: {r.reply_text}</div>}
 
           {/* Belge kaydı — istek ve alındı bilgisi yorumda durur */}
@@ -238,6 +255,11 @@ export default function YorumlarTab({ onChanged }: { onChanged: () => void }) {
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {dugme('Yayından kaldır', IK.eyeOff, () => act(r, 'hide'), 'cerceve', b)}
               {dugme('Kalıcı sil', IK.trash, () => act(r, 'delete'), 'tehlike', b)}
+            </div>
+          ) : d.key === 'kaldirilan' ? (
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {dugme('Yeniden yayınla', IK.eye, () => act(r, 'unhide'), 'cerceve', b)}
+              {dugme('Tamamen kaldır · Kalıcı sil', IK.trash, () => act(r, 'delete'), 'tehlike', b)}
             </div>
           ) : (
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

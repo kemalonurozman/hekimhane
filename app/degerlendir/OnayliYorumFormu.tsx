@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { GelistirmeSecici, KarakterSayaci, KurallarOnayKutusu } from '@/components/yorum/YorumKurallarOnay';
+import { YORUM_MIN_KARAKTER, YORUM_MAX_KARAKTER } from '@/lib/yorum-kurallari';
 
 /** Ad soyadı baş harflere indirir: "Elif Kaya" → "Elif K." — profilde tam ad gösterilmez. */
 const kisalt = (ad: string) => {
@@ -16,14 +18,17 @@ export default function OnayliYorumFormu({ token, varsayilanAd, profil }: { toke
   const [ad, setAd] = useState(kisalt(varsayilanAd));
   const [durum, setDurum] = useState<'bos' | 'gonderiliyor' | 'tamam'>('bos');
   const [hata, setHata] = useState('');
+  const [gelistirme, setGelistirme] = useState<string[]>([]);
+  const [kural, setKural] = useState(false);
 
   async function gonder(e: React.FormEvent) {
     e.preventDefault();
     if (!puan) { setHata('Lütfen bir puan seçin.'); return; }
-    if (metin.trim().length < 10) { setHata('Lütfen deneyiminizi birkaç cümleyle anlatın.'); return; }
+    if (metin.trim().length < YORUM_MIN_KARAKTER) { setHata(`Lütfen deneyiminizi en az ${YORUM_MIN_KARAKTER} karakterle anlatın.`); return; }
+    if (!kural) { setHata('Göndermek için Yorum Yayınlama Kuralları\'nı kabul edin.'); return; }
     setDurum('gonderiliyor'); setHata('');
     try {
-      const r = await fetch('/api/yorum/onayli', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ t: token, rating: puan, text: metin, name: ad }) });
+      const r = await fetch('/api/yorum/onayli', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ t: token, rating: puan, text: metin, name: ad, gelistirme, kurallar_onay: kural }) });
       const d = await r.json();
       if (!r.ok) { setDurum('bos'); setHata(d.error || 'Gönderilemedi.'); return; }
       setDurum('tamam');
@@ -58,23 +63,23 @@ export default function OnayliYorumFormu({ token, varsayilanAd, profil }: { toke
       </div>
       <label style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <span style={{ fontSize: 13, fontWeight: 700, color: '#0E1A2C' }}>Deneyiminiz</span>
-        <textarea value={metin} onChange={e => { setMetin(e.target.value); setHata(''); }} rows={5} maxLength={2000}
+        <textarea value={metin} onChange={e => { setMetin(e.target.value); setHata(''); }} rows={5} maxLength={YORUM_MAX_KARAKTER}
           placeholder="Karşılanma, bekleme süresi, iletişim, ortam… Ayrıntılı sağlık bilgisi yazmanız gerekmez."
           style={{ padding: '13px 14px', borderRadius: 14, border: '1px solid #DDE3EC', font: 'inherit', fontSize: 15, lineHeight: 1.55, resize: 'vertical', outline: 'none' }} />
+        <KarakterSayaci uzunluk={metin.trim().length} />
       </label>
+      <GelistirmeSecici secili={gelistirme} onChange={setGelistirme} />
       <label style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <span style={{ fontSize: 13, fontWeight: 700, color: '#0E1A2C' }}>Görünecek adınız</span>
         <input value={ad} onChange={e => setAd(e.target.value)} maxLength={60}
           style={{ height: 48, padding: '0 14px', borderRadius: 14, border: '1px solid #DDE3EC', font: 'inherit', fontSize: 15, outline: 'none' }} />
         <span style={{ fontSize: 12.5, color: '#8B93A1' }}>Varsayılan olarak adınız ve soyadınızın baş harfi görünür.</span>
       </label>
+      <KurallarOnayKutusu onay={kural} onChange={v => { setKural(v); setHata(''); }} hata={!!hata && !kural} />
       {hata && <p role="alert" style={{ margin: 0, fontSize: 13.5, color: '#C0392B' }}>{hata}</p>}
       <button type="submit" disabled={durum === 'gonderiliyor'} className="vt-dugme vt-dugme--koyu" style={{ border: 0, cursor: 'pointer', fontFamily: 'inherit' }}>
         {durum === 'gonderiliyor' ? 'Gönderiliyor…' : 'Değerlendirmeyi gönder'}
       </button>
-      <p style={{ margin: 0, fontSize: 12, lineHeight: 1.6, color: '#8B93A1' }}>
-        Göndererek yorumunuzun işletmenin Hekimhane profilinde yayımlanmasını kabul edersiniz. Ayrıntılar: <Link href="/kvkk" style={{ color: '#12294D' }}>KVKK Aydınlatma Metni</Link>.
-      </p>
     </form>
   );
 }

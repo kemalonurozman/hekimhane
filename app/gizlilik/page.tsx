@@ -14,8 +14,9 @@ export default function GizlilikPage() {
       title: '1. Toplanan Veriler',
       content: `Hekimhane olarak aşağıdaki kişisel verileri toplayabiliriz:
 
-• **Kimlik bilgileri:** Ad, soyad (yorum yaparken isteğe bağlı)
-• **İletişim bilgileri:** E-posta adresi (iletişim formu, bülten aboneliği)
+• **Kimlik bilgileri:** Ad, soyad (yorum yazarken zorunlu; profilde kısaltılmış gösterilir, ör. "Elif K.")
+• **İletişim bilgileri:** E-posta adresi (yorum formu, iletişim formu, bülten aboneliği). Yorumdaki e-posta adresi hiçbir zaman yayınlanmaz ve işletmeyle paylaşılmaz.
+• **Yorum bilgileri:** Puan, yorum metni, ziyaret tarihi, "geliştirilebilir noktalar" seçimi ve Yorum Yayınlama Kuralları'nı kabul ettiğiniz zaman
 • **Kullanım verileri:** Ziyaret edilen sayfalar, arama sorguları, tıklama verileri (anonim)
 • **Konum verileri:** Şehir/ilçe bazlı arama tercihleriniz (tarayıcı izni gerektiren hassas konum toplanmaz)
 
@@ -26,7 +27,7 @@ export default function GizlilikPage() {
       content: `Topladığımız veriler şu amaçlarla kullanılır:
 
 • Arama sonuçlarını kişiselleştirmek ve size en uygun sağlık hizmetini sunmak
-• Yorum ve değerlendirmelerinizi yayımlamak
+• Yorum ve değerlendirmelerinizi incelemek, gerekirse ziyaretinizi doğrulamak için sizinle iletişime geçmek ve Yorum Yayınlama Kuralları'na uygun olanları yayımlamak
 • İletişim taleplerinizi yanıtlamak
 • Platformun güvenliğini sağlamak ve hizmet kalitesini iyileştirmek
 • Yasal yükümlülükleri yerine getirmek`,

@@ -11,6 +11,7 @@ const DIGER = [
   ['KVKK Aydınlatma Metni', '/kvkk'],
   ['Profesyoneller Aydınlatma Metni', '/aydinlatma/profesyoneller'],
   ['Hasta ve Ziyaretçi Aydınlatma Metni', '/aydinlatma/hasta'],
+  ['Yorum Yayınlama Kuralları', '/yorum-kurallari'],
   ['Gizlilik Politikası', '/gizlilik'],
   ['Çerez Politikası', '/cerez'],
   ['Kullanım Şartları', '/kullanim'],

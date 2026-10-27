@@ -1,9 +1,12 @@
 'use client';
 
 import AraDugmesi from '@/components/AraDugmesi';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { PosterSayfa, posterPdfIndir } from '@/components/yorum/DegerlendirmePosteri';
 import type { KartData, KartYorum } from './page';
 import { maskReviewName } from '@/lib/helpers';
+import { GelistirmeSecici, KarakterSayaci, KurallarOnayKutusu } from '@/components/yorum/YorumKurallarOnay';
+import { YORUM_MIN_KARAKTER, YORUM_MAX_KARAKTER } from '@/lib/yorum-kurallari';
 
 /* ── Yorum tarihi biçimlendir (YYYY-MM veya ISO) ── */
 function fmtRevDate(raw?: string | null): string {
@@ -134,6 +137,8 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
   const [revSending,  setRevSending]  = useState(false);
   const [revDone,     setRevDone]     = useState(false);
   const [revErr,      setRevErr]      = useState('');
+  const [revGelistirme, setRevGelistirme] = useState<string[]>([]);
+  const [revKural,    setRevKural]    = useState(false);
 
   useEffect(() => {
     setPageUrl(window.location.href);
@@ -169,8 +174,9 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
     if (revRating === 0) { setRevErr('Lütfen bir puan seçin.'); return; }
     const adParcalari = revName.trim().split(/\s+/).filter(w => w.length >= 2);
     if (adParcalari.length < 2) { setRevErr('Lütfen ad ve soyadınızı tam yazın.'); return; }
-    if (!revText.trim()) { setRevErr('Yorum metni zorunludur.'); return; }
+    if (revText.trim().length < YORUM_MIN_KARAKTER) { setRevErr(`Yorumunuz en az ${YORUM_MIN_KARAKTER} karakter olmalı.`); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(revEmail.trim())) { setRevErr('Geçerli bir e-posta adresi girin.'); return; }
+    if (!revKural) { setRevErr('Göndermek için Yorum Yayınlama Kuralları\'nı kabul edin.'); return; }
     setRevSending(true); setRevErr('');
     try {
       const body: Record<string, unknown> = {
@@ -183,6 +189,8 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         rating:        revRating,
         text:          revText.trim(),
         date:          buildRevDate(),
+        gelistirme:    revGelistirme,
+        kurallar_onay: revKural,
       };
       const r = await fetch('/api/yorum', {
         method: 'POST',
@@ -207,7 +215,7 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
 
   const openReview = () => {
     setRevName(''); setRevEmail(''); setRevRating(0); setRevText(''); setRevMonth(''); setRevYear('');
-    setRevDone(false); setRevErr(''); setRevSending(false);
+    setRevDone(false); setRevErr(''); setRevSending(false); setRevGelistirme([]); setRevKural(false);
     setShowReview(true);
   };
 
@@ -266,31 +274,15 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
     }
   };
 
-  // Ofis için A5/A6 "Değerlendirme" posteri (yorum QR'lı) → PDF
+  // Ofis için A5/A6 "Değerlendirme" posteri (yorum QR'lı) → PDF — ortak bileşen
+  const posterRef = useRef<HTMLDivElement>(null);
   const handleReviewPoster = async (fmt: 'a5' | 'a6') => {
-    if (posterDl) return;
+    if (posterDl || !posterRef.current) return;
     setPosterDl(fmt);
     try {
-      const html2canvas = (await import('html2canvas')).default;
-      const sheet = document.getElementById('kp-review-sheet');
-      if (!sheet) return;
-      sheet.style.display = 'flex';   // sabit 520×738 (A5 oranı) — içerik tam oturur
-      const qrImg = sheet.querySelector('img');
-      if (qrImg && !(qrImg as HTMLImageElement).complete) {
-        await new Promise(res => { (qrImg as HTMLImageElement).onload = res; (qrImg as HTMLImageElement).onerror = res; setTimeout(res, 3000); });
-      }
-      const canvas = await html2canvas(sheet, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#065F46', logging: false });
-      sheet.style.display = 'none';
-      const { jsPDF } = await import('jspdf');
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const [pw, ph] = fmt === 'a5' ? [148, 210] : [105, 148]; // mm — A5/A6 aynı oran
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: fmt });
-      pdf.addImage(imgData, 'JPEG', 0, 0, pw, ph);
-      pdf.save(`${displayName.replace(/\s+/g, '-')}-Degerlendirme-${fmt.toUpperCase()}.pdf`);
+      await posterPdfIndir(posterRef.current, fmt, displayName);
     } catch (e) {
       console.error('Review poster error:', e);
-      const sheet = document.getElementById('kp-review-sheet');
-      if (sheet) sheet.style.display = 'none';
     } finally {
       setPosterDl(null);
     }
@@ -306,7 +298,6 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
   const reviewUrl = `${cardUrl}?yorum=1`;
   const reviewUrlShort = `${cardUrlShort}?yorum=1`;
   const qrReview = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(reviewUrl)}&color=047857&bgcolor=FFFFFF&margin=14&format=png`;
-  const qrReviewLarge = `https://api.qrserver.com/v1/create-qr-code/?size=560x560&data=${encodeURIComponent(reviewUrl)}&color=065F46&bgcolor=FFFFFF&margin=12&format=png`;
 
   // Instagram handle
   const igHandle = d.instagram_url
@@ -900,52 +891,8 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
         </div>
       </div>
 
-      {/* ── OFİS DEĞERLENDİRME POSTERİ (gizli; A5/A6 PDF'e aktarılır) ── */}
-      <div id="kp-review-sheet" style={{
-        display: 'none', position: 'absolute', left: -9999, top: 0,
-        width: 520, height: 738, boxSizing: 'border-box',
-        background: 'linear-gradient(165deg,#065F46 0%,#047857 55%,#0E7C5A 100%)',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
-        color: 'white', overflow: 'hidden', flexDirection: 'column', alignItems: 'center',
-        padding: '44px 38px 32px', textAlign: 'center',
-      }}>
-        {/* Marka */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-          <svg width="28" height="28" viewBox="0 0 40 40"><rect width="40" height="40" rx="11" fill="#fff" /><path d="M20 8.2c-2.9 0-4.3-1.5-6.9-1.5-2.4 0-4.2 1.9-4.2 4.9 0 2.3.9 4.3 1.5 6.4.5 1.9.7 3.6.9 5.6.2 2 .5 4.1 1.1 5.8.5 1.4 1.2 2.4 2.2 2.4 1.1 0 1.6-1.2 1.9-2.9.3-1.7.5-3.6 1.1-5.1.2-.6.6-1.1 1.3-1.1s1.1.5 1.3 1.1c.6 1.5.8 3.4 1.1 5.1.3 1.7.8 2.9 1.9 2.9 1 0 1.7-1 2.2-2.4.6-1.7.9-3.8 1.1-5.8.2-2 .4-3.7.9-5.6.6-2.1 1.5-4.1 1.5-6.4 0-3-1.8-4.9-4.2-4.9C24.3 6.7 22.9 8.2 20 8.2Z" fill="#047857" /></svg>
-          <span style={{ fontSize: 19, fontWeight: 700, letterSpacing: '-0.6px' }}>hekimhane<span style={{ color: '#FCD34D' }}>.com.tr</span></span>
-        </div>
-
-        {/* 5 yıldız */}
-        <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
-          {[1,2,3,4,5].map(n => (
-            <svg key={n} width="30" height="30" viewBox="0 0 24 24" fill="#FCD34D"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z" /></svg>
-          ))}
-        </div>
-
-        <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.8px', lineHeight: 1.15 }}>Deneyiminizi<br />Değerlendirin</div>
-        <div style={{ fontSize: 14.5, color: 'rgba(255,255,255,.85)', marginTop: 12, maxWidth: 380, lineHeight: 1.5 }}>
-          Karekodu telefonunuzla okutun, memnuniyetinizi<br />birkaç saniyede paylaşın.
-        </div>
-
-        {/* Hekim/klinik */}
-        <div style={{ marginTop: 14, fontSize: 16, fontWeight: 700 }}>{displayName}</div>
-        {d.clinic_name && <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.72)', marginTop: 2 }}>{d.clinic_name}</div>}
-
-        {/* QR — yorum */}
-        <div style={{ background: 'white', borderRadius: 24, padding: '20px 22px 16px', marginTop: 20, boxShadow: '0 12px 44px rgba(0,0,0,.28)' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={qrReviewLarge} alt="Yorum QR" style={{ width: 210, height: 210, display: 'block' }} />
-          <div style={{ fontSize: 13, fontWeight: 800, color: '#047857', marginTop: 12 }}>Karekodu Okutun</div>
-          <div style={{ fontSize: 10.5, color: '#4A5568', marginTop: 3 }}>Doğrudan yorum ekranı açılır</div>
-        </div>
-
-        <div style={{ flex: 1, minHeight: 12 }} />
-
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-          <div style={{ fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,.9)', letterSpacing: '.2px' }}>{reviewUrlShort}</div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,.55)', letterSpacing: '.4px' }}>Türkiye Diş Hekimi &amp; Klinik Rehberi</div>
-        </div>
-      </div>
+      {/* ── OFİS DEĞERLENDİRME POSTERİ (gizli; A5/A6 PDF'e aktarılır) — components/yorum/DegerlendirmePosteri ── */}
+      <PosterSayfa ref={posterRef} gizli ad={displayName} kurum={d.clinic_name} yorumUrl={reviewUrl} />
 
       {/* QR Modal */}
       {showQr && (
@@ -1098,10 +1045,15 @@ export default function KartClient({ kart: d, reviews = [] }: { kart: KartData; 
                     className="rev-inp"
                     value={revText}
                     onChange={e => setRevText(e.target.value)}
-                    placeholder="Deneyiminizi paylaşın…"
+                    placeholder="Karşılanma, iletişim, bekleme süresi, ortam… Ayrıntılı sağlık bilgisi yazmanız gerekmez."
                     rows={4}
+                    maxLength={YORUM_MAX_KARAKTER}
                   />
+                  <KarakterSayaci uzunluk={revText.trim().length} />
                 </div>
+
+                <GelistirmeSecici secili={revGelistirme} onChange={setRevGelistirme} />
+                <KurallarOnayKutusu onay={revKural} onChange={v => { setRevKural(v); setRevErr(''); }} hata={!!revErr && !revKural} />
 
                 {revErr && (
                   <div style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 10, padding: '9px 13px', color: '#991B1B', fontSize: 12.5, marginBottom: 8 }}>

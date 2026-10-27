@@ -14,6 +14,16 @@ export interface MailOpts {
   subject: string;
   html: string;
   replyTo?: string;
+  /** Gönderen görünen adı (ör. hekimin adı). Adres her zaman doğrulanmış Hekimhane adresi kalır. */
+  fromName?: string;
+}
+
+/** FROM'daki adresi koruyup görünen adı değiştirir: "Dr. Ayşe Kaya · Hekimhane <bildirim@…>" */
+function gonderen(ad?: string): string {
+  if (!ad) return FROM;
+  const adres = (FROM.match(/<([^>]+)>/) || [])[1] || FROM.trim();
+  const temiz = ad.replace(/["<>\\\r\n]/g, '').replace(/\s+/g, ' ').trim().slice(0, 70);
+  return temiz ? `"${temiz} · Hekimhane" <${adres}>` : FROM;
 }
 
 export async function sendEmail(opts: MailOpts): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
@@ -21,7 +31,7 @@ export async function sendEmail(opts: MailOpts): Promise<{ ok: boolean; skipped?
   try {
     const resend = new Resend(KEY);
     const { error } = await resend.emails.send({
-      from: FROM,
+      from: gonderen(opts.fromName),
       to: opts.to,
       subject: opts.subject,
       html: opts.html,

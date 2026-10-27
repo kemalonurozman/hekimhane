@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { createSupabaseServer, getProfile } from '@/lib/supabase-server';
 import YorumYanitla from './YorumYanitla';
 import YorumSikayet from './YorumSikayet';
+import GelistirmeEtiketleri from '@/components/yorum/GelistirmeEtiketleri';
 import { sahibeGorunenYorumlar } from '@/lib/yorum-onay';
 
 export const dynamic = 'force-dynamic';
@@ -117,6 +118,7 @@ export default async function YorumlarPage() {
                       {r.text && (
                         <div style={{ padding: '14px 20px', fontSize: '14px', color: 'var(--text)', lineHeight: '1.6', borderBottom: '1px solid var(--border)' }}>
                           &ldquo;{r.text}&rdquo;
+                          <GelistirmeEtiketleri secimler={r.gelistirme} />
                         </div>
                       )}
 
@@ -146,6 +148,7 @@ export default async function YorumlarPage() {
                         <div style={{ display: 'flex', gap: '2px' }}>{stars(r.rating)}</div>
                       </div>
                       {r.text && <p style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '10px' }}>&ldquo;{r.text}&rdquo;</p>}
+                      {!!r.gelistirme?.length && <div style={{ marginBottom: '10px' }}><GelistirmeEtiketleri secimler={r.gelistirme} /></div>}
                       <div style={{ background: '#F0FDF4', borderRadius: '10px', padding: '10px 14px', borderLeft: '3px solid #86EFAC' }}>
                         <div style={{ fontSize: '11px', color: '#166534', fontWeight: 600, marginBottom: '4px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Yanıtınız</div>
                         <p style={{ fontSize: '13px', color: '#15803D', margin: 0, lineHeight: 1.6 }}>{r.reply_text}</p>

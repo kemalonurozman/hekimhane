@@ -31,11 +31,12 @@ Platform; tıbbi tavsiye, teşhis veya tedavi hizmeti sunmaz. Sağlık kararlar�
       content: `Kullanıcıların bıraktığı yorumlar için geçerli kurallar:
 
 • Yorumlar gerçek deneyime dayanmalıdır
-• Hakaret, nefret söylemi veya kişisel saldırı içeren yorumlar kaldırılır
-• Reklamsal veya spam niteliğindeki içerikler yasaktır
-• İşletme sahipleri kendi işletmelerine olumlu yorum bırakamaz
-• Hekimhane, kurallara aykırı yorumları bildiri yapılmaksızın kaldırma hakkını saklı tutar
-• Yorum bırakan kullanıcı, içeriğin doğruluğundan sorumludur`,
+• Her yorum yayından önce yönetici tarafından incelenir; kurallara aykırı yorumlar yayınlanmaz veya kaldırılır
+• Hakaret, nefret söylemi, tıbbi hüküm, kişisel veri, reklam veya bağlantı içeren yorumlar yayınlanmaz
+• İşletme sahipleri ve çalışanları kendi işletmeleri hakkında yorum yazamaz
+• Yorum bırakan kullanıcı, içeriğin doğruluğundan sorumludur
+
+Ayrıntılı kurallar için Yorum Yayınlama Kuralları sayfasına bakın: hekimhane.com.tr/yorum-kurallari. Yorum gönderen herkes bu kuralları ayrıca onaylar.`,
     },
     {
       title: '4. İşletme Listeleme',
@@ -160,6 +161,7 @@ Hekimhane; 6698 sayılı KVKK, 5651 sayılı İnternet Ortamında Yapılan Yayı
             <h4 style={{ fontWeight: 800, fontSize: 14, color: 'var(--navy)', marginBottom: 12 }}>İlgili Sayfalar</h4>
             {[
               { label: 'Gizlilik Politikası', href: '/gizlilik', icon: 'fa-shield-halved' },
+              { label: 'Yorum Yayınlama Kuralları', href: '/yorum-kurallari', icon: 'fa-comment-dots' },
               { label: 'İletişim', href: '/iletisim', icon: 'fa-envelope' },
               { label: 'İşletme Ekle', href: '/katil', icon: 'fa-plus' },
             ].map(item => (

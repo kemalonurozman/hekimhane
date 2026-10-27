@@ -101,6 +101,39 @@
         "3109"
       ],
       "port": 3109
+    },
+    {
+      "name": "hekimhane-yorum-3111",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3994",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3111"
+      ],
+      "port": 3111
+    },
+    {
+      "name": "hekimhane-davet-3112",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3993",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "RESEND_API_KEY=re_gecersiz_test",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3112"
+      ],
+      "port": 3112
     }
   ]
 }

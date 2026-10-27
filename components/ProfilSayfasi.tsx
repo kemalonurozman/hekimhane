@@ -17,7 +17,10 @@ import SafeLogo from '@/components/SafeLogo';
 import { basHarfler } from '@/lib/hk';
 import { yorumOrtalama } from '@/lib/yorum-jsonld';
 import type { Doktor } from '@/lib/types';
+import type { ProfilMakale } from '@/lib/makale-profil';
 import { sahiplenKutusu, yonetiliyorNotu, derlenmisNotu, rozetAciklamasi, YORUM_NOTU, saglikRizaMetni, AYDINLATMA_YOL } from '@/lib/uyum';
+import { GelistirmeSecici, KarakterSayaci, KurallarOnayKutusu } from '@/components/yorum/YorumKurallarOnay';
+import { YORUM_MIN_KARAKTER, YORUM_MAX_KARAKTER, YORUM_KURALLARI_YOL } from '@/lib/yorum-kurallari';
 
 // ── Türkiye İl Merkez Koordinatları ──────────────────────────────
 const IL_MERKEZ: Record<string, [number, number]> = {
@@ -137,6 +140,7 @@ export interface ProfilProps {
   kartSlug?: string | null; // /kart/<slug> — HekimKart dijital kartvizit
   hospitalDoctors?: Doktor[]; // hastane/klinik profilinde bünyedeki hekimler (clinic_name eşleşmesi)
   clinicHref?: string | null; // doktorun çalıştığı hastane sistemde kayıtlıysa → hastane sayfası linki
+  makaleler?: ProfilMakale[]; // editör onaylı, yayındaki makaleler → "Makalelerimiz"
 }
 
 // ── Yardımcı ─────────────────────────────────────────────────────
@@ -254,7 +258,7 @@ function maskName(n?: string | null) {
   return `${first} ${initials}`;
 }
 
-const TABS = ['genel', 'hekimler', 'meslek', 'konum', 'tur', 'video', 'yorumlar', 'randevu'] as const;
+const TABS = ['genel', 'hekimler', 'meslek', 'konum', 'tur', 'video', 'makaleler', 'yorumlar', 'randevu'] as const;
 type Tab = typeof TABS[number];
 const TAB_LABELS: Record<Tab, { icon: string; label: string }> = {
   genel:    { icon: 'fa-circle-info',      label: 'Genel' },
@@ -263,6 +267,7 @@ const TAB_LABELS: Record<Tab, { icon: string; label: string }> = {
   konum:    { icon: 'fa-map-location-dot', label: 'Konum' },
   tur:      { icon: 'fa-images',           label: 'Fotoğraflar' },   // fotoğraflar + altında 360° tur
   video:    { icon: 'fa-play-circle',      label: 'Video' },
+  makaleler:{ icon: 'fa-newspaper',        label: 'Makalelerimiz' },
   yorumlar: { icon: 'fa-star',             label: 'Yorumlar' },
   randevu:  { icon: 'fa-calendar-plus',    label: 'Randevu' },
 };
@@ -509,6 +514,9 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
   const [email, setEmail]         = useState('');
   const [visitMonth, setVisitMonth] = useState('');
   const [visitYear, setVisitYear]   = useState('');
+  const [gelistirme, setGelistirme] = useState<string[]>([]);
+  const [kuralOnay, setKuralOnay]   = useState(false);
+  const [kuralHata, setKuralHata]   = useState(false);
   const [saving, setSaving]       = useState(false);
   const [toast, setToast]         = useState('');
 
@@ -523,9 +531,10 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
   async function submit() {
     if (!star) { showToast('Lütfen puan seçin!'); return; }
     if (ad.trim().length < 2 || soyad.trim().length < 2) { showToast('Lütfen ad ve soyadınızı tam yazın.'); return; }
-    if (txt.length < 20) { showToast('Deneyiminiz en az 20 karakter olmalı.'); return; }
+    if (txt.trim().length < YORUM_MIN_KARAKTER) { showToast(`Deneyiminiz en az ${YORUM_MIN_KARAKTER} karakter olmalı.`); return; }
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRe.test(email)) { showToast('Geçerli bir e-posta girin.'); return; }
+    if (!kuralOnay) { setKuralHata(true); showToast('Göndermek için Yorum Yayınlama Kuralları\'nı kabul edin.'); return; }
     setSaving(true);
     // Tam ad saklanır (yalnızca işletme sahibi panelde görür); ziyaretçilere maskeli gösterilir.
     const author = (ad.trim() + ' ' + soyad.trim()).trim() || 'Anonim';
@@ -538,6 +547,7 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
           entity_id: entityId, entity_type: entityType,
           name: author, rating: star, text: txt, email: email.trim(),
           date: buildDateStr(),
+          gelistirme, kurallar_onay: kuralOnay,
         }),
       });
       const res = await r.json();
@@ -549,7 +559,7 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
     setSaving(false);
     if (data) onSubmit(data);
     setOpen(false); setStar(0); setTxt(''); setAd(''); setSoyad(''); setEmail('');
-    setVisitMonth(''); setVisitYear('');
+    setVisitMonth(''); setVisitYear(''); setGelistirme([]); setKuralOnay(false); setKuralHata(false);
     showToast(YORUM_ONAY_MESAJI, 6000);
   }
 
@@ -588,10 +598,13 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
             </div>
             <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>{star ? starLabels[star] : 'Puanlamak için yıldıza tıklayın'}</div>
 
-            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Deneyiminiz <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(en az 20 karakter)</span></div>
-            <textarea value={txt} onChange={e => setTxt(e.target.value)}
-              placeholder="Bu işletmeyle yaşadığınız deneyimi anlatın..." rows={4}
-              style={{ width: '100%', padding: '12px 16px', border: '2px solid #BBF7D0', borderRadius: 12, fontSize: 14, fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box', marginBottom: 12 }} />
+            <GelistirmeSecici secili={gelistirme} onChange={setGelistirme} />
+
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Deneyiminiz <span style={{ color: '#DC2626' }}>*</span> <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(en az {YORUM_MIN_KARAKTER} karakter)</span></div>
+            <textarea value={txt} onChange={e => setTxt(e.target.value)} maxLength={YORUM_MAX_KARAKTER}
+              placeholder="Karşılanma, iletişim, bekleme süresi, ortam… Ayrıntılı sağlık bilgisi yazmanız gerekmez." rows={4}
+              style={{ width: '100%', padding: '12px 16px', border: '2px solid #BBF7D0', borderRadius: 12, fontSize: 14, fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box', marginBottom: 0 }} />
+            <div style={{ marginBottom: 12 }}><KarakterSayaci uzunluk={txt.trim().length} /></div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 8 }}>
               {[
@@ -628,6 +641,8 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
                 {VISIT_YEARS.map(y => <option key={y} value={String(y)}>{y}</option>)}
               </select>
             </div>
+
+            <KurallarOnayKutusu onay={kuralOnay} onChange={v => { setKuralOnay(v); if (v) setKuralHata(false); }} hata={kuralHata} />
 
             <button onClick={submit} disabled={saving}
               style={{ width: '100%', background: '#059669', color: 'white', border: 'none', borderRadius: 12, padding: 13, fontSize: 14, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
@@ -1126,6 +1141,7 @@ function OnayliHastaRozeti() {
 
 export default function ProfilSayfasi(props: ProfilProps) {
   const { entityType, id, name, il, ilce, adres, lat, lng, maps_url, tel: telRaw, email, contactHidden, whatsapp, website, website2, logo, cover, rat = 0, specs, claimed, online, acil, premium, verified, type, spec, fee, exp, photo, unvan, bio, okul, uzmanlikKurum, deneyimBaslangic, deneyimler, sertifikalar, yabanciDiller, sigorta, conditions, docs, beds, founded, nobetci, nobetci_bilgi, pharmacist, instagram_url, facebook_url, linkedin_url, calisma_saatleri, acik_24_saat, randevuAktif, randevuSlotDk, bookedSlots, tour360url, photo360, photos, video_url, faq, listHref, breadcrumb, kartSlug, hospitalDoctors, clinicHref } = props;
+  const makaleler = props.makaleler || [];
 
   // Gizli iletişim (ör. Bobath terapisti henüz katılmadı) → tel/email/randevu gizlenir
   const contactGizli = contactHidden === true;
@@ -1189,6 +1205,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
     t === 'meslek'   ? hasMeslek :
     t === 'hekimler' ? ((entityType === 'hastane' || entityType === 'klinik') && hekimSayisi > 0) :
     t === 'randevu'  ? !randevuGizli :
+    t === 'makaleler' ? makaleler.length > 0 :
     true);
   useEffect(() => {
     if (!lightboxOpen) return;
@@ -1325,7 +1342,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
   const bildirHref = `/hatali-bilgi?id=${id}&type=${entityType}`;
   const yorumNotu = (
     <p className="profil-uyum-not" style={{ margin: '0 0 12px', padding: '10px 14px', borderRadius: 12, background: '#F6F8FB', border: '1px solid var(--border)', fontSize: 12.5, lineHeight: 1.6, color: 'var(--muted)' }}>
-      {YORUM_NOTU} Kurallarımıza aykırı bir görüş gördüğünüzde <Link href={`${bildirHref}&konu=yorum`} style={{ color: 'var(--navy)', fontWeight: 700 }}>bildirin</Link>.
+      {YORUM_NOTU} <Link href={YORUM_KURALLARI_YOL} style={{ color: 'var(--navy)', fontWeight: 700 }}>Yorum kurallarımıza</Link> aykırı bir görüş gördüğünüzde <Link href={`${bildirHref}&konu=yorum`} style={{ color: 'var(--navy)', fontWeight: 700 }}>bildirin</Link>.
     </p>
   );
   const kutu = sahiplenKutusu(entityType);
@@ -1365,6 +1382,36 @@ export default function ProfilSayfasi(props: ProfilProps) {
   const sc: React.CSSProperties = { background: 'white', borderRadius: 20, marginBottom: 24, border: '1px solid var(--border)', overflow: 'hidden' };
   const scHd: React.CSSProperties = { padding: '18px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' };
   const scBody: React.CSSProperties = { padding: 24 };
+
+  /* Makale kartları — blog listesiyle aynı dil (kapak · kategori · başlık · özet · tarih) */
+  function makaleKartlari(liste: ProfilMakale[]) {
+    const tarih = (s: string) => { try { return new Date(s).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Istanbul' }); } catch { return ''; } };
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 230px), 1fr))', gap: 16 }}>
+        {liste.map(m => (
+          <Link key={m.slug} href={`/blog/${m.slug}`} className="profil-makale"
+            style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none', background: 'white', border: '1px solid var(--border)', borderRadius: 16, overflow: 'hidden', minWidth: 0 }}>
+            {m.cover_image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={m.cover_image} alt="" loading="lazy" style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', background: '#EEF2F7' }} />
+            ) : (
+              <div aria-hidden style={{ aspectRatio: '16 / 9', background: 'linear-gradient(135deg,#12294D,#1B3A69)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#DEC283" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><path d="M14 3v6h6" /><path d="M8 13h8M8 17h5" /></svg>
+              </div>
+            )}
+            <div style={{ padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+              {m.category && <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--gold2, #B8892F)' }}>{m.category}</span>}
+              <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', lineHeight: 1.35, letterSpacing: '-.2px' }}>{m.title}</span>
+              {m.summary && <span style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.55, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{m.summary}</span>}
+              <span style={{ marginTop: 'auto', paddingTop: 6, fontSize: 12, color: 'var(--muted)' }}>
+                {tarih(m.created_at)}{m.okuma_dk ? ` · ${m.okuma_dk} dk okuma` : ''}
+              </span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    );
+  }
   /** Klinik: "Hakkında" — işletmenin panelden yazdığı tanıtım + öne çıkan bilgiler
    *  (kaç yıldır hizmette, online randevu, acil; diller ayrı bölümde). Hiçbiri yoksa bölüm çıkmaz. */
   const klinikHakkinda = () => {
@@ -1728,6 +1775,9 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 {tab === 'hekimler' && (
                   <span style={{ background: heroLight ? 'rgba(19,43,82,.12)' : 'rgba(255,255,255,.2)', color: hName, padding: '2px 7px', borderRadius: 10, fontSize: 11, marginLeft: 2 }}>{hekimSayisi}</span>
                 )}
+                {tab === 'makaleler' && (
+                  <span style={{ background: heroLight ? 'rgba(19,43,82,.12)' : 'rgba(255,255,255,.2)', color: hName, padding: '2px 7px', borderRadius: 10, fontSize: 11, marginLeft: 2 }}>{makaleler.length}</span>
+                )}
               </button>
             ))}
           </div>
@@ -2065,6 +2115,26 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   )}
                 </div>
               </div>
+
+              {/* ── Makalelerimiz (son 3) — tamamı "Makalelerimiz" sekmesinde ── */}
+              {makaleler.length > 0 && (
+                <div style={sc}>
+                  <div style={scHd}>
+                    <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Makalelerimiz</h3>
+                    {makaleler.length > 3 && (
+                      <button type="button" onClick={() => {
+                        setActiveTab('makaleler');
+                        const bar = document.querySelector('.profil-tab-bar');
+                        if (bar) window.scrollTo({ top: bar.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
+                      }}
+                        style={{ border: 'none', background: 'transparent', color: 'var(--navy)', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
+                        Tümü ({makaleler.length}) ›
+                      </button>
+                    )}
+                  </div>
+                  <div style={scBody}>{makaleKartlari(makaleler.slice(0, 3))}</div>
+                </div>
+              )}
 
               {/* ── Sıkça Sorulan Sorular (SSS) ── */}
               {(entityType === 'klinik' || entityType === 'doktor' || entityType === 'eczane') && faq && faq.length > 0 && (
@@ -2475,6 +2545,21 @@ export default function ProfilSayfasi(props: ProfilProps) {
           })()}
 
           {/* ── YORUMLAR TAB ── */}
+          {activeTab === 'makaleler' && makaleler.length > 0 && (
+            <div style={sc}>
+              <div style={scHd}>
+                <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Makalelerimiz</h3>
+                <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>{makaleler.length} yazı</span>
+              </div>
+              <div style={scBody}>
+                {makaleKartlari(makaleler)}
+                <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6, margin: '16px 0 0' }}>
+                  Yazılar Hekimhane editörlüğünce incelendikten sonra yayınlanır. Genel bilgilendirme amaçlıdır; tanı ve tedavi için hekiminize başvurun.
+                </p>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'yorumlar' && (
             <>
               {isOwner ? (

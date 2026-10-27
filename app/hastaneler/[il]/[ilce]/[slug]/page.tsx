@@ -11,7 +11,9 @@ import { maskReviewName } from '@/lib/helpers';
 import { yorumJsonLd } from '@/lib/yorum-jsonld';
 import { bookedSlots } from '@/lib/randevu-booked';
 import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
+import { profilMakaleleri } from '@/lib/makale-profil';
 import { sahiplenilmisMi, gercekOnayIsaretle } from '@/lib/sahiplik';
+import { herkeseAcikYorumlar } from '@/lib/yorum-onay';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +31,7 @@ async function getData(slug: string) {
   const { data: rawYorumlar } = await supabase.from('yorumlar').select('*')
     .eq('entity_type', 'hastane').eq('entity_id', h.id)
     .order('created_at', { ascending: false }).limit(50);
-  const yorumlar = ((rawYorumlar || []) as Yorum[]).filter((y: any) => !y.hidden);
+  const yorumlar = herkeseAcikYorumlar<Yorum>(rawYorumlar);
   // Bünyedeki hekimler — doktorlar.clinic_name = hastane adı ile eşleşenler (bölüm bölüm gösterilir)
   const { data: rawDocs } = await supabase.from('doktorlar').select('*')
     .eq('clinic_name', h.name).limit(500);
@@ -111,7 +113,7 @@ export default async function HastaneProfilPage({ params }: Props) {
   // HekimKart bağlantısı: kayıtlı kart varsa onun adresi (sahip panelden
   // adresi değiştirdiyse site içindeki bağlantı da onunla birlikte değişsin).
   // Sahiplik /sahiplen ile aynı kaynaktan (lib/sahiplik.ts) — ikisi çelişmesin.
-  const [kartSlug, claimed] = await Promise.all([kartSlugCoz(h.id, h.slug), sahiplenilmisMi(h.id, h.claimed)]);
+  const [kartSlug, claimed, makaleler] = await Promise.all([kartSlugCoz(h.id, h.slug), sahiplenilmisMi(h.id, h.claimed), profilMakaleleri(h.id)]);
 
   return (
     <>
@@ -138,6 +140,7 @@ export default async function HastaneProfilPage({ params }: Props) {
       yorumlar={yorumlar}
       hospitalDoctors={(hospitalDoctors || []).map(puansiz)}
       kartSlug={kartSlug}
+      makaleler={makaleler}
       listHref="/hastaneler"
       breadcrumb={[
         { label: 'Ana Sayfa', href: '/' },

@@ -7,6 +7,8 @@ import { parseGovde, okumaSuresi } from '@/lib/makale-icerik';
 import MakaleGovde from '@/components/MakaleGovde';
 import { HASTALIK_YAZILARI } from '@/lib/hastalik-yazilari';
 import { profilYayindaDegil } from '@/lib/uyum';
+import PaylasDugmeleri from '@/components/PaylasDugmeleri';
+import { isletmeBilgisi } from '@/lib/entity-link';
 
 interface Props { params: { slug: string } }
 
@@ -23,9 +25,11 @@ export const revalidate = 300;
 interface Yazi {
   title: string;
   summary: string;
-  category: string;
+  category: string | null;
   author: string;
   authorHref: string | null;
+  /** Yazar işletmenin branşı/türü — yazar kutusunda */
+  authorAlt: string | null;
   created_at: string;
   okumaDk: number;
   govde: BlogBlok[];
@@ -71,7 +75,7 @@ async function getYazi(slug: string): Promise<Yazi | null> {
   if (statik) {
     return {
       title: statik.title, summary: statik.summary, category: statik.category,
-      author: statik.author, authorHref: null, created_at: statik.created_at, okumaDk: statik.okumaDk,
+      author: statik.author, authorHref: null, authorAlt: null, created_at: statik.created_at, okumaDk: statik.okumaDk,
       govde: yayinlanmamisBaglantilariSuz(statik.govde), sponsorlu: false, website: null,
       cover_image: statik.cover_image,
       cover_alt: statik.cover_alt || null,
@@ -93,26 +97,24 @@ async function getYazi(slug: string): Promise<Yazi | null> {
     // status kolonu varsa yalnızca yayında olanlar açılır
     if (p.status && p.status !== 'published') return null;
 
-    // Doktor yazdıysa yazarı doktor adı + profil linkiyle göster
+    // Panelden yazan işletme (doktor/klinik/hastane/eczane) → güncel adı + profil bağlantısı
     let author = p.entity_name || p.author || 'Hekimhane';
     let authorHref: string | null = null;
-    if (p.entity_type === 'doktor' && p.entity_id) {
-      try {
-        const { data: d } = await supabase.from('doktorlar').select('ad,soyad,unvan,slug').eq('id', p.entity_id).maybeSingle();
-        const dr = d as any;
-        if (dr) {
-          author = [dr.unvan, dr.ad, dr.soyad].filter(Boolean).join(' ').trim() || author;
-          if (dr.slug) authorHref = `/doktorlar/${dr.slug}`;
-        }
-      } catch { /* geç */ }
+    let authorAlt: string | null = null;
+    if (p.entity_type && p.entity_id) {
+      const b = await isletmeBilgisi(supabase as any, String(p.entity_type), String(p.entity_id));
+      if (b.ad) author = b.ad;
+      if (b.url) authorHref = b.url.replace(/^https?:\/\/(www\.)?hekimhane\.com\.tr/, '') || null;
+      authorAlt = b.bolum || b.kurum || null;
     }
 
     return {
       title: p.title,
       summary: p.summary || '',
-      category: p.category || 'Diş Sağlığı',
+      category: p.category || null,   // panelden kategorisiz gönderilebilir
       author,
       authorHref,
+      authorAlt,
       created_at: p.created_at,
       okumaDk: p.okuma_dk || okumaSuresi(p.content || ''),
       govde: parseGovde(p.content || ''),
@@ -206,18 +208,22 @@ export default async function BlogDetayPage({ params }: Props) {
             <Link href="/" style={{ color: 'rgba(255,255,255,.65)' }}>Ana Sayfa</Link>
             <span style={{ fontSize: 8 }}>›</span>
             <Link href="/blog" style={{ color: 'rgba(255,255,255,.65)' }}>Blog</Link>
-            <span style={{ fontSize: 8 }}>›</span>
-            <span style={{ color: 'rgba(255,255,255,.9)' }}>{y.category}</span>
+            {y.category && <>
+              <span style={{ fontSize: 8 }}>›</span>
+              <span style={{ color: 'rgba(255,255,255,.9)' }}>{y.category}</span>
+            </>}
           </nav>
-          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--navy)', background: 'var(--gold-fill)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>
-            {y.category}
-          </span>
+          {y.category && (
+            <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--navy)', background: 'var(--gold-fill)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>
+              {y.category}
+            </span>
+          )}
           <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 800, color: 'white', lineHeight: 1.2, marginBottom: 14 }}>
             {y.title}
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 13, color: 'rgba(255,255,255,.7)', flexWrap: 'wrap' }}>
             {y.authorHref
-              ? <Link href={y.authorHref} style={{ color: 'white', fontWeight: 600, textDecoration: 'none' }}>{y.author} <span style={{ opacity: .7, fontSize: 11 }}>(Diş Hekimi)</span></Link>
+              ? <Link href={y.authorHref} style={{ color: 'white', fontWeight: 600, textDecoration: 'none' }}>{y.author}{y.authorAlt && <span style={{ opacity: .7, fontSize: 11 }}> ({y.authorAlt})</span>}</Link>
               : <span>{y.author}</span>}
             <span style={{ opacity: .5 }}>•</span>
             <span>{trTarih(y.created_at)}</span>
@@ -254,6 +260,26 @@ export default async function BlogDetayPage({ params }: Props) {
           {y.summary}
         </p>
         <MakaleGovde bloklar={y.kapakIcte && y.cover_image ? kapagiGovdeyeKoy(y.govde, params.slug, y.cover_image, y.cover_alt || y.title) : y.govde} />
+
+        {/* Paylaş */}
+        <div style={{ marginTop: 30, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
+          <PaylasDugmeleri url={`https://www.hekimhane.com.tr/blog/${params.slug}`} baslik={y.title} etiket="Bu yazıyı paylaşın" />
+        </div>
+
+        {/* Yazar kutusu — yazının profil sayfasındaki "Makalelerimiz"e bağlantısı */}
+        {y.authorHref && (
+          <Link href={y.authorHref} style={{ marginTop: 22, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 14, background: 'white', border: '1px solid var(--border)', borderRadius: 16, padding: '16px 18px', textDecoration: 'none' }}>
+            <span style={{ width: 44, height: 44, borderRadius: 13, background: 'var(--navy)', color: '#DEC283', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+            </span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)' }}>Yazar</span>
+              <span style={{ display: 'block', fontSize: 15.5, fontWeight: 700, color: 'var(--navy)', lineHeight: 1.3 }}>{y.author}</span>
+              {y.authorAlt && <span style={{ display: 'block', fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>{y.authorAlt}</span>}
+            </span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)', whiteSpace: 'nowrap' }}>Profil ve diğer yazılar ›</span>
+          </Link>
+        )}
 
         {/* Yazarın sitesi — panel/iş ortağı makalelerinde */}
         {y.website && (

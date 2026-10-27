@@ -7,6 +7,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import KartClient from './KartClient';
 import { bos, entityKartAlanlari } from '@/lib/hekimkart';
+import { herkeseAcikYorumlar } from '@/lib/yorum-onay';
 
 export interface KartData {
   slug: string;
@@ -270,10 +271,24 @@ async function getReviews(entity_type?: string | null, entity_id?: string | null
       .not('text', 'is', null)
       .order('created_at', { ascending: false })
       .limit(30);
-    return (data || []).filter((r: any) => !r.hidden && (r.text || '').trim().length > 0) as KartYorum[];
+    return herkeseAcikYorumlar<KartYorum>((data || []).filter((r: any) => (r.text || '').trim().length > 0));
   } catch {
     return [];
   }
+}
+
+/**
+ * Profil sayfasıyla aynı kural: hekimin iletişimi gizliyse (`doktorlar.contact_hidden`,
+ * ör. henüz katılmamış Bobath terapisti) kartta da telefon görünmez. Numara sunucuda
+ * silinir — istemciye (sayfa kaynağına) hiç gitmez. Kolon yoksa/okunamazsa dokunulmaz.
+ */
+async function iletisimGizliMi(d: KartData): Promise<boolean> {
+  if (d.entity_type !== 'doktor' || !d.entity_id) return false;
+  try {
+    const { data } = await (supabase as any)
+      .from('doktorlar').select('*').eq('id', String(d.entity_id)).maybeSingle();
+    return data?.contact_hidden === true;
+  } catch { return false; }
 }
 
 /** Panel önizlemesinde (iframe) site menüsü ve footer gizlenir — yalnız kart görünsün. */
@@ -285,9 +300,11 @@ export default async function HekimKartPage({ params, searchParams }: {
 }) {
   const { kart: d, yonlendir } = await getKart(params.slug);
   // Adres değişmiş: eski bağlantı kalıcı olarak yenisine taşınır (308)
-  if (yonlendir) permanentRedirect(`/kart/${yonlendir}`);
+  // ?yorum=1 korunur: basılı değerlendirme posterinin QR'ı adres değişse de yorum formunu açsın
+  if (yonlendir) permanentRedirect(`/kart/${yonlendir}${searchParams?.yorum === '1' ? '?yorum=1' : ''}`);
   if (!d) notFound();
-  const reviews = await getReviews(d.entity_type, d.entity_id);
+  const [reviews, gizli] = await Promise.all([getReviews(d.entity_type, d.entity_id), iletisimGizliMi(d)]);
+  if (gizli) d.tel = null;
   const onizleme = searchParams?.onizleme === '1';
   return (
     <>

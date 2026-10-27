@@ -92,6 +92,7 @@ async function buildSectionRaw(section: string): Promise<SmUrl[]> {
       { loc: `${BASE}/on-bilgilendirme-formu`, changefreq: 'yearly', priority: 0.2 },
       { loc: `${BASE}/iptal-iade`, changefreq: 'yearly', priority: 0.2 },
       { loc: `${BASE}/kullanim`, changefreq: 'yearly', priority: 0.3 },
+      { loc: `${BASE}/yorum-kurallari`, changefreq: 'yearly', priority: 0.3 },
     ];
     const kategori = KATEGORILER.filter(k => k.slug === 'dis-sagligi')
       .map(k => ({ loc: `${BASE}/hastaliklar/${k.slug}`, changefreq: 'weekly', priority: 0.75 }));

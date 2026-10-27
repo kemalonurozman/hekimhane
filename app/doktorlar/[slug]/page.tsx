@@ -11,7 +11,9 @@ import { bookedSlots } from '@/lib/randevu-booked';
 import { buildDoktorFaq } from '@/lib/faq';
 import { openingHoursSpec } from '@/lib/seo';
 import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
+import { profilMakaleleri } from '@/lib/makale-profil';
 import { sahiplenilmisMi } from '@/lib/sahiplik';
+import { herkeseAcikYorumlar } from '@/lib/yorum-onay';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +31,7 @@ async function getData(slug: string) {
   const { data: rawYorumlar } = await supabase.from('yorumlar').select('*')
     .eq('entity_type', 'doktor').eq('entity_id', d.id)
     .order('created_at', { ascending: false }).limit(50);
-  const yorumlar = ((rawYorumlar || []) as Yorum[]).filter((y: any) => !y.hidden);
+  const yorumlar = herkeseAcikYorumlar<Yorum>(rawYorumlar);
   // Doktorun çalıştığı hastane sistemde kayıtlıysa → hastane sayfası linki
   let clinicHref: string | null = null;
   if (d.clinic_name) {
@@ -145,7 +147,7 @@ export default async function DoktorProfilPage({ params }: Props) {
   // Sahiplik: onaylı claim_requests ya da claimed önbelleği (lib/sahiplik.ts).
   // verified (içe aktarılan "Onaylı") sahiplik değildir — eskiden hiç geçilmiyordu,
   // her doktor "Sahiplenilmemiş" görünüyordu.
-  const [kartSlug, claimed] = await Promise.all([kartSlugCoz(d.id, d.slug), sahiplenilmisMi(d.id, d.claimed)]);
+  const [kartSlug, claimed, makaleler] = await Promise.all([kartSlugCoz(d.id, d.slug), sahiplenilmisMi(d.id, d.claimed), profilMakaleleri(d.id)]);
 
   return (
     <>
@@ -189,6 +191,7 @@ export default async function DoktorProfilPage({ params }: Props) {
       faq={faq}
       yorumlar={yorumlar}
       kartSlug={kartSlug}
+      makaleler={makaleler}
       listHref="/doktorlar"
       breadcrumb={[
         { label: 'Ana Sayfa', href: '/' },
