@@ -2755,15 +2755,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <div style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--text)' }}>Online randevu kapalı</div>
                   <p style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6, margin: '6px 0 0' }}>
                     {katilmamis
-                      ? (tel && !katilmamisGizli
-                        ? 'Bu profil henüz Hekimhane’ye katılmadı; online randevu talebi alınamıyor. Randevu için işletmeyi doğrudan arayın.'
-                        : 'Bu profil henüz Hekimhane’ye katılmadı; randevu talebi alınamıyor.')
+                      ? 'Bu profil henüz Hekimhane’ye katılmadı; randevu talebi alınamıyor.'
                       : isKamuHastane
                       ? 'Kamu hastanesi — randevular Sağlık Bakanlığı MHRS sistemi üzerinden alınır.'
                       : 'Devlet hastanesine bağlı hekim — randevu için hastaneyi arayın veya MHRS’yi kullanın.'}
                   </p>
                   {(isKamuHastane || isDevletDoktor) && <MhrsDugmeleri tel={tel} />}
-                  {katilmamis && !katilmamisGizli && <KatilmamisTelefon tel={tel} style={{ marginTop: 14, width: '100%', boxSizing: 'border-box' }} />}
                 </div>
               ) : (<>
               {randevuAktif ? (
