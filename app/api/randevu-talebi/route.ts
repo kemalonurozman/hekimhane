@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { sahipEpostasi } from '@/lib/yonetici';
-import { sahiplenilmisMi } from '@/lib/sahiplik';
+import { sahiplenilmisMi, SAHIPLIK_TABLO } from '@/lib/sahiplik';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir, satirTel } from '@/lib/email';
 import { isletmeBilgisi, profilSatiri } from '@/lib/entity-link';
@@ -215,30 +215,35 @@ export async function POST(req: NextRequest) {
 
     const admin = adminClient();
 
+    const MHRS_MESAJ = 'Bu kurum kamu hastanesidir; randevular MHRS (mhrs.gov.tr veya ALO 182) üzerinden alınır.';
+    // select('*'): eksik kolonlu şemada (contact_hidden, claimed…) sorgu düşmesin
+    const { data: isletme, error: isletmeHata } = await (admin as any)
+      .from(SAHIPLIK_TABLO[entity_type]).select('*').eq('id', String(entity_id)).maybeSingle();
+    if (isletmeHata) {
+      return NextResponse.json({ error: 'Talep şu an iletilemiyor. Lütfen biraz sonra tekrar deneyin.' }, { status: 503 });
+    }
+    if (!isletme) {
+      return NextResponse.json({ error: 'İşletme bulunamadı.' }, { status: 404 });
+    }
+    // Profil sayfasıyla aynı sahiplik kaynağı (lib/sahiplik.ts)
+    const sahipli = await sahiplenilmisMi(String(entity_id), isletme.claimed);
+
     // Kamu hastaneleri (Devlet/Üniversite, sahiplenilmemiş) ve devlet hastanesine bağlı hekimler
     // randevuyu MHRS üzerinden verir → talep alınmaz (arayan kimse yok, hasta boşuna bekler).
-    const MHRS_MESAJ = 'Bu kurum kamu hastanesidir; randevular MHRS (mhrs.gov.tr veya ALO 182) üzerinden alınır.';
-    try {
-      if (entity_type === 'hastane') {
-        // select('*') + sahiplenilmisMi: profil sayfasıyla aynı sahiplik kaynağı (lib/sahiplik.ts)
-        const { data: hs } = await (admin as any).from('hastaneler').select('*').eq('id', String(entity_id)).maybeSingle();
-        if (hs && ['Devlet', 'Üniversite'].includes(String(hs.type || '')) && !(await sahiplenilmisMi(String(entity_id), hs.claimed))) {
-          return NextResponse.json({ error: MHRS_MESAJ }, { status: 400 });
-        }
-      } else if (entity_type === 'doktor') {
-        // select('*'): contact_hidden kolonu olmayan şemada sorgu düşüp kontrol atlanmasın
-        const { data: dk } = await (admin as any).from('doktorlar').select('*').eq('id', String(entity_id)).maybeSingle();
-        if (dk && Array.isArray(dk.tags) && dk.tags.includes('devlet-dis-hastanesi')) {
-          return NextResponse.json({ error: MHRS_MESAJ }, { status: 400 });
-        }
-        // İletişimi gizli ve SAHİPSİZ profil (içe aktarılan, henüz katılmamış kişi): hasta
-        // bilgisi kişinin içe aktarılan e-postasına gitmesin. Sahiplenmiş hekim iletişimini
-        // gizlese de talep almaya devam eder (profil ile aynı kural).
-        if (dk && dk.contact_hidden === true && !(await sahiplenilmisMi(String(entity_id), dk.claimed))) {
-          return NextResponse.json({ error: 'Bu hekim henüz Hekimhane\'ye katılmadı; bu profil üzerinden randevu talebi iletilemiyor.' }, { status: 400 });
-        }
-      }
-    } catch { /* kontrol yapılamazsa talebi engelleme */ }
+    if (entity_type === 'hastane' && ['Devlet', 'Üniversite'].includes(String(isletme.type || '')) && !sahipli) {
+      return NextResponse.json({ error: MHRS_MESAJ }, { status: 400 });
+    }
+    if (entity_type === 'doktor' && Array.isArray(isletme.tags) && isletme.tags.includes('devlet-dis-hastanesi')) {
+      return NextResponse.json({ error: MHRS_MESAJ }, { status: 400 });
+    }
+    // Hekimhane'ye katılmamış (sahiplenilmemiş) işletme: talebi alacak kimse yok → hiç alınmaz.
+    // Profil sayfası formu göstermez, numara varsa "Randevu için Ara" düğmesi çıkar.
+    if (!sahipli) {
+      return NextResponse.json({
+        error: 'Bu işletme henüz Hekimhane\'ye katılmadı; bu profil üzerinden randevu talebi iletilemiyor. Randevu için işletmeyi doğrudan arayın.',
+        katilmamis: true,
+      }, { status: 403 });
+    }
 
     // Slot bazlı ise: aynı işletme + aynı slot zaten alınmış mı? (çakışma)
     if (slot) {

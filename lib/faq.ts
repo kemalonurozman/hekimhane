@@ -242,7 +242,7 @@ export function buildDoktorFaq(input: DoktorFaqInput): FaqItem[] {
     {
       soru: `${label} için nasıl randevu alabilirim?`,
       cevap: tel
-        ? `Randevu almak için Hekimhane profil sayfasındaki "Ara" düğmesiyle doğrudan arayabilir ya da online randevu talebi bırakabilirsiniz.`
+        ? `Randevu almak için Hekimhane profil sayfasındaki "Ara" düğmesiyle doğrudan arayabilirsiniz. Hekim Hekimhane\'ye katıldıysa profil üzerinden online randevu talebi de bırakabilirsiniz.`
         : `Randevu ve iletişim bilgilerine Hekimhane profil sayfası üzerinden ulaşabilir, uygun saatler için doğrudan iletişime geçebilirsiniz.`,
     },
     // 3) Branşa özel soru (yalnızca spec varsa)
