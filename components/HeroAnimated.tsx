@@ -230,6 +230,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
   const [acik, setAcik]   = useState(false);
   const [yukleniyor, setYukleniyor] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const konumRef    = useRef('');   // debounce içindeki aramanın güncel konumu görmesi için
   const wrapRef     = useRef<HTMLDivElement>(null);
   const aramaRef    = useRef<HTMLInputElement>(null);
 
@@ -263,7 +264,12 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
     debounceRef.current = setTimeout(async () => {
       setYukleniyor(true);
       try {
-        const res  = await fetch(`/api/search?q=${encodeURIComponent(val)}`);
+        // Şehir alanı doluysa canlı arama da o konumla süzülür ("lipödem" + Ankara)
+        const yer = konumCoz(konumRef.current);
+        const ps = new URLSearchParams({ q: val });
+        if (yer.il) ps.set('il', yer.il);
+        if (yer.ilce) ps.set('ilce', yer.ilce);
+        const res  = await fetch(`/api/search?${ps.toString()}`);
         const data: SearchResults = await res.json();
         setSonuclar(data);
         // Sonuç olsun olmasın dropdown'ı aç — sonuç yoksa "bulunamadı + ekleme talebi" gösterilir
@@ -273,6 +279,13 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
       }
     }, 280);
   }, []);
+
+  // Konum değişince (ör. Ankara seçildi) yazılı arama o konumla yeniden çalışır
+  useEffect(() => {
+    konumRef.current = konum;
+    if (q.trim().length >= 2) araDebounced(q.trim());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [konum]);
 
   function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value;
@@ -292,7 +305,9 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
     if (metin) ps.set('q', metin);
     if (yer.il) ps.set('il', yer.il);
     if (yer.ilce) ps.set('ilce', yer.ilce);
-    router.push(`/klinikler?${ps.toString()}`);
+    // Canlı sonuçlarda klinik yok ama hekim varsa (ör. "lipödem" + Ankara) hekim listesine git
+    const hekimOnde = !!sonuclar && !sonuclar.klinikler.length && sonuclar.doktorlar.length > 0;
+    router.push(`${hekimOnde ? '/doktorlar' : '/klinikler'}?${ps.toString()}`);
   }
 
   function handleSelect(href: string) {
@@ -507,7 +522,13 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
                     e.preventDefault();
                     setAcik(false);
                     // Tüm sonuçlar: en üstteki türün listesinde aynı arama
-                    if (q.trim()) router.push(`${aktifGruplar[0]?.liste || '/klinikler'}?q=${encodeURIComponent(q.trim())}`);
+                    if (q.trim()) {
+                      const yer = konumCoz(konum);
+                      const ps = new URLSearchParams({ q: q.trim() });
+                      if (yer.il) ps.set('il', yer.il);
+                      if (yer.ilce) ps.set('ilce', yer.ilce);
+                      router.push(`${aktifGruplar[0]?.liste || '/klinikler'}?${ps.toString()}`);
+                    }
                   }}
                   style={{
                     fontSize: 12, color: '#1A335E', fontWeight: 600,

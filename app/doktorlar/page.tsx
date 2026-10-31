@@ -12,6 +12,7 @@ import type { Doktor } from '@/lib/types';
 import DoktorCard from '@/components/DoktorCard';
 import ListingLayout from '@/components/ListingLayout';
 import { IL_KONUM } from '@/lib/il-koordinatlari';
+import { hastalikEslesenHekimler } from '@/lib/hastalik-arama';
 
 const PAGE_SIZE = 20;
 
@@ -50,6 +51,19 @@ const DIS_HEKIMI_SPECS = ['Diş Hekimi', 'Diş Hekimliği', 'Dişçi'];
 const DIL_SECENEKLERI = ['Türkçe', 'İngilizce', 'Fransızca', 'Arapça', 'Rusça', 'Ukraynaca', 'Azerice']
   .map(d => ({ value: d, label: d }));
 
+/**
+ * ?q= "Baktığı hastalıklar"la da eşleşir ("lipödem ankara" → Ankara'da Lipödem'e bakan hekimler).
+ * Eşleşen hekimlerin kimlikleri .or()'a `id.in.(…)` olarak eklenir; il/ilçe filtresi ayrıca uygulanır.
+ */
+async function hastalikIdleri(filters: Record<string, string | undefined>): Promise<string> {
+  if (!filters.q) return '';
+  try {
+    const es = await hastalikEslesenHekimler(filters.q, { il: filters.il, ilce: filters.ilce });
+    const ids = es.map(x => x.hekim.id).filter(id => /^[A-Za-z0-9_-]+$/.test(id)).slice(0, 200);
+    return ids.length ? `,id.in.(${ids.join(',')})` : '';
+  } catch { return ''; }
+}
+
 async function getDoktorlar(filters: Record<string, string | undefined> & { page?: number }) {
   const from = ((filters.page || 1) - 1) * PAGE_SIZE;
   // Sıra: Pro → profil puanı → hasta puanı
@@ -62,7 +76,7 @@ async function getDoktorlar(filters: Record<string, string | undefined> & { page
   if (filters.spec)   query = query.eq('spec', filters.spec);
   if (filters.online) query = query.eq('online', true);
   if (filters.dil && filters.dil !== 'Türkçe')    query = query.contains('yabanci_diller', JSON.stringify([filters.dil]));   // jsonb @> ["Dil"]
-  if (filters.q)      query = query.or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%,spec.ilike.%${filters.q}%`);
+  if (filters.q)      query = query.or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%,spec.ilike.%${filters.q}%${await hastalikIdleri(filters)}`);
   const { data, count, error } = await query;
   if (error) console.error(error);
   // Karttaki "Onaylı" rozeti = gerçek sahiplik (içe aktarılan `verified` değil)
@@ -115,7 +129,7 @@ const getKonumlar = unstable_cache(async (filters: Record<string, string | undef
   if (filters.ilce) query = query.eq('ilce', filters.ilce);
   if (filters.spec) query = query.eq('spec', filters.spec);
   if (filters.dil && filters.dil !== 'Türkçe')  query = query.contains('yabanci_diller', JSON.stringify([filters.dil]));
-  if (filters.q)    query = query.or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%`);
+  if (filters.q)    query = query.or(`ad.ilike.%${filters.q}%,soyad.ilike.%${filters.q}%${await hastalikIdleri(filters)}`);
   const { data } = await query.limit(5000);
   return (data || []).map((d: any) => {
     if (d.lat && d.lng && d.lat !== 0 && d.lng !== 0) return d;

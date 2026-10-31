@@ -10,6 +10,7 @@ import { NextRequest } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { urlParca } from '@/lib/entity-link';
 import { IL_LISTE, IL_ILCE } from '@/lib/tr-il-ilce';
+import { hastalikEslesenHekimler } from '@/lib/hastalik-arama';
 
 // Konum tespiti için normalize (Türkçe + aksan-duyarsız)
 const norm = (s: string) => s.replace(/İ/g, 'i').replace(/I/g, 'i').toLowerCase()
@@ -85,7 +86,12 @@ export async function GET(req: NextRequest) {
 
   const LIMIT = 5;
   const dental = req.nextUrl.searchParams.get('scope') === 'dental';
-  const { ad, konum } = ayristir(q);
+  // Ana sayfadaki "Şehir" alanı: seçilen il/ilçe aramaya konum olarak eklenir
+  const ilParam = (req.nextUrl.searchParams.get('il') || '').replace(/[,()%*\\"']/g, ' ').trim().slice(0, 40);
+  const ilceParam = (req.nextUrl.searchParams.get('ilce') || '').replace(/[,()%*\\"']/g, ' ').trim().slice(0, 40);
+  const ayrik = ayristir(q);
+  const ad = ayrik.ad;
+  const konum = [...ayrik.konum, ...(ilParam ? [ilParam] : []), ...(ilceParam ? [ilceParam] : [])];
   if (!ad.length && !konum.length) return Response.json(BOŞ);
 
   // ── Doktorlar ── (branş 3+ harfte aranır — tek harf her şeyi eşleştirmesin)
@@ -108,18 +114,33 @@ export async function GET(req: NextRequest) {
     ? Promise.resolve({ data: [] })
     : filtrele(supabase.from('eczaneler').select('name, il, ilce, slug, nobetci'), ['name'], ad, konum, undefined, true).limit(LIMIT);
 
-  const [doktorRes, hastaneRes, klinikRes, eczaneRes] = await Promise.allSettled([
-    doktorQuery, hastaneQuery, klinikQuery, eczaneQuery,
+  // ── Baktığı hastalıklar ── ("lipödem ankara" → Ankara'da Lipödem'e bakan hekimler)
+  const hastalikQuery = dental || !ad.length
+    ? Promise.resolve([])
+    : hastalikEslesenHekimler(q, { il: ilParam || undefined, ilce: ilceParam || undefined, limit: LIMIT });
+
+  const [doktorRes, hastaneRes, klinikRes, eczaneRes, hastalikRes] = await Promise.allSettled([
+    doktorQuery, hastaneQuery, klinikQuery, eczaneQuery, hastalikQuery,
   ]);
 
-  const doktorlar: SearchItem[] = satirlar(doktorRes).map(d => {
+  // Ad/branş eşleşmeleri önce, ardından hastalık eşleşmeleri (aynı hekim iki kez gelmez).
+  // Hastalıkla gelenin alt satırında hangi hastalık yüzünden çıktığı yazar.
+  const hastalikSatirlari = hastalikRes.status === 'fulfilled' ? hastalikRes.value : [];
+  const gorulen = new Set(satirlar(doktorRes).map(d => d.slug).filter(Boolean));
+  const doktorSatirlari: any[] = [
+    ...satirlar(doktorRes),
+    ...hastalikSatirlari.filter(x => !gorulen.has(x.hekim.slug)).map(x => ({ ...x.hekim, _hastalik: x.hastalik })),
+  ].slice(0, LIMIT);
+
+  const doktorlar: SearchItem[] = doktorSatirlari.map(d => {
     const isim = `${d.ad || ''} ${d.soyad || ''}`.trim();
     // Unvan kayıtlıysa ve adın başında zaten yoksa eklenir (fizyoterapist vb. için "Dr." uydurulmaz)
     const unvan = d.unvan && !isim.toLocaleLowerCase('tr').startsWith(String(d.unvan).toLocaleLowerCase('tr'))
       ? `${d.unvan} ` : '';
     return {
       ad: `${unvan}${isim}`,
-      alt: [d.spec, d.il, d.ilce].filter(Boolean).join(' · '),
+      // Hastalıkla gelen hekimde neden çıktığı başta yazar (uzun satır sağdan kesilir)
+      alt: [d._hastalik ? `Baktığı: ${d._hastalik}` : '', d.spec, d.il, d.ilce].filter(Boolean).join(' · '),
       href: d.slug ? `/doktorlar/${d.slug}` : '/doktorlar',
     };
   });
