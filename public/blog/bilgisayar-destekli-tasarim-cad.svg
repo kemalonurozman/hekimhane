@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Kesit katmanları hâlinde çizilmiş tomografi hacmi ile tel kafes ağ yüzey modelinin altın renkli hizalama çizgileriyle üst üste bindirildiği şema">
+  <defs>
+    <linearGradient id="cad_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="cad_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="cad_tooth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <radialGradient id="cad_glow" cx="0.55" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#cad_bg)"/>
+  <rect width="1200" height="675" fill="url(#cad_glow)"/>
+  <circle cx="1060" cy="570" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="160" cy="560" r="170" fill="#fff" opacity="0.025"/>
+
+  <path d="M210 470 L460 450 L540 510 L290 530 Z" fill="#EEF2F8" fill-opacity="0.10" stroke="#9DB4D6" stroke-width="1.6" opacity="0.9"/>
+  <ellipse cx="375" cy="490" rx="34" ry="12.0" fill="none" stroke="#C7D2E4" stroke-width="1.6" opacity="0.7"/>
+  <ellipse cx="375" cy="490" rx="5" ry="2.2" fill="#E8C56A" opacity="0.85"/>
+  <path d="M226 428 L476 408 L556 468 L306 488 Z" fill="#EEF2F8" fill-opacity="0.15" stroke="#9DB4D6" stroke-width="1.6" opacity="0.9"/>
+  <ellipse cx="391" cy="448" rx="32" ry="11.4" fill="none" stroke="#C7D2E4" stroke-width="1.6" opacity="0.7"/>
+  <ellipse cx="391" cy="448" rx="5" ry="2.2" fill="#E8C56A" opacity="0.85"/>
+  <path d="M242 386 L492 366 L572 426 L322 446 Z" fill="#EEF2F8" fill-opacity="0.20" stroke="#9DB4D6" stroke-width="1.6" opacity="0.9"/>
+  <ellipse cx="407" cy="406" rx="30" ry="10.8" fill="none" stroke="#C7D2E4" stroke-width="1.6" opacity="0.7"/>
+  <ellipse cx="407" cy="406" rx="5" ry="2.2" fill="#E8C56A" opacity="0.85"/>
+  <path d="M258 344 L508 324 L588 384 L338 404 Z" fill="#EEF2F8" fill-opacity="0.25" stroke="#9DB4D6" stroke-width="1.6" opacity="0.9"/>
+  <ellipse cx="423" cy="364" rx="28" ry="10.2" fill="none" stroke="#C7D2E4" stroke-width="1.6" opacity="0.7"/>
+  <ellipse cx="423" cy="364" rx="5" ry="2.2" fill="#E8C56A" opacity="0.85"/>
+  <path d="M274 302 L524 282 L604 342 L354 362 Z" fill="#EEF2F8" fill-opacity="0.30" stroke="#9DB4D6" stroke-width="1.6" opacity="0.9"/>
+  <ellipse cx="439" cy="322" rx="26" ry="9.6" fill="none" stroke="#C7D2E4" stroke-width="1.6" opacity="0.7"/>
+  <ellipse cx="439" cy="322" rx="5" ry="2.2" fill="#E8C56A" opacity="0.85"/>
+  <path d="M290 260 L540 240 L620 300 L370 320 Z" fill="#EEF2F8" fill-opacity="0.35" stroke="#9DB4D6" stroke-width="1.6" opacity="0.9"/>
+  <ellipse cx="455" cy="280" rx="24" ry="9.0" fill="none" stroke="#C7D2E4" stroke-width="1.6" opacity="0.7"/>
+  <ellipse cx="455" cy="280" rx="5" ry="2.2" fill="#E8C56A" opacity="0.85"/>
+  <path d="M306 218 L556 198 L636 258 L386 278 Z" fill="#EEF2F8" fill-opacity="0.40" stroke="#9DB4D6" stroke-width="1.6" opacity="0.9"/>
+  <ellipse cx="471" cy="238" rx="22" ry="8.4" fill="none" stroke="#C7D2E4" stroke-width="1.6" opacity="0.7"/>
+  <ellipse cx="471" cy="238" rx="5" ry="2.2" fill="#E8C56A" opacity="0.85"/>
+  <path d="M1028 320 L1021 340 L1004 361 L982 380 L962 396 L946 408 L930 414 L912 416 L888 416 L860 415 L832 416 L808 416 L790 414 L774 408 L758 396 L738 380 L716 361 L699 340 L692 320 L699 302 L716 287 L738 272 L758 258 L774 242 L790 226 L808 213 L832 203 L860 199 L888 203 L912 213 L930 226 L946 242 L962 258 L982 272 L1004 287 L1021 302 Z" fill="url(#cad_tooth)" opacity="0.14"/>
+  <path d="M1028 320 L1021 340 L1004 361 L982 380 L962 396 L946 408 L930 414 L912 416 L888 416 L860 415 L832 416 L808 416 L790 414 L774 408 L758 396 L738 380 L716 361 L699 340 L692 320 L699 302 L716 287 L738 272 L758 258 L774 242 L790 226 L808 213 L832 203 L860 199 L888 203 L912 213 L930 226 L946 242 L962 258 L982 272 L1004 287 L1021 302 Z" fill="none" stroke="#C7D2E4" stroke-width="2.6"/>
+  <path d="M1028 320 L981 320 L1004 361 M1004 361 L964 349 L962 396 M962 396 L933 375 L930 414 M930 414 L911 387 L888 416 M888 416 L880 389 L832 416 M832 416 L840 389 L790 414 M790 414 L809 387 L758 396 M758 396 L787 375 L716 361 M716 361 L756 349 L692 320 M692 320 L739 320 L716 287 M716 287 L756 296 L758 258 M758 258 L787 275 L790 226 M790 226 L809 253 L832 203 M832 203 L840 236 L888 203 M888 203 L880 236 L930 226 M930 226 L911 253 L962 258 M962 258 L933 275 L1004 287 M1004 287 L964 296 L1028 320 M981 320 L936 320 L964 349 M964 349 L925 338 L933 375 M933 375 L906 354 L911 387 M911 387 L892 362 L880 389 M880 389 L873 363 L840 389 M840 389 L847 363 L809 387 M809 387 L828 362 L787 375 M787 375 L814 354 L756 349 M756 349 L795 338 L739 320 M739 320 L784 320 L756 296 M756 296 L795 305 L787 275 M787 275 L814 292 L809 253 M809 253 L828 278 L840 236 M840 236 L847 267 L880 236 M880 236 L873 267 L911 253 M911 253 L892 278 L933 275 M933 275 L906 292 L964 296 M964 296 L925 305 L981 320 M936 320 L894 320 L925 338 M925 338 L889 328 L906 354 M906 354 L880 335 L892 362 M892 362 L874 339 L873 363 M873 363 L866 339 L847 363 M847 363 L854 339 L828 362 M828 362 L846 339 L814 354 M814 354 L840 335 L795 338 M795 338 L831 328 L784 320 M784 320 L826 320 L795 305 M795 305 L831 313 L814 292 M814 292 L840 308 L828 278 M828 278 L846 301 L847 267 M847 267 L854 297 L873 267 M873 267 L866 297 L892 278 M892 278 L874 301 L906 292 M906 292 L880 308 L925 305 M925 305 L889 313 L936 320 M981 320 L964 349 L933 375 L911 387 L880 389 L840 389 L809 387 L787 375 L756 349 L739 320 L756 296 L787 275 L809 253 L840 236 L880 236 L911 253 L933 275 L964 296 Z M936 320 L925 338 L906 354 L892 362 L873 363 L847 363 L828 362 L814 354 L795 338 L784 320 L795 305 L814 292 L828 278 L847 267 L873 267 L892 278 L906 292 L925 305 Z M894 320 L889 328 L880 335 L874 339 L866 339 L854 339 L846 339 L840 335 L831 328 L826 320 L831 313 L840 308 L846 301 L854 297 L866 297 L874 301 L880 308 L889 313 Z" fill="none" stroke="#9DB4D6" stroke-width="1.1" opacity="0.6"/>
+  <circle cx="1028" cy="320" r="2.6" fill="#EEF2F8"/>
+  <circle cx="982" cy="380" r="2.6" fill="#EEF2F8"/>
+  <circle cx="930" cy="414" r="2.6" fill="#EEF2F8"/>
+  <circle cx="860" cy="415" r="2.6" fill="#EEF2F8"/>
+  <circle cx="790" cy="414" r="2.6" fill="#EEF2F8"/>
+  <circle cx="738" cy="380" r="2.6" fill="#EEF2F8"/>
+  <circle cx="692" cy="320" r="2.6" fill="#EEF2F8"/>
+  <circle cx="738" cy="272" r="2.6" fill="#EEF2F8"/>
+  <circle cx="790" cy="226" r="2.6" fill="#EEF2F8"/>
+  <circle cx="860" cy="199" r="2.6" fill="#EEF2F8"/>
+  <circle cx="930" cy="226" r="2.6" fill="#EEF2F8"/>
+  <circle cx="982" cy="272" r="2.6" fill="#EEF2F8"/>
+  <path d="M800 418 C 795 490 805 560 822 600 M920 418 C 925 495 915 560 900 600" fill="none" stroke="#C7D2E4" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <path d="M375 330 C 525 290 585 260 735 300" fill="none" stroke="url(#cad_gold)" stroke-width="2.6" stroke-dasharray="4 8" stroke-linecap="round"/>
+  <circle cx="375" cy="330" r="6" fill="#E8C56A"/><circle cx="735" cy="300" r="6" fill="#E8C56A"/>
+  <path d="M391 288 C 541 248 610 210 760 250" fill="none" stroke="url(#cad_gold)" stroke-width="2.6" stroke-dasharray="4 8" stroke-linecap="round"/>
+  <circle cx="391" cy="288" r="6" fill="#E8C56A"/><circle cx="760" cy="250" r="6" fill="#E8C56A"/>
+  <path d="M407 246 C 557 206 670 175 820 215" fill="none" stroke="url(#cad_gold)" stroke-width="2.6" stroke-dasharray="4 8" stroke-linecap="round"/>
+  <circle cx="407" cy="246" r="6" fill="#E8C56A"/><circle cx="820" cy="215" r="6" fill="#E8C56A"/>
+  <g stroke="#E8C56A" stroke-width="2.4" stroke-linecap="round" opacity="0.9"><circle cx="1050" cy="520" r="26" fill="none"/><path d="M1050 482 V500 M1050 540 V558 M1012 520 H1030 M1070 520 H1088"/></g>
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">DİJİTAL HEKİMLİK</text>
+  </g>
+</svg>

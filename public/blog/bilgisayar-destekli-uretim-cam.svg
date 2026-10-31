@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Yapı plakasından sarkan, katman katman basılmış bir azı dişi kronu, altında ışık yayan reçine haznesi ve sağda seramik bloğu işleyen freze ucunu gösteren çizim">
+  <defs>
+    <linearGradient id="cam_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="cam_gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="cam_tooth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <linearGradient id="cam_beam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#E8C56A" stop-opacity="0.55"/><stop offset="1" stop-color="#E8C56A" stop-opacity="0.04"/></linearGradient>
+    <linearGradient id="cam_resin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16325C"/><stop offset="1" stop-color="#0E2240"/></linearGradient>
+    <radialGradient id="cam_glow" cx="0.45" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+    <clipPath id="cam_clip"><path d="M360 262 C 358 225 382 207 408 211 C 428 214 440 231 455 231 C 471 231 479 212 500 210 C 522 208 532 229 548 229 C 565 229 575 209 596 211 C 621 214 626 240 622 270 C 618 320 610 360 600 395 C 592 420 570 430 545 428 L 415 428 C 390 430 370 420 364 395 C 356 360 362 300 360 262 Z"/></clipPath>
+  </defs>
+  <rect width="1200" height="675" fill="url(#cam_bg)"/>
+  <rect width="1200" height="675" fill="url(#cam_glow)"/>
+  <circle cx="1070" cy="585" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="1000" cy="110" r="150" fill="#fff" opacity="0.025"/>
+  <circle cx="170" cy="560" r="170" fill="#fff" opacity="0.025"/>
+
+  <!-- Yazıcı gövdesi -->
+  <g fill="#9DB4D6" opacity="0.28">
+    <rect x="300" y="96" width="14" height="470" rx="7"/>
+    <rect x="666" y="96" width="14" height="470" rx="7"/>
+  </g>
+  <rect x="300" y="96" width="380" height="14" rx="7" fill="#9DB4D6" opacity="0.28"/>
+
+  <!-- Yapı plakası ve destekler -->
+  <rect x="330" y="134" width="320" height="18" rx="5" fill="#EEF2F8" opacity="0.85"/>
+  <rect x="470" y="110" width="40" height="26" rx="4" fill="#9DB4D6" opacity="0.5"/>
+  <g stroke="#9DB4D6" stroke-width="3" stroke-linecap="round" opacity="0.75">
+    <line x1="400" y1="152" x2="404" y2="214"/>
+    <line x1="452" y1="152" x2="455" y2="230"/>
+    <line x1="500" y1="152" x2="500" y2="212"/>
+    <line x1="548" y1="152" x2="548" y2="228"/>
+    <line x1="598" y1="152" x2="596" y2="214"/>
+  </g>
+
+  <!-- Katman katman kron -->
+  <path d="M360 262 C 358 225 382 207 408 211 C 428 214 440 231 455 231 C 471 231 479 212 500 210 C 522 208 532 229 548 229 C 565 229 575 209 596 211 C 621 214 626 240 622 270 C 618 320 610 360 600 395 C 592 420 570 430 545 428 L 415 428 C 390 430 370 420 364 395 C 356 360 362 300 360 262 Z" fill="url(#cam_tooth)"/>
+  <g clip-path="url(#cam_clip)" stroke="#7F98BF" stroke-width="1.6" opacity="0.55">
+    <line x1="340" y1="222" x2="640" y2="222"/><line x1="340" y1="236" x2="640" y2="236"/><line x1="340" y1="250" x2="640" y2="250"/>
+    <line x1="340" y1="264" x2="640" y2="264"/><line x1="340" y1="278" x2="640" y2="278"/><line x1="340" y1="292" x2="640" y2="292"/>
+    <line x1="340" y1="306" x2="640" y2="306"/><line x1="340" y1="320" x2="640" y2="320"/><line x1="340" y1="334" x2="640" y2="334"/>
+    <line x1="340" y1="348" x2="640" y2="348"/><line x1="340" y1="362" x2="640" y2="362"/><line x1="340" y1="376" x2="640" y2="376"/>
+    <line x1="340" y1="390" x2="640" y2="390"/><line x1="340" y1="404" x2="640" y2="404"/><line x1="340" y1="418" x2="640" y2="418"/>
+  </g>
+  <rect x="412" y="424" width="136" height="6" rx="3" fill="url(#cam_gold)"/>
+
+  <!-- Işık hüzmesi -->
+  <path d="M392 478 L 588 478 L 548 432 L 412 432 Z" fill="url(#cam_beam)"/>
+
+  <!-- Reçine haznesi ve piksel maskesi -->
+  <rect x="320" y="472" width="340" height="62" rx="12" fill="url(#cam_resin)" stroke="#9DB4D6" stroke-width="2" stroke-opacity="0.5"/>
+  <rect x="320" y="472" width="340" height="14" rx="7" fill="#2A4E82" opacity="0.7"/>
+  <g fill="url(#cam_gold)">
+    <rect x="398" y="498" width="14" height="14" rx="2"/><rect x="418" y="498" width="14" height="14" rx="2"/><rect x="438" y="498" width="14" height="14" rx="2"/>
+    <rect x="458" y="498" width="14" height="14" rx="2"/><rect x="478" y="498" width="14" height="14" rx="2"/><rect x="498" y="498" width="14" height="14" rx="2"/>
+    <rect x="518" y="498" width="14" height="14" rx="2"/><rect x="538" y="498" width="14" height="14" rx="2"/><rect x="558" y="498" width="14" height="14" rx="2"/>
+  </g>
+  <g fill="#9DB4D6" opacity="0.25">
+    <rect x="358" y="498" width="14" height="14" rx="2"/><rect x="378" y="498" width="14" height="14" rx="2"/>
+    <rect x="578" y="498" width="14" height="14" rx="2"/><rect x="598" y="498" width="14" height="14" rx="2"/>
+  </g>
+  <rect x="300" y="548" width="380" height="18" rx="9" fill="#EEF2F8" opacity="0.14"/>
+
+  <!-- Frezeleme: blok ve uç -->
+  <g transform="translate(800 0)">
+    <rect x="58" y="96" width="96" height="70" rx="14" fill="#EEF2F8" opacity="0.16"/>
+    <rect x="94" y="166" width="24" height="96" rx="6" fill="#C7D2E4" opacity="0.9"/>
+    <path d="M94 262 L 118 262 L 112 300 C 110 308 102 308 100 300 Z" fill="url(#cam_gold)"/>
+    <g stroke="#E8C56A" stroke-width="2.5" stroke-linecap="round" opacity="0.7">
+      <line x1="72" y1="312" x2="58" y2="300"/><line x1="140" y1="312" x2="154" y2="300"/>
+    </g>
+    <rect x="10" y="318" width="192" height="168" rx="16" fill="#EEF2F8" opacity="0.18" stroke="#9DB4D6" stroke-width="2" stroke-opacity="0.6"/>
+    <path d="M46 420 C 44 386 60 362 82 366 C 96 368 100 380 106 380 C 112 380 118 364 134 364 C 158 364 170 388 168 420 C 166 448 150 462 106 462 C 62 462 48 448 46 420 Z" fill="url(#cam_tooth)" opacity="0.9"/>
+    <path d="M30 342 C 70 330 140 330 182 342" fill="none" stroke="url(#cam_gold)" stroke-width="3" stroke-dasharray="8 8" stroke-linecap="round"/>
+    <path d="M30 470 L 30 342" fill="none" stroke="#E8C56A" stroke-width="3" stroke-dasharray="8 8" stroke-linecap="round" opacity="0.6"/>
+    <rect x="96" y="486" width="20" height="40" rx="4" fill="#9DB4D6" opacity="0.45"/>
+    <rect x="40" y="526" width="132" height="16" rx="8" fill="#EEF2F8" opacity="0.14"/>
+  </g>
+
+  <!-- Marka -->
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">DİJİTAL HEKİMLİK</text>
+  </g>
+</svg>

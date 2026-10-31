@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Üç boyutlu tel kafes ağ olarak çizilmiş diş arkı, koordinat eksenleri ve altın renkli veri akışı çizgileriyle dijital diş hekimliği şeması">
+  <defs>
+    <linearGradient id="ddg_bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3A69"/><stop offset="1" stop-color="#12294B"/></linearGradient>
+    <linearGradient id="ddg_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C56A"/><stop offset="1" stop-color="#C99A34"/></linearGradient>
+    <linearGradient id="ddg_tooth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F5FA"/><stop offset="1" stop-color="#C7D2E4"/></linearGradient>
+    <radialGradient id="ddg_glow" cx="0.55" cy="0.5" r="0.7"><stop offset="0" stop-color="#2A4E82" stop-opacity="0.85"/><stop offset="1" stop-color="#12294B" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#ddg_bg)"/>
+  <rect width="1200" height="675" fill="url(#ddg_glow)"/>
+  <circle cx="1060" cy="570" r="210" fill="#fff" opacity="0.03"/>
+  <circle cx="160" cy="560" r="170" fill="#fff" opacity="0.025"/>
+
+  <path d="M300 470 L1120 470 M300 473 L1120 473 M300 483 L1120 483 M300 499 L1120 499 M300 521 L1120 521 M300 550 L1120 550 M300 585 L1120 585 M300 627 L1120 627 M300 675 L1120 675 M484 470 L300 675 M530 470 L382 675 M575 470 L464 675 M620 470 L546 675 M665 470 L628 675 M710 470 L710 675 M755 470 L792 675 M800 470 L874 675 M845 470 L956 675 M890 470 L1038 675 M936 470 L1120 675" stroke="#9DB4D6" stroke-width="1" opacity="0.14" fill="none"/>
+  <g transform="translate(420 440) rotate(-49)">
+    <rect x="-32" y="-26" width="64" height="52" rx="20" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-32" y="-26" width="64" height="52" rx="20" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-18 -15 L0 -15 M-18 -15 L-18 0 M-18 -15 L0 0 M0 -15 L18 -15 M0 -15 L0 0 M0 -15 L18 0 M18 -15 L18 0 M-18 0 L0 0 M-18 0 L-18 15 M-18 0 L0 15 M0 0 L18 0 M0 0 L0 15 M0 0 L18 15 M18 0 L18 15 M-18 15 L0 15 M0 15 L18 15" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(466 392) rotate(-44)">
+    <rect x="-29" y="-26" width="59" height="51" rx="19" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-29" y="-26" width="59" height="51" rx="19" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-16 -14 L0 -14 M-16 -14 L-16 0 M-16 -14 L0 0 M0 -14 L16 -14 M0 -14 L0 0 M0 -14 L16 0 M16 -14 L16 0 M-16 0 L0 0 M-16 0 L-16 14 M-16 0 L0 14 M0 0 L16 0 M0 0 L0 14 M0 0 L16 14 M16 0 L16 14 M-16 14 L0 14 M0 14 L16 14" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(512 351) rotate(-38)">
+    <rect x="-27" y="-25" width="53" height="50" rx="19" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-27" y="-25" width="53" height="50" rx="19" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-15 -14 L0 -14 M-15 -14 L-15 0 M-15 -14 L0 0 M0 -14 L15 -14 M0 -14 L0 0 M0 -14 L15 0 M15 -14 L15 0 M-15 0 L0 0 M-15 0 L-15 14 M-15 0 L0 14 M0 0 L15 0 M0 0 L0 14 M0 0 L15 14 M15 0 L15 14 M-15 14 L0 14 M0 14 L15 14" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(558 319) rotate(-31)">
+    <rect x="-24" y="-25" width="48" height="49" rx="18" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-24" y="-25" width="48" height="49" rx="18" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-14 -14 L0 -14 M-14 -14 L-14 0 M-14 -14 L0 0 M0 -14 L14 -14 M0 -14 L0 0 M0 -14 L14 0 M14 -14 L14 0 M-14 0 L0 0 M-14 0 L-14 14 M-14 0 L0 14 M0 0 L14 0 M0 0 L0 14 M0 0 L14 14 M14 0 L14 14 M-14 14 L0 14 M0 14 L14 14" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(605 295) rotate(-24)">
+    <rect x="-22" y="-24" width="44" height="48" rx="17" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-22" y="-24" width="44" height="48" rx="17" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-12 -14 L0 -14 M-12 -14 L-12 0 M-12 -14 L0 0 M0 -14 L12 -14 M0 -14 L0 0 M0 -14 L12 0 M12 -14 L12 0 M-12 0 L0 0 M-12 0 L-12 14 M-12 0 L0 14 M0 0 L12 0 M0 0 L0 14 M0 0 L12 14 M12 0 L12 14 M-12 14 L0 14 M0 14 L12 14" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(651 279) rotate(-15)">
+    <rect x="-20" y="-24" width="39" height="47" rx="15" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-20" y="-24" width="39" height="47" rx="15" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-11 -13 L0 -13 M-11 -13 L-11 0 M-11 -13 L0 0 M0 -13 L11 -13 M0 -13 L0 0 M0 -13 L11 0 M11 -13 L11 0 M-11 0 L0 0 M-11 0 L-11 13 M-11 0 L0 13 M0 0 L11 0 M0 0 L0 13 M0 0 L11 13 M11 0 L11 13 M-11 13 L0 13 M0 13 L11 13" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(697 271) rotate(-5)">
+    <rect x="-18" y="-23" width="35" height="46" rx="13" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-18" y="-23" width="35" height="46" rx="13" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-10 -13 L0 -13 M-10 -13 L-10 0 M-10 -13 L0 0 M0 -13 L10 -13 M0 -13 L0 0 M0 -13 L10 0 M10 -13 L10 0 M-10 0 L0 0 M-10 0 L-10 13 M-10 0 L0 13 M0 0 L10 0 M0 0 L0 13 M0 0 L10 13 M10 0 L10 13 M-10 13 L0 13 M0 13 L10 13" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(743 271) rotate(5)">
+    <rect x="-18" y="-23" width="35" height="46" rx="13" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-18" y="-23" width="35" height="46" rx="13" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-10 -13 L0 -13 M-10 -13 L-10 0 M-10 -13 L0 0 M0 -13 L10 -13 M0 -13 L0 0 M0 -13 L10 0 M10 -13 L10 0 M-10 0 L0 0 M-10 0 L-10 13 M-10 0 L0 13 M0 0 L10 0 M0 0 L0 13 M0 0 L10 13 M10 0 L10 13 M-10 13 L0 13 M0 13 L10 13" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(789 279) rotate(15)">
+    <rect x="-20" y="-24" width="39" height="47" rx="15" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-20" y="-24" width="39" height="47" rx="15" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-11 -13 L0 -13 M-11 -13 L-11 0 M-11 -13 L0 0 M0 -13 L11 -13 M0 -13 L0 0 M0 -13 L11 0 M11 -13 L11 0 M-11 0 L0 0 M-11 0 L-11 13 M-11 0 L0 13 M0 0 L11 0 M0 0 L0 13 M0 0 L11 13 M11 0 L11 13 M-11 13 L0 13 M0 13 L11 13" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(835 295) rotate(24)">
+    <rect x="-22" y="-24" width="44" height="48" rx="17" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-22" y="-24" width="44" height="48" rx="17" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-12 -14 L0 -14 M-12 -14 L-12 0 M-12 -14 L0 0 M0 -14 L12 -14 M0 -14 L0 0 M0 -14 L12 0 M12 -14 L12 0 M-12 0 L0 0 M-12 0 L-12 14 M-12 0 L0 14 M0 0 L12 0 M0 0 L0 14 M0 0 L12 14 M12 0 L12 14 M-12 14 L0 14 M0 14 L12 14" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(882 319) rotate(31)">
+    <rect x="-24" y="-25" width="48" height="49" rx="18" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-24" y="-25" width="48" height="49" rx="18" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-14 -14 L0 -14 M-14 -14 L-14 0 M-14 -14 L0 0 M0 -14 L14 -14 M0 -14 L0 0 M0 -14 L14 0 M14 -14 L14 0 M-14 0 L0 0 M-14 0 L-14 14 M-14 0 L0 14 M0 0 L14 0 M0 0 L0 14 M0 0 L14 14 M14 0 L14 14 M-14 14 L0 14 M0 14 L14 14" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(928 351) rotate(38)">
+    <rect x="-27" y="-25" width="53" height="50" rx="19" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-27" y="-25" width="53" height="50" rx="19" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-15 -14 L0 -14 M-15 -14 L-15 0 M-15 -14 L0 0 M0 -14 L15 -14 M0 -14 L0 0 M0 -14 L15 0 M15 -14 L15 0 M-15 0 L0 0 M-15 0 L-15 14 M-15 0 L0 14 M0 0 L15 0 M0 0 L0 14 M0 0 L15 14 M15 0 L15 14 M-15 14 L0 14 M0 14 L15 14" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(974 392) rotate(44)">
+    <rect x="-29" y="-26" width="59" height="51" rx="19" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-29" y="-26" width="59" height="51" rx="19" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-16 -14 L0 -14 M-16 -14 L-16 0 M-16 -14 L0 0 M0 -14 L16 -14 M0 -14 L0 0 M0 -14 L16 0 M16 -14 L16 0 M-16 0 L0 0 M-16 0 L-16 14 M-16 0 L0 14 M0 0 L16 0 M0 0 L0 14 M0 0 L16 14 M16 0 L16 14 M-16 14 L0 14 M0 14 L16 14" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(1020 440) rotate(49)">
+    <rect x="-32" y="-26" width="64" height="52" rx="20" fill="url(#ddg_tooth)" opacity="0.16"/>
+    <rect x="-32" y="-26" width="64" height="52" rx="20" fill="none" stroke="#C7D2E4" stroke-width="2.2" opacity="0.9"/>
+    <path d="M-18 -15 L0 -15 M-18 -15 L-18 0 M-18 -15 L0 0 M0 -15 L18 -15 M0 -15 L0 0 M0 -15 L18 0 M18 -15 L18 0 M-18 0 L0 0 M-18 0 L-18 15 M-18 0 L0 15 M0 0 L18 0 M0 0 L0 15 M0 0 L18 15 M18 0 L18 15 M-18 15 L0 15 M0 15 L18 15" stroke="#9DB4D6" stroke-width="1.1" opacity="0.55" fill="none"/>
+    <circle cx="0" cy="0" r="2.4" fill="#E8C56A" opacity="0.9"/>
+  </g>
+  <g transform="translate(250 520)" stroke-linecap="round">
+    <path d="M0 0 L150 0" stroke="#E8C56A" stroke-width="4"/><path d="M150 0 l-14 -8 v16 z" fill="#E8C56A"/>
+    <path d="M0 0 L0 -150" stroke="#C7D2E4" stroke-width="4"/><path d="M0 -150 l-8 14 h16 z" fill="#C7D2E4"/>
+    <path d="M0 0 L-80 70" stroke="#9DB4D6" stroke-width="4"/><path d="M-80 70 l5 -16 l11 11 z" fill="#9DB4D6"/>
+    <circle r="7" fill="#EEF2F8"/>
+  </g>
+  <g>
+    <line x1="980" y1="150" x2="1060" y2="110" stroke="url(#ddg_gold)" stroke-width="2.4" opacity="0.75"/>
+    <line x1="1060" y1="110" x2="1110" y2="190" stroke="url(#ddg_gold)" stroke-width="2.4" opacity="0.75"/>
+    <line x1="980" y1="150" x2="1030" y2="230" stroke="url(#ddg_gold)" stroke-width="2.4" opacity="0.75"/>
+    <line x1="1030" y1="230" x2="1110" y2="190" stroke="url(#ddg_gold)" stroke-width="2.4" opacity="0.75"/>
+    <line x1="1110" y1="190" x2="1130" y2="280" stroke="url(#ddg_gold)" stroke-width="2.4" opacity="0.75"/>
+    <line x1="1030" y1="230" x2="950" y2="250" stroke="url(#ddg_gold)" stroke-width="2.4" opacity="0.75"/>
+    <line x1="980" y1="150" x2="950" y2="250" stroke="url(#ddg_gold)" stroke-width="2.4" opacity="0.75"/>
+    <line x1="1030" y1="230" x2="1130" y2="280" stroke="url(#ddg_gold)" stroke-width="2.4" opacity="0.75"/>
+    <circle cx="980" cy="150" r="9" fill="#E8C56A"/>
+    <circle cx="1060" cy="110" r="6" fill="#EEF2F8"/>
+    <circle cx="1110" cy="190" r="6" fill="#EEF2F8"/>
+    <circle cx="1030" cy="230" r="9" fill="#E8C56A"/>
+    <circle cx="1130" cy="280" r="6" fill="#EEF2F8"/>
+    <circle cx="950" cy="250" r="6" fill="#EEF2F8"/>
+  </g>
+  <path d="M880 330 C 930 300 950 270 980 150" fill="none" stroke="#E8C56A" stroke-width="2.4" stroke-dasharray="3 9" stroke-linecap="round" opacity="0.8"/>
+  <g transform="translate(72 60)" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif">
+    <rect width="34" height="34" rx="9" fill="#fff"/><rect x="8" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="21" y="9" width="5" height="16" rx="2" fill="#1B3A69"/><rect x="8" y="15" width="18" height="4.6" rx="2" fill="#D4A843"/>
+    <text x="46" y="16" font-size="15.5" font-weight="700" fill="#fff" letter-spacing="0.3">hekimhane</text>
+    <text x="46" y="31" font-size="10" font-weight="600" fill="#9DB4D6" letter-spacing="1.4">DİJİTAL HEKİMLİK</text>
+  </g>
+</svg>

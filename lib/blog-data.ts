@@ -1,10 +1,11 @@
-// Statik blog yazıları (diş + FTR dizisi + sağlık/hastalık dizisi).
+// Statik blog yazıları (diş + FTR dizisi + sağlık/hastalık dizisi + dijital hekimlik dizisi).
 // /blog listesi bunları blog_posts tablosuyla birleştirir; /blog/[slug] render eder.
 // Zamanlı yayın: `created_at` tam zaman damgasıysa (lib/blog-takvim.ts) o anda,
 // yalnız gün ise o gün 09:00 TR'de görünür olur.
 // Dışarıya yalnız yayındakiler verilir → yayindakiBlogYazilari() / getBlogYazi().
 import { FTR_YAZILARI } from './blog-ftr';
 import { SAGLIK_YAZILARI } from './blog-saglik';
+import { DIJITAL_YAZILARI } from './blog-dijital';
 
 export type BlogBlok =
   | { tip: 'p'; metin: string }
@@ -254,7 +255,7 @@ const DIS_YAZILARI: BlogYazi[] = [
   },
 ];
 
-const TUM_YAZILAR: BlogYazi[] = [...DIS_YAZILARI, ...FTR_YAZILARI, ...SAGLIK_YAZILARI];
+const TUM_YAZILAR: BlogYazi[] = [...DIS_YAZILARI, ...FTR_YAZILARI, ...SAGLIK_YAZILARI, ...DIJITAL_YAZILARI];
 
 /** Yayın anı: tam zaman damgası varsa o an, yalnız gün varsa o gün 09:00 (UTC+3). */
 export function yayinZamani(y: Pick<BlogYazi, 'created_at'>): number {

@@ -494,6 +494,11 @@ explicit `as Tip` cast ile düzeltilmiştir — bu sayfalar hatasız çalışır
 - **Biçim:** `**kalın**`, `*italik*` (`components/MakaleGovde.tsx` → `renderInline`), `[metin](/blog/slug)`. Kalın içine bağlantı koyma. Satır başında `*` + boşluk liste sayılır (italik değil).
 - **Doktor "Baktığınız hastalıklar" (SQL yok):** `doktorlar.conditions text[]` (zaten vardı). Panel Detaylar sekmesi, Uzmanlık Alanları'ndan SONRA `app/panel/HastalikSecici.tsx` (branşa göre öneri + arama + tüm konular + serbest yazım, en çok 30). Seçenekler `lib/hastalik-secenekleri.ts` = `lib/hastalik-yazilari.ts` (yazılmış 81 konu, **OTOMATİK**: yeni yazıdan sonra `node scripts/hastalik-secenekleri-uret.mjs`) + konu havuzu. Profilde "Baktığı Hastalıklar" chip'i yayındaki yazıya bağlanır; yazı sonunda "<konu> konusuna bakan hekimler" kutusu `conditions` kısa adıyla eşleşir (`app/blog/[slug]/page.tsx` → `konuHekimleri`). Kaydı `app/api/panel/update-entity` temizler (tekrar yok, ≤30).
 
+### Diş Doktorlarına Özel Setler — Dijital Hekimlik dizisi (Eki 2026)
+- **Ne:** diş hekimlerine yönelik 10 yazılık statik blog dizisi, kategori `Dijital Hekimlik`. Konu başlıkları Cortes (ed.) *Digital Dentistry* (Wiley, 2022) kitabının içindekiler listesinden esinlenildi; kitap metni **kullanılmadı/kopyalanmadı** — yazılar özgün, metin içi atıflı (Yazar ve ark., yıl) ve her biri `## Kaynaklar` ile biter. Kaynaklar WebSearch ile doğrulandı; kitaba metin içinde iddia atfı yok.
+- **Dosyalar:** `lib/blog-dijital/<slug>.ts` (biçim `tip.ts`: `sira`, `created_at` tam zaman damgası) + kapak `public/blog/<slug>.svg` (sol üst marka satırı "DİJİTAL HEKİMLİK"). `index.ts` her yazının sonuna dizi listesi (`DIJITAL_SET_ADI`) + mesleki uyarı ekler; `brans` yok (hekim bulma kutusu çıkmaz). Takvime (`blog-takvim.ts`) bağlı değil — yayın anı dosyadaki `created_at`. Yeni bölüm: dosya + kapak + `index.ts` listesi.
+- Kategori rengi `app/blog/BlogInteractive.tsx` → `categoryColors['Dijital Hekimlik']`.
+
 ### Diş Tedavileri Combo Sayfaları — 404 yerine dürüst fallback
 - **Sorun:** `/dis-tedavileri/[il]/[...seg]` bölgede o hizmetle etiketli klinik yoksa 404 veriyordu. Ölçüm: 44 il × 11 uzmanlık = 484 kombinasyonun **367'si** boştu (yalnızca "Genel Diş Hekimliği" tam doluydu) — çünkü import kaynağı kliniklerin çoğuna sadece jenerik etiket veriyor.
 - **İki gerçek hata düzeltildi (`lib/uzmanlik-data.ts`):**
