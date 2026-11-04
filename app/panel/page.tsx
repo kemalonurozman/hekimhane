@@ -23,6 +23,8 @@ import { ASISTAN_DURUM, asistanYetkileri, type AsistanYetki } from '@/lib/asista
 import AsistanlarTab, { AsistanErisimKarti } from './AsistanlarTab';
 import MakalelerimTab from './MakalelerimTab';
 import McpTab from './McpTab';
+import YapayZekaAsistaniTab from './YapayZekaAsistaniTab';
+import { AsistanBolumuTab, AsistanBilgiNotu, useAsistanDurumu } from './DijitalAsistanlar';
 import ErkenUyeKutlama from './ErkenUyeKutlama';
 import { ERKEN_UYE_METIN } from '@/lib/erken-uye-metin';
 import { DOKTOR_BRANSLARI } from '@/lib/doktor-branslari';
@@ -66,6 +68,8 @@ const icons = {
   info:       'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20z M12 8h.01 M12 12v4',
   link:       'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71 M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71',
   code:       'M16 18l6-6-6-6 M8 6l-6 6 6 6',
+  soru:       'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3 M12 17h.01',
+  spark:      'M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7-4.7-1.8 4.7-1.8z M19 15l.8 2.2 2.2.8-2.2.8L19 21l-.8-2.2-2.2-.8 2.2-.8z',
   users:      'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11A4 4 0 1 0 9 3a4 4 0 0 0 0 8z M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75',
   calendar:   'M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z',
 };
@@ -279,7 +283,7 @@ export default function PanelPage() {
   const router = useRouter();
   const [user,   setUser]   = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart' | 'randevu' | 'randevumodul' | 'hastalar' | 'makaleler' | 'mcp' | 'asistanlar'>('dashboard');
+  const [tab,    setTab]    = useState<'dashboard' | 'claims' | 'profile' | 'new' | 'edit' | 'yorumlar' | 'hekimkart' | 'randevu' | 'randevumodul' | 'hastalar' | 'makaleler' | 'mcp' | 'asistanlar' | 'yzasistan' | 'epostaasistan' | 'randevuasistan' | 'sssasistan'>('dashboard');
   const [claims, setClaims] = useState<ClaimRequest[]>([]);
   const [claimsLoading, setClaimsLoading] = useState(false);
   const [profileUrls, setProfileUrls] = useState<Record<string, string>>({});
@@ -517,6 +521,14 @@ export default function PanelPage() {
     window.history.replaceState(null, '', '/panel');
   }, [claims, claimsLoading]);
 
+  // Dijital Asistanlar menüsü için asistan durumu. Hook olduğu için `if (loading) return`'dan ÖNCE.
+  // Aktif işletme klinik/hekim değilse ilk onaylı klinik/hekim profiline bakılır.
+  const yzMenuClaim = (() => {
+    const uygun = claims.filter(c => c.status === 'approved' && ['klinik', 'doktor'].includes(c.entity_type) && c.entity_id && c.entity_id !== 'new');
+    return uygun.find(c => c.id === aktifId) || uygun[0] || null;
+  })();
+  const yzDurum = useAsistanDurumu(yzMenuClaim ? String(yzMenuClaim.entity_id) : null);
+
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: T.bg }}>
@@ -553,6 +565,14 @@ export default function PanelPage() {
   };
   const pendingClaims  = claims.filter(c => c.status === 'pending' || c.status === 'dispute');
 
+  // Dijital Asistanlar (Ozvelo): yalnız klinik/hekim profilinin sahibi ya da yöneticisi görür.
+  // Bağlantı henüz kurulmamışsa (Ozvelo ayarları yok) menüde yalnız "Yapay Zekâ Asistanı" (çok yakında) kalır;
+  // e-posta/randevu/soru-cevap sayfaları boş "yakında" ekranlarıyla menüyü doldurmasın.
+  const yzUygunVar = !!yzMenuClaim;
+  const yzIsletme = aktifClaim?.status === 'approved' && aktifClaim.entity_id && aktifClaim.entity_id !== 'new'
+    ? { id: String(aktifClaim.entity_id), ad: aktifClaim.entity_name || '', tur: aktifClaim.entity_type } : null;
+  const yzIsletmeUygun = yzIsletme && ['klinik', 'doktor'].includes(yzIsletme.tur) ? yzIsletme : null;
+
   const navItems = [
     { key: 'dashboard'  as const, label: 'Genel Bakış',       icon: 'dashboard' },
     { key: 'claims'     as const, label: 'Başvurularım',      icon: 'list' },
@@ -561,10 +581,14 @@ export default function PanelPage() {
     { key: 'randevumodul' as const, label: 'Randevu Takvimi',  icon: 'calendar' },
     { key: 'edit'       as const, label: 'Profilimi Düzenle', icon: 'edit' },
     { key: 'hekimkart'  as const, label: 'HekimKart',         icon: 'bell' },
+    { key: 'yzasistan'  as const, label: 'Yapay Zekâ Asistanı', icon: 'spark' },
+    { key: 'epostaasistan'  as const, label: 'E-posta Asistanı',        icon: 'mail' },
+    { key: 'randevuasistan' as const, label: 'Randevu Talebi Asistanı', icon: 'calendar' },
+    { key: 'sssasistan'     as const, label: 'Soru-Cevap',              icon: 'soru' },
     { key: 'yorumlar'   as const, label: 'Yorumlar',          icon: 'star' },
     { key: 'makaleler'  as const, label: 'Makalelerim',       icon: 'edit' },
     { key: 'profile'    as const, label: 'Hesabım',           icon: 'profile' },
-    { key: 'asistanlar' as const, label: 'Asistanlar',        icon: 'users' },
+    { key: 'asistanlar' as const, label: 'Ekip',              icon: 'users' },   // insan asistanlar (sekreter, resepsiyon); "Dijital Asistanlar"la karışmasın diye adı Ekip
     { key: 'mcp'        as const, label: 'MCP Bağlantısı',    icon: 'code' },
     { key: 'new'        as const, label: 'Yeni Başvuru',      icon: 'plus' },
   ];
@@ -574,11 +598,16 @@ export default function PanelPage() {
   const navGroups: { title: string; keys: NavKey[] }[] = ([
     { title: 'Genel',     keys: ['dashboard'] },
     { title: 'İşletmem',  keys: ['edit', 'hekimkart', 'yorumlar'] },
+    { title: 'Dijital Asistanlar', keys: ['yzasistan', 'epostaasistan', 'randevuasistan', 'sssasistan'] },
     { title: 'Randevu & Hasta', keys: ['randevu', 'randevumodul', 'hastalar'] },
     { title: 'İçerik',    keys: ['makaleler'] },
     { title: 'Başvuru',   keys: ['claims', 'new'] },
     { title: 'Hesap',     keys: ['profile', 'asistanlar', 'mcp'] },
   ] as { title: string; keys: NavKey[] }[]).map(g => {
+    if (g.title === 'Dijital Asistanlar') {
+      if (!yzUygunVar) return { ...g, keys: [] };
+      if (!yzDurum?.acik) return { ...g, keys: g.keys.filter(k => k === 'yzasistan') };
+    }
     if (!sadeceAsistan) return g;
     // Yalnız asistan olan kullanıcı: yetkisinin açtığı sekmeler + Genel Bakış + Hesabım
     const acik = new Set<string>(['dashboard', 'profile']);
@@ -755,13 +784,17 @@ export default function PanelPage() {
         {tab === 'claims'    && <ClaimsTab claims={basvurular} loading={claimsLoading} onNewClaim={() => setTab('new')} profileUrls={profileUrls} onDeleted={() => loadClaims(user?.email || '')} />}
         {tab === 'profile'   && <ProfileTab user={user} approvedClaims={approvedClaims} premiumMap={premiumMap} subsMap={subsMap} erkenMap={erkenMap} onManage={handleManage} managingId={managingId} />}
         {tab === 'new'       && <NewClaimTab user={user} onSuccess={() => { loadClaims(user?.email || ''); setTab('claims'); }} />}
-        {tab === 'edit'      && <EditProfileTab approvedClaims={approvedClaims} selectedClaim={editListe || aktifClaim?.status !== 'approved' ? null : aktifClaim} onSelectClaim={c => { if (c) aktifSec(c.id); else setEditListe(true); }} isMobile={isMobile} />}
+        {tab === 'edit'      && <EditProfileTab approvedClaims={approvedClaims} selectedClaim={editListe || aktifClaim?.status !== 'approved' ? null : aktifClaim} onSelectClaim={c => { if (c) aktifSec(c.id); else setEditListe(true); }} isMobile={isMobile} onAsistanaGit={() => setTab('yzasistan')} />}
         {tab === 'hekimkart' && <HekimKartTab key={'hk' + aktifKey} approvedClaims={approvedClaims} profileUrls={profileUrls} user={user} aktifClaimId={aktifClaim?.status === 'approved' ? aktifClaim.id : ''} />}
         {tab === 'yorumlar'  && <YorumlarTab key={'yo' + aktifKey} approvedClaims={yetkiliListe('yorumlar')} aktifEntityId={isletmeler.length > 1 ? aktifClaim?.entity_id || '' : ''} />}
         {tab === 'randevu'   && <RandevuTalepleriTab key={'rt' + aktifKey} approvedClaims={yetkiliListe('randevu')} aktifEntityId={isletmeler.length > 1 ? aktifClaim?.entity_id || '' : ''} />}
         {tab === 'randevumodul' && <RandevuModulTab key={'rm' + aktifKey} approvedClaims={approvedClaims} profileUrls={profileUrls} aktifEntityId={aktifClaim?.entity_id || ''} />}
         {tab === 'hastalar'  && <HastalarTab key={'ha' + aktifKey} approvedClaims={yetkiliListe('hastalar')} aktifEntityId={aktifClaim?.entity_id || ''} takvimIds={takvimIds} tamIds={tamIds} />}
         {tab === 'asistanlar' && <AsistanlarTab aktifEntityId={aktifClaim?.entity_id || ''} onGit={setTab} />}
+        {tab === 'yzasistan' && <YapayZekaAsistaniTab key={'yz' + aktifKey} aktifIsletme={yzIsletme} onGit={t => setTab(t)} />}
+        {tab === 'epostaasistan'  && <AsistanBolumuTab key={'ye' + aktifKey} bolum="eposta"  aktifIsletme={yzIsletmeUygun} onGit={t => setTab(t)} />}
+        {tab === 'randevuasistan' && <AsistanBolumuTab key={'yr' + aktifKey} bolum="randevu" aktifIsletme={yzIsletmeUygun} onGit={t => setTab(t)} />}
+        {tab === 'sssasistan'     && <AsistanBolumuTab key={'ys' + aktifKey} bolum="sss"     aktifIsletme={yzIsletmeUygun} onGit={t => setTab(t)} />}
         {tab === 'mcp'       && <McpTab aktifIsletme={aktifClaim?.entity_id ? { id: aktifClaim.entity_id, ad: aktifClaim.entity_name || '' } : null} isletmeSayisi={isletmeler.length} />}
         {tab === 'makaleler' && <MakalelerimTab key={'mk' + aktifKey} hasEntity={approvedClaims.some(c => c.entity_id && c.entity_id !== 'new')} aktifEntityId={aktifClaim?.entity_id && aktifClaim.entity_id !== 'new' ? aktifClaim.entity_id : null} aktifAd={aktifClaim?.entity_name || null} />}
       </main>
@@ -4624,11 +4657,12 @@ function KonumPicker({ lat, lng, adres, il, ilce, name, onLatLng, T, LBL, isMobi
   );
 }
 
-function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile }: {
+function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile, onAsistanaGit }: {
   approvedClaims: ClaimRequest[];
   selectedClaim: ClaimRequest | null;
   onSelectClaim: (c: ClaimRequest | null) => void;
   isMobile?: boolean;
+  onAsistanaGit?: () => void;
 }) {
   type ESection = 'info' | 'details' | 'meslek' | 'photos' | 'konum' | 'tour' | 'embed';
   const [sec,        setSec]      = useState<ESection>('info');
@@ -4979,6 +5013,11 @@ function EditProfileTab({ approvedClaims, selectedClaim, onSelectClaim, isMobile
           </button>
         </div>
       </div>
+
+      {/* Yapay zekâ asistanı açıksa: bu bilgilerin asistanı bilgilendirdiği söylenir (kapalıysa "açarsanız") */}
+      {(et === 'klinik' || et === 'doktor') && onAsistanaGit && (
+        <AsistanBilgiNotu entityId={String(selectedClaim.entity_id)} tazele={saveMsg} onAsistanaGit={onAsistanaGit} />
+      )}
 
       {/* İki sütun */}
       {/* Form esnek (asıl çalışma alanı), önizleme sabit 340px; dar ekranda tek sütun */}

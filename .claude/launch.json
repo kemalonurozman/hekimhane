@@ -182,6 +182,60 @@
         "3115"
       ],
       "port": 3115
+    },
+    {
+      "name": "hekimhane-dijital-3116",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3987",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3116"
+      ],
+      "port": 3116
+    },
+    {
+      "name": "hekimhane-yol-3117",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3985",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3117"
+      ],
+      "port": 3117
+    },
+    {
+      "name": "hekimhane-ozvelo-3113",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3987",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "OZVELO_API_URL=http://localhost:3987/api/partner/v1",
+        "OZVELO_PARTNER_ANAHTARI=partner-test",
+        "OZVELO_IMZA_SIRRI=test-sir-0123456789abcdef0123456789abcdef",
+        "OZVELO_SITE_URL=http://localhost:3987",
+        "NEXT_PUBLIC_SITE_URL=http://localhost:3113",
+        "CRON_SECRET=",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3113"
+      ],
+      "port": 3113
     }
   ]
 }

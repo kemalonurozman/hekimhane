@@ -1,4 +1,5 @@
 import { puanGuncelle } from '@/lib/profil-puani-sunucu';
+import { profilDegisti as ozveloProfilDegisti } from '@/lib/ozvelo/senkron';
 import { createServerClient } from '@supabase/ssr';
 import { panelOturum } from '@/lib/panel-oturum';
 import { yasakIfade } from '@/lib/uyum';
@@ -177,6 +178,10 @@ export async function POST(request: NextRequest) {
 
     // 4b. Profil puanını yeniden hesapla (liste sırası buna bakar). Best-effort.
     await puanGuncelle(admin, entityType, String(entityId));
+
+    // 4c. Yapay zekâ asistanı etkinse değişiklikleri Ozvelo'ya gönder. Best-effort, en çok ~4 sn;
+    //     başarısız gönderim kuyruğa düşer, cron ve panel yeniden dener.
+    await ozveloProfilDegisti(admin, entityType, String(entityId));
 
     // 5. Next.js cache temizle — liste ve profil sayfaları güncel veri göstersin
     const pathMap: Record<string, string> = {

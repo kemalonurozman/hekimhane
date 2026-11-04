@@ -194,9 +194,9 @@ export default function AsistanlarTab({ aktifEntityId, onGit }: { aktifEntityId:
 
   return (
     <div style={{ maxWidth: 860 }}>
-      <h1 style={{ fontSize: 26, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: '-0.6px' }}>Asistanlar</h1>
+      <h1 style={{ fontSize: 26, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: '-0.6px' }}>Ekip</h1>
       <p style={{ fontSize: 13.5, color: MUTED, margin: '6px 0 22px', lineHeight: 1.55 }}>
-        Sekreter, resepsiyon veya klinik asistanınıza hesabınızın <strong style={{ color: TEXT }}>yalnızca seçtiğiniz bölümlerine</strong> erişim verin —
+        Ekibinizdeki sekreter, resepsiyon veya klinik asistanınıza hesabınızın <strong style={{ color: TEXT }}>yalnızca seçtiğiniz bölümlerine</strong> erişim verin —
         örneğin randevu girişleri ve düzenlemeleri. Şifrenizi paylaşmanıza gerek kalmaz; her asistan kendi hesabıyla girer.
       </p>
 

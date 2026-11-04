@@ -21,6 +21,7 @@
 // ─────────────────────────────────────────────────────────────────
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { yoneticiMi } from '@/lib/yonetici';
+import { sahiplikDegisti as ozveloSahiplikDegisti } from '@/lib/ozvelo/senkron';
 
 export const SAHIPLIK_TABLO: Record<string, string> = {
   klinik: 'klinikler',
@@ -113,6 +114,8 @@ export async function claimedEsitle(
     return { sahipVar: null, claimed: null, uyari: 'Sahiplik durumu okunamadı; "sahiplenildi" işareti güncellenmedi.' };
   }
   const sahipVar = liste.some(e => e.sahip);
+  // Son sahip ayrıldıysa yapay zekâ asistanı (Ozvelo) da kapanır; etkin değilse tek okuma, hata yutulur
+  await ozveloSahiplikDegisti(db, tip, entityId, sahipVar);
   const { error } = await (db as any).from(tablo).update({ claimed: sahipVar }).eq('id', entityId);
   if (error) {
     const msg = String(error.message || error);

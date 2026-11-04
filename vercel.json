@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/kaldirma-zamanasimi",
       "schedule": "30 7 * * *"
+    },
+    {
+      "path": "/api/cron/ozvelo-senkron",
+      "schedule": "0 2 * * *"
     }
   ]
 }
