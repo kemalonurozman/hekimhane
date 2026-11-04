@@ -20,6 +20,21 @@ yönetebilir (claim); ziyaretçiler sehir/ilçe/uzmanlık gibi filtrelerle arama
 
 ---
 
+## Yol Haritası — HER GÜNCELLEMEDE GÜNCELLE (kullanıcı isteği, Eki 2026)
+
+Admin paneli → **Yol Haritası** sekmesi (`app/admin/YolHaritasiTab.tsx`, veri `/api/admin/yol-haritasi`).
+Tek kaynak **`lib/yol-haritasi.ts`**. Siteye dokunan her işi bitirirken (commit'ten önce):
+
+1. `YAPILANLAR` dizisinin **başına** o günün tarihiyle (`YYYY-MM-DD`, Türkiye günü) kayıt ekle:
+   `alan` (Site/Panel/Admin/Blog/SEO/Yasal/Güvenlik/Ödeme/Tasarım/Altyapı), sade dille `baslik`,
+   1–3 madde "siteye ne eklendi / ne düzeldi". Teknik terim, dosya adı yazma; kullanıcı okuyacak.
+2. Biten yapılacağı `YAPILACAKLAR`'dan sil. Yeni çıkan iş varsa uygun gruba **sırasına göre** ekle
+   (`kim`: siz/claude/avukat/ozvelo; `durum`: yapiliyor/sirada/kontrol; acilse `oncelikli`).
+   Grupların ve maddelerin dizideki sırası = yapılma sırası.
+3. Dosya yalnız sunucuda okunur (güvenlik notları var) — istemci bileşenine **yalnız tip** import et.
+
+---
+
 ## Klasör Yapısı
 
 ```

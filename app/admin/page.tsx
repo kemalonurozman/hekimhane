@@ -7,6 +7,7 @@ import BookingTab from './BookingTab';
 import MakalelerTab from './MakalelerTab';
 import YorumlarTab from './YorumlarTab';
 import KaldirmaTab from './KaldirmaTab';
+import YolHaritasiTab from './YolHaritasiTab';
 import { C } from './tema';
 import { LogoMark } from '@/components/Logo';
 
@@ -47,6 +48,7 @@ const IC = {
   edit:    'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7 M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z',
   toggle:  'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
   flag:    'M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z M4 22v-7',
+  yol:     'M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7 M9 20l6-3 M9 20V7 M15 17l4.553 2.276A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-.553-.894L15 4 M15 17V4 M15 4 9 7',
 };
 
 /* ═══════════════════════════════════════════════
@@ -152,6 +154,7 @@ function getProfileUrl(type: string, entity: Entity): string | null {
 const SIDEBAR_GROUPS: { title: string | null; items: { key: string; label: string; icon: string }[] }[] = [
   { title: null, items: [
     { key: 'dashboard',   label: 'Genel Bakış',       icon: IC.dash    },
+    { key: 'yolharitasi', label: 'Yol Haritası',      icon: IC.yol     },
   ]},
   { title: 'Talepler & Üyelik', items: [
     { key: 'claims',      label: 'Sahiplenme',        icon: IC.claims  },
@@ -179,7 +182,7 @@ const SIDEBAR_GROUPS: { title: string | null; items: { key: string; label: strin
   ]},
 ];
 
-type TabKey = 'dashboard' | 'booking' | 'claims' | 'cekim' | 'yorumlar' | 'sikayetler' | 'kaldirma' | 'emailler' | 'premium' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
+type TabKey = 'dashboard' | 'yolharitasi' | 'booking' | 'claims' | 'cekim' | 'yorumlar' | 'sikayetler' | 'kaldirma' | 'emailler' | 'premium' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
 
 /* ═══════════════════════════════════════════════
    DASHBOARD SEKMESİ
@@ -2459,6 +2462,7 @@ export default function AdminPage() {
   const [randevuPending, setRandevuPending] = useState(0);
   const [reportPending, setReportPending] = useState(0);
   const [yorumPending,  setYorumPending]  = useState(0);   // onay bekleyen + belge istenen yorumlar
+  const [yolSizde, setYolSizde] = useState(0); // yol haritasında sizden beklenen iş
   const [kaldirmaPending, setKaldirmaPending] = useState(0); // karar bekleyen + duraklatılmış kaldırma talepleri
   const [makalePending, setMakalePending] = useState(0);
 
@@ -2489,6 +2493,15 @@ export default function AdminPage() {
     } catch {}
   }, []);
 
+  const loadYolCount = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/yol-haritasi?ozet=1', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setYolSizde(data.ozet?.sizde ?? 0);
+    } catch {}
+  }, []);
+
   const loadReportCount = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/reported-yorumlar', { cache: 'no-store' });
@@ -2516,6 +2529,7 @@ export default function AdminPage() {
         loadYorumCount();
         loadKaldirmaCount();
         loadMakaleCount();
+        loadYolCount();
       }
     });
   }, []);
@@ -2724,8 +2738,9 @@ export default function AdminPage() {
                   : item.key === 'sikayetler' ? reportPending
                   : item.key === 'yorumlar' ? yorumPending
                   : item.key === 'kaldirma' ? kaldirmaPending
+                  : item.key === 'yolharitasi' ? yolSizde
                   : item.key === 'blog' ? makalePending : 0;
-                const badgeColor = item.key === 'cekim' ? C.green : (item.key === 'sikayetler' || item.key === 'kaldirma') ? C.red : C.amber;
+                const badgeColor = item.key === 'cekim' ? C.green : item.key === 'yolharitasi' ? C.navy : (item.key === 'sikayetler' || item.key === 'kaldirma') ? C.red : C.amber;
                 return (
                   <button key={item.key} onClick={() => { setTab(item.key as TabKey); setMobileMenuOpen(false); }}
                     className={active ? '' : 'adm-nav'}
@@ -2762,6 +2777,7 @@ export default function AdminPage() {
       {/* ── MAIN ── */}
       <main style={{ marginLeft: isMobile ? 0 : 236, flex: 1, minWidth: 0, padding: isMobile ? '128px 16px 48px' : '96px 40px 48px', minHeight: '100vh', overflowX: 'auto' }}>
         {tab === 'dashboard'  && <DashboardTab stats={stats} onTabChange={setTab} />}
+        {tab === 'yolharitasi' && <YolHaritasiTab />}
         {tab === 'claims'     && <ClaimsTab claims={claims} loading={claimsLoading} onAction={handleClaimAction} actionId={actionId} />}
         {tab === 'cekim'      && <CekimTalepleriTab />}
         {tab === 'yorumlar'   && <YorumlarTab onChanged={loadYorumCount} />}
