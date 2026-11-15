@@ -11,3 +11,6 @@ scripts/.geocode-state.json
 # Kişisel veri içeren yerel yedekler
 .yedek/
 .env*
+
+# IndexNow: son bildirilen sayfaların metin özetleri (scripts/indexnow.mjs)
+.indexnow-state.json

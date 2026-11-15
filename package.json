@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "indexnow": "node scripts/indexnow.mjs",
     "lint": "next lint",
     "migrate": "node scripts/migrate-to-supabase.js"
   },
