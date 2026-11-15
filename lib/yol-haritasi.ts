@@ -235,6 +235,11 @@ export const YAPILACAKLAR: YapilacakGrup[] = [
    En yeni en üstte. Aynı güne birden çok kayıt girebilir. */
 export const YAPILANLAR: Guncelleme[] = [
   // ── Kasım 2026
+  { tarih: '2026-11-15', alan: 'Yasal', baslik: 'İşletmesi kaldırılanın HekimKart\'ı da kalkıyor', maddeler: [
+    'Bir işletme siteden kaldırıldığında ona bağlı HekimKart da birlikte kalkar. Eskiden kart yayında kalıyor, kişinin adı, fotoğrafı ve telefonu görünmeye devam ediyordu.',
+    'Kaldırma talebiyle silinen profillerde kart da yedeğe alınır; profil geri yüklenirse kartı da aynı adresle geri gelir.',
+    'İşletmesi artık bulunmayan bir kart açılmak istenirse sayfa gösterilmez; eski silmelerden kalan kart olsa bile görünmez.',
+  ]},
   { tarih: '2026-11-04', alan: 'Panel', baslik: 'Yapay zekâ asistanının Hekimhane tarafı', maddeler: [
     'Panelde "Yapay Zekâ Asistanı" sekmesi: hekim onay vererek asistanını açar, sitesine ekleyeceği kodu alır, şifresiz Ozvelo\'ya geçer.',
     'Profil her kaydedildiğinde asistan kendiliğinden güncellenir; her gece de baştan kontrol edilir. Son sahip ayrılınca asistan kapanır.',

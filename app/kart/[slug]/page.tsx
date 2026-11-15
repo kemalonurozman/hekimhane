@@ -116,6 +116,21 @@ async function isletmeninKarti(entityId: string | null | undefined): Promise<str
   } catch { return null; }
 }
 
+/**
+ * Kart bir işletmeye bağlı ama o işletme artık yok mu? (silinmiş/kaldırılmış)
+ * Yalnız "kesin yok" durumunda true — okuma hatasında kart gösterilmeye devam eder.
+ * İşletme silinince kart da silinir (lib/entity-sil.ts); bu, ondan önce kalanlara karşı.
+ */
+async function isletmesiSilinmis(entityId: string | null | undefined, entityType: string | null | undefined): Promise<boolean> {
+  if (!entityId) return false;
+  const tablo = entityType ? ENTITY_TABLO[entityType] : undefined;
+  if (!tablo) return false;
+  try {
+    const { data, error } = await (supabase as any).from(tablo).select('id').eq('id', String(entityId)).maybeSingle();
+    return !error && !data;
+  } catch { return false; }
+}
+
 /** Kartın eski adreslerinden biri mi? Kolon yoksa sessizce null döner. */
 async function eskiAdrestenCoz(slug: string): Promise<string | null> {
   try {
@@ -134,6 +149,8 @@ async function getKart(slug: string): Promise<KartSonuc> {
     .eq('slug', slug)
     .single();
   if (kart) {
+    // İşletmesi silinmiş kart yayında kalmaz (kaldırılan kişinin bilgisi görünmesin)
+    if (await isletmesiSilinmis(kart.entity_id, kart.entity_type)) return { kart: null };
     // Entity'den adres/puan/onay + boş kalan kart alanları (poster + banner için)
     const ent = await resolveEntity(kart.entity_id, kart.entity_type);
     // hekimhane_url: kaydedilmişse kullan, yoksa entity'den otomatik türet

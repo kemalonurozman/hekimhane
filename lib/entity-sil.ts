@@ -39,8 +39,11 @@ export async function entitySil(admin: SupabaseClient, tablo: SilinebilirTablo, 
     { ad: 'yorumlar',              q: db.from('yorumlar').delete().eq('entity_id', entityId).eq('entity_type', typeKey) },
     { ad: 'randevu_talepleri',     q: db.from('randevu_talepleri').delete().eq('entity_id', entityId).eq('entity_type', typeKey) },
     { ad: 'premium_subscriptions', q: db.from('premium_subscriptions').delete().eq('entity_id', entityId).eq('entity_type', typeKey) }, // yalnız pasif kayıtlar kaldı
-    // HekimKart ve makaleler kullanıcıya ait: silinmez, işletme bağı koparılır
-    { ad: 'hekimkartlar',          q: db.from('hekimkartlar').update({ entity_id: null, entity_type: null }).eq('entity_id', entityId).eq('entity_type', typeKey) },
+    // HekimKart işletmeyle birlikte kalkar (Kas 2026): eskiden bağı koparılıp yayında
+    // kalıyordu → profili kaldırılan kişinin adı/telefonu/fotoğrafı /kart/<adres>'te
+    // açık duruyordu. Kaldırma onayında kart önce yedeğe alınır (lib/profil-kaldirma.ts).
+    { ad: 'hekimkartlar',          q: db.from('hekimkartlar').delete().eq('entity_id', entityId).eq('entity_type', typeKey) },
+    // Makaleler kullanıcıya ait: silinmez, işletme bağı koparılır
     { ad: 'blog_posts',            q: db.from('blog_posts').update({ entity_id: null }).eq('entity_id', entityId).eq('entity_type', typeKey) },
   ];
   const uyarilar: string[] = [];

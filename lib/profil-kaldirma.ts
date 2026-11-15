@@ -8,13 +8,13 @@
 //    o an geçince 404 verir (cron beklenmez); cron + admin listesi durumu
 //    `duraklatildi` yapıp `gizli=true` yazar.
 //  Yönetici kararları (kaldirmaKarar):
-//    kaldir       → TAM YEDEK (kayıt + yorumlar + sahiplik) kaldirilan_profiller'e,
+//    kaldir       → TAM YEDEK (kayıt + yorumlar + sahiplik + HekimKart) kaldirilan_profiller'e,
 //                   sonra kayıt silinir; yedek UYUM_SURE.kaldirma_yedek_gun gün tutulur.
 //    duraklat     → profil hemen yayından alınır, karar bekler.
 //    yayinda_tut  → talep reddedilir, profil yayına döner (gizli=false, duraklat_at=null).
 //    soru         → talep sahibine "neden kaldırılmalı?" sorusu e-postayla gider
 //                   (yanıt yöneticiye; soru talepte kayıtlı).
-//  Geri yükleme (profilGeriYukle): yedekten kayıt + yorumlar + sahiplik geri yazılır,
+//  Geri yükleme (profilGeriYukle): yedekten kayıt + yorumlar + sahiplik + HekimKart geri yazılır,
 //    kaldırılanlar listesinde "geri yüklendi" işaretlenir.
 //
 //  Eski akış (2026-10-25): talep = anında gizleme, e-posta onayı = SİLME. Artık
@@ -307,11 +307,13 @@ export async function kaldirmaKarar(admin: SupabaseClient, talepId: string, aksi
 
   if (row) {
     // 1) Tam yedek — silmeden ÖNCE; yedek yazılamazsa silme yapılmaz
-    const [yr, cr] = await Promise.all([
+    const [yr, cr, hk] = await Promise.all([
       db.from('yorumlar').select('*').eq('entity_type', tip).eq('entity_id', id),
       db.from('claim_requests').select('*').eq('entity_type', tip).eq('entity_id', id),
+      // HekimKart işletmeyle birlikte silinir (entitySil) → geri yükleme için yedeğe girer
+      db.from('hekimkartlar').select('*').eq('entity_type', tip).eq('entity_id', id),
     ]);
-    const yedek = { kayit: row, yorumlar: yr.data || [], claims: cr.data || [], tablo };
+    const yedek = { kayit: row, yorumlar: yr.data || [], claims: cr.data || [], kartlar: hk.data || [], tablo };
     const { error: kErr } = await db.from('kaldirilan_profiller').insert({
       entity_type: tip, eski_entity_id: id, ad: t.entity_name || t.ad_soyad, il: t.il,
       talep_tarihi: String(t.created_at).slice(0, 10), talep_id: t.id, yedek,
@@ -349,7 +351,7 @@ export async function profilGeriYukle(admin: SupabaseClient, kaldirilanId: strin
   const { data: k } = await db.from('kaldirilan_profiller').select('*').eq('id', kaldirilanId).maybeSingle();
   if (!k) return { ok: false, durum: 404, mesaj: 'Kayıt bulunamadı.' };
   if (k.geri_yuklendi_at) return { ok: false, durum: 409, mesaj: 'Bu profil zaten geri yüklendi.' };
-  const y = k.yedek as { kayit?: any; yorumlar?: any[]; claims?: any[]; tablo?: string } | null;
+  const y = k.yedek as { kayit?: any; yorumlar?: any[]; claims?: any[]; kartlar?: any[]; tablo?: string } | null;
   if (!y?.kayit) return { ok: false, durum: 409, mesaj: 'Bu kaydın yedeği yok (eski akışta silinmiş ya da yedek süresi dolmuş). Elle eklenmesi gerekir.' };
   const tablo = SAHIPLIK_TABLO[k.entity_type];
   if (!tablo) return { ok: false, durum: 400, mesaj: 'Profil türü çözülemedi.' };
@@ -368,11 +370,13 @@ export async function profilGeriYukle(admin: SupabaseClient, kaldirilanId: strin
   const uyarilar: string[] = [];
   if (y.yorumlar?.length) { const { error: e } = await db.from('yorumlar').insert(y.yorumlar); if (e) uyarilar.push(`yorumlar: ${e.message}`); }
   if (y.claims?.length)   { const { error: e } = await db.from('claim_requests').insert(y.claims); if (e) uyarilar.push(`sahiplik: ${e.message}`); }
+  // Kart adresi bu arada başkasınca alınmış olabilir → profil yine geri gelir, uyarı düşer
+  if (y.kartlar?.length)  { const { error: e } = await db.from('hekimkartlar').insert(y.kartlar); if (e) uyarilar.push(`HekimKart: ${e.message}`); }
 
   await db.from('kaldirilan_profiller').update({ geri_yuklendi_at: new Date().toISOString() }).eq('id', k.id);
   if (k.talep_id) await db.from('profil_kaldirma_talepleri').update({ status: 'reddedildi', karar_notu: 'Profil geri yüklendi.', karar_at: new Date().toISOString() }).eq('id', k.talep_id);
   onbellekTazele();
-  return { ok: true, mesaj: `Profil geri yüklendi (${y.yorumlar?.length || 0} yorum, ${y.claims?.length || 0} sahiplik kaydı).${uyarilar.length ? ' Uyarı: ' + uyarilar.join('; ') : ''}` };
+  return { ok: true, mesaj: `Profil geri yüklendi (${y.yorumlar?.length || 0} yorum, ${y.claims?.length || 0} sahiplik kaydı${y.kartlar?.length ? `, ${y.kartlar.length} HekimKart` : ''}).${uyarilar.length ? ' Uyarı: ' + uyarilar.join('; ') : ''}` };
 }
 
 /* ─────────────────────── Admin listesi ─────────────────────── */
