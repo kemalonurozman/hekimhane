@@ -236,6 +236,24 @@
         "3113"
       ],
       "port": 3113
+    },
+    {
+      "name": "hekimhane-kaldirma-3118",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3984",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "RESEND_API_KEY=re_sahte_test",
+        "RESEND_BASE_URL=http://localhost:3984",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3118"
+      ],
+      "port": 3118
     }
   ]
 }

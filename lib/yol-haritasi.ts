@@ -149,6 +149,7 @@ export const YAPILACAKLAR: YapilacakGrup[] = [
     baslik: 'Bekleyen SQL dosyaları: Supabase SQL Editor',
     aciklama: 'Hangilerinin çalıştırıldığını buradan göremiyorum. Çalıştırdıklarınızı söyleyin, listeden çıkarayım. Çalışmayan dosyanın özelliği sitede sessizce kapalı kalır.',
     maddeler: [
+      { baslik: '2026-11-22_kaldirma_epostalari.sql', aciklama: 'Kaldırma talebi sahiplerine gönderilen e-postaların kaydı ve "e-posta istemiyor" listesi. Yoksa "Mail gönder" penceresinde yalnız "Kendime deneme gönder" çalışır.', kim: 'siz', durum: 'sirada', oncelikli: true },
       { baslik: '2026-10-26_kaldirma_karari.sql', aciklama: 'Profil kaldırma kararı: 48 saat duraklatma, yedekli kaldırma, geri yükleme. Yoksa "Kaldır" düğmesi yedek yazamadığı için silmez.', kim: 'siz', durum: 'kontrol' },
       { baslik: '2026-10-26_yorum_onay.sql', aciklama: 'Yorumcunun e-postası ve belge isteme kayıtları.', kim: 'siz', durum: 'kontrol' },
       { baslik: '2026-10-26_yorum_kurallari.sql', aciklama: 'Yorum kurallarının kabul zamanı ve "geliştirilebilir noktalar".', kim: 'siz', durum: 'kontrol' },
@@ -213,6 +214,11 @@ export const YAPILACAKLAR: YapilacakGrup[] = [
         kim: 'avukat', durum: 'sirada',
       },
       { baslik: 'Yorum Yayınlama Kuralları metni', kim: 'avukat', durum: 'sirada' },
+      {
+        baslik: 'Kaldırma talebi sahiplerine giden tanıtım içerikli e-posta',
+        aciklama: 'Adres kaldırma talebi için alındı; ücretsiz özellik, Pro ve Booking anlatan e-posta (elle gönderilen ve otomatik kaldırma e-postasının alt bölümü) ticari ileti sayılabilir. Ret satırı ve "e-posta istemiyor" işareti var; İYS ve aydınlatma metnine uygunluğu kontrol edilmeli.',
+        kim: 'avukat', durum: 'sirada',
+      },
       { baslik: 'Pro sözleşme eki, veri kaynağı ve yurt dışı aktarım envanteri', kim: 'avukat', durum: 'sirada' },
     ],
   },
@@ -235,6 +241,13 @@ export const YAPILACAKLAR: YapilacakGrup[] = [
    En yeni en üstte. Aynı güne birden çok kayıt girebilir. */
 export const YAPILANLAR: Guncelleme[] = [
   // ── Kasım 2026
+  { tarih: '2026-11-22', alan: 'Admin', baslik: 'Kaldırma talebi sahiplerine dostça e-posta', maddeler: [
+    'Kaldırma Talepleri sekmesinde her talebin ve her kaldırılan profilin yanında "Mail gönder" düğmesi: hazır şablonlardan biri (dostça son mesaj, ücretsiz özellik hatırlatması, geri dönüş daveti, kaldırmak yerine yönetmek, kendi metniniz) seçilir, konu ve metin düzenlenir, e-posta göründüğü gibi önizlenir.',
+    'Şablonlar yalnız sitede gerçekten olanları söyler: randevu taleplerinin doğrudan e-postaya gelmesi, bilgileri düzenleme, yorumlara yanıt, HekimKart. Instagram ve Facebook bağlantıları Pro özelliği olduğu için yalnız ücretsiz Pro kontenjanı sürerken anılır.',
+    'E-postalar tek tek ve elle gider; her e-postanın altında "bir kez gönderiyoruz, başka e-posta göndermeyeceğiz" notu var. Gönderilenler tarih ve şablonla kaydedilir; aynı kişiye tekrar yazmadan önce uyarı çıkar. "Kendime deneme gönder" ile önce kendi kutunuzda görebilirsiniz.',
+    'Profil kaldırılınca giden otomatik e-posta yenilendi: en üstte "talebiniz yerine getirildi, profil kaldırıldı", ardından teşekkür ve ücretsiz kayıt bağlantısı, en altta kısa Hekimhane Booking (yapay zekâ randevu asistanı) bilgisi.',
+    '"Bu tür e-posta istemiyorum" diye yanıtlayanı admin işaretler; o kişiye bir daha elle e-posta gönderilemez, kaldırma e-postasında da tanıtım bölümü çıkmaz.',
+  ]},
   { tarih: '2026-11-15', alan: 'Yasal', baslik: 'İşletmesi kaldırılanın HekimKart\'ı da kalkıyor', maddeler: [
     'Bir işletme siteden kaldırıldığında ona bağlı HekimKart da birlikte kalkar. Eskiden kart yayında kalıyor, kişinin adı, fotoğrafı ve telefonu görünmeye devam ediyordu.',
     'Kaldırma talebiyle silinen profillerde kart da yedeğe alınır; profil geri yüklenirse kartı da aynı adresle geri gelir.',

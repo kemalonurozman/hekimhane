@@ -5,11 +5,14 @@
  *   Talepler: profil yayında kalır; 48 saat içinde karar yoksa kendiliğinden duraklatılır.
  *     Neden sor (e-posta) · Duraklat · Yayında tut (reddet) · Kaldır (tam yedekle sil)
  *   Kaldırılan Profiller: yedeği olanlar tek tıkla geri yüklenir (kayıt + yorumlar + sahiplik).
- * Veri: /api/admin/kaldirma  ·  mantık: lib/profil-kaldirma.ts
+ *   Her satırda "Mail gönder": talep sahibine elle, tek tek dostça e-posta (KaldirmaMailPenceresi).
+ * Veri: /api/admin/kaldirma (+ /eposta)  ·  mantık: lib/profil-kaldirma.ts, lib/kaldirma-eposta.ts
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { C } from './tema';
+import KaldirmaMailPenceresi, { type EpostaKaydi, type MailHedefi } from './KaldirmaMailPenceresi';
+import { sablonAdi } from '@/lib/kaldirma-sablonlari';
 
 interface Talep {
   id: string; entity_type: string; entity_id: string; entity_name: string | null; il: string | null;
@@ -21,7 +24,7 @@ interface Talep {
 interface Kaldirilan {
   id: string; entity_type: string; eski_entity_id: string | null; ad: string; il: string | null;
   talep_tarihi: string; kaldirma_tarihi: string; yedek_silinme?: string | null; geri_yuklendi_at?: string | null;
-  yedekVar: boolean; yorumSayisi: number;
+  talep_id?: string | null; yedekVar: boolean; yorumSayisi: number;
 }
 type Filtre = 'acik' | 'kapali' | 'kaldirilan';
 
@@ -54,14 +57,23 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
   const [notlar, setNotlar] = useState<Record<string, string>>({});
   const [acikPanel, setAcikPanel] = useState<Record<string, 'soru' | 'not' | undefined>>({});
   const [sonuc, setSonuc] = useState<{ ok: boolean; text: string } | null>(null);
+  const [epostalar, setEpostalar] = useState<EpostaKaydi[]>([]);
+  const [epostaMigration, setEpostaMigration] = useState(false);
+  const [kontenjanKalan, setKontenjanKalan] = useState<number | null>(null);
+  const [retler, setRetler] = useState<Record<string, string>>({});   // alici → işaret tarihi
+  const [mailHedefi, setMailHedefi] = useState<MailHedefi | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    try {
-      const r = await fetch('/api/admin/kaldirma', { cache: 'no-store' });
-      const d = await r.json();
-      setTalepler(d.talepler || []); setKaldirilanlar(d.kaldirilanlar || []); setUrls(d.urls || {}); setMigration(!!d.migration);
-    } catch { setTalepler([]); setKaldirilanlar([]); }
+    const [liste, eposta] = await Promise.all([
+      fetch('/api/admin/kaldirma', { cache: 'no-store' }).then(r => r.json()).catch(() => null),
+      fetch('/api/admin/kaldirma/eposta', { cache: 'no-store' }).then(r => r.json()).catch(() => null),
+    ]);
+    if (liste) { setTalepler(liste.talepler || []); setKaldirilanlar(liste.kaldirilanlar || []); setUrls(liste.urls || {}); setMigration(!!liste.migration); }
+    else { setTalepler([]); setKaldirilanlar([]); }
+    setEpostalar(eposta?.kayitlar || []); setEpostaMigration(!!eposta?.migration);
+    setRetler(Object.fromEntries(((eposta?.retler || []) as { alici: string; created_at: string }[]).map(r => [r.alici, r.created_at])));
+    setKontenjanKalan(typeof eposta?.kontenjanKalan === 'number' ? eposta.kontenjanKalan : null);
     setLoading(false);
   }, []);
   useEffect(() => { load(); }, [load]);
@@ -77,6 +89,48 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
     } catch { setSonuc({ ok: false, text: 'Bağlantı hatası.' }); }
     setBusy(null);
   }
+
+  /** Bu talebe ya da aynı adrese giden e-postalar (yeniden eskiye). */
+  const epostaGecmisi = (talepId: string, email: string) => {
+    const a = email.trim().toLowerCase();
+    return epostalar.filter(e => e.talep_id === talepId || e.alici === a);
+  };
+  /** Kaldırılan kaydın talebi: talep_id, yoksa (eski akış) tür + kimlik eşleşmesi. */
+  const kaldirilanTalebi = (k: Kaldirilan) =>
+    (k.talep_id && talepler.find(t => t.id === k.talep_id))
+    || talepler.find(t => t.status === 'kaldirildi' && t.entity_type === k.entity_type && t.entity_id === k.eski_entity_id)
+    || null;
+  const mailAc = (t: Talep, k?: Kaldirilan) => {
+    const yedekli = k || kaldirilanlar.find(x => x.talep_id === t.id && x.yedekVar && !x.geri_yuklendi_at);
+    setSonuc(null);
+    setMailHedefi({
+      talepId: t.id, kaldirilanId: k?.id || null,
+      ad: t.ad_soyad, email: t.email, profil: t.entity_name || k?.ad || 'Profil', status: t.status,
+      entityType: t.entity_type, entityId: t.entity_id,
+      yedekSon: yedekli?.yedekVar && !yedekli.geri_yuklendi_at ? yedekli.yedek_silinme || null : null,
+    });
+  };
+  /** "E-posta istemiyor" işareti: elle gönderim kapalı, yalnız işareti kaldırma düğmesi. */
+  const retDugmesi = (t: Talep, anahtar: string) => btn('İşareti kaldır', async () => {
+    if (!window.confirm(`${t.email} için “e-posta istemiyor” işareti kaldırılsın mı? Yalnız kişi fikrini değiştirdiyse ya da işaret yanlışlıkla konduysa kaldırın.`)) return;
+    setBusy(anahtar);
+    try {
+      const r = await fetch('/api/admin/kaldirma/eposta', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ aksiyon: 'ret', talepId: t.id, geriAl: true }) });
+      const d = await r.json().catch(() => ({}));
+      setSonuc(r.ok ? { ok: true, text: d.mesaj } : { ok: false, text: d.error || 'İşaret kaldırılamadı' });
+      if (r.ok) await load();
+    } catch { setSonuc({ ok: false, text: 'Bağlantı hatası.' }); }
+    setBusy(null);
+  }, 'cerceve', busy === anahtar);
+  const retBilgisi = (email: string) => {
+    const tarihi = retler[email.trim().toLowerCase()];
+    return tarihi ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>E-posta istemiyor · {tarih(tarihi)}</span> : null;
+  };
+  const mailBilgisi = (liste: EpostaKaydi[]) => liste.length ? (
+    <span style={{ fontSize: 11.5, fontWeight: 600, color: C.green }}>
+      Mail gönderildi: {tarih(liste[0].created_at)} · {sablonAdi(liste[0].sablon)}{liste.length > 1 ? ` (toplam ${liste.length})` : ''}
+    </span>
+  ) : null;
 
   const acik = talepler.filter(t => t.status === 'bekliyor' || t.status === 'duraklatildi');
   const kapali = talepler.filter(t => t.status !== 'bekliyor' && t.status !== 'duraklatildi');
@@ -95,6 +149,9 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
     const b = busy === t.id;
     const acikMi = t.status === 'bekliyor' || t.status === 'duraklatildi';
     const panel = acikPanel[t.id];
+    const gecmis = epostaGecmisi(t.id, t.email);
+    const ret = !!retler[t.email.trim().toLowerCase()];
+    const mailDugmesi = ret ? retDugmesi(t, t.id) : btn(gecmis.length ? 'Tekrar mail gönder' : 'Mail gönder', () => mailAc(t), 'cerceve', b);
     return (
       <div key={t.id} style={{ background: C.card, borderRadius: 14, border: `1px solid ${acikMi ? 'rgba(199,119,0,.35)' : C.border}`, marginBottom: 12, overflow: 'hidden' }}>
         <div style={{ padding: '14px 18px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
@@ -119,6 +176,8 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
             <span>E-posta: <a href={`mailto:${t.email}`} style={{ color: C.navy, fontWeight: 600 }}>{t.email}</a> {t.email_dogrulandi_at ? <strong style={{ color: C.green }}>· doğrulandı</strong> : <span style={{ color: C.amber }}>· doğrulanmadı</span>}</span>
             <span>Cep: {t.tel ? <a href={`tel:${t.tel.replace(/\s/g, '')}`} style={{ color: C.navy, fontWeight: 700 }}>{t.tel}</a> : <em>yok (eski talep)</em>}</span>
             {t.ip && <span>IP: {t.ip}</span>}
+            {mailBilgisi(gecmis)}
+            {retBilgisi(t.email)}
           </div>
           <div style={{ background: C.soft, border: `1px solid ${C.border}`, borderRadius: 10, padding: '10px 12px', marginBottom: 10 }}>
             <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, letterSpacing: '.4px', marginBottom: 3 }}>KALDIRMA NEDENİ</div>
@@ -150,11 +209,13 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
                 {panel === 'not'
                   ? btn('Yayında tut · gönder', () => gonder({ talepId: t.id, aksiyon: 'yayinda_tut', not: notlar[t.id] }, t.id), 'dolu', b)
                   : btn('Yayında tut (reddet)', () => setAcikPanel(p => ({ ...p, [t.id]: 'not' })), 'cerceve', b)}
+                {mailDugmesi}
                 {btn('Kaldır', () => gonder({ talepId: t.id, aksiyon: 'kaldir', not: notlar[t.id] }, t.id,
                   `${t.entity_name || 'Profil'} kaldırılacak. Kayıt, yorumlar ve sahiplik bilgisi yedeklenip silinir; Kaldırılan Profiller'den geri yüklenebilir. Devam edilsin mi?`), 'tehlike', b)}
               </div>
             </>
           )}
+          {!acikMi && <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{mailDugmesi}</div>}
         </div>
       </div>
     );
@@ -162,6 +223,8 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
 
   const kaldirilanSatiri = (k: Kaldirilan) => {
     const b = busy === k.id;
+    const t = kaldirilanTalebi(k);
+    const gecmis = t ? epostaGecmisi(t.id, t.email) : [];
     return (
       <div key={k.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', padding: '12px 16px', borderBottom: `1px solid ${C.border}` }}>
         <div style={{ minWidth: 0 }}>
@@ -172,10 +235,18 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
               : k.yedekVar ? <> · yedek {k.yorumSayisi} yorumla, {tarih(k.yedek_silinme)} tarihine kadar</>
               : <span style={{ color: C.red }}> · yedek yok (eski akış ya da süresi doldu)</span>}
           </div>
+          {(gecmis.length > 0 || (t && retler[t.email.trim().toLowerCase()])) && (
+            <div style={{ marginTop: 2, display: 'flex', gap: 10, flexWrap: 'wrap' }}>{mailBilgisi(gecmis)}{t && retBilgisi(t.email)}</div>
+          )}
         </div>
-        {!k.geri_yuklendi_at && (k.yedekVar
-          ? btn('Geri yükle', () => gonder({ kaldirilanId: k.id, aksiyon: 'geri_yukle' }, k.id, `${k.ad} profili yedekten geri yüklenecek (kayıt + yorumlar + sahiplik). Devam edilsin mi?`), 'dolu', b)
-          : <span style={{ fontSize: 11.5, color: C.muted, maxWidth: 260 }}>Yedeksiz kayıt elle eklenmeli (supabase/tek-seferlik).</span>)}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}>
+          {!k.geri_yuklendi_at && (t
+            ? (retler[t.email.trim().toLowerCase()] ? retDugmesi(t, k.id) : btn(gecmis.length ? 'Tekrar mail gönder' : 'Mail gönder', () => mailAc(t, k), 'cerceve', b))
+            : <span style={{ fontSize: 11.5, color: C.muted }} title="Bu kayda bağlı kaldırma talebi bulunamadı">E-posta adresi yok</span>)}
+          {!k.geri_yuklendi_at && (k.yedekVar
+            ? btn('Geri yükle', () => gonder({ kaldirilanId: k.id, aksiyon: 'geri_yukle' }, k.id, `${k.ad} profili yedekten geri yüklenecek (kayıt + yorumlar + sahiplik). Devam edilsin mi?`), 'dolu', b)
+            : <span style={{ fontSize: 11.5, color: C.muted, maxWidth: 260 }}>Yedeksiz kayıt elle eklenmeli (supabase/tek-seferlik).</span>)}
+        </div>
       </div>
     );
   };
@@ -224,6 +295,16 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
           : ((filtre === 'acik' ? acik : kapali).length
               ? (filtre === 'acik' ? acik : kapali).map(talepKarti)
               : <div style={{ textAlign: 'center', padding: 60, color: C.muted, background: C.card, borderRadius: 14, border: `1px solid ${C.border}` }}>{filtre === 'acik' ? 'Açık kaldırma talebi yok.' : 'Sonuçlanan talep yok.'}</div>)}
+      {mailHedefi && (
+        <KaldirmaMailPenceresi
+          hedef={mailHedefi}
+          oncekiler={epostaGecmisi(mailHedefi.talepId, mailHedefi.email)}
+          kontenjanAcik={kontenjanKalan !== null && kontenjanKalan > 0}
+          migration={epostaMigration}
+          onKapat={() => setMailHedefi(null)}
+          onBitti={async mesaj => { setMailHedefi(null); setSonuc({ ok: true, text: mesaj }); await load(); }}
+        />
+      )}
     </div>
   );
 }

@@ -14,6 +14,9 @@
 //    yayinda_tut  → talep reddedilir, profil yayına döner (gizli=false, duraklat_at=null).
 //    soru         → talep sahibine "neden kaldırılmalı?" sorusu e-postayla gider
 //                   (yanıt yöneticiye; soru talepte kayıtlı).
+//  Kaldır e-postası (otomatik, yalnız talep sahibine): ana mesaj "profil kaldırıldı" kutusu + yedek/aydınlatma,
+//    teşekkür + ücretsiz kayıt (/katil), en altta kısa Hekimhane Booking bilgisi + ret satırı.
+//    Adres "e-posta istemiyor" işaretliyse (kaldirma_eposta_ret) tanıtım bölümü çıkmaz. replyTo = admin.
 //  Geri yükleme (profilGeriYukle): yedekten kayıt + yorumlar + sahiplik + HekimKart geri yazılır,
 //    kaldırılanlar listesinde "geri yüklendi" işaretlenir.
 //
@@ -30,6 +33,8 @@ import { SAHIPLIK_TABLO } from '@/lib/sahiplik';
 import { entitySil, tabloYok, type SilinebilirTablo } from '@/lib/entity-sil';
 import { SIRKET } from '@/lib/sirket';
 import { AYDINLATMA_YOL, UYUM_SURE } from '@/lib/uyum';
+import { BOOKING_MADDELERI, RET_SATIRI } from '@/lib/kaldirma-sablonlari';
+import { epostaRetVar } from '@/lib/kaldirma-eposta';
 
 const ADMIN_EMAIL = 'kemalonurozman@gmail.com';
 const SITE = 'https://www.hekimhane.com.tr';
@@ -333,15 +338,37 @@ export async function kaldirmaKarar(admin: SupabaseClient, talepId: string, aksi
   let mail = false;
   if (bildir) {
     const r = await sendEmail({
-      to: t.email, subject: 'Profiliniz Hekimhane\'den kaldırıldı',
-      html: mailShell('Profiliniz Hekimhane\'den kaldırıldı',
-        p(`Merhaba <strong>${esc(t.ad_soyad)}</strong>,`) +
-        p(`<strong>${esc(t.entity_name || '')}</strong> profili ${esc(tarihTR(new Date()))} itibarıyla Hekimhane'den kaldırıldı. Yanlış ya da yetkisiz bir talebe karşı kayıt ${UYUM_SURE.kaldirma_yedek_gun} gün boyunca geri yüklenebilir biçimde saklanır, ardından silinir; yeniden eklenmemesi için yalnızca ad, il ve talep tarihi kaldırılanlar listesinde kalır.`) +
-        p(`İleride yeniden listelenmek isterseniz <a href="${SITE}/katil" style="color:#1A335E;">hekimhane.com.tr/katil</a> üzerinden başvurabilirsiniz. Kişisel verilerinizin nasıl işlendiğini <a href="${SITE}${AYDINLATMA_YOL.profesyonel}" style="color:#1A335E;">Profesyoneller Aydınlatma Metni</a>'nde okuyabilirsiniz.`) + imza),
+      to: t.email, replyTo: ADMIN_EMAIL, subject: 'Profiliniz Hekimhane\'den kaldırıldı',
+      html: kaldirildiEpostasi(t, await epostaRetVar(admin, String(t.email || ''))),
     });
     mail = r.ok;
   }
   return { ok: true, mesaj: row ? 'Profil kaldırıldı; yedek Kaldırılan Profiller listesinde.' : 'Kayıt zaten yoktu; talep kapatıldı.', mail };
+}
+
+/**
+ * "Profiliniz kaldırıldı" e-postası. Ana mesaj en üstte, kutu içinde; tanıtım en altta, kısa ve ayrı.
+ * retVar → Booking bölümü ve ret satırı hiç eklenmez (yalnız işlem bilgisi kalır).
+ */
+export function kaldirildiEpostasi(t: { ad_soyad?: string | null; entity_name?: string | null }, retVar: boolean): string {
+  const kutu = `<div style="margin:0 0 16px;padding:14px 16px;background:#EEF8F2;border:1px solid #BFE3CF;border-radius:12px;">
+    <div style="font-size:15px;font-weight:800;color:#1E7A4E;margin:0 0 4px;">✓ Talebiniz yerine getirildi</div>
+    <div style="font-size:14px;color:#1c1c1e;line-height:1.55;"><strong>${esc(t.entity_name || 'Profil')}</strong> profili ${esc(tarihTR(new Date()))} itibarıyla Hekimhane'den kaldırıldı ve artık sitede yayında değil.</div>
+  </div>`;
+  const tanitim = retVar ? '' :
+    `<div style="margin:20px 0 0;padding:14px 16px;background:#F8FAFF;border:1px solid #E5E5EA;border-radius:12px;">
+      <div style="font-size:11.5px;font-weight:700;color:#1A335E;letter-spacing:.4px;margin:0 0 6px;">KISA BİR BİLGİ: HEKİMHANE BOOKING</div>
+      <p style="font-size:13px;color:#1c1c1e;line-height:1.55;margin:0 0 6px;">Ozvelo.com ortaklığıyla sunduğumuz yapay zekâ randevu asistanı:</p>
+      <ul style="font-size:13px;color:#1c1c1e;line-height:1.55;margin:0 0 6px;padding-left:18px;">${BOOKING_MADDELERI.map(m => `<li style="margin:0 0 3px;">${esc(m)}</li>`).join('')}</ul>
+      <p style="font-size:13px;color:#1c1c1e;line-height:1.55;margin:0;">Ayrıntılar ve demo: <a href="${SITE}/booking" style="color:#1A335E;">hekimhane.com.tr/booking</a></p>
+    </div>
+    <p style="font-size:11.5px;color:#6E6E73;line-height:1.55;margin:10px 0 0;">${esc(RET_SATIRI)}</p>`;
+  return mailShell('Profiliniz Hekimhane\'den kaldırıldı',
+    p(`Merhaba <strong>${esc(t.ad_soyad || '')}</strong>,`) + kutu +
+    p(`Yanlış ya da yetkisiz bir talebe karşı kayıt ${UYUM_SURE.kaldirma_yedek_gun} gün boyunca geri yüklenebilir biçimde saklanır, ardından silinir; yeniden eklenmemesi için yalnızca ad, il ve talep tarihi kaldırılanlar listesinde kalır.`) +
+    p(`Talebinizi bize ilettiğiniz için teşekkür ederiz. Dilerseniz Hekimhane'ye <strong>ücretsiz</strong> kayıt olabilir, profilinizi kendiniz oluşturup yönetebilirsiniz: <a href="${SITE}/katil" style="color:#1A335E;">hekimhane.com.tr/katil</a>`) +
+    p(`Kişisel verilerinizin nasıl işlendiğini <a href="${SITE}${AYDINLATMA_YOL.profesyonel}" style="color:#1A335E;">Profesyoneller Aydınlatma Metni</a>'nde okuyabilirsiniz.`) +
+    imza + tanitim);
 }
 
 /* ─────────────────────── Geri yükleme ─────────────────────── */
