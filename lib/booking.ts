@@ -10,8 +10,34 @@ export const BOOKING_URUNLER: { id: string; ad: string }[] = [
   { id: 'pro',              ad: 'Hekimhane-Pro' },
   { id: 'hekimkart',        ad: 'HekimKart' },
   { id: 'degerlendirme',    ad: 'Yorum Yönetimi' },
+  { id: 'danismanlik',      ad: 'Ücretsiz Görüşme' },
   { id: 'genel',            ad: 'Hekimhane' },
 ];
+
+/** /ucretsiz-gorusme — görüşmede konuşulmak istenen konular. Kayıtta `kanallar` kolonunda tutulur
+ *  (urun='danismanlik' iken kanal değil konu kimliğidir; admin ve e-posta `kanalEtiketi` ile okur). */
+export const DANISMANLIK_KONULAR: { id: string; ad: string; aciklama: string }[] = [
+  { id: 'gorunurluk', ad: 'Online görünürlük',      aciklama: 'Hastalar sizi internette nasıl buluyor?' },
+  { id: 'randevu',    ad: 'Randevu ve telefon',     aciklama: 'Kaçan çağrılar, online randevu' },
+  { id: 'yorum',      ad: 'Hasta yorumları',        aciklama: 'Yorum toplama ve yanıtlama' },
+  { id: 'mesaj',      ad: 'Sosyal medya ve mesajlar', aciklama: 'Instagram, Facebook, WhatsApp' },
+  { id: 'web',        ad: 'Web sitesi',             aciklama: 'Sitenizden randevu ve iletişim' },
+  { id: 'zaman',      ad: 'Ekip ve zaman',          aciklama: 'Sekreter yükü, tekrar eden işler' },
+];
+
+/** urun='danismanlik' için talep türü adları (kurulum = telefonla, demo = online görüşme) */
+export const DANISMANLIK_TALEPLER: { id: string; ad: string }[] = [
+  { id: 'kurulum', ad: 'Telefonla görüşme' },
+  { id: 'demo',    ad: 'Online görüntülü görüşme' },
+];
+
+/** `kanallar` kolonundaki kimliğin adı — danışmanlık kaydında konu, diğerlerinde kanal */
+export const kanalEtiketi = (urun: string | null | undefined, id: string) =>
+  etiketBul(urun === 'danismanlik' ? DANISMANLIK_KONULAR : BOOKING_KANALLAR, id);
+
+/** Talep türünün adı — danışmanlıkta görüşme biçimi */
+export const talepEtiketi = (urun: string | null | undefined, id: string | null | undefined) =>
+  etiketBul(urun === 'danismanlik' ? DANISMANLIK_TALEPLER : BOOKING_TALEPLER, id || 'kurulum');
 
 export const BOOKING_TALEPLER: { id: string; ad: string }[] = [
   { id: 'kurulum', ad: 'Beni arayın (kurulum)' },

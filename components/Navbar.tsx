@@ -13,10 +13,17 @@ import type { User } from '@supabase/supabase-js';
 // Üç öğe: Hekim Bul ▾ · Özellikler ▾ · Booking (Yeni).
 // Eski düz bağlantılar (Diş Hekimleri, Neden Hekimhane?, Blog) açılır menülerin içine taşındı.
 // Diş hekimleri "klinikler" tablosunda type='Diş Hekimi' olarak tutuluyor; /klinikler ikisini birlikte gösterir.
-const NAV_LINKS: { href: string; base: string; label: string; mobilLabel?: string; yeni?: boolean }[] = [
+const NAV_LINKS: { href: string; base: string; label: string; mobilLabel?: string; yeni?: boolean; gorusme?: boolean }[] = [
   // Hekimhane Booking (Ozvelo ortaklığı) — "Yeni" rozetiyle öne çıkar
   { href: '/booking', base: '/booking', label: 'Booking', mobilLabel: 'Hekimhane Booking', yeni: true },
+  // Ücretsiz görüşme / danışmanlık talebi (Kas 2026) — hekim ve kliniklerden talep toplar
+  { href: '/ucretsiz-gorusme', base: '/ucretsiz-gorusme', label: 'Görüşme Talep Edin', mobilLabel: 'Ücretsiz Görüşme Talep Edin', gorusme: true },
 ];
+
+/** "Görüşme Talep Edin" bağlantısının önündeki küçük yeşil nokta — ücretsiz, canlı hissi */
+function GorusmeNokta() {
+  return <span aria-hidden="true" className="nav-gorusme-nokta" style={{ width: 7, height: 7, borderRadius: '50%', background: '#1E8E5A', flexShrink: 0, marginRight: 7, display: 'inline-block' }} />;
+}
 
 // Menüdeki "Yeni" rozeti. Masaüstünde (`ust`) yazının sağ üstüne oturur ve genişlik eklemez.
 function YeniRozet({ ust = false }: { ust?: boolean }) {
@@ -97,7 +104,7 @@ const MENULER: Menu[] = [
         { ad: 'Pro Üyelik', href: '/pro', ikon: 'premium', aciklama: 'Tüm özellikler tek pakette' },
       ]},
     ],
-    alt: [{ ad: 'Neden Hekimhane?', href: '/neden-hekimhane' }, { ad: 'Kliniğinizi ekleyin', href: '/katil' }],
+    alt: [{ ad: 'Neden Hekimhane?', href: '/neden-hekimhane' }, { ad: 'Ücretsiz görüşme', href: '/ucretsiz-gorusme' }, { ad: 'Kliniğinizi ekleyin', href: '/katil' }],
   },
 ];
 
@@ -391,8 +398,10 @@ export default function Navbar() {
                     color: active ? 'var(--brand)' : 'var(--ink)', background: 'transparent',
                     textDecoration: 'none', transition: 'color .15s',
                     ...(link.yeni ? { marginRight: 14 } : null),
+                    ...(link.gorusme ? { display: 'inline-flex', alignItems: 'center' } : null),
                   }}>{link.yeni
                     ? <span style={{ position: 'relative', display: 'inline-block' }}>{link.label}<YeniRozet ust /></span>
+                    : link.gorusme ? <><GorusmeNokta />Görüşme<span className="nav-gorusme-uzun">&nbsp;Talep Edin</span></>
                     : link.label}</Link>
                 );
               };
@@ -680,7 +689,7 @@ export default function Navbar() {
                   borderLeft: active ? '3px solid #1A335E' : '3px solid transparent',
                 }}
               >
-                {link.mobilLabel || link.label}{link.yeni && <YeniRozet />}
+                {link.gorusme && <GorusmeNokta />}{link.mobilLabel || link.label}{link.yeni && <YeniRozet />}
               </Link>
             );
           })}
@@ -860,6 +869,11 @@ export default function Navbar() {
         @media (max-width: 1060px) {
           .nav-ogesi { font-size: 14px !important; padding-left: 8px !important; padding-right: 8px !important; }
         }
+        .nav-gorusme-nokta { box-shadow: 0 0 0 0 rgba(30,142,90,.45); animation: nav-gorusme-nabiz 2.4s ease-out infinite; }
+        @keyframes nav-gorusme-nabiz { 0% { box-shadow: 0 0 0 0 rgba(30,142,90,.45); } 70%, 100% { box-shadow: 0 0 0 6px rgba(30,142,90,0); } }
+        @media (prefers-reduced-motion: reduce) { .nav-gorusme-nokta { animation: none; } }
+        /* Giriş yapmış (işletme sahibi) kullanıcıda sağ taraf genişler → dar masaüstünde yazı "Görüşme"ye kısalır */
+        @media (max-width: 1180px) { .nav-gorusme-uzun { display: none; } }
         @media (max-width: 960px) {
           .nav-links-desktop { display: none !important; }
           .nav-cta-desktop   { display: none !important; }

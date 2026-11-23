@@ -4,7 +4,7 @@
 // Veri: /api/admin/booking-bekleme (service-role). Durum + not satır içinde kaydedilir.
 import { useEffect, useMemo, useState } from 'react';
 import { C, YUZEY } from './tema';
-import { BOOKING_ROLLER, BOOKING_KANALLAR, BOOKING_HACIM, BOOKING_DURUMLAR, BOOKING_TALEPLER, BOOKING_URUNLER, etiketBul } from '@/lib/booking';
+import { BOOKING_ROLLER, BOOKING_HACIM, BOOKING_DURUMLAR, BOOKING_URUNLER, kanalEtiketi, talepEtiketi, etiketBul } from '@/lib/booking';
 
 interface Kayit {
   id: string; ad: string; soyad: string; email: string; tel: string; rol: string; talep?: string | null; urun?: string | null;
@@ -72,8 +72,8 @@ export default function BookingTab() {
   function csvIndir() {
     const bas = ['Tarih', 'Özellik', 'Talep', 'Ad', 'Soyad', 'E-posta', 'Telefon', 'Kim', 'Kurum', 'İl', 'Kanallar', 'Çağrı', 'Not', 'Bülten', 'Durum', 'Admin notu'];
     const satirlar = liste.map(k => [
-      tarih(k.created_at), etiketBul(BOOKING_URUNLER, k.urun || 'booking'), etiketBul(BOOKING_TALEPLER, k.talep || 'kurulum'), k.ad, k.soyad, k.email, k.tel, etiketBul(BOOKING_ROLLER, k.rol), k.kurum_adi || '', k.il || '',
-      (k.kanallar || []).map(x => etiketBul(BOOKING_KANALLAR, x)).join(' + '),
+      tarih(k.created_at), etiketBul(BOOKING_URUNLER, k.urun || 'booking'), talepEtiketi(k.urun, k.talep), k.ad, k.soyad, k.email, k.tel, etiketBul(BOOKING_ROLLER, k.rol), k.kurum_adi || '', k.il || '',
+      (k.kanallar || []).map(x => kanalEtiketi(k.urun, x)).join(' + '),
       k.cagri_hacmi ? etiketBul(BOOKING_HACIM, k.cagri_hacmi) : '', k.mesaj || '', k.bulten ? 'Evet' : 'Hayır',
       etiketBul(BOOKING_DURUMLAR, k.durum), k.admin_notu || '',
     ]);
@@ -129,7 +129,7 @@ export default function BookingTab() {
               <button onClick={() => setAcik(genis ? null : k.id)}
                 style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.4fr) minmax(0,1.2fr) minmax(0,1fr) auto', gap: 12, alignItems: 'center', width: '100%', padding: '14px 18px', border: 'none', background: genis ? C.soft : 'transparent', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit' }}>
                 <span style={{ minWidth: 0 }}>
-                  <strong style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14.5, color: C.text }}>{k.ad} {k.soyad}{k.urun && k.urun !== 'booking' && <span style={{ padding: '2px 7px', borderRadius: 999, background: '#EEF3FA', color: C.navy, fontSize: 11, fontWeight: 700 }}>{etiketBul(BOOKING_URUNLER, k.urun)}</span>}{k.talep === 'demo' && <span style={{ padding: '2px 7px', borderRadius: 999, background: '#E1F2EE', color: '#0B5F55', fontSize: 11, fontWeight: 700 }}>Demo</span>}</strong>
+                  <strong style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14.5, color: C.text }}>{k.ad} {k.soyad}{k.urun && k.urun !== 'booking' && <span style={{ padding: '2px 7px', borderRadius: 999, background: '#EEF3FA', color: C.navy, fontSize: 11, fontWeight: 700 }}>{etiketBul(BOOKING_URUNLER, k.urun)}</span>}{k.talep === 'demo' && <span style={{ padding: '2px 7px', borderRadius: 999, background: '#E1F2EE', color: '#0B5F55', fontSize: 11, fontWeight: 700 }}>{k.urun === 'danismanlik' ? 'Online' : 'Demo'}</span>}</strong>
                   <span style={{ fontSize: 12.5, color: C.muted }}>{etiketBul(BOOKING_ROLLER, k.rol)}{k.il ? ` · ${k.il}` : ''}</span>
                 </span>
                 <span style={{ minWidth: 0, fontSize: 13, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{k.kurum_adi || '—'}</span>
@@ -141,7 +141,7 @@ export default function BookingTab() {
                   <div style={{ fontSize: 13.5, color: C.text, lineHeight: 1.7 }}>
                     <div><b style={{ color: C.muted }}>E-posta:</b> <a href={`mailto:${k.email}`} style={{ color: C.navy }}>{k.email}</a></div>
                     <div><b style={{ color: C.muted }}>Telefon:</b> <a href={`tel:${k.tel.replace(/\s/g, '')}`} style={{ color: C.navy }}>{k.tel}</a></div>
-                    <div><b style={{ color: C.muted }}>Kanallar:</b> {(k.kanallar || []).map(x => etiketBul(BOOKING_KANALLAR, x)).join(', ') || '—'}</div>
+                    <div><b style={{ color: C.muted }}>{k.urun === 'danismanlik' ? 'Konular' : 'Kanallar'}:</b> {(k.kanallar || []).map(x => kanalEtiketi(k.urun, x)).join(', ') || '—'}</div>
                     <div><b style={{ color: C.muted }}>Çağrı yoğunluğu:</b> {k.cagri_hacmi ? etiketBul(BOOKING_HACIM, k.cagri_hacmi) : '—'}</div>
                     <div><b style={{ color: C.muted }}>Bülten izni:</b> {k.bulten ? 'Evet' : 'Hayır'}</div>
                     {k.mesaj && <div style={{ marginTop: 6, whiteSpace: 'pre-wrap' }}><b style={{ color: C.muted }}>Not:</b> {k.mesaj}</div>}

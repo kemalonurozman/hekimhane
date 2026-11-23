@@ -241,6 +241,11 @@ export const YAPILACAKLAR: YapilacakGrup[] = [
    En yeni en üstte. Aynı güne birden çok kayıt girebilir. */
 export const YAPILANLAR: Guncelleme[] = [
   // ── Kasım 2026
+  { tarih: '2026-11-23', alan: 'Site', baslik: 'Hekimlere ücretsiz görüşme sayfası ve üst menüde "Görüşme Talep Edin"', maddeler: [
+    'Yeni "Ücretsiz Görüşme" sayfası: hekim ve klinikler muayenehanelerini nasıl büyütebileceklerini konuşmak için ücretsiz, yükümlülüksüz görüşme talep edebiliyor. Sayfa neden görüşmeli, neler konuşulur (görünürlük, randevu ve telefon, yorumlar ve mesajlar), dört adımda süreç, kimler için ve sık sorulan sorulardan oluşuyor.',
+    'Formda telefonla ya da online görüşme seçiliyor, konuşulmak istenen konular işaretleniyor. Talep size e-postayla geliyor ve admin panelindeki Booking Başvuruları sekmesinde "Ücretsiz Görüşme" etiketiyle görünüyor; başvurana da onay e-postası gidiyor.',
+    'Üst menüye yeşil noktalı "Görüşme Talep Edin" bağlantısı eklendi (dar ekranda "Görüşme"); mobil menüde, Özellikler menüsünün altında ve sayfa altında da var.',
+  ]},
   { tarih: '2026-11-22', alan: 'Admin', baslik: 'Kaldırma talebi sahiplerine dostça e-posta', maddeler: [
     'Kaldırma Talepleri sekmesinde her talebin ve her kaldırılan profilin yanında "Mail gönder" düğmesi: hazır şablonlardan biri (dostça son mesaj, ücretsiz özellik hatırlatması, geri dönüş daveti, kaldırmak yerine yönetmek, kendi metniniz) seçilir, konu ve metin düzenlenir, e-posta göründüğü gibi önizlenir.',
     'Şablonlar yalnız sitede gerçekten olanları söyler: randevu taleplerinin doğrudan e-postaya gelmesi, bilgileri düzenleme, yorumlara yanıt, HekimKart. Instagram ve Facebook bağlantıları Pro özelliği olduğu için yalnız ücretsiz Pro kontenjanı sürerken anılır.',

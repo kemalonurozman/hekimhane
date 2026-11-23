@@ -16,6 +16,7 @@ export default function Footer() {
     ['HekimKart',            '/hekimkart'],
     ['Randevu Modülü',       '/randevu-modulu'],
     ['Hekimhane Booking',    '/booking'],
+    ['Ücretsiz Görüşme',     '/ucretsiz-gorusme'],
     ['Karşılaştır',          '/karsilastir'],
     ['Blog',                 '/blog'],
     ['Kliniğinizi Ekleyin',  '/katil'],

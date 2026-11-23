@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { sendEmail, mailShell, satir, satirTel } from '@/lib/email';
 import { ADMIN_EMAIL } from '@/lib/admin-auth';
-import { BOOKING_ROLLER, BOOKING_KANALLAR, BOOKING_HACIM, BOOKING_TALEPLER, BOOKING_URUNLER, etiketBul } from '@/lib/booking';
+import { BOOKING_ROLLER, BOOKING_KANALLAR, BOOKING_HACIM, BOOKING_URUNLER, DANISMANLIK_KONULAR, kanalEtiketi, talepEtiketi, etiketBul } from '@/lib/booking';
 import { IL_LISTE } from '@/lib/tr-il-ilce';
 
 /*
@@ -12,11 +12,13 @@ import { IL_LISTE } from '@/lib/tr-il-ilce';
  * - Tablo henüz yoksa (migration çalışmadıysa) kayıt kaybolmasın diye
  *   admin e-postası yine gider; ziyaretçiye başarı döner.
  * - Bülten kutusu işaretlendiyse e-posta listesine (email_aboneleri) de eklenir.
+ * - urun='danismanlik' (/ucretsiz-gorusme): `kanallar` görüşme konularını taşır, talep = telefonla / online görüşme.
  */
 
 const kirp = (v: unknown, n: number) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
 const ROL_IDLER = new Set(BOOKING_ROLLER.map(r => r.id));
 const KANAL_IDLER = new Set(BOOKING_KANALLAR.map(k => k.id));
+const KONU_IDLER = new Set(DANISMANLIK_KONULAR.map(k => k.id));
 const HACIM_IDLER = new Set(BOOKING_HACIM.map(h => h.id));
 const ILLER = new Set(IL_LISTE);
 const URUN_IDLER = new Set(BOOKING_URUNLER.map(u => u.id));
@@ -39,8 +41,10 @@ export async function POST(req: NextRequest) {
   const urunAd = etiketBul(BOOKING_URUNLER, urun);
   const kurum_adi = kirp(body?.kurum_adi, 160) || null;
   const il = ILLER.has(kirp(body?.il, 40)) ? kirp(body?.il, 40) : null;
+  const gorusme = urun === 'danismanlik';
+  const gecerliIdler = gorusme ? KONU_IDLER : KANAL_IDLER;
   const kanallar = Array.isArray(body?.kanallar)
-    ? Array.from(new Set((body.kanallar as unknown[]).filter((k): k is string => typeof k === 'string' && KANAL_IDLER.has(k))))
+    ? Array.from(new Set((body.kanallar as unknown[]).filter((k): k is string => typeof k === 'string' && gecerliIdler.has(k))))
     : [];
   const cagri_hacmi = HACIM_IDLER.has(kirp(body?.cagri_hacmi, 20)) ? kirp(body?.cagri_hacmi, 20) : null;
   const mesaj = kirp(body?.mesaj, 800) || null;
@@ -93,18 +97,19 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Bildirimler (hiçbiri ana akışı bozmaz) ──
-  const kanalMetni = kanallar.map(k => etiketBul(BOOKING_KANALLAR, k)).join(', ');
+  const kanalMetni = kanallar.map(k => kanalEtiketi(urun, k)).join(', ');
+  const talepAd = talepEtiketi(urun, talep);
   try {
     const detay =
       satir('Özellik', urunAd) +
-      satir('Talep', etiketBul(BOOKING_TALEPLER, talep)) +
+      satir(gorusme ? 'Görüşme biçimi' : 'Talep', talepAd) +
       satir('Ad Soyad', `${ad} ${soyad}`) +
       satirTel('Telefon', tel) +
       satir('E-posta', email) +
       satir('Kim', etiketBul(BOOKING_ROLLER, rol)) +
       satir('Kurum', kurum_adi) +
       satir('İl', il) +
-      satir('İlgilendiği kanallar', kanalMetni) +
+      satir(gorusme ? 'Konuşmak istediği konular' : 'İlgilendiği kanallar', kanalMetni) +
       satir('Çağrı yoğunluğu', cagri_hacmi ? etiketBul(BOOKING_HACIM, cagri_hacmi) : null) +
       satir('Not', mesaj) +
       satir('Bülten izni', bulten ? 'Evet' : 'Hayır');
@@ -113,13 +118,34 @@ export async function POST(req: NextRequest) {
       : `<p style="margin-top:14px;font-size:12px;color:#6E6E73;">Admin panelinde “Booking Başvuruları” sekmesinden takip edebilirsiniz. Başvuranı arayın.</p>`;
     await sendEmail({
       to: ADMIN_EMAIL,
-      subject: `${tekrar ? 'Güncellendi — ' : ''}${urunAd} ${talep === 'demo' ? 'demo talebi' : 'başvurusu'}: ${ad} ${soyad} — arayın`,
-      html: mailShell(talep === 'demo' ? `Yeni demo talebi — ${urunAd}` : `Yeni başvuru — ${urunAd}`, detay + uyari),
+      subject: gorusme
+        ? `${tekrar ? 'Güncellendi — ' : ''}Ücretsiz görüşme talebi (${talepAd.toLocaleLowerCase('tr')}): ${ad} ${soyad} — arayın`
+        : `${tekrar ? 'Güncellendi — ' : ''}${urunAd} ${talep === 'demo' ? 'demo talebi' : 'başvurusu'}: ${ad} ${soyad} — arayın`,
+      html: mailShell(gorusme ? 'Yeni ücretsiz görüşme talebi' : talep === 'demo' ? `Yeni demo talebi — ${urunAd}` : `Yeni başvuru — ${urunAd}`, detay + uyari),
       replyTo: email,
     });
   } catch { /* yok say */ }
 
-  if (!tekrar) {
+  if (!tekrar && gorusme) {
+    try {
+      const p = (m: string) => `<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#1c1c1e;">${m}</p>`;
+      const konuListe = kanallar.length
+        ? p(`Konuşmak istediğiniz konular: <strong>${kanalMetni.replace(/[<>&]/g, '')}</strong>`)
+        : '';
+      await sendEmail({
+        to: email,
+        subject: 'Ücretsiz görüşme talebinizi aldık',
+        html: mailShell('Görüşme talebinizi aldık',
+          p(`Merhaba ${ad.replace(/[<>&]/g, '')},`) +
+          p(`Ücretsiz görüşme talebinizi aldık. Ekibimiz sizi arayıp ${talep === 'demo' ? 'online görüşme' : 'telefon görüşmesi'} için size uygun bir saat belirleyecek.`) +
+          konuListe +
+          p('Görüşmede muayenehanenizin ya da kliniğinizin bugünkü durumuna birlikte bakıyor, hasta bulma, randevu ve iletişim konusunda size uygun önerileri konuşuyoruz. Görüşme ücretsizdir ve sizi hiçbir şey satın almaya yükümlü kılmaz.') +
+          `<p style="margin:16px 0 0;"><a href="https://www.hekimhane.com.tr/ucretsiz-gorusme" style="display:inline-block;background:#1A335E;color:#fff;font-weight:700;font-size:14px;text-decoration:none;border-radius:10px;padding:11px 20px;">Görüşme sayfasını açın</a></p>
+           <p style="margin:16px 0 0;font-size:12px;color:#6E6E73;line-height:1.6;">Bu e-postayı Hekimhane ücretsiz görüşme formunu doldurduğunuz için aldınız. Sorularınız için bu e-postayı yanıtlayabilirsiniz.</p>`),
+        replyTo: 'info@hekimhane.com.tr',
+      });
+    } catch { /* yok say */ }
+  } else if (!tekrar) {
     try {
       await sendEmail({
         to: email,

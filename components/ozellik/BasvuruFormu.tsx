@@ -2,12 +2,13 @@
 
 // Özellik sayfaları ortak başvuru / demo talebi formu — /api/booking-bekleme'ye gönderir.
 // `urun`: hangi sayfadan geldiği (lib/booking.ts → BOOKING_URUNLER). Yalnız urun='booking' iken kanal ve çağrı yoğunluğu sorulur.
+// urun='danismanlik' (/ucretsiz-gorusme): talep = telefonla / online görüşme, kanal yerine görüşme konuları sorulur (kayıtta `kanallar`).
 // Adres #demo ile açılırsa ("Demo talep edin" düğmesi) talep türü demo seçili gelir.
 // Stiller app/globals.css → oz-form* sınıfları.
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import HkIcon from '@/components/HkIcon';
-import { BOOKING_ROLLER, BOOKING_KANALLAR, BOOKING_HACIM, BOOKING_URUNLER, etiketBul } from '@/lib/booking';
+import { BOOKING_ROLLER, BOOKING_KANALLAR, BOOKING_HACIM, BOOKING_URUNLER, DANISMANLIK_KONULAR, etiketBul } from '@/lib/booking';
 import { IL_LISTE } from '@/lib/tr-il-ilce';
 
 export default function BasvuruFormu({ urun = 'booking', baslik, aciklama, etiket = 'Şimdi kullanımda' }: {
@@ -15,13 +16,14 @@ export default function BasvuruFormu({ urun = 'booking', baslik, aciklama, etike
 }) {
   const urunAd = etiketBul(BOOKING_URUNLER, urun);
   const booking = urun === 'booking';
+  const gorusme = urun === 'danismanlik';
   const baslangic = useRef(Date.now());
   const [f, setF] = useState({
     ad: '', soyad: '', email: '', tel: '', rol: '', kurum_adi: '', il: '',
     cagri_hacmi: '', mesaj: '', website: '',
   });
   const [talep, setTalep] = useState<'kurulum' | 'demo'>('kurulum');
-  const [kanallar, setKanallar] = useState<string[]>(['telefon', 'mesaj']);
+  const [kanallar, setKanallar] = useState<string[]>(gorusme ? [] : ['telefon', 'mesaj']);
 
   // "Demo talep edin" düğmesi #demo'ya gider → demo seçili gelsin
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function BasvuruFormu({ urun = 'booking', baslik, aciklama, etike
       const r = await fetch('/api/booking-bekleme', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...f, urun, talep, kanallar: booking ? kanallar : [], izin, bulten, t: baslangic.current }),
+        body: JSON.stringify({ ...f, urun, talep, kanallar: booking || gorusme ? kanallar : [], izin, bulten, t: baslangic.current }),
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.error || 'Kaydınız alınamadı.');
@@ -71,6 +73,8 @@ export default function BasvuruFormu({ urun = 'booking', baslik, aciklama, etike
         <p>
           {sonuc.tekrar
             ? 'Bu e-posta adresiyle daha önce başvuru yapılmıştı; yeni bilgilerinizi kaydettik. Ekibimiz sizi arayacak.'
+            : gorusme
+              ? `Görüşme talebinizi aldık. Ekibimiz sizi arayıp ${talep === 'demo' ? 'online görüşme için' : 'görüşme için'} size uygun bir saat belirleyecek. Görüşme ücretsizdir; herhangi bir yükümlülüğünüz yoktur.`
             : talep === 'demo'
               ? `Demo talebinizi aldık. Ekibimiz sizi arayıp uygun bir saatte ${urunAd} özelliğini canlı olarak gösterecek.`
               : `Başvurunuzu aldık. Ekibimiz ${urunAd} hakkında bilgi vermek ve size yardımcı olmak için kısa süre içinde sizi arayacak.`}
@@ -87,8 +91,11 @@ export default function BasvuruFormu({ urun = 'booking', baslik, aciklama, etike
       <h3 className="oz-form__baslik">{baslik ?? 'Kurulum için sizi arayalım'}</h3>
       <p className="oz-form__aciklama">{aciklama ?? 'Telefon ve mesaj asistanı hazır. Formu doldurun; kurulumu anlatalım ya da canlı demo gösterelim.'}</p>
 
-      <div className="oz-talep" role="radiogroup" aria-label="Talep türü">
-        {([
+      <div className="oz-talep" role="radiogroup" aria-label={gorusme ? 'Görüşme biçimi' : 'Talep türü'}>
+        {(gorusme ? [
+          { id: 'kurulum', ad: 'Telefonla', aciklama: 'Sizi uygun saatte arayalım', ikon: 'phone' },
+          { id: 'demo', ad: 'Online görüşme', aciklama: 'Ekran paylaşarak birlikte bakalım', ikon: 'message' },
+        ] as const : [
           { id: 'kurulum', ad: 'Beni arayın', aciklama: 'Kurulum ve fiyat hakkında bilgi', ikon: 'phone' },
           { id: 'demo', ad: 'Demo istiyorum', aciklama: `${urunAd} özelliğini canlı görün`, ikon: 'message' },
         ] as const).map(t => (
@@ -154,6 +161,24 @@ export default function BasvuruFormu({ urun = 'booking', baslik, aciklama, etike
           </div>
         </fieldset>}
 
+        {gorusme && <fieldset className="oz-alan oz-alan--tam oz-kanallar">
+          <legend>Hangi konularda konuşmak istersiniz?</legend>
+          <div>
+            {DANISMANLIK_KONULAR.map(k => {
+              const secili = kanallar.includes(k.id);
+              return (
+                <button key={k.id} type="button" aria-pressed={secili} onClick={() => kanalDegistir(k.id)}
+                  className={secili ? 'oz-kanal is-secili' : 'oz-kanal'}>
+                  <span className="oz-kanal__kutu" aria-hidden="true">
+                    {secili && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>}
+                  </span>
+                  <span><strong>{k.ad}</strong><small>{k.aciklama}</small></span>
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>}
+
         {booking && <label className="oz-alan oz-alan--tam">
           <span>Günde yaklaşık kaç çağrı alıyorsunuz?</span>
           <select value={f.cagri_hacmi} onChange={yaz('cagri_hacmi')}>
@@ -164,7 +189,9 @@ export default function BasvuruFormu({ urun = 'booking', baslik, aciklama, etike
         <label className="oz-alan oz-alan--tam">
           <span>Eklemek istedikleriniz</span>
           <textarea rows={3} value={f.mesaj} onChange={yaz('mesaj')} maxLength={800}
-            placeholder={booking ? 'Örneğin kaç hekimle çalıştığınız, en yoğun saatleriniz ya da web siteniz' : 'Örneğin kaç hekimle çalıştığınız ya da öğrenmek istedikleriniz'} />
+            placeholder={booking ? 'Örneğin kaç hekimle çalıştığınız, en yoğun saatleriniz ya da web siteniz'
+              : gorusme ? 'Örneğin en çok zorlandığınız konu, web siteniz ya da size uygun saatler'
+              : 'Örneğin kaç hekimle çalıştığınız ya da öğrenmek istedikleriniz'} />
         </label>
 
         {/* Bot tuzağı — insanlar görmez */}
@@ -176,7 +203,7 @@ export default function BasvuruFormu({ urun = 'booking', baslik, aciklama, etike
       <label className="oz-onay">
         <input type="checkbox" checked={izin} onChange={e => setIzin(e.target.checked)} required />
         <span>
-          * {urunAd} hakkında bilgi, demo ve fiyat teklifi için benimle telefon ve e-postayla iletişime geçilmesini istiyorum.
+          * {gorusme ? 'Ücretsiz görüşmenin planlanması ve öneriler için' : `${urunAd} hakkında bilgi, demo ve fiyat teklifi için`} benimle telefon ve e-postayla iletişime geçilmesini istiyorum.
           Bilgilerimin <Link href="/kvkk" target="_blank">KVKK Aydınlatma Metni</Link> kapsamında işlenmesini kabul ediyorum.
         </span>
       </label>
@@ -188,9 +215,11 @@ export default function BasvuruFormu({ urun = 'booking', baslik, aciklama, etike
       {hata && <p className="oz-hata" role="alert">{hata}</p>}
 
       <button type="submit" className="oz-gonder hk-cta-isik" disabled={gonderiliyor}>
-        {gonderiliyor ? 'Gönderiliyor…' : talep === 'demo' ? 'Demo talep et' : 'Beni arayın'}
+        {gonderiliyor ? 'Gönderiliyor…' : gorusme ? 'Ücretsiz görüşme talep et' : talep === 'demo' ? 'Demo talep et' : 'Beni arayın'}
       </button>
-      <p className="oz-form__alt">Bilgileriniz yalnızca {urunAd} bilgilendirmesi, demo ve fiyat teklifi için kullanılır.</p>
+      <p className="oz-form__alt">{gorusme
+        ? 'Görüşme ücretsizdir ve sizi hiçbir şey satın almaya yükümlü kılmaz. Bilgileriniz yalnızca bu görüşme için kullanılır.'
+        : `Bilgileriniz yalnızca ${urunAd} bilgilendirmesi, demo ve fiyat teklifi için kullanılır.`}</p>
     </form>
   );
 }
