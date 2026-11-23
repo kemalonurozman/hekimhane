@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { urlParca } from '@/lib/entity-link';
 import { IL_LISTE, IL_ILCE } from '@/lib/tr-il-ilce';
 import { hastalikEslesenHekimler } from '@/lib/hastalik-arama';
+import { DEMO_KLINIK_ID } from '@/lib/demo';
 
 // Konum tespiti için normalize (Türkçe + aksan-duyarsız)
 const norm = (s: string) => s.replace(/İ/g, 'i').replace(/I/g, 'i').toLowerCase()
@@ -101,7 +102,7 @@ export async function GET(req: NextRequest) {
     .limit(LIMIT);
 
   // ── Klinikler ──
-  const klinikQuery: any = filtrele(supabase.from('klinikler').select('name, il, ilce, slug'), ['name'], ad, konum, undefined, true)
+  const klinikQuery: any = filtrele(supabase.from('klinikler').select('name, il, ilce, slug').neq('id', DEMO_KLINIK_ID), ['name'], ad, konum, undefined, true)
     .limit(LIMIT);
 
   // ── Hastaneler ──

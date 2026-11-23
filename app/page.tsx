@@ -18,6 +18,7 @@ import HastalikRehberiSection from '@/components/HastalikRehberiSection';
 import OneCikanHekimler, { type PremiumItem } from '@/components/OneCikanHekimler';
 import { toSlug } from '@/lib/helpers';
 
+import { DEMO_KLINIK_ID } from '@/lib/demo';
 export const metadata: Metadata = {
   title: 'Hekimhane — Türkiye Diş Hekimi & Klinik Rehberi',
   description: 'Türkiye\'nin diş sağlığı rehberi. 1.044+ diş kliniği ve muayenehane, uzman diş hekimleri. İstanbul, Ankara, İzmir ve tüm Türkiye\'de size en yakın diş hekimini ve kliniğini bulun.',
@@ -49,7 +50,7 @@ async function getErkenUyeDolu(): Promise<number | null> {
 async function getStats() {
   try {
     const [klinik, disHekimi] = await Promise.all([
-      supabase.from('klinikler').select('id', { count: 'exact', head: true }),
+      supabase.from('klinikler').select('id', { count: 'exact', head: true }).neq('id', DEMO_KLINIK_ID),
       supabase.from('doktorlar').select('id', { count: 'exact', head: true }).ilike('spec', '%diş%'),
     ]);
     return {
@@ -93,7 +94,7 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
   noStore();
   try {
     const [kRes, dRes] = await Promise.all([
-      supabase.from('klinikler').select('*').eq('premium', true).limit(10),
+      supabase.from('klinikler').select('*').neq('id', DEMO_KLINIK_ID).eq('premium', true).limit(10),
       supabase.from('doktorlar').select('*').eq('premium', true).not('tags', 'cs', '{devlet-dis-hastanesi}').limit(10),
     ]);
     // Adaylar: Pro üyeler + sahibi tarafından yönetilen profiller. Puan canlı hesaplanır
@@ -108,7 +109,7 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
     } catch { /* service-role yoksa vitrin yalnız Pro doktorlarla devam eder */ }
     const dIds = Array.from(new Set(dClaims.map(c => String(c.entity_id)))).slice(0, 200);
     const [kpRes, dpRes] = await Promise.all([
-      (supabase as any).from('klinikler').select('*').eq('claimed', true).order('updated_at', { ascending: false }).limit(60),
+      (supabase as any).from('klinikler').select('*').neq('id', DEMO_KLINIK_ID).eq('claimed', true).order('updated_at', { ascending: false }).limit(60),
       dIds.length
         ? (supabase as any).from('doktorlar').select('*').in('id', dIds).not('tags', 'cs', '{devlet-dis-hastanesi}').limit(60)
         : Promise.resolve({ data: [], error: null }),

@@ -2,6 +2,7 @@ import { dogrulanmisOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { yetkiliEntityIdleri } from '@/lib/erisim';
+import { demoMu } from '@/lib/demo';
 
 function adminClient() {
   return createClient(
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
     const kayit: Record<string, unknown> = {
       entity_id: entityId, tel,
       ad: b.ad ? String(b.ad).slice(0, 120) : null,
-      email: b.email ? String(b.email).slice(0, 150) : null,
+      email: b.email && !demoMu(entityId) ? String(b.email).slice(0, 150) : null,
       notlar: b.notlar != null ? String(b.notlar).slice(0, 4000) : null,
       updated_at: new Date().toISOString(),
     };

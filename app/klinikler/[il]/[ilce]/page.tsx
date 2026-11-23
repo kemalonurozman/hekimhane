@@ -11,6 +11,7 @@ import type { Klinik } from '@/lib/types';
 import { toSlug } from '@/lib/helpers';
 import { DENTAL_SPECIALTIES, synonymsForSpec, TREATMENTS, buildDentalFaq } from '@/lib/uzmanlik-data';
 import KlinikCard from '@/components/KlinikCard';
+import { DEMO_KLINIK_ID } from '@/lib/demo';
 
 interface Props { params: { il: string; ilce: string } }
 
@@ -27,10 +28,10 @@ async function fetchAll<T = any>(build: () => any, max = 20000): Promise<T[]> {
 }
 
 async function resolve(ilSlug: string, ilceSlug: string) {
-  const ilRows = await fetchAll<{ il: string | null }>(() => supabase.from('klinikler').select('il').not('il', 'is', null));
+  const ilRows = await fetchAll<{ il: string | null }>(() => supabase.from('klinikler').select('il').neq('id', DEMO_KLINIK_ID).not('il', 'is', null));
   const il = Array.from(new Set(ilRows.map(r => r.il!).filter(Boolean))).find(x => toSlug(x) === ilSlug) || null;
   if (!il) return null;
-  const ilceRows = await fetchAll<{ ilce: string | null }>(() => supabase.from('klinikler').select('ilce').eq('il', il).not('ilce', 'is', null));
+  const ilceRows = await fetchAll<{ ilce: string | null }>(() => supabase.from('klinikler').select('ilce').neq('id', DEMO_KLINIK_ID).eq('il', il).not('ilce', 'is', null));
   const ilce = Array.from(new Set(ilceRows.map(r => r.ilce!).filter(Boolean))).find(x => toSlug(x) === ilceSlug) || null;
   if (!ilce) return null;
   return { il, ilce };
@@ -40,7 +41,7 @@ async function getData(ilSlug: string, ilceSlug: string) {
   const r = await resolve(ilSlug, ilceSlug);
   if (!r) return null;
   const { il, ilce } = r;
-  const klinikler = await fetchAll<Klinik>(() => supabase.from('klinikler').select('*').eq('il', il).eq('ilce', ilce));
+  const klinikler = await fetchAll<Klinik>(() => supabase.from('klinikler').select('*').neq('id', DEMO_KLINIK_ID).eq('il', il).eq('ilce', ilce));
   if (klinikler.length === 0) return null;
   const specSet = new Set<string>();
   klinikler.forEach(k => (k.specs || []).forEach(s => specSet.add(s)));

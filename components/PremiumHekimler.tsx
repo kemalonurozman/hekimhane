@@ -5,6 +5,7 @@ import HkAvatar from '@/components/HkAvatar';
 import AraDugmesi from '@/components/AraDugmesi';
 import { puanYaz } from '@/lib/hk';
 import { urlParca } from '@/lib/entity-link';
+import { DEMO_KLINIK_ID } from '@/lib/demo';
 
 /**
  * Hastalık/tedavi sayfalarının altındaki "bu alanda hizmet veren Pro üyeler" bölümü.
@@ -19,7 +20,7 @@ import { urlParca } from '@/lib/entity-link';
 export default async function PremiumHekimler({ uzmanlik, limit = 3 }: { uzmanlik?: string; limit?: number }) {
   let klinikler: Klinik[] = [];
   try {
-    const { data } = await supabase.from('klinikler').select('*').eq('premium', true).limit(24);
+    const { data } = await supabase.from('klinikler').select('*').neq('id', DEMO_KLINIK_ID).eq('premium', true).limit(24);
     klinikler = (data || []) as Klinik[];
   } catch {
     return null;

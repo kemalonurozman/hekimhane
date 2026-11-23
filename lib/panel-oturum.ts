@@ -13,6 +13,7 @@ import { createHmac, timingSafeEqual } from 'crypto';
 import { type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import type { User } from '@supabase/supabase-js';
+import { DEMO_KULLANICI_ID, demoYazmaKapali } from '@/lib/demo';
 
 /**
  * Çerezdeki Supabase oturumunu Auth SUNUCUSUNDA doğrular; geçerliyse { user } döner.
@@ -32,7 +33,10 @@ export async function dogrulanmisOturum(request: NextRequest): Promise<{ user: U
       cookies: { get: (n: string) => request.cookies.get(n)?.value, set() {}, remove() {} },
     });
     const { data: { user }, error } = await sb.auth.getUser();
-    return !error && user ? { user } : null;
+    if (error || !user) return null;
+    // Deneme hesabı: kapalı yazmalarda oturum yok sayılır (middleware'deki 403'ün yedeği)
+    if (user.id === DEMO_KULLANICI_ID && demoYazmaKapali(request.nextUrl?.pathname || '', request.method)) return null;
+    return { user };
   } catch {
     return null;
   }

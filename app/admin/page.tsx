@@ -8,6 +8,7 @@ import MakalelerTab from './MakalelerTab';
 import YorumlarTab from './YorumlarTab';
 import KaldirmaTab from './KaldirmaTab';
 import YolHaritasiTab from './YolHaritasiTab';
+import DenemeHesabiTab from './DenemeHesabiTab';
 import { C } from './tema';
 import { LogoMark } from '@/components/Logo';
 
@@ -164,6 +165,7 @@ const SIDEBAR_GROUPS: { title: string | null; items: { key: string; label: strin
     { key: 'kaldirma',    label: 'Kaldırma Talepleri', icon: IC.x      },
     { key: 'premium',     label: 'Premium Üyeler',    icon: IC.shield  },
     { key: 'booking',     label: 'Booking Başvuruları',icon: IC.users   },
+    { key: 'deneme',      label: 'Deneme Hesabı',     icon: IC.doktor  },
   ]},
   { title: 'Kayıtlar', items: [
     { key: 'klinikler',   label: 'Klinikler',         icon: IC.klinik  },
@@ -182,7 +184,7 @@ const SIDEBAR_GROUPS: { title: string | null; items: { key: string; label: strin
   ]},
 ];
 
-type TabKey = 'dashboard' | 'yolharitasi' | 'booking' | 'claims' | 'cekim' | 'yorumlar' | 'sikayetler' | 'kaldirma' | 'emailler' | 'premium' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
+type TabKey = 'dashboard' | 'yolharitasi' | 'booking' | 'deneme' | 'claims' | 'cekim' | 'yorumlar' | 'sikayetler' | 'kaldirma' | 'emailler' | 'premium' | 'klinikler' | 'hastaneler' | 'doktorlar' | 'eczaneler' | 'blog' | 'kullanici' | 'sistem' | 'geocode';
 
 /* ═══════════════════════════════════════════════
    DASHBOARD SEKMESİ
@@ -2786,6 +2788,7 @@ export default function AdminPage() {
         {tab === 'emailler'   && <EmailListesiTab />}
         {tab === 'premium'    && <PremiumTab />}
         {tab === 'booking'    && <BookingTab />}
+        {tab === 'deneme'     && <DenemeHesabiTab />}
         {tab === 'klinikler'  && <EntityTab entityType="klinikler" />}
         {tab === 'hastaneler' && <EntityTab entityType="hastaneler" />}
         {tab === 'doktorlar'  && <EntityTab entityType="doktorlar" />}

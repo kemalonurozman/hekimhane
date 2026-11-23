@@ -11,6 +11,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { HASTALIKLAR, KATEGORILER } from '@/lib/hastaliklar-data';
 import { supabase } from '@/lib/supabase';
 import { urlParca } from '@/lib/entity-link';
+import { DEMO_KLINIK_ID } from '@/lib/demo';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -114,7 +115,7 @@ async function gercekListeleriCek(sorgu: string, il?: string): Promise<string> {
     // olduğu için .ilike ile aranmaz, il'e göre filtrelenir) (tel dahil)
     let klinikQuery = supabase
       .from('klinikler')
-      .select('name, il, ilce, slug, tel')
+      .select('name, il, ilce, slug, tel').neq('id', DEMO_KLINIK_ID)
       .limit(4);
 
     if (il) klinikQuery = klinikQuery.ilike('il', `%${il}%`);

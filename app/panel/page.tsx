@@ -4,6 +4,8 @@ import OnayliYorumDugmesi from './OnayliYorumDugmesi';
 import { sahibeGorunenYorumlar } from '@/lib/yorum-onay';
 import { PANEL_MODERASYON_NOTU } from '@/lib/uyum';
 import ProfilPuaniKarti from './ProfilPuaniKarti';
+import DenemeBandi from '@/components/DenemeBandi';
+import { DEMO_KULLANICI_ID } from '@/lib/demo';
 import HastalikSecici from './HastalikSecici';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -759,6 +761,7 @@ export default function PanelPage() {
 
       {/* ── MAIN ── */}
       <main style={{ marginLeft: isMobile ? 0 : 240, flex: 1, minWidth: 0, padding: isMobile ? '124px 16px 80px' : '96px 36px 32px', background: T.bg, minHeight: '100vh' }}>
+        {user?.id === DEMO_KULLANICI_ID && <DenemeBandi tur="panel" />}
         {premiumMsg && (
           <div style={{ marginBottom: 18, padding: '14px 18px', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10,
             background: premiumMsg === 'success' ? '#F0FDF4' : '#FFF7ED',

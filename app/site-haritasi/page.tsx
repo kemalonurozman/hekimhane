@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { KATEGORILER, HASTALIKLAR } from '@/lib/hastaliklar-data';
 import { yayindakiBlogYazilari } from '@/lib/blog-data';
 import { TREATMENTS } from '@/lib/uzmanlik-data';
+import { DEMO_KLINIK_ID } from '@/lib/demo';
 
 export const revalidate = 43200; // 12 saat
 
@@ -20,7 +21,7 @@ async function getIller(): Promise<{ il: string; n: number }[]> {
   try {
     const PAGE = 1000; const rows: { il: string | null }[] = [];
     for (let f = 0; f < 40000; f += PAGE) {
-      const { data, error } = await supabase.from('klinikler').select('il').range(f, f + PAGE - 1);
+      const { data, error } = await supabase.from('klinikler').select('il').neq('id', DEMO_KLINIK_ID).range(f, f + PAGE - 1);
       if (error || !data || !data.length) break;
       rows.push(...data as { il: string | null }[]);
       if (data.length < PAGE) break;

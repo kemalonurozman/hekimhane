@@ -254,6 +254,71 @@
         "3118"
       ],
       "port": 3118
+    },
+    {
+      "name": "hekimhane-deneme-3114",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3990",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3114"
+      ],
+      "port": 3114
+    },
+    {
+      "name": "hekimhane-yazi-3119",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3983",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3119"
+      ],
+      "port": 3119
+    },
+    {
+      "name": "hekimhane-hero-3120",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3982",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3120"
+      ],
+      "port": 3120
+    },
+    {
+      "name": "hekimhane-gorusme-3121",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=http://localhost:3981",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=sahte-anahtar",
+        "SUPABASE_SERVICE_ROLE_KEY=sahte-anahtar",
+        "RESEND_API_KEY=",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3121"
+      ],
+      "port": 3121
     }
   ]
 }

@@ -15,6 +15,8 @@ import { kartSlugCoz } from '@/lib/hekimkart-sunucu';
 import { profilMakaleleri } from '@/lib/makale-profil';
 import { sahiplenilmisMi, gercekOnayIsaretle } from '@/lib/sahiplik';
 import { herkeseAcikYorumlar } from '@/lib/yorum-onay';
+import { demoMu } from '@/lib/demo';
+import DenemeBandi from '@/components/DenemeBandi';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,6 +64,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // cover "preset:..." ise gerçek foto değil → og image olarak logo kullan
   const coverImg = (k.cover && !k.cover.startsWith('preset:')) ? k.cover : null;
   const ogImg = coverImg || k.logo || null;
+  // Deneme profili (lib/demo.ts): yalnız gönderilen bağlantıyla açılır, aranmaz
+  if (demoMu(k.id)) {
+    return { title: `${k.name} — Deneme Profili`, description: 'Hekimhane deneme profili — gerçek bir klinik değildir.', robots: { index: false, follow: false } };
+  }
   return {
     title,
     description: desc.slice(0, 158),
@@ -82,6 +88,8 @@ export default async function KlinikProfilPage({ params }: Props) {
   if (!res) notFound();
   const { k, yorumlar, hospitalDoctors } = res;
   if (profilYayindaDegil(k as any)) notFound();   // kaldırma talebi: gizli ya da 48 saat dolup duraklatılmış   // kaldırma talebi alınmış profil
+
+  const deneme = demoMu(k.id);   // deneme profili: bant var, yapısal veri yok
 
   const trFn = (s: string) => (s||'').toLowerCase().replace(/\u0307/g, '')
     .replace(/[şŞ]/g,'s').replace(/[ıİ]/g,'i').replace(/[ğĞ]/g,'g')
@@ -146,7 +154,7 @@ export default async function KlinikProfilPage({ params }: Props) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {deneme ? <DenemeBandi tur="profil" /> : <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
       <ProfilSayfasi
       entityType="klinik"
       id={k.id} name={k.name}

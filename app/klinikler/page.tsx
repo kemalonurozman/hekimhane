@@ -15,6 +15,7 @@ import ListingLayout from '@/components/ListingLayout';
 import { resolveKonum, IL_KONUM } from '@/lib/il-koordinatlari';
 import { synonymsForSpec, specFilterValues, canonicalDentalSpec, kanonikEtiket } from '@/lib/uzmanlik-data';
 import { toSlug } from '@/lib/helpers';
+import { DEMO_KLINIK_ID } from '@/lib/demo';
 
 const PAGE_SIZE = 20;
 
@@ -113,7 +114,7 @@ async function getKlinikler(filters: KlinikFilters) {
   noStore();
   const from = ((filters.page || 1) - 1) * PAGE_SIZE;
   // Sıra: Pro → profil puanı → hasta puanı
-  let query = profilSirasi(supabase.from('klinikler').select('*', { count: 'exact' }), await puanKolonuVar(supabase))
+  let query = profilSirasi(supabase.from('klinikler').select('*', { count: 'exact' }).neq('id', DEMO_KLINIK_ID), await puanKolonuVar(supabase))
     .range(from, from + PAGE_SIZE - 1);
   if (filters.il)       query = query.eq('il', filters.il);
   if (filters.ilce)     query = query.eq('ilce', filters.ilce);
@@ -125,7 +126,7 @@ async function getKlinikler(filters: KlinikFilters) {
     const nq = norm(filters.q);
     // Önce il/ilçe adı olarak çöz (Türkçe-normalleştirilmiş): "izmir" → il=İzmir
     const geo = await fetchAllRows<{ il: string | null; ilce: string | null }>(
-      () => supabase.from('klinikler').select('il,ilce').not('il', 'is', null));
+      () => supabase.from('klinikler').select('il,ilce').neq('id', DEMO_KLINIK_ID).not('il', 'is', null));
     const ilByNorm = new Map<string, string>();
     const ilceByNorm = new Map<string, string>();
     for (const r of geo) {
@@ -174,7 +175,7 @@ const getIller = unstable_cache(async (uzmanlik?: string) => {
   const rpc = await supabase.rpc('klinik_il_counts', { p_uzmanlik: uzmanlik || null });
   if (!rpc.error && rpc.data) return (rpc.data as { deger: string; adet: number }[]).map(r => ({ value: r.deger, label: r.deger, count: Number(r.adet) }));
   const rows = await fetchAllRows<{ il: string | null }>(() => {
-    let q = supabase.from('klinikler').select('il').not('il', 'is', null);
+    let q = supabase.from('klinikler').select('il').neq('id', DEMO_KLINIK_ID).not('il', 'is', null);
     if (uzmanlik) q = (q as any).overlaps('specs', uzmanlikOverlap(uzmanlik));
     return q;
   });
@@ -189,7 +190,7 @@ const getUzmanliklar = unstable_cache(async (il?: string) => {
   const rpc = await supabase.rpc('klinik_uzmanlik_counts', { p_il: il || null });
   if (!rpc.error && rpc.data) return (rpc.data as { deger: string; adet: number }[]).map(r => ({ value: r.deger, label: r.deger, count: Number(r.adet) }));
   const rows = await fetchAllRows<{ specs: string[] | null }>(() => {
-    let q = supabase.from('klinikler').select('specs').not('specs', 'is', null);
+    let q = supabase.from('klinikler').select('specs').neq('id', DEMO_KLINIK_ID).not('specs', 'is', null);
     if (il) q = q.eq('il', il);
     return q;
   });
@@ -205,7 +206,7 @@ const getIlceler = unstable_cache(async (il?: string) => {
   const rpc = await supabase.rpc('klinik_ilce_counts', { p_il: il });
   if (!rpc.error && rpc.data) return (rpc.data as { deger: string; adet: number }[]).map(r => ({ value: r.deger, label: r.deger, count: Number(r.adet) }));
   const rows = await fetchAllRows<{ ilce: string | null }>(() =>
-    supabase.from('klinikler').select('ilce').eq('il', il).not('ilce', 'is', null));
+    supabase.from('klinikler').select('ilce').neq('id', DEMO_KLINIK_ID).eq('il', il).not('ilce', 'is', null));
   const map: Record<string, number> = {};
   rows.forEach(r => { if (r.ilce) map[r.ilce] = (map[r.ilce] || 0) + 1; });
   return Object.entries(map)
@@ -216,7 +217,7 @@ const getIlceler = unstable_cache(async (il?: string) => {
 const getKonumlar = unstable_cache(async (filters: KlinikFilters) => {
   return fetchAllRows(() => {
     let q = supabase.from('klinikler')
-      .select('id,name,lat,lng,tel,type,il,ilce,slug')
+      .select('id,name,lat,lng,tel,type,il,ilce,slug').neq('id', DEMO_KLINIK_ID)
       .not('lat', 'is', null).not('lng', 'is', null)
       .neq('lat', 0).neq('lng', 0);
     if (filters.il)       q = q.eq('il', filters.il);
@@ -248,7 +249,7 @@ async function getDoktorBucket(filters: KlinikFilters, tag: string) {
 async function getKurumCounts() {
   noStore();
   const [k, dev, uni] = await Promise.all([
-    supabase.from('klinikler').select('id', { count: 'exact', head: true }),
+    supabase.from('klinikler').select('id', { count: 'exact', head: true }).neq('id', DEMO_KLINIK_ID),
     supabase.from('doktorlar').select('id', { count: 'exact', head: true }).contains('tags', [DEVLET_TAG]),
     supabase.from('doktorlar').select('id', { count: 'exact', head: true }).contains('tags', [UNI_TAG]),
   ]);
@@ -323,10 +324,10 @@ async function getHepsi(filters: KlinikFilters) {
   };
   const puanli = await puanKolonuVar(supabase);
   const [kl, dv, uni, kc, dc, uc] = await Promise.all([
-    applyK(profilSirasi(supabase.from('klinikler').select('*'), puanli).range(0, need - 1)),
+    applyK(profilSirasi(supabase.from('klinikler').select('*').neq('id', DEMO_KLINIK_ID), puanli).range(0, need - 1)),
     applyD(profilSirasi(supabase.from('doktorlar').select('*').contains('tags', [DEVLET_TAG]), puanli).range(0, need - 1)),
     applyD(profilSirasi(supabase.from('doktorlar').select('*').contains('tags', [UNI_TAG]), puanli).range(0, need - 1)),
-    applyK(supabase.from('klinikler').select('id', { count: 'exact', head: true })),
+    applyK(supabase.from('klinikler').select('id', { count: 'exact', head: true }).neq('id', DEMO_KLINIK_ID)),
     applyD(supabase.from('doktorlar').select('id', { count: 'exact', head: true }).contains('tags', [DEVLET_TAG])),
     applyD(supabase.from('doktorlar').select('id', { count: 'exact', head: true }).contains('tags', [UNI_TAG])),
   ]);
@@ -368,7 +369,7 @@ async function fallbackFetch(f: KlinikFilters, limit: number): Promise<{ kind: '
   const applyK = (q: any) => { if (f.il) q = q.eq('il', f.il); if (f.ilce) q = q.eq('ilce', f.ilce); if (f.uzmanlik) q = q.overlaps('specs', uzmanlikOverlap(f.uzmanlik)); return q; };
   const applyD = (q: any) => { if (f.il) q = q.eq('il', f.il); if (f.ilce) q = q.eq('ilce', f.ilce); if (f.uzmanlik) q = q.eq('spec', f.uzmanlik); return q; };
   const [kl, dv, uni] = await Promise.all([
-    applyK(supabase.from('klinikler').select('*').order('rat', { ascending: false }).range(0, limit - 1)),
+    applyK(supabase.from('klinikler').select('*').neq('id', DEMO_KLINIK_ID).order('rat', { ascending: false }).range(0, limit - 1)),
     applyD(supabase.from('doktorlar').select('*').contains('tags', [DEVLET_TAG]).order('rat', { ascending: false }).range(0, limit - 1)),
     applyD(supabase.from('doktorlar').select('*').contains('tags', [UNI_TAG]).order('rat', { ascending: false }).range(0, limit - 1)),
   ]);

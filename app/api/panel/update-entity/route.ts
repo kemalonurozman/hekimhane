@@ -1,4 +1,5 @@
 import { puanGuncelle } from '@/lib/profil-puani-sunucu';
+import { demoMu } from '@/lib/demo';
 import { profilDegisti as ozveloProfilDegisti } from '@/lib/ozvelo/senkron';
 import { createServerClient } from '@supabase/ssr';
 import { panelOturum } from '@/lib/panel-oturum';
@@ -9,6 +10,9 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { epostaListesi, epostaListesiYaz, RANDEVU_EMAIL_MAX_PRO } from '@/lib/randevu-email';
 import { yetkiliEntityIdleri } from '@/lib/erisim';
 import { normalizeSpecList } from '@/lib/uzmanlik-data';
+
+// Deneme profilinde panelden değişebilen alanlar (bkz. lib/demo.ts)
+const DEMO_DUZENLENEBILIR = new Set(['specs','yabanci_diller','bio','okul','uzmanlik_kurum','deneyim_baslangic','deneyimler','sertifikalar','online','acil','calisma_saatleri','acik_24_saat','randevu_aktif','randevu_slot_dk','randevu_bloke']);
 
 // Service role client — RLS'yi bypass eder, sadece server-side
 function adminClient() {
@@ -104,6 +108,12 @@ export async function POST(request: NextRequest) {
     for (const key of allowed) {
       if (asistanAlanlari && !asistanAlanlari.includes(key)) continue;
       if (key in fields) safeFields[key] = fields[key];
+    }
+    // Deneme profili (lib/demo.ts): ad, iletişim, bağlantılar ve görsel adresleri
+    // değiştirilemez — profil gerçek bir hekim/klinik gibi gösterilmesin, dış
+    // bağlantı/görsel eklenemesin. Gerisi serbest; her gece sıfırlanır.
+    if (demoMu(entityId)) {
+      for (const k of Object.keys(safeFields)) if (!DEMO_DUZENLENEBILIR.has(k)) delete safeFields[k];
     }
     // Tanıtım Yönetmeliği: serbest metinlerde ücret/indirim/kampanya/"en iyi"/garanti/önce-sonra
     // ifadeleri yayınlanamaz (uyum belgesi md.16). Eşleşme varsa kayıt reddedilir; hangi ifade

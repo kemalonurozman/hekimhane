@@ -1,5 +1,18 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { DEMO_KULLANICI_ID, DEMO_METIN, demoYazmaKapali } from '@/lib/demo';
+
+// Erişim token'ındaki kullanıcı kimliği (imza burada DOĞRULANMAZ). Yalnız deneme
+// hesabını ENGELLEMEK için kullanılır: token'la oynanırsa rotadaki getUser()
+// zaten reddeder, yani bu okuma hiçbir zaman yetki vermez.
+function tokenKimligi(token: string): string | null {
+  try {
+    const p = token.split('.')[1];
+    if (!p) return null;
+    const json = atob(p.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((p.length + 3) % 4));
+    return JSON.parse(json)?.sub || null;
+  } catch { return null; }
+}
 
 // Detay sayfalarındaki tr() ile aynı il/ilçe biçimi.
 // "İ".toLowerCase() görünmez birleşik nokta (U+0307) bırakır → önce silinir.
@@ -83,6 +96,13 @@ export async function middleware(request: NextRequest) {
   // dogrulanmisOturum, lib/admin-auth.ts → isAdminRequest). Buradaki session'dan
   // e-posta/kimlik okuyup yetki vermeyin.
   const { data: { session } } = await supabase.auth.getSession();
+
+  // Deneme hesabı (lib/demo.ts): izinli olmayan panel yazmaları burada 403.
+  // Aynı kural lib/panel-oturum.ts'te doğrulanmış kimlikle ikinci kez uygulanır.
+  if (session?.access_token && demoYazmaKapali(pathname, request.method)
+      && tokenKimligi(session.access_token) === DEMO_KULLANICI_ID) {
+    return NextResponse.json({ error: DEMO_METIN.kapali, deneme: true }, { status: 403 });
+  }
 
   // /panel altındaki sayfalar için auth zorunlu
   if (pathname.startsWith('/panel')) {

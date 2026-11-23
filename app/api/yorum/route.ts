@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { onayBekleyenAlanlar, YORUM_ONAY_MESAJI, gecerliYorumcuEposta } from '@/lib/yorum-onay';
 import { adminOnayBildir, yorumEkle } from '@/lib/yorum-onay-sunucu';
 import { yorumGirdiHatasi, kurallarKabulAlanlari, gelistirmeSuz, YORUM_MAX_KARAKTER } from '@/lib/yorum-kurallari';
+import { demoMu } from '@/lib/demo';
 
 function adminClient() {
   return createClient(
@@ -133,6 +134,11 @@ export async function POST(request: NextRequest) {
   if (!resolvedEntityId) {
     resolvedEntityId   = slug || 'unknown';
     resolvedEntityType = resolvedEntityType || 'kart';
+  }
+
+  // Deneme profili gerçek bir işletme değil → yorum alınmaz (lib/demo.ts)
+  if (demoMu(resolvedEntityId)) {
+    return NextResponse.json({ error: 'Bu bir deneme profilidir; yorum alınmıyor.' }, { status: 403 });
   }
 
   const kayit = {

@@ -15,6 +15,7 @@ import {
 } from '@/lib/uzmanlik-data';
 import { rehberBySpec } from '@/lib/uzmanlik-rehberleri';
 import KlinikCard from '@/components/KlinikCard';
+import { DEMO_KLINIK_ID } from '@/lib/demo';
 
 interface Props { params: { il: string; seg: string[] } }
 
@@ -31,14 +32,14 @@ async function fetchAll<T = any>(build: () => any, max = 20000): Promise<T[]> {
 }
 
 async function resolveIl(ilSlug: string): Promise<string | null> {
-  const rows = await fetchAll<{ il: string | null }>(() => supabase.from('klinikler').select('il').not('il', 'is', null));
+  const rows = await fetchAll<{ il: string | null }>(() => supabase.from('klinikler').select('il').neq('id', DEMO_KLINIK_ID).not('il', 'is', null));
   const set = Array.from(new Set(rows.map(r => r.il!).filter(Boolean)));
   for (const il of set) if (toSlug(il) === ilSlug) return il;
   return null;
 }
 
 async function resolveIlce(il: string, ilceSlug: string): Promise<string | null> {
-  const rows = await fetchAll<{ ilce: string | null }>(() => supabase.from('klinikler').select('ilce').eq('il', il).not('ilce', 'is', null));
+  const rows = await fetchAll<{ ilce: string | null }>(() => supabase.from('klinikler').select('ilce').neq('id', DEMO_KLINIK_ID).eq('il', il).not('ilce', 'is', null));
   const set = Array.from(new Set(rows.map(r => r.ilce!).filter(Boolean)));
   for (const ilce of set) if (toSlug(ilce) === ilceSlug) return ilce;
   return null;
@@ -61,7 +62,7 @@ function mesafeKm(a: { lat: number; lng: number }, b: { lat: number; lng: number
  */
 async function enYakinlar(il: string, ilce: string | null, syn: string[], limit = 6): Promise<YakinKlinik[]> {
   const hepsi = await fetchAll<Klinik>(() =>
-    supabase.from('klinikler').select('*').overlaps('specs', specFilterValues(syn)));
+    supabase.from('klinikler').select('*').neq('id', DEMO_KLINIK_ID).overlaps('specs', specFilterValues(syn)));
 
   const merkez = IL_KONUM[il];
   const out: YakinKlinik[] = [];
@@ -103,7 +104,7 @@ async function getData(ilSlug: string, seg: string[]) {
 
   const syn = synonymsForSpec(st.spec);
   let klinikler = await fetchAll<Klinik>(() => {
-    let q = supabase.from('klinikler').select('*').eq('il', il).overlaps('specs', specFilterValues(syn));
+    let q = supabase.from('klinikler').select('*').neq('id', DEMO_KLINIK_ID).eq('il', il).overlaps('specs', specFilterValues(syn));
     if (ilce) q = q.eq('ilce', ilce);
     return q;
   });
@@ -123,7 +124,7 @@ async function getData(ilSlug: string, seg: string[]) {
 
     // (b) Kullanıcının bulunduğu yerdeki diş klinikleri (dürüst başlıkla)
     klinikler = await fetchAll<Klinik>(() => {
-      let q = supabase.from('klinikler').select('*').eq('il', il);
+      let q = supabase.from('klinikler').select('*').neq('id', DEMO_KLINIK_ID).eq('il', il);
       if (ilce) q = q.eq('ilce', ilce);
       return q;
     });
@@ -133,7 +134,7 @@ async function getData(ilSlug: string, seg: string[]) {
 
   // İç linkleme için bağlam
   const scopeRows = await fetchAll<{ specs: string[] | null }>(() => {
-    let q = supabase.from('klinikler').select('specs').eq('il', il).not('specs', 'is', null);
+    let q = supabase.from('klinikler').select('specs').neq('id', DEMO_KLINIK_ID).eq('il', il).not('specs', 'is', null);
     if (ilce) q = q.eq('ilce', ilce);
     return q;
   });

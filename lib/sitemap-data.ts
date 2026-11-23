@@ -10,6 +10,7 @@ import { TEDAVI_SLUGS } from './tedavi-detaylari';
 import { UZMANLIK_REHBERLERI } from './uzmanlik-rehberleri';
 import { COCUK_KONULAR } from './cocuk-dis';
 import { COCUK_OYUNLAR } from './cocuk-oyunlar';
+import { DEMO_KLINIK_ID } from '@/lib/demo';
 
 export const BASE = 'https://www.hekimhane.com.tr';
 
@@ -39,7 +40,10 @@ async function fetchWithDate<T>(table: string, cols: string, notNull: string): P
   const ilk = await supabase.from(table).select(`${cols},updated_at`).not(notNull, 'is', null).range(0, 0);
   const tarihli = !ilk.error;
   return fetchAll<T & { updated_at?: string | null }>(
-    () => supabase.from(table).select(tarihli ? `${cols},updated_at` : cols).not(notNull, 'is', null));
+    () => {
+      const q = supabase.from(table).select(tarihli ? `${cols},updated_at` : cols).not(notNull, 'is', null);
+      return table === 'klinikler' ? q.neq('id', DEMO_KLINIK_ID) : q;   // deneme profili haritada yok
+    });
 }
 
 // Geçerli bir tarihse ISO'ya çevir; yoksa lastmod hiç yazılmaz (uydurma "şimdi" yerine).

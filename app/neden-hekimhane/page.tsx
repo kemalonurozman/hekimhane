@@ -5,6 +5,7 @@ import NoktaGrafik from '@/components/vitrin/NoktaGrafik';
 import { supabase } from '@/lib/supabase';
 import { PRO_AYLIK_TL } from '@/lib/pro-plan';
 import { OzSayfa, OzHero, OzSahne, OzSahneBaslik, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKartlar, OzBasvuru, OzSss, OzDugme, sssJsonLd } from '@/components/ozellik/Ozellik';
+import { DEMO_KLINIK_ID } from '@/lib/demo';
 
 // Neden Hekimhane? — özellik sayfası dili (bkz. components/ozellik/Ozellik.tsx).
 // Sayaçlar veritabanından gelir; doğrulanamayan sayı/oran yazılmaz.
@@ -28,7 +29,7 @@ export const revalidate = 3600;
 async function getSayilar() {
   try {
     const [k, d] = await Promise.all([
-      supabase.from('klinikler').select('id', { count: 'exact', head: true }),
+      supabase.from('klinikler').select('id', { count: 'exact', head: true }).neq('id', DEMO_KLINIK_ID),
       supabase.from('doktorlar').select('id', { count: 'exact', head: true }),
     ]);
     return { klinik: k.count || 0, hekim: d.count || 0 };

@@ -3,6 +3,7 @@ import { panelOturum } from '@/lib/panel-oturum';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { yetkiliEntityIdleri } from '@/lib/erisim';
+import { demoMu } from '@/lib/demo';
 
 function adminClient() {
   return createClient(
@@ -56,7 +57,8 @@ export async function POST(request: NextRequest) {
     const kayit: Record<string, unknown> = {
       entity_type: entityType || 'klinik', entity_id: entityId, entity_name: entityName,
       ad_soyad: adSoyad, tel: telDigits,
-      email: b.email ? String(b.email).trim().slice(0, 150) : null,
+      // Deneme işletmesinde hasta e-postası tutulmaz → hiçbir randevu maili çıkmaz (lib/demo.ts)
+      email: b.email && !demoMu(entityId) ? String(b.email).trim().slice(0, 150) : null,
       tercih: slot, randevu_slot: slot, status: 'arandi',
       // Uzun işlem (çoklu slot) kayıtlarında panel devam slotunu notla işaretler
       mesaj: '[Panelden elle eklendi]' + (b.mesaj ? ' ' + String(b.mesaj).replace(/[<>]/g, '').trim().slice(0, 200) : ''),

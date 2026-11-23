@@ -194,6 +194,7 @@ export const YAPILACAKLAR: YapilacakGrup[] = [
       { baslik: 'Panelden makale gönderme ve admin onayı', kim: 'siz', durum: 'sirada' },
       { baslik: 'Booking / demo başvuru formu ve bildirim e-postası', kim: 'siz', durum: 'sirada' },
       { baslik: 'Asistan ve yönetici daveti (gerçek hesap oluşturma)', kim: 'siz', durum: 'sirada' },
+      { baslik: 'Deneme hesabını kurun ve bağlantıyı kendiniz deneyin', aciklama: 'Yayından sonra Admin → Deneme Hesabı → "Deneme hesabını kur". Çıkan giriş bağlantısını gizli pencerede açıp panele girin; sonra panelden çıkış yapın.', kim: 'siz', durum: 'sirada', oncelikli: true },
     ],
   },
   {
@@ -268,6 +269,11 @@ export const YAPILANLAR: Guncelleme[] = [
   ]},
   // ── Ekim 2026
   { tarih: '2026-10-31', alan: 'Admin', baslik: 'Yol Haritası sekmesi', maddeler: [
+  { tarih: '2026-11-06', alan: 'Panel', baslik: 'Diş hekimlerine gösterilecek deneme hesabı', maddeler: [
+    'Ankara\'da "Lilly Diş Kliniği" adlı, gerçek olmadığını açıkça yazan bir diş kliniği profili ve ona bağlı panel. Listelerde, aramada ve Google\'da görünmez.',
+    'Merak eden hekime yönetim panelinden alınan özel bir bağlantı gönderilir; şifresiz panele girer, randevu, takvim, hasta ve yorum ekranlarını dener.',
+    'Deneme hesabında e-posta gönderme, ödeme, ekip daveti ve dosya yükleme kapalı; profilde ad ve iletişim değişmez. Her gece örnek hâline döner.',
+  ]},
     'Admin panelinde yapılacaklar (gruplu ve sıralı) ve yapılanlar (tarihli) zaman çizelgesi.',
     'Kenar çubuğunda sizden beklenen iş sayısı rozetle görünür.',
   ]},

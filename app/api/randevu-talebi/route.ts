@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { sendEmail, mailShell, satir, satirTel } from '@/lib/email';
 import { isletmeBilgisi, profilSatiri } from '@/lib/entity-link';
 import { AYDINLATMA_YOL, RANDEVU_EPOSTA_ALT_NOTU } from '@/lib/uyum';
+import { demoMu } from '@/lib/demo';
 
 const SITE = 'https://www.hekimhane.com.tr';
 
@@ -257,13 +258,15 @@ export async function POST(req: NextRequest) {
       } catch { /* randevu_slot kolonu yoksa kontrolü atla */ }
     }
 
+    const deneme = demoMu(entity_id);
     const kayit = {
       entity_type,
       entity_id: String(entity_id),
       entity_name: String(entity_name).slice(0, 200),
       ad_soyad: String(ad_soyad).trim().slice(0, 100),
       tel: telDigits,
-      email: email ? String(email).trim().slice(0, 150) : null,
+      // Deneme profili: e-posta saklanmaz, kimseye bildirim gitmez (lib/demo.ts)
+      email: email && !deneme ? String(email).trim().slice(0, 150) : null,
       tercih: tercih ? String(tercih).trim().slice(0, 200) : null,
       mesaj: mesaj ? String(mesaj).trim().slice(0, 1000) : null,
     };
@@ -274,6 +277,7 @@ export async function POST(req: NextRequest) {
     const { error } = await (admin as any).from('randevu_talepleri').insert(insertKayit);
 
     if (!error) {
+      if (deneme) return NextResponse.json({ ok: true, deneme: true });
       if (bultenIzni) await addToEmailList(admin, kayit);
       await sendRandevuBildirimleri(admin, { ...kayit, randevu_slot: slot || null });
       return NextResponse.json({ ok: true });

@@ -5,6 +5,7 @@ import { MAKALE_FIYAT, KDV_ORANI, KDV_TUTAR, TOPLAM, PAKET_ICERIK, tl } from '@/
 import HkIcon, { type HkIkonAdi } from '@/components/HkIcon';
 import { OzSayfa, OzHero, OzSahne, OzOnayKart, OzBant, OzIzgara, OzAdimlar, OzKartlar, OzKapanis, OzSss, OzDugme, sssJsonLd } from '@/components/ozellik/Ozellik';
 import { SiparisFormu, SoruFormu } from './MakaleYayinlaClient';
+import { DEMO_KLINIK_ID } from '@/lib/demo';
 
 // İş Ortağı İçeriği — özellik sayfası dili (bkz. components/ozellik/Ozellik.tsx).
 // Fiyat ve paket içeriği yalnız lib/makale-fiyat.ts'ten okunur. Formlar MakaleYayinlaClient.tsx'te.
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
 async function getStats() {
   try {
     const [klinik, hekim] = await Promise.all([
-      supabase.from('klinikler').select('id', { count: 'exact', head: true }),
+      supabase.from('klinikler').select('id', { count: 'exact', head: true }).neq('id', DEMO_KLINIK_ID),
       supabase.from('doktorlar').select('id', { count: 'exact', head: true }),
     ]);
     return { klinik: klinik.count || 0, hekim: hekim.count || 0 };
