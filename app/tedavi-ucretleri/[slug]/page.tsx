@@ -51,7 +51,7 @@ export default function TedaviDetayPage({ params }: Props) {
   };
 
   const sec: React.CSSProperties = { background: 'white', borderRadius: 18, border: '1px solid #EAE6DE', padding: 'clamp(18px,4vw,26px)', marginBottom: 16 };
-  const h2: React.CSSProperties = { fontSize: 17, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.3px', margin: '0 0 12px' };
+  const h2: React.CSSProperties = { fontSize: 17, fontWeight: 600, color: 'var(--text)', letterSpacing: '-0.3px', margin: '0 0 12px' };
 
   return (
     <div style={{ paddingTop: 66, minHeight: '100vh', background: '#F5F4F0' }}>
@@ -71,13 +71,13 @@ export default function TedaviDetayPage({ params }: Props) {
       {/* Hero */}
       <div style={{ background: 'white', borderBottom: '1px solid #ECE8E0', padding: 'clamp(26px,5vw,40px) 0' }}>
         <div className="container" style={{ maxWidth: 820 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--gold-light)', color: '#9A7B1F', border: '1px solid rgba(184,137,47,.35)', borderRadius: 20, padding: '3px 11px', fontSize: 11, fontWeight: 800, letterSpacing: '.5px', marginBottom: 12 }}>{t.kategori}</div>
-          <h1 style={{ fontFamily: 'var(--font-playfair, serif)', fontSize: 'clamp(24px,5vw,34px)', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.4px', margin: '0 0 10px' }}>{t.ad}</h1>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--gold-light)', color: '#9A7B1F', border: '1px solid rgba(184,137,47,.35)', borderRadius: 20, padding: '3px 11px', fontSize: 11, fontWeight: 600, letterSpacing: '.5px', marginBottom: 12 }}>{t.kategori}</div>
+          <h1 style={{ fontFamily: 'var(--font-playfair, serif)', fontSize: 'clamp(24px,5vw,34px)', fontWeight: 600, color: 'var(--text)', letterSpacing: '-0.2px', margin: '0 0 10px' }}>{t.ad}</h1>
           <p style={{ color: 'var(--muted)', fontSize: 15, maxWidth: 640, lineHeight: 1.65, margin: 0 }}>{t.ozet}</p>
           {fiyat && (
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginTop: 18, background: '#F7F5F0', border: '1px solid #EAE6DE', borderRadius: 13, padding: '11px 16px' }}>
               <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>TDB {YIL} taban ücreti</span>
-              <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--navy)' }}>{fiyat.kdvDahil} <span style={{ fontSize: 12 }}>TL</span></span>
+              <span style={{ fontSize: 18, fontWeight: 600, color: 'var(--navy)' }}>{fiyat.kdvDahil} <span style={{ fontSize: 12 }}>TL</span></span>
               <span style={{ fontSize: 11, color: 'var(--muted)' }}>(KDV dahil)</span>
             </div>
           )}
@@ -110,9 +110,9 @@ export default function TedaviDetayPage({ params }: Props) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {t.surec.map((s, i) => (
               <div key={i} style={{ display: 'flex', gap: 13 }}>
-                <span style={{ width: 26, height: 26, borderRadius: '50%', background: 'var(--navy)', color: 'white', fontSize: 12, fontWeight: 800, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</span>
+                <span style={{ width: 26, height: 26, borderRadius: '50%', background: 'var(--navy)', color: 'white', fontSize: 12, fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</span>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>{s.baslik}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{s.baslik}</div>
                   <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 2, lineHeight: 1.55 }}>{s.aciklama}</div>
                 </div>
               </div>
@@ -143,7 +143,7 @@ export default function TedaviDetayPage({ params }: Props) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {t.sss.map((f, i) => (
               <div key={i}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>{f.soru}</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>{f.soru}</div>
                 <div style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.65 }}>{f.cevap}</div>
               </div>
             ))}
@@ -152,9 +152,9 @@ export default function TedaviDetayPage({ params }: Props) {
 
         {/* CTA — hekim bul */}
         <div style={{ background: 'linear-gradient(150deg,#152A4E,#1A335E)', borderRadius: 20, padding: 'clamp(22px,5vw,30px)', textAlign: 'center', color: 'white', marginBottom: 16 }}>
-          <h2 style={{ fontFamily: 'var(--font-playfair, serif)', fontSize: 20, fontWeight: 800, margin: '0 0 8px' }}>{t.ad} için diş hekimi bulun</h2>
+          <h2 style={{ fontFamily: 'var(--font-playfair, serif)', fontSize: 20, fontWeight: 600, margin: '0 0 8px' }}>{t.ad} için diş hekimi bulun</h2>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,.8)', maxWidth: 440, margin: '0 auto 18px', lineHeight: 1.6 }}>Size en yakın kliniği inceleyin, yorumları okuyun ve online randevu alın.</p>
-          <Link href="/klinikler" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--gold-fill)', color: 'var(--on-gold)', padding: '12px 26px', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+          <Link href="/klinikler" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--gold-fill)', color: 'var(--on-gold)', padding: '12px 26px', borderRadius: 12, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
             <i className="fa-solid fa-magnifying-glass" /> Diş Hekimi Ara
           </Link>
         </div>
@@ -166,7 +166,7 @@ export default function TedaviDetayPage({ params }: Props) {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
               {ilgili.map(r => (
                 <Link key={r.slug} href={`/tedavi-ucretleri/${r.slug}`} style={{ display: 'block', padding: '13px 15px', borderRadius: 12, border: '1px solid #EAE6DE', textDecoration: 'none', background: '#FAF9F5' }}>
-                  <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text)' }}>{r.ad}</div>
+                  <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)' }}>{r.ad}</div>
                   <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>{r.kategori}</div>
                 </Link>
               ))}

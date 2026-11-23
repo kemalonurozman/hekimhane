@@ -12,13 +12,14 @@ import SekmeliVitrin, { type VitrinSekme } from '@/components/vitrin/SekmeliVitr
 import AracVitrini, { type Arac } from '@/components/vitrin/AracVitrini';
 import NoktaGrafik from '@/components/vitrin/NoktaGrafik';
 import { AramaGorsel, TakvimGorsel, YorumGorsel, RehberGorsel, KartGorsel, AsistanGorsel, BookingGorsel } from '@/components/vitrin/Gorseller';
+import { TelefonGorsel, MesajGorsel, SiteSohbetGorsel, EpostaGorsel } from '@/components/vitrin/KanalGorselleri';
 import { profilPuaniHesapla } from '@/lib/profil-puani';
 import HkIconAnim from '@/components/HkIconAnim';
 import HastalikRehberiSection from '@/components/HastalikRehberiSection';
 import OneCikanHekimler, { type PremiumItem } from '@/components/OneCikanHekimler';
 import { toSlug } from '@/lib/helpers';
-
 import { DEMO_KLINIK_ID } from '@/lib/demo';
+
 export const metadata: Metadata = {
   title: 'Hekimhane — Türkiye Diş Hekimi & Klinik Rehberi',
   description: 'Türkiye\'nin diş sağlığı rehberi. 1.044+ diş kliniği ve muayenehane, uzman diş hekimleri. İstanbul, Ankara, İzmir ve tüm Türkiye\'de size en yakın diş hekimini ve kliniğini bulun.',
@@ -175,12 +176,28 @@ async function getOneCikanPremium(): Promise<PremiumItem[]> {
   } catch { return []; }
 }
 
-// ── Koyu sekmeli vitrin: her sekme kendi renginde ──
+// ── Hero: koyu sekmeli vitrin — her sekme kendi renginde ──
+// Önce hastalar (Klinik Bul, Randevu), sonra hekimlere kanal kanal Hekimhane Booking, en sonda rehber ve hekim tanıtımı.
+// İDDİA KURALI: kanal sekmelerindeki her cümle /booking (KANALLAR, FAYDALAR, ADIMLAR) ya da panel
+// "Dijital Asistanlar → E-posta Asistanı" metninde yazan özelliktir; yeni iddia eklemeden önce oraya bak.
+// Booking ücretli ve başvuruyla kurulur → "ücretsiz" yazılmaz; oran/sayı yazılmaz.
 const SEKMELER: VitrinSekme[] = [
   { id: 'bul', ad: 'Klinik Bul', ustyazi: 'Diş klinikleri ve hekimler', baslik: ['Size yakın kliniği', 'birkaç saniyede bulun'], renk: '#7FB2FF',
     cta: { href: '/klinikler', ad: 'Klinikleri keşfedin' }, gorsel: <AramaGorsel />, desen: <NoktaGrafik ikon="location-pin" size={440} renk="rgba(127,178,255,.5)" /> },
   { id: 'randevu', ad: 'Randevu', ustyazi: 'Online randevu', baslik: ['Uygun saati', 'profilden seçin'], renk: '#DEC283',
     cta: { href: '/klinikler', ad: 'Randevu alabileceğiniz klinikler' }, gorsel: <TakvimGorsel />, desen: <NoktaGrafik ikon="appointment" size={440} renk="rgba(222,194,131,.5)" /> },
+  { id: 'telefon', ad: 'Telefon', ustyazi: 'Hekimhane Booking · Telefon asistanı', baslik: ['Kliniğinize gelen aramaları', 'Hekimhane yanıtlasın'], renk: '#6EE7A0',
+    aciklama: 'Çağrıları 7/24 yanıtlar, çalışma saatlerinize göre uygun saati sunar ve randevuyu oluşturur. Gerektiğinde çağrıyı ekibinize aktarır; görüşmenin özeti e-postanıza gelir.',
+    cta: { href: '/booking', ad: 'Hekimhane Booking’i inceleyin' }, gorsel: <TelefonGorsel />, desen: <NoktaGrafik ikon="phone" size={440} renk="rgba(110,231,160,.45)" /> },
+  { id: 'mesaj', ad: 'Instagram ve Facebook', ustyazi: 'Hekimhane Booking · Mesaj asistanı', baslik: ['Instagram ve Facebook mesajlarını', 'Hekimhane yanıtlasın'], renk: '#FF9E7A',
+    aciklama: 'Hesaplarınıza gelen mesajları yanıtlar, randevu taleplerini toplar. Tüm konuşmalar tek gelen kutusunda; istediğiniz konuşmayı siz devralırsınız.',
+    cta: { href: '/booking#demo', ad: 'Demo talep edin' }, gorsel: <MesajGorsel />, desen: <NoktaGrafik ikon="favorite" size={440} renk="rgba(255,158,122,.45)" /> },
+  { id: 'site', ad: 'Web Sitesi', ustyazi: 'Hekimhane Booking · Web sitesi asistanı', baslik: ['Sitenizdeki sohbet balonunu', 'Hekimhane yanıtlasın'], renk: '#67E8F9',
+    aciklama: 'Sitenize tek satır kodla eklenir. Ziyaretçinin sorusunu anında yanıtlar, uygun saatleri gösterir ve randevuyu alır; yabancı hastalarla kendi dillerinde yazışır.',
+    cta: { href: '/booking#nasil', ad: 'Nasıl kurulur?' }, gorsel: <SiteSohbetGorsel />, desen: <NoktaGrafik ikon="message" size={440} renk="rgba(103,232,249,.42)" /> },
+  { id: 'eposta', ad: 'E-posta', ustyazi: 'Dijital asistan · E-posta', baslik: ['Gelen e-postaların', 'yanıt taslağı hazır olsun'], renk: '#F0ABFC',
+    aciklama: 'E-postalar tek gelen kutusunda toplanır. Asistan profil bilgilerinize göre yanıt taslağı hazırlar; siz onaylamadan hiçbir yanıt gönderilmez.',
+    cta: { href: '/booking#demo', ad: 'Demo talep edin' }, gorsel: <EpostaGorsel />, desen: <NoktaGrafik ikon="notification" size={440} renk="rgba(240,171,252,.42)" /> },
   { id: 'yorum', ad: 'Değerlendirmeler', ustyazi: 'Hasta yorumları', baslik: ['Karar vermeden önce', 'deneyimleri okuyun'], renk: '#FF8FA3',
     cta: { href: '/degerlendirme-sistemi', ad: 'Değerlendirme sistemi nasıl çalışır?' }, gorsel: <YorumGorsel />, desen: <NoktaGrafik ikon="review" size={440} renk="rgba(255,143,163,.5)" /> },
   { id: 'rehber', ad: 'Sağlık Rehberi', ustyazi: 'Ağız ve diş sağlığı', baslik: ['Tedavileri', 'sade bir dille öğrenin'], renk: '#5FD6CE',
@@ -252,7 +269,7 @@ export default async function HomePage() {
   return (
     <div style={{
       paddingTop: 64,
-      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
+      fontFamily: 'var(--font-system)',
     }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }} />
       <style>{`
@@ -282,7 +299,10 @@ export default async function HomePage() {
         }
       `}</style>
 
-      {/* ── HERO — canvas partikül + mouse efekti + hero arama & hızlı filtreler ─── */}
+      {/* ── HERO — koyu sekmeli vitrin (hastalar + hekim kanalları); sayfanın tek h1'i burada ── */}
+      <SekmeliVitrin sekmeler={SEKMELER} hero />
+
+      {/* ── Hasta araması: Ne arıyorsunuz? / Şehir / Hekim bul + tedavi çipleri + sayaçlar ─── */}
       <HeroAnimated stats={stats} />
 
       {/* Not: Ayrı "Şikayetinizi Anlatın" ve "Hekimhane AI" arama bölümleri kaldırıldı;
@@ -290,9 +310,6 @@ export default async function HomePage() {
 
       {/* ── İLK 150 İŞLETMEYE ÜCRETSİZ PRO — hero ile vitrin arasındaki geçiş ── */}
       {erkenUyeDolu !== null && <ErkenUyeKampanya dolu={erkenUyeDolu} />}
-
-      {/* ── KOYU SEKMELİ VİTRİN — hareketli, her sekme kendi renginde ── */}
-      <SekmeliVitrin sekmeler={SEKMELER} />
 
       {/* ── ÖNE ÇIKAN PREMIUM HEKİM/KLİNİKLER (geçişli carousel) ─────── */}
       {premiumler.length > 0 && <OneCikanHekimler items={premiumler} />}
@@ -324,7 +341,7 @@ export default async function HomePage() {
         <div className="container">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
             <HkIconAnim name="location-pin" size={22} color="#12294D" playOnView />
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>
               Şehre göre diş kliniği ara
             </h2>
           </div>
@@ -354,7 +371,7 @@ export default async function HomePage() {
                 <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '1.2px', textTransform: 'uppercase', color: 'var(--gold-text)', margin: '0 0 10px' }}>
                   Uzmanlardan
                 </p>
-                <h2 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-0.8px', color: '#1A335E', margin: 0 }}>
+                <h2 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 600, letterSpacing: '-0.4px', color: '#1A335E', margin: 0 }}>
                   Öne Çıkan Makaleler
                 </h2>
               </div>
@@ -369,14 +386,14 @@ export default async function HomePage() {
                     {m.cover_image
                       // eslint-disable-next-line @next/next/no-img-element
                       ? <img src={m.cover_image} alt={m.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,.85)', fontSize: 13, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase' }}>{m.category}</div>}
+                      : <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,.85)', fontSize: 13, fontWeight: 600, letterSpacing: '.5px', textTransform: 'uppercase' }}>{m.category}</div>}
                     {m.sponsorlu && (
-                      <span style={{ position: 'absolute', top: 10, left: 10, fontSize: 10, fontWeight: 800, letterSpacing: '.5px', textTransform: 'uppercase', color: '#B8860B', background: 'rgba(255,255,255,.94)', borderRadius: 8, padding: '3px 8px' }}>İş Ortağı</span>
+                      <span style={{ position: 'absolute', top: 10, left: 10, fontSize: 10, fontWeight: 600, letterSpacing: '.5px', textTransform: 'uppercase', color: '#B8860B', background: 'rgba(255,255,255,.94)', borderRadius: 8, padding: '3px 8px' }}>İş Ortağı</span>
                     )}
                   </div>
                   <div style={{ padding: '18px 20px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold-text)', textTransform: 'uppercase', letterSpacing: '.5px' }}>{m.category}</span>
-                    <div style={{ fontWeight: 700, fontSize: 16, color: '#1c1c1e', margin: '8px 0 8px', lineHeight: 1.35 }}>{m.title}</div>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--gold-text)', textTransform: 'uppercase', letterSpacing: '.5px' }}>{m.category}</span>
+                    <div style={{ fontWeight: 600, fontSize: 16, color: '#1c1c1e', margin: '8px 0 8px', lineHeight: 1.35 }}>{m.title}</div>
                     <div style={{ fontSize: 13.5, color: '#6E6E73', lineHeight: 1.55, flex: 1 }}>{m.summary.slice(0, 110)}{m.summary.length > 110 ? '…' : ''}</div>
                     {m.okuma_dk ? <div style={{ fontSize: 12, color: '#8E8E93', marginTop: 12 }}>{m.okuma_dk} dk okuma</div> : null}
                   </div>
@@ -406,8 +423,8 @@ export default async function HomePage() {
                 Diş Hekimleri İçin
               </p>
               <h2 style={{
-                fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700,
-                letterSpacing: '-0.8px', color: 'white', margin: '0 0 12px',
+                fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 600,
+                letterSpacing: '-0.4px', color: 'white', margin: '0 0 12px',
               }}>
                 Kliniğinizi Listeleyin
               </h2>

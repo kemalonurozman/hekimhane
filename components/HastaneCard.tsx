@@ -91,7 +91,7 @@ export default function HastaneCard({ hastane: h }: { hastane: Hastane }) {
         }
         .hc__name {
           font-size: 17px;
-          font-weight: 800;
+          font-weight: 600;
           color: var(--text);
           line-height: 1.25;
           letter-spacing: -.3px;
@@ -127,7 +127,7 @@ export default function HastaneCard({ hastane: h }: { hastane: Hastane }) {
         }
         .hc__rat-num {
           font-size: 16px;
-          font-weight: 800;
+          font-weight: 600;
           color: var(--navy);
           line-height: 1;
         }

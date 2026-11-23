@@ -92,7 +92,7 @@ export default async function SahiplenPage(
         <div style={{ maxWidth: 480, margin: '0 auto', padding: '48px 16px 72px' }}>
           <div className="kf-grup__kutu" style={{ textAlign: 'center', justifyItems: 'center', padding: '36px 24px' }}>
             <HkIcon name="warning" size={48} />
-            <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, letterSpacing: '-.03em', color: '#0E1A2C' }}>İşletme bulunamadı</h1>
+            <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 600, letterSpacing: '-.015em', color: '#0E1A2C' }}>İşletme bulunamadı</h1>
             <p className="kf-alt" style={{ margin: 0, fontSize: 15 }}>
               Sahiplenmek istediğiniz işletme bulunamadı veya bağlantı geçersiz.
               Lütfen işletme sayfasındaki &quot;Sahiplenin&quot; butonunu kullanın.

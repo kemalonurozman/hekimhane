@@ -23,7 +23,7 @@ export function generateMetadata({ params }: Props): Metadata {
 }
 
 const KART: React.CSSProperties = { background: 'white', border: '1px solid var(--border)', borderRadius: 18, padding: '26px 28px', boxShadow: '0 1px 4px rgba(0,0,0,.05)', marginBottom: 18 };
-const H2: React.CSSProperties = { fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 800, color: 'var(--navy)', margin: '0 0 12px', letterSpacing: '-0.3px' };
+const H2: React.CSSProperties = { fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 600, color: 'var(--navy)', margin: '0 0 12px', letterSpacing: '-0.3px' };
 const P: React.CSSProperties = { fontSize: 15, color: '#3A3A3C', lineHeight: 1.75, margin: '0 0 12px' };
 
 export default function CocukKonuDetayPage({ params }: Props) {
@@ -61,10 +61,10 @@ export default function CocukKonuDetayPage({ params }: Props) {
             <Link href="/cocuk-dis-sagligi" style={{ color: 'rgba(255,255,255,.7)', textDecoration: 'none' }}>Çocuk Diş Sağlığı</Link><span>›</span>
             <span style={{ color: 'white' }}>{k.ad}</span>
           </nav>
-          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--on-deep-heading)', background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '5px 13px', marginBottom: 14 }}>
+          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--on-deep-heading)', background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '5px 13px', marginBottom: 14 }}>
             Pedodonti
           </span>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(24px,3.6vw,34px)', fontWeight: 800, color: 'white', lineHeight: 1.2, margin: '0 0 12px', letterSpacing: '-0.4px' }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(24px,3.6vw,34px)', fontWeight: 600, color: 'white', lineHeight: 1.2, margin: '0 0 12px', letterSpacing: '-0.2px' }}>
             {k.ad}
           </h1>
           <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.85)', lineHeight: 1.65, maxWidth: 680, margin: 0 }}>{k.ozet}</p>
@@ -90,7 +90,7 @@ export default function CocukKonuDetayPage({ params }: Props) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {k.sss.map((s, i) => (
                 <div key={i}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--navy)', marginBottom: 5 }}>{s.soru}</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy)', marginBottom: 5 }}>{s.soru}</div>
                   <div style={{ fontSize: 14.5, color: '#3A3A3C', lineHeight: 1.7 }}>{s.cevap}</div>
                 </div>
               ))}
@@ -110,7 +110,7 @@ export default function CocukKonuDetayPage({ params }: Props) {
               {fiyatlar.map((it, i) => (
                 <div key={it.kod} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '13px 16px', background: i % 2 ? '#FBFAF7' : 'white', borderTop: i ? '1px solid var(--border)' : 'none' }}>
                   <span style={{ fontSize: 14, color: 'var(--navy)', fontWeight: 600 }}>{it.ad}</span>
-                  <span style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--navy)', whiteSpace: 'nowrap' }}>{it.kdvDahil} ₺</span>
+                  <span style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--navy)', whiteSpace: 'nowrap' }}>{it.kdvDahil} ₺</span>
                 </div>
               ))}
             </div>
@@ -126,12 +126,12 @@ export default function CocukKonuDetayPage({ params }: Props) {
 
         {/* CTA */}
         <section style={{ ...KART, background: 'var(--navy)', textAlign: 'center', marginTop: 6 }}>
-          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 800, color: 'white', margin: '0 0 8px' }}>Çocuğunuz için bir diş hekimi bulun</h2>
+          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 600, color: 'white', margin: '0 0 8px' }}>Çocuğunuz için bir diş hekimi bulun</h2>
           <p style={{ fontSize: 14.5, color: 'rgba(255,255,255,.8)', lineHeight: 1.6, margin: '0 0 18px', maxWidth: 520, marginLeft: 'auto', marginRight: 'auto' }}>
             Bulunduğunuz şehirdeki çocuk diş hekimlerini (pedodonti) inceleyin, puan ve yorumlara göre karşılaştırın.
           </p>
           <Link href="/klinikler?uzmanlik=Pedodonti%20(%C3%87ocuk%20Di%C5%9F%20Hekimli%C4%9Fi)"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--gold-fill)', color: 'var(--navy)', fontSize: 14.5, fontWeight: 700, borderRadius: 12, padding: '13px 24px', textDecoration: 'none' }}>
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--gold-fill)', color: 'var(--navy)', fontSize: 14.5, fontWeight: 600, borderRadius: 12, padding: '13px 24px', textDecoration: 'none' }}>
             Çocuk diş hekimlerini gör →
           </Link>
         </section>

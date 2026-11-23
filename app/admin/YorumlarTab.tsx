@@ -155,7 +155,7 @@ export default function YorumlarTab({ onChanged }: { onChanged: () => void }) {
 
   const dugme = (etiket: string, ikon: string, onClick: () => void, stil: 'dolu' | 'cerceve' | 'tehlike', disabled: boolean) => (
     <button disabled={disabled} onClick={onClick}
-      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 700, padding: '8px 13px', borderRadius: 9, cursor: 'pointer', opacity: disabled ? 0.6 : 1, fontFamily: 'inherit',
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, padding: '8px 13px', borderRadius: 9, cursor: 'pointer', opacity: disabled ? 0.6 : 1, fontFamily: 'inherit',
         border: stil === 'cerceve' ? `1px solid ${C.border}` : stil === 'tehlike' ? '1px solid rgba(217,48,37,.3)' : 'none',
         background: stil === 'dolu' ? C.navy : 'transparent', color: stil === 'dolu' ? 'white' : stil === 'tehlike' ? C.red : C.text }}>
       <Ic d={ikon} size={13} /> {etiket}
@@ -176,8 +176,8 @@ export default function YorumlarTab({ onChanged }: { onChanged: () => void }) {
         <div style={{ padding: '14px 18px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: tur.color, background: tur.color + '1A', padding: '2px 8px', borderRadius: 8 }}>{tur.label}</span>
-              <span style={{ fontSize: 13.5, fontWeight: 700, color: C.text }}>{ad}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: tur.color, background: tur.color + '1A', padding: '2px 8px', borderRadius: 8 }}>{tur.label}</span>
+              <span style={{ fontSize: 13.5, fontWeight: 600, color: C.text }}>{ad}</span>
               {url && <a href={url} target="_blank" rel="noopener" style={{ color: C.navy, display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 11.5, fontWeight: 600 }}><Ic d={IK.link} size={12} /> Profil</a>}
             </div>
             <div style={{ fontSize: 11.5, color: C.muted }}>
@@ -186,7 +186,7 @@ export default function YorumlarTab({ onChanged }: { onChanged: () => void }) {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
             <Yildiz n={r.rating} />
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: d.renk, background: d.renk + '1F', borderRadius: 8, padding: '3px 9px' }}>{d.etiket}</span>
+            <span style={{ fontSize: 10.5, fontWeight: 600, color: d.renk, background: d.renk + '1F', borderRadius: 8, padding: '3px 9px' }}>{d.etiket}</span>
           </div>
         </div>
 
@@ -214,7 +214,7 @@ export default function YorumlarTab({ onChanged }: { onChanged: () => void }) {
           {/* Belge kaydı — istek ve alındı bilgisi yorumda durur */}
           {(r.belge_istendi_at || r.belge_alindi_at || r.belge_notu) && (
             <div style={{ background: 'rgba(217,96,26,.06)', border: '1px solid rgba(217,96,26,.2)', borderRadius: 10, padding: '10px 12px', marginBottom: 12 }}>
-              <div style={{ fontSize: 10.5, fontWeight: 700, color: C.orange, letterSpacing: '0.4px', marginBottom: 4 }}>BELGE KAYDI</div>
+              <div style={{ fontSize: 10.5, fontWeight: 600, color: C.orange, letterSpacing: '0.4px', marginBottom: 4 }}>BELGE KAYDI</div>
               <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.6 }}>
                 {r.belge_istendi_at && <div>Belge istendi: <strong>{tarih(r.belge_istendi_at)}</strong>{r.author_email ? ` → ${r.author_email}` : ''}</div>}
                 {r.belge_alindi_at && <div>Belge alındı: <strong>{tarih(r.belge_alindi_at)}</strong></div>}
@@ -224,7 +224,7 @@ export default function YorumlarTab({ onChanged }: { onChanged: () => void }) {
           )}
           {r.admin_note && d.key !== 'belge' && (
             <div style={{ background: C.soft, border: `1px solid ${C.border}`, borderRadius: 10, padding: '9px 12px', marginBottom: 12 }}>
-              <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, letterSpacing: '0.4px', marginBottom: 3 }}>YÖNETİCİ NOTU</div>
+              <div style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, letterSpacing: '0.4px', marginBottom: 3 }}>YÖNETİCİ NOTU</div>
               <p style={{ fontSize: 13, color: C.text, margin: 0, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{r.admin_note}</p>
             </div>
           )}
@@ -283,7 +283,7 @@ export default function YorumlarTab({ onChanged }: { onChanged: () => void }) {
       )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 18, flexWrap: 'wrap' }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: 0 }}>Yorumlar</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 600, color: C.text, margin: 0 }}>Yorumlar</h1>
           <p style={{ fontSize: 13, color: C.muted, margin: '4px 0 0' }}>İşletmelere yazılan yorumlar siz onaylamadan yayınlanmaz. Gerekirse yorumcudan belge isteyin; istek ve alındı kaydı yorumda durur.</p>
         </div>
         <button onClick={load} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, padding: '8px 14px', borderRadius: 9, border: `1px solid ${C.border}`, background: 'transparent', color: C.muted, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -301,7 +301,7 @@ export default function YorumlarTab({ onChanged }: { onChanged: () => void }) {
               style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, padding: '7px 12px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
                 border: `1px solid ${aktif ? f.renk : C.border}`, background: aktif ? f.renk + '1A' : C.card, color: aktif ? f.renk : C.text }}>
               {f.label}
-              <span style={{ fontSize: 11, fontWeight: 700, background: aktif ? f.renk : C.soft, color: aktif ? 'white' : C.muted, borderRadius: 10, padding: '1px 7px', fontVariantNumeric: 'tabular-nums' }}>{n}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, background: aktif ? f.renk : C.soft, color: aktif ? 'white' : C.muted, borderRadius: 10, padding: '1px 7px', fontVariantNumeric: 'tabular-nums' }}>{n}</span>
             </button>
           );
         })}

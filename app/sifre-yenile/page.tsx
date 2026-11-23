@@ -64,7 +64,7 @@ function SifreYenileContent() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', paddingTop: 66, background: '#EEF2F9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
+    <div style={{ minHeight: '100vh', paddingTop: 66, background: '#EEF2F9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-system)' }}>
       <div style={{ background: 'white', borderRadius: 28, boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 12px 44px rgba(26,51,94,.13)', padding: '40px 34px', width: '100%', maxWidth: 400, textAlign: 'center', margin: '24px 16px' }}>
 
         <div style={{ width: 52, height: 52, borderRadius: 15, background: '#1A335E', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
@@ -73,22 +73,22 @@ function SifreYenileContent() {
 
         {!tokenHash ? (
           <>
-            <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1D1D1F', letterSpacing: '-0.5px', margin: '0 0 10px' }}>Bağlantı eksik</h1>
+            <h1 style={{ fontSize: 22, fontWeight: 600, color: '#1D1D1F', letterSpacing: '-0.25px', margin: '0 0 10px' }}>Bağlantı eksik</h1>
             <p style={{ color: '#86868B', fontSize: 14, lineHeight: 1.6, margin: '0 0 22px' }}>
               Bu sayfaya e-postanızdaki şifre sıfırlama bağlantısıyla ulaşmanız gerekiyor.
             </p>
-            <a href="/giris" style={{ display: 'inline-block', padding: '12px 26px', borderRadius: 12, background: '#1A335E', color: 'white', fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>Giriş sayfasına dön</a>
+            <a href="/giris" style={{ display: 'inline-block', padding: '12px 26px', borderRadius: 12, background: '#1A335E', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>Giriş sayfasına dön</a>
           </>
         ) : durum === 'tamam' ? (
           <>
-            <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1D1D1F', letterSpacing: '-0.5px', margin: '0 0 10px' }}>Şifreniz güncellendi</h1>
+            <h1 style={{ fontSize: 22, fontWeight: 600, color: '#1D1D1F', letterSpacing: '-0.25px', margin: '0 0 10px' }}>Şifreniz güncellendi</h1>
             <p style={{ color: '#86868B', fontSize: 14, lineHeight: 1.6, margin: 0 }}>
               Giriş yapıldı — panelinize yönlendiriliyorsunuz…
             </p>
           </>
         ) : (
           <>
-            <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1D1D1F', letterSpacing: '-0.5px', margin: '0 0 8px' }}>Yeni şifre belirleyin</h1>
+            <h1 style={{ fontSize: 22, fontWeight: 600, color: '#1D1D1F', letterSpacing: '-0.25px', margin: '0 0 8px' }}>Yeni şifre belirleyin</h1>
             <p style={{ color: '#86868B', fontSize: 14, lineHeight: 1.6, margin: '0 0 24px' }}>
               Hesabınız için yeni bir şifre oluşturun.
             </p>
@@ -127,13 +127,13 @@ function SifreYenileContent() {
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 12 }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 2 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                   <span style={{ fontSize: 12.5, color: '#DC2626', lineHeight: 1.5 }}>
-                    {hata}{hata.includes('geçersiz') && <>{' '}<a href="/giris" style={{ color: '#1A335E', fontWeight: 700 }}>Yeni bağlantı iste</a></>}
+                    {hata}{hata.includes('geçersiz') && <>{' '}<a href="/giris" style={{ color: '#1A335E', fontWeight: 600 }}>Yeni bağlantı iste</a></>}
                   </span>
                 </div>
               )}
 
               <button type="submit" disabled={durum === 'calisiyor'}
-                style={{ width: '100%', padding: '13px 20px', borderRadius: 13, border: 'none', background: '#1A335E', color: 'white', fontSize: 15, fontWeight: 700, cursor: durum === 'calisiyor' ? 'not-allowed' : 'pointer', opacity: durum === 'calisiyor' ? 0.65 : 1, fontFamily: 'inherit', marginTop: 4 }}>
+                style={{ width: '100%', padding: '13px 20px', borderRadius: 13, border: 'none', background: '#1A335E', color: 'white', fontSize: 15, fontWeight: 600, cursor: durum === 'calisiyor' ? 'not-allowed' : 'pointer', opacity: durum === 'calisiyor' ? 0.65 : 1, fontFamily: 'inherit', marginTop: 4 }}>
                 {durum === 'calisiyor' ? 'Güncelleniyor…' : 'Şifreyi Güncelle'}
               </button>
             </form>

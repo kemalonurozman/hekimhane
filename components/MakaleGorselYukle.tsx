@@ -61,11 +61,11 @@ export default function MakaleGorselYukle({
             style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }} />
           <div style={{ display: 'flex', gap: 8, padding: '10px 12px', borderTop: `1px solid ${T.border}` }}>
             <button type="button" onClick={sec} disabled={yukleniyor}
-              style={{ padding: '7px 14px', borderRadius: 9, border: `1px solid ${T.border}`, background: 'transparent', color: T.text, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: '7px 14px', borderRadius: 9, border: `1px solid ${T.border}`, background: 'transparent', color: T.text, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               {yukleniyor ? 'Yükleniyor…' : 'Değiştir'}
             </button>
             <button type="button" onClick={() => { onChange(''); setHata(''); }}
-              style={{ padding: '7px 14px', borderRadius: 9, border: '1px solid rgba(239,68,68,.35)', background: 'rgba(239,68,68,.08)', color: '#EF4444', fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: '7px 14px', borderRadius: 9, border: '1px solid rgba(239,68,68,.35)', background: 'rgba(239,68,68,.08)', color: '#EF4444', fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               Kaldır
             </button>
           </div>
@@ -84,7 +84,7 @@ export default function MakaleGorselYukle({
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={T.muted} strokeWidth="1.6" strokeLinecap="round" style={{ marginBottom: 8 }}>
             <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" />
           </svg>
-          <div style={{ fontSize: 13.5, fontWeight: 700, color: T.text, marginBottom: 4 }}>
+          <div style={{ fontSize: 13.5, fontWeight: 600, color: T.text, marginBottom: 4 }}>
             {yukleniyor ? 'Yükleniyor…' : 'Kapak görseli yükleyin'}
           </div>
           <div style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>

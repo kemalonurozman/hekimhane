@@ -46,7 +46,7 @@ export default function OneCikanHekimler({ items }: { items: PremiumItem[] }) {
         .ocp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
         .ocp-item{position:relative;display:flex;flex-direction:column;min-height:168px;padding:20px 20px 18px;border:1px solid var(--border);border-radius:18px;background:#fff;text-decoration:none;box-shadow:0 1px 2px rgba(14,26,44,.04);transition:box-shadow .22s,transform .22s,border-color .22s;}
         .ocp-item:hover{box-shadow:0 14px 34px -18px rgba(18,41,77,.38);transform:translateY(-2px);border-color:#C1CEE2;}
-        .ocp-ad{margin:0 0 6px;padding-right:26px;font-size:16.5px;line-height:1.3;font-weight:700;letter-spacing:-.02em;color:#12294D;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+        .ocp-ad{margin:0 0 6px;padding-right:26px;font-size:16.5px;line-height:1.3;font-weight:600;letter-spacing:-.01em;color:#12294D;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
         @media (max-width: 900px){.ocp-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
         @media (max-width: 600px){.ocp-grid{grid-template-columns:minmax(0,1fr);gap:12px;}.ocp-item{min-height:0;padding:18px;}}
       `}</style>
@@ -56,7 +56,7 @@ export default function OneCikanHekimler({ items }: { items: PremiumItem[] }) {
             <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '1.2px', textTransform: 'uppercase', color: 'var(--gold-text)', margin: '0 0 10px' }}>
               Öne Çıkan Üyeler
             </p>
-            <h2 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-0.8px', color: '#1A335E', margin: 0 }}>
+            <h2 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 600, letterSpacing: '-0.4px', color: '#1A335E', margin: 0 }}>
               Hekimler &amp; Klinikler
             </h2>
           </div>
@@ -74,7 +74,7 @@ export default function OneCikanHekimler({ items }: { items: PremiumItem[] }) {
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="#B8892F"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.8 5.9 20.4l1.5-6.8L2.2 9l6.9-.7z" /></svg>
                 </span>
               )}
-              <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--gold-text)', marginBottom: 8 }}>
+              <span style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--gold-text)', marginBottom: 8 }}>
                 {it.tur || (it.tip === 'doktor' ? 'Hekim' : 'Klinik')}
               </span>
               <h3 className="ocp-ad">{it.ad}</h3>

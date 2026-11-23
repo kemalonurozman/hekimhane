@@ -148,7 +148,7 @@ export default async function MakaleYayinlaPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '18px 24px', marginTop: 34, maxWidth: 460 }}>
             {sayaclar.map(s => (
               <div key={s.l}>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 2.6vw, 30px)', fontWeight: 800, letterSpacing: '-.03em', color: '#12294D', lineHeight: 1.1 }}>{s.n}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 2.6vw, 30px)', fontWeight: 600, letterSpacing: '-.015em', color: '#12294D', lineHeight: 1.1 }}>{s.n}</div>
                 <div style={{ marginTop: 4, fontSize: 13.5, color: '#586273' }}>{s.l}</div>
               </div>
             ))}
@@ -189,9 +189,9 @@ export default async function MakaleYayinlaPage() {
             <div className="oz-ikili" style={{ alignItems: 'start' }}>
               <div>
                 <span className="oz-etiket">Her şey dahil</span>
-                <h3 style={{ margin: '14px 0 6px', fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 2.6vw, 30px)', fontWeight: 800, letterSpacing: '-.03em', color: '#0E1A2C' }}>İş Ortağı Makalesi</h3>
+                <h3 style={{ margin: '14px 0 6px', fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 2.6vw, 30px)', fontWeight: 600, letterSpacing: '-.015em', color: '#0E1A2C' }}>İş Ortağı Makalesi</h3>
                 <p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.6, color: '#3C4A61' }}>Makale Hekimhane’de kalıcı olarak yayında kalır. Tek seferlik ödeme.</p>
-                <div style={{ marginTop: 24, fontFamily: 'var(--font-display)', fontSize: 'clamp(40px, 5vw, 56px)', fontWeight: 800, letterSpacing: '-.04em', color: '#12294D', lineHeight: 1 }}>
+                <div style={{ marginTop: 24, fontFamily: 'var(--font-display)', fontSize: 'clamp(40px, 5vw, 56px)', fontWeight: 600, letterSpacing: '-.02em', color: '#12294D', lineHeight: 1 }}>
                   {tl(MAKALE_FIYAT)} ₺
                 </div>
                 <p style={{ margin: '10px 0 0', fontSize: 14, color: '#586273' }}>
@@ -223,7 +223,7 @@ export default async function MakaleYayinlaPage() {
             <p>Bilgileri doldurun, e-posta ile proforma fatura gönderelim.</p>
 
             <div style={{ marginTop: 28, padding: '20px 22px', borderRadius: 20, background: 'rgba(255,255,255,.06)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>
-              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: '#DEC283', marginBottom: 14 }}>Sipariş özeti</div>
+              <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: '#DEC283', marginBottom: 14 }}>Sipariş özeti</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 15, marginBottom: 8 }}>
                 <span>İş Ortağı Makalesi</span>
                 <strong style={{ whiteSpace: 'nowrap' }}>{tl(MAKALE_FIYAT)} ₺</strong>
@@ -232,7 +232,7 @@ export default async function MakaleYayinlaPage() {
                 <span>KDV (%{KDV_YUZDE})</span>
                 <span style={{ whiteSpace: 'nowrap' }}>{tl(KDV_TUTAR)} ₺</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,.14)', fontSize: 19, fontWeight: 800, letterSpacing: '-.02em' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,.14)', fontSize: 19, fontWeight: 600, letterSpacing: '-.01em' }}>
                 <span>Toplam</span>
                 <span style={{ whiteSpace: 'nowrap' }}>{tl(TOPLAM)} ₺</span>
               </div>
@@ -259,11 +259,11 @@ export default async function MakaleYayinlaPage() {
             <h2 className="vt-h2">Sorunuz mu var?</h2>
             <p className="vt-govde">Bize yazın, 24 saat içinde dönüş yapalım.</p>
             <p style={{ margin: '20px 0 0', fontSize: 15.5, lineHeight: 1.6, color: '#3C4A61' }}>
-              Ya da doğrudan <a href="mailto:info@hekimhane.com.tr" style={{ color: '#12294D', fontWeight: 700 }}>info@hekimhane.com.tr</a> adresine yazın.
+              Ya da doğrudan <a href="mailto:info@hekimhane.com.tr" style={{ color: '#12294D', fontWeight: 600 }}>info@hekimhane.com.tr</a> adresine yazın.
             </p>
             <p style={{ margin: '10px 0 0', fontSize: 15.5, lineHeight: 1.6, color: '#3C4A61' }}>
               Hekimhane’de onaylı işletmeniz varsa yazınızı{' '}
-              <a href="/panel" style={{ color: '#12294D', fontWeight: 700 }}>panelinizdeki Makalelerim</a> sekmesinden de gönderebilirsiniz.
+              <a href="/panel" style={{ color: '#12294D', fontWeight: 600 }}>panelinizdeki Makalelerim</a> sekmesinden de gönderebilirsiniz.
             </p>
           </div>
           <SoruFormu />
@@ -298,15 +298,15 @@ function Sahne() {
         </div>
         <div style={{ padding: '18px 20px 20px' }}>
           <div style={{ padding: '10px 12px', borderRadius: 10, background: '#FDF6E3', boxShadow: 'inset 0 0 0 1px #F0DFB4' }}>
-            <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: '#9C7A2E' }}>İş Ortağı İçeriği</div>
+            <div style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: '#9C7A2E' }}>İş Ortağı İçeriği</div>
             <div style={{ marginTop: 3, fontSize: 12, lineHeight: 1.5, color: '#6E6E73' }}>Bu makale ticari bir iş ortağı ile iş birliği içinde hazırlanmıştır.</div>
           </div>
-          <div style={{ marginTop: 16, fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, letterSpacing: '-.03em', color: '#0E1A2C', lineHeight: 1.2 }}>Makalenizin başlığı</div>
+          <div style={{ marginTop: 16, fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 600, letterSpacing: '-.015em', color: '#0E1A2C', lineHeight: 1.2 }}>Makalenizin başlığı</div>
           <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6, fontSize: 12, color: '#6E6E73' }}>
             <strong style={{ color: '#0E1A2C' }}>Kliniğiniz</strong><span>·</span><span>5 dakikalık okuma</span>
           </div>
           <Cizgi /><Cizgi w="94%" /><Cizgi w="86%" />
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 16, padding: '8px 12px', borderRadius: 10, background: '#EEF3FA', boxShadow: 'inset 0 0 0 1px #DCE3EE', fontSize: 12.5, fontWeight: 700, color: '#12294D' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 16, padding: '8px 12px', borderRadius: 10, background: '#EEF3FA', boxShadow: 'inset 0 0 0 1px #DCE3EE', fontSize: 12.5, fontWeight: 600, color: '#12294D' }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
             www.klinigim.com — metin içi bağlantı
           </div>
@@ -323,11 +323,11 @@ function MiniBaglanti() {
       <Cizgi w="100%" />
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
         <i style={{ display: 'block', height: 8, width: '30%', borderRadius: 4, background: '#EEF1F6' }} />
-        <span style={{ fontSize: 11.5, fontWeight: 700, color: '#1A5FD0', textDecoration: 'underline', whiteSpace: 'nowrap' }}>klinigim.com</span>
+        <span style={{ fontSize: 11.5, fontWeight: 600, color: '#1A5FD0', textDecoration: 'underline', whiteSpace: 'nowrap' }}>klinigim.com</span>
         <i style={{ display: 'block', height: 8, flex: 1, borderRadius: 4, background: '#EEF1F6' }} />
       </div>
       <Cizgi w="80%" />
-      <div style={{ marginTop: 10, fontSize: 11, fontWeight: 700, color: '#0B5F55' }}>En fazla 3 bağlantı</div>
+      <div style={{ marginTop: 10, fontSize: 11, fontWeight: 600, color: '#0B5F55' }}>En fazla 3 bağlantı</div>
     </div>
   );
 }
@@ -351,8 +351,8 @@ function MiniArama() {
 function MiniEtiket() {
   return (
     <div style={{ width: '100%', maxWidth: 230, padding: 14, borderRadius: 14, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE' }}>
-      <div style={{ padding: '7px 10px', borderRadius: 8, background: '#FDF6E3', boxShadow: 'inset 0 0 0 1px #F0DFB4', fontSize: 10.5, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: '#9C7A2E' }}>İş Ortağı İçeriği</div>
-      <div style={{ marginTop: 10, fontSize: 13.5, fontWeight: 800, color: '#0E1A2C' }}>Makalenizin başlığı</div>
+      <div style={{ padding: '7px 10px', borderRadius: 8, background: '#FDF6E3', boxShadow: 'inset 0 0 0 1px #F0DFB4', fontSize: 10.5, fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: '#9C7A2E' }}>İş Ortağı İçeriği</div>
+      <div style={{ marginTop: 10, fontSize: 13.5, fontWeight: 600, color: '#0E1A2C' }}>Makalenizin başlığı</div>
       <Cizgi /><Cizgi w="88%" />
     </div>
   );

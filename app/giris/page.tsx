@@ -263,7 +263,7 @@ function GirisContent() {
   const segTrack: React.CSSProperties = { display: 'flex', background: '#EEF1F6', border: '1px solid #DDE3EC', borderRadius: 14, padding: 5, gap: 5 };
   const segBtn = (active: boolean): React.CSSProperties => ({
     flex: 1, minHeight: 46, padding: '10px 8px', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-    fontSize: 15, fontWeight: 700, letterSpacing: '-0.1px',
+    fontSize: 15, fontWeight: 600, letterSpacing: '-0.1px',
     background: active ? '#12294D' : 'transparent',
     color: active ? '#FFFFFF' : '#3C4A61',
     boxShadow: active ? '0 1px 2px rgba(14,26,44,.2), 0 6px 14px -8px rgba(18,41,77,.55)' : 'none',
@@ -291,7 +291,7 @@ function GirisContent() {
       minHeight: '100vh', paddingTop: 66,
       background: 'radial-gradient(1100px 520px at 50% -8%, #EAF1FD 0%, rgba(234,241,253,0) 62%), linear-gradient(180deg, #F4F6FB 0%, #EBEEF6 100%)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '80px 16px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
+      padding: '80px 16px', fontFamily: 'var(--font-system)',
     }}>
       <div style={card}>
 
@@ -307,7 +307,7 @@ function GirisContent() {
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
               <IcCheck />
             </div>
-            <h2 style={{ fontWeight: 800, fontSize: 22, color: 'var(--text)', marginBottom: 10 }}>
+            <h2 style={{ fontWeight: 600, fontSize: 22, color: 'var(--text)', marginBottom: 10 }}>
               Hesabınız Oluşturuldu!
             </h2>
             <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.7, marginBottom: 24 }}>
@@ -333,7 +333,7 @@ function GirisContent() {
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
               <IcCheck />
             </div>
-            <h2 style={{ fontWeight: 800, fontSize: 22, color: 'var(--text)', marginBottom: 10 }}>
+            <h2 style={{ fontWeight: 600, fontSize: 22, color: 'var(--text)', marginBottom: 10 }}>
               E-posta Gönderildi
             </h2>
             <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.7, marginBottom: 24 }}>
@@ -355,7 +355,7 @@ function GirisContent() {
           </div>
         ) : (
           <>
-            <h1 style={{ fontSize: 27, fontWeight: 700, color: 'var(--text)', marginBottom: 8, letterSpacing: '-0.7px' }}>
+            <h1 style={{ fontSize: 27, fontWeight: 600, color: 'var(--text)', marginBottom: 8, letterSpacing: '-0.35px' }}>
               {kullaniciTip === 'isletme' ? 'Doktor / İşletme Girişi' : 'Hasta Girişi'}
             </h1>
             <p style={{ color: '#86868B', fontSize: 14.5, marginBottom: 20, lineHeight: 1.5, letterSpacing: '-0.1px' }}>
@@ -374,7 +374,7 @@ function GirisContent() {
 
             {/* Kullanıcı tipi seçici — hangi girişte olduğu ilk bakışta anlaşılmalı */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', color: '#8A8A8E', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '1px', color: '#8A8A8E', textTransform: 'uppercase' }}>
                 Kim olarak giriyorsunuz?
               </span>
               <span style={{ flex: 1, height: 1, background: '#EDEDF0' }} />
@@ -405,7 +405,7 @@ function GirisContent() {
                     <span style={{ display: 'flex', justifyContent: 'center', marginBottom: 9 }}>
                       <GirisRozeti tip={t.key} size={46} soluk={!aktif} />
                     </span>
-                    <span style={{ display: 'block', fontSize: 13.5, fontWeight: 700, letterSpacing: '-0.2px', color: aktif ? 'var(--navy)' : '#4B5565' }}>
+                    <span style={{ display: 'block', fontSize: 13.5, fontWeight: 600, letterSpacing: '-0.2px', color: aktif ? 'var(--navy)' : '#4B5565' }}>
                       {t.baslik}
                     </span>
                     <span style={{ display: 'block', fontSize: 11, marginTop: 3, lineHeight: 1.35, color: aktif ? '#5B7099' : '#98A2B3' }}>

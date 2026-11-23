@@ -8,8 +8,7 @@ import { toSlug } from '@/lib/helpers';
 import HkIcon from '@/components/HkIcon';
 import type { HkIkonAdi } from '@/lib/hk-icons';
 import HkIconAnim from '@/components/HkIconAnim';
-import { useSurukle } from '@/components/vitrin/useSurukle';
-import HkLogoAnim, { HkSpinner } from '@/components/HkLogoAnim';
+import { HkSpinner } from '@/components/HkLogoAnim';
 
 // ── Sayaç animasyonu ─────────────────────────────────────────────────────────
 function AnimatedCount({ target, suffix = '+' }: { target: number; suffix?: string }) {
@@ -437,7 +436,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
                   {/* Grup başlığı */}
                   <div style={{
                     padding: '10px 16px 4px',
-                    fontSize: 10, fontWeight: 700,
+                    fontSize: 10, fontWeight: 600,
                     letterSpacing: '1px', textTransform: 'uppercase',
                     color: grup.renk,
                     display: 'flex', alignItems: 'center', gap: 6,
@@ -495,7 +494,7 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
                       {/* Tür etiketi — eczane/hastane/hekim/klinik rengiyle */}
                       <span style={{
                         flexShrink: 0,
-                        fontSize: 10.5, fontWeight: 700, letterSpacing: '.3px',
+                        fontSize: 10.5, fontWeight: 600, letterSpacing: '.3px',
                         color: grup.renk, background: grup.bg,
                         border: `1px solid ${grup.renk}22`,
                         padding: '3px 8px', borderRadius: 999,
@@ -569,12 +568,8 @@ function LiveSearchForm({ mounted }: { mounted: boolean }) {
   );
 }
 
-// ── Ana bileşen ───────────────────────────────────────────────────────────────
-// ── Hekimlere seslenen dönen şerit ───────────────────────────────────────────
-// Başlık hastalara yönelik kalır; bu şerit arama alanının altında işletme
-// sahiplerine panelin sunduklarını sırayla anlatır ve /katil sayfasına götürür.
-// Her açılışta farklı bir madde ile başlar; hareketi azalt tercihinde sabit kalır.
-// Başlıklar artık hero'da döndüğü için şerit sabit bir çağrıdır (aynı cümleler iki yerde dönmesin).
+// ── Hekimlere seslenen şerit ─────────────────────────────────────────────────
+// Arama alanının altında işletme sahiplerini /katil sayfasına götüren sabit çağrı.
 function HekimSerit({ mounted }: { mounted: boolean }) {
   return (
     <a href="/katil" className="hekim-serit" style={{
@@ -595,43 +590,13 @@ interface Props {
   stats: { klinik: number; disHekimi: number };
 }
 
+// ── Ana bileşen ───────────────────────────────────────────────────────────────
+// Hasta araması bandı. Kas 2026'dan beri hero'nun başı (logo + dönen başlıklar yerine) koyu sekmeli
+// vitrin (components/vitrin/SekmeliVitrin, app/page.tsx → hero); bu bileşen hemen altındaki açık
+// bantta arama kutusunu, tedavi çiplerini, "Kliniğinizi ekleyin" şeridini ve sayaçları çizer.
 export default function HeroAnimated({ stats }: Props) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setTimeout(() => setMounted(true), 60); }, []);
-
-  // Dönen başlıklar — ilk sıradaki hasta başlığı daha uzun kalır (basliklar.length = 6, gec() içinde sabit)
-  const basliklar = [
-    { baslik: 'Size en yakın diş hekimini hızlıca bulun', alt: `${stats.klinik.toLocaleString('tr-TR')} diş kliniği ve muayenehane; puan, adres ve iletişim bilgileriyle tek yerde.` },
-    { baslik: 'Randevularınızı tek platformdan yönetin', alt: 'Profilinizden ve web sitenizden gelen tüm randevu talepleri tek takvimde toplanır.' },
-    { baslik: 'Randevu öncesi hastalarınızı bilgilendirin', alt: 'Hatırlatma e-postaları kendiliğinden gider; hastanız randevusunu unutmaz.' },
-    { baslik: 'Gelir ve giderinizi tek ekrandan takip edin', alt: 'Kliniğinizin gelir ve gider kayıtlarını işletme panelinizden izleyin.' },
-    { baslik: 'Rezervasyon sistemini kendi sitenize ekleyin', alt: 'Hastalarınız web sitenizden çıkmadan uygun saati seçip randevu alır.' },
-    { baslik: 'HekimKart ile dijital kartvizitinizi paylaşın', alt: 'Tek bağlantı ya da QR kodla paylaşın; profiliniz güncellendikçe kartınız da güncellenir.' },
-  ];
-  const SURE_ILK = 7500, SURE_DIGER = 6000;   // ms — nokta göstergesindeki kısalan çubukla aynı
-  const [b, setB] = useState(0);
-  const [soluk, setSoluk] = useState(false);   // geçiş: önce yavaşça söner, sonra yeni başlık belirir
-  const [yon, setYon] = useState<1 | -1>(1);    // kayma yönü: 1 = sonraki (sağdan gelir), -1 = önceki
-  const [kaydi, setKaydi] = useState(false);    // ilk açılışta giriş animasyonu oynamasın (SSR başlığı hemen görünsün)
-  const gec = useCallback((hedef: number | null, y: 1 | -1 = 1) => {
-    setYon(y); setKaydi(true);
-    setSoluk(true);
-    setTimeout(() => {
-      setB(n => (hedef === null ? (n + 1) % 6 : hedef));
-      setSoluk(false);
-    }, 650);
-  }, []);
-  // Süre dolunca kendiliğinden sıradakine geçer — her zaman (noktaya basmak da durdurmaz, süre yeniden başlar)
-  useEffect(() => {
-    const t = setTimeout(() => gec(null), b === 0 ? SURE_ILK : SURE_DIGER);
-    return () => clearTimeout(t);
-  }, [b, gec]);
-
-  // Parmak/fareyle sola-sağa sürükleyerek başlık değiştirme
-  const surukle = useSurukle({
-    onSonraki: () => { if (!soluk) gec(null, 1); },
-    onOnceki: () => { if (!soluk) gec((b + 5) % 6, -1); },
-  });
 
   const statItems = [
     { label: 'Diş kliniği', val: stats.klinik,    suffix: ''  },
@@ -647,35 +612,7 @@ export default function HeroAnimated({ stats }: Props) {
           padding: 92px 0 88px;
         }
         /* Hero: açık lacivert düz gradyan panel; başlık tek renk (gradyan metin yok) */
-        .hk-hero-panel { text-align: center; padding: 80px 32px; border-radius: var(--radius-xl); background: linear-gradient(120deg, var(--tint-50), var(--tint-100)); }
-        .hk-hero-logo { display: flex; justify-content: center; margin-bottom: 24px; min-height: 38px; }
-        /* Dönen başlık: en uzun başlık kadar yer ayrılır ki arama kutusu zıplamasın */
-        .hk-hero-baslik-kutu { display: flex; align-items: center; justify-content: center; min-height: 136px; margin-bottom: 16px; }
-        .hk-hero-baslik-kutu .hk-hero-baslik { margin-bottom: 0; }
-        .hk-hero-alt-kutu { min-height: 56px; margin-bottom: 32px; }
-        .hk-hero-alt-kutu .hk-hero-alt { margin-bottom: 0; }
-        /* Yavaş, sakin geçiş: söner (hafif yukarı) → yeni metin aşağıdan belirir */
-        .hk-hero-don { display: block; opacity: 1; transform: none; transition: opacity .9s cubic-bezier(.4,0,.2,1), transform .9s cubic-bezier(.4,0,.2,1); }
-        .hk-hero-don--alt { transition-delay: .08s; }
-        .hk-hero-don.is-soluk { opacity: 0; transform: translateX(-30px); transition-duration: .6s; transition-delay: 0s; }
-        .hk-hero-don.is-soluk.hk-yon-geri { transform: translateX(30px); }
-        .hk-hero-don.hk-giris-ileri { animation: hkGirIleri .75s cubic-bezier(.2,.8,.2,1) backwards; }
-        .hk-hero-don.hk-giris-geri { animation: hkGirGeri .75s cubic-bezier(.2,.8,.2,1) backwards; }
-        @keyframes hkGirIleri { from { opacity: 0; transform: translateX(36px); } }
-        @keyframes hkGirGeri { from { opacity: 0; transform: translateX(-36px); } }
-        .hk-hero-surukle { touch-action: pan-y; cursor: grab; }
-        .hk-hero-surukle.is-suruk { cursor: grabbing; user-select: none; }
-        .hk-hero-noktalar { display: flex; justify-content: center; gap: 6px; margin: -14px 0 22px; }
-        .hk-hero-noktalar button { width: 6px; height: 6px; padding: 0; border: 0; border-radius: 999px; background: #C1CEE2; cursor: pointer; transition: width .6s cubic-bezier(.4,0,.2,1), background .6s; }
-        .hk-hero-noktalar button { position: relative; overflow: hidden; }
-        .hk-hero-noktalar button.is-aktif { width: 34px; background: #C1CEE2; }
-        .hk-hero-noktalar button.is-aktif span { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; border-radius: 999px; background: #12294D; transform-origin: left center; animation: hkNoktaSure linear forwards; }
-        @keyframes hkNoktaSure { from { transform: scaleX(1); } to { transform: scaleX(0); } }
-        /* Hareketi azalt: kayma yok, yalnız yumuşak solma — başlık yine kendiliğinden değişir */
-        @media (prefers-reduced-motion: reduce) { .hk-hero-don, .hk-hero-don.is-soluk { transform: none; animation: none; } }
-        /* Süre çubuğu hareketi azalt açıkken de çalışır: başlık yine kendiliğinden değiştiği için ne zaman değişeceği belli olmalı */
-        .hk-hero-baslik { margin: 0 auto 16px; max-width: 900px; font-family: var(--font-display); font-size: 64px; line-height: 68px; font-weight: 800; letter-spacing: -0.035em; color: var(--brand); }
-        .hk-hero-alt { margin: 0 auto 32px; max-width: 560px; font-size: 18px; line-height: 28px; color: var(--ink-secondary); }
+        .hk-hero-panel { text-align: center; padding: 40px 32px 36px; border-radius: var(--radius-xl); background: linear-gradient(120deg, var(--tint-50), var(--tint-100)); }
         /* Arama çubuğu — marka kimliği v1 (Uygulamalar: web hero): beyaz kart, 18px köşe,
            iki satırlı alanlar (etiket + girdi), 22px ikon, ince ayraç, lacivert düğme */
         .hk-hero-arama { display: flex; flex-wrap: wrap; align-items: stretch; gap: 4px; padding: 8px; text-align: left; background: #FFFFFF; border-radius: 18px; box-shadow: 0 1px 2px rgba(14,26,44,.06), 0 12px 32px -12px rgba(18,41,77,.18); font-family: var(--font-sans); }
@@ -686,10 +623,10 @@ export default function HeroAnimated({ stats }: Props) {
         .hk-hero-arama__konum::before { content: ""; position: absolute; left: -2px; top: 10px; bottom: 10px; width: 1px; background: #E4E0D8; }
         .hk-hero-arama__ikon { flex: none; display: flex; width: 22px; height: 22px; align-items: center; justify-content: center; color: #12294D; }
         .hk-hero-arama__metin { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; cursor: text; }
-        .hk-hero-arama__etiket { font-size: 12px; line-height: 16px; font-weight: 700; color: #12294D; }
+        .hk-hero-arama__etiket { font-size: 12px; line-height: 16px; font-weight: 600; color: #12294D; }
         .hk-hero-arama input { width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; font: inherit; font-size: 15px; line-height: 20px; color: #0E1A2C; outline: none !important; box-shadow: none; }
         .hk-hero-arama input::placeholder { color: #8B93A1; }
-        .hk-hero-arama__btn { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 28px; border: 0; border-radius: 12px; background: #12294D; color: #FFFFFF; font: inherit; font-weight: 700; font-size: 16px; cursor: pointer; transition: background .15s; }
+        .hk-hero-arama__btn { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 28px; border: 0; border-radius: 12px; background: #12294D; color: #FFFFFF; font: inherit; font-weight: 600; font-size: 16px; cursor: pointer; transition: background .15s; }
         .hk-hero-arama__btn:hover { background: #1B355F; }
         .hk-hero-arama__btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
         /* Konum açılır listesi — Apple popover: buzlu cam, ok ucu, iOS grup başlıkları, seçimde vurgu */
@@ -703,7 +640,7 @@ export default function HeroAnimated({ stats }: Props) {
           -webkit-backdrop-filter: saturate(160%) blur(18px); backdrop-filter: saturate(160%) blur(18px);
           border: 0.5px solid rgba(0,0,0,.12); border-radius: 14px;
           box-shadow: 0 0 0 0.5px rgba(0,0,0,.04), 0 12px 36px rgba(0,0,0,.16), 0 2px 6px rgba(0,0,0,.06);
-          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+          font-family: var(--font-system);
           -webkit-font-smoothing: antialiased;
           animation: hk-popover-ac .16s cubic-bezier(.2,.8,.2,1);
         }
@@ -733,14 +670,8 @@ export default function HeroAnimated({ stats }: Props) {
         .hk-hero-etiketler { gap: 10px; margin-top: 20px; }
         .hk-hero-etiketler a { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px 8px 10px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E4E0D8; font-size: 14px; font-weight: 600; color: #12294D; text-decoration: none; transition: border-color .15s, box-shadow .15s; }
         .hk-hero-etiketler a:hover { border-color: #C1CEE2; box-shadow: 0 4px 12px -6px rgba(18,41,77,.25); }
-        @media (max-width: 1080px) { .hk-hero-baslik { font-size: 48px; line-height: 52px; } .hk-hero-baslik-kutu { min-height: 104px; } }
         @media (max-width: 640px) {
-          .hk-hero-panel { padding: 40px 20px 48px; }
-          .hk-hero-logo { margin-bottom: 18px; }
-          .hk-hero-baslik-kutu { min-height: 120px; }
-          .hk-hero-alt-kutu { min-height: 72px; margin-bottom: 24px; }
-          .hk-hero-baslik { font-size: 36px; line-height: 40px; }
-          .hk-hero-alt { font-size: 16px; line-height: 24px; }
+          .hk-hero-panel { padding: 20px 14px 24px; }
           .hk-hero-arama__alan, .hk-hero-arama__konum, .hk-hero-arama__btn { flex-basis: 100%; }
           .hk-hero-arama__konum::before { left: 16px; right: 16px; top: -2px; bottom: auto; width: auto; height: 1px; }
           .hk-konum-dd { left: 0; right: 0; width: auto; transform: none; max-height: 300px; animation: none; }
@@ -762,7 +693,7 @@ export default function HeroAnimated({ stats }: Props) {
         .hekim-serit-etiket {
           flex-shrink: 0; padding: 3px 10px; border-radius: 999px;
           background: var(--gold-fill); color: var(--on-gold);
-          font-size: 10.5px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase;
+          font-size: 10.5px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase;
         }
         .hekim-serit-metin {
           position: relative; display: block; overflow: hidden;
@@ -806,28 +737,6 @@ export default function HeroAnimated({ stats }: Props) {
       {/* İçerik */}
       <div className="container" style={{ position: 'relative', zIndex: 4 }}>
        <div className="hk-hero-panel">
-
-        {/* Hareketli marka işareti — yalnız bir kez oynar, sonra sabit kalır */}
-        <div className="hk-hero-logo"><HkLogoAnim size={38} hover={false} /></div>
-
-        {/* Başlık — sırayla döner: ilki hastalara (SSR'da ve arama motorunda görünen), diğerleri hekimlere */}
-        <div className={`hk-hero-surukle${surukle.suruk ? ' is-suruk' : ''}`} {...surukle.baglar} style={surukle.stil}>
-          <div className="hk-hero-baslik-kutu">
-            <h1 className="hk-hero-baslik"><span key={b} className={`hk-hero-don${soluk ? ' is-soluk' : ''}${yon < 0 ? ' hk-yon-geri' : ''}${kaydi ? (yon < 0 ? ' hk-giris-geri' : ' hk-giris-ileri') : ''}`}>{basliklar[b].baslik}</span></h1>
-          </div>
-          <div className="hk-hero-alt-kutu">
-            <p className="hk-hero-alt"><span key={b} className={`hk-hero-don hk-hero-don--alt${soluk ? ' is-soluk' : ''}${yon < 0 ? ' hk-yon-geri' : ''}${kaydi ? (yon < 0 ? ' hk-giris-geri' : ' hk-giris-ileri') : ''}`}>{basliklar[b].alt}</span></p>
-          </div>
-        </div>
-        <div className="hk-hero-noktalar" role="tablist" aria-label="Başlıklar">
-          {basliklar.map((x, i) => (
-            <button key={x.baslik} type="button" role="tab" aria-selected={i === b} aria-label={x.baslik}
-              className={i === b ? 'is-aktif' : undefined} onClick={() => { if (i !== b) gec(i, i > b ? 1 : -1); }}>
-              {/* Kalan süre: dolgu sağdan sola kısalır; bitince sıradaki başlığa geçilir */}
-              {i === b && <span key={b} style={{ animationDuration: `${b === 0 ? SURE_ILK : SURE_DIGER}ms` }} />}
-            </button>
-          ))}
-        </div>
 
         {/* ── Canlı Arama ─────────────────────────────────────────── */}
         <LiveSearchForm mounted={mounted} />

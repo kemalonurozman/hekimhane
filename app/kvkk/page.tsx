@@ -37,7 +37,7 @@ export default function KVKKPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
             <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(184,137,47,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>🔒</div>
             <div>
-              <h1 style={{ fontSize: 'clamp(24px,4vw,36px)', fontWeight: 800, margin: 0 }}>KVKK Aydınlatma Metni</h1>
+              <h1 style={{ fontSize: 'clamp(24px,4vw,36px)', fontWeight: 600, margin: 0 }}>KVKK Aydınlatma Metni</h1>
               <p style={{ margin: '6px 0 0', color: 'rgba(255,255,255,.7)', fontSize: 15 }}>6698 Sayılı Kişisel Verilerin Korunması Kanunu</p>
             </div>
           </div>
@@ -55,7 +55,7 @@ export default function KVKKPage() {
 
           {/* 1 */}
           <section id="veri-sorumlusu" style={{ marginBottom: 40 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
               1. Veri Sorumlusu
             </h2>
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15 }}>
@@ -68,7 +68,7 @@ export default function KVKKPage() {
 
           {/* 2 */}
           <section id="kisisel-veriler" style={{ marginBottom: 40 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
               2. İşlenen Kişisel Veriler
             </h2>
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, marginBottom: 16 }}>Platform kullanımı sırasında aşağıdaki kişisel veriler işlenebilir:</p>
@@ -84,7 +84,7 @@ export default function KVKKPage() {
               ].map(item => (
                 <div key={item.title} style={{ padding: '14px 16px', background: '#F9FAFB', borderRadius: 10, border: '1px solid #E5E7EB' }}>
                   <div style={{ fontSize: 20, marginBottom: 6 }}>{item.icon}</div>
-                  <div style={{ fontWeight: 700, fontSize: 13, color: '#1F2937', marginBottom: 4 }}>{item.title}</div>
+                  <div style={{ fontWeight: 600, fontSize: 13, color: '#1F2937', marginBottom: 4 }}>{item.title}</div>
                   <div style={{ fontSize: 12, color: '#6B7280' }}>{item.desc}</div>
                 </div>
               ))}
@@ -93,7 +93,7 @@ export default function KVKKPage() {
 
           {/* 3 */}
           <section id="isleme-amaci" style={{ marginBottom: 40 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
               3. Kişisel Verilerin İşlenme Amacı
             </h2>
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, marginBottom: 16 }}>Kişisel verileriniz aşağıdaki amaçlarla işlenmektedir:</p>
@@ -110,7 +110,7 @@ export default function KVKKPage() {
 
           {/* 4 */}
           <section id="hukuki-sebep" style={{ marginBottom: 40 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
               4. Hukuki Dayanak
             </h2>
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, marginBottom: 16 }}>Kişisel verileriniz KVKK Madde 5 kapsamında aşağıdaki hukuki sebeplere dayanılarak işlenmektedir:</p>
@@ -123,7 +123,7 @@ export default function KVKKPage() {
                 { label: 'KVKK m.5/1',   text: 'Açık rıza (bülten aboneliği, pazarlama çerezleri)' },
               ].map(item => (
                 <div key={item.label} style={{ display: 'flex', gap: 12, padding: '12px 16px', background: '#F9FAFB', borderRadius: 10, border: '1px solid #E5E7EB', fontSize: 14 }}>
-                  <span style={{ fontWeight: 700, color: 'var(--navy)', minWidth: 100 }}>{item.label}</span>
+                  <span style={{ fontWeight: 600, color: 'var(--navy)', minWidth: 100 }}>{item.label}</span>
                   <span style={{ color: '#374151' }}>{item.text}</span>
                 </div>
               ))}
@@ -132,7 +132,7 @@ export default function KVKKPage() {
 
           {/* 5 */}
           <section id="aktarim" style={{ marginBottom: 40 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
               5. Kişisel Verilerin Aktarımı
             </h2>
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, marginBottom: 16 }}>Kişisel verileriniz; KVKK'nın 8. ve 9. maddeleri uyarınca aşağıdaki alıcı gruplarına aktarılabilir:</p>
@@ -153,7 +153,7 @@ export default function KVKKPage() {
 
           {/* 6 */}
           <section id="sure" style={{ marginBottom: 40 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
               6. Saklama Süresi
             </h2>
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, marginBottom: 16 }}>
@@ -178,7 +178,7 @@ export default function KVKKPage() {
 
           {/* 7 */}
           <section id="haklar" style={{ marginBottom: 40 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
               7. İlgili Kişi Hakları
             </h2>
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, marginBottom: 20 }}>
@@ -197,7 +197,7 @@ export default function KVKKPage() {
               ].map(item => (
                 <div key={item.hak} style={{ padding: '14px 16px', background: '#F9FAFB', borderRadius: 10, border: '1px solid #E5E7EB' }}>
                   <div style={{ fontSize: 18, marginBottom: 6 }}>{item.emoji}</div>
-                  <div style={{ fontWeight: 700, fontSize: 13, color: '#1F2937', marginBottom: 4 }}>{item.hak}</div>
+                  <div style={{ fontWeight: 600, fontSize: 13, color: '#1F2937', marginBottom: 4 }}>{item.hak}</div>
                   <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.5 }}>{item.aciklama}</div>
                 </div>
               ))}
@@ -206,7 +206,7 @@ export default function KVKKPage() {
 
           {/* 8 */}
           <section id="basvuru">
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--navy)', borderBottom: '2px solid var(--border)', paddingBottom: 10, marginBottom: 20 }}>
               8. Başvuru Yöntemi
             </h2>
             <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, marginBottom: 16 }}>
@@ -221,7 +221,7 @@ export default function KVKKPage() {
                 <div key={item.label} style={{ display: 'flex', gap: 14, padding: '14px 18px', background: 'white', borderRadius: 10, border: '1px solid var(--border)', alignItems: 'flex-start' }}>
                   <span style={{ fontSize: 22, flexShrink: 0 }}>{item.icon}</span>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy)', marginBottom: 2 }}>{item.label}</div>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--navy)', marginBottom: 2 }}>{item.label}</div>
                     <div style={{ fontSize: 14, color: '#374151' }}>{item.value}</div>
                     <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{item.note}</div>
                   </div>
@@ -239,7 +239,7 @@ export default function KVKKPage() {
         <aside style={{ position: 'sticky', top: 24 }}>
           <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px', background: 'var(--navy)', color: 'white' }}>
-              <div style={{ fontWeight: 700, fontSize: 14 }}>📑 İçindekiler</div>
+              <div style={{ fontWeight: 600, fontSize: 14 }}>📑 İçindekiler</div>
             </div>
             <nav style={{ padding: '12px 0' }}>
               {sections.map(s => (
@@ -256,7 +256,7 @@ export default function KVKKPage() {
           </div>
 
           <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 16, padding: '20px', marginTop: 16 }}>
-            <div style={{ fontWeight: 700, fontSize: 14, color: '#92400E', marginBottom: 8 }}>📋 İlgili Belgeler</div>
+            <div style={{ fontWeight: 600, fontSize: 14, color: '#92400E', marginBottom: 8 }}>📋 İlgili Belgeler</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <Link href="/gizlilik" style={{ fontSize: 13, color: '#92400E', textDecoration: 'none', display: 'flex', gap: 6, alignItems: 'center' }}>
                 <span>🔒</span> Gizlilik Politikası
@@ -272,7 +272,7 @@ export default function KVKKPage() {
 
           <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 16, padding: '20px', marginTop: 16, textAlign: 'center' }}>
             <div style={{ fontSize: 28, marginBottom: 8 }}>✉️</div>
-            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy)', marginBottom: 6 }}>KVKK Başvurusu</div>
+            <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--navy)', marginBottom: 6 }}>KVKK Başvurusu</div>
             <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 12, lineHeight: 1.5 }}>Haklarınızı kullanmak için bizimle iletişime geçin.</p>
             <a href={`mailto:${SIRKET.kvkkEposta}`} className="btn btn-navy" style={{ fontSize: 13, display: 'block', textAlign: 'center' }}>
               Başvuru Yap

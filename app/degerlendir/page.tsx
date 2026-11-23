@@ -28,7 +28,7 @@ export default async function DegerlendirPage({ searchParams }: { searchParams: 
     <Kutu>
       <div style={{ background: '#fff', borderRadius: 24, padding: '36px 30px', textAlign: 'center', boxShadow: 'inset 0 0 0 1px #E6E8EC' }}>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}><HkIcon name="info" size={40} /></div>
-        <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, letterSpacing: '-0.02em', color: '#0E1A2C' }}>{baslik}</h1>
+        <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 600, letterSpacing: '-0.01em', color: '#0E1A2C' }}>{baslik}</h1>
         <p style={{ margin: '10px auto 22px', maxWidth: 420, fontSize: 15, lineHeight: 1.6, color: '#586273' }}>{metin}</p>
         <Link href="/" className="vt-dugme vt-dugme--koyu">Ana sayfaya dön</Link>
       </div>
@@ -48,7 +48,7 @@ export default async function DegerlendirPage({ searchParams }: { searchParams: 
   return (
     <Kutu>
       <p className="vt-ustyazi">Onaylı hasta değerlendirmesi</p>
-      <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 5vw, 38px)', lineHeight: 1.1, fontWeight: 800, letterSpacing: '-0.035em', color: '#0E1A2C' }}>
+      <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 5vw, 38px)', lineHeight: 1.1, fontWeight: 600, letterSpacing: '-0.0175em', color: '#0E1A2C' }}>
         {t.entity_name || isletme.ad || 'İşletme'}
       </h1>
       {isletme.konum && <p style={{ margin: '8px 0 0', fontSize: 15, color: '#586273' }}>{isletme.konum}</p>}

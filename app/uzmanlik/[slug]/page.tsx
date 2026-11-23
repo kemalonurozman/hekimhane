@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const KART: React.CSSProperties = { background: 'white', border: '1px solid var(--border)', borderRadius: 18, padding: '26px 28px', boxShadow: '0 1px 4px rgba(0,0,0,.05)' };
-const H2: React.CSSProperties = { fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 800, color: 'var(--navy)', margin: '0 0 14px' };
+const H2: React.CSSProperties = { fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 600, color: 'var(--navy)', margin: '0 0 14px' };
 const chip: React.CSSProperties = { padding: '8px 14px', borderRadius: 20, background: 'white', border: '1px solid var(--border)', color: 'var(--navy)', fontSize: 13, fontWeight: 600, textDecoration: 'none' };
 
 const BUYUK_SEHIRLER = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya'];
@@ -72,8 +72,8 @@ export default function UzmanlikRehberPage({ params }: Props) {
             <Link href="/uzmanlik" style={{ color: 'rgba(255,255,255,.7)', textDecoration: 'none' }}>Uzmanlık Rehberleri</Link><span>›</span>
             <span style={{ color: 'white' }}>{r.kisaAd}</span>
           </nav>
-          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--navy)', background: 'var(--gold-fill)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>Uzmanlık Rehberi</span>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px,4vw,38px)', fontWeight: 800, color: 'white', lineHeight: 1.2, margin: '0 0 12px' }}>{r.ad}</h1>
+          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 600, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--navy)', background: 'var(--gold-fill)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>Uzmanlık Rehberi</span>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px,4vw,38px)', fontWeight: 600, color: 'white', lineHeight: 1.2, margin: '0 0 12px' }}>{r.ad}</h1>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,.85)', lineHeight: 1.6, maxWidth: 700, margin: 0 }}>{r.ozet}</p>
         </div>
       </div>
@@ -104,11 +104,11 @@ export default function UzmanlikRehberPage({ params }: Props) {
             {r.surec.map((s, i) => (
               <div key={i} style={{ display: 'flex', gap: 14, paddingBottom: i < r.surec.length - 1 ? 18 : 0 }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--navy)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, flexShrink: 0 }}>{i + 1}</div>
+                  <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--navy)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, flexShrink: 0 }}>{i + 1}</div>
                   {i < r.surec.length - 1 && <div style={{ width: 2, flex: 1, background: 'var(--border)', marginTop: 4 }} />}
                 </div>
                 <div style={{ paddingBottom: 4 }}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--navy)', marginBottom: 3 }}>{s.baslik}</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy)', marginBottom: 3 }}>{s.baslik}</div>
                   <div style={{ fontSize: 14, color: '#3A3A3C', lineHeight: 1.6 }}>{s.aciklama}</div>
                 </div>
               </div>
@@ -121,7 +121,7 @@ export default function UzmanlikRehberPage({ params }: Props) {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
           </span>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--navy)', marginBottom: 4 }}>Fiyat Hakkında</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy)', marginBottom: 4 }}>Fiyat Hakkında</div>
             <p style={{ fontSize: 14.5, color: '#3A3A3C', lineHeight: 1.65, margin: 0 }}>{r.fiyatNot}</p>
           </div>
         </section>
@@ -137,7 +137,7 @@ export default function UzmanlikRehberPage({ params }: Props) {
               <Link key={c} href={`/dis-tedavileri/${toSlug(c)}/${toSlug(r.spec)}`} style={chip}>{c} {r.kisaAd}</Link>
             ))}
           </div>
-          <Link href={`/klinikler?uzmanlik=${encodeURIComponent(r.spec)}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--navy)', color: 'white', fontSize: 14, fontWeight: 700, borderRadius: 11, padding: '11px 20px', textDecoration: 'none' }}>
+          <Link href={`/klinikler?uzmanlik=${encodeURIComponent(r.spec)}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--navy)', color: 'white', fontSize: 14, fontWeight: 600, borderRadius: 11, padding: '11px 20px', textDecoration: 'none' }}>
             Tüm {r.kisaAd.toLowerCase()} kliniklerini gör →
           </Link>
         </section>
@@ -148,7 +148,7 @@ export default function UzmanlikRehberPage({ params }: Props) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {r.sss.map((s, i) => (
               <div key={i} style={{ borderBottom: i < r.sss.length - 1 ? '1px solid var(--border)' : 'none', paddingBottom: i < r.sss.length - 1 ? 16 : 0 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--navy)', marginBottom: 6 }}>{s.soru}</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{s.soru}</div>
                 <div style={{ fontSize: 14.5, color: '#3A3A3C', lineHeight: 1.65 }}>{s.cevap}</div>
               </div>
             ))}

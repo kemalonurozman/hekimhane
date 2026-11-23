@@ -17,16 +17,16 @@ const CSS = `
 .euk-bant{background:linear-gradient(180deg,#FBFBFD 0%,#F2F4F8 100%);padding:8px 0 56px;scroll-margin-top:72px}
 .euk-kart{position:relative;overflow:hidden;border-radius:28px;background:radial-gradient(120% 140% at 100% 0%,#1E4A82 0%,#12294D 46%,#0B1B35 100%);color:#fff;padding:44px 48px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:44px;align-items:center;box-shadow:0 24px 60px -28px rgba(18,41,77,.55)}
 .euk-kart::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(222,194,131,.10) 48%,transparent 62%);transform:translateX(-60%);animation:eukIsik 7s ease-in-out infinite;pointer-events:none}
-.euk-rozet{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#DEC283;background:rgba(222,194,131,.12);border:1px solid rgba(222,194,131,.35);border-radius:999px;padding:6px 12px}
+.euk-rozet{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#DEC283;background:rgba(222,194,131,.12);border:1px solid rgba(222,194,131,.35);border-radius:999px;padding:6px 12px}
 .euk-rozet i{width:7px;height:7px;border-radius:50%;background:#DEC283;box-shadow:0 0 0 0 rgba(222,194,131,.7);animation:eukNabiz 1.8s ease-out infinite}
-.euk-h{font-size:clamp(28px,3.6vw,42px);line-height:1.08;letter-spacing:-1.4px;font-weight:700;margin:16px 0 14px}
+.euk-h{font-size:clamp(28px,3.6vw,42px);line-height:1.08;letter-spacing:-0.7px;font-weight:600;margin:16px 0 14px}
 .euk-h em{font-style:normal;background:linear-gradient(90deg,#DEC283,#C9A04A 60%,#F3DFA8);-webkit-background-clip:text;background-clip:text;color:transparent}
 .euk-p{font-size:16px;line-height:1.6;color:rgba(255,255,255,.78);margin:0 0 20px;max-width:540px}
 .euk-ozler{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 26px;padding:0;list-style:none}
 .euk-ozler li{font-size:13px;font-weight:600;color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:7px 12px;display:inline-flex;align-items:center;gap:6px}
 .euk-ozler svg{color:#DEC283;flex-shrink:0}
 .euk-dugmeler{display:flex;flex-wrap:wrap;gap:10px}
-.euk-d{display:inline-flex;align-items:center;gap:8px;min-height:50px;padding:0 22px;border-radius:14px;font-size:15px;font-weight:700;text-decoration:none;transition:transform .2s ease,background .2s ease}
+.euk-d{display:inline-flex;align-items:center;gap:8px;min-height:50px;padding:0 22px;border-radius:14px;font-size:15px;font-weight:600;text-decoration:none;transition:transform .2s ease,background .2s ease}
 .euk-d:hover{transform:translateY(-2px)}
 .euk-d--altin{color:#12294D}
 .euk-d--cerceve{color:#fff;border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.04)}
@@ -34,7 +34,7 @@ const CSS = `
 .euk-guvence{font-size:13px;color:rgba(255,255,255,.6);margin:16px 0 0}
 .euk-kont{position:relative;width:100%;max-width:380px;justify-self:end;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:24px}
 .euk-kont-ust{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:18px}
-.euk-sayi{font-size:52px;font-weight:700;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums;color:#fff}
+.euk-sayi{font-size:52px;font-weight:600;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;color:#fff}
 .euk-sayi small{white-space:nowrap;font-size:15px;font-weight:600;letter-spacing:0;color:rgba(255,255,255,.65);margin-left:8px}
 .euk-etiket{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.55);text-align:right}
 .euk-izgara{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:5px}
@@ -46,10 +46,10 @@ const CSS = `
 .euk-lejant b{width:10px;height:10px;border-radius:50%;display:inline-block}
 .euk-not{font-size:12px;color:rgba(255,255,255,.5);margin:14px 0 0;line-height:1.5}
 .eud{margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.12)}
-.eud-baslik{font-size:15px;font-weight:700;color:#fff;margin:0 0 3px;letter-spacing:-.2px}
+.eud-baslik{font-size:15px;font-weight:600;color:#fff;margin:0 0 3px;letter-spacing:-.2px}
 .eud-alt{font-size:12.5px;color:rgba(255,255,255,.6);margin:0 0 12px}
 .eud-dugmeler{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.eud-d{min-width:0;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:46px;padding:0 14px;border-radius:13px;font:inherit;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;border:0;transition:transform .15s ease,filter .15s ease}
+.eud-d{min-width:0;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:46px;padding:0 14px;border-radius:13px;font:inherit;font-size:14px;font-weight:600;text-decoration:none;cursor:pointer;border:0;transition:transform .15s ease,filter .15s ease}
 .eud-d:hover{transform:translateY(-1px);filter:brightness(1.06)}
 .eud-d:focus-visible{outline:2px solid #DEC283;outline-offset:2px}
 .eud-d--wa{background:#25D366;color:#0B2A17}

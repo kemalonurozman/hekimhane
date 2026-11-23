@@ -118,10 +118,10 @@ export default function ProfilFotoKarti({ url, tip, durum, puanli, onDosya, onKa
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
             <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: C.navy }}>En önemli adım</span>
             {puanli && !var_ && (
-              <span style={{ fontSize: 11, fontWeight: 700, color: C.green, background: 'rgba(31,138,76,.1)', padding: '2px 8px', borderRadius: 20 }}>+10 profil puanı</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: C.green, background: 'rgba(31,138,76,.1)', padding: '2px 8px', borderRadius: 20 }}>+10 profil puanı</span>
             )}
           </div>
-          <h3 style={{ margin: 0, fontSize: 21, fontWeight: 700, letterSpacing: '-0.5px', color: C.text, lineHeight: 1.2 }}>
+          <h3 style={{ margin: 0, fontSize: 21, fontWeight: 600, letterSpacing: '-0.25px', color: C.text, lineHeight: 1.2 }}>
             İyi bir profil, iyi bir fotoğrafla başlar.
           </h3>
           <p style={{ margin: '6px 0 0', fontSize: 14, color: C.muted, lineHeight: 1.5 }}>

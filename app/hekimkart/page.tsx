@@ -183,7 +183,7 @@ function KartDugme({ ikon, ust, ad, tur }: { ikon: HkIkonAdi; ust: string; ad: s
       </span>
       <span style={{ minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.25 }}>
         <small style={{ fontSize: 10, opacity: .78, fontWeight: 500 }}>{ust}</small>
-        <b style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ad}</b>
+        <b style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ad}</b>
       </span>
     </div>
   );
@@ -193,7 +193,7 @@ function SosyalSatir({ kucuk = false }: { kucuk?: boolean }) {
   return (
     <div style={{ display: 'flex', gap: 6 }}>
       {SOSYAL.map(s => (
-        <span key={s.ad} style={{ flex: 1, minWidth: 0, padding: kucuk ? '7px 4px' : '8px 4px', borderRadius: 10, background: s.zemin, color: '#fff', fontSize: kucuk ? 10.5 : 11, fontWeight: 700, textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.ad}</span>
+        <span key={s.ad} style={{ flex: 1, minWidth: 0, padding: kucuk ? '7px 4px' : '8px 4px', borderRadius: 10, background: s.zemin, color: '#fff', fontSize: kucuk ? 10.5 : 11, fontWeight: 600, textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.ad}</span>
       ))}
     </div>
   );
@@ -207,13 +207,13 @@ function Sahne() {
         <div className="vt-h-belir" style={{ position: 'relative', width: 'min(290px, 100%)', borderRadius: 22, overflow: 'hidden', background: '#fff', boxShadow: '0 24px 50px -24px rgba(18,41,77,.55), inset 0 0 0 1px #E6E8EC' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, padding: '20px 16px 14px', background: 'radial-gradient(120% 90% at 50% 0%, #143a6b 0%, #0d2547 55%, #0a1f3d 100%)', color: '#fff', textAlign: 'center' }}>
             <AvatarIllustration />
-            <strong style={{ marginTop: 4, fontSize: 16, letterSpacing: '-.02em' }}>Dr. Dt. Elif Yılmaz</strong>
+            <strong style={{ marginTop: 4, fontSize: 16, letterSpacing: '-.01em' }}>Dr. Dt. Elif Yılmaz</strong>
             <span style={{ fontSize: 11.5, fontWeight: 600, color: '#DEC283' }}>Ağız, Diş ve Çene Cerrahisi</span>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', marginTop: 3 }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 999, background: 'rgba(16,185,129,.16)', boxShadow: 'inset 0 0 0 1px rgba(16,185,129,.4)', color: '#6EE7B7', fontSize: 10.5, fontWeight: 700 }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 999, background: 'rgba(16,185,129,.16)', boxShadow: 'inset 0 0 0 1px rgba(16,185,129,.4)', color: '#6EE7B7', fontSize: 10.5, fontWeight: 600 }}>
                 <HkIcon name="verified" size={12} color="#6EE7B7" accent={false} />Onaylı Hekim
               </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 999, background: 'rgba(222,194,131,.16)', boxShadow: 'inset 0 0 0 1px rgba(222,194,131,.35)', color: '#DEC283', fontSize: 10.5, fontWeight: 700 }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 999, background: 'rgba(222,194,131,.16)', boxShadow: 'inset 0 0 0 1px rgba(222,194,131,.35)', color: '#DEC283', fontSize: 10.5, fontWeight: 600 }}>
                 <HkIcon name="star-rating" size={12} color="#DEC283" accent={false} />4,9 · 128
               </span>
             </div>
@@ -238,7 +238,7 @@ function Sahne() {
               </span>
             </span>
           </div>
-          <div style={{ marginTop: 7, fontSize: 10.5, fontWeight: 700, color: '#12294D', textAlign: 'center' }}>Okutun, karta gidin</div>
+          <div style={{ marginTop: 7, fontSize: 10.5, fontWeight: 600, color: '#12294D', textAlign: 'center' }}>Okutun, karta gidin</div>
         </div>
       </div>
     </OzSahne>
@@ -288,7 +288,7 @@ function MiniGuven() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, width: '100%', maxWidth: 230 }}>
       <div style={{ width: '100%' }}><SosyalSatir kucuk /></div>
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE', fontSize: 12, fontWeight: 700, color: '#12294D' }}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE', fontSize: 12, fontWeight: 600, color: '#12294D' }}>
         <HkIcon name="verified" size={15} color="#1E8E5A" accent={false} />Onaylı Hekim
       </span>
     </div>

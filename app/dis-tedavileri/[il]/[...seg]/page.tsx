@@ -229,7 +229,7 @@ export default async function DisTedaviPage({ params }: Props) {
             <span>›</span><span style={{ color: 'white', fontWeight: 600 }}>{label}</span>
           </nav>
 
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, letterSpacing: '-0.5px', margin: 0 }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 600, letterSpacing: '-0.25px', margin: 0 }}>
             {problem ? <>{yerBaslik}&apos;da {label}</> : genelListe ? <>{yerBaslik}&apos;da {label} İçin Diş Klinikleri</> : <>{yerBaslik} {label}</>}
           </h1>
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,.85)', marginTop: 8, maxWidth: 760, lineHeight: 1.6 }}>
@@ -242,16 +242,16 @@ export default async function DisTedaviPage({ params }: Props) {
               : <>{yer}&apos;da <strong>{label}</strong> hizmeti veren {sorted.length} diş hekimi ve klinik. Puanları, hasta yorumları ve iletişim bilgileriyle karşılaştırın, size en uygun uzmanı bulun.</>}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600 }}>
               <i className="fa-solid fa-tooth" style={{ color: 'var(--gold)' }} /> {sorted.length} sonuç
             </span>
             {problem?.hastalikSlug && (
-              <Link href={`/hastaliklar/dis-sagligi/${problem.hastalikSlug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'var(--gold-fill)', color: 'var(--navy)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+              <Link href={`/hastaliklar/dis-sagligi/${problem.hastalikSlug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'var(--gold-fill)', color: 'var(--navy)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                 <i className="fa-solid fa-book-medical" /> {label} nedir? Rehber →
               </Link>
             )}
             {(() => { const rb = rehberBySpec(spec); return rb ? (
-              <Link href={`/uzmanlik/${rb.slug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'var(--gold-fill)', color: 'var(--navy)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+              <Link href={`/uzmanlik/${rb.slug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'var(--gold-fill)', color: 'var(--navy)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                 <i className="fa-solid fa-book-medical" /> {rb.kisaAd} rehberi →
               </Link>
             ) : null; })()}
@@ -273,7 +273,7 @@ export default async function DisTedaviPage({ params }: Props) {
                 ? <>Aşağıda önce bu hizmeti veren <strong>en yakın klinikleri</strong>, ardından {yerBaslik}&apos;daki diş kliniklerini listeliyoruz. </>
                 : <>Bu sayfada {yerBaslik}&apos;daki diş kliniklerini listeliyoruz. </>}
               Randevu öncesi bu işlemin yapılıp yapılmadığını klinikle teyit edin.
-              {' '}Kliniğinizi yönetiyorsanız <Link href="/panel" style={{ color: 'var(--navy)', fontWeight: 700 }}>panelden hizmetlerinizi ekleyebilirsiniz</Link>.
+              {' '}Kliniğinizi yönetiyorsanız <Link href="/panel" style={{ color: 'var(--navy)', fontWeight: 600 }}>panelden hizmetlerinizi ekleyebilirsiniz</Link>.
             </div>
           </div>
         )}
@@ -282,7 +282,7 @@ export default async function DisTedaviPage({ params }: Props) {
             etiketli kayıt yokken gösterilir. Bunlar gerçek etiketli kliniklerdir. */}
         {genelListe && yakin.length > 0 && (
           <section style={{ marginBottom: 28 }}>
-            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 800, color: 'var(--navy)', margin: '0 0 4px' }}>
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 600, color: 'var(--navy)', margin: '0 0 4px' }}>
               {label} Hizmeti Veren En Yakın Klinikler
             </h2>
             <p style={{ fontSize: 13.5, color: 'var(--muted)', margin: '0 0 14px', lineHeight: 1.6 }}>
@@ -292,7 +292,7 @@ export default async function DisTedaviPage({ params }: Props) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {yakin.map(y => (
                 <div key={y.klinik.id}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 6, background: 'var(--gold-light,#FDF6E3)', border: '1px solid rgba(184,137,47,.35)', borderRadius: 20, padding: '3px 11px', fontSize: 12, fontWeight: 700, color: 'var(--navy)' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 6, background: 'var(--gold-light,#FDF6E3)', border: '1px solid rgba(184,137,47,.35)', borderRadius: 20, padding: '3px 11px', fontSize: 12, fontWeight: 600, color: 'var(--navy)' }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
                     </svg>
@@ -309,7 +309,7 @@ export default async function DisTedaviPage({ params }: Props) {
 
         {/* Sonuç listesi */}
         {genelListe && yakin.length > 0 && sorted.length > 0 && (
-          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 800, color: 'var(--navy)', margin: '0 0 14px' }}>
+          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 600, color: 'var(--navy)', margin: '0 0 14px' }}>
             {yerBaslik}&apos;daki Diş Klinikleri
           </h2>
         )}
@@ -320,7 +320,7 @@ export default async function DisTedaviPage({ params }: Props) {
         {/* İç linkleme: aynı yerde diğer uzmanlıklar */}
         {relatedSpecs.length > 0 && (
           <section style={{ marginTop: 40 }}>
-            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 700, color: 'var(--navy)', marginBottom: 14 }}>
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 600, color: 'var(--navy)', marginBottom: 14 }}>
               {yerBaslik}'da Diğer Diş Tedavileri
             </h2>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
@@ -335,7 +335,7 @@ export default async function DisTedaviPage({ params }: Props) {
 
         {/* İç linkleme: popüler tedaviler (aynı yer) */}
         <section style={{ marginTop: 32 }}>
-          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 700, color: 'var(--navy)', marginBottom: 14 }}>
+          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 600, color: 'var(--navy)', marginBottom: 14 }}>
             {yerBaslik}'da Popüler Tedaviler
           </h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
@@ -349,7 +349,7 @@ export default async function DisTedaviPage({ params }: Props) {
 
         {/* İç linkleme: sık aranan diş problemleri (aynı yer) */}
         <section style={{ marginTop: 32 }}>
-          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 700, color: 'var(--navy)', marginBottom: 14 }}>
+          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 600, color: 'var(--navy)', marginBottom: 14 }}>
             {yerBaslik}&apos;da Sık Aranan Diş Problemleri
           </h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
@@ -363,7 +363,7 @@ export default async function DisTedaviPage({ params }: Props) {
 
         {/* İç linkleme: diğer büyük şehirlerde aynı hizmet */}
         <section style={{ marginTop: 32 }}>
-          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 700, color: 'var(--navy)', marginBottom: 14 }}>
+          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 600, color: 'var(--navy)', marginBottom: 14 }}>
             Diğer Şehirlerde {label}
           </h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
@@ -375,13 +375,13 @@ export default async function DisTedaviPage({ params }: Props) {
 
         {/* SSS — içerik zenginliği + FAQPage schema */}
         <section style={{ marginTop: 40 }}>
-          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 700, color: 'var(--navy)', marginBottom: 16 }}>
+          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 600, color: 'var(--navy)', marginBottom: 16 }}>
             Sıkça Sorulan Sorular
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {faq.map((f, i) => (
               <div key={i} style={{ background: 'white', borderRadius: 14, border: '1px solid var(--border)', padding: '16px 18px' }}>
-                <h3 style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--navy)', marginBottom: 6 }}>{f.q}</h3>
+                <h3 style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{f.q}</h3>
                 <p style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.6, margin: 0 }}>{f.a}</p>
               </div>
             ))}

@@ -50,8 +50,8 @@ export default async function BobathIlPage({ params }: Props) {
             <Link href="/bobath-terapistleri" style={{ color: 'inherit', textDecoration: 'none' }}>Bobath Terapistleri</Link><span>›</span>
             <span style={{ color: 'white', fontWeight: 600 }}>{il}</span>
           </nav>
-          <div style={{ display: 'inline-block', fontSize: 10, fontWeight: 700, color: '#065F46', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 20, padding: '3px 11px', marginBottom: 12 }}>BOBATH TERAPİSTİ</div>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, letterSpacing: '-0.5px', margin: 0 }}>
+          <div style={{ display: 'inline-block', fontSize: 10, fontWeight: 600, color: '#065F46', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 20, padding: '3px 11px', marginBottom: 12 }}>BOBATH TERAPİSTİ</div>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 600, letterSpacing: '-0.25px', margin: 0 }}>
             {il} Bobath Terapistleri
           </h1>
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,.85)', marginTop: 8 }}>
@@ -64,7 +64,7 @@ export default async function BobathIlPage({ params }: Props) {
         {/* Katıl çağrısı */}
         <div style={{ background: '#FEFCE8', border: '1px solid #FDE68A', borderRadius: 12, padding: '12px 16px', marginBottom: 20, fontSize: 13, color: '#854D0E', display: 'flex', gap: 10, alignItems: 'center' }}>
           <i className="fa-solid fa-circle-info" />
-          <span>Bu listedeki terapist sizseniz, <Link href="/katil" style={{ color: '#854D0E', fontWeight: 700 }}>profilinizi sahiplenerek</Link> iletişim bilgilerinizi görünür yapabilir ve profilinizi yönetebilirsiniz.</span>
+          <span>Bu listedeki terapist sizseniz, <Link href="/katil" style={{ color: '#854D0E', fontWeight: 600 }}>profilinizi sahiplenerek</Link> iletişim bilgilerinizi görünür yapabilir ve profilinizi yönetebilirsiniz.</span>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 12 }}>
@@ -74,7 +74,7 @@ export default async function BobathIlPage({ params }: Props) {
             return (
               <div key={d.id} style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 14, padding: '16px 18px' }}>
                 <Link href={`/doktorlar/${d.slug}`} style={{ textDecoration: 'none' }}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--navy)' }}>{d.unvan ? d.unvan + ' ' : ''}{d.ad} {d.soyad}</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy)' }}>{d.unvan ? d.unvan + ' ' : ''}{d.ad} {d.soyad}</div>
                 </Link>
                 <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>Bobath Terapisti · {d.spec}</div>
                 <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{[d.ilce, d.il].filter(Boolean).join(', ')}</div>

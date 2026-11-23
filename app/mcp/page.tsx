@@ -169,7 +169,7 @@ export default function McpPage() {
           <h2 className="vt-h2">Asistanınızın yapabildikleri</h2>
           <p className="vt-govde">
             {ARACLAR.length} araç. <strong style={{ color: '#8A6A1F' }}>İşlem</strong> etiketli araçlar veri değiştirir veya e-posta gönderir, bu yüzden onayınız istenir. Kurulum kodları için{' '}
-            <a href="#kurulum" style={{ color: '#12294D', fontWeight: 700 }}>Kurulum</a> bölümüne bakın.
+            <a href="#kurulum" style={{ color: '#12294D', fontWeight: 600 }}>Kurulum</a> bölümüne bakın.
           </p>
           <div className="vt-izgara oz-kanal-izgara">
             {GRUPLAR.map(g => {
@@ -231,13 +231,13 @@ export default function McpPage() {
             <code style={KOD_SATIR}>{YER_TUTUCU}</code> yazan yere anahtarınızı koyun.
           </p>
           <p className="vt-govde" style={{ maxWidth: 780, marginTop: 12 }}>
-            Anahtarı <Link href="/panel" style={{ color: '#12294D', fontWeight: 700 }}>panelden</Link> oluşturabilirsiniz; MCP bağlantısı{' '}
-            <Link href="/pro" style={{ color: '#12294D', fontWeight: 700 }}>Hekimhane-Pro</Link>&apos;ya dahildir.
+            Anahtarı <Link href="/panel" style={{ color: '#12294D', fontWeight: 600 }}>panelden</Link> oluşturabilirsiniz; MCP bağlantısı{' '}
+            <Link href="/pro" style={{ color: '#12294D', fontWeight: 600 }}>Hekimhane-Pro</Link>&apos;ya dahildir.
           </p>
           <div className="oz-panel" style={{ display: 'flex', flexDirection: 'column' }}>
             {istemciler.map((k, i) => (
               <div key={k} style={{ minWidth: 0, paddingTop: i === 0 ? 0 : 26, paddingBottom: i === istemciler.length - 1 ? 0 : 26, borderTop: i === 0 ? 0 : '1px solid #EDEFF2' }}>
-                <h3 style={{ margin: '0 0 6px', fontSize: 19, fontWeight: 800, letterSpacing: '-.02em', color: '#0E1A2C' }}>{ISTEMCI_BILGI[k].ad}</h3>
+                <h3 style={{ margin: '0 0 6px', fontSize: 19, fontWeight: 600, letterSpacing: '-.01em', color: '#0E1A2C' }}>{ISTEMCI_BILGI[k].ad}</h3>
                 <p style={{ margin: '0 0 12px', fontSize: 14.5, lineHeight: 1.55, color: '#3C4A61' }}>{ISTEMCI_BILGI[k].nereye}</p>
                 <pre style={{ margin: 0, maxWidth: '100%', padding: '14px 16px', borderRadius: 14, background: '#0E1A2C', color: '#E2E8F0', fontSize: 12.5, lineHeight: 1.6, overflowX: 'auto' }}>{kurulumKodu(k, YER_TUTUCU)}</pre>
               </div>
@@ -320,7 +320,7 @@ function MiniAnahtar() {
   const satirlar = [{ ad: 'Claude Masaüstü', k: 'hkm_••••3f2a' }, { ad: 'Claude Code', k: 'hkm_••••91c7' }];
   return (
     <div className="oz-mo" style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12.5, fontWeight: 800, color: '#0E1A2C' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12.5, fontWeight: 600, color: '#0E1A2C' }}>
         <HkIcon name="user-account" size={16} color="#12294D" />MCP anahtarları
       </div>
       {satirlar.map(r => (
@@ -329,7 +329,7 @@ function MiniAnahtar() {
             <b style={{ display: 'block', fontSize: 11.5, color: '#0E1A2C' }}>{r.ad}</b>
             <code style={{ fontSize: 10.5, color: '#586273' }}>{r.k}</code>
           </span>
-          <span style={{ padding: '3px 8px', borderRadius: 999, background: '#FDECEA', color: '#B42318', fontSize: 10.5, fontWeight: 800 }}>İptal et</span>
+          <span style={{ padding: '3px 8px', borderRadius: 999, background: '#FDECEA', color: '#B42318', fontSize: 10.5, fontWeight: 600 }}>İptal et</span>
         </div>
       ))}
     </div>
@@ -340,13 +340,13 @@ function MiniAsistanlar() {
   const a = ['Claude', 'ChatGPT', 'Cursor', 'Otomasyon'];
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, width: '100%', maxWidth: 230 }}>
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999, background: '#12294D', color: '#fff', fontSize: 12, fontWeight: 800 }}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999, background: '#12294D', color: '#fff', fontSize: 12, fontWeight: 600 }}>
         <HkIcon name="clinic" size={15} color="#fff" accent="#DEC283" />Hekimhane MCP
       </span>
       <div style={{ width: 2, height: 12, background: '#C7D2E4' }} />
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 6 }}>
         {a.map(x => (
-          <span key={x} style={{ padding: '5px 10px', borderRadius: 9, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE', color: '#12294D', fontSize: 11.5, fontWeight: 700 }}>{x}</span>
+          <span key={x} style={{ padding: '5px 10px', borderRadius: 9, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE', color: '#12294D', fontSize: 11.5, fontWeight: 600 }}>{x}</span>
         ))}
       </div>
     </div>

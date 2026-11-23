@@ -320,7 +320,7 @@ function Panorama360({ url, name }: { url: string; name: string }) {
   return (
     <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', border: '1px solid var(--border)' }}>
       <div ref={containerRef} style={{ width: '100%', height: 400 }} />
-      <div style={{ position: 'absolute', top: 10, left: 12, background: 'rgba(26,51,94,.85)', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none', zIndex: 10 }}>
+      <div style={{ position: 'absolute', top: 10, left: 12, background: 'rgba(26,51,94,.85)', color: 'white', fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none', zIndex: 10 }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         360° Panorama
       </div>
@@ -576,21 +576,21 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
       {!open ? (
         <div style={{ background: '#F0FDF4', border: '1.5px solid #BBF7D0', borderRadius: 18, padding: '24px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, marginBottom: 20 }}>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#065F46', marginBottom: 3 }}>Deneyiminizi paylaşın</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: '#065F46', marginBottom: 3 }}>Deneyiminizi paylaşın</div>
             <div style={{ fontSize: 13, color: '#047857' }}>Bu işletme hakkındaki deneyiminizi diğer hastalara aktarın.</div>
           </div>
-          <button onClick={() => setOpen(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: '#059669', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+          <button onClick={() => setOpen(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: '#059669', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 600, border: 'none', cursor: 'pointer' }}>
             <i className="fa-solid fa-pencil" /> Deneyiminizi paylaşın
           </button>
         </div>
       ) : (
         <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 20 }}>
           <div style={{ padding: '18px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Deneyiminizi Paylaşın</h3>
+            <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Deneyiminizi Paylaşın</h3>
             <button onClick={() => setOpen(false)} style={{ background: '#F3F4F6', border: 'none', borderRadius: '50%', width: 28, height: 28, cursor: 'pointer', fontSize: 14, color: '#6B7280' }}>✕</button>
           </div>
           <div style={{ padding: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#065F46', marginBottom: 8 }}>Puanınız</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#065F46', marginBottom: 8 }}>Puanınız</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
               {[1,2,3,4,5].map(v => (
                 <span key={v} onClick={() => setStar(v)} style={{ fontSize: 34, cursor: 'pointer', color: v <= star ? '#B8892F' : '#D1D5DB', transition: 'color .15s' }}>★</span>
@@ -600,7 +600,7 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
 
             <GelistirmeSecici secili={gelistirme} onChange={setGelistirme} />
 
-            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Deneyiminiz <span style={{ color: '#DC2626' }}>*</span> <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(en az {YORUM_MIN_KARAKTER} karakter)</span></div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Deneyiminiz <span style={{ color: '#DC2626' }}>*</span> <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(en az {YORUM_MIN_KARAKTER} karakter)</span></div>
             <textarea value={txt} onChange={e => setTxt(e.target.value)} maxLength={YORUM_MAX_KARAKTER}
               placeholder="Karşılanma, iletişim, bekleme süresi, ortam… Ayrıntılı sağlık bilgisi yazmanız gerekmez." rows={4}
               style={{ width: '100%', padding: '12px 16px', border: '2px solid #BBF7D0', borderRadius: 12, fontSize: 14, fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box', marginBottom: 0 }} />
@@ -645,7 +645,7 @@ function YorumForm({ entityId, entityType, onSubmit }: { entityId: string; entit
             <KurallarOnayKutusu onay={kuralOnay} onChange={v => { setKuralOnay(v); if (v) setKuralHata(false); }} hata={kuralHata} />
 
             <button onClick={submit} disabled={saving}
-              style={{ width: '100%', background: '#059669', color: 'white', border: 'none', borderRadius: 12, padding: 13, fontSize: 14, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
+              style={{ width: '100%', background: '#059669', color: 'white', border: 'none', borderRadius: 12, padding: 13, fontSize: 14, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
               {saving ? 'Gönderiliyor...' : <><i className="fa-solid fa-paper-plane" style={{ marginRight: 6 }} />Yorumu Gönder</>}
             </button>
           </div>
@@ -695,7 +695,7 @@ function YorumItiraz({ yorumId }: { yorumId: string }) {
         </button>
       ) : (
         <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 12, padding: 12, marginTop: 4 }}>
-          <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--text)', marginBottom: 7 }}>Bu yoruma neden itiraz ediyorsunuz?</div>
+          <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text)', marginBottom: 7 }}>Bu yoruma neden itiraz ediyorsunuz?</div>
           <textarea value={reason} onChange={e => setReason(e.target.value)} rows={3} maxLength={1000}
             placeholder="Örn. yanıltıcı / gerçek dışı / hakaret içeriyor…"
             style={{ width: '100%', boxSizing: 'border-box', padding: '9px 11px', border: '1.5px solid var(--border)', borderRadius: 9, fontSize: 13, fontFamily: 'inherit', resize: 'vertical', outline: 'none' }} />
@@ -707,7 +707,7 @@ function YorumItiraz({ yorumId }: { yorumId: string }) {
           {msg && state === 'err' && <div style={{ fontSize: 12, color: '#B91C1C', marginTop: 7 }}>{msg}</div>}
           <div style={{ display: 'flex', gap: 8, marginTop: 9 }}>
             <button onClick={gonder} disabled={state === 'sending'}
-              style={{ padding: '8px 15px', borderRadius: 9, border: 'none', background: 'var(--navy)', color: '#fff', fontSize: 12.5, fontWeight: 700, cursor: state === 'sending' ? 'default' : 'pointer', fontFamily: 'inherit', opacity: state === 'sending' ? .6 : 1 }}>
+              style={{ padding: '8px 15px', borderRadius: 9, border: 'none', background: 'var(--navy)', color: '#fff', fontSize: 12.5, fontWeight: 600, cursor: state === 'sending' ? 'default' : 'pointer', fontFamily: 'inherit', opacity: state === 'sending' ? .6 : 1 }}>
               {state === 'sending' ? 'Gönderiliyor…' : 'İtirazı Gönder'}
             </button>
             <button onClick={() => { setOpen(false); setState('idle'); setMsg(''); }}
@@ -744,11 +744,11 @@ const SEAL_CSS = `
 .hk-tip--alt{animation-name:hkTipInAlt;}
 .hk-tip-arrow{position:absolute;left:50%;bottom:-5px;width:11px;height:11px;background:#12305c;transform:translateX(-50%) rotate(45deg);border-radius:2px;}
 .hk-tip--alt .hk-tip-arrow{bottom:auto;top:-5px;}
-.hk-tip-kicker{display:block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#E8C567;line-height:1.4;margin-bottom:6px;}
-.hk-tip-title{display:block;font-size:13.5px;font-weight:800;line-height:1.4;margin-bottom:6px;}
+.hk-tip-kicker{display:block;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#E8C567;line-height:1.4;margin-bottom:6px;}
+.hk-tip-title{display:block;font-size:13.5px;font-weight:600;line-height:1.4;margin-bottom:6px;}
 .hk-tip-text{display:block;font-size:12px;line-height:1.6;color:rgba(255,255,255,.74);}
-.hk-tip-cta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;font-weight:800;color:#152A4E;background:linear-gradient(135deg,#EBC65D,#B8892F);border-radius:999px;padding:6px 12px;line-height:1.2;}
-.hk-tip-dismiss{display:block;margin-top:10px;font-size:10.5px;font-weight:700;letter-spacing:.3px;color:rgba(255,255,255,.5);}
+.hk-tip-cta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;font-weight:600;color:#152A4E;background:linear-gradient(135deg,#EBC65D,#B8892F);border-radius:999px;padding:6px 12px;line-height:1.2;}
+.hk-tip-dismiss{display:block;margin-top:10px;font-size:10.5px;font-weight:600;letter-spacing:.3px;color:rgba(255,255,255,.5);}
 `;
 
 // ── Randevu Talep Modalı ─────────────────────────────────────────
@@ -766,18 +766,18 @@ const RANDEVU_MODAL_CSS = `
 .rnd-days::-webkit-scrollbar{display:none;}
 .rnd-day{flex:0 0 auto;scroll-snap-align:start;min-width:52px;padding:9px 6px;border-radius:14px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-family:inherit;text-align:center;transition:transform .12s,border-color .15s,background .15s;}
 .rnd-day:active{transform:scale(.95);}
-.rnd-day .d-dow{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
-.rnd-day .d-num{font-size:19px;font-weight:800;color:var(--text);line-height:1.15;}
+.rnd-day .d-dow{font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.rnd-day .d-num{font-size:19px;font-weight:600;color:var(--text);line-height:1.15;}
 .rnd-day .d-mon{font-size:10px;color:var(--muted);}
 .rnd-day.sel{background:var(--navy);border-color:var(--navy);box-shadow:0 6px 16px rgba(26,51,94,.28);}
 .rnd-day.sel .d-dow,.rnd-day.sel .d-num,.rnd-day.sel .d-mon{color:#fff;}
 .rnd-day.any{min-width:76px;display:flex;flex-direction:column;justify-content:center;}
-.rnd-day.any .d-num{font-size:13px;font-weight:700;}
+.rnd-day.any .d-num{font-size:13px;font-weight:600;}
 /* Saat segmentleri */
 .rnd-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
 .rnd-slot{padding:10px 4px;border-radius:13px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-family:inherit;text-align:center;transition:transform .12s,border-color .15s,background .15s;}
 .rnd-slot:active{transform:scale(.95);}
-.rnd-slot .s-l{font-size:12.5px;font-weight:700;color:var(--text);}
+.rnd-slot .s-l{font-size:12.5px;font-weight:600;color:var(--text);}
 .rnd-slot .s-s{font-size:10px;color:var(--muted);margin-top:1px;}
 .rnd-slot.sel{background:var(--navy);border-color:var(--navy);box-shadow:0 6px 16px rgba(26,51,94,.28);}
 .rnd-slot.sel .s-l,.rnd-slot.sel .s-s{color:#fff;}
@@ -852,7 +852,7 @@ function TalepNotu({ style }: { style?: React.CSSProperties }) {
 
 /** Kamu hastanesi / devlet hekimi: randevu MHRS üzerinden — hastaneyi ara (varsa) + MHRS + ALO 182 */
 function MhrsDugmeleri({ tel }: { tel?: string | null }) {
-  const temel: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 22px', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' };
+  const temel: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 22px', borderRadius: 12, fontSize: 14, fontWeight: 600, textDecoration: 'none' };
   const birincil: React.CSSProperties = { ...temel, background: 'var(--navy)', color: 'white' };
   const ikincil: React.CSSProperties = { ...temel, background: 'white', color: 'var(--navy)', border: '1.5px solid var(--border)' };
   return (
@@ -893,7 +893,7 @@ function KatilmamisTelefon({ tel, style }: { tel?: string | null; style?: React.
       </span>
       <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, minWidth: 0 }}>
         <span style={{ fontSize: 11.5, opacity: .75, fontWeight: 600 }}>İşletmenin telefonu</span>
-        <span style={{ fontSize: 17, fontWeight: 800, letterSpacing: '.02em', whiteSpace: 'nowrap' }}>{telOkunur(tel)}</span>
+        <span style={{ fontSize: 17, fontWeight: 600, letterSpacing: '.02em', whiteSpace: 'nowrap' }}>{telOkunur(tel)}</span>
       </span>
     </a>
   );
@@ -1006,7 +1006,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
             <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B45309" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
             </div>
-            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 800, marginBottom: 10, paddingRight: 28, lineHeight: 1.25 }}>
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 600, marginBottom: 10, paddingRight: 28, lineHeight: 1.25 }}>
               Online Randevu Kapalı
             </h2>
             <p style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.75, margin: 0 }}>
@@ -1032,7 +1032,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
             }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
             </div>
-            <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Randevu Talebiniz Alındı</h3>
+            <h3 style={{ fontWeight: 600, marginBottom: 8 }}>Randevu Talebiniz Alındı</h3>
             {aktif ? (
               <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6 }}>
                 {name} yetkilisi en kısa sürede <strong>{tel}</strong> numarasından sizinle iletişime geçecek.
@@ -1047,7 +1047,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
           </div>
         ) : (
           <>
-            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 800, marginBottom: 6, paddingRight: 28, lineHeight: 1.25 }}>
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 600, marginBottom: 6, paddingRight: 28, lineHeight: 1.25 }}>
               Randevu Talebi
             </h2>
             <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 18, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
@@ -1155,7 +1155,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
             )}
 
             <button onClick={submit} disabled={saving}
-              style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1, transition: '.2s' }}>
+              style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1, transition: '.2s' }}>
               {saving ? 'Gönderiliyor…' : 'Randevu Talebi Gönder'}
             </button>
             {!aktif && <TalepNotu />}
@@ -1170,7 +1170,7 @@ function RandevuModal({ name, entityType, entityId, open, onClose, devlet, kamuH
 // Onaylı yorum rozeti — yalnız Hekimhane randevusu tamamlanan hastanın yorumunda (lib/onayli-yorum.ts)
 function OnayliHastaRozeti() {
   return (
-    <span title="Bu kişi Hekimhane üzerinden randevu aldı ve randevusu tamamlandı" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: '#166534', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>
+    <span title="Bu kişi Hekimhane üzerinden randevu aldı ve randevusu tamamlandı" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, color: '#166534', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>
       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
       Onaylı hasta
     </span>
@@ -1346,7 +1346,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
   const alanAdi = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return u; } };
   // İkincil aksiyon butonu ortak stili (Ara / WhatsApp / Yol Tarifi / Web Sitesi)
   const secBtnStyle: React.CSSProperties = {
-    padding: '11px 8px', borderRadius: 12, fontSize: 12.5, fontWeight: 700,
+    padding: '11px 8px', borderRadius: 12, fontSize: 12.5, fontWeight: 600,
     background: '#fff', color: 'var(--navy)', border: '1.5px solid var(--border)',
     textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
     gap: 7, boxShadow: '0 2px 8px rgba(26,51,94,.08)', whiteSpace: 'nowrap',
@@ -1384,7 +1384,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
   const bildirHref = `/hatali-bilgi?id=${id}&type=${entityType}`;
   const yorumNotu = (
     <p className="profil-uyum-not" style={{ margin: '0 0 12px', padding: '10px 14px', borderRadius: 12, background: '#F6F8FB', border: '1px solid var(--border)', fontSize: 12.5, lineHeight: 1.6, color: 'var(--muted)' }}>
-      {YORUM_NOTU} <Link href={YORUM_KURALLARI_YOL} style={{ color: 'var(--navy)', fontWeight: 700 }}>Yorum kurallarımıza</Link> aykırı bir görüş gördüğünüzde <Link href={`${bildirHref}&konu=yorum`} style={{ color: 'var(--navy)', fontWeight: 700 }}>bildirin</Link>.
+      {YORUM_NOTU} <Link href={YORUM_KURALLARI_YOL} style={{ color: 'var(--navy)', fontWeight: 600 }}>Yorum kurallarımıza</Link> aykırı bir görüş gördüğünüzde <Link href={`${bildirHref}&konu=yorum`} style={{ color: 'var(--navy)', fontWeight: 600 }}>bildirin</Link>.
     </p>
   );
   const kutu = sahiplenKutusu(entityType);
@@ -1442,8 +1442,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
               </div>
             )}
             <div style={{ padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
-              {m.category && <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--gold2, #B8892F)' }}>{m.category}</span>}
-              <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', lineHeight: 1.35, letterSpacing: '-.2px' }}>{m.title}</span>
+              {m.category && <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--gold2, #B8892F)' }}>{m.category}</span>}
+              <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', lineHeight: 1.35, letterSpacing: '-.2px' }}>{m.title}</span>
               {m.summary && <span style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.55, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{m.summary}</span>}
               <span style={{ marginTop: 'auto', paddingTop: 6, fontSize: 12, color: 'var(--muted)' }}>
                 {tarih(m.created_at)}{m.okuma_dk ? ` · ${m.okuma_dk} dk okuma` : ''}
@@ -1470,7 +1470,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
     if (!paragraflar.length && !ozet.length) return null;
     return (
       <div style={sc}>
-        <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Hakkında</h3></div>
+        <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Hakkında</h3></div>
         <div style={scBody}>
           {paragraflar.map((para, i) => (
             <p key={i} style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.8, margin: 0, marginBottom: i < paragraflar.length - 1 || ozet.length ? 14 : 0 }}>{para}</p>
@@ -1483,7 +1483,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                     <i className={`fa-solid ${o.ikon}`} />
                   </span>
                   <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)' }}>{o.baslik}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)' }}>{o.baslik}</span>
                     <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{o.deger}</span>
                   </span>
                 </div>
@@ -1507,7 +1507,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <div style={sc}>
                     <div style={{ ...scHd, cursor: collapsible ? 'pointer' : 'default', userSelect: 'none' }}
                       onClick={collapsible ? () => setPhotoOpen(o => !o) : undefined}>
-                      <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Fotoğraflar</h3>
+                      <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Fotoğraflar</h3>
                       <span style={{ fontSize: 12, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 8 }}>
                         {galleryPhotos.length > 0 ? `${galleryPhotos.length} fotoğraf` : 'Henüz fotoğraf eklenmemiş'}
                         {collapsible && (
@@ -1634,7 +1634,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 <div style={{ width: 116, height: 116, borderRadius: '50%', background: 'var(--tint-50)', border: `4px solid white`, boxShadow: `0 0 0 3px ${premium ? 'var(--gold-fill)' : 'var(--tint-200)'},var(--shadow-md)`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {/* Fotoğraf yoksa diş ikonu değil baş harfler */}
                   <SafeLogo src={logo || photo} alt={name} loading="eager" fallback={
-                    <span aria-hidden="true" style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 36, letterSpacing: '-.02em', color: 'var(--brand)' }}>{basHarfler(name)}</span>} />
+                    <span aria-hidden="true" style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 36, letterSpacing: '-.01em', color: 'var(--brand)' }}>{basHarfler(name)}</span>} />
                 </div>
                 {/* Mühür — üç durum:
                     premium  → altın, doğrulanmış
@@ -1702,19 +1702,19 @@ export default function ProfilSayfasi(props: ProfilProps) {
             <div className="profil-info-col" style={{ paddingBottom: 28 }}>
               {/* Badges */}
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
-                <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'var(--gold-light)', color: 'var(--gold2)', border: '1px solid rgba(184,137,47,.3)' }}>{typeLabel}</span>
-                {acil   && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>Acil</span>}
-                {online && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0' }}>Online Randevu</span>}
-                {nobetci && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#EDE9FE', color: '#6D28D9', border: '1px solid #DDD6FE' }}>Nöbetçi</span>}
+                <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: 'var(--gold-light)', color: 'var(--gold2)', border: '1px solid rgba(184,137,47,.3)' }}>{typeLabel}</span>
+                {acil   && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>Acil</span>}
+                {online && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0' }}>Online Randevu</span>}
+                {nobetci && <span style={{ padding: '3px 11px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: '#EDE9FE', color: '#6D28D9', border: '1px solid #DDD6FE' }}>Nöbetçi</span>}
                 {/* Premium rozeti kaldırıldı — premium, logo + altın mühür ve sunulan özelliklerle belli oluyor */}
                 {claimed
-                  ? <span title={rozetAciklamasi(entityType)} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: 'linear-gradient(135deg,var(--navy),var(--navy2))', color: 'white', cursor: 'help' }}>✓ Sahiplenilmiş</span>
+                  ? <span title={rozetAciklamasi(entityType)} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: 'linear-gradient(135deg,var(--navy),var(--navy2))', color: 'white', cursor: 'help' }}>✓ Sahiplenilmiş</span>
                   : <Link href={`/sahiplen?id=${id}&type=${entityType}`}
-                      style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 0, borderRadius: 999, fontSize: 11, fontWeight: 700, overflow: 'hidden', textDecoration: 'none', border: '1px solid rgba(184,137,47,.65)', boxShadow: '0 4px 14px rgba(184,137,47,.4)' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px', background: 'linear-gradient(135deg,#EBC65D,#B8892F)', color: '#1A335E', fontWeight: 900, letterSpacing: '0.4px' }}>
+                      style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 0, borderRadius: 999, fontSize: 11, fontWeight: 600, overflow: 'hidden', textDecoration: 'none', border: '1px solid rgba(184,137,47,.65)', boxShadow: '0 4px 14px rgba(184,137,47,.4)' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px', background: 'linear-gradient(135deg,#EBC65D,#B8892F)', color: '#1A335E', fontWeight: 600, letterSpacing: '0.4px' }}>
                         <i className="fa-solid fa-flag" style={{ fontSize: 9 }} />ÜCRETSİZ
                       </span>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 13px', background: 'white', color: '#1A335E', fontWeight: 800 }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 13px', background: 'white', color: '#1A335E', fontWeight: 600 }}>
                         Sahiplenin <i className="fa-solid fa-arrow-right" style={{ fontSize: 9, color: '#B8892F' }} />
                       </span>
                     </Link>
@@ -1722,12 +1722,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
-                <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, color: hName, lineHeight: 1.2, margin: 0 }}>
+                <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 600, color: hName, lineHeight: 1.2, margin: 0 }}>
                   {displayName}
                 </h1>
                 {isOwner && (
                   <a href={ownerEditUrl}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: heroLight ? 'rgba(19,43,82,.08)' : 'rgba(255,255,255,.15)', border: `1px solid ${heroLight ? 'rgba(19,43,82,.22)' : 'rgba(255,255,255,.3)'}`, color: hName, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 11px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: heroLight ? 'rgba(19,43,82,.08)' : 'rgba(255,255,255,.15)', border: `1px solid ${heroLight ? 'rgba(19,43,82,.22)' : 'rgba(255,255,255,.3)'}`, color: hName, textDecoration: 'none', whiteSpace: 'nowrap' }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     Düzenle
                   </a>
@@ -1737,7 +1737,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 <i className="fa-solid fa-location-dot" style={{ color: 'var(--gold)' }} />
                 {clinicHref && adres ? (
                   <span>
-                    <Link href={clinicHref} title={`${adres} — hastane sayfası`} style={{ color: 'inherit', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: 3, textDecorationColor: 'var(--gold)' }}>{adres}</Link>
+                    <Link href={clinicHref} title={`${adres} — hastane sayfası`} style={{ color: 'inherit', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 3, textDecorationColor: 'var(--gold)' }}>{adres}</Link>
                     {[ilce, il].filter(Boolean).length ? `, ${[ilce, il].filter(Boolean).join(', ')}` : ''}
                   </span>
                 ) : (
@@ -1763,7 +1763,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               ) : randevuGizli ? null : (
               /* Randevu Al — birincil (eczanede gizli) */
               <button onClick={() => setRandevuModal(true)}
-                style={{ padding: '13px 20px', borderRadius: 12, fontSize: 14, fontWeight: 800, background: 'var(--gold-fill)', color: 'var(--on-gold)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 6px 18px rgba(184,137,47,.35)' }}>
+                style={{ padding: '13px 20px', borderRadius: 12, fontSize: 14, fontWeight: 600, background: 'var(--gold-fill)', color: 'var(--on-gold)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 6px 18px rgba(184,137,47,.35)' }}>
                 <i className="fa-solid fa-calendar-check" /> Randevu Al
               </button>
               )}
@@ -1796,7 +1796,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {/* HekimKart dijital kartvizit */}
               {kartSlug && (
                 <a href={`/kart/${kartSlug}`} target="_blank" rel="noopener"
-                  style={{ padding: '11px', borderRadius: 12, fontSize: 12.5, fontWeight: 700, background: heroLight ? 'rgba(19,43,82,.06)' : 'rgba(255,255,255,.12)', color: hName, border: `1.5px solid ${heroLight ? 'rgba(19,43,82,.18)' : 'rgba(255,255,255,.3)'}`, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
+                  style={{ padding: '11px', borderRadius: 12, fontSize: 12.5, fontWeight: 600, background: heroLight ? 'rgba(19,43,82,.06)' : 'rgba(255,255,255,.12)', color: hName, border: `1.5px solid ${heroLight ? 'rgba(19,43,82,.18)' : 'rgba(255,255,255,.3)'}`, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
                   <i className="fa-solid fa-id-card" style={{ color: 'var(--gold)' }} /> Dijital Kartvizit (HekimKart)
                 </a>
               )}
@@ -1845,14 +1845,14 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   Yerinde işletmenin kendi anlatımı durur: Hakkında + öne çıkan bilgiler. */}
               {entityType === 'klinik' ? klinikHakkinda() : !infoRows.some(r => r.v && r.v !== '—') ? null : (
               <div style={sc}>
-                <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>
+                <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>
                   {entityType === 'doktor' ? 'Doktor Bilgileri' : entityType === 'eczane' ? 'Eczane Bilgileri' : entityType === 'hastane' ? 'Hastane Bilgileri' : 'Klinik Bilgileri'}
                 </h3></div>
                 <div style={scBody}>
                   <div className="profil-info-grid">
                     {infoRows.filter(r => r.v && r.v !== '—').map(r => (
                       <div key={r.l} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)' }}>{r.l}</div>
+                        <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)' }}>{r.l}</div>
                         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{r.v}</div>
                       </div>
                     ))}
@@ -1864,7 +1864,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {/* Uzmanlık alanları */}
               {specChips.length > 0 && (
                 <div style={sc}>
-                  <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Uzmanlık Alanları</h3></div>
+                  <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Uzmanlık Alanları</h3></div>
                   <div style={scBody}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                       {specChips.map(s => {
@@ -1902,7 +1902,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {/* ── Konuşulan Diller (tüm profillerde; hekim/klinikte Türkçe otomatik) ── */}
               {konusulanDiller.length > 0 && (
                 <div style={sc}>
-                  <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Konuşulan Diller</h3></div>
+                  <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Konuşulan Diller</h3></div>
                   <div style={scBody}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                       {konusulanDiller.map((dil, i) => (
@@ -1918,7 +1918,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {/* ── Biyografi (doktor) — klinikte en üstte: klinikHakkinda() ── */}
               {entityType === 'doktor' && bio && (
                 <div style={sc}>
-                  <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Hakkında</h3></div>
+                  <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Hakkında</h3></div>
                   <div style={scBody}>
                     {bio.split('\n\n').map((para, i) => (
                       <p key={i} style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.8, marginBottom: i < bio.split('\n\n').length - 1 ? 14 : 0 }}>{para}</p>
@@ -1954,7 +1954,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         allowFullScreen
                         allow="xr-spatial-tracking; fullscreen"
                       />
-                      <div style={{ position: 'absolute', top: 10, left: 12, background: 'rgba(26,51,94,.85)', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none', zIndex: 10 }}>
+                      <div style={{ position: 'absolute', top: 10, left: 12, background: 'rgba(26,51,94,.85)', color: 'white', fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none', zIndex: 10 }}>
                         <i className="fa-solid fa-vr-cardboard" style={{ fontSize: 11 }} /> {label}
                       </div>
                     </div>
@@ -1964,8 +1964,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 return (
                   <div style={sc}>
                     <div style={scHd}>
-                      <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>360° Görünüm</h3>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(184,137,47,.15)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 700, color: 'var(--on-deep-heading)' }}>
+                      <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>360° Görünüm</h3>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(184,137,47,.15)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: 'var(--on-deep-heading)' }}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                         360°
                       </span>
@@ -1994,13 +1994,13 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         <div style={{ marginTop: 12, display: 'flex', gap: 9, flexWrap: 'wrap' }}>
                           {tourInfo && (
                             <a href={tourInfo.src} target="_blank" rel="noopener"
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 16px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: 'var(--navy)', color: 'white', textDecoration: 'none' }}>
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: 'var(--navy)', color: 'white', textDecoration: 'none' }}>
                               <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: 11 }} /> Tam Ekran Aç
                             </a>
                           )}
                           {showPano && !isEquiRect && (
                             <a href={panoInfo!.src} target="_blank" rel="noopener"
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 16px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: '#F0F4FF', color: 'var(--navy)', textDecoration: 'none' }}>
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: '#F0F4FF', color: 'var(--navy)', textDecoration: 'none' }}>
                               <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: 11 }} /> 360° Tam Ekran
                             </a>
                           )}
@@ -2017,11 +2017,11 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {/* ── Sigorta & Koşullar (doktor) ── */}
               {entityType === 'doktor' && (sigorta?.length || conditions?.length) ? (
                 <div style={sc}>
-                  <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Sigorta & Baktığı Hastalıklar</h3></div>
+                  <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Sigorta & Baktığı Hastalıklar</h3></div>
                   <div style={scBody}>
                     {sigorta && sigorta.length > 0 && (
                       <div style={{ marginBottom: conditions?.length ? 20 : 0 }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 10 }}>Kabul Edilen Sigortalar</div>
+                        <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 10 }}>Kabul Edilen Sigortalar</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                           {sigorta.map(s => (
                             <span key={s} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: '#F0FDF4', color: '#166534', border: '1px solid #BBF7D0' }}>
@@ -2033,7 +2033,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                     )}
                     {conditions && conditions.length > 0 && (
                       <div>
-                        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 10 }}>Baktığı Hastalıklar</div>
+                        <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 10 }}>Baktığı Hastalıklar</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                           {conditions.map(c => {
                             const yazi = hastalikBlogSlug(c);   // blogda yayında bir rehber yazısı varsa chip ona bağlanır
@@ -2073,7 +2073,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 </div>
               ) : (
                 <p className="profil-uyum-not" style={{ margin: '0 0 16px', padding: '12px 16px', borderRadius: 14, background: '#fff', border: '1px solid var(--border)', fontSize: 13.5, lineHeight: 1.6, color: 'var(--muted)' }}>
-                  {yonetiliyorNotu(entityType)} Hatalı bilgi mi gördünüz? <Link href={bildirHref} style={{ color: 'var(--navy)', fontWeight: 700 }}>Bildirin</Link>.
+                  {yonetiliyorNotu(entityType)} Hatalı bilgi mi gördünüz? <Link href={bildirHref} style={{ color: 'var(--navy)', fontWeight: 600 }}>Bildirin</Link>.
                 </p>
               )}
 
@@ -2081,7 +2081,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {yorumNotu}
               <div style={sc}>
                 <div style={scHd}>
-                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Değerlendirmeler</h3>
+                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Değerlendirmeler</h3>
                   <span style={{ fontSize: 13, color: 'var(--muted)' }}>{yorumlar.length} yorum</span>
                 </div>
                 <div style={scBody}>
@@ -2090,14 +2090,14 @@ export default function ProfilSayfasi(props: ProfilProps) {
                     <div style={{ textAlign: 'center', flexShrink: 0, minWidth: 100 }}>
                       {yorumlar.length > 0 ? (
                         <>
-                          <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 52, fontWeight: 800, color: 'var(--navy)', lineHeight: 1 }}>{avg}</div>
+                          <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 52, fontWeight: 600, color: 'var(--navy)', lineHeight: 1 }}>{avg}</div>
                           <div style={{ margin: '6px 0 4px' }}><Stars rat={avg} size={18} /></div>
                           <div style={{ fontSize: 12, color: 'var(--muted)' }}>{yorumlar.length} değerlendirme</div>
                         </>
                       ) : (
                         <>
                           {/* Yorum yokken puan gösterilmez — hesaplanmış bir sayı gerçek hasta puanı gibi algılanmasın */}
-                          <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 40, fontWeight: 800, color: '#C7C7CC', lineHeight: 1 }}>—</div>
+                          <div style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 40, fontWeight: 600, color: '#C7C7CC', lineHeight: 1 }}>—</div>
                           <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 10, lineHeight: 1.5 }}>Henüz<br />değerlendirme yok</div>
                         </>
                       )}
@@ -2108,12 +2108,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         const pct = yorumlar.length ? Math.round(cnt / yorumlar.length * 100) : 0;
                         return (
                           <div key={star} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <div style={{ fontSize: 12.5, fontWeight: 700, width: 10, textAlign: 'right', color: 'var(--muted)' }}>{star}</div>
+                            <div style={{ fontSize: 12.5, fontWeight: 600, width: 10, textAlign: 'right', color: 'var(--muted)' }}>{star}</div>
                             <i className="fa-solid fa-star" style={{ fontSize: 10, color: '#B8892F' }} />
                             <div style={{ flex: 1, height: 8, background: '#EEF0F3', borderRadius: 999, overflow: 'hidden' }}>
                               <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg,#E0B84E,#B8892F)', borderRadius: 999, transition: 'width .5s cubic-bezier(.2,.7,.2,1)' }} />
                             </div>
-                            <div style={{ fontSize: 11.5, color: cnt ? 'var(--navy)' : 'var(--muted)', fontWeight: cnt ? 700 : 500, width: 20, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{cnt}</div>
+                            <div style={{ fontSize: 11.5, color: cnt ? 'var(--navy)' : 'var(--muted)', fontWeight: cnt ? 600 : 500, width: 20, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{cnt}</div>
                           </div>
                         );
                       })}
@@ -2131,7 +2131,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         <div key={r.id} style={{ background: '#F9FBFF', border: '1px solid var(--border)', borderRadius: 14, padding: 16 }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <span style={{ fontWeight: 700, fontSize: 14 }}>{maskName(r.author)}</span>
+                              <span style={{ fontWeight: 600, fontSize: 14 }}>{maskName(r.author)}</span>
                               {r.verified && <OnayliHastaRozeti />}
                             </div>
                             <span style={{ fontSize: 11, color: 'var(--muted)' }}>{formatVisitDate(r.date)}</span>
@@ -2147,7 +2147,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                           {r.text && <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.6, marginTop: 6 }}>{r.text}</p>}
                           {r.reply_text && (
                             <div style={{ background: '#F0FDF4', borderRadius: 10, padding: '10px 14px', borderLeft: '3px solid #86EFAC', marginTop: 10 }}>
-                              <div style={{ fontSize: 11, color: '#166534', fontWeight: 700, marginBottom: 4 }}>İşletme Yanıtı</div>
+                              <div style={{ fontSize: 11, color: '#166534', fontWeight: 600, marginBottom: 4 }}>İşletme Yanıtı</div>
                               <p style={{ fontSize: 13, color: '#15803D', margin: 0 }}>{r.reply_text}</p>
                             </div>
                           )}
@@ -2162,14 +2162,14 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {makaleler.length > 0 && (
                 <div style={sc}>
                   <div style={scHd}>
-                    <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Makalelerimiz</h3>
+                    <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Makalelerimiz</h3>
                     {makaleler.length > 3 && (
                       <button type="button" onClick={() => {
                         setActiveTab('makaleler');
                         const bar = document.querySelector('.profil-tab-bar');
                         if (bar) window.scrollTo({ top: bar.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
                       }}
-                        style={{ border: 'none', background: 'transparent', color: 'var(--navy)', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
+                        style={{ border: 'none', background: 'transparent', color: 'var(--navy)', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
                         Tümü ({makaleler.length}) ›
                       </button>
                     )}
@@ -2182,7 +2182,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {(entityType === 'klinik' || entityType === 'doktor' || entityType === 'eczane') && faq && faq.length > 0 && (
                 <div style={sc} className="profil-faq">
                   <div style={scHd}>
-                    <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Sıkça Sorulan Sorular</h3>
+                    <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Sıkça Sorulan Sorular</h3>
                   </div>
                   <div style={{ ...scBody, paddingTop: 4, paddingBottom: 4 }}>
                     {faq.map((f, i) => (
@@ -2208,7 +2208,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
             return (
               <div style={sc}>
                 <div style={scHd}>
-                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Bünyedeki Hekimler</h3>
+                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Bünyedeki Hekimler</h3>
                   <span style={{ fontSize: 13, color: 'var(--muted)' }}>{hospitalDoctors.length} hekim · {bolumler.length} bölüm</span>
                 </div>
                 <div style={{ ...scBody, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -2221,7 +2221,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         aria-expanded={!kapali}
                         style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '13px 16px', background: kapali ? '#fff' : 'var(--cream,#F6F8FB)', border: 'none', borderBottom: kapali ? 'none' : '1px solid var(--border)', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
                         <i className="fa-solid fa-stethoscope" style={{ color: 'var(--gold)', fontSize: 14 }} />
-                        <h4 style={{ fontSize: 15, fontWeight: 700, color: 'var(--navy)', margin: 0 }}>{bolum}</h4>
+                        <h4 style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy)', margin: 0 }}>{bolum}</h4>
                         <span style={{ fontSize: 12, color: 'var(--muted)' }}>({byBolum[bolum].length})</span>
                         <i className="fa-solid fa-chevron-down" style={{ marginLeft: 'auto', color: 'var(--muted)', fontSize: 13, transition: 'transform .2s', transform: kapali ? 'rotate(-90deg)' : 'none' }} />
                       </button>
@@ -2255,16 +2255,16 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <i className={`fa-solid ${ikon}`} style={{ color: 'var(--navy)', fontSize: 15 }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 2 }}>{etiket}</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 2 }}>{etiket}</div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', lineHeight: 1.4 }}>{deger}</div>
                 </div>
-                {rozet && <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, color: 'var(--navy)', background: 'rgba(26,51,94,.08)', borderRadius: 8, padding: '4px 9px' }}>{rozet}</span>}
+                {rozet && <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 600, color: 'var(--navy)', background: 'rgba(26,51,94,.08)', borderRadius: 8, padding: '4px 9px' }}>{rozet}</span>}
               </div>
             );
 
             return (
               <div style={sc}>
-                <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Mesleki Bilgiler</h3></div>
+                <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Mesleki Bilgiler</h3></div>
                 <div style={scBody}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {bas > 0 && bilgiKart('fa-clock', 'Deneyim Süresi', <>{bas} – Günümüz <span style={{ color: 'var(--muted)', fontWeight: 500 }}>({yilSayi} yıl)</span></>)}
@@ -2275,7 +2275,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   {/* Deneyimler — zaman çizelgesi */}
                   {denList.length > 0 && (
                     <div style={{ marginTop: 22 }}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--navy)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
                         <i className="fa-solid fa-briefcase" style={{ fontSize: 12 }} /> Deneyimler
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -2286,7 +2286,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                               {i < denList.length - 1 && <div style={{ flex: 1, width: 2, background: 'var(--border)', marginTop: 2 }} />}
                             </div>
                             <div style={{ paddingBottom: i < denList.length - 1 ? 18 : 0, minWidth: 0, flex: 1 }}>
-                              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', lineHeight: 1.4 }}>{d.kurum}</div>
+                              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', lineHeight: 1.4 }}>{d.kurum}</div>
                               {(d.baslangic || d.bitis) && (
                                 <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 3 }}>
                                   {d.baslangic || '…'} – {d.bitis || 'Günümüz'}
@@ -2302,7 +2302,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   {/* Sertifikalar — galeri */}
                   {certList.length > 0 && (
                     <div style={{ marginTop: 22 }}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--navy)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
                         <i className="fa-solid fa-certificate" style={{ fontSize: 12 }} /> Sertifikalar
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
@@ -2312,7 +2312,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                               {c.url && /\.pdf(\?|$)/i.test(c.url) ? (
                                 <div style={{ width: '100%', aspectRatio: '4 / 3', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, background: 'rgba(220,38,38,.05)' }}>
                                   <i className="fa-solid fa-file-pdf" style={{ color: '#DC2626', fontSize: 26 }} />
-                                  <span style={{ fontSize: 11, fontWeight: 700, color: '#B91C1C' }}>PDF Belge</span>
+                                  <span style={{ fontSize: 11, fontWeight: 600, color: '#B91C1C' }}>PDF Belge</span>
                                 </div>
                               ) : c.url ? (
                                 // eslint-disable-next-line @next/next/no-img-element
@@ -2342,13 +2342,13 @@ export default function ProfilSayfasi(props: ProfilProps) {
           {/* ── KONUM TAB ── */}
           {activeTab === 'konum' && (
             <div style={sc}>
-              <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Konum & Adres</h3></div>
+              <div style={scHd}><h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Konum & Adres</h3></div>
               <div style={scBody}>
                 {adres && (
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 18, padding: '14px 16px', background: '#F4F9F8', borderRadius: 12, border: '1px solid var(--border)' }}>
                     <i className="fa-solid fa-location-dot" style={{ color: 'var(--navy)', marginTop: 2, fontSize: 16 }} />
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2 }}>{adres}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{adres}</div>
                       <div style={{ fontSize: 12, color: 'var(--muted)' }}>{[ilce, il].filter(Boolean).join(' / ')}</div>
                     </div>
                   </div>
@@ -2356,12 +2356,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 <KonumHarita lat={lat} lng={lng} name={name} mapsUrl={maps_url} adres={adres} il={il} ilce={ilce} entityId={id} entityType={entityType} />
                 <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                   {maps_url && (
-                    <a href={maps_url} target="_blank" rel="noopener" style={{ padding: '11px 20px', borderRadius: 11, fontSize: 13, fontWeight: 700, background: '#DCFCE7', color: '#15803D', border: '1.5px solid #BBF7D0', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                    <a href={maps_url} target="_blank" rel="noopener" style={{ padding: '11px 20px', borderRadius: 11, fontSize: 13, fontWeight: 600, background: '#DCFCE7', color: '#15803D', border: '1.5px solid #BBF7D0', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                       <i className="fa-brands fa-google" /> Google Maps'te Aç
                     </a>
                   )}
                   {tel && (
-                    <a href={`tel:${tel.replace(/\s/g,'')}`} style={{ padding: '11px 20px', borderRadius: 11, fontSize: 13, fontWeight: 700, background: 'white', color: 'var(--navy)', border: '1.5px solid var(--border)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }} onClick={() => setTelAcik(true)}>
+                    <a href={`tel:${tel.replace(/\s/g,'')}`} style={{ padding: '11px 20px', borderRadius: 11, fontSize: 13, fontWeight: 600, background: 'white', color: 'var(--navy)', border: '1.5px solid var(--border)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }} onClick={() => setTelAcik(true)}>
                       <i className="fa-solid fa-phone" /> {telGizle ? 'Ara' : tel}
                     </a>
                   )}
@@ -2383,7 +2383,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
             if (!tourInfo && !panoInfo) return (
               <div style={sc}>
                 <div style={scHd}>
-                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>360° Sanal Tur</h3>
+                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>360° Sanal Tur</h3>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#F3F4F6', border: '1px solid var(--border)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: 'var(--muted)' }}>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#9CA3AF', display: 'inline-block' }} /> Henüz Eklenmedi
                   </span>
@@ -2393,7 +2393,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <div style={{ width: 72, height: 72, borderRadius: 20, background: '#F3F4F6', border: '1.5px dashed #D1D5DB', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                   </div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>
                     360° Fotoğraf Henüz Yüklenmedi
                   </div>
                   <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 380, margin: '0 auto 24px' }}>
@@ -2405,13 +2405,13 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
                     {claimed && (
                       <a href="/panel"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 20px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 20px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                         <i className="fa-solid fa-pen" /> Panel'den Ekle
                       </a>
                     )}
                     {!claimed && (
                       <a href={`/sahiplen?id=${id}&type=${entityType}`}
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 20px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 20px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                         <i className="fa-solid fa-flag" /> İşletmeyi Sahiplen
                       </a>
                     )}
@@ -2422,8 +2422,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
             return (
               <div style={sc}>
                 <div style={scHd}>
-                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>360° Sanal Tur</h3>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(184,137,47,.15)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 700, color: 'var(--on-deep-heading)' }}>
+                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>360° Sanal Tur</h3>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(184,137,47,.15)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: 'var(--on-deep-heading)' }}>
                     <i className="fa-solid fa-vr-cardboard" style={{ fontSize: 11 }} /> Sanal Tur
                   </span>
                 </div>
@@ -2441,7 +2441,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                       </div>
                       <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                         <a href={tourInfo.src} target="_blank" rel="noopener"
-                          style={{ padding: '10px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, background: '#1A335E', color: 'white', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                          style={{ padding: '10px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, background: '#1A335E', color: 'white', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                           <i className="fa-solid fa-arrow-up-right-from-square" /> Tam Ekran Aç
                         </a>
                         <div style={{ padding: '10px 18px', borderRadius: 10, fontSize: 13, background: '#F0F4FF', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -2486,8 +2486,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
               return (
                 <div style={sc}>
                   <div style={scHd}>
-                    <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Videolar</h3>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.25)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 700, color: '#DC2626' }}>
+                    <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Videolar</h3>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.25)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: '#DC2626' }}>
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="#DC2626"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                       {disLink.platform}
                     </span>
@@ -2496,12 +2496,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
                     <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
                       <svg width="30" height="30" viewBox="0 0 24 24" fill="#DC2626"><polygon points="6 4 20 12 6 20 6 4"/></svg>
                     </div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{name} — {baslik}</div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>{name} — {baslik}</div>
                     <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 400, margin: '0 auto 22px' }}>
                       İşletmenin tanıtım ve bilgilendirme videolarını {disLink.platform}{ek} izleyebilirsiniz.
                     </p>
                     <a href={disLink.url} target="_blank" rel="noopener noreferrer"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                       <i className="fa-solid fa-arrow-up-right-from-square" /> {dugme}
                     </a>
                   </div>
@@ -2511,7 +2511,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
             if (!videoSrc) return (
               <div style={sc}>
                 <div style={scHd}>
-                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Video</h3>
+                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Video</h3>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#F3F4F6', border: '1px solid var(--border)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: 'var(--muted)' }}>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#9CA3AF', display: 'inline-block' }} /> Henüz Eklenmedi
                   </span>
@@ -2522,7 +2522,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                       <polygon points="5 3 19 12 5 21 5 3"/>
                     </svg>
                   </div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>Video Henüz Eklenmedi</div>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>Video Henüz Eklenmedi</div>
                   <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 380, margin: '0 auto 24px' }}>
                     Bu işletme için henüz tanıtım videosu eklenmemiş.
                     {claimed
@@ -2530,12 +2530,12 @@ export default function ProfilSayfasi(props: ProfilProps) {
                       : ' İşletme sahibi panel üzerinden video ekleyebilir.'}
                   </p>
                   {claimed && (
-                    <a href="/panel" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                    <a href="/panel" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                       <i className="fa-solid fa-pen" /> Panel'den Ekle
                     </a>
                   )}
                   {!claimed && (
-                    <a href={`/sahiplen?id=${id}&type=${entityType}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                    <a href={`/sahiplen?id=${id}&type=${entityType}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                       <i className="fa-solid fa-flag" /> İşletmeyi Sahiplen
                     </a>
                   )}
@@ -2553,8 +2553,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
             return (
               <div style={sc}>
                 <div style={scHd}>
-                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Tanıtım Videosu</h3>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.25)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 700, color: '#DC2626' }}>
+                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Tanıtım Videosu</h3>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.25)', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: '#DC2626' }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="#DC2626"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                     {platform}
                   </span>
@@ -2573,7 +2573,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   {/* Alt buton satırı */}
                   <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                     <a href={acikUrl} target="_blank" rel="noopener noreferrer"
-                      style={{ padding: '10px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, background: 'var(--navy)', color: 'white', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                      style={{ padding: '10px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, background: 'var(--navy)', color: 'white', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                       <i className="fa-solid fa-arrow-up-right-from-square" /> {platform}'da Aç
                     </a>
                     <div style={{ padding: '10px 18px', borderRadius: 10, fontSize: 13, background: '#F3F4F6', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -2590,7 +2590,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
           {activeTab === 'makaleler' && makaleler.length > 0 && (
             <div style={sc}>
               <div style={scHd}>
-                <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Makalelerimiz</h3>
+                <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Makalelerimiz</h3>
                 <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>{makaleler.length} yazı</span>
               </div>
               <div style={scBody}>
@@ -2611,11 +2611,11 @@ export default function ProfilSayfasi(props: ProfilProps) {
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                   </svg>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#1E3A8A', margin: '0 0 2px' }}>Bu sizin profiliniz</p>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: '#1E3A8A', margin: '0 0 2px' }}>Bu sizin profiliniz</p>
                     <p style={{ fontSize: 12, color: '#3B82F6', margin: 0 }}>İşletme sahipleri kendi profillerine yorum yapamaz.</p>
                   </div>
                   <a href={ownerEditUrl}
-                    style={{ padding: '8px 16px', borderRadius: 9, fontSize: 12, fontWeight: 700, background: '#1D4ED8', color: 'white', textDecoration: 'none', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    style={{ padding: '8px 16px', borderRadius: 9, fontSize: 12, fontWeight: 600, background: '#1D4ED8', color: 'white', textDecoration: 'none', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     Profili Düzenle
                   </a>
@@ -2626,7 +2626,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {yorumNotu}
               <div style={sc}>
                 <div style={scHd}>
-                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Yorumlar</h3>
+                  <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Yorumlar</h3>
                   <span style={{ fontSize: 13, color: 'var(--muted)' }}>{yorumlar.length} yorum</span>
                 </div>
                 <div style={scBody}>
@@ -2641,7 +2641,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         <div key={r.id} style={{ background: '#F9FBFF', border: '1px solid var(--border)', borderRadius: 14, padding: 16 }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                              <span style={{ fontWeight: 700, fontSize: 14 }}>{maskName(r.author)}</span>
+                              <span style={{ fontWeight: 600, fontSize: 14 }}>{maskName(r.author)}</span>
                               {r.verified && <OnayliHastaRozeti />}
                             </div>
                             <span style={{ fontSize: 11, color: 'var(--muted)' }}>{formatVisitDate(r.date)}</span>
@@ -2650,7 +2650,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                           {r.text && <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.6, marginTop: 6 }}>{r.text}</p>}
                           {r.reply_text && (
                             <div style={{ background: '#F0FDF4', borderRadius: 10, padding: '10px 14px', borderLeft: '3px solid #86EFAC', marginTop: 10 }}>
-                              <div style={{ fontSize: 11, color: '#166534', fontWeight: 700, marginBottom: 4 }}>İşletme Yanıtı</div>
+                              <div style={{ fontSize: 11, color: '#166534', fontWeight: 600, marginBottom: 4 }}>İşletme Yanıtı</div>
                               <p style={{ fontSize: 13, color: '#15803D', margin: 0 }}>{r.reply_text}</p>
                             </div>
                           )}
@@ -2668,7 +2668,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
           {activeTab === 'randevu' && (
             <div style={sc}>
               <div style={scHd}>
-                <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700 }}>Randevu Talebi</h3>
+                <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600 }}>Randevu Talebi</h3>
                 {randevuKapali ? (
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: '#92400E' }}>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#B45309', display: 'inline-block' }} />
@@ -2684,7 +2684,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               <div style={{ ...scBody, textAlign: 'center', padding: '40px 24px' }}>
                 {randevuKapali ? (<>
                   <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 48, color: '#B45309', display: 'block', marginBottom: 16 }} />
-                  <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Online Randevu Kapalı</div>
+                  <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Online Randevu Kapalı</div>
                   <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 480, margin: '0 auto' }}>
                     {katilmamisGizli ? (<>
                       <strong style={{ color: 'var(--text)' }}>{name}</strong> henüz Hekimhane&apos;ye katılmadı; iletişim bilgileri gizli olduğu için
@@ -2706,13 +2706,13 @@ export default function ProfilSayfasi(props: ProfilProps) {
                   {katilmamis && !katilmamisGizli && <div style={{ display: 'flex', justifyContent: 'center' }}><KatilmamisTelefon tel={tel} /></div>}
                 </>) : (<>
                   <i className="fa-regular fa-calendar-check" style={{ fontSize: 48, color: '#059669', display: 'block', marginBottom: 16 }} />
-                  <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Sizi Arayalım, Randevunuzu Oluşturalım</div>
+                  <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Sizi Arayalım, Randevunuzu Oluşturalım</div>
                   <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 420, margin: '0 auto 24px' }}>
                     Ad, soyad ve telefon numaranızı bırakın; işletme yetkilisi sizi arayarak
                     size uygun tarih ve saate randevunuzu oluştursun.
                   </p>
                   <button onClick={() => setRandevuModal(true)}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 24 }}>
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', marginBottom: 24 }}>
                     <i className="fa-solid fa-calendar-plus" /> Randevu Talebi Bırak
                   </button>
                   {!randevuAktif && <TalepNotu style={{ maxWidth: 460, margin: '14px auto 18px' }} />}
@@ -2739,7 +2739,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
             <div style={{ background: '#2D2D2D', padding: '20px 22px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                 <div>
-                  <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 700, color: 'white', marginBottom: 2 }}>Online Randevu</h4>
+                  <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600, color: 'white', marginBottom: 2 }}>Online Randevu</h4>
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,.45)' }}>randevu sistemi</div>
                 </div>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: randevuAktif ? 'rgba(52,199,89,.16)' : 'rgba(255,255,255,.1)', border: `1px solid ${randevuAktif ? 'rgba(52,199,89,.5)' : 'rgba(255,255,255,.18)'}`, borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600, color: randevuAktif ? '#8AE6A6' : 'rgba(255,255,255,.6)', flexShrink: 0 }}>
@@ -2752,7 +2752,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 /* Kamu hastanesi / devlet hekimi: tarih şeridi ve "yine de talep gönderin" yanıltıcı → MHRS yönlendirmesi */
                 <div style={{ textAlign: 'center', padding: '2px 2px 0' }}>
                   <i className="fa-regular fa-calendar-xmark" style={{ fontSize: 28, color: '#B45309', display: 'block', marginBottom: 8 }} />
-                  <div style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--text)' }}>Online randevu kapalı</div>
+                  <div style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--text)' }}>Online randevu kapalı</div>
                   <p style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6, margin: '6px 0 0' }}>
                     {katilmamis
                       ? 'Bu profil henüz Hekimhane’ye katılmadı; randevu talebi alınamıyor.'
@@ -2766,7 +2766,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
               {randevuAktif ? (
                 <>
                   {/* Canlı tarih şeridi — açık günler tıklanabilir, doğrudan saat seçimine götürür */}
-                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 8 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 8 }}>
                     Tarih <span style={{ textTransform: 'none', fontWeight: 600, color: '#059669', letterSpacing: 0 }}>· açık günü seçin</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 5, marginBottom: 12 }}>
@@ -2776,8 +2776,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
                         <button key={g.iso} type="button" disabled={!g.acik} onClick={() => g.acik && acikGun(g.iso)}
                           title={g.acik ? `${g.uygun} uygun saat — tıklayın` : 'Bu gün kapalı'}
                           style={{ border: `1.5px solid ${g.acik ? '#A7F3D0' : 'var(--border)'}`, background: g.acik ? '#F0FDF4' : '#F9FAFB', borderRadius: 10, padding: '7px 2px 5px', textAlign: 'center', cursor: g.acik ? 'pointer' : 'not-allowed', fontFamily: 'inherit', opacity: g.acik ? 1 : .5, transition: 'transform .1s' }}>
-                          <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: g.acik ? '#059669' : 'var(--muted)' }}>{g.bugun ? 'Bug' : days[g.dow]}</div>
-                          <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)', lineHeight: 1.1 }}>{g.gun}</div>
+                          <div style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', color: g.acik ? '#059669' : 'var(--muted)' }}>{g.bugun ? 'Bug' : days[g.dow]}</div>
+                          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)', lineHeight: 1.1 }}>{g.gun}</div>
                           <div style={{ height: 6, marginTop: 3 }}>{g.acik && <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#34C759', display: 'inline-block' }} />}</div>
                         </button>
                       );
@@ -2791,7 +2791,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 </>
               ) : (
                 <>
-                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 8 }}>Tarih</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--muted)', marginBottom: 8 }}>Tarih</div>
                   <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
                     {Array.from({ length: 5 }, (_, i) => {
                       const d = new Date(); d.setDate(d.getDate() + i);
@@ -2805,8 +2805,8 @@ export default function ProfilSayfasi(props: ProfilProps) {
                           onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.borderColor = '#A7F3D0'; }}
                           onMouseLeave={e => { e.currentTarget.style.opacity = '.55'; e.currentTarget.style.borderColor = 'var(--border)'; }}
                           style={{ flex: 1, border: '1.5px dashed var(--border)', background: '#F9FAFB', borderRadius: 10, padding: '8px 4px', textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit', opacity: .55, transition: 'opacity .12s, border-color .12s' }}>
-                          <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)' }}>{days[d.getDay()]}</div>
-                          <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)' }}>{d.getDate()}</div>
+                          <div style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', color: 'var(--muted)' }}>{days[d.getDay()]}</div>
+                          <div style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)' }}>{d.getDate()}</div>
                         </button>
                       );
                     })}
@@ -2818,7 +2818,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
                 </>
               )}
               <button onClick={() => { setPreselectDate(''); setRandevuModal(true); }}
-                style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}>
+                style={{ width: '100%', padding: 13, background: '#059669', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}>
                 <i className={`fa-solid ${randevuAktif ? 'fa-calendar-check' : 'fa-calendar-plus'}`} /> {randevuAktif ? 'Randevu Al' : 'Randevu Talep Et'}
               </button>
               {!randevuAktif && <TalepNotu />}
@@ -2831,13 +2831,13 @@ export default function ProfilSayfasi(props: ProfilProps) {
               zaten üstteki başlıkta. Randevu widget'ı yukarı alındı; yalnız başlıkta olmayan bilgiler burada. */}
           {(acik_24_saat || calisma_saatleri) && (
           <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '20px 22px', marginBottom: 20 }}>
-            <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 15, fontWeight: 700, marginBottom: 14 }}>Çalışma Saatleri</h4>
+            <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 15, fontWeight: 600, marginBottom: 14 }}>Çalışma Saatleri</h4>
             {(acik_24_saat || calisma_saatleri) && (
               <div style={{ display: 'flex', gap: 10, marginBottom: 10, fontSize: 13, alignItems: 'flex-start' }}>
                 <i className="fa-regular fa-clock" style={{ width: 18, color: 'var(--navy)', fontSize: 13, marginTop: 2 }} />
                 <div>
                   {acik_24_saat
-                    ? <span style={{ fontWeight: 700, color: '#065F46', background: '#ECFDF5', padding: '1px 8px', borderRadius: 8, border: '1px solid #A7F3D0', fontSize: 12 }}>24 Saat Açık</span>
+                    ? <span style={{ fontWeight: 600, color: '#065F46', background: '#ECFDF5', padding: '1px 8px', borderRadius: 8, border: '1px solid #A7F3D0', fontSize: 12 }}>24 Saat Açık</span>
                     : (() => {
                         try {
                           const sch = JSON.parse(calisma_saatleri || '{}') as Record<string,{acik:boolean;baslangic:string;bitis:string}>;
@@ -2878,7 +2878,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
 
           {/* Kurum bilgisi */}
           <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '20px 22px', marginBottom: 20 }}>
-            <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 15, fontWeight: 700, marginBottom: 14 }}>Kurum Bilgisi</h4>
+            <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 15, fontWeight: 600, marginBottom: 14 }}>Kurum Bilgisi</h4>
             {[
               { icon: 'fa-tooth',     v: typeLabel },
               { icon: 'fa-city',      v: il },
@@ -2934,7 +2934,7 @@ export default function ProfilSayfasi(props: ProfilProps) {
           {/* Sigorta sidebar kartı (sadece doktor) */}
           {entityType === 'doktor' && sigorta && sigorta.length > 0 && (
             <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '20px 22px', marginBottom: 20 }}>
-              <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 15, fontWeight: 700, marginBottom: 12 }}>Sigorta</h4>
+              <h4 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Sigorta</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {sigorta.map(s => (
                   <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>

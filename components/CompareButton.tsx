@@ -38,7 +38,7 @@ export default function CompareButton({ item, variant = 'corner' }: { item: Comp
         border: `1.5px solid ${active ? 'var(--navy)' : flash ? '#F59E0B' : 'var(--border)'}`,
         background: active ? 'var(--navy)' : 'rgba(255,255,255,.92)',
         color: active ? 'white' : flash ? '#B45309' : 'var(--muted)',
-        fontSize: 11.5, fontWeight: 700, cursor: 'pointer',
+        fontSize: 11.5, fontWeight: 600, cursor: 'pointer',
         fontFamily: 'inherit', letterSpacing: '-.1px',
         whiteSpace: 'nowrap',
         transition: 'all .15s',

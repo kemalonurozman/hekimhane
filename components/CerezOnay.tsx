@@ -53,7 +53,7 @@ export default function CerezOnay() {
   };
 
   const dugme: React.CSSProperties = {
-    flex: '1 1 0', minWidth: 120, height: 44, padding: '0 16px', borderRadius: 12, fontSize: 14, fontWeight: 700,
+    flex: '1 1 0', minWidth: 120, height: 44, padding: '0 16px', borderRadius: 12, fontSize: 14, fontWeight: 600,
     fontFamily: 'inherit', cursor: 'pointer', whiteSpace: 'nowrap',
   };
 
@@ -71,7 +71,7 @@ export default function CerezOnay() {
             @keyframes hk-cerez-gir { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
             @media (prefers-reduced-motion: reduce) { .hk-cerez { animation: none; } }
           `}</style>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#1D1D1F', marginBottom: 6 }}>Gizliliğiniz sizin kararınız</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: '#1D1D1F', marginBottom: 6 }}>Gizliliğiniz sizin kararınız</div>
           <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6, color: '#4A4A4F' }}>
             Sitenin çalışması için gerekli kayıtları kullanıyoruz. İzin verirseniz, siteyi geliştirmek için kimliğinizi
             belirlemeyen ziyaret istatistikleri de tutarız. Ayrıntılar: <Link href="/cerez" style={{ color: '#1A335E', fontWeight: 600 }}>Çerez Politikası</Link>.
@@ -81,14 +81,14 @@ export default function CerezOnay() {
             <div style={{ marginTop: 14, borderTop: '1px solid #F0F0F5' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 0', borderBottom: '1px solid #F0F0F5' }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#1D1D1F' }}>Zorunlu</div>
+                  <div style={{ fontSize: 13.5, fontWeight: 600, color: '#1D1D1F' }}>Zorunlu</div>
                   <div style={{ fontSize: 12.5, color: '#6E6E73', lineHeight: 1.5, marginTop: 2 }}>Oturum açma, güvenlik ve bu tercihin hatırlanması. Site bunlar olmadan çalışmaz.</div>
                 </div>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#8E8E93', whiteSpace: 'nowrap', paddingTop: 2 }}>Her zaman açık</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#8E8E93', whiteSpace: 'nowrap', paddingTop: 2 }}>Her zaman açık</span>
               </div>
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 0', cursor: 'pointer' }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#1D1D1F' }}>Ziyaret istatistikleri</div>
+                  <div style={{ fontSize: 13.5, fontWeight: 600, color: '#1D1D1F' }}>Ziyaret istatistikleri</div>
                   <div style={{ fontSize: 12.5, color: '#6E6E73', lineHeight: 1.5, marginTop: 2 }}>Hangi sayfaların ne kadar ziyaret edildiği ve sayfa hızı. Çerez bırakmaz, reklam için kullanılmaz.</div>
                 </div>
                 <input type="checkbox" checked={analitik} onChange={e => setAnalitik(e.target.checked)}

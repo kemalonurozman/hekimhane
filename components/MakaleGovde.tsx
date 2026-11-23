@@ -24,7 +24,7 @@ export default function MakaleGovde({ bloklar }: { bloklar: BlogBlok[] }) {
   return (
     <>
       {bloklar.map((b, i) => {
-        if (b.tip === 'h') return <h2 key={i} style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 800, color: 'var(--navy)', margin: '30px 0 12px' }}>{renderInline(b.metin)}</h2>;
+        if (b.tip === 'h') return <h2 key={i} style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 600, color: 'var(--navy)', margin: '30px 0 12px' }}>{renderInline(b.metin)}</h2>;
         if (b.tip === 'liste') return (
           <ul key={i} style={{ margin: '4px 0 18px', paddingLeft: 4, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 9 }}>
             {b.ogeler.map((o, j) => (

@@ -39,7 +39,7 @@ function MiniAgiz() {
       ))}
       <circle cx="110" cy="92" r="26" fill="#fff" stroke="#EEF1F5" strokeWidth="5" />
       <circle cx="110" cy="92" r="26" fill="none" stroke="#1B3A69" strokeWidth="5" strokeLinecap="round" strokeDasharray="163" strokeDashoffset="70" transform="rotate(-90 110 92)" />
-      <text x="110" y="98" textAnchor="middle" fontSize="15" fontWeight="800" fill="#1B3A69">1:42</text>
+      <text x="110" y="98" textAnchor="middle" fontSize="15" fontWeight="600" fill="#1B3A69">1:42</text>
     </svg>
   );
 }

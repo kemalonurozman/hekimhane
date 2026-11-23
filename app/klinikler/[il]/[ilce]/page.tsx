@@ -109,13 +109,13 @@ export default async function IlceKlinikPage({ params }: Props) {
             <Link href={`/klinikler?il=${encodeURIComponent(il)}`} style={{ color: 'inherit', textDecoration: 'none' }}>{il}</Link><span>›</span>
             <span style={{ color: 'white', fontWeight: 600 }}>{ilce}</span>
           </nav>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, letterSpacing: '-0.5px', margin: 0 }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 600, letterSpacing: '-0.25px', margin: 0 }}>
             {ilce} Diş Klinikleri
           </h1>
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,.85)', marginTop: 8, maxWidth: 760, lineHeight: 1.6 }}>
             {ilce}, {il} bölgesindeki {sorted.length} diş kliniği ve diş hekimi. Puanları, hasta yorumları ve iletişim bilgileriyle karşılaştırın, size en yakın diş hekimini bulun.
           </p>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 14, background: 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 14, background: 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600 }}>
             <i className="fa-solid fa-tooth" style={{ color: 'var(--gold)' }} /> {sorted.length} klinik
           </div>
         </div>
@@ -128,7 +128,7 @@ export default async function IlceKlinikPage({ params }: Props) {
 
         {availSpecs.length > 0 && (
           <section style={{ marginTop: 40 }}>
-            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 700, color: 'var(--navy)', marginBottom: 14 }}>{ilce}'de Diş Tedavileri</h2>
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 600, color: 'var(--navy)', marginBottom: 14 }}>{ilce}'de Diş Tedavileri</h2>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
               {availSpecs.map(s => (
                 <Link key={s} href={`/dis-tedavileri/${ilPath}/${ilcePath}/${toSlug(s)}`} style={chip}>{ilce} {s}</Link>
@@ -138,7 +138,7 @@ export default async function IlceKlinikPage({ params }: Props) {
         )}
 
         <section style={{ marginTop: 32 }}>
-          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 700, color: 'var(--navy)', marginBottom: 14 }}>{ilce}'de Popüler Tedaviler</h2>
+          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 600, color: 'var(--navy)', marginBottom: 14 }}>{ilce}'de Popüler Tedaviler</h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
             {TREATMENTS.slice(0, 8).map(t => (
               <Link key={t.slug} href={`/dis-tedavileri/${ilPath}/${ilcePath}/${t.slug}`} style={chip}>{ilce} {t.name}</Link>
@@ -147,11 +147,11 @@ export default async function IlceKlinikPage({ params }: Props) {
         </section>
 
         <section style={{ marginTop: 40 }}>
-          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 700, color: 'var(--navy)', marginBottom: 16 }}>Sıkça Sorulan Sorular</h2>
+          <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 600, color: 'var(--navy)', marginBottom: 16 }}>Sıkça Sorulan Sorular</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {faq.map((f, i) => (
               <div key={i} style={{ background: 'white', borderRadius: 14, border: '1px solid var(--border)', padding: '16px 18px' }}>
-                <h3 style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--navy)', marginBottom: 6 }}>{f.q}</h3>
+                <h3 style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{f.q}</h3>
                 <p style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.6, margin: 0 }}>{f.a}</p>
               </div>
             ))}

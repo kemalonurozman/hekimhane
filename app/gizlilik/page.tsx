@@ -97,7 +97,7 @@ Bu haklarınızı kullanmak için **hekimhane.com.tr/iletisim** adresindeki ilet
             <i className="fa-solid fa-chevron-right" style={{ fontSize: 8 }} />
             <span style={{ color: 'rgba(255,255,255,.9)' }}>Gizlilik Politikası</span>
           </div>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 34, fontWeight: 800, color: 'white', marginBottom: 10 }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 34, fontWeight: 600, color: 'white', marginBottom: 10 }}>
             🔒 Gizlilik Politikası
           </h1>
           <p style={{ color: 'rgba(255,255,255,.65)', fontSize: 14 }}>
@@ -119,7 +119,7 @@ Bu haklarınızı kullanmak için **hekimhane.com.tr/iletisim** adresindeki ilet
 
           {SECTIONS.map((s, i) => (
             <div key={i} style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '28px 32px', marginBottom: 16 }}>
-              <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 18, fontWeight: 800, color: 'var(--navy)', marginBottom: 14 }}>{s.title}</h2>
+              <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 18, fontWeight: 600, color: 'var(--navy)', marginBottom: 14 }}>{s.title}</h2>
               <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.9, whiteSpace: 'pre-line' }}>
                 {s.content.split('\n').map((line, j) => {
                   if (line.startsWith('• **')) {
@@ -149,7 +149,7 @@ Bu haklarınızı kullanmak için **hekimhane.com.tr/iletisim** adresindeki ilet
         {/* Sağ panel */}
         <div style={{ position: 'sticky', top: 84 }}>
           <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '22px', marginBottom: 16 }}>
-            <h4 style={{ fontWeight: 800, fontSize: 14, color: 'var(--navy)', marginBottom: 14 }}>İçindekiler</h4>
+            <h4 style={{ fontWeight: 600, fontSize: 14, color: 'var(--navy)', marginBottom: 14 }}>İçindekiler</h4>
             {SECTIONS.map((s, i) => (
               <div key={i} style={{ fontSize: 13, color: 'var(--muted)', paddingBottom: 8, marginBottom: 8, borderBottom: i < SECTIONS.length - 1 ? '1px solid var(--border)' : 'none' }}>
                 {s.title}
@@ -158,11 +158,11 @@ Bu haklarınızı kullanmak için **hekimhane.com.tr/iletisim** adresindeki ilet
           </div>
           <div style={{ background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)', border: '1.5px solid #C7D2FE', borderRadius: 16, padding: '20px 22px' }}>
             <div style={{ fontSize: 22, marginBottom: 8 }}>✉️</div>
-            <h4 style={{ fontWeight: 800, fontSize: 14, color: 'var(--navy)', marginBottom: 6 }}>Sorunuz mu var?</h4>
+            <h4 style={{ fontWeight: 600, fontSize: 14, color: 'var(--navy)', marginBottom: 6 }}>Sorunuz mu var?</h4>
             <p style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.6, marginBottom: 14 }}>
               Gizlilik konularında ekibimizle iletişime geçebilirsiniz.
             </p>
-            <Link href="/iletisim" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 16px', background: 'var(--navy)', color: 'white', borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+            <Link href="/iletisim" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 16px', background: 'var(--navy)', color: 'white', borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
               İletişime Geç
             </Link>
           </div>

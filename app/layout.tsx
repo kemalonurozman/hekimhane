@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Plus_Jakarta_Sans, Manrope } from 'next/font/google';
+import { Manrope } from 'next/font/google';
 import './globals.css';
 import './styles/hk-components.css';
 import Navbar from '@/components/Navbar';
@@ -8,20 +8,8 @@ import CompareBar from '@/components/CompareBar';
 import CerezOnay from '@/components/CerezOnay';
 import SohbetBalonu from '@/components/SohbetBalonu';
 
-// Tasarım sistemi v3: gövde Inter, başlık Plus Jakarta Sans. latin-ext: Türkçe harfler (İ ş ğ ı) önden yüklenir.
-const inter = Inter({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-inter',
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-jakarta',
-  weight: ['600', '700', '800'],
-  display: 'swap',
-});
+// Yazı tipi: sistem fontu (Mac/iPhone'da SF Pro, Windows'ta Segoe UI, Android'de Roboto) —
+// Doktorio ve Ozvelo sohbet balonuyla aynı yığın, `--font-system` (globals.css). Web fontu indirilmez.
 
 // Yazı işareti (logo): Manrope Bold — marka kimliği v1. Yalnız logoda kullanılır.
 const manrope = Manrope({
@@ -74,7 +62,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr" className={`${inter.variable} ${jakarta.variable} ${manrope.variable}`}>
+    <html lang="tr" className={manrope.variable}>
       <head>
         <link
           rel="stylesheet"

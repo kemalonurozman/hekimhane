@@ -58,7 +58,7 @@ export default function ProCta({ boyut = 'md', koyu = false }: { boyut?: 'md' | 
       <button type="button" onClick={tikla} disabled={durum === 'calisiyor'}
         className="vt-dugme oz-dugme--altin hk-cta-isik"
         style={{
-          border: 'none', fontFamily: 'inherit', fontWeight: 800, letterSpacing: '.2px',
+          border: 'none', fontFamily: 'inherit', fontWeight: 600, letterSpacing: '.2px',
           ...(lg ? { minHeight: 58, padding: '0 34px', fontSize: 17 } : {}),
           cursor: durum === 'calisiyor' ? 'default' : 'pointer',
           opacity: durum === 'calisiyor' ? 0.7 : 1,

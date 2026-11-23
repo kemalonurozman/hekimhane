@@ -38,24 +38,24 @@ function YerelStil() {
       .sh-sec:hover { background: #fff; border-color: #B9C6DE; box-shadow: 0 8px 22px -14px rgba(18,41,77,.35); }
       .sh-sec:focus-visible { outline: none; background: #fff; border-color: #12294D; box-shadow: 0 0 0 4px rgba(18,41,77,.12); }
       .sh-sec__ikon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #12294D; margin-bottom: 12px; }
-      .sh-sec b { display: block; font-size: 15px; font-weight: 700; color: #0E1A2C; margin-bottom: 3px; }
+      .sh-sec b { display: block; font-size: 15px; font-weight: 600; color: #0E1A2C; margin-bottom: 3px; }
       .sh-sec span { display: block; font-size: 13px; line-height: 1.5; color: #6E6E73; }
       .sh-metin { align-self: flex-start; display: inline-flex; align-items: center; gap: 5px; padding: 4px 2px; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 600; color: #586273; cursor: pointer; }
       .sh-metin:hover { color: #12294D; }
       .sh-profil { display: flex; align-items: center; gap: 13px; }
       .sh-onay { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
       .sh-onay input { width: 20px; height: 20px; margin: 2px 0 0; flex: none; accent-color: #12294D; cursor: pointer; }
-      .sh-onay b { display: block; font-size: 15px; font-weight: 700; color: #0E1A2C; margin-bottom: 3px; }
+      .sh-onay b { display: block; font-size: 15px; font-weight: 600; color: #0E1A2C; margin-bottom: 3px; }
       .sh-onay span { display: block; font-size: 13px; line-height: 1.6; color: #586273; }
       .sh-uyari { display: flex; align-items: flex-start; gap: 14px; }
       .sh-uyari__ikon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 13px; background: #FFF3D6; flex: none; }
-      .sh-uyari h2 { margin: 0 0 6px; font-size: 16px; font-weight: 700; color: #0E1A2C; }
+      .sh-uyari h2 { margin: 0 0 6px; font-size: 16px; font-weight: 600; color: #0E1A2C; }
       .sh-uyari p { margin: 0; font-size: 14px; line-height: 1.65; color: #586273; }
       .sh-surec { padding: 16px; border-radius: 16px; background: #F2F3F5; }
-      .sh-surec h3 { margin: 0 0 12px; font-size: 12.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #6E6E73; }
+      .sh-surec h3 { margin: 0 0 12px; font-size: 12.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #6E6E73; }
       .sh-surec .kf-adim { align-items: center; }
       .sh-tamam { display: grid; justify-items: center; gap: 10px; padding: 12px 0; text-align: center; }
-      .sh-tamam h2 { margin: 6px 0 0; font-family: var(--font-display); font-size: 26px; font-weight: 800; letter-spacing: -.03em; color: #0E1A2C; }
+      .sh-tamam h2 { margin: 6px 0 0; font-family: var(--font-display); font-size: 26px; font-weight: 600; letter-spacing: -.015em; color: #0E1A2C; }
       .sh-tamam p { margin: 0 0 12px; max-width: 420px; font-size: 15px; line-height: 1.65; color: #586273; }
       .sh-tamam p strong { color: #0E1A2C; }
       .sh-tamam button { border: 0; cursor: pointer; font-family: inherit; }
@@ -490,10 +490,10 @@ export default function SahiplenForm({ entityId, entityType, entityName, isClaim
         <div className="sh-profil">
           {avatar
             ? <img src={avatar} alt="" style={{ width: 44, height: 44, borderRadius: '50%', flexShrink: 0 }} /> // eslint-disable-line @next/next/no-img-element
-            : <span style={{ display: 'grid', placeItems: 'center', width: 44, height: 44, borderRadius: '50%', background: '#12294D', flexShrink: 0, color: '#EBCF8D', fontSize: 17, fontWeight: 700 }} aria-hidden="true">{name.charAt(0).toUpperCase()}</span>
+            : <span style={{ display: 'grid', placeItems: 'center', width: 44, height: 44, borderRadius: '50%', background: '#12294D', flexShrink: 0, color: '#EBCF8D', fontSize: 17, fontWeight: 600 }} aria-hidden="true">{name.charAt(0).toUpperCase()}</span>
           }
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 700, fontSize: 15, color: '#0E1A2C', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
+            <div style={{ fontWeight: 600, fontSize: 15, color: '#0E1A2C', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
             <div style={{ fontSize: 13, color: '#6E6E73', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</div>
           </div>
           <span className="vt-ucretsiz" style={{ flexShrink: 0 }}>Giriş yapıldı</span>

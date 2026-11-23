@@ -141,7 +141,7 @@ export default function ListMap({ markers, color = '#1A335E' }: Props) {
                 ? `<strong style="color:#111C2E">${ilAdi}</strong><br><span style="color:#4A5568">${count} kayıt</span><br><span style="font-size:10px;color:${color};font-weight:600">↗ Yakınlaştırmak için tıklayın</span>`
                 : `<strong style="color:#9CA3AF">${ilAdi}</strong><br><span style="color:#D1D5DB;font-size:10px">kayıt yok</span>`;
               layer.bindTooltip(
-                `<div style="font-family:system-ui;font-size:12px;padding:4px 8px;line-height:1.6">${label}</div>`,
+                `<div style="font-family:var(--font-system);font-size:12px;padding:4px 8px;line-height:1.6">${label}</div>`,
                 { sticky: true, opacity: 0.97 }
               );
               layer.on('mouseover', () => {
@@ -184,7 +184,7 @@ export default function ListMap({ markers, color = '#1A335E' }: Props) {
               const size = n > 99 ? 46 : n > 9 ? 40 : 34;
               return L.divIcon({
                 className: '',
-                html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.3);line-height:${size-6}px;text-align:center;font-size:${n>99?11:13}px;font-weight:800;color:white;">${n}</div>`,
+                html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.3);line-height:${size-6}px;text-align:center;font-size:${n>99?11:13}px;font-weight:600;color:white;">${n}</div>`,
                 iconSize: [size,size], iconAnchor: [size/2,size/2],
               });
             },
@@ -197,12 +197,12 @@ export default function ListMap({ markers, color = '#1A335E' }: Props) {
       spread.forEach(m => {
         bounds.push([m.lat, m.lng]);
         const popup = `
-          <div style="font-family:system-ui,sans-serif;min-width:190px;padding:4px 2px">
-            <div style="font-weight:700;font-size:13px;color:#111C2E;margin-bottom:4px;line-height:1.3">${m.name}</div>
+          <div style="font-family:var(--font-system);min-width:190px;padding:4px 2px">
+            <div style="font-weight:600;font-size:13px;color:#111C2E;margin-bottom:4px;line-height:1.3">${m.name}</div>
             ${m.type    ? `<div style="font-size:11px;color:#4A5568;margin-bottom:5px">${m.type}</div>` : ''}
-            ${m.nobetci ? `<div style="font-size:11px;color:#DC2626;font-weight:700;margin-bottom:5px">🌙 Nöbetçi</div>` : ''}
+            ${m.nobetci ? `<div style="font-size:11px;color:#DC2626;font-weight:600;margin-bottom:5px">🌙 Nöbetçi</div>` : ''}
             ${m.tel     ? `<a href="tel:${m.tel}" style="display:block;font-size:12px;color:#1A335E;font-weight:600;margin-bottom:8px">Telefonla ara</a>` : ''}
-            <a href="${m.href}" style="display:inline-block;padding:6px 12px;background:${color};color:white;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none">Profili Gör →</a>
+            <a href="${m.href}" style="display:inline-block;padding:6px 12px;background:${color};color:white;border-radius:8px;font-size:11px;font-weight:600;text-decoration:none">Profili Gör →</a>
           </div>`;
         const pin = L.marker([m.lat, m.lng], { icon: pinIcon }).bindPopup(popup, { maxWidth: 240 });
         if (group) group.addLayer(pin);
@@ -215,8 +215,8 @@ export default function ListMap({ markers, color = '#1A335E' }: Props) {
       legend.onAdd = () => {
         const div = L.DomUtil.create('div');
         div.innerHTML = `
-          <div style="background:rgba(255,255,255,.93);border:1px solid #E5E5EA;border-radius:8px;padding:7px 10px;font-family:system-ui;font-size:10px;color:#6E6E73">
-            <div style="font-weight:700;color:#111C2E;margin-bottom:5px;font-size:11px">Yoğunluk</div>
+          <div style="background:rgba(255,255,255,.93);border:1px solid #E5E5EA;border-radius:8px;padding:7px 10px;font-family:var(--font-system);font-size:10px;color:#6E6E73">
+            <div style="font-weight:600;color:#111C2E;margin-bottom:5px;font-size:11px">Yoğunluk</div>
             <div style="display:flex;gap:3px;align-items:center">
               ${[0.15,0.28,0.42,0.56,0.70].map(o =>
                 `<div style="width:18px;height:12px;border-radius:3px;background:rgba(${rgb[0]},${rgb[1]},${rgb[2]},${o});border:1px solid rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.25)"></div>`

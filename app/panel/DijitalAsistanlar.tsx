@@ -176,13 +176,13 @@ const ROZET: Record<string, { metin: string; bg: string; fg: string }> = {
 };
 const Rozet = ({ d }: { d: string }) => {
   const r = ROZET[d] || ROZET.bekliyor;
-  return <span style={{ padding: '2px 9px', borderRadius: 999, fontSize: 11.5, fontWeight: 700, background: r.bg, color: r.fg, whiteSpace: 'nowrap' }}>{r.metin}</span>;
+  return <span style={{ padding: '2px 9px', borderRadius: 999, fontSize: 11.5, fontWeight: 600, background: r.bg, color: r.fg, whiteSpace: 'nowrap' }}>{r.metin}</span>;
 };
 
 function Sayac({ sayi, etiket }: { sayi: number; etiket: string }) {
   return (
     <div style={{ flex: '1 1 160px', padding: '14px 16px', borderRadius: 14, background: '#F7F8FA', border: `1px solid ${BORDER}` }}>
-      <div style={{ fontSize: 28, fontWeight: 700, color: TEXT, letterSpacing: '-0.8px', fontVariantNumeric: 'tabular-nums' }}>{sayi}</div>
+      <div style={{ fontSize: 28, fontWeight: 600, color: TEXT, letterSpacing: '-0.4px', fontVariantNumeric: 'tabular-nums' }}>{sayi}</div>
       <div style={{ fontSize: 12.5, color: MUTED, marginTop: 2 }}>{etiket}</div>
     </div>
   );
@@ -226,7 +226,7 @@ export function AsistanBolumuTab({ bolum, aktifIsletme, onGit }: {
 
   const ust = (
     <>
-      <h1 style={{ fontSize: 26, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: '-0.6px' }}>{b.baslik}</h1>
+      <h1 style={{ fontSize: 26, fontWeight: 600, color: TEXT, margin: 0, letterSpacing: '-0.3px' }}>{b.baslik}</h1>
       <p style={{ fontSize: 14, color: MUTED, margin: '6px 0 16px', lineHeight: 1.6 }}>{b.ozet}</p>
     </>
   );
@@ -260,7 +260,7 @@ export function AsistanBolumuTab({ bolum, aktifIsletme, onGit }: {
 
       <div style={{ ...kart, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ minWidth: 0, flex: '1 1 260px' }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: TEXT }}>Ayrıntılar ve ayarlar Ozvelo&apos;da</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: TEXT }}>Ayrıntılar ve ayarlar Ozvelo&apos;da</div>
           <div style={{ fontSize: 13, color: MUTED, marginTop: 3, lineHeight: 1.55 }}>
             Aşağıdaki bilgiler Ozvelo&apos;daki asistanınızdan anlık alınır. Yanıtlamak, onaylamak ve ayar yapmak için Ozvelo&apos;ya şifresiz geçin.
           </div>
@@ -289,7 +289,7 @@ export function AsistanBolumuTab({ bolum, aktifIsletme, onGit }: {
             <Sayac sayi={ozet.eposta.yanitlanan_7g} etiket="Son 7 günde yanıtlanan" />
           </div>
           <div style={kart}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: TEXT, marginBottom: 6 }}>Son e-postalar</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: TEXT, marginBottom: 6 }}>Son e-postalar</div>
             {ozet.eposta.son.length
               ? ozet.eposta.son.map((e, i) => <Satir key={i} sol={e.konu} alt={`${e.kimden} · ${zaman(e.tarih)}`} sag={<Rozet d={e.durum} />} />)
               : <div style={{ fontSize: 13.5, color: MUTED, paddingTop: 6 }}>Henüz e-posta yok.</div>}
@@ -304,7 +304,7 @@ export function AsistanBolumuTab({ bolum, aktifIsletme, onGit }: {
             <Sayac sayi={ozet.randevu.son_7g} etiket="Son 7 günde gelen talep" />
           </div>
           <div style={kart}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: TEXT, marginBottom: 6 }}>Asistanın aldığı son talepler</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: TEXT, marginBottom: 6 }}>Asistanın aldığı son talepler</div>
             {ozet.randevu.son.length
               ? ozet.randevu.son.map((t, i) => <Satir key={i} sol={t.kisi} alt={`${t.zaman ? zaman(t.zaman) : 'Saat belirtilmedi'} · ${t.kanal}`} sag={<Rozet d={t.durum} />} />)
               : <div style={{ fontSize: 13.5, color: MUTED, paddingTop: 6 }}>Henüz talep yok.</div>}
@@ -325,7 +325,7 @@ export function AsistanBolumuTab({ bolum, aktifIsletme, onGit }: {
       {ozetDurum === 'tamam' && ozet && bolum === 'sss' && (
         <div style={kart}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, flexWrap: 'wrap', marginBottom: 6 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: TEXT }}>Asistanınızın bildiği ek sorular</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: TEXT }}>Asistanınızın bildiği ek sorular</div>
             <div style={{ fontSize: 13, color: MUTED }}>{ozet.sss.toplam} soru</div>
           </div>
           {ozet.sss.ornekler.length

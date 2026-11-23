@@ -30,7 +30,7 @@ export default function AbonelikIptaliPage() {
             <i className="fa-solid fa-chevron-right" style={{ fontSize: 8 }} />
             <span style={{ color: 'rgba(255,255,255,.9)' }}>Abonelik İptali</span>
           </div>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 34, fontWeight: 800, color: 'white', marginBottom: 10 }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 34, fontWeight: 600, color: 'white', marginBottom: 10 }}>
             Abonelik İptali
           </h1>
           <p style={{ color: 'rgba(255,255,255,.7)', fontSize: 15, maxWidth: 560, lineHeight: 1.7 }}>
@@ -46,25 +46,25 @@ export default function AbonelikIptaliPage() {
 
           {/* Yol 1 — panelden kendiniz */}
           <div style={{ ...kart, padding: 'clamp(20px, 5vw, 32px)' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '4px 12px', borderRadius: 20, background: '#ECFDF5', color: '#065F46', fontSize: 11, fontWeight: 800, letterSpacing: '.6px', textTransform: 'uppercase', marginBottom: 12 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '4px 12px', borderRadius: 20, background: '#ECFDF5', color: '#065F46', fontSize: 11, fontWeight: 600, letterSpacing: '.6px', textTransform: 'uppercase', marginBottom: 12 }}>
               En hızlı yol
             </div>
-            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 21, fontWeight: 800, marginBottom: 6 }}>Panelden anında iptal</h2>
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 21, fontWeight: 600, marginBottom: 6 }}>Panelden anında iptal</h2>
             <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.7, marginBottom: 20 }}>
               İptal, panelinizdeki <strong>Hesabım</strong> sekmesinden üç adımda tamamlanır. Onay beklemez, anında geçerli olur.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 22 }}>
               {ADIMLAR.map(s => (
                 <div key={s.n} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--navy)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, flexShrink: 0 }}>{s.n}</div>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--navy)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, flexShrink: 0 }}>{s.n}</div>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>{s.b}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{s.b}</div>
                     <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginTop: 2 }}>{s.a}</div>
                   </div>
                 </div>
               ))}
             </div>
-            <Link href="/panel" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 22px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+            <Link href="/panel" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 22px', background: 'var(--navy)', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
               Panelde Hesabım sekmesini aç
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
             </Link>
@@ -72,7 +72,7 @@ export default function AbonelikIptaliPage() {
 
           {/* Yol 2 — form */}
           <div>
-            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 21, fontWeight: 800, marginBottom: 6 }}>Ya da iptali bize bırakın</h2>
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 21, fontWeight: 600, marginBottom: 6 }}>Ya da iptali bize bırakın</h2>
             <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.7, marginBottom: 18 }}>
               Panele erişemiyorsanız veya ödeme sayfası açılmıyorsa formu doldurun; aboneliğinizi biz kapatalım.
             </p>
@@ -93,7 +93,7 @@ export default function AbonelikIptaliPage() {
                 <i className={`fa-solid ${item.icon}`} style={{ color: item.color, fontSize: 16 }} />
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--muted)', marginBottom: 3 }}>{item.label}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--muted)', marginBottom: 3 }}>{item.label}</div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{item.value}</div>
               </div>
             </div>
@@ -101,7 +101,7 @@ export default function AbonelikIptaliPage() {
 
           {/* SSS */}
           <div style={kart}>
-            <h4 style={{ fontWeight: 700, fontSize: 14, marginBottom: 14, color: 'var(--navy)' }}>İptal Hakkında</h4>
+            <h4 style={{ fontWeight: 600, fontSize: 14, marginBottom: 14, color: 'var(--navy)' }}>İptal Hakkında</h4>
             {[
               { q: 'İptal edince üyeliğim hemen biter mi?', a: 'Hayır. Ödemesini yaptığınız dönemin sonuna kadar Pro özellikleri açık kalır; o tarihten sonra yeni ödeme alınmaz.' },
               { q: 'İşletme profilim silinir mi?', a: 'Silinmez. Profiliniz ücretsiz üyelik olarak yayında kalır; yalnızca Pro özellikleri (web sitesi, sosyal medya, rezervasyon modülü) kapanır.' },
@@ -110,7 +110,7 @@ export default function AbonelikIptaliPage() {
               { q: 'Kalan gün için iade yapılıyor mu?', a: 'Dönem ortasında iptal ettiğinizde kalan günler için kısmi iade yapılmaz; üyelik dönem sonuna kadar kullanılabilir.' },
             ].map((faq, i, arr) => (
               <div key={i} style={{ paddingBottom: i < arr.length - 1 ? 12 : 0, marginBottom: i < arr.length - 1 ? 12 : 0, borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>{faq.q}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{faq.q}</div>
                 <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>{faq.a}</div>
               </div>
             ))}
@@ -118,14 +118,14 @@ export default function AbonelikIptaliPage() {
 
           {/* Doğrudan iletişim */}
           <div style={{ background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)', border: '1.5px solid #C7D2FE', borderRadius: 18, padding: 24 }}>
-            <h3 style={{ fontWeight: 800, fontSize: 15, color: 'var(--navy)', marginBottom: 6 }}>Başka bir konu mu var?</h3>
+            <h3 style={{ fontWeight: 600, fontSize: 15, color: 'var(--navy)', marginBottom: 6 }}>Başka bir konu mu var?</h3>
             <p style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.6, marginBottom: 16 }}>
               Fatura, ödeme veya hesap sorularınız için doğrudan bize yazın.
             </p>
-            <a href="mailto:info@hekimhane.com.tr" style={{ display: 'block', fontSize: 13.5, fontWeight: 700, color: 'var(--navy)', textDecoration: 'none', marginBottom: 10 }}>
+            <a href="mailto:info@hekimhane.com.tr" style={{ display: 'block', fontSize: 13.5, fontWeight: 600, color: 'var(--navy)', textDecoration: 'none', marginBottom: 10 }}>
               info@hekimhane.com.tr
             </a>
-            <Link href="/iletisim" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 18px', background: 'var(--navy)', color: 'white', borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+            <Link href="/iletisim" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 18px', background: 'var(--navy)', color: 'white', borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
               İletişim formu
             </Link>
           </div>

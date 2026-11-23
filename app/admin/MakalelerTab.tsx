@@ -144,12 +144,12 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
     outline: 'none', boxSizing: 'border-box', resize: 'vertical',
   };
   const lbl: React.CSSProperties = {
-    fontSize: 10.5, fontWeight: 700, color: C.muted, textTransform: 'uppercase',
+    fontSize: 10.5, fontWeight: 600, color: C.muted, textTransform: 'uppercase',
     letterSpacing: 0.6, marginBottom: 5, display: 'block',
   };
   const btn = (bg: string, fg: string, bd: string): React.CSSProperties => ({
     padding: '6px 13px', borderRadius: 8, border: `1px solid ${bd}`, background: bg, color: fg,
-    fontSize: 11.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
+    fontSize: 11.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
   });
 
   const sayac = (f: Filtre) => f === 'all' ? makaleler.length : makaleler.filter(m => durumu(m) === f).length;
@@ -161,7 +161,7 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
         <button onClick={() => setMod('liste')} style={btn('transparent', C.muted, C.border)}>← Geri</button>
-        <h2 style={{ fontSize: 20, fontWeight: 800, color: C.text, margin: 0, letterSpacing: '-0.4px' }}>Yeni Makale</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 600, color: C.text, margin: 0, letterSpacing: '-0.2px' }}>Yeni Makale</h2>
       </div>
 
       <form onSubmit={yeniKaydet} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 24, display: 'flex', flexDirection: 'column', gap: 15, maxWidth: 820 }}>
@@ -221,7 +221,7 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
         {formErr && <div style={{ background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.3)', color: C.red, fontSize: 12.5, borderRadius: 9, padding: '10px 13px' }}>{formErr}</div>}
 
         <button type="submit" disabled={kaydet}
-          style={{ alignSelf: 'flex-start', padding: '11px 24px', borderRadius: 10, border: 'none', background: C.gold, color: '#111C2E', fontSize: 13.5, fontWeight: 800, cursor: kaydet ? 'default' : 'pointer', fontFamily: 'inherit', opacity: kaydet ? .6 : 1 }}>
+          style={{ alignSelf: 'flex-start', padding: '11px 24px', borderRadius: 10, border: 'none', background: C.gold, color: '#111C2E', fontSize: 13.5, fontWeight: 600, cursor: kaydet ? 'default' : 'pointer', fontFamily: 'inherit', opacity: kaydet ? .6 : 1 }}>
           {kaydet ? 'Kaydediliyor…' : form.taslak ? 'Taslağı kaydet' : 'Yayınla'}
         </button>
       </form>
@@ -233,11 +233,11 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
     <div>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14, marginBottom: 18, flexWrap: 'wrap' }}>
         <div>
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: C.text, letterSpacing: '-0.4px', margin: 0 }}>Makaleler</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 600, color: C.text, letterSpacing: '-0.2px', margin: 0 }}>Makaleler</h2>
           <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>Panelden gelen yazıları onaylayın veya kendiniz makale yayınlayın.</p>
         </div>
         <button onClick={() => { setForm({ ...BOS }); setFormErr(''); setMod('yeni'); }}
-          style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: C.gold, color: '#111C2E', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
+          style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: C.gold, color: '#111C2E', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
           + Yeni Makale
         </button>
       </div>
@@ -252,7 +252,7 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
           const aktif = filtre === f;
           return (
             <button key={f} onClick={() => setFiltre(f)}
-              style={{ padding: '7px 14px', borderRadius: 20, border: `1px solid ${aktif ? 'rgba(184,137,47,.4)' : C.border}`, background: aktif ? 'rgba(184,137,47,.14)' : 'transparent', color: aktif ? C.gold : C.muted, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: '7px 14px', borderRadius: 20, border: `1px solid ${aktif ? 'rgba(184,137,47,.4)' : C.border}`, background: aktif ? 'rgba(184,137,47,.14)' : 'transparent', color: aktif ? C.gold : C.muted, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               {FILTRE_LABEL[f]} ({sayac(f)})
             </button>
           );
@@ -277,13 +277,13 @@ export default function MakalelerTab({ onCount }: { onCount?: (n: number) => voi
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-                      <span style={{ fontSize: 10.5, fontWeight: 800, color: renk, background: `${renk}1A`, border: `1px solid ${renk}4D`, borderRadius: 8, padding: '2px 9px' }}>{etiket}</span>
-                      {m.sponsorlu && <span style={{ fontSize: 10.5, fontWeight: 800, color: C.gold, background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 8, padding: '2px 9px' }}>İŞ ORTAĞI</span>}
+                      <span style={{ fontSize: 10.5, fontWeight: 600, color: renk, background: `${renk}1A`, border: `1px solid ${renk}4D`, borderRadius: 8, padding: '2px 9px' }}>{etiket}</span>
+                      {m.sponsorlu && <span style={{ fontSize: 10.5, fontWeight: 600, color: C.gold, background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 8, padding: '2px 9px' }}>İŞ ORTAĞI</span>}
                       <span style={{ fontSize: 11.5, color: C.muted }}>{m.category || '—'}</span>
                       <span style={{ fontSize: 11.5, color: C.muted }}>· {fmt(m.created_at)}</span>
                       {m.kaynak === 'panel' && <span style={{ fontSize: 11.5, color: C.blue }}>· panelden</span>}
                     </div>
-                    <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, lineHeight: 1.35, marginBottom: 4 }}>{m.title}</div>
+                    <div style={{ fontSize: 14.5, fontWeight: 600, color: C.text, lineHeight: 1.35, marginBottom: 4 }}>{m.title}</div>
                     <div style={{ fontSize: 12, color: C.muted }}>
                       {m.entity_name || m.author || '—'}{m.author_email ? ` · ${m.author_email}` : ''} · /{m.slug}
                     </div>

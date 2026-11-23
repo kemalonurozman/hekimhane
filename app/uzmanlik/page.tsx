@@ -18,7 +18,7 @@ export default function UzmanlikIndexPage() {
             <Link href="/" style={{ color: 'rgba(255,255,255,.7)', textDecoration: 'none' }}>Ana Sayfa</Link><span>›</span>
             <span style={{ color: 'white' }}>Uzmanlık Rehberleri</span>
           </nav>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px,4vw,38px)', fontWeight: 800, color: 'white', lineHeight: 1.2, margin: '0 0 12px' }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px,4vw,38px)', fontWeight: 600, color: 'white', lineHeight: 1.2, margin: '0 0 12px' }}>
             Diş Hekimliği Uzmanlık Rehberleri
           </h1>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,.85)', lineHeight: 1.6, maxWidth: 700, margin: 0 }}>
@@ -33,10 +33,10 @@ export default function UzmanlikIndexPage() {
           {UZMANLIK_REHBERLERI.map(r => (
             <Link key={r.slug} href={`/uzmanlik/${r.slug}`}
               style={{ display: 'flex', flexDirection: 'column', background: 'white', border: '1px solid var(--border)', borderRadius: 18, padding: '24px 24px 22px', textDecoration: 'none', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--gold2, #B8860B)', marginBottom: 10 }}>Rehber</span>
-              <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 18, fontWeight: 800, color: 'var(--navy)', margin: '0 0 8px', lineHeight: 1.3 }}>{r.kisaAd}</h2>
+              <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--gold2, #B8860B)', marginBottom: 10 }}>Rehber</span>
+              <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 18, fontWeight: 600, color: 'var(--navy)', margin: '0 0 8px', lineHeight: 1.3 }}>{r.kisaAd}</h2>
               <p style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.6, margin: '0 0 14px', flex: 1 }}>{r.ozet}</p>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 700, color: 'var(--navy)' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 600, color: 'var(--navy)' }}>
                 Rehberi oku
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </span>

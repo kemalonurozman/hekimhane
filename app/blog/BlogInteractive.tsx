@@ -69,11 +69,11 @@ function BlogCard({ post }: { post: Post }) {
         </div>
         <div style={{ padding: '20px 22px', flex: 1, display: 'flex', flexDirection: 'column' }}>
           {post.category && (
-            <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: catStyle(post.category).bg, color: catStyle(post.category).color, marginBottom: 10, alignSelf: 'flex-start' }}>
+            <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: catStyle(post.category).bg, color: catStyle(post.category).color, marginBottom: 10, alignSelf: 'flex-start' }}>
               {post.category}
             </span>
           )}
-          <h3 style={{ fontWeight: 800, fontSize: 15, color: 'var(--navy)', marginBottom: 8, lineHeight: 1.4, flex: 1 }}>{post.title}</h3>
+          <h3 style={{ fontWeight: 600, fontSize: 15, color: 'var(--navy)', marginBottom: 8, lineHeight: 1.4, flex: 1 }}>{post.title}</h3>
           <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 14, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {post.summary}
           </p>
@@ -139,7 +139,7 @@ function HastalıkCard({ h }: { h: HastalıkOzet }) {
           {/* Ciddiyet rozeti — sağ üst */}
           <span style={{
             position: 'absolute', top: 10, right: 10,
-            padding: '2px 9px', borderRadius: 20, fontSize: 10, fontWeight: 700,
+            padding: '2px 9px', borderRadius: 20, fontSize: 10, fontWeight: 600,
             background: cStyle.bg, color: cStyle.color,
           }}>
             {cStyle.label}
@@ -150,12 +150,12 @@ function HastalıkCard({ h }: { h: HastalıkOzet }) {
           {/* Kategori etiketi */}
           <span style={{
             display: 'inline-block', padding: '2px 9px', borderRadius: 20,
-            fontSize: 10, fontWeight: 700, background: '#FEF2F2', color: '#991B1B',
+            fontSize: 10, fontWeight: 600, background: '#FEF2F2', color: '#991B1B',
             marginBottom: 8, alignSelf: 'flex-start',
           }}>
             {h.kategoriAd}
           </span>
-          <h3 style={{ fontWeight: 800, fontSize: 15, color: 'var(--navy)', marginBottom: 7, lineHeight: 1.4, flex: 1 }}>
+          <h3 style={{ fontWeight: 600, fontSize: 15, color: 'var(--navy)', marginBottom: 7, lineHeight: 1.4, flex: 1 }}>
             {h.ad}
           </h3>
           <p style={{
@@ -189,7 +189,7 @@ function NewsletterSection() {
 
   return (
     <div style={{ background: 'linear-gradient(135deg, var(--navy), var(--navy2))', borderRadius: 24, padding: 'clamp(24px, 6vw, 40px)', textAlign: 'center', marginTop: 48 }}>
-      <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 800, color: 'white', marginBottom: 8 }}>
+      <h3 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 600, color: 'white', marginBottom: 8 }}>
         Sağlık bültenimize abone olun
       </h3>
       <p style={{ color: 'rgba(255,255,255,.7)', fontSize: 14, marginBottom: 20 }}>
@@ -245,16 +245,16 @@ export default function BlogInteractive({ posts, hastaliklar }: { posts: Post[];
               <div>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
                   {featured.category && (
-                    <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: catStyle(featured.category).bg, color: catStyle(featured.category).color }}>
+                    <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: catStyle(featured.category).bg, color: catStyle(featured.category).color }}>
                       {featured.category}
                     </span>
                   )}
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(184,137,47,.15)', color: 'var(--gold2)' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: 'rgba(184,137,47,.15)', color: 'var(--gold2)' }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.8 5.9 20.4l1.5-6.8L2.2 9l6.9-.7z"/></svg>
                     Öne Çıkan
                   </span>
                 </div>
-                <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 26, fontWeight: 800, color: 'var(--navy)', marginBottom: 12, lineHeight: 1.3 }}>
+                <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 26, fontWeight: 600, color: 'var(--navy)', marginBottom: 12, lineHeight: 1.3 }}>
                   {featured.title}
                 </h2>
                 <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7 }}>{featured.summary}</p>
@@ -281,7 +281,7 @@ export default function BlogInteractive({ posts, hastaliklar }: { posts: Post[];
             </p>
             <Link href="/hastaliklar" style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
-              padding: '7px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700,
+              padding: '7px 16px', borderRadius: 20, fontSize: 12, fontWeight: 600,
               background: 'var(--navy)', color: 'white', textDecoration: 'none',
             }}>
               Tüm Hastalıklar

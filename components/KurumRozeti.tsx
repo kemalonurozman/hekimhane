@@ -24,7 +24,7 @@ export default function KurumRozeti({ kurum }: { kurum?: string | null }) {
     <span style={{
       display: 'inline-flex', alignItems: 'center', flex: 'none', height: 22, padding: '0 9px', borderRadius: 999,
       background: s.zemin, color: s.yazi, boxShadow: `inset 0 0 0 1px ${s.kenar}`,
-      fontSize: 11.5, fontWeight: 700, letterSpacing: '.01em', lineHeight: 1, whiteSpace: 'nowrap',
+      fontSize: 11.5, fontWeight: 600, letterSpacing: '.01em', lineHeight: 1, whiteSpace: 'nowrap',
     }}>
       {s.ad}
     </span>

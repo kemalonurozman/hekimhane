@@ -74,7 +74,7 @@ export default function YakinEczaneClient() {
   return (
     <main style={{
       background: '#F5F5F7', minHeight: '100vh', paddingTop: 64,
-      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
+      fontFamily: 'var(--font-system)',
     }}>
 
       {/* Hero */}
@@ -84,14 +84,14 @@ export default function YakinEczaneClient() {
       }}>
         <div className="container" style={{ textAlign: 'center' }}>
           <p style={{
-            fontSize: 11, fontWeight: 700, letterSpacing: '1.4px',
+            fontSize: 11, fontWeight: 600, letterSpacing: '1.4px',
             textTransform: 'uppercase', color: 'rgba(255,255,255,.75)', margin: '0 0 14px',
           }}>
             Konum Bazlı Arama
           </p>
           <h1 style={{
-            fontSize: 'clamp(30px, 4.5vw, 46px)', fontWeight: 700,
-            letterSpacing: '-1.2px', margin: '0 0 14px', lineHeight: 1.1,
+            fontSize: 'clamp(30px, 4.5vw, 46px)', fontWeight: 600,
+            letterSpacing: '-0.6px', margin: '0 0 14px', lineHeight: 1.1,
           }}>
             Yakınımdaki Eczaneler
           </h1>
@@ -109,7 +109,7 @@ export default function YakinEczaneClient() {
               display: 'inline-flex', alignItems: 'center', gap: 10,
               padding: '15px 34px', borderRadius: 14, border: 'none',
               background: 'white', color: '#6D28D9',
-              fontSize: 15.5, fontWeight: 700, cursor: durum === 'araniyor' ? 'wait' : 'pointer',
+              fontSize: 15.5, fontWeight: 600, cursor: durum === 'araniyor' ? 'wait' : 'pointer',
               letterSpacing: '-.2px', fontFamily: 'inherit',
               boxShadow: '0 8px 28px rgba(0,0,0,.22)',
             }}
@@ -129,7 +129,7 @@ export default function YakinEczaneClient() {
             fontSize: 14, color: '#92400E', lineHeight: 1.6, textAlign: 'center',
           }}>
             Konum izni alınamadı. Tarayıcı ayarlarından konum iznini açıp tekrar deneyin
-            veya <Link href="/eczaneler" style={{ color: '#92400E', fontWeight: 700 }}>şehre göre eczane arayın</Link>.
+            veya <Link href="/eczaneler" style={{ color: '#92400E', fontWeight: 600 }}>şehre göre eczane arayın</Link>.
           </div>
         )}
 
@@ -181,7 +181,7 @@ export default function YakinEczaneClient() {
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
                     <div style={{ minWidth: 0 }}>
                       <div style={{
-                        fontWeight: 700, fontSize: 15, color: '#1D1D1F',
+                        fontWeight: 600, fontSize: 15, color: '#1D1D1F',
                         letterSpacing: '-.2px', lineHeight: 1.3,
                       }}>
                         {e.name}
@@ -194,7 +194,7 @@ export default function YakinEczaneClient() {
                       <span style={{
                         flexShrink: 0, padding: '4px 11px', borderRadius: 20,
                         background: '#F5F3FF', color: '#6D28D9',
-                        fontSize: 12.5, fontWeight: 700, letterSpacing: '-.1px',
+                        fontSize: 12.5, fontWeight: 600, letterSpacing: '-.1px',
                       }}>
                         ≈ {e.mesafe < 1 ? `${Math.round(e.mesafe * 1000)} m` : `${e.mesafe} km`}
                       </span>

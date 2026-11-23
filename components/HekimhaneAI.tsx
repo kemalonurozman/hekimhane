@@ -110,7 +110,7 @@ function MesajIcerik({ icerik }: { icerik: string }) {
           const baslikMetin = t.replace(/^#{1,3}\s*/, '');
           return (
             <div key={i} style={{
-              fontWeight: 700, fontSize: 14, margin: '14px 0 5px',
+              fontWeight: 600, fontSize: 14, margin: '14px 0 5px',
               color: '#1D1D1F', letterSpacing: '-.2px',
             }}>
               {renderInline(baslikMetin)}
@@ -122,7 +122,7 @@ function MesajIcerik({ icerik }: { icerik: string }) {
         if (t.startsWith('🚨')) {
           return (
             <div key={i} style={{
-              fontWeight: 700, fontSize: 15, margin: '8px 0 4px',
+              fontWeight: 600, fontSize: 15, margin: '8px 0 4px',
               color: '#C0392B',
             }}>
               {renderInline(t)}
@@ -157,7 +157,7 @@ function MesajIcerik({ icerik }: { icerik: string }) {
         if (/Hekimhane.?de .+mevcut/i.test(t) || /^(Doktorlar|Klinikler|Hastaneler|Eczaneler):/i.test(t)) {
           return (
             <div key={i} style={{
-              fontWeight: 700, fontSize: 13, letterSpacing: '.2px',
+              fontWeight: 600, fontSize: 13, letterSpacing: '.2px',
               color: '#1A335E', margin: '12px 0 6px',
               paddingBottom: 4, borderBottom: '1px solid #EEF2FF',
             }}>
@@ -365,11 +365,11 @@ export default function HekimhaneAI() {
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                <p style={{ fontSize: 18, fontWeight: 700, color: 'white', margin: 0, letterSpacing: '-.4px' }}>
+                <p style={{ fontSize: 18, fontWeight: 600, color: 'white', margin: 0, letterSpacing: '-.2px' }}>
                   Hekimhane AI
                 </p>
                 <span style={{
-                  fontSize: 10, fontWeight: 700, letterSpacing: '.8px',
+                  fontSize: 10, fontWeight: 600, letterSpacing: '.8px',
                   padding: '2px 7px', borderRadius: 6,
                   background: 'rgba(184,137,47,.25)', color: 'var(--on-deep-heading)',
                   textTransform: 'uppercase',
@@ -408,7 +408,7 @@ export default function HekimhaneAI() {
             display: 'flex', alignItems: 'center', gap: 8,
             padding: '10px 20px', borderRadius: 12,
             background: 'var(--gold-fill)', color: 'var(--on-gold)',
-            fontSize: 13.5, fontWeight: 700,
+            fontSize: 13.5, fontWeight: 600,
             whiteSpace: 'nowrap', zIndex: 1, flexShrink: 0,
           }}>
             Sormaya Başla
@@ -452,7 +452,7 @@ export default function HekimhaneAI() {
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                  <span style={{ fontWeight: 700, color: 'white', fontSize: 15 }}>Hekimhane AI</span>
+                  <span style={{ fontWeight: 600, color: 'white', fontSize: 15 }}>Hekimhane AI</span>
                   <span style={{
                     width: 7, height: 7, borderRadius: '50%',
                     background: '#4ADE80', display: 'inline-block',
@@ -498,7 +498,7 @@ export default function HekimhaneAI() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
-              <span><strong>ANTHROPIC_API_KEY</strong> .env.local dosyasına eklenmemiş. <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style={{ color: '#92400E', fontWeight: 700 }}>console.anthropic.com</a>'dan alabilirsiniz.</span>
+              <span><strong>ANTHROPIC_API_KEY</strong> .env.local dosyasına eklenmemiş. <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style={{ color: '#92400E', fontWeight: 600 }}>console.anthropic.com</a>'dan alabilirsiniz.</span>
             </div>
           )}
 
@@ -526,7 +526,7 @@ export default function HekimhaneAI() {
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                   </svg>
                 </div>
-                <h3 style={{ fontWeight: 700, fontSize: 16, color: '#1D1D1F', margin: '0 0 6px', letterSpacing: '-.3px' }}>
+                <h3 style={{ fontWeight: 600, fontSize: 16, color: '#1D1D1F', margin: '0 0 6px', letterSpacing: '-.3px' }}>
                   Hekimhane AI&apos;a Hoş Geldiniz
                 </h3>
                 <p style={{ color: '#6E6E73', fontSize: 13.5, margin: '0 0 24px', lineHeight: 1.6 }}>

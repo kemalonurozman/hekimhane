@@ -154,7 +154,7 @@ export default async function NedenHekimhanePage() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '18px 44px', marginTop: 40 }}>
             {sayaclar.map(([k, l]) => (
               <div key={l}>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 3.2vw, 40px)', fontWeight: 800, letterSpacing: '-0.04em', color: '#0E1A2C', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{k}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 3.2vw, 40px)', fontWeight: 600, letterSpacing: '-0.02em', color: '#0E1A2C', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{k}</div>
                 <div style={{ fontSize: 14, color: '#586273', marginTop: 8 }}>{l}</div>
               </div>
             ))}
@@ -266,7 +266,7 @@ function MiniTalep() {
     return (
       <div key={durum} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '8px 10px', borderRadius: 10, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE' }}>
         <span style={{ fontSize: 12.5, fontWeight: 600, color: '#0E1A2C', whiteSpace: 'nowrap' }}>{ad}</span>
-        <span style={{ padding: '3px 9px', borderRadius: 999, background: renk[0], color: renk[1], fontSize: 11, fontWeight: 800 }}>{durum}</span>
+        <span style={{ padding: '3px 9px', borderRadius: 999, background: renk[0], color: renk[1], fontSize: 11, fontWeight: 600 }}>{durum}</span>
       </div>
     );
   };
@@ -305,7 +305,7 @@ function MiniPuan() {
 function MiniEkip() {
   const cip = (harf: string, rol: string, altin: boolean) => (
     <span key={rol} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 12px 6px 6px', borderRadius: 999, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE' }}>
-      <span style={{ width: 24, height: 24, borderRadius: '50%', background: altin ? '#DEC283' : '#12294D', color: altin ? '#12294D' : '#fff', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 800 }}>{harf}</span>
+      <span style={{ width: 24, height: 24, borderRadius: '50%', background: altin ? '#DEC283' : '#12294D', color: altin ? '#12294D' : '#fff', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 600 }}>{harf}</span>
       <span style={{ fontSize: 12, fontWeight: 600, color: '#0E1A2C', whiteSpace: 'nowrap' }}>{rol}</span>
     </span>
   );

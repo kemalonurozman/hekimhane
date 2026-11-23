@@ -13,7 +13,7 @@ export function GelistirmeSecici({ secili, onChange }: { secili: string[]; onCha
   const degistir = (v: string) => onChange(secili.includes(v) ? secili.filter(x => x !== v) : [...secili, v]);
   return (
     <fieldset style={{ border: '1px solid #E5E5EA', borderRadius: 14, padding: '14px 16px', margin: '0 0 14px', background: '#FAFAFB' }}>
-      <legend style={{ padding: '0 6px', fontSize: 13, fontWeight: 700, color: '#1D1D1F' }}>
+      <legend style={{ padding: '0 6px', fontSize: 13, fontWeight: 600, color: '#1D1D1F' }}>
         Sizce hangi noktalar geliştirilebilir? <span style={{ fontWeight: 400, color: '#6E6E73' }}>(isteğe bağlı)</span>
       </legend>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>

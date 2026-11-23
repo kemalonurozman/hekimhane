@@ -9,7 +9,7 @@ export default function GlobalError({
 }) {
   return (
     <html lang="tr">
-      <body style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#F6F8FB', margin: 0 }}>
+      <body style={{ fontFamily: '-apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#F6F8FB', margin: 0 }}>
         <div style={{ textAlign: 'center', padding: '40px', maxWidth: 420 }}>
           {/* Düz <img>: hata anında next/image optimizer'ına bağımlı kalmasın */}
           {/* eslint-disable-next-line @next/next/no-img-element */}

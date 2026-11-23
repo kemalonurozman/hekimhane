@@ -79,7 +79,7 @@ export default function HastalıklarPage() {
     }));
 
   return (
-    <main style={{ background: '#F5F5F7', minHeight: '100vh', paddingTop: 64, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
+    <main style={{ background: '#F5F5F7', minHeight: '100vh', paddingTop: 64, fontFamily: 'var(--font-system)' }}>
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <section style={{
@@ -105,8 +105,8 @@ export default function HastalıklarPage() {
               Güvenilir Sağlık Bilgisi
             </p>
             <h1 style={{
-              fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 700,
-              letterSpacing: '-1.5px', lineHeight: 1.08, margin: '0 0 20px',
+              fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 600,
+              letterSpacing: '-0.75px', lineHeight: 1.08, margin: '0 0 20px',
             }}>
               Ağız & Diş Sağlığı Rehberi
             </h1>
@@ -192,7 +192,7 @@ export default function HastalıklarPage() {
         <section style={{ marginBottom: 64 }}>
           <div style={{ marginBottom: 32 }}>
             <h2 style={{
-              fontSize: 26, fontWeight: 700, letterSpacing: '-0.6px',
+              fontSize: 26, fontWeight: 600, letterSpacing: '-0.3px',
               color: '#1D1D1F', margin: '0 0 8px',
             }}>
               Uzmanlık Dalına Göre Hastalıklar
@@ -275,7 +275,7 @@ export default function HastalıklarPage() {
         <section style={{ marginBottom: 64 }}>
           <div style={{ marginBottom: 32 }}>
             <h2 style={{
-              fontSize: 26, fontWeight: 700, letterSpacing: '-0.6px',
+              fontSize: 26, fontWeight: 600, letterSpacing: '-0.3px',
               color: '#1D1D1F', margin: '0 0 8px',
             }}>
               Öne Çıkan Sağlık Konuları
@@ -334,8 +334,8 @@ export default function HastalıklarPage() {
                 Hekimhane Ağı
               </p>
               <h2 style={{
-                fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 700,
-                letterSpacing: '-0.6px', color: 'white', margin: '0 0 12px',
+                fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 600,
+                letterSpacing: '-0.3px', color: 'white', margin: '0 0 12px',
               }}>
                 Uzman Doktor Bulun
               </h2>

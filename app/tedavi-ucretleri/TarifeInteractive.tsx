@@ -52,8 +52,8 @@ export default function TarifeInteractive({ kategoriler, toplam }: { kategoriler
             <button onClick={() => !araniyor && setAcik(acik === k.kod ? null : k.kod)}
               style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '16px 18px', background: 'none', border: 'none', cursor: araniyor ? 'default' : 'pointer', textAlign: 'left', fontFamily: 'inherit' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ width: 30, height: 30, borderRadius: 9, background: 'var(--gold-light)', color: 'var(--gold2, #9A7B1F)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13, flexShrink: 0 }}>{k.kod}</span>
-                <span style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.2px' }}>{k.ad}</span>
+                <span style={{ width: 30, height: 30, borderRadius: 9, background: 'var(--gold-light)', color: 'var(--gold2, #9A7B1F)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 13, flexShrink: 0 }}>{k.kod}</span>
+                <span style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--text)', letterSpacing: '-0.2px' }}>{k.ad}</span>
                 <span style={{ fontSize: 11.5, color: 'var(--muted)', fontWeight: 600 }}>({k.items.length})</span>
               </span>
               {!araniyor && (
@@ -69,12 +69,12 @@ export default function TarifeInteractive({ kategoriler, toplam }: { kategoriler
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: 13.5, color: 'var(--text)', lineHeight: 1.4, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                           {it.ad}
-                          {detaySlug && <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--navy)', background: '#EAF1FB', borderRadius: 6, padding: '1px 6px' }}>Detay →</span>}
+                          {detaySlug && <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--navy)', background: '#EAF1FB', borderRadius: 6, padding: '1px 6px' }}>Detay →</span>}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>Kod {it.kod} · KDV hariç {it.kdvHaric} TL</div>
                       </div>
                       <div style={{ flexShrink: 0, textAlign: 'right' }}>
-                        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--navy)', whiteSpace: 'nowrap' }}>{it.kdvDahil} <span style={{ fontSize: 12, fontWeight: 600 }}>TL</span></div>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy)', whiteSpace: 'nowrap' }}>{it.kdvDahil} <span style={{ fontSize: 12, fontWeight: 600 }}>TL</span></div>
                         <div style={{ fontSize: 10, color: 'var(--muted)' }}>KDV dahil</div>
                       </div>
                     </>

@@ -31,7 +31,7 @@ function YoneticiNotu({ not }: { not?: string | null }) {
   if (!not) return null;
   return (
     <div style={{ marginTop: 8, padding: '9px 12px', background: '#F8FAFF', borderLeft: '3px solid #1A335E', borderRadius: 8 }}>
-      <div style={{ fontSize: 10.5, fontWeight: 700, color: '#4A5568', letterSpacing: '.4px', marginBottom: 3 }}>YÖNETİCİ NOTU</div>
+      <div style={{ fontSize: 10.5, fontWeight: 600, color: '#4A5568', letterSpacing: '.4px', marginBottom: 3 }}>YÖNETİCİ NOTU</div>
       <div style={{ fontSize: 13, color: '#111C2E', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>{not}</div>
     </div>
   );

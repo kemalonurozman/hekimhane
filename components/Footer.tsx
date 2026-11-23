@@ -119,7 +119,7 @@ export default function Footer() {
         .hk-footer__bulten { display:flex; gap:8px; margin-top:var(--space-4); max-width:340px; }
         .hk-footer__bulten input { flex:1; min-width:0; height:44px; padding:0 12px; border-radius:var(--radius-md); border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.08); color:var(--on-deep); font:inherit; font-size:15px; }
         .hk-footer__bulten input::placeholder { color:var(--on-deep-muted); }
-        .hk-footer__bulten button { height:44px; padding:0 16px; border:0; border-radius:var(--radius-md); background:var(--gold-fill); color:var(--on-gold); font:inherit; font-size:14px; font-weight:700; cursor:pointer; white-space:nowrap; }
+        .hk-footer__bulten button { height:44px; padding:0 16px; border:0; border-radius:var(--radius-md); background:var(--gold-fill); color:var(--on-gold); font:inherit; font-size:14px; font-weight:600; cursor:pointer; white-space:nowrap; }
         .hk-footer__iletisim { display:flex; flex-direction:column; gap:10px; margin-top:var(--space-5); }
         .hk-footer a.hk-footer__tumu { color:var(--on-deep); font-weight:600; }
         @media (max-width: 1080px) { .hk-footer__seo { grid-template-columns:1fr 1fr; } .hk-footer__grid--site { grid-template-columns:1fr 1fr 1fr; } .hk-footer__grid--site .hk-footer__brand { grid-column:1 / -1; } }

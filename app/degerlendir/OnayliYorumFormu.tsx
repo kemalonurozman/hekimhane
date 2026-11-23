@@ -38,7 +38,7 @@ export default function OnayliYorumFormu({ token, varsayilanAd, profil }: { toke
   if (durum === 'tamam') {
     return (
       <div style={{ background: '#fff', borderRadius: 24, padding: '32px 28px', textAlign: 'center', boxShadow: 'inset 0 0 0 1px #E6E8EC' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, letterSpacing: '-0.02em', color: '#0E1A2C' }}>Teşekkürler</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 600, letterSpacing: '-0.01em', color: '#0E1A2C' }}>Teşekkürler</div>
         <p style={{ margin: '10px 0 22px', fontSize: 15, lineHeight: 1.6, color: '#586273' }}>Değerlendirmeniz alındı. Yönetici onayından sonra Onaylı hasta işaretiyle yayımlanacak.</p>
         {profil && <Link href={profil} className="vt-dugme vt-dugme--koyu">Profile git</Link>}
       </div>
@@ -49,7 +49,7 @@ export default function OnayliYorumFormu({ token, varsayilanAd, profil }: { toke
   return (
     <form onSubmit={gonder} style={{ background: '#fff', borderRadius: 24, padding: '28px 26px', boxShadow: 'inset 0 0 0 1px #E6E8EC', display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#0E1A2C', marginBottom: 10 }}>Puanınız</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#0E1A2C', marginBottom: 10 }}>Puanınız</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }} onMouseLeave={() => setUzerinde(0)} role="radiogroup" aria-label="Puan">
           {[1, 2, 3, 4, 5].map(n => (
             <button key={n} type="button" role="radio" aria-checked={puan === n} aria-label={`${n} yıldız`}
@@ -62,7 +62,7 @@ export default function OnayliYorumFormu({ token, varsayilanAd, profil }: { toke
         </div>
       </div>
       <label style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <span style={{ fontSize: 13, fontWeight: 700, color: '#0E1A2C' }}>Deneyiminiz</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: '#0E1A2C' }}>Deneyiminiz</span>
         <textarea value={metin} onChange={e => { setMetin(e.target.value); setHata(''); }} rows={5} maxLength={YORUM_MAX_KARAKTER}
           placeholder="Karşılanma, bekleme süresi, iletişim, ortam… Ayrıntılı sağlık bilgisi yazmanız gerekmez."
           style={{ padding: '13px 14px', borderRadius: 14, border: '1px solid #DDE3EC', font: 'inherit', fontSize: 15, lineHeight: 1.55, resize: 'vertical', outline: 'none' }} />
@@ -70,7 +70,7 @@ export default function OnayliYorumFormu({ token, varsayilanAd, profil }: { toke
       </label>
       <GelistirmeSecici secili={gelistirme} onChange={setGelistirme} />
       <label style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <span style={{ fontSize: 13, fontWeight: 700, color: '#0E1A2C' }}>Görünecek adınız</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: '#0E1A2C' }}>Görünecek adınız</span>
         <input value={ad} onChange={e => setAd(e.target.value)} maxLength={60}
           style={{ height: 48, padding: '0 14px', borderRadius: 14, border: '1px solid #DDE3EC', font: 'inherit', fontSize: 15, outline: 'none' }} />
         <span style={{ fontSize: 12.5, color: '#8B93A1' }}>Varsayılan olarak adınız ve soyadınızın baş harfi görünür.</span>

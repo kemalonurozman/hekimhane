@@ -11,7 +11,7 @@ export function TakvimGorsel() {
   return (
     <div className="vt-cihaz vt-cihaz--genis">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <span style={{ fontSize: 14, fontWeight: 700 }}>Bu hafta</span>
+        <span style={{ fontSize: 14, fontWeight: 600 }}>Bu hafta</span>
         <span style={{ fontSize: 12, color: 'rgba(255,255,255,.55)' }}>7 randevu</span>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
@@ -45,7 +45,7 @@ export function YorumGorsel() {
         <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.45)', marginTop: 12 }}>E. K. · 2 gün önce</div>
       </div>
       <div style={{ margin: '12px 0 0 28px', padding: 16, borderRadius: 16, background: 'rgba(222,194,131,.14)', boxShadow: 'inset 0 0 0 1px rgba(222,194,131,.3)' }}>
-        <div style={{ fontSize: 11.5, fontWeight: 700, color: '#DEC283', marginBottom: 10 }}>Yanıtınız</div>
+        <div style={{ fontSize: 11.5, fontWeight: 600, color: '#DEC283', marginBottom: 10 }}>Yanıtınız</div>
         <span style={cizgi('88%', 0.3)} /><span style={{ ...cizgi('54%', 0.3), marginTop: 8 }} />
       </div>
     </div>
@@ -89,7 +89,7 @@ export function BookingGorsel() {
     <div className="vt-cihaz vt-cihaz--genis">
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', marginBottom: 14, borderRadius: 14, background: 'rgba(255,255,255,.06)' }}>
         <span className="vt-h-nabiz" style={{ width: 10, height: 10, borderRadius: '50%', background: '#5FD6CE', flex: 'none' }} />
-        <span style={{ fontSize: 13, fontWeight: 700 }}>Gelen çağrı</span>
+        <span style={{ fontSize: 13, fontWeight: 600 }}>Gelen çağrı</span>
         <span style={{ marginLeft: 'auto', fontSize: 12, color: 'rgba(255,255,255,.55)' }}>Mesai dışı · 21:42</span>
       </div>
       {balon('Merhaba, ben muayenehanenin sanal asistanıyım. Size nasıl yardımcı olabilirim?', false, 0)}
@@ -149,7 +149,7 @@ export function PuanGorsel() {
 export function EkipGorsel() {
   const cip = (ad: string, rol: string, altin: boolean) => (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '10px 16px 10px 10px', borderRadius: 999, background: 'rgba(255,255,255,.06)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.09)' }}>
-      <span style={{ width: 30, height: 30, borderRadius: '50%', background: altin ? '#DEC283' : '#2B4B7E', color: altin ? '#12294D' : '#fff', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 800 }}>{ad}</span>
+      <span style={{ width: 30, height: 30, borderRadius: '50%', background: altin ? '#DEC283' : '#2B4B7E', color: altin ? '#12294D' : '#fff', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 600 }}>{ad}</span>
       <span style={{ fontSize: 13.5, fontWeight: 600, color: '#fff' }}>{rol}</span>
     </span>
   );
@@ -166,7 +166,7 @@ export function AdimGorsel() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingBottom: 40 }}>
       {['Türünüzü seçin', 'Bilgilerinizi girin', 'Onay e-postasını alın'].map((x, i) => (
         <div key={x} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,.05)' }}>
-          <span style={{ width: 28, height: 28, borderRadius: '50%', background: i === 0 ? '#DEC283' : 'rgba(255,255,255,.1)', color: i === 0 ? '#12294D' : '#fff', display: 'grid', placeItems: 'center', fontSize: 13, fontWeight: 800 }}>{i + 1}</span>
+          <span style={{ width: 28, height: 28, borderRadius: '50%', background: i === 0 ? '#DEC283' : 'rgba(255,255,255,.1)', color: i === 0 ? '#12294D' : '#fff', display: 'grid', placeItems: 'center', fontSize: 13, fontWeight: 600 }}>{i + 1}</span>
           <span style={{ fontSize: 15, fontWeight: 600, color: '#fff' }}>{x}</span>
         </div>
       ))}

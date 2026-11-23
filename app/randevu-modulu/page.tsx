@@ -169,7 +169,7 @@ export default function RandevuModuluPage() {
             <p className="vt-govde">
               Kodu web sitenizde randevu almak istediğiniz yere yapıştırın; modül sayfanızın içinde açılır, gelen talepler panelinize düşer.
             </p>
-            <p style={{ margin: '30px 0 12px', fontSize: 15, fontWeight: 700, color: '#0E1A2C' }}>Nerelere ekleyebilirsiniz?</p>
+            <p style={{ margin: '30px 0 12px', fontSize: 15, fontWeight: 600, color: '#0E1A2C' }}>Nerelere ekleyebilirsiniz?</p>
             <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {NERELERE.map(x => (
                 <li key={x} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 999, background: '#fff', boxShadow: 'inset 0 0 0 1px #E6E8EC', fontSize: 14, fontWeight: 600, color: '#0E1A2C' }}>
@@ -190,7 +190,7 @@ export default function RandevuModuluPage() {
               </div>
             </div>
             <div style={{ background: '#0E1A2C', borderRadius: 16, padding: '16px 18px', overflowX: 'auto' }}>
-              <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(255,255,255,.45)', marginBottom: 8 }}>Örnek kod</div>
+              <div style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(255,255,255,.45)', marginBottom: 8 }}>Örnek kod</div>
               <pre style={{ margin: 0, fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', fontSize: 12.5, lineHeight: 1.6, color: '#DCE6F5', whiteSpace: 'pre' }}>{IFRAME_KODU}</pre>
             </div>
             <p style={{ margin: '14px 0 0', fontSize: 13.5, lineHeight: 1.6, color: '#586273' }}>
@@ -239,10 +239,10 @@ function Sahne() {
           <small style={{ display: 'block', marginTop: 2, fontSize: 12.5, color: '#586273' }}>Dr. Aksoy Muayenehanesi · Perşembe</small>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8, marginTop: 12 }}>
             {saatler.map(s => (
-              <span key={s} className={s === '11:00' ? 'vt-h-sec' : undefined} style={{ display: 'grid', placeItems: 'center', height: 38, borderRadius: 10, fontSize: 13.5, fontWeight: 800, ...(s === '11:00' ? { background: '#BDEBE4', boxShadow: '0 0 0 2px #0D7C79', color: '#0B5F55' } : { background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE', color: '#12294D' }) }}>{s}</span>
+              <span key={s} className={s === '11:00' ? 'vt-h-sec' : undefined} style={{ display: 'grid', placeItems: 'center', height: 38, borderRadius: 10, fontSize: 13.5, fontWeight: 600, ...(s === '11:00' ? { background: '#BDEBE4', boxShadow: '0 0 0 2px #0D7C79', color: '#0B5F55' } : { background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE', color: '#12294D' }) }}>{s}</span>
             ))}
           </div>
-          <span style={{ display: 'grid', placeItems: 'center', height: 40, marginTop: 12, borderRadius: 10, background: '#DEC283', color: '#12294D', fontSize: 14, fontWeight: 700 }}>Talep gönder</span>
+          <span style={{ display: 'grid', placeItems: 'center', height: 40, marginTop: 12, borderRadius: 10, background: '#DEC283', color: '#12294D', fontSize: 14, fontWeight: 600 }}>Talep gönder</span>
         </div>
       </div>
       <OzOnayKart ust="Panelinize düştü" baslik="Perşembe · 11:00" alt="Mehmet T. · Kaynak: web siteniz" gecikme={1.4} />
@@ -260,7 +260,7 @@ function MiniSite() {
         <span style={{ display: 'block', width: '70%', height: 8, borderRadius: 4, background: '#D6DDF0' }} />
         <span style={{ display: 'block', width: '90%', height: 6, marginTop: 7, borderRadius: 3, background: '#E8ECF3' }} />
         <span style={{ display: 'block', width: '60%', height: 6, marginTop: 5, borderRadius: 3, background: '#E8ECF3' }} />
-        <span style={{ display: 'grid', placeItems: 'center', height: 30, marginTop: 12, borderRadius: 8, background: '#DEC283', color: '#12294D', fontSize: 12, fontWeight: 700 }}>Randevu al</span>
+        <span style={{ display: 'grid', placeItems: 'center', height: 30, marginTop: 12, borderRadius: 8, background: '#DEC283', color: '#12294D', fontSize: 12, fontWeight: 600 }}>Randevu al</span>
       </div>
     </div>
   );
@@ -272,9 +272,9 @@ function MiniKart({ ikon, ust }: { ikon: HkIkonAdi; ust: string }) {
       <span style={{ display: 'inline-grid', placeItems: 'center', width: 42, height: 42, borderRadius: 12, background: '#12294D' }}>
         <HkIcon name={ikon} size={22} color="#fff" accent="#DEC283" />
       </span>
-      <small style={{ display: 'block', marginTop: 8, fontSize: 11, fontWeight: 700, color: '#586273', textTransform: 'uppercase', letterSpacing: '.04em' }}>{ust}</small>
+      <small style={{ display: 'block', marginTop: 8, fontSize: 11, fontWeight: 600, color: '#586273', textTransform: 'uppercase', letterSpacing: '.04em' }}>{ust}</small>
       <b style={{ display: 'block', marginTop: 2, fontSize: 13.5, color: '#0E1A2C' }}>Dr. Aksoy</b>
-      <span style={{ display: 'grid', placeItems: 'center', height: 28, marginTop: 10, borderRadius: 8, background: '#DEC283', color: '#12294D', fontSize: 12, fontWeight: 700 }}>Randevu al</span>
+      <span style={{ display: 'grid', placeItems: 'center', height: 28, marginTop: 10, borderRadius: 8, background: '#DEC283', color: '#12294D', fontSize: 12, fontWeight: 600 }}>Randevu al</span>
     </div>
   );
 }
@@ -287,14 +287,14 @@ function MiniPanel() {
   ];
   return (
     <div style={{ width: '100%', maxWidth: 230, padding: 12, borderRadius: 14, background: '#12294D' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 11.5, fontWeight: 700, color: '#DEC283' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 11.5, fontWeight: 600, color: '#DEC283' }}>
         <HkIcon name="appointment" size={15} color="#fff" accent="#DEC283" />Randevu Talepleri
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
         {satirlar.map((s, i) => (
           <div key={s.ad} className="vt-h-belir" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '7px 9px', borderRadius: 8, background: '#fff', animationDelay: `${0.2 + i * 0.25}s` }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#0E1A2C' }}>{s.ad}</span>
-            <span style={{ padding: '2px 7px', borderRadius: 999, background: `${s.renk}1A`, color: s.renk, fontSize: 10.5, fontWeight: 800 }}>{s.kaynak}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#0E1A2C' }}>{s.ad}</span>
+            <span style={{ padding: '2px 7px', borderRadius: 999, background: `${s.renk}1A`, color: s.renk, fontSize: 10.5, fontWeight: 600 }}>{s.kaynak}</span>
           </div>
         ))}
       </div>

@@ -39,9 +39,9 @@ const BOS = { title: '', summary: '', category: '', content: '', cover_image: ''
 
 /* Biçim araç çubuğu ikonları (emoji yok — inline SVG) */
 const ARAC_IKON: Record<string, JSX.Element> = {
-  baslik: <span style={{ fontWeight: 800 }}>H</span>,
+  baslik: <span style={{ fontWeight: 600 }}>H</span>,
   madde:  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M9 6h11M9 12h11M9 18h11" /><circle cx="4" cy="6" r="1" /><circle cx="4" cy="12" r="1" /><circle cx="4" cy="18" r="1" /></svg>,
-  kalin:  <span style={{ fontWeight: 900 }}>B</span>,
+  kalin:  <span style={{ fontWeight: 600 }}>B</span>,
   link:   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" /><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" /></svg>,
   gorsel: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="9" cy="9" r="1.8" /><path d="m21 15-5-5L5 21" /></svg>,
   alinti: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6c-2.2 0-4 1.8-4 4v8h7v-7H6c0-1.7 1.3-3 3-3V6H7zm10 0c-2.2 0-4 1.8-4 4v8h7v-7h-4c0-1.7 1.3-3 3-3V6h-2z" /></svg>,
@@ -95,10 +95,10 @@ const MK_HL_CSS = `
   border-color: #E2E8F4;
 }
 .mk-ta::placeholder { color: transparent; }
-.mk-h { font-weight: 800; color: #1A335E; }
-.mk-b { font-weight: 800; color: #111C2E; }
+.mk-h { font-weight: 600; color: #1A335E; }
+.mk-b { font-weight: 600; color: #111C2E; }
 .mk-quote { color: #4A5568; font-style: italic; }
-.mk-bullet { color: #B8892F; font-weight: 800; }
+.mk-bullet { color: #B8892F; font-weight: 600; }
 .mk-mark { color: #B8C2D9; }
 .mk-link { color: #2563EB; }
 .mk-img { color: #059669; }
@@ -220,7 +220,7 @@ export default function MakalelerimTab({ hasEntity, aktifEntityId, aktifAd }: { 
     boxSizing: 'border-box', resize: 'vertical',
   };
   const lbl: React.CSSProperties = {
-    fontSize: 12, fontWeight: 700, color: T.muted, textTransform: 'uppercase',
+    fontSize: 12, fontWeight: 600, color: T.muted, textTransform: 'uppercase',
     letterSpacing: 0.5, marginBottom: 5, display: 'block',
   };
   const card: React.CSSProperties = {
@@ -250,7 +250,7 @@ export default function MakalelerimTab({ hasEntity, aktifEntityId, aktifAd }: { 
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
           Geri
         </button>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: T.text, margin: 0, letterSpacing: '-0.5px' }}>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: T.text, margin: 0, letterSpacing: '-0.25px' }}>
           {editId ? 'Makaleyi Düzenle' : 'Yeni Makale'}
         </h1>
       </div>
@@ -288,9 +288,9 @@ export default function MakalelerimTab({ hasEntity, aktifEntityId, aktifAd }: { 
             <label style={{ ...lbl, marginBottom: 0 }}>Makale metni *</label>
             <div style={{ display: 'inline-flex', background: '#EEF2FB', borderRadius: 9, padding: 3, gap: 2 }}>
               <button type="button" onClick={() => setOnizle(false)}
-                style={{ padding: '5px 12px', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 700, background: onizle ? 'transparent' : T.white, color: onizle ? T.muted : T.navy, boxShadow: onizle ? 'none' : '0 1px 2px rgba(0,0,0,.08)' }}>Yaz</button>
+                style={{ padding: '5px 12px', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 600, background: onizle ? 'transparent' : T.white, color: onizle ? T.muted : T.navy, boxShadow: onizle ? 'none' : '0 1px 2px rgba(0,0,0,.08)' }}>Yaz</button>
               <button type="button" onClick={() => setOnizle(true)}
-                style={{ padding: '5px 12px', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 700, background: onizle ? T.white : 'transparent', color: onizle ? T.navy : T.muted, boxShadow: onizle ? '0 1px 2px rgba(0,0,0,.08)' : 'none' }}>Önizleme</button>
+                style={{ padding: '5px 12px', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 600, background: onizle ? T.white : 'transparent', color: onizle ? T.navy : T.muted, boxShadow: onizle ? '0 1px 2px rgba(0,0,0,.08)' : 'none' }}>Önizleme</button>
             </div>
           </div>
 
@@ -359,7 +359,7 @@ export default function MakalelerimTab({ hasEntity, aktifEntityId, aktifAd }: { 
         )}
 
         <button type="submit" disabled={sending}
-          style={{ alignSelf: 'flex-start', padding: '13px 28px', borderRadius: 12, border: 'none', background: T.navy, color: 'white', fontSize: 14.5, fontWeight: 700, fontFamily: 'inherit', cursor: sending ? 'default' : 'pointer', opacity: sending ? .6 : 1 }}>
+          style={{ alignSelf: 'flex-start', padding: '13px 28px', borderRadius: 12, border: 'none', background: T.navy, color: 'white', fontSize: 14.5, fontWeight: 600, fontFamily: 'inherit', cursor: sending ? 'default' : 'pointer', opacity: sending ? .6 : 1 }}>
           {sending ? 'Gönderiliyor…' : editId ? 'Güncelle ve tekrar gönder' : 'Onaya gönder'}
         </button>
       </form>
@@ -373,7 +373,7 @@ export default function MakalelerimTab({ hasEntity, aktifEntityId, aktifAd }: { 
         <Baslik />
         <button onClick={yeniAc} disabled={!hak?.acik}
           title={hak?.acik ? '' : !hak?.pro ? 'Pro üyelere özel' : 'Bu haftaki hakkınızı kullandınız'}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 20px', borderRadius: 11, border: 'none', background: hak?.acik ? T.navy : '#C7CFDD', color: 'white', fontSize: 14, fontWeight: 700, cursor: hak?.acik ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 20px', borderRadius: 11, border: 'none', background: hak?.acik ? T.navy : '#C7CFDD', color: 'white', fontSize: 14, fontWeight: 600, cursor: hak?.acik ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
           Yeni Makale
         </button>
@@ -389,14 +389,14 @@ export default function MakalelerimTab({ hasEntity, aktifEntityId, aktifAd }: { 
         <div style={{ padding: 40, textAlign: 'center', color: T.muted }}>Yükleniyor…</div>
       ) : makaleler.length === 0 ? (
         <div style={{ ...card, padding: '44px 24px', textAlign: 'center' }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: T.text, marginBottom: 6 }}>Henüz makaleniz yok</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: T.text, marginBottom: 6 }}>Henüz makaleniz yok</div>
           <div style={{ fontSize: 13.5, color: T.muted, lineHeight: 1.7, maxWidth: 420, margin: '0 auto 18px' }}>
             Uzmanlık alanınızla ilgili bir yazı gönderin. Editör onayından sonra Hekimhane
             blogunda ve profil sayfanızın “Makalelerimiz” bölümünde yayınlanır.
           </div>
           {hak?.acik && (
             <button onClick={yeniAc}
-              style={{ padding: '11px 24px', borderRadius: 11, border: 'none', background: T.navy, color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: '11px 24px', borderRadius: 11, border: 'none', background: T.navy, color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               İlk makaleni yaz
             </button>
           )}
@@ -410,12 +410,12 @@ export default function MakalelerimTab({ hasEntity, aktifEntityId, aktifAd }: { 
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap', marginBottom: 6 }}>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: d.fg, background: d.bg, border: `1px solid ${d.bd}`, borderRadius: 20, padding: '3px 10px' }}>{d.label}</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: d.fg, background: d.bg, border: `1px solid ${d.bd}`, borderRadius: 20, padding: '3px 10px' }}>{d.label}</span>
                       {m.category && <span style={{ fontSize: 11.5, color: T.muted }}>{m.category}</span>}
                       <span style={{ fontSize: 11.5, color: T.muted }}>· {fmt(m.created_at)}</span>
                       {m.status === 'published' && <span style={{ fontSize: 11.5, color: T.muted }}>· {m.views || 0} görüntülenme</span>}
                     </div>
-                    <div style={{ fontSize: 15.5, fontWeight: 700, color: T.text, lineHeight: 1.35, marginBottom: 5 }}>{m.title}</div>
+                    <div style={{ fontSize: 15.5, fontWeight: 600, color: T.text, lineHeight: 1.35, marginBottom: 5 }}>{m.title}</div>
                     <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6 }}>{(m.summary || '').slice(0, 160)}{(m.summary || '').length > 160 ? '…' : ''}</div>
 
                     {m.status === 'rejected' && m.red_notu && (
@@ -428,17 +428,17 @@ export default function MakalelerimTab({ hasEntity, aktifEntityId, aktifAd }: { 
                   <div style={{ display: 'flex', gap: 7, flexShrink: 0, flexWrap: 'wrap' }}>
                     {m.status === 'published' ? (
                       <a href={`/blog/${m.slug}`} target="_blank" rel="noreferrer"
-                        style={{ padding: '8px 14px', borderRadius: 9, border: `1px solid ${T.border}`, background: T.white, color: T.navy, fontSize: 12.5, fontWeight: 700, textDecoration: 'none' }}>
+                        style={{ padding: '8px 14px', borderRadius: 9, border: `1px solid ${T.border}`, background: T.white, color: T.navy, fontSize: 12.5, fontWeight: 600, textDecoration: 'none' }}>
                         Görüntüle
                       </a>
                     ) : (
                       <>
                         <button onClick={() => duzenleAc(m)}
-                          style={{ padding: '8px 14px', borderRadius: 9, border: `1px solid ${T.border}`, background: T.white, color: T.navy, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                          style={{ padding: '8px 14px', borderRadius: 9, border: `1px solid ${T.border}`, background: T.white, color: T.navy, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                           Düzenle
                         </button>
                         <button onClick={() => sil(m.id)} disabled={silId === m.id}
-                          style={{ padding: '8px 14px', borderRadius: 9, border: '1px solid #FECACA', background: '#FEF2F2', color: T.red, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                          style={{ padding: '8px 14px', borderRadius: 9, border: '1px solid #FECACA', background: '#FEF2F2', color: T.red, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                           {silId === m.id ? '…' : 'Sil'}
                         </button>
                       </>
@@ -462,7 +462,7 @@ export default function MakalelerimTab({ hasEntity, aktifEntityId, aktifAd }: { 
 function Baslik() {
   return (
     <div>
-      <h1 style={{ fontSize: 24, fontWeight: 800, color: T.text, margin: 0, letterSpacing: '-0.5px' }}>Makalelerim</h1>
+      <h1 style={{ fontSize: 24, fontWeight: 600, color: T.text, margin: 0, letterSpacing: '-0.25px' }}>Makalelerim</h1>
       <p style={{ fontSize: 13, color: T.muted, marginTop: 4 }}>
         Pro üyelikte haftada {MAKALE_HAFTALIK_PRO} makale ücretsiz. Editör onayından sonra blogda ve profilinizde yayınlanır.
       </p>
@@ -494,14 +494,14 @@ function HakKarti({ hak, isletme, yetkiYok }: { hak: MakaleHakki | null; isletme
     <div style={{ ...kutu, background: 'linear-gradient(135deg,#FFFBF0,#FFF6E0)', border: '1px solid #F0DFB4' }}>
       {ikon('#8A6A1F', '#FCEFCB', 'M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z')}
       <div style={{ flex: '1 1 260px', minWidth: 0 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: T.text }}>Haftada {MAKALE_HAFTALIK_PRO} makale Pro üyeliğe dahil</div>
+        <div style={{ fontSize: 15, fontWeight: 600, color: T.text }}>Haftada {MAKALE_HAFTALIK_PRO} makale Pro üyeliğe dahil</div>
         <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, marginTop: 3 }}>
           {isletme ? <><strong>{isletme}</strong> için </> : ''}panelden makale yayınlamak Pro üyelere özeldir. Onaylanan yazılar blogda ve profilinizin “Makalelerimiz” bölümünde yayınlanır.
         </div>
       </div>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <a href="/pro" style={{ padding: '10px 18px', borderRadius: 11, background: T.navy, color: 'white', fontSize: 13.5, fontWeight: 700, textDecoration: 'none' }}>Pro'yu incele</a>
-        <a href="/makale-yayinla" style={{ padding: '10px 16px', borderRadius: 11, background: 'white', border: `1px solid ${T.border}`, color: T.navy, fontSize: 13.5, fontWeight: 700, textDecoration: 'none' }}>Tek makale siparişi</a>
+        <a href="/pro" style={{ padding: '10px 18px', borderRadius: 11, background: T.navy, color: 'white', fontSize: 13.5, fontWeight: 600, textDecoration: 'none' }}>Pro'yu incele</a>
+        <a href="/makale-yayinla" style={{ padding: '10px 16px', borderRadius: 11, background: 'white', border: `1px solid ${T.border}`, color: T.navy, fontSize: 13.5, fontWeight: 600, textDecoration: 'none' }}>Tek makale siparişi</a>
       </div>
     </div>
   );
@@ -513,7 +513,7 @@ function HakKarti({ hak, isletme, yetkiYok }: { hak: MakaleHakki | null; isletme
         ? ikon(T.green, '#ECFDF5', 'M20 6 9 17l-5-5')
         : ikon(T.navy, '#EEF2FB', 'M12 7v5l3 2M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z')}
       <div style={{ flex: '1 1 260px', minWidth: 0 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: T.text }}>
+        <div style={{ fontSize: 15, fontWeight: 600, color: T.text }}>
           {hak.acik ? `Bu hafta ${kalan} ücretsiz makale hakkınız var` : 'Bu haftaki makale hakkınızı kullandınız'}
         </div>
         <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, marginTop: 3 }}>

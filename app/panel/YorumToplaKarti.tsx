@@ -55,7 +55,7 @@ function Onizleme({ olcek, ad, kurum, yorumUrl }: { olcek: number; ad: string; k
   );
 }
 
-const etiket: React.CSSProperties = { fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: C.muted };
+const etiket: React.CSSProperties = { fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: C.muted };
 const alan: React.CSSProperties = {
   width: '100%', boxSizing: 'border-box', padding: '12px 14px', borderRadius: 12, border: `1px solid ${C.border}`,
   fontSize: 14, lineHeight: 1.6, fontFamily: 'inherit', color: C.text, background: C.white, outline: 'none', resize: 'vertical',
@@ -136,7 +136,7 @@ export default function YorumToplaKarti({ entityId, entityType }: { entityId: st
   const kart: React.CSSProperties = { background: C.white, borderRadius: 18, border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(0,0,0,.05)', padding: 20, minWidth: 0 };
   const dugme = (birincil: boolean, pasif = false): React.CSSProperties => ({
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: '10px 16px', minHeight: 40,
-    borderRadius: 11, fontSize: 13, fontWeight: 700, fontFamily: 'inherit', cursor: pasif ? 'not-allowed' : 'pointer',
+    borderRadius: 11, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: pasif ? 'not-allowed' : 'pointer',
     border: birincil ? 'none' : `1px solid ${C.border}`,
     background: birincil ? (pasif ? '#9CA3AF' : C.navy) : C.white, color: birincil ? '#fff' : C.navy,
   });
@@ -151,7 +151,7 @@ export default function YorumToplaKarti({ entityId, entityType }: { entityId: st
   return (
     <div className="ytk" style={{ marginBottom: 22 }}>
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 17, fontWeight: 700, color: C.text, letterSpacing: '-0.3px' }}>Daha fazla yorum toplayın</div>
+        <div style={{ fontSize: 17, fontWeight: 600, color: C.text, letterSpacing: '-0.3px' }}>Daha fazla yorum toplayın</div>
         <div style={{ fontSize: 13, color: C.muted, marginTop: 2, lineHeight: 1.5 }}>
           Muayenehanenize poster koyun ya da hastalarınıza e-postayla davet gönderin. İkisi de hastayı doğrudan yorum ekranına götürür.
         </div>
@@ -164,7 +164,7 @@ export default function YorumToplaKarti({ entityId, entityType }: { entityId: st
             <span style={{ width: 32, height: 32, borderRadius: 10, background: '#EEF2F9', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
               <Ikon d={IK.baski} color={C.navy} />
             </span>
-            <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>Ofis için değerlendirme posteri</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: C.text }}>Ofis için değerlendirme posteri</div>
           </div>
           <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.55, margin: '0 0 16px' }}>
             Bekleme salonu, resepsiyon ya da masaüstü için yazdırın. Karekodu okutan hasta yorum ekranına gider.
@@ -177,7 +177,7 @@ export default function YorumToplaKarti({ entityId, entityType }: { entityId: st
                   <Onizleme olcek={olcek} ad={bilgi.ad} kurum={bilgi.kurum} yorumUrl={bilgi.yorumUrl} />
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{ad}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{ad}</div>
                   <div style={{ fontSize: 11.5, color: C.muted }}>{aciklama}</div>
                 </div>
                 <button type="button" onClick={() => indir(fmt)} disabled={indiriliyor !== null}
@@ -204,7 +204,7 @@ export default function YorumToplaKarti({ entityId, entityType }: { entityId: st
             <span style={{ width: 32, height: 32, borderRadius: 10, background: '#EEF2F9', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
               <Ikon d={IK.posta} color={C.navy} />
             </span>
-            <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>Hastalarınıza e-posta gönderin</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: C.text }}>Hastalarınıza e-posta gönderin</div>
           </div>
           <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.55, margin: '0 0 16px' }}>
             E-posta Hekimhane&apos;den, gönderen adı <strong style={{ color: C.text }}>{bilgi.ad}</strong> olarak gider. Hasta yanıtlarsa size ulaşır.
@@ -237,12 +237,12 @@ export default function YorumToplaKarti({ entityId, entityType }: { entityId: st
               <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}><strong style={{ color: C.text }}>Konu:</strong> {davetKonusu(bilgi.ad)}</div>
             </div>
             <div style={{ padding: '14px 16px', textAlign: 'center' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: C.navy }}>Deneyiminizi değerlendirir misiniz?</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: C.navy }}>Deneyiminizi değerlendirir misiniz?</div>
               <div style={{ fontSize: 15, letterSpacing: 3, color: '#C9A04A', marginTop: 4 }}>&#9733;&#9733;&#9733;&#9733;&#9733;</div>
               {not.trim() && (
                 <div style={{ marginTop: 8, padding: '8px 10px', background: C.soft, borderLeft: '3px solid #C9A04A', borderRadius: 8, fontSize: 12, color: C.text, textAlign: 'left', whiteSpace: 'pre-line', maxHeight: 90, overflow: 'hidden' }}>{not.trim()}</div>
               )}
-              <div style={{ display: 'inline-block', marginTop: 10, padding: '8px 16px', background: '#12294D', color: '#fff', borderRadius: 9, fontSize: 12, fontWeight: 700 }}>Değerlendirmemi yaz</div>
+              <div style={{ display: 'inline-block', marginTop: 10, padding: '8px 16px', background: '#12294D', color: '#fff', borderRadius: 9, fontSize: 12, fontWeight: 600 }}>Değerlendirmemi yaz</div>
             </div>
           </div>
 
@@ -270,7 +270,7 @@ export default function YorumToplaKarti({ entityId, entityType }: { entityId: st
           {bilgi.davetler.length > 0 && (
             <div style={{ marginTop: 14, borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>
               <button type="button" onClick={() => setGecmisAcik(a => !a)}
-                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 700, color: C.navy }}>
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 600, color: C.navy }}>
                 Gönderilen davetler ({bilgi.davetler.length}) {gecmisAcik ? '‹' : '›'}
               </button>
               {gecmisAcik && (
@@ -279,7 +279,7 @@ export default function YorumToplaKarti({ entityId, entityType }: { entityId: st
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0', borderTop: i ? `0.5px solid ${C.border}` : 'none', fontSize: 12, minWidth: 0 }}>
                       <span style={{ flex: 1, minWidth: 0, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.email}</span>
                       <span style={{ color: C.muted, flex: 'none' }}>{new Date(d.tarih).toLocaleDateString('tr-TR')}</span>
-                      <span style={{ flex: 'none', fontSize: 11, fontWeight: 700, color: d.durum === 'gonderildi' ? C.green : C.red }}>
+                      <span style={{ flex: 'none', fontSize: 11, fontWeight: 600, color: d.durum === 'gonderildi' ? C.green : C.red }}>
                         {d.durum === 'gonderildi' ? 'Gönderildi' : 'Gönderilemedi'}
                       </span>
                     </div>

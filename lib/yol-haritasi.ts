@@ -247,6 +247,16 @@ export const YAPILANLAR: Guncelleme[] = [
     'Formda telefonla ya da online görüşme seçiliyor, konuşulmak istenen konular işaretleniyor. Talep size e-postayla geliyor ve admin panelindeki Booking Başvuruları sekmesinde "Ücretsiz Görüşme" etiketiyle görünüyor; başvurana da onay e-postası gidiyor.',
     'Üst menüye yeşil noktalı "Görüşme Talep Edin" bağlantısı eklendi (dar ekranda "Görüşme"); mobil menüde, Özellikler menüsünün altında ve sayfa altında da var.',
   ]},
+  { tarih: '2026-11-22', alan: 'Site', baslik: 'Ana sayfanın başında hekimlere yapay zekâ asistanı vitrini', maddeler: [
+    'Ana sayfanın en üstündeki logo ve dönen başlıkların yerine koyu, sekmeli vitrin geldi. Klinik Bul ve Randevu sekmelerinin ardından hekimlere kanal kanal Hekimhane Booking anlatılıyor: Telefon, Instagram ve Facebook, Web Sitesi, E-posta.',
+    'Her kanalın kendi canlı çizimi var: asistanın aramayı yanıtlayıp takvimdeki boş saate randevu eklemesi, Instagram mesajına verilen yanıt ve Instagram ile Facebook konuşmalarının tek gelen kutusu, web sitesindeki sohbet balonunda saat seçimi, e-postaya hazırlanan yanıt taslağı.',
+    'Yazılar yalnız Booking sayfasında anlatılan ve çalışan özellikleri söylüyor; "ücretsiz" ya da oran yok. Hasta araması vitrinin hemen altında aynen duruyor; sekme değişince sayfa yerinden oynamıyor, telefonda taşma yok.',
+  ]},
+  { tarih: '2026-11-22', alan: 'Tasarım', baslik: 'Sitenin yazı tipi Doktorio ile aynı oldu', maddeler: [
+    'Sitenin tamamı artık cihazın kendi yazı tipini kullanıyor: iPhone ve Mac\'te SF Pro, Windows\'ta Segoe UI, Android\'de Roboto. Doktorio ve sohbet balonu da aynısını kullanıyor; sayfalar ek yazı tipi indirmeden, daha hızlı açılıyor.',
+    'Başlıklar ve vurgular bir kademe inceldi, harfler arası daha rahat; Türkçe harfler (ğ, ş, İ, ı) her cihazda düzgün.',
+    'Logodaki "hekimhane" yazısı ve e-postalar değişmedi.',
+  ]},
   { tarih: '2026-11-22', alan: 'Admin', baslik: 'Kaldırma talebi sahiplerine dostça e-posta', maddeler: [
     'Kaldırma Talepleri sekmesinde her talebin ve her kaldırılan profilin yanında "Mail gönder" düğmesi: hazır şablonlardan biri (dostça son mesaj, ücretsiz özellik hatırlatması, geri dönüş daveti, kaldırmak yerine yönetmek, kendi metniniz) seçilir, konu ve metin düzenlenir, e-posta göründüğü gibi önizlenir.',
     'Şablonlar yalnız sitede gerçekten olanları söyler: randevu taleplerinin doğrudan e-postaya gelmesi, bilgileri düzenleme, yorumlara yanıt, HekimKart. Instagram ve Facebook bağlantıları Pro özelliği olduğu için yalnız ücretsiz Pro kontenjanı sürerken anılır.',
@@ -259,6 +269,11 @@ export const YAPILANLAR: Guncelleme[] = [
     'Kaldırma talebiyle silinen profillerde kart da yedeğe alınır; profil geri yüklenirse kartı da aynı adresle geri gelir.',
     'İşletmesi artık bulunmayan bir kart açılmak istenirse sayfa gösterilmez; eski silmelerden kalan kart olsa bile görünmez.',
   ]},
+  { tarih: '2026-11-06', alan: 'Panel', baslik: 'Diş hekimlerine gösterilecek deneme hesabı', maddeler: [
+    'Ankara\'da "Lilly Diş Kliniği" adlı, gerçek olmadığını açıkça yazan bir diş kliniği profili ve ona bağlı panel. Listelerde, aramada ve Google\'da görünmez.',
+    'Merak eden hekime yönetim panelinden alınan özel bir bağlantı gönderilir; şifresiz panele girer, randevu, takvim, hasta ve yorum ekranlarını dener.',
+    'Deneme hesabında e-posta gönderme, ödeme, ekip daveti ve dosya yükleme kapalı; profilde ad ve iletişim değişmez. Her gece örnek hâline döner.',
+  ]},
   { tarih: '2026-11-04', alan: 'Panel', baslik: 'Yapay zekâ asistanının Hekimhane tarafı', maddeler: [
     'Panelde "Yapay Zekâ Asistanı" sekmesi: hekim onay vererek asistanını açar, sitesine ekleyeceği kodu alır, şifresiz Ozvelo\'ya geçer.',
     'Profil her kaydedildiğinde asistan kendiliğinden güncellenir; her gece de baştan kontrol edilir. Son sahip ayrılınca asistan kapanır.',
@@ -269,11 +284,6 @@ export const YAPILANLAR: Guncelleme[] = [
   ]},
   // ── Ekim 2026
   { tarih: '2026-10-31', alan: 'Admin', baslik: 'Yol Haritası sekmesi', maddeler: [
-  { tarih: '2026-11-06', alan: 'Panel', baslik: 'Diş hekimlerine gösterilecek deneme hesabı', maddeler: [
-    'Ankara\'da "Lilly Diş Kliniği" adlı, gerçek olmadığını açıkça yazan bir diş kliniği profili ve ona bağlı panel. Listelerde, aramada ve Google\'da görünmez.',
-    'Merak eden hekime yönetim panelinden alınan özel bir bağlantı gönderilir; şifresiz panele girer, randevu, takvim, hasta ve yorum ekranlarını dener.',
-    'Deneme hesabında e-posta gönderme, ödeme, ekip daveti ve dosya yükleme kapalı; profilde ad ve iletişim değişmez. Her gece örnek hâline döner.',
-  ]},
     'Admin panelinde yapılacaklar (gruplu ve sıralı) ve yapılanlar (tarihli) zaman çizelgesi.',
     'Kenar çubuğunda sizden beklenen iş sayısı rozetle görünür.',
   ]},

@@ -40,7 +40,7 @@ export default function YasalSayfa({ baslik, ozet, bolumler, yol, guncelleme, ch
             <span aria-hidden="true">›</span>
             <span style={{ color: 'var(--ink-secondary)' }}>{baslik}</span>
           </nav>
-          <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 30, lineHeight: '36px', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--ink)' }}>{baslik}</h1>
+          <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 30, lineHeight: '36px', fontWeight: 600, letterSpacing: '-0.015em', color: 'var(--ink)' }}>{baslik}</h1>
           <p style={{ margin: '8px 0 0', maxWidth: 720, fontSize: 15, lineHeight: '24px', color: 'var(--ink-secondary)' }}>{ozet}</p>
           <p style={{ margin: '10px 0 0', fontSize: 13, color: 'var(--ink-tertiary)' }}>Son güncelleme: {guncelleme || YASAL_GUNCELLEME}</p>
         </div>
@@ -51,7 +51,7 @@ export default function YasalSayfa({ baslik, ozet, bolumler, yol, guncelleme, ch
           .yasal-izgara { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 28px; align-items: start; }
           .yasal-tablo { width: 100%; border-collapse: collapse; font-size: 13.5px; }
           .yasal-tablo th, .yasal-tablo td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--border); }
-          .yasal-tablo th { font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--ink-tertiary); background: var(--canvas); }
+          .yasal-tablo th { font-size: 11px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--ink-tertiary); background: var(--canvas); }
           .yasal-tablo-sar { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; margin: 4px 0 14px; }
           @media (max-width: 900px) { .yasal-izgara { grid-template-columns: minmax(0, 1fr); } }
           @media (max-width: 640px) { .yasal-tablo { font-size: 13px; min-width: 520px; } }
@@ -60,7 +60,7 @@ export default function YasalSayfa({ baslik, ozet, bolumler, yol, guncelleme, ch
           {children}
           {bolumler.map((b, i) => (
             <section key={i} id={`b${i + 1}`} style={{ background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: 16, padding: '22px 24px', marginBottom: 14 }}>
-              <h2 style={{ margin: '0 0 12px', fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--brand)' }}>{b.baslik}</h2>
+              <h2 style={{ margin: '0 0 12px', fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--brand)' }}>{b.baslik}</h2>
               {b.icerik.map((blok, j) => {
                 if (typeof blok === 'string') {
                   return <p key={j} style={{ margin: '0 0 10px', fontSize: 14.5, lineHeight: 1.75, color: 'var(--ink-secondary)' }}>{zengin(blok)}</p>;
@@ -90,11 +90,11 @@ export default function YasalSayfa({ baslik, ozet, bolumler, yol, guncelleme, ch
         </div>
 
         <aside style={{ position: 'sticky', top: 90, background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: 16, padding: '16px 18px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--ink-tertiary)', marginBottom: 8 }}>Yasal metinler</div>
+          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--ink-tertiary)', marginBottom: 8 }}>Yasal metinler</div>
           {DIGER.map(([ad, href]) => (
             <Link key={href} href={href} style={{
               display: 'block', padding: '7px 0', fontSize: 14, textDecoration: 'none',
-              color: href === yol ? 'var(--brand)' : 'var(--ink-secondary)', fontWeight: href === yol ? 700 : 500,
+              color: href === yol ? 'var(--brand)' : 'var(--ink-secondary)', fontWeight: href === yol ? 600 : 500,
             }}>{ad}</Link>
           ))}
         </aside>
@@ -107,7 +107,7 @@ export default function YasalSayfa({ baslik, ozet, bolumler, yol, guncelleme, ch
 export function KunyeKutusu({ baslik, satirlar }: { baslik: string; satirlar: { etiket: string; deger: string }[] }) {
   return (
     <div style={{ background: 'var(--tint-50)', border: '1px solid var(--tint-200)', borderRadius: 16, padding: '18px 22px', marginBottom: 14 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--brand)', marginBottom: 10 }}>{baslik}</div>
+      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--brand)', marginBottom: 10 }}>{baslik}</div>
       <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'max-content 1fr', gap: '6px 16px', fontSize: 14 }}>
         {satirlar.map(s => (
           <div key={s.etiket} style={{ display: 'contents' }}>

@@ -33,7 +33,7 @@ export default function OnayliYorumDugmesi({ talepId, tel, ad, isletme }: { tale
   }
 
   if (durum === 'yazildi') {
-    return <span style={{ display: 'inline-flex', alignItems: 'center', minHeight: 40, padding: '0 12px', borderRadius: 10, background: '#F0FDF4', color: '#166534', fontSize: 12.5, fontWeight: 700 }}>Hasta onaylı yorumunu yazdı</span>;
+    return <span style={{ display: 'inline-flex', alignItems: 'center', minHeight: 40, padding: '0 12px', borderRadius: 10, background: '#F0FDF4', color: '#166534', fontSize: 12.5, fontWeight: 600 }}>Hasta onaylı yorumunu yazdı</span>;
   }
   const dugme: React.CSSProperties = { padding: '10px 15px', minHeight: 40, borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', background: 'transparent', color: '#12294D', border: '1px solid #C1CEE2' };
   return (

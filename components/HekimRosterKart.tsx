@@ -56,13 +56,13 @@ export default function HekimRosterKart({ doktor: d }: { doktor: Doktor }) {
 
       {/* Bilgi */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div title={displayName} style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', lineHeight: 1.3, letterSpacing: '-.2px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflowWrap: 'anywhere' }}>
+        <div title={displayName} style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', lineHeight: 1.3, letterSpacing: '-.2px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflowWrap: 'anywhere' }}>
           {displayName}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 6, minWidth: 0, flexWrap: 'wrap' }}>
           {hasRating ? (
             <>
-              <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--navy)', lineHeight: 1 }}>{(d.rat || 0).toFixed(1)}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--navy)', lineHeight: 1 }}>{(d.rat || 0).toFixed(1)}</span>
               <Stars rat={d.rat || 0} />
               <span style={{ fontSize: 11, color: 'var(--muted)' }}>({d.rev})</span>
             </>

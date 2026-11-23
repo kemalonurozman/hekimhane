@@ -64,9 +64,9 @@ export default async function HastaneDoktorlariPage({ params }: Props) {
             <span style={{ color: 'white', fontWeight: 600 }}>{shortName}</span>
           </nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 800, color: '#065F46', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 20, padding: '3px 11px' }}>DEVLET HASTANESİ</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#065F46', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 20, padding: '3px 11px' }}>DEVLET HASTANESİ</span>
           </div>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 28, fontWeight: 800, letterSpacing: '-0.5px', margin: 0 }}>{shortName}</h1>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 28, fontWeight: 600, letterSpacing: '-0.25px', margin: 0 }}>{shortName}</h1>
           <p style={{ fontSize: 14.5, color: 'rgba(255,255,255,.85)', marginTop: 8 }}>
             <i className="fa-solid fa-location-dot" style={{ color: 'var(--gold)', marginRight: 6 }} />{hospital.ilce}, {hospital.il} · {doctors.length} diş hekimi · {bolumler.length} bölüm
           </p>
@@ -76,7 +76,7 @@ export default async function HastaneDoktorlariPage({ params }: Props) {
       <div className="container" style={{ maxWidth: 1000, margin: '0 auto', padding: '28px 16px 48px' }}>
         {bolumler.map(bolum => (
           <section key={bolum} style={{ marginBottom: 28 }}>
-            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 18, fontWeight: 700, color: 'var(--navy)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 18, fontWeight: 600, color: 'var(--navy)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
               <i className="fa-solid fa-tooth" style={{ color: 'var(--gold)', fontSize: 15 }} /> {bolum}
               <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)' }}>({byBolum[bolum].length})</span>
             </h2>
@@ -84,11 +84,11 @@ export default async function HastaneDoktorlariPage({ params }: Props) {
               {byBolum[bolum].map(d => (
                 <Link key={d.id} href={`/doktorlar/${d.slug}`}
                   style={{ display: 'flex', alignItems: 'center', gap: 11, background: 'white', border: '1px solid var(--border)', borderRadius: 13, padding: '12px 14px', textDecoration: 'none' }}>
-                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg,var(--navy),var(--navy2))', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 15, flexShrink: 0 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg,var(--navy),var(--navy2))', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 15, flexShrink: 0 }}>
                     {(d.ad || '?')[0]}
                   </div>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--navy)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.ad} {d.soyad}</div>
+                    <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--navy)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.ad} {d.soyad}</div>
                     <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>{d.unvan || 'Dt.'}{d.verified ? ' · ✓ Onaylı' : ''}</div>
                   </div>
                 </Link>

@@ -29,7 +29,7 @@ export default async function KaldirmaOnayPage({ searchParams }: { searchParams:
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '48px 16px 72px' }}>
         <div className="kf-grup__kutu" style={{ textAlign: 'center', justifyItems: 'center', padding: '36px 24px' }}>
           <HkIcon name={s.ok ? 'success' : s.neden === 'kapandi' ? 'info' : 'warning'} size={56} />
-          <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 800, letterSpacing: '-.03em', color: '#0E1A2C' }}>
+          <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 600, letterSpacing: '-.015em', color: '#0E1A2C' }}>
             {s.ok ? 'E-posta adresiniz doğrulandı' : s.neden === 'kapandi' ? 'Talep sonuçlandı' : 'Bağlantı doğrulanamadı'}
           </h1>
           <p className="kf-alt" style={{ margin: 0, fontSize: 15, maxWidth: 440 }}>

@@ -108,7 +108,7 @@ const SSS: { s: string; c: string }[] = [
   { s: 'Birden fazla işletmem var, ne yapmalıyım?', c: 'Pro üyelik işletme başınadır. Her işletmeniz için panelden ayrı ayrı Pro’ya geçebilirsiniz.' },
 ];
 
-const BAG: React.CSSProperties = { color: '#1B3A69', fontWeight: 700, textDecoration: 'underline' };
+const BAG: React.CSSProperties = { color: '#1B3A69', fontWeight: 600, textDecoration: 'underline' };
 
 export default function ProPage() {
   const jsonLd = {
@@ -133,7 +133,7 @@ export default function ProPage() {
         birincil={{ ad: `Pro’ya yükseltin — aylık ${PRO_AYLIK_TL} TL`, href: '#fiyat' }}
         ikincil={{ ad: 'Demo talep edin', href: '#demo' }}
         sahne={<Sahne />}
-        alt={<p style={{ margin: '18px 0 0', fontSize: 13.5, color: '#586273' }}>Güvenli ödeme — Stripe altyapısı. Taahhüt yok. <a href="#dahil" style={{ color: '#1B3A69', fontWeight: 700, textDecoration: 'underline' }}>Neler dahil?</a></p>}
+        alt={<p style={{ margin: '18px 0 0', fontSize: 13.5, color: '#586273' }}>Güvenli ödeme — Stripe altyapısı. Taahhüt yok. <a href="#dahil" style={{ color: '#1B3A69', fontWeight: 600, textDecoration: 'underline' }}>Neler dahil?</a></p>}
       />
 
       <OzBant
@@ -169,9 +169,9 @@ export default function ProPage() {
             <div className="oz-ikili" style={{ alignItems: 'start' }}>
               <div>
                 <span className="vt-pro">PRO</span>
-                <p style={{ margin: '16px 0 4px', fontSize: 16, fontWeight: 700, color: '#586273' }}>Hekimhane-Pro</p>
+                <p style={{ margin: '16px 0 4px', fontSize: 16, fontWeight: 600, color: '#586273' }}>Hekimhane-Pro</p>
                 <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>
-                  <span style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(44px, 5.4vw, 64px)', fontWeight: 800, letterSpacing: '-0.045em', lineHeight: 1, color: '#0E1A2C' }}>{PRO_AYLIK_TL} TL</span>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(44px, 5.4vw, 64px)', fontWeight: 600, letterSpacing: '-0.0225em', lineHeight: 1, color: '#0E1A2C' }}>{PRO_AYLIK_TL} TL</span>
                   <span style={{ fontSize: 17, fontWeight: 600, color: '#586273' }}>/ ay</span>
                 </div>
                 <p style={{ margin: '10px 0 10px', fontSize: 15, color: '#586273' }}>Taahhüt yok — istediğiniz an iptal edin.</p>
@@ -226,8 +226,8 @@ function TalepSatiri({ ad, alt, gecikme }: { ad: string; alt: string; gecikme: n
         <small style={{ display: 'block', fontSize: 12.5, color: '#586273', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{alt}</small>
       </div>
       <div style={{ display: 'flex', gap: 6, flex: 'none' }}>
-        <span style={{ padding: '6px 11px', borderRadius: 9, background: '#12294D', color: '#fff', fontSize: 11.5, fontWeight: 700 }}>Onayla</span>
-        <span style={{ padding: '6px 11px', borderRadius: 9, background: '#EEF1F5', color: '#3C4A61', fontSize: 11.5, fontWeight: 700 }}>Ertele</span>
+        <span style={{ padding: '6px 11px', borderRadius: 9, background: '#12294D', color: '#fff', fontSize: 11.5, fontWeight: 600 }}>Onayla</span>
+        <span style={{ padding: '6px 11px', borderRadius: 9, background: '#EEF1F5', color: '#3C4A61', fontSize: 11.5, fontWeight: 600 }}>Ertele</span>
       </div>
     </div>
   );
@@ -250,12 +250,12 @@ function MiniTalep() {
   const satir = (ad: string, alt: string, yeni: boolean) => (
     <div key={ad} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '8px 10px', borderRadius: 10, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE' }}>
       <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: 11.5, fontWeight: 700, color: '#0E1A2C' }}>{ad}</div>
+        <div style={{ fontSize: 11.5, fontWeight: 600, color: '#0E1A2C' }}>{ad}</div>
         <div style={{ fontSize: 10.5, color: '#586273' }}>{alt}</div>
       </div>
       {yeni
-        ? <span style={{ padding: '4px 9px', borderRadius: 7, background: '#12294D', color: '#fff', fontSize: 10, fontWeight: 700 }}>Onayla</span>
-        : <span style={{ padding: '3px 8px', borderRadius: 999, background: '#E1F2EE', color: '#0B5F55', fontSize: 10, fontWeight: 700 }}>Onaylandı</span>}
+        ? <span style={{ padding: '4px 9px', borderRadius: 7, background: '#12294D', color: '#fff', fontSize: 10, fontWeight: 600 }}>Onayla</span>
+        : <span style={{ padding: '3px 8px', borderRadius: 999, background: '#E1F2EE', color: '#0B5F55', fontSize: 10, fontWeight: 600 }}>Onaylandı</span>}
     </div>
   );
   return (
@@ -277,7 +277,7 @@ function MiniEposta() {
       </div>
       <div style={{ height: 7, width: '88%', borderRadius: 4, background: '#E6E8EC', marginBottom: 6 }} />
       <div style={{ height: 7, width: '64%', borderRadius: 4, background: '#E6E8EC', marginBottom: 12 }} />
-      <span style={{ display: 'inline-block', padding: '4px 9px', borderRadius: 7, background: '#F7F0DE', color: '#8A6A1F', fontSize: 10, fontWeight: 700 }}>Hatırlatma: yarın 14:30</span>
+      <span style={{ display: 'inline-block', padding: '4px 9px', borderRadius: 7, background: '#F7F0DE', color: '#8A6A1F', fontSize: 10, fontWeight: 600 }}>Hatırlatma: yarın 14:30</span>
     </div>
   );
 }
@@ -288,15 +288,15 @@ function MiniProfil() {
       <div style={{ height: 34, background: 'linear-gradient(120deg, #0E2D55, #1A335E 55%, #2B5288)' }} />
       <div style={{ padding: '0 12px 12px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginTop: -14 }}>
-          <span style={{ width: 34, height: 34, borderRadius: '50%', background: '#fff', border: '2px solid #B8892F', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 800, color: '#12294D', flex: 'none' }}>H</span>
+          <span style={{ width: 34, height: 34, borderRadius: '50%', background: '#fff', border: '2px solid #B8892F', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 600, color: '#12294D', flex: 'none' }}>H</span>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 11.5, fontWeight: 800, color: '#0E1A2C', whiteSpace: 'nowrap' }}>Örnek Diş Kliniği</div>
+            <div style={{ fontSize: 11.5, fontWeight: 600, color: '#0E1A2C', whiteSpace: 'nowrap' }}>Örnek Diş Kliniği</div>
             <span className="vt-pro" style={{ height: 16, fontSize: 9, padding: '0 6px' }}>PRO</span>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 5, marginTop: 10 }}>
-          <span style={{ flex: 1, textAlign: 'center', padding: '5px 4px', borderRadius: 7, background: '#22A757', color: '#fff', fontSize: 9.5, fontWeight: 700 }}>WhatsApp</span>
-          <span style={{ flex: 1, textAlign: 'center', padding: '5px 4px', borderRadius: 7, background: '#12294D', color: '#fff', fontSize: 9.5, fontWeight: 700 }}>Web sitesi</span>
+          <span style={{ flex: 1, textAlign: 'center', padding: '5px 4px', borderRadius: 7, background: '#22A757', color: '#fff', fontSize: 9.5, fontWeight: 600 }}>WhatsApp</span>
+          <span style={{ flex: 1, textAlign: 'center', padding: '5px 4px', borderRadius: 7, background: '#12294D', color: '#fff', fontSize: 9.5, fontWeight: 600 }}>Web sitesi</span>
         </div>
       </div>
     </div>
@@ -307,7 +307,7 @@ function MiniGorunur() {
   const satir = (ad: string, alt: string, pro: boolean) => (
     <div key={ad} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '8px 10px', borderRadius: 10, background: '#fff', boxShadow: pro ? 'inset 0 0 0 1.5px #B8892F' : 'inset 0 0 0 1px #DCE3EE' }}>
       <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: 11.5, fontWeight: 700, color: '#0E1A2C', whiteSpace: 'nowrap' }}>{ad}</div>
+        <div style={{ fontSize: 11.5, fontWeight: 600, color: '#0E1A2C', whiteSpace: 'nowrap' }}>{ad}</div>
         <div style={{ fontSize: 10.5, color: '#586273' }}>{alt}</div>
       </div>
       {pro && <span className="vt-pro" style={{ height: 16, fontSize: 9, padding: '0 6px', flex: 'none' }}>PRO</span>}
@@ -315,7 +315,7 @@ function MiniGorunur() {
   );
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%', maxWidth: 230 }}>
-      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.04em', textTransform: 'uppercase', color: '#12294D' }}>Asistan · randevular</div>
+      <div style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', color: '#12294D' }}>Asistan · randevular</div>
       {satir('Yarın 14:30 · Ayşe K.', 'Onaylandı · hastaya e-posta gitti', true)}
       {satir('Cuma 10:00 · Mehmet D.', 'Bekliyor · asistan hatırlatacak', false)}
     </div>

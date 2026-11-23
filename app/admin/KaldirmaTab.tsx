@@ -124,7 +124,7 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
   }, 'cerceve', busy === anahtar);
   const retBilgisi = (email: string) => {
     const tarihi = retler[email.trim().toLowerCase()];
-    return tarihi ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>E-posta istemiyor · {tarih(tarihi)}</span> : null;
+    return tarihi ? <span style={{ fontSize: 11.5, fontWeight: 600, color: C.red }}>E-posta istemiyor · {tarih(tarihi)}</span> : null;
   };
   const mailBilgisi = (liste: EpostaKaydi[]) => liste.length ? (
     <span style={{ fontSize: 11.5, fontWeight: 600, color: C.green }}>
@@ -137,7 +137,7 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
 
   const btn = (etiket: string, onClick: () => void, stil: 'dolu' | 'cerceve' | 'tehlike' | 'uyari', disabled = false) => (
     <button disabled={disabled} onClick={onClick}
-      style={{ fontSize: 12.5, fontWeight: 700, padding: '8px 13px', borderRadius: 9, cursor: 'pointer', fontFamily: 'inherit', opacity: disabled ? 0.6 : 1,
+      style={{ fontSize: 12.5, fontWeight: 600, padding: '8px 13px', borderRadius: 9, cursor: 'pointer', fontFamily: 'inherit', opacity: disabled ? 0.6 : 1,
         border: stil === 'cerceve' ? `1px solid ${C.border}` : 'none',
         background: stil === 'dolu' ? C.navy : stil === 'tehlike' ? C.red : stil === 'uyari' ? 'rgba(217,96,26,.12)' : 'transparent',
         color: stil === 'dolu' || stil === 'tehlike' ? 'white' : stil === 'uyari' ? C.orange : C.text }}>{etiket}</button>
@@ -157,16 +157,16 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
         <div style={{ padding: '14px 18px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ minWidth: 0 }}>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 4 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: C.navy, background: 'rgba(26,51,94,.08)', padding: '2px 8px', borderRadius: 8 }}>{TUR[t.entity_type] || t.entity_type}</span>
-              <span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{t.entity_name || t.entity_id}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: C.navy, background: 'rgba(26,51,94,.08)', padding: '2px 8px', borderRadius: 8 }}>{TUR[t.entity_type] || t.entity_type}</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{t.entity_name || t.entity_id}</span>
               {urls[t.id] && <a href={urls[t.id]} target="_blank" rel="noopener" style={{ fontSize: 11.5, fontWeight: 600, color: C.navy }}>Profili aç ↗</a>}
               <span style={{ fontSize: 11.5, color: C.dim }}>{t.entity_id}</span>
             </div>
             <div style={{ fontSize: 11.5, color: C.muted }}>Talep: {tarih(t.created_at)}{t.il ? ` · ${t.il}` : ''}</div>
           </div>
           <div style={{ textAlign: 'right', display: 'grid', gap: 5, justifyItems: 'end' }}>
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: d.renk, background: d.renk + '1F', borderRadius: 8, padding: '3px 9px' }}>{d.etiket}</span>
-            {t.status === 'bekliyor' && <span style={{ fontSize: 12, fontWeight: 700, color: sure.doldu ? C.red : C.amber, fontVariantNumeric: 'tabular-nums' }}>Duraklatmaya: {sure.metin}</span>}
+            <span style={{ fontSize: 10.5, fontWeight: 600, color: d.renk, background: d.renk + '1F', borderRadius: 8, padding: '3px 9px' }}>{d.etiket}</span>
+            {t.status === 'bekliyor' && <span style={{ fontSize: 12, fontWeight: 600, color: sure.doldu ? C.red : C.amber, fontVariantNumeric: 'tabular-nums' }}>Duraklatmaya: {sure.metin}</span>}
             {t.status === 'duraklatildi' && <span style={{ fontSize: 11.5, color: C.muted }}>Yayından alındı: {tarih(t.duraklatildi_at)}</span>}
           </div>
         </div>
@@ -174,18 +174,18 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '6px 18px', fontSize: 12.5, color: C.muted, marginBottom: 10 }}>
             <span>Talep eden: <strong style={{ color: C.text }}>{t.ad_soyad}</strong> ({t.talep_eden === 'yetkili' ? 'yetkili kişi' : 'profil sahibi'})</span>
             <span>E-posta: <a href={`mailto:${t.email}`} style={{ color: C.navy, fontWeight: 600 }}>{t.email}</a> {t.email_dogrulandi_at ? <strong style={{ color: C.green }}>· doğrulandı</strong> : <span style={{ color: C.amber }}>· doğrulanmadı</span>}</span>
-            <span>Cep: {t.tel ? <a href={`tel:${t.tel.replace(/\s/g, '')}`} style={{ color: C.navy, fontWeight: 700 }}>{t.tel}</a> : <em>yok (eski talep)</em>}</span>
+            <span>Cep: {t.tel ? <a href={`tel:${t.tel.replace(/\s/g, '')}`} style={{ color: C.navy, fontWeight: 600 }}>{t.tel}</a> : <em>yok (eski talep)</em>}</span>
             {t.ip && <span>IP: {t.ip}</span>}
             {mailBilgisi(gecmis)}
             {retBilgisi(t.email)}
           </div>
           <div style={{ background: C.soft, border: `1px solid ${C.border}`, borderRadius: 10, padding: '10px 12px', marginBottom: 10 }}>
-            <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, letterSpacing: '.4px', marginBottom: 3 }}>KALDIRMA NEDENİ</div>
+            <div style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, letterSpacing: '.4px', marginBottom: 3 }}>KALDIRMA NEDENİ</div>
             <div style={{ fontSize: 13.5, color: C.text, lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>{t.aciklama || <em style={{ color: C.muted }}>Neden yazılmamış (eski talep) — “Neden sor” ile isteyin.</em>}</div>
           </div>
           {t.soru_metni && (
             <div style={{ background: 'rgba(26,51,94,.05)', border: '1px solid rgba(26,51,94,.15)', borderRadius: 10, padding: '10px 12px', marginBottom: 10, fontSize: 13, color: C.text }}>
-              <div style={{ fontSize: 10.5, fontWeight: 700, color: C.navy, letterSpacing: '.4px', marginBottom: 3 }}>SORDUĞUNUZ · {tarih(t.soru_at)}</div>
+              <div style={{ fontSize: 10.5, fontWeight: 600, color: C.navy, letterSpacing: '.4px', marginBottom: 3 }}>SORDUĞUNUZ · {tarih(t.soru_at)}</div>
               <div style={{ whiteSpace: 'pre-wrap' }}>{t.soru_metni}</div>
               <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>Yanıt e-posta kutunuza gelir.</div>
             </div>
@@ -228,7 +228,7 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
     return (
       <div key={k.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', padding: '12px 16px', borderBottom: `1px solid ${C.border}` }}>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text }}>{k.ad} <span style={{ fontSize: 11.5, fontWeight: 500, color: C.dim }}>{TUR[k.entity_type] || k.entity_type} · {k.eski_entity_id || '—'}{k.il ? ` · ${k.il}` : ''}</span></div>
+          <div style={{ fontSize: 13.5, fontWeight: 600, color: C.text }}>{k.ad} <span style={{ fontSize: 11.5, fontWeight: 500, color: C.dim }}>{TUR[k.entity_type] || k.entity_type} · {k.eski_entity_id || '—'}{k.il ? ` · ${k.il}` : ''}</span></div>
           <div style={{ fontSize: 11.5, color: C.muted }}>
             Kaldırıldı: {tarih(k.kaldirma_tarihi)} · talep {k.talep_tarihi}
             {k.geri_yuklendi_at ? <strong style={{ color: C.green }}> · geri yüklendi {tarih(k.geri_yuklendi_at)}</strong>
@@ -268,7 +268,7 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
       )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 18, flexWrap: 'wrap' }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: 0 }}>Kaldırma Talepleri</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 600, color: C.text, margin: 0 }}>Kaldırma Talepleri</h1>
           <p style={{ fontSize: 13, color: C.muted, margin: '4px 0 0', maxWidth: 640 }}>Talep gelince profil yayında kalır. 48 saat içinde karar vermezseniz profil kendiliğinden duraklatılır (yayından alınır, silinmez). Kaldırılan profiller 30 gün yedekli tutulur ve geri yüklenebilir.</p>
         </div>
         <button onClick={load} style={{ fontSize: 12.5, fontWeight: 600, padding: '8px 14px', borderRadius: 9, border: `1px solid ${C.border}`, background: 'transparent', color: C.muted, cursor: 'pointer', fontFamily: 'inherit' }}>Yenile</button>
@@ -283,7 +283,7 @@ export default function KaldirmaTab({ onChanged }: { onChanged: () => void }) {
           <button key={f.key} onClick={() => setFiltre(f.key)}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, padding: '7px 12px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
               border: `1px solid ${filtre === f.key ? f.renk : C.border}`, background: filtre === f.key ? f.renk + '1A' : C.card, color: filtre === f.key ? f.renk : C.text }}>
-            {f.label}<span style={{ fontSize: 11, fontWeight: 700, background: filtre === f.key ? f.renk : C.soft, color: filtre === f.key ? 'white' : C.muted, borderRadius: 10, padding: '1px 7px' }}>{f.n}</span>
+            {f.label}<span style={{ fontSize: 11, fontWeight: 600, background: filtre === f.key ? f.renk : C.soft, color: filtre === f.key ? 'white' : C.muted, borderRadius: 10, padding: '1px 7px' }}>{f.n}</span>
           </button>
         ))}
       </div>

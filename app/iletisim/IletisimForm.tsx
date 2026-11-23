@@ -45,7 +45,7 @@ export default function IletisimForm() {
         <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
         </div>
-        <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 800, marginBottom: 8 }}>Mesajınız Alındı</h2>
+        <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 600, marginBottom: 8 }}>Mesajınız Alındı</h2>
         <p style={{ color: 'var(--muted)', fontSize: 14.5, lineHeight: 1.6 }}>
           En geç 24 saat içinde <strong>{f.email}</strong> adresine dönüş yapacağız. Onay e-postası gönderdik.
         </p>
@@ -55,7 +55,7 @@ export default function IletisimForm() {
 
   return (
     <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: 'clamp(20px, 5vw, 40px)', boxShadow: '0 2px 16px rgba(0,0,0,.04)' }}>
-      <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Mesaj Gönderin</h2>
+      <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 22, fontWeight: 600, marginBottom: 6 }}>Mesaj Gönderin</h2>
       <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 28 }}>En geç 24 saat içinde dönüş yapıyoruz.</p>
 
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -99,7 +99,7 @@ export default function IletisimForm() {
           {f.konu === 'abonelik-iptali' && (
             <p style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6, margin: '8px 0 0' }}>
               İptali kendiniz panelden anında yapabilir ya da{' '}
-              <a href="/abonelik-iptali" style={{ color: 'var(--navy)', fontWeight: 700 }}>abonelik iptal sayfasındaki</a>{' '}
+              <a href="/abonelik-iptali" style={{ color: 'var(--navy)', fontWeight: 600 }}>abonelik iptal sayfasındaki</a>{' '}
               formu kullanabilirsiniz — orada işletme adını da alıyoruz, talep daha hızlı işleme girer.
             </p>
           )}
@@ -113,7 +113,7 @@ export default function IletisimForm() {
         {hata && <p style={{ color: '#DC2626', fontSize: 13, margin: 0 }}>{hata}</p>}
 
         <button type="submit" disabled={saving}
-          style={{ padding: '13px 28px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: saving ? .7 : 1 }}>
+          style={{ padding: '13px 28px', background: 'var(--navy)', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: saving ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: saving ? .7 : 1 }}>
           <i className="fa-solid fa-paper-plane" />
           {saving ? 'Gönderiliyor…' : 'Mesajı Gönder'}
         </button>

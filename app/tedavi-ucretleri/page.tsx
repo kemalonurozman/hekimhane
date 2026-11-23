@@ -59,10 +59,10 @@ export default function TedaviUcretleriPage() {
           <div style={{ width: 60, height: 60, borderRadius: 17, margin: '0 auto 18px', background: 'linear-gradient(150deg,#1A335E,#274d86)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 22px rgba(26,51,94,.22)' }}>
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 7h8M8 11h8M8 15h5" /></svg>
           </div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--gold-light)', color: '#9A7B1F', border: '1px solid rgba(184,137,47,.35)', borderRadius: 20, padding: '4px 12px', fontSize: 11.5, fontWeight: 800, letterSpacing: '.6px', marginBottom: 14 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--gold-light)', color: '#9A7B1F', border: '1px solid rgba(184,137,47,.35)', borderRadius: 20, padding: '4px 12px', fontSize: 11.5, fontWeight: 600, letterSpacing: '.6px', marginBottom: 14 }}>
             {YIL} TABAN FİYATLARI
           </div>
-          <h1 style={{ fontFamily: 'var(--font-playfair, serif)', fontSize: 'clamp(24px,5vw,34px)', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.4px', margin: '0 0 10px' }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair, serif)', fontSize: 'clamp(24px,5vw,34px)', fontWeight: 600, color: 'var(--text)', letterSpacing: '-0.2px', margin: '0 0 10px' }}>
             Diş Tedavi Ücretleri
           </h1>
           <p style={{ color: 'var(--muted)', fontSize: 15, maxWidth: 560, margin: '0 auto', lineHeight: 1.65 }}>
@@ -74,11 +74,11 @@ export default function TedaviUcretleriPage() {
       <div className="container" style={{ maxWidth: 860, padding: 'clamp(24px,5vw,40px) clamp(16px,4vw,32px)' }}>
         {/* Popüler tedaviler — detay sayfaları */}
         <div style={{ marginBottom: 24 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.2px', margin: '0 0 12px' }}>Popüler Tedaviler — Detaylı Bilgi</h2>
+          <h2 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', letterSpacing: '-0.2px', margin: '0 0 12px' }}>Popüler Tedaviler — Detaylı Bilgi</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
             {TEDAVI_DETAYLARI.map(t => (
               <Link key={t.slug} href={`/tedavi-ucretleri/${t.slug}`} style={{ display: 'block', padding: '13px 15px', borderRadius: 13, border: '1px solid #EAE6DE', textDecoration: 'none', background: 'white' }}>
-                <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text)', lineHeight: 1.3 }}>{t.ad}</div>
+                <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)', lineHeight: 1.3 }}>{t.ad}</div>
                 <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3 }}>{t.kategori}</div>
               </Link>
             ))}

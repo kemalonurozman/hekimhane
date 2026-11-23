@@ -59,7 +59,7 @@ export default async function BobathPage({ searchParams }: { searchParams: Recor
             <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>Ana Sayfa</Link><span>›</span>
             <span style={{ color: 'white', fontWeight: 600 }}>Bobath Terapistleri</span>
           </nav>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, letterSpacing: '-0.5px', margin: 0 }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 600, letterSpacing: '-0.25px', margin: 0 }}>
             Bobath Terapistleri
           </h1>
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,.85)', marginTop: 8, maxWidth: 720, lineHeight: 1.6 }}>
@@ -68,7 +68,7 @@ export default async function BobathPage({ searchParams }: { searchParams: Recor
           <form style={{ marginTop: 16, display: 'flex', gap: 8, maxWidth: 460 }}>
             <input name="q" defaultValue={q} placeholder="İl veya terapist adı ara…"
               style={{ flex: 1, padding: '11px 14px', borderRadius: 11, border: '1px solid rgba(255,255,255,.25)', background: 'rgba(255,255,255,.12)', color: 'white', fontSize: 14, outline: 'none', minWidth: 0 }} />
-            <button style={{ padding: '11px 18px', borderRadius: 11, background: 'var(--gold-fill)', color: 'var(--on-gold)', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>Ara</button>
+            <button style={{ padding: '11px 18px', borderRadius: 11, background: 'var(--gold-fill)', color: 'var(--on-gold)', border: 'none', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>Ara</button>
           </form>
         </div>
       </div>
@@ -76,11 +76,11 @@ export default async function BobathPage({ searchParams }: { searchParams: Recor
       <div className="container" style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 16px 48px' }}>
         {q && matched.length > 0 && (
           <section style={{ marginBottom: 32 }}>
-            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 700, color: 'var(--navy)', marginBottom: 12 }}>Terapistler ({matched.length})</h2>
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 600, color: 'var(--navy)', marginBottom: 12 }}>Terapistler ({matched.length})</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 10 }}>
               {matched.map(d => (
                 <Link key={d.id} href={`/doktorlar/${d.slug}`} style={card}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)' }}>{d.unvan ? d.unvan + ' ' : ''}{d.ad} {d.soyad}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--navy)' }}>{d.unvan ? d.unvan + ' ' : ''}{d.ad} {d.soyad}</div>
                   <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>Bobath Terapisti · {d.spec}</div>
                   <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 4 }}>{[d.ilce, d.il].filter(Boolean).join(', ')}</div>
                 </Link>
@@ -102,7 +102,7 @@ export default async function BobathPage({ searchParams }: { searchParams: Recor
                     <i className="fa-solid fa-hand-holding-medical" style={{ color: 'white', fontSize: 16 }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 15.5, fontWeight: 700, color: 'var(--navy)' }}>{h.il}</div>
+                    <div style={{ fontSize: 15.5, fontWeight: 600, color: 'var(--navy)' }}>{h.il}</div>
                     <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}><strong style={{ color: 'var(--navy2)' }}>{h.count}</strong> terapist</div>
                   </div>
                 </div>

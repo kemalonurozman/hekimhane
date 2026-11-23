@@ -37,10 +37,10 @@ export default function CocukDisHubPage() {
             <Link href="/" style={{ color: 'rgba(255,255,255,.7)', textDecoration: 'none' }}>Ana Sayfa</Link><span>›</span>
             <span style={{ color: 'white' }}>Çocuk Diş Sağlığı</span>
           </nav>
-          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--on-deep-heading)', background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '5px 13px', marginBottom: 16 }}>
+          <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--on-deep-heading)', background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.3)', borderRadius: 20, padding: '5px 13px', marginBottom: 16 }}>
             Pedodonti
           </span>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px,4vw,40px)', fontWeight: 800, color: 'white', lineHeight: 1.15, margin: '0 0 14px', letterSpacing: '-0.5px' }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px,4vw,40px)', fontWeight: 600, color: 'white', lineHeight: 1.15, margin: '0 0 14px', letterSpacing: '-0.25px' }}>
             Çocuk Diş Sağlığı
           </h1>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,.85)', lineHeight: 1.65, maxWidth: 720, margin: 0 }}>
@@ -69,9 +69,9 @@ export default function CocukDisHubPage() {
             <Link key={k.slug} href={`/cocuk-dis-sagligi/${k.slug}`}
               style={{ display: 'flex', flexDirection: 'column', background: 'white', border: '1px solid var(--border)', borderRadius: 18, padding: '22px 22px 20px', textDecoration: 'none', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
               <span style={{ width: 44, height: 44, borderRadius: 12, background: '#EFF6FF', color: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>{ToothIcon}</span>
-              <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 800, color: 'var(--navy)', margin: '0 0 7px', lineHeight: 1.3 }}>{k.ad}</h2>
+              <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 17, fontWeight: 600, color: 'var(--navy)', margin: '0 0 7px', lineHeight: 1.3 }}>{k.ad}</h2>
               <p style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.6, margin: '0 0 14px', flex: 1 }}>{k.kisa}</p>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 700, color: 'var(--navy)' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 600, color: 'var(--navy)' }}>
                 İçeriği gör
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </span>

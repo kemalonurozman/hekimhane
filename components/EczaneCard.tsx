@@ -60,7 +60,7 @@ export default function EczaneCard({ eczane: e }: { eczane: Eczane }) {
         }
         .eczane-card__info { flex: 1; min-width: 0; }
         .eczane-card__name {
-          font-weight: 700;
+          font-weight: 600;
           font-size: 15px;
           color: var(--text);
           line-height: 1.3;
@@ -77,7 +77,7 @@ export default function EczaneCard({ eczane: e }: { eczane: Eczane }) {
           gap: 6px;
           margin-bottom: 7px;
         }
-        .eczane-card__rat-num { font-size: 15px; font-weight: 800; color: var(--navy); line-height: 1; }
+        .eczane-card__rat-num { font-size: 15px; font-weight: 600; color: var(--navy); line-height: 1; }
         .eczane-card__rev { font-size: 11px; color: var(--muted); }
         .eczane-card__badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 7px; }
         .eczane-card__meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--muted); }

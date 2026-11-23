@@ -87,7 +87,7 @@ export default async function BlogPage() {
             <span style={{ fontSize: 8 }}>›</span>
             <span style={{ color: 'rgba(255,255,255,.9)' }}>Blog</span>
           </div>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 36, fontWeight: 800, color: 'white', marginBottom: 10 }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 36, fontWeight: 600, color: 'white', marginBottom: 10 }}>
             Hekimhane Blog
           </h1>
           <p style={{ color: 'rgba(255,255,255,.7)', fontSize: 15, maxWidth: 500 }}>

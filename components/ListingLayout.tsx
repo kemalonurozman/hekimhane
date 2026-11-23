@@ -240,17 +240,17 @@ export default function ListingLayout(props: ListingLayoutProps) {
     <>
       {/* Sidebar / Drawer header */}
       <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--navy)', display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ width: 28, height: 28, borderRadius: 8, background: `${color}18`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color }}>
             <IcFilter />
           </span>
           Filtrele
           {activeChips.length > 0 && (
-            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, borderRadius: '50%', background: color, color: 'white', fontSize: 10, fontWeight: 800 }}>{activeChips.length}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, borderRadius: '50%', background: color, color: 'white', fontSize: 10, fontWeight: 600 }}>{activeChips.length}</span>
           )}
         </span>
         {hasActiveFilters && (
-          <button onClick={clearAll} style={{ fontSize: 11, color, fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button onClick={clearAll} style={{ fontSize: 11, color, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
             <IcReset />Temizle
           </button>
         )}
@@ -314,9 +314,9 @@ export default function ListingLayout(props: ListingLayoutProps) {
         .listing-ust__satir { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
         .listing-ikon { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: var(--tint-50); border: 1px solid var(--tint-200); color: #12294D; }
         .listing-ikon svg { width: 30px; height: 30px; }
-        .listing-ust__baslik { margin: 0; font-family: var(--font-display); font-size: 30px; line-height: 36px; font-weight: 800; letter-spacing: -0.03em; color: var(--ink); }
+        .listing-ust__baslik { margin: 0; font-family: var(--font-display); font-size: 30px; line-height: 36px; font-weight: 600; letter-spacing: -0.015em; color: var(--ink); }
         .listing-ust__ozet { display: flex; align-items: center; flex-wrap: wrap; gap: 0 4px; margin: 4px 0 0; font-size: 15px; line-height: 22px; color: var(--ink-secondary); font-variant-numeric: tabular-nums; }
-        .listing-ust__ozet b { font-weight: 700; color: var(--ink); }
+        .listing-ust__ozet b { font-weight: 600; color: var(--ink); }
         .listing-ust__nokta { width: 3px; height: 3px; margin: 0 8px; border-radius: 50%; background: #C7C7CC; }
         @media (max-width: 768px) {
           .listing-ust__ic { padding-top: 10px; padding-bottom: 16px; }
@@ -402,7 +402,7 @@ export default function ListingLayout(props: ListingLayoutProps) {
           }
           .listing-hero-title {
             font-size: 21px !important;
-            letter-spacing: -0.5px !important;
+            letter-spacing: -0.25px !important;
           }
           .listing-icon-box {
             width: 44px !important;
@@ -523,7 +523,7 @@ export default function ListingLayout(props: ListingLayoutProps) {
                 display: 'flex', alignItems: 'center', gap: 8,
                 padding: '10px 18px', borderRadius: 12,
                 background: 'white', border: '1.5px solid var(--border)',
-                fontWeight: 700, fontSize: 14, color: 'var(--navy)',
+                fontWeight: 600, fontSize: 14, color: 'var(--navy)',
                 cursor: 'pointer', boxShadow: '0 1px 6px rgba(0,0,0,.06)',
                 position: 'relative',
               }}
@@ -534,7 +534,7 @@ export default function ListingLayout(props: ListingLayoutProps) {
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   width: 18, height: 18, borderRadius: '50%',
-                  background: color, color: 'white', fontSize: 10, fontWeight: 800,
+                  background: color, color: 'white', fontSize: 10, fontWeight: 600,
                   marginLeft: 2,
                 }}>
                   {activeChips.length}
@@ -564,7 +564,7 @@ export default function ListingLayout(props: ListingLayoutProps) {
             boxShadow: '0 1px 8px rgba(0,0,0,.04)',
           }}>
             <div>
-              <span className="listing-result-count" style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--ink)' }}>{count.toLocaleString('tr')}</span>
+              <span className="listing-result-count" style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600, color: 'var(--ink)' }}>{count.toLocaleString('tr')}</span>
               <span style={{ fontSize: 15, color: 'var(--ink-secondary)', marginLeft: 6 }}>{entityLabelPlural} bulundu</span>
             </div>
             {activeChips.length > 0 && (
@@ -621,7 +621,7 @@ export default function ListingLayout(props: ListingLayoutProps) {
 
         {/* Close button row */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 20px 0', flexShrink: 0 }}>
-          <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--navy)' }}>Filtreler</span>
+          <span style={{ fontWeight: 600, fontSize: 15, color: 'var(--navy)' }}>Filtreler</span>
           <button
             onClick={() => setFilterDrawerOpen(false)}
             style={{
@@ -648,7 +648,7 @@ export default function ListingLayout(props: ListingLayoutProps) {
             style={{
               width: '100%', padding: '14px', borderRadius: 14,
               background: color, border: 'none', cursor: 'pointer',
-              fontWeight: 700, fontSize: 15, color: 'white',
+              fontWeight: 600, fontSize: 15, color: 'white',
               letterSpacing: '-0.2px',
             }}
           >
@@ -682,12 +682,12 @@ function FilterSectionBlock({
           width: '100%', padding: '13px 20px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           background: 'none', border: 'none', cursor: 'pointer',
-          fontSize: 13, fontWeight: 700, color: 'var(--text)',
+          fontSize: 13, fontWeight: 600, color: 'var(--text)',
         }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
           {section.label}
           {activeValue && (
-            <span style={{ padding: '1px 7px', borderRadius: 10, fontSize: 10, fontWeight: 700, background: `${color}18`, color }}>1</span>
+            <span style={{ padding: '1px 7px', borderRadius: 10, fontSize: 10, fontWeight: 600, background: `${color}18`, color }}>1</span>
           )}
         </span>
         <span style={{ color: 'var(--muted)', display: 'flex' }}>
@@ -718,7 +718,7 @@ function FilterSectionBlock({
                     style={{
                       display: 'inline-flex', alignItems: 'center', gap: 6,
                       padding: '7px 13px', borderRadius: 20, cursor: 'pointer',
-                      fontSize: 12.5, fontWeight: isActive ? 700 : 600, fontFamily: 'inherit',
+                      fontSize: 12.5, fontWeight: isActive ? 600 : 600, fontFamily: 'inherit',
                       background: isActive ? color : '#fff',
                       color: isActive ? '#fff' : 'var(--text)',
                       border: `1.5px solid ${isActive ? color : 'var(--border)'}`,
@@ -852,7 +852,7 @@ function Pagination({ totalPages, currentPage, basePath, searchParams }: {
           <Link key={p} href={makeHref(p as number)}
             style={{
               width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              borderRadius: 9, fontWeight: 700, fontSize: 14, textDecoration: 'none',
+              borderRadius: 9, fontWeight: 600, fontSize: 14, textDecoration: 'none',
               background: currentPage === p ? 'var(--navy)' : 'white',
               color: currentPage === p ? 'white' : 'var(--text)',
               border: `1.5px solid ${currentPage === p ? 'var(--navy)' : 'var(--border)'}`,

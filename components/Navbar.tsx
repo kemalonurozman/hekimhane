@@ -30,7 +30,7 @@ function YeniRozet({ ust = false }: { ust?: boolean }) {
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', borderRadius: 999, flexShrink: 0,
-      background: '#0D7C79', color: '#fff', fontWeight: 800, letterSpacing: '.05em', textTransform: 'uppercase', lineHeight: 1,
+      background: '#0D7C79', color: '#fff', fontWeight: 600, letterSpacing: '.05em', textTransform: 'uppercase', lineHeight: 1,
       ...(ust
         ? { position: 'absolute', top: -9, left: 'calc(100% - 3px)', height: 14, padding: '0 5px', fontSize: 8.5 }
         : { height: 18, padding: '0 7px', marginLeft: 8, fontSize: 10.5 }),
@@ -40,7 +40,7 @@ function YeniRozet({ ust = false }: { ust?: boolean }) {
 
 function ProRozet() {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', height: 17, padding: '0 6px', marginLeft: 7, borderRadius: 999, background: '#F7F0DE', boxShadow: 'inset 0 0 0 1px #EAD9AE', color: '#8A6A1F', fontSize: 9.5, fontWeight: 800, letterSpacing: '.04em', flexShrink: 0 }}>PRO</span>
+    <span style={{ display: 'inline-flex', alignItems: 'center', height: 17, padding: '0 6px', marginLeft: 7, borderRadius: 999, background: '#F7F0DE', boxShadow: 'inset 0 0 0 1px #EAD9AE', color: '#8A6A1F', fontSize: 9.5, fontWeight: 600, letterSpacing: '.04em', flexShrink: 0 }}>PRO</span>
   );
 }
 
@@ -133,7 +133,7 @@ function MegaMenu({ menu, open, onToggle, innerRef, active }: {
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${menu.sutunlar.length}, minmax(0, 1fr))`, gap: 4, padding: 10 }}>
             {menu.sutunlar.map(s => (
               <div key={s.baslik}>
-                <div style={{ padding: '8px 12px 6px', fontSize: 11, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: '#8E8E93' }}>{s.baslik}</div>
+                <div style={{ padding: '8px 12px 6px', fontSize: 11, fontWeight: 600, letterSpacing: '.6px', textTransform: 'uppercase', color: '#8E8E93' }}>{s.baslik}</div>
                 {s.ogeler.map(o => o.ikon ? (
                   <Link key={o.href} href={o.href} onClick={onToggle} {...hover}
                     style={{ display: 'flex', alignItems: 'flex-start', gap: 11, padding: '9px 10px', borderRadius: 12, textDecoration: 'none', transition: 'background .12s' }}>
@@ -141,7 +141,7 @@ function MegaMenu({ menu, open, onToggle, innerRef, active }: {
                       <HkIcon name={o.ikon} size={20} color="#12294D" />
                     </span>
                     <span style={{ minWidth: 0 }}>
-                      <span style={{ display: 'flex', alignItems: 'center', fontSize: 14, fontWeight: 700, color: '#1D1D1F' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', fontSize: 14, fontWeight: 600, color: '#1D1D1F' }}>
                         {o.ad}{o.rozet === 'yeni' && <YeniRozet />}{o.rozet === 'pro' && <ProRozet />}
                       </span>
                       {o.aciklama && <span style={{ display: 'block', marginTop: 2, fontSize: 12.5, lineHeight: 1.4, color: '#6E6E73' }}>{o.aciklama}</span>}
@@ -149,7 +149,7 @@ function MegaMenu({ menu, open, onToggle, innerRef, active }: {
                   </Link>
                 ) : (
                   <Link key={o.href} href={o.href} onClick={onToggle} {...hover}
-                    style={{ display: 'block', padding: '8px 12px', borderRadius: 10, fontSize: 13.5, fontWeight: o.vurgu ? 700 : 500, color: o.vurgu ? '#1A335E' : '#3A3A3C', textDecoration: 'none', transition: 'background .12s' }}>
+                    style={{ display: 'block', padding: '8px 12px', borderRadius: 10, fontSize: 13.5, fontWeight: o.vurgu ? 600 : 500, color: o.vurgu ? '#1A335E' : '#3A3A3C', textDecoration: 'none', transition: 'background .12s' }}>
                     {o.ad}
                   </Link>
                 ))}
@@ -160,7 +160,7 @@ function MegaMenu({ menu, open, onToggle, innerRef, active }: {
             <div style={{ display: 'flex', gap: 4, padding: '8px 10px', background: '#F8F9FB', borderTop: '1px solid #F0F0F0' }}>
               {menu.alt.map(a => (
                 <Link key={a.href} href={a.href} onClick={onToggle}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 10, fontSize: 13.5, fontWeight: 700, color: '#1A335E', textDecoration: 'none' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 10, fontSize: 13.5, fontWeight: 600, color: '#1A335E', textDecoration: 'none' }}
                   onMouseEnter={e => { e.currentTarget.style.background = '#EEF1F6'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
                   {a.ad}
@@ -376,7 +376,7 @@ export default function Navbar() {
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(0,0,0,.07)',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif',
+        fontFamily: 'var(--font-system)',
       }}>
         <div className="container" style={{
           height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -427,7 +427,7 @@ export default function Navbar() {
             {/* Onaylı işletmesi olan kullanıcıya hesap düğmesinin hemen yanında belirgin kısayol */}
             {!authLoading && user && sahipOlunan.length > 0 && (
               <Link href={duzenleHref} className="nav-user-desktop" title={buSayfa ? 'Bu işletmenin profilini düzenle' : 'İşletme profilini düzenle'}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 50, background: '#1A335E', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(26,51,94,.25)' }}>
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 50, background: '#1A335E', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(26,51,94,.25)' }}>
                 {kalemIkon}{duzenleEtiket}
               </Link>
             )}
@@ -453,7 +453,7 @@ export default function Navbar() {
                       width: 32, height: 32, borderRadius: '50%',
                       background: 'var(--tint-50)', color: 'var(--brand)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 800,
+                      fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 600,
                     }}>
                       {initials}
                     </div>
@@ -548,7 +548,7 @@ export default function Navbar() {
                         onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
                         <GirisRozeti tip="isletme" size={44} />
                         <div>
-                          <div style={{ fontSize: 14.5, fontWeight: 700, color: '#12294D', letterSpacing: '-.1px' }}>Doktor / İşletme Girişi</div>
+                          <div style={{ fontSize: 14.5, fontWeight: 600, color: '#12294D', letterSpacing: '-.1px' }}>Doktor / İşletme Girişi</div>
                           <div style={{ fontSize: 12, color: '#4A5568', marginTop: 2, lineHeight: 1.4 }}>Randevu, hasta ve profil yönetimi</div>
                         </div>
                       </Link>
@@ -559,7 +559,7 @@ export default function Navbar() {
                         onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}>
                         <GirisRozeti tip="hasta" size={44} />
                         <div>
-                          <div style={{ fontSize: 14.5, fontWeight: 700, color: '#12294D', letterSpacing: '-.1px' }}>Hasta / Ziyaretçi Girişi</div>
+                          <div style={{ fontSize: 14.5, fontWeight: 600, color: '#12294D', letterSpacing: '-.1px' }}>Hasta / Ziyaretçi Girişi</div>
                           <div style={{ fontSize: 12, color: '#4A5568', marginTop: 2, lineHeight: 1.4 }}>Randevularınızı ve yorumlarınızı görün</div>
                         </div>
                       </Link>
@@ -571,7 +571,7 @@ export default function Navbar() {
                 <Link href="/katil" className="nav-cta-desktop hk-cta-isik" style={{
                   display: 'flex', alignItems: 'center', gap: 7,
                   height: 40, padding: '0 16px', borderRadius: 'var(--radius-md)',
-                  fontSize: 14, fontWeight: 700, color: 'var(--on-gold)',
+                  fontSize: 14, fontWeight: 600, color: 'var(--on-gold)',
                   textDecoration: 'none', whiteSpace: 'nowrap',
                 }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
@@ -617,7 +617,7 @@ export default function Navbar() {
           WebkitBackdropFilter: 'blur(20px)',
           display: 'flex',
           flexDirection: 'column',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif',
+          fontFamily: 'var(--font-system)',
           // Slide-in from right animation via class
           transform: mobileOpen ? 'translateX(0)' : 'translateX(100%)',
           opacity: mobileOpen ? 1 : 0,
@@ -679,7 +679,7 @@ export default function Navbar() {
                   padding: '0 16px',
                   borderRadius: 12,
                   fontSize: 17,
-                  fontWeight: active ? 700 : 500,
+                  fontWeight: active ? 600 : 500,
                   letterSpacing: '-.2px',
                   color: active ? '#1A335E' : '#1D1D1F',
                   background: active ? 'rgba(26,51,94,.07)' : 'transparent',
@@ -700,7 +700,7 @@ export default function Navbar() {
             return (
               <div key={grp.baslik} style={{ marginBottom: 4 }}>
                 <button type="button" onClick={() => setMobGrp(acik ? null : grp.baslik)} aria-expanded={acik}
-                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 52, padding: '0 16px', borderRadius: 12, fontSize: 17, fontWeight: acik ? 700 : 500, letterSpacing: '-.2px', color: acik ? '#1A335E' : '#1D1D1F', background: acik ? 'rgba(26,51,94,.07)' : 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 52, padding: '0 16px', borderRadius: 12, fontSize: 17, fontWeight: acik ? 600 : 500, letterSpacing: '-.2px', color: acik ? '#1A335E' : '#1D1D1F', background: acik ? 'rgba(26,51,94,.07)' : 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
                   {grp.baslik}
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={acik ? '#1A335E' : '#86868B'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: acik ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform .2s', flexShrink: 0 }}><path d="m6 9 6 6 6-6" /></svg>
                 </button>
@@ -708,10 +708,10 @@ export default function Navbar() {
                   <div style={{ padding: '2px 0 6px' }}>
                     {grp.sutunlar.map(s => (
                       <div key={s.baslik}>
-                        <div style={{ padding: '10px 16px 4px 28px', fontSize: 11.5, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: '#8E8E93' }}>{s.baslik}</div>
+                        <div style={{ padding: '10px 16px 4px 28px', fontSize: 11.5, fontWeight: 600, letterSpacing: '.5px', textTransform: 'uppercase', color: '#8E8E93' }}>{s.baslik}</div>
                         {s.ogeler.map(o => (
                           <Link key={o.href} href={o.href} onClick={() => setMobileOpen(false)}
-                            style={{ display: 'flex', alignItems: 'center', minHeight: 44, padding: '0 16px 0 28px', borderRadius: 12, fontSize: 15, fontWeight: o.vurgu ? 700 : 500, color: o.vurgu ? '#1A335E' : '#3A3A3C', textDecoration: 'none' }}>
+                            style={{ display: 'flex', alignItems: 'center', minHeight: 44, padding: '0 16px 0 28px', borderRadius: 12, fontSize: 15, fontWeight: o.vurgu ? 600 : 500, color: o.vurgu ? '#1A335E' : '#3A3A3C', textDecoration: 'none' }}>
                             {o.ad}{o.rozet === 'yeni' && <YeniRozet />}{o.rozet === 'pro' && <ProRozet />}
                           </Link>
                         ))}
@@ -719,7 +719,7 @@ export default function Navbar() {
                     ))}
                     {grp.alt.map(a => (
                       <Link key={a.href} href={a.href} onClick={() => setMobileOpen(false)}
-                        style={{ display: 'flex', alignItems: 'center', minHeight: 44, padding: '0 16px 0 28px', borderRadius: 12, fontSize: 15, fontWeight: 700, color: '#1A335E', textDecoration: 'none' }}>
+                        style={{ display: 'flex', alignItems: 'center', minHeight: 44, padding: '0 16px 0 28px', borderRadius: 12, fontSize: 15, fontWeight: 600, color: '#1A335E', textDecoration: 'none' }}>
                         {a.ad} →
                       </Link>
                     ))}
@@ -754,7 +754,7 @@ export default function Navbar() {
                     width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
                     background: '#1A335E', color: 'white',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 14, fontWeight: 700,
+                    fontSize: 14, fontWeight: 600,
                   }}>
                     {initials}
                   </div>
@@ -768,7 +768,7 @@ export default function Navbar() {
               {/* Profili Düzenle — mobil menünün en üstünde, belirgin */}
               {sahipOlunan.length > 0 && (
                 <Link href={duzenleHref} onClick={() => setMobileOpen(false)}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, borderRadius: 12, background: '#1A335E', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', marginBottom: 8 }}>
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, borderRadius: 12, background: '#1A335E', color: 'white', fontSize: 15, fontWeight: 600, textDecoration: 'none', marginBottom: 8 }}>
                   {kalemIkon}{duzenleEtiket}
                 </Link>
               )}
@@ -820,7 +820,7 @@ export default function Navbar() {
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   minHeight: 48, borderRadius: 12,
-                  fontSize: 15, fontWeight: 700, color: 'var(--on-gold)',
+                  fontSize: 15, fontWeight: 600, color: 'var(--on-gold)',
                   textDecoration: 'none',
                 }}
               >
@@ -834,7 +834,7 @@ export default function Navbar() {
                   minHeight: 48, borderRadius: 12,
                   border: '1.5px solid #1A335E',
                   background: 'white',
-                  fontSize: 15, fontWeight: 700, color: '#1A335E',
+                  fontSize: 15, fontWeight: 600, color: '#1A335E',
                   textDecoration: 'none', letterSpacing: '-.1px',
                 }}
               >

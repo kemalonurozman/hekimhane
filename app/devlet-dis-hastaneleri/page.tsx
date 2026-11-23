@@ -66,7 +66,7 @@ export default async function DevletDisPage({ searchParams }: { searchParams: Re
             <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>Ana Sayfa</Link><span>›</span>
             <span style={{ color: 'white', fontWeight: 600 }}>Devlet Diş Hastaneleri</span>
           </nav>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 800, letterSpacing: '-0.5px', margin: 0 }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 30, fontWeight: 600, letterSpacing: '-0.25px', margin: 0 }}>
             Devlet Ağız ve Diş Sağlığı Hastaneleri
           </h1>
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,.85)', marginTop: 8, maxWidth: 720, lineHeight: 1.6 }}>
@@ -75,7 +75,7 @@ export default async function DevletDisPage({ searchParams }: { searchParams: Re
           <form style={{ marginTop: 16, display: 'flex', gap: 8, maxWidth: 460 }}>
             <input name="q" defaultValue={q} placeholder="Hastane, il veya hekim adı ara…"
               style={{ flex: 1, padding: '11px 14px', borderRadius: 11, border: '1px solid rgba(255,255,255,.25)', background: 'rgba(255,255,255,.12)', color: 'white', fontSize: 14, outline: 'none', minWidth: 0 }} />
-            <button style={{ padding: '11px 18px', borderRadius: 11, background: 'var(--gold-fill)', color: 'var(--on-gold)', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>Ara</button>
+            <button style={{ padding: '11px 18px', borderRadius: 11, background: 'var(--gold-fill)', color: 'var(--on-gold)', border: 'none', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>Ara</button>
           </form>
         </div>
       </div>
@@ -83,11 +83,11 @@ export default async function DevletDisPage({ searchParams }: { searchParams: Re
       <div className="container" style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 16px 48px' }}>
         {q && matchedDoctors.length > 0 && (
           <section style={{ marginBottom: 32 }}>
-            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 700, color: 'var(--navy)', marginBottom: 12 }}>Hekimler ({matchedDoctors.length})</h2>
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 19, fontWeight: 600, color: 'var(--navy)', marginBottom: 12 }}>Hekimler ({matchedDoctors.length})</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 10 }}>
               {matchedDoctors.map(d => (
                 <Link key={d.id} href={`/doktorlar/${d.slug}`} style={card}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)' }}>{d.unvan ? d.unvan + ' ' : ''}{d.ad} {d.soyad}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--navy)' }}>{d.unvan ? d.unvan + ' ' : ''}{d.ad} {d.soyad}</div>
                   <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>{d.spec}</div>
                   <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 4 }}>{d.clinic_name}</div>
                 </Link>
@@ -102,7 +102,7 @@ export default async function DevletDisPage({ searchParams }: { searchParams: Re
           </div>
         ) : iller.map(il => (
           <section key={il} style={{ marginBottom: 28 }}>
-            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 700, color: 'var(--navy)', marginBottom: 12 }}>{il}</h2>
+            <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 20, fontWeight: 600, color: 'var(--navy)', marginBottom: 12 }}>{il}</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 12 }}>
               {byIl[il].map(h => (
                 <Link key={h.slug} href={h.href || `/devlet-dis-hastaneleri/${h.ilSlug}/${h.slug}`} style={{ ...card, padding: '16px 18px' }}>
@@ -110,9 +110,9 @@ export default async function DevletDisPage({ searchParams }: { searchParams: Re
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg,var(--navy),var(--navy2))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <i className="fa-solid fa-hospital" style={{ color: 'white', fontSize: 16 }} />
                     </div>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#065F46', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 20, padding: '2px 9px' }}>DEVLET</span>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: '#065F46', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 20, padding: '2px 9px' }}>DEVLET</span>
                   </div>
-                  <div style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--navy)', lineHeight: 1.35 }}>{h.name.replace('T.C. Sağlık Bakanlığı ', '')}</div>
+                  <div style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--navy)', lineHeight: 1.35 }}>{h.name.replace('T.C. Sağlık Bakanlığı ', '')}</div>
                   <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 6 }}>{h.ilce}, {h.il} · <strong style={{ color: 'var(--navy2)' }}>{h.count} hekim</strong></div>
                 </Link>
               ))}

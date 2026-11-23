@@ -140,7 +140,7 @@ export default async function EczanelerPage(
               <div key={e.id} style={{ display: 'contents' }}>
                 {grup !== onceki && !filters.ilce && (
                   <div className="ecz-grup" style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, padding: i === 0 ? '0 4px 2px' : '14px 4px 2px', borderBottom: '1px solid var(--border)' }}>
-                    <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, letterSpacing: '-0.2px', color: 'var(--ink, #1D1D1F)' }}>{grup}</h2>
+                    <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, letterSpacing: '-0.2px', color: 'var(--ink, #1D1D1F)' }}>{grup}</h2>
                     {grupSayisi !== undefined && (
                       <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}>{grupSayisi.toLocaleString('tr')} eczane</span>
                     )}
@@ -166,7 +166,7 @@ function EmptyState({ href }: { href: string }) {
           <path d="M32 32 43 43" stroke="#C7D2E0" strokeWidth="3" strokeLinecap="round"/>
         </svg>
       </div>
-      <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Sonuç bulunamadı</h3>
+      <h3 style={{ fontWeight: 600, marginBottom: 8 }}>Sonuç bulunamadı</h3>
       <p style={{ color: 'var(--muted)', fontSize: 14 }}>Filtreleri değiştirerek tekrar deneyin.</p>
       <a href={href} className="btn btn-navy" style={{ marginTop: 16, display: 'inline-flex' }}>Filtreleri Temizle</a>
     </div>

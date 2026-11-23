@@ -50,13 +50,13 @@ export default function ProfilPuaniKarti({ aktifEntityId, onGit }: { aktifEntity
               style={{ transition: 'stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)' }} />
           </svg>
           <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }}>
-            <span style={{ fontSize: 24, fontWeight: 800, color: '#1D1D1F', letterSpacing: '-0.5px', fontVariantNumeric: 'tabular-nums' }}>{p.puan}</span>
+            <span style={{ fontSize: 24, fontWeight: 600, color: '#1D1D1F', letterSpacing: '-0.25px', fontVariantNumeric: 'tabular-nums' }}>{p.puan}</span>
           </div>
         </div>
         <div style={{ flex: '1 1 260px', minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 15, fontWeight: 800, color: '#1D1D1F' }}>Profil Puanı</span>
-            <span style={{ fontSize: 11, fontWeight: 700, color: sev.renk, background: `${sev.renk}14`, borderRadius: 999, padding: '3px 9px' }}>{sev.ad}</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: '#1D1D1F' }}>Profil Puanı</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: sev.renk, background: `${sev.renk}14`, borderRadius: 999, padding: '3px 9px' }}>{sev.ad}</span>
           </div>
           <div style={{ fontSize: 12.5, color: '#6E6E73', marginTop: 4, lineHeight: 1.55 }}>
             <b style={{ color: '#1D1D1F', fontWeight: 600 }}>{p.entity_name}</b> · 100 üzerinden. Puanınız yükseldikçe arama sonuçlarında daha üst sıralarda görünürsünüz
@@ -65,7 +65,7 @@ export default function ProfilPuaniKarti({ aktifEntityId, onGit }: { aktifEntity
           <div style={{ fontSize: 11.5, color: '#8E8E93', marginTop: 5 }}>Bu puanı yalnızca siz görürsünüz; ziyaretçilere gösterilmez.</div>
         </div>
         <button type="button" onClick={() => setAcik(a => !a)}
-          style={{ flex: 'none', padding: '8px 14px', borderRadius: 10, border: '1px solid #E5E5EA', background: '#fff', color: '#1A335E', fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+          style={{ flex: 'none', padding: '8px 14px', borderRadius: 10, border: '1px solid #E5E5EA', background: '#fff', color: '#1A335E', fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
           {acik ? 'Ayrıntıları gizle' : 'Nasıl puan toplarım?'}
         </button>
       </div>
@@ -74,16 +74,16 @@ export default function ProfilPuaniKarti({ aktifEntityId, onGit }: { aktifEntity
         <div style={{ borderTop: '1px solid #E5E5EA' }}>
           {eksikler.length > 0 && (
             <div style={{ padding: '6px 22px 4px' }}>
-              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: '#8E8E93', padding: '12px 0 4px' }}>Puan kazanabileceğiniz alanlar</div>
+              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.6px', textTransform: 'uppercase', color: '#8E8E93', padding: '12px 0 4px' }}>Puan kazanabileceğiniz alanlar</div>
               {eksikler.map(k => (
                 <div key={k.anahtar} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0', borderTop: '1px solid #F2F2F7', flexWrap: 'wrap' }}>
-                  <span style={{ flex: 'none', minWidth: 46, textAlign: 'center', fontSize: 12, fontWeight: 800, color: '#1F7A4F', background: '#E8F5EE', borderRadius: 8, padding: '4px 6px', fontVariantNumeric: 'tabular-nums' }}>+{k.max - k.puan}</span>
+                  <span style={{ flex: 'none', minWidth: 46, textAlign: 'center', fontSize: 12, fontWeight: 600, color: '#1F7A4F', background: '#E8F5EE', borderRadius: 8, padding: '4px 6px', fontVariantNumeric: 'tabular-nums' }}>+{k.max - k.puan}</span>
                   <div style={{ flex: '1 1 220px', minWidth: 0 }}>
                     <div style={{ fontSize: 13.5, fontWeight: 600, color: '#1D1D1F' }}>{k.baslik} <span style={{ fontWeight: 500, color: '#AEAEB2', fontVariantNumeric: 'tabular-nums' }}>{k.puan}/{k.max}</span></div>
                     <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 2, lineHeight: 1.5 }}>{k.ipucu}</div>
                   </div>
                   <button type="button" onClick={() => onGit(HEDEF[k.hedef].tab, p.entity_id)}
-                    style={{ flex: 'none', padding: '7px 12px', borderRadius: 9, border: 'none', background: '#1A335E', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                    style={{ flex: 'none', padding: '7px 12px', borderRadius: 9, border: 'none', background: '#1A335E', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                     {HEDEF[k.hedef].ad} →
                   </button>
                 </div>
@@ -92,7 +92,7 @@ export default function ProfilPuaniKarti({ aktifEntityId, onGit }: { aktifEntity
           )}
           {tamamlar.length > 0 && (
             <div style={{ padding: '4px 22px 16px' }}>
-              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: '#8E8E93', padding: '12px 0 8px' }}>Tamamlananlar</div>
+              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.6px', textTransform: 'uppercase', color: '#8E8E93', padding: '12px 0 8px' }}>Tamamlananlar</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {tamamlar.map(k => (
                   <span key={k.anahtar} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: '#1F7A4F', background: '#F2FAF5', border: '1px solid #D5EEDF', borderRadius: 999, padding: '5px 11px' }}>

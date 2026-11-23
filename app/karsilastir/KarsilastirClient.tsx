@@ -22,7 +22,7 @@ const bosDeger = <span style={{ color: '#C7C7CC' }}>—</span>;
 
 function evetHayir(v?: boolean) {
   return v
-    ? <span style={{ color: '#059669', fontWeight: 700 }}>✓ Evet</span>
+    ? <span style={{ color: '#059669', fontWeight: 600 }}>✓ Evet</span>
     : <span style={{ color: '#C7C7CC' }}>—</span>;
 }
 
@@ -116,7 +116,7 @@ function BosDurum() {
       }}>
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7" /></svg>
       </div>
-      <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1D1D1F', margin: '0 0 10px', letterSpacing: '-.4px' }}>
+      <h1 style={{ fontSize: 22, fontWeight: 600, color: '#1D1D1F', margin: '0 0 10px', letterSpacing: '-.2px' }}>
         Karşılaştırma listeniz boş
       </h1>
       <p style={{ fontSize: 15, color: '#6E6E73', lineHeight: 1.6, margin: '0 0 24px' }}>
@@ -155,7 +155,7 @@ export default function KarsilastirClient() {
   const gridCols = `${colW} repeat(${items.length}, minmax(150px, 1fr))`;
 
   return (
-    <main style={{ background: '#F5F5F7', minHeight: '100vh', paddingTop: 64, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
+    <main style={{ background: '#F5F5F7', minHeight: '100vh', paddingTop: 64, fontFamily: 'var(--font-system)' }}>
       <div className="container" style={{ padding: '32px 20px 80px' }}>
 
         {/* Başlık */}
@@ -168,7 +168,7 @@ export default function KarsilastirClient() {
               <span>›</span>
               <span style={{ color: '#3A3A3C' }}>Karşılaştır</span>
             </nav>
-            <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-.8px', color: '#1D1D1F', margin: 0 }}>
+            <h1 style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-.4px', color: '#1D1D1F', margin: 0 }}>
               {TUR[tur].etiket} Karşılaştırma
             </h1>
             <p style={{ fontSize: 14, color: '#6E6E73', margin: '6px 0 0' }}>
@@ -208,10 +208,10 @@ export default function KarsilastirClient() {
                     ? <img src={it.image} alt={it.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" strokeWidth="1.6"><circle cx="12" cy="8" r="4" /><path d="M4 20a8 8 0 0 1 16 0" /></svg>}
                 </div>
-                <Link href={it.url} style={{ fontSize: 14, fontWeight: 700, color: '#1D1D1F', textDecoration: 'none', letterSpacing: '-.2px', lineHeight: 1.3, display: 'block' }}>
+                <Link href={it.url} style={{ fontSize: 14, fontWeight: 600, color: '#1D1D1F', textDecoration: 'none', letterSpacing: '-.2px', lineHeight: 1.3, display: 'block' }}>
                   {it.name}
                 </Link>
-                {it.premium && <span style={{ display: 'inline-block', marginTop: 6, fontSize: 10, fontWeight: 700, color: '#B45309', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 6, padding: '2px 7px' }}>★ Premium</span>}
+                {it.premium && <span style={{ display: 'inline-block', marginTop: 6, fontSize: 10, fontWeight: 600, color: '#B45309', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 6, padding: '2px 7px' }}>★ Premium</span>}
               </div>
             ))}
 

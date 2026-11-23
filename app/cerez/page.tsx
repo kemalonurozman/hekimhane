@@ -81,7 +81,7 @@ export default function CerezPage() {
       ozet="Hangi kayıtları neden kullandığımızı ve tercihinizi nasıl değiştireceğinizi açıklar."
     >
       <div style={{ background: 'var(--tint-50)', border: '1px solid var(--tint-200)', borderRadius: 16, padding: '16px 22px', marginBottom: 14, fontSize: 14.5, color: 'var(--brand)', fontWeight: 600 }}>
-        <CerezTercihBaglantisi style={{ textDecoration: 'underline', textUnderlineOffset: 3, fontWeight: 700 }} /> — izninizi buradan verebilir ya da geri alabilirsiniz.
+        <CerezTercihBaglantisi style={{ textDecoration: 'underline', textUnderlineOffset: 3, fontWeight: 600 }} /> — izninizi buradan verebilir ya da geri alabilirsiniz.
       </div>
     </YasalSayfa>
   );

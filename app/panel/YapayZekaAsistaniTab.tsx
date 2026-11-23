@@ -97,9 +97,9 @@ export default function YapayZekaAsistaniTab({ aktifIsletme, onGit }: { aktifIsl
   return (
     <div style={{ maxWidth: 820 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-        <h1 style={{ fontSize: 26, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: '-0.6px' }}>Yapay Zekâ Asistanı</h1>
+        <h1 style={{ fontSize: 26, fontWeight: 600, color: TEXT, margin: 0, letterSpacing: '-0.3px' }}>Yapay Zekâ Asistanı</h1>
         {b && !yukleniyor && (
-          <span style={{ padding: '3px 10px', borderRadius: 999, fontSize: 11.5, fontWeight: 700, background: ROZET[b.durum].bg, color: ROZET[b.durum].fg }}>{ROZET[b.durum].metin}</span>
+          <span style={{ padding: '3px 10px', borderRadius: 999, fontSize: 11.5, fontWeight: 600, background: ROZET[b.durum].bg, color: ROZET[b.durum].fg }}>{ROZET[b.durum].metin}</span>
         )}
       </div>
       <p style={{ fontSize: 14, color: MUTED, margin: '6px 0 16px', lineHeight: 1.6 }}>
@@ -124,7 +124,7 @@ export default function YapayZekaAsistaniTab({ aktifIsletme, onGit }: { aktifIsl
         </div>
       ) : !yanit.acik ? (
         <div style={{ ...kart, background: 'linear-gradient(135deg,#F5F8FF 0%,#FFFFFF 70%)', borderColor: '#DCE5F5' }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, marginBottom: 6 }}>Çok yakında</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: TEXT, marginBottom: 6 }}>Çok yakında</div>
           <p style={{ fontSize: 13.5, color: '#475569', lineHeight: 1.65, margin: '0 0 14px' }}>
             Asistanı bu sekmeden tek tıkla açabileceksiniz. Hazır olduğunda size haber vermemizi isterseniz demo talebi bırakın.
           </p>
@@ -134,7 +134,7 @@ export default function YapayZekaAsistaniTab({ aktifIsletme, onGit }: { aktifIsl
         <div style={kart}>Asistan altyapısı kuruluyor. Kısa süre sonra tekrar deneyin.</div>
       ) : !etkin ? (
         <div style={kart}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, marginBottom: 4 }}>{aktifIsletme.ad} için asistanı açın</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: TEXT, marginBottom: 4 }}>{aktifIsletme.ad} için asistanı açın</div>
           <p style={{ fontSize: 13.5, color: '#475569', lineHeight: 1.6, margin: '0 0 12px' }}>
             Asistan altyapısını Ozvelo sağlar. Açtığınızda aşağıdaki profil bilgileri Ozvelo&apos;ya aktarılır ve sizin adınıza bir Ozvelo hesabı oluşturulur. Hasta bilgileri, yorumlar ve ödeme bilgileri aktarılmaz.
           </p>
@@ -163,7 +163,7 @@ export default function YapayZekaAsistaniTab({ aktifIsletme, onGit }: { aktifIsl
           <div style={kart}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 16, fontWeight: 700, color: TEXT }}>{aktifIsletme.ad}</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: TEXT }}>{aktifIsletme.ad}</div>
                 <div style={{ fontSize: 13, color: MUTED, marginTop: 4 }}>
                   {b!.durum === 'aktif' && <>Bilgileriniz son olarak {zaman(b!.son_basari_at)} tarihinde gönderildi.</>}
                   {b!.durum === 'bekliyor' && <>Bilgileriniz asistanınıza gönderiliyor.</>}
@@ -183,7 +183,7 @@ export default function YapayZekaAsistaniTab({ aktifIsletme, onGit }: { aktifIsl
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
               <div style={{ flex: '1 1 280px', minWidth: 0 }}>
                 <OzveloLogo yukseklik={26} />
-                <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, marginTop: 12 }}>Ozvelo&apos;ya giriş</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: TEXT, marginTop: 12 }}>Ozvelo&apos;ya giriş</div>
                 <p style={{ fontSize: 13.5, color: '#475569', lineHeight: 1.6, margin: '4px 0 0' }}>
                   Asistanınız Ozvelo altyapısında çalışır. Konuşmalar, e-postalar, randevu onayları, soru-cevaplar, karşılama cümlesi ve bildirim ayarları Ozvelo&apos;dadır. Bu düğme sizi şifre sormadan Ozvelo&apos;ya geçirir.
                 </p>
@@ -196,7 +196,7 @@ export default function YapayZekaAsistaniTab({ aktifIsletme, onGit }: { aktifIsl
           </div>
 
           <div style={kart}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: TEXT, marginBottom: 4 }}>Dijital asistanlarınız</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: TEXT, marginBottom: 4 }}>Dijital asistanlarınız</div>
             {DIJITAL.map(d => (
               <div key={d.sekme} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0', borderTop: `1px solid ${BORDER}` }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -211,12 +211,12 @@ export default function YapayZekaAsistaniTab({ aktifIsletme, onGit }: { aktifIsl
                 <div style={{ fontSize: 14, fontWeight: 600, color: TEXT }}>Instagram, Facebook ve LinkedIn</div>
                 <div style={{ fontSize: 12.5, color: MUTED, marginTop: 2 }}>Mesajlarınız aynı gelen kutusunda.</div>
               </div>
-              <span style={{ padding: '2px 9px', borderRadius: 999, fontSize: 11.5, fontWeight: 700, background: '#F1F1F4', color: MUTED }}>Yakında</span>
+              <span style={{ padding: '2px 9px', borderRadius: 999, fontSize: 11.5, fontWeight: 600, background: '#F1F1F4', color: MUTED }}>Yakında</span>
             </div>
           </div>
 
           <div style={kart}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: TEXT, marginBottom: 4 }}>Sitenize ekleyin</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: TEXT, marginBottom: 4 }}>Sitenize ekleyin</div>
             {b!.widget_kodu ? (
               <>
                 <p style={{ fontSize: 13.5, color: '#475569', lineHeight: 1.6, margin: '0 0 10px' }}>

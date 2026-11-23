@@ -121,14 +121,14 @@ export default function SaglikBul() {
           {/* Sol: Açıklama */}
           <div>
             <p style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: '1.4px',
+              fontSize: 11, fontWeight: 600, letterSpacing: '1.4px',
               textTransform: 'uppercase', color: 'var(--gold-text)', margin: '0 0 16px',
             }}>
               AI Destekli Diş Hekimi Eşleştirme
             </p>
             <h2 style={{
-              fontSize: 'clamp(26px, 3.5vw, 38px)', fontWeight: 700,
-              letterSpacing: '-1px', lineHeight: 1.1, color: '#1D1D1F',
+              fontSize: 'clamp(26px, 3.5vw, 38px)', fontWeight: 600,
+              letterSpacing: '-0.5px', lineHeight: 1.1, color: '#1D1D1F',
               margin: '0 0 16px',
             }}>
               Şikayetinizi Anlatın,<br />
@@ -153,7 +153,7 @@ export default function SaglikBul() {
                     background: adim === ['belirti', 'sehir', 'sonuc'][i] ? '#1A335E' : '#F2F2F7',
                     color: adim === ['belirti', 'sehir', 'sonuc'][i] ? 'white' : '#AEAEB2',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 700, flexShrink: 0, marginTop: 2,
+                    fontSize: 12, fontWeight: 600, flexShrink: 0, marginTop: 2,
                     transition: 'all .25s',
                   }}>
                     {i + 1}
@@ -176,7 +176,7 @@ export default function SaglikBul() {
             {/* Adım 1: Belirti */}
             {adim === 'belirti' && (
               <div>
-                <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1D1D1F', margin: '0 0 6px', letterSpacing: '-.3px' }}>
+                <h3 style={{ fontSize: 17, fontWeight: 600, color: '#1D1D1F', margin: '0 0 6px', letterSpacing: '-.3px' }}>
                   Diş/ağız şikayetiniz nedir?
                 </h3>
                 <p style={{ fontSize: 13, color: '#8E8E93', margin: '0 0 20px' }}>
@@ -212,7 +212,7 @@ export default function SaglikBul() {
                     width: '100%', padding: '12px 14px',
                     borderRadius: 12, border: '1.5px solid #E5E5EA',
                     background: 'white', fontSize: 14,
-                    fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+                    fontFamily: 'var(--font-system)',
                     resize: 'none', outline: 'none', boxSizing: 'border-box',
                     color: '#1D1D1F', lineHeight: 1.5,
                   }}
@@ -231,7 +231,7 @@ export default function SaglikBul() {
                     fontWeight: 600, fontSize: 15, border: 'none',
                     cursor: belirti.trim() ? 'pointer' : 'not-allowed',
                     letterSpacing: '-.2px', transition: 'all .15s',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+                    fontFamily: 'var(--font-system)',
                   }}
                 >
                   Devam Et
@@ -242,7 +242,7 @@ export default function SaglikBul() {
             {/* Adım 2: Şehir */}
             {adim === 'sehir' && (
               <div>
-                <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1D1D1F', margin: '0 0 6px', letterSpacing: '-.3px' }}>
+                <h3 style={{ fontSize: 17, fontWeight: 600, color: '#1D1D1F', margin: '0 0 6px', letterSpacing: '-.3px' }}>
                   Hangi şehirdesiniz?
                 </h3>
                 <p style={{ fontSize: 13, color: '#8E8E93', margin: '0 0 20px' }}>
@@ -316,7 +316,7 @@ export default function SaglikBul() {
             {adim === 'sonuc' && (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1D1D1F', margin: 0, letterSpacing: '-.3px' }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1D1D1F', margin: 0, letterSpacing: '-.3px' }}>
                     Size önerilen diş tedavileri
                   </h3>
                   <button

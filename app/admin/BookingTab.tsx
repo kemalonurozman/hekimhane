@@ -90,7 +90,7 @@ export default function BookingTab() {
     <div>
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 20 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: C.text, margin: 0, letterSpacing: '-.4px' }}>Booking Başvuruları</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 600, color: C.text, margin: 0, letterSpacing: '-.2px' }}>Booking Başvuruları</h1>
           <p style={{ fontSize: 13.5, color: C.muted, margin: '6px 0 0' }}>
             /booking sayfasından kurulum için aranmak ya da demo görmek isteyen hekim ve klinikler. <a href="/booking" target="_blank" style={{ color: C.navy }}>Sayfayı aç</a>
           </p>
@@ -129,12 +129,12 @@ export default function BookingTab() {
               <button onClick={() => setAcik(genis ? null : k.id)}
                 style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.4fr) minmax(0,1.2fr) minmax(0,1fr) auto', gap: 12, alignItems: 'center', width: '100%', padding: '14px 18px', border: 'none', background: genis ? C.soft : 'transparent', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit' }}>
                 <span style={{ minWidth: 0 }}>
-                  <strong style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14.5, color: C.text }}>{k.ad} {k.soyad}{k.urun && k.urun !== 'booking' && <span style={{ padding: '2px 7px', borderRadius: 999, background: '#EEF3FA', color: C.navy, fontSize: 11, fontWeight: 700 }}>{etiketBul(BOOKING_URUNLER, k.urun)}</span>}{k.talep === 'demo' && <span style={{ padding: '2px 7px', borderRadius: 999, background: '#E1F2EE', color: '#0B5F55', fontSize: 11, fontWeight: 700 }}>{k.urun === 'danismanlik' ? 'Online' : 'Demo'}</span>}</strong>
+                  <strong style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14.5, color: C.text }}>{k.ad} {k.soyad}{k.urun && k.urun !== 'booking' && <span style={{ padding: '2px 7px', borderRadius: 999, background: '#EEF3FA', color: C.navy, fontSize: 11, fontWeight: 600 }}>{etiketBul(BOOKING_URUNLER, k.urun)}</span>}{k.talep === 'demo' && <span style={{ padding: '2px 7px', borderRadius: 999, background: '#E1F2EE', color: '#0B5F55', fontSize: 11, fontWeight: 600 }}>{k.urun === 'danismanlik' ? 'Online' : 'Demo'}</span>}</strong>
                   <span style={{ fontSize: 12.5, color: C.muted }}>{etiketBul(BOOKING_ROLLER, k.rol)}{k.il ? ` · ${k.il}` : ''}</span>
                 </span>
                 <span style={{ minWidth: 0, fontSize: 13, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{k.kurum_adi || '—'}</span>
                 <span style={{ fontSize: 12.5, color: C.muted }}>{tarih(k.created_at)}</span>
-                <span style={{ padding: '4px 10px', borderRadius: 999, background: `${durum?.renk || C.muted}1A`, color: durum?.renk || C.muted, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>{durum?.ad || k.durum}</span>
+                <span style={{ padding: '4px 10px', borderRadius: 999, background: `${durum?.renk || C.muted}1A`, color: durum?.renk || C.muted, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>{durum?.ad || k.durum}</span>
               </button>
               {genis && (
                 <div style={{ padding: '4px 18px 20px', background: C.soft, display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 20 }}>

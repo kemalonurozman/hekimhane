@@ -101,17 +101,17 @@ export default async function SiteHaritasi() {
   ];
 
   return (
-    <div style={{ paddingTop: 64, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif', background: '#F6F8FB', minHeight: '100vh' }}>
+    <div style={{ paddingTop: 64, fontFamily: 'var(--font-system)', background: '#F6F8FB', minHeight: '100vh' }}>
       <style dangerouslySetInnerHTML={{ __html: `
         .sh-wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
         .sh-hero { background: linear-gradient(160deg,#0E2D55,#1A335E); padding: 56px 0 40px; }
         .sh-tree { margin: 40px 0 72px; position: relative; }
         /* Kök düğüm */
-        .sh-root { display:inline-flex; align-items:center; gap:10px; background:#1A335E; color:#fff; font-weight:800; font-size:15px; letter-spacing:-.3px; padding:11px 20px; border-radius:14px; box-shadow:0 6px 20px rgba(26,51,94,.25); }
+        .sh-root { display:inline-flex; align-items:center; gap:10px; background:#1A335E; color:#fff; font-weight:600; font-size:15px; letter-spacing:-.3px; padding:11px 20px; border-radius:14px; box-shadow:0 6px 20px rgba(26,51,94,.25); }
         .sh-branches { margin-top: 10px; margin-left: 26px; padding-left: 26px; border-left: 2px solid #E2DED2; }
         .sh-branch { position: relative; padding: 22px 0 4px; }
         .sh-branch::before { content:''; position:absolute; left:-26px; top:40px; width:22px; height:2px; background:#E2DED2; }
-        .sh-btitle { display:inline-flex; align-items:center; gap:8px; font-size:16px; font-weight:800; color:#1A335E; letter-spacing:-.3px; }
+        .sh-btitle { display:inline-flex; align-items:center; gap:8px; font-size:16px; font-weight:600; color:#1A335E; letter-spacing:-.3px; }
         .sh-btitle a { color:#1A335E; text-decoration:none; }
         .sh-btitle .dot { width:9px; height:9px; border-radius:3px; background:#B8892F; flex-shrink:0; }
         .sh-links { margin-top: 12px; display:grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 4px 22px; }
@@ -122,10 +122,10 @@ export default async function SiteHaritasi() {
 
       <section className="sh-hero">
         <div className="sh-wrap">
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.2px', textTransform: 'uppercase', color: 'var(--gold-text)', marginBottom: 12 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '1.2px', textTransform: 'uppercase', color: 'var(--gold-text)', marginBottom: 12 }}>
             Tüm Sayfalar Tek Ağaçta
           </div>
-          <h1 style={{ fontSize: 'clamp(28px,4vw,42px)', fontWeight: 800, color: '#fff', letterSpacing: '-1.2px', margin: '0 0 10px' }}>
+          <h1 style={{ fontSize: 'clamp(28px,4vw,42px)', fontWeight: 600, color: '#fff', letterSpacing: '-0.6px', margin: '0 0 10px' }}>
             Site Haritası
           </h1>
           <p style={{ color: 'rgba(255,255,255,.62)', fontSize: 15, maxWidth: 620, lineHeight: 1.6, margin: 0 }}>

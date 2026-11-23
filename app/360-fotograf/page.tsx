@@ -66,19 +66,19 @@ function CekimTalepFormu({
     border: '1.5px solid #E5E5EA', fontSize: 14, fontFamily: 'inherit',
     background: 'white', color: '#1C2B4A', outline: 'none', boxSizing: 'border-box',
   };
-  const lbl: React.CSSProperties = { fontSize: 12, fontWeight: 700, color: '#6E6E73', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 5, display: 'block' };
+  const lbl: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: '#6E6E73', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 5, display: 'block' };
 
   if (success) return (
     <div style={{ textAlign: 'center', padding: '32px 24px' }}>
       <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg,#D1FAE5,#A7F3D0)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1C2B4A', marginBottom: 8 }}>Talebiniz Alındı!</h3>
+      <h3 style={{ fontSize: 20, fontWeight: 600, color: '#1C2B4A', marginBottom: 8 }}>Talebiniz Alındı!</h3>
       <p style={{ fontSize: 14, color: '#6E6E73', lineHeight: 1.7, maxWidth: 340, margin: '0 auto 20px' }}>
         En kısa sürede ekibimiz sizi arayacak ve çekim süreci hakkında bilgi verecektir.
       </p>
       {onClose && (
-        <button onClick={onClose} style={{ padding: '11px 28px', borderRadius: 11, background: '#1A335E', color: 'white', border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+        <button onClick={onClose} style={{ padding: '11px 28px', borderRadius: 11, background: '#1A335E', color: 'white', border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
           Tamam
         </button>
       )}
@@ -132,7 +132,7 @@ function CekimTalepFormu({
         </div>
       )}
 
-      <button type="submit" disabled={sending} style={{ padding: '13px 24px', borderRadius: 12, background: sending ? '#9CA3AF' : '#1A335E', color: 'white', border: 'none', fontSize: 15, fontWeight: 700, cursor: sending ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+      <button type="submit" disabled={sending} style={{ padding: '13px 24px', borderRadius: 12, background: sending ? '#9CA3AF' : '#1A335E', color: 'white', border: 'none', fontSize: 15, fontWeight: 600, cursor: sending ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
         {sending
           ? <><svg width="16" height="16" viewBox="0 0 18 18" fill="none" style={{ animation: 'spin .9s linear infinite' }}><circle cx="9" cy="9" r="7" stroke="rgba(255,255,255,.3)" strokeWidth="2"/><path d="M9 2a7 7 0 0 1 7 7" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg> Gönderiliyor…</>
           : <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Çekim Talebi Gönder</>
@@ -162,7 +162,7 @@ function CekimTalebiModal({
         <div style={{ background: 'white', borderRadius: 20, padding: 32, width: '100%', maxWidth: 540, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,.3)' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
             <div>
-              <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1C2B4A', margin: 0, marginBottom: 4 }}>360° Profesyonel Çekim Talebi</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#1C2B4A', margin: 0, marginBottom: 4 }}>360° Profesyonel Çekim Talebi</h2>
               <p style={{ fontSize: 13, color: '#6E6E73', margin: 0 }}>Ekibimiz en kısa sürede sizi arayacaktır.</p>
             </div>
             <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 9, border: '1px solid #E5E5EA', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginLeft: 12 }}>
@@ -232,32 +232,32 @@ export default function FotografCekimiPage() {
         body { background: #F6F8FB; }
         .cekm-hero { background: linear-gradient(135deg, #0F2348 0%, #1A335E 60%, #0D3B5E 100%); color: white; padding: 80px 0 72px; text-align: center; }
         .cekm-container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-        .cekm-badge { display: inline-flex; align-items: center; gap: 7px; background: rgba(184,137,47,.18); border: 1px solid rgba(184,137,47,.35); border-radius: 50px; padding: 5px 16px; font-size: 12px; font-weight: 700; color: #B8892F; letter-spacing: .6px; margin-bottom: 24px; }
-        .cekm-h1 { font-size: clamp(28px,5vw,52px); font-weight: 900; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px; }
+        .cekm-badge { display: inline-flex; align-items: center; gap: 7px; background: rgba(184,137,47,.18); border: 1px solid rgba(184,137,47,.35); border-radius: 50px; padding: 5px 16px; font-size: 12px; font-weight: 600; color: #B8892F; letter-spacing: .6px; margin-bottom: 24px; }
+        .cekm-h1 { font-size: clamp(28px,5vw,52px); font-weight: 600; line-height: 1.1; letter-spacing: -0.75px; margin-bottom: 20px; }
         .cekm-sub { font-size: clamp(15px,2vw,18px); color: rgba(255,255,255,.72); line-height: 1.7; max-width: 540px; margin: 0 auto 36px; }
-        .cekm-cta { display: inline-flex; align-items: center; gap: 10px; padding: 16px 36px; background: linear-gradient(135deg,#B8892F,#B8860B); color: white; border-radius: 14px; font-size: 16px; font-weight: 800; border: none; cursor: pointer; font-family: inherit; text-decoration: none; transition: opacity .2s, transform .15s; box-shadow: 0 4px 20px rgba(184,137,47,.4); }
+        .cekm-cta { display: inline-flex; align-items: center; gap: 10px; padding: 16px 36px; background: linear-gradient(135deg,#B8892F,#B8860B); color: white; border-radius: 14px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; font-family: inherit; text-decoration: none; transition: opacity .2s, transform .15s; box-shadow: 0 4px 20px rgba(184,137,47,.4); }
         .cekm-cta:hover { opacity: .92; transform: translateY(-1px); }
         .cekm-features { padding: 72px 0; }
         .cekm-features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
         .cekm-feat-card { background: white; border-radius: 18px; border: 1px solid #E5E5EA; padding: 28px 24px; }
         .cekm-feat-icon { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg,#EFF6FF,#DBEAFE); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
-        .cekm-feat-title { font-size: 16px; font-weight: 800; color: #1C2B4A; margin-bottom: 8px; }
+        .cekm-feat-title { font-size: 16px; font-weight: 600; color: #1C2B4A; margin-bottom: 8px; }
         .cekm-feat-text { font-size: 13.5px; color: #6E6E73; line-height: 1.7; }
         .cekm-how { background: white; padding: 72px 0; border-top: 1px solid #E5E5EA; border-bottom: 1px solid #E5E5EA; }
         .cekm-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 40px; }
         .cekm-step { text-align: center; padding: 0 12px; }
-        .cekm-step-num { width: 44px; height: 44px; border-radius: 50%; background: #1A335E; color: white; font-size: 17px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
-        .cekm-step-title { font-size: 14px; font-weight: 800; color: #1C2B4A; margin-bottom: 6px; }
+        .cekm-step-num { width: 44px; height: 44px; border-radius: 50%; background: #1A335E; color: white; font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+        .cekm-step-title { font-size: 14px; font-weight: 600; color: #1C2B4A; margin-bottom: 6px; }
         .cekm-step-text { font-size: 13px; color: #6E6E73; line-height: 1.6; }
         .cekm-yorumlar { padding: 72px 0; }
         .cekm-yorum-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
         .cekm-yorum-card { background: white; border-radius: 16px; border: 1px solid #E5E5EA; padding: 24px; }
         .cekm-yorum-text { font-size: 14px; color: #3A3A3C; line-height: 1.7; font-style: italic; margin-bottom: 16px; }
-        .cekm-yorum-author { font-size: 13px; font-weight: 700; color: #1C2B4A; }
+        .cekm-yorum-author { font-size: 13px; font-weight: 600; color: #1C2B4A; }
         .cekm-yorum-unvan { font-size: 12px; color: #6E6E73; }
         .cekm-cta-section { background: linear-gradient(135deg,#0F2348,#1A335E); padding: 72px 0; text-align: center; color: white; }
         .cekm-form-box { background: white; border-radius: 20px; padding: 36px; max-width: 560px; margin: 40px auto 0; }
-        .cekm-section-title { font-size: clamp(22px,4vw,34px); font-weight: 900; color: #1C2B4A; letter-spacing: -0.8px; text-align: center; }
+        .cekm-section-title { font-size: clamp(22px,4vw,34px); font-weight: 600; color: #1C2B4A; letter-spacing: -0.4px; text-align: center; }
         .cekm-section-sub { font-size: 15px; color: #6E6E73; text-align: center; margin-top: 10px; }
         @media (max-width: 768px) {
           .cekm-features-grid { grid-template-columns: 1fr 1fr; }
@@ -355,7 +355,7 @@ export default function FotografCekimiPage() {
       {/* ── FORM CTA ── */}
       <section className="cekm-cta-section">
         <div className="cekm-container">
-          <h2 style={{ fontSize: 'clamp(24px,4vw,38px)', fontWeight: 900, margin: 0, marginBottom: 12, letterSpacing: '-0.8px' }}>
+          <h2 style={{ fontSize: 'clamp(24px,4vw,38px)', fontWeight: 600, margin: 0, marginBottom: 12, letterSpacing: '-0.4px' }}>
             Hemen Çekim Talebi Gönderin
           </h2>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,.7)', margin: 0 }}>

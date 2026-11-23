@@ -38,7 +38,7 @@ export default function CompareBar() {
         boxShadow: '0 12px 40px rgba(0,0,0,.16)',
         padding: '12px 16px', maxWidth: 720, width: '100%',
       }}>
-        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.5px', flexShrink: 0 }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.5px', flexShrink: 0 }}>
           Karşılaştır
         </span>
 
@@ -71,7 +71,7 @@ export default function CompareBar() {
             padding: '10px 18px', borderRadius: 11,
             background: items.length < 2 ? 'var(--border)' : 'var(--navy)',
             color: items.length < 2 ? 'var(--muted)' : 'white',
-            fontSize: 13.5, fontWeight: 700, textDecoration: 'none',
+            fontSize: 13.5, fontWeight: 600, textDecoration: 'none',
             letterSpacing: '-.1px', pointerEvents: items.length < 2 ? 'none' : 'auto',
           }}>
             Karşılaştır ({items.length})

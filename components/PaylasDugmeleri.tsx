@@ -24,7 +24,7 @@ const RENK: Record<string, string> = {
 
 const CSS = `
 .pd{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.pd-baslik{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted,#6E6E73);margin-right:4px}
+.pd-baslik{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted,#6E6E73);margin-right:4px}
 .pd-d{width:42px;height:42px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--border,#E5E5EA);color:var(--pd-renk);cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s,color .15s;text-decoration:none;padding:0}
 .pd-d:hover{background:var(--pd-renk);color:#fff;border-color:transparent;transform:translateY(-1px);box-shadow:0 6px 16px rgba(17,28,46,.14)}
 .pd-d:focus-visible{outline:2px solid var(--pd-renk);outline-offset:2px}

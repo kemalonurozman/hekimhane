@@ -56,7 +56,7 @@ export default function BildirimForm({ mod, entityId, entityType, entityName, ba
       <div className="kf-grup__kutu" style={{ padding: 'clamp(28px,5vw,44px) 24px' }}>
         <div style={{ display: 'grid', justifyItems: 'center', gap: 10, textAlign: 'center' }}>
           <HkIcon name="success" size={56} />
-          <h2 style={{ margin: '6px 0 0', fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 800, letterSpacing: '-.03em', color: '#0E1A2C' }}>
+          <h2 style={{ margin: '6px 0 0', fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 600, letterSpacing: '-.015em', color: '#0E1A2C' }}>
             {mod === 'duzelt' ? 'Talebinizi aldık' : 'Bildiriminiz alındı'}
           </h2>
           <p style={{ margin: 0, maxWidth: 440, fontSize: 15, lineHeight: 1.65, color: '#586273' }}>

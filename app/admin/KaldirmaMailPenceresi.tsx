@@ -150,7 +150,7 @@ export default function KaldirmaMailPenceresi({ hedef, oncekiler, kontenjanAcik,
   const secili = KALDIRMA_SABLONLARI.find(s => s.kod === sablon)!;
   const govde = useMemo(() => epostaGovdesi(metinT || ' ', baglam), [metinT, baglam]);
   const alan = { width: '100%', boxSizing: 'border-box' as const, padding: '9px 11px', borderRadius: 9, border: `1px solid ${C.border}`, background: C.soft, color: C.text, fontSize: 13.5, fontFamily: 'inherit', outline: 'none' };
-  const etiket = { display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: '.4px', margin: '0 0 5px' } as const;
+  const etiket = { display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 600, color: C.muted, letterSpacing: '.4px', margin: '0 0 5px' } as const;
 
   return (
     <div role="presentation" onMouseDown={e => { if (e.target === e.currentTarget && !busy) onKapat(); }}
@@ -161,7 +161,7 @@ export default function KaldirmaMailPenceresi({ hedef, oncekiler, kontenjanAcik,
         {/* Başlık */}
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '16px 20px', borderBottom: `1px solid ${C.border}` }}>
           <div style={{ minWidth: 0 }}>
-            <h2 id="kmp-baslik" style={{ fontSize: 17, fontWeight: 800, color: C.text, margin: 0 }}>E-posta gönder</h2>
+            <h2 id="kmp-baslik" style={{ fontSize: 17, fontWeight: 600, color: C.text, margin: 0 }}>E-posta gönder</h2>
             <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3, overflowWrap: 'anywhere' }}>
               Alıcı: <strong style={{ color: C.text }}>{hedef.ad}</strong> &lt;{hedef.email}&gt; · {hedef.profil} · <span style={{ color: C.navy, fontWeight: 600 }}>{BAGLAM_ETIKET[baglam]}</span>
             </div>
@@ -222,7 +222,7 @@ export default function KaldirmaMailPenceresi({ hedef, oncekiler, kontenjanAcik,
           <div style={{ flex: '1 1 400px', minWidth: 0 }}>
             <div style={etiket}><span>ÖNİZLEME</span></div>
             <div style={{ background: '#F6F8FB', border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px 12px', maxHeight: 560, overflowY: 'auto' }}>
-              <div style={{ textAlign: 'center', marginBottom: 12, fontSize: 16, fontWeight: 800, color: '#1A335E' }}>hekimhane<span style={{ color: '#B8892F' }}>.com.tr</span></div>
+              <div style={{ textAlign: 'center', marginBottom: 12, fontSize: 16, fontWeight: 600, color: '#1A335E' }}>hekimhane<span style={{ color: '#B8892F' }}>.com.tr</span></div>
               <div style={{ background: '#fff', border: '1px solid #E5E5EA', borderRadius: 14, padding: 20 }}>
                 <div style={{ fontSize: 11.5, color: C.muted, marginBottom: 10, paddingBottom: 8, borderBottom: '1px dashed #E5E5EA', overflowWrap: 'anywhere' }}>
                   Konu: <strong style={{ color: C.text }}>{konuT || '—'}</strong>
@@ -251,12 +251,12 @@ export default function KaldirmaMailPenceresi({ hedef, oncekiler, kontenjanAcik,
             </span>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <button onClick={() => gonder(true)} disabled={!!busy}
-                style={{ fontSize: 12.5, fontWeight: 700, padding: '9px 14px', borderRadius: 9, border: `1px solid ${C.border}`, background: 'transparent', color: C.text, cursor: 'pointer', fontFamily: 'inherit', opacity: busy ? 0.6 : 1 }}>
+                style={{ fontSize: 12.5, fontWeight: 600, padding: '9px 14px', borderRadius: 9, border: `1px solid ${C.border}`, background: 'transparent', color: C.text, cursor: 'pointer', fontFamily: 'inherit', opacity: busy ? 0.6 : 1 }}>
                 {busy === 'deneme' ? 'Gönderiliyor…' : 'Kendime deneme gönder'}
               </button>
               <button onClick={() => gonder(false)} disabled={!!busy || migration}
                 title={migration ? 'Önce gönderim kaydı migration’ını çalıştırın' : undefined}
-                style={{ fontSize: 12.5, fontWeight: 700, padding: '9px 16px', borderRadius: 9, border: 'none', background: C.navy, color: 'white', cursor: migration ? 'not-allowed' : 'pointer', fontFamily: 'inherit', opacity: busy || migration ? 0.55 : 1 }}>
+                style={{ fontSize: 12.5, fontWeight: 600, padding: '9px 16px', borderRadius: 9, border: 'none', background: C.navy, color: 'white', cursor: migration ? 'not-allowed' : 'pointer', fontFamily: 'inherit', opacity: busy || migration ? 0.55 : 1 }}>
                 {busy === 'gonder' ? 'Gönderiliyor…' : tumOncekiler.length ? 'Yine de gönder' : 'Gönder'}
               </button>
             </div>

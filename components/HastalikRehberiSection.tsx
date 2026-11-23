@@ -80,7 +80,7 @@ export default function HastalikRehberiSection() {
         }
         .hastalik-kart-ad {
           font-size: 15px;
-          font-weight: 700;
+          font-weight: 600;
           letter-spacing: -0.3px;
           color: #1D1D1F;
           margin: 0;
@@ -134,7 +134,7 @@ export default function HastalikRehberiSection() {
               Diş Sağlığı Bilgi Merkezi
             </p>
             <h2 style={{
-              fontSize: 28, fontWeight: 700, letterSpacing: '-0.8px',
+              fontSize: 28, fontWeight: 600, letterSpacing: '-0.4px',
               color: '#1D1D1F', margin: '0 0 8px',
             }}>
               Ağız & Diş Sağlığı Rehberi

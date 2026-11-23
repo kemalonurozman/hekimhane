@@ -96,7 +96,7 @@ function AdminGirisContent() {
       background: 'linear-gradient(135deg, #0A1628 0%, #0F2041 50%, #091529 100%)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '40px 16px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
+      fontFamily: 'var(--font-system)',
     }}>
       <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
         <div style={{ position: 'absolute', top: '15%', left: '10%', width: 300, height: 300, borderRadius: '50%', background: 'rgba(184,137,47,.04)', filter: 'blur(60px)' }} />
@@ -115,23 +115,23 @@ function AdminGirisContent() {
               </svg>
             </div>
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: 'white', letterSpacing: '-0.3px', lineHeight: 1.1 }}>Hekimhane</div>
+              <div style={{ fontSize: 18, fontWeight: 600, color: 'white', letterSpacing: '-0.3px', lineHeight: 1.1 }}>Hekimhane</div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,.35)', fontWeight: 500 }}>Admin Yönetim Sistemi</div>
             </div>
           </div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(184,137,47,.12)', border: '1px solid rgba(184,137,47,.25)', borderRadius: 20, padding: '5px 14px' }}>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#B8892F" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold-text)', letterSpacing: '0.5px' }}>YÖNETİCİ GİRİŞİ</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--gold-text)', letterSpacing: '0.5px' }}>YÖNETİCİ GİRİŞİ</span>
           </div>
         </div>
 
         {/* Kart */}
         <div style={{ background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.09)', borderRadius: 20, padding: '32px 28px', backdropFilter: 'blur(20px)' }}>
-          <h1 style={{ fontSize: 20, fontWeight: 800, color: 'white', marginBottom: 6, letterSpacing: '-0.3px', textAlign: 'center' }}>Güvenli Giriş</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'white', marginBottom: 6, letterSpacing: '-0.3px', textAlign: 'center' }}>Güvenli Giriş</h1>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,.4)', marginBottom: 24, textAlign: 'center' }}>Yönetim paneline giriş yapın</p>
 
           {/* Google */}
-          <button onClick={handleGoogleGiris} style={{ width: '100%', padding: '12px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,.15)', background: 'rgba(255,255,255,.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 13, fontWeight: 700, color: 'white', fontFamily: 'inherit', transition: 'all .15s' }}
+          <button onClick={handleGoogleGiris} style={{ width: '100%', padding: '12px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,.15)', background: 'rgba(255,255,255,.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 13, fontWeight: 600, color: 'white', fontFamily: 'inherit', transition: 'all .15s' }}
             onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,.1)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,.06)'; }}>
             <GoogleIcon /> Google ile Giriş Yap
@@ -147,7 +147,7 @@ function AdminGirisContent() {
           {/* Şifre formu */}
           <form onSubmit={handlePasswordGiris} style={{ textAlign: 'left' }}>
             {/* E-posta */}
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.45)', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>E-posta</label>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,.45)', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>E-posta</label>
             <input
               type="email" value={email}
               onChange={e => { setEmail(e.target.value); setError(''); }}
@@ -158,7 +158,7 @@ function AdminGirisContent() {
             />
 
             {/* Şifre */}
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.45)', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Şifre</label>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,.45)', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Şifre</label>
             <div style={{ position: 'relative', marginBottom: 12 }}>
               <input
                 type={showPw ? 'text' : 'password'} value={password}
@@ -180,7 +180,7 @@ function AdminGirisContent() {
               </div>
             )}
 
-            <button type="submit" disabled={loading} style={{ width: '100%', padding: '13px', borderRadius: 11, border: 'none', background: loading ? 'rgba(184,137,47,.5)' : '#B8892F', color: 'white', fontSize: 14, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'opacity .15s' }}>
+            <button type="submit" disabled={loading} style={{ width: '100%', padding: '13px', borderRadius: 11, border: 'none', background: loading ? 'rgba(184,137,47,.5)' : '#B8892F', color: 'white', fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'opacity .15s' }}>
               {loading ? (
                 <>
                   <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style={{ animation: 'spin 1s linear infinite' }}>

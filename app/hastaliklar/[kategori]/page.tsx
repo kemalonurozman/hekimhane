@@ -66,7 +66,7 @@ export default function KategoriPage({ params }: Props) {
               {kat.icon}
             </div>
             <div>
-              <h1 style={{ fontSize: 'clamp(24px,4vw,38px)', fontWeight: 800, margin: '0 0 8px' }}>{kat.ad}</h1>
+              <h1 style={{ fontSize: 'clamp(24px,4vw,38px)', fontWeight: 600, margin: '0 0 8px' }}>{kat.ad}</h1>
               <p style={{ color: 'rgba(255,255,255,.8)', fontSize: 15, margin: 0 }}>{kat.aciklama}</p>
             </div>
           </div>
@@ -109,7 +109,7 @@ export default function KategoriPage({ params }: Props) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
                 <div style={{ width: 4, height: 36, background: kat.renk, borderRadius: 4, flexShrink: 0 }} />
                 <div>
-                  <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--navy)', margin: 0 }}>{altKat.ad}</h2>
+                  <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--navy)', margin: 0 }}>{altKat.ad}</h2>
                   <p style={{ fontSize: 13, color: 'var(--muted)', margin: '4px 0 0' }}>{altKat.aciklama}</p>
                 </div>
               </div>
@@ -128,11 +128,11 @@ export default function KategoriPage({ params }: Props) {
                         borderLeft: `4px solid ${kat.renk}`,
                       }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                          <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--navy)', margin: 0, lineHeight: 1.4 }}>
+                          <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy)', margin: 0, lineHeight: 1.4 }}>
                             {h.ad}
                           </h3>
                           <span style={{
-                            padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700,
+                            padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 600,
                             background: h.ciddiyeti === 'yüksek' ? '#FEE2E2' : h.ciddiyeti === 'orta' ? '#FEF3C7' : '#D1FAE5',
                             color: h.ciddiyeti === 'yüksek' ? '#DC2626' : h.ciddiyeti === 'orta' ? '#D97706' : '#065F46',
                             flexShrink: 0, marginLeft: 8,
@@ -148,7 +148,7 @@ export default function KategoriPage({ params }: Props) {
                           <span>🎂 {h.yasGrubu}</span>
                         </div>
                         <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: kat.renk }}>Detaylı Bilgi →</span>
+                          <span style={{ fontSize: 12, fontWeight: 600, color: kat.renk }}>Detaylı Bilgi →</span>
                         </div>
                       </div>
                     </Link>
@@ -187,7 +187,7 @@ export default function KategoriPage({ params }: Props) {
             borderRadius: 20, padding: '32px',
           }}>
             <div>
-              <h3 style={{ fontSize: 18, fontWeight: 800, color: 'white', margin: '0 0 8px' }}>
+              <h3 style={{ fontSize: 18, fontWeight: 600, color: 'white', margin: '0 0 8px' }}>
                 {kat.icon} {kat.ad} Uzmanı Bul
               </h3>
               <p style={{ color: 'rgba(255,255,255,.8)', fontSize: 14, margin: 0, lineHeight: 1.5 }}>
@@ -197,7 +197,7 @@ export default function KategoriPage({ params }: Props) {
             <Link
               href={`/doktorlar?spec=${encodeURIComponent(kat.ad)}`}
               style={{
-                background: 'white', color: kat.renk, fontWeight: 700,
+                background: 'white', color: kat.renk, fontWeight: 600,
                 padding: '12px 24px', borderRadius: 10, textDecoration: 'none',
                 fontSize: 14, whiteSpace: 'nowrap',
               }}
@@ -212,7 +212,7 @@ export default function KategoriPage({ params }: Props) {
           {/* Diğer kategoriler */}
           <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 16 }}>
             <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)' }}>
-              <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy)' }}>🗂 Diğer Kategoriler</div>
+              <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--navy)' }}>🗂 Diğer Kategoriler</div>
             </div>
             <nav style={{ padding: '8px 0' }}>
               {digerKategoriler.map(k => (
@@ -234,7 +234,7 @@ export default function KategoriPage({ params }: Props) {
           {/* Tüm hastalıklar listesi */}
           <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden' }}>
             <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)', background: kat.bg }}>
-              <div style={{ fontWeight: 700, fontSize: 14, color: kat.renk }}>📋 {kat.ad} Hastalıkları</div>
+              <div style={{ fontWeight: 600, fontSize: 14, color: kat.renk }}>📋 {kat.ad} Hastalıkları</div>
             </div>
             <nav style={{ padding: '8px 0', maxHeight: 280, overflowY: 'auto' }}>
               {hastaliklar.length > 0 ? hastaliklar.map(h => (

@@ -14,7 +14,7 @@ export const POSTER_YUK = 738;
 
 const NAVY = '#12294D';
 const ALTIN = '#C9A04A';
-const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif';
+const FONT = '-apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif';
 
 export interface PosterBilgi {
   /** Hekim / işletme adı (ünvanla) */
@@ -66,7 +66,7 @@ export const PosterSayfa = forwardRef<HTMLDivElement, PosterBilgi & { gizli?: bo
           <div style={{ display: 'flex', gap: 5, marginTop: 22 }}>
             {[1, 2, 3, 4, 5].map(n => <Yildiz key={n} size={24} />)}
           </div>
-          <div style={{ fontSize: 35, fontWeight: 700, letterSpacing: '-1.1px', lineHeight: 1.08, marginTop: 14 }}>
+          <div style={{ fontSize: 35, fontWeight: 600, letterSpacing: '-0.55px', lineHeight: 1.08, marginTop: 14 }}>
             Deneyiminizi<br />değerlendirin
           </div>
           <div style={{ fontSize: 14, color: 'rgba(255,255,255,.78)', lineHeight: 1.5, marginTop: 10, maxWidth: 360 }}>
@@ -82,13 +82,13 @@ export const PosterSayfa = forwardRef<HTMLDivElement, PosterBilgi & { gizli?: bo
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={yorumQr(yorumUrl)} alt="Yorum karekodu" crossOrigin="anonymous"
             style={{ width: 196, height: 196, display: 'block' }} />
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.2px', textTransform: 'uppercase', color: ALTIN, marginTop: 9 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '1.2px', textTransform: 'uppercase', color: ALTIN, marginTop: 9 }}>
             Karekodu okutun
           </div>
         </div>
 
         {/* Hekim / işletme */}
-        <div style={{ marginTop: 18, padding: '0 40px', fontSize: 20, fontWeight: 700, letterSpacing: '-0.5px', lineHeight: 1.25 }}>{ad}</div>
+        <div style={{ marginTop: 18, padding: '0 40px', fontSize: 20, fontWeight: 600, letterSpacing: '-0.25px', lineHeight: 1.25 }}>{ad}</div>
         {kurum && <div style={{ marginTop: 3, padding: '0 40px', fontSize: 13, color: '#586273', lineHeight: 1.4 }}>{kurum}</div>}
 
         {/* 3 adım */}
@@ -100,7 +100,7 @@ export const PosterSayfa = forwardRef<HTMLDivElement, PosterBilgi & { gizli?: bo
             }}>
               <div style={{
                 width: 24, height: 24, borderRadius: 8, background: NAVY, color: '#DEC283',
-                fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>{i + 1}</div>
               <div style={{ fontSize: 11.5, fontWeight: 600, lineHeight: 1.3, color: NAVY }}>{a}</div>
             </div>

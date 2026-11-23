@@ -214,11 +214,11 @@ export default async function BlogDetayPage({ params }: Props) {
             </>}
           </nav>
           {y.category && (
-            <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--navy)', background: 'var(--gold-fill)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>
+            <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 600, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--navy)', background: 'var(--gold-fill)', borderRadius: 20, padding: '4px 12px', marginBottom: 14 }}>
               {y.category}
             </span>
           )}
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 800, color: 'white', lineHeight: 1.2, marginBottom: 14 }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 600, color: 'white', lineHeight: 1.2, marginBottom: 14 }}>
             {y.title}
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 13, color: 'rgba(255,255,255,.7)', flexWrap: 'wrap' }}>
@@ -246,7 +246,7 @@ export default async function BlogDetayPage({ params }: Props) {
       <article className="container" style={{ maxWidth: 760, padding: y.cover_image && !y.kapakIcte ? '24px 32px 24px' : '40px 32px 24px' }}>
         {y.sponsorlu && (
           <div style={{ background: '#FDF6E3', border: '1px solid #F0DFB4', borderRadius: 14, padding: '14px 18px', marginBottom: 26 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: '#B8860B', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 5 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#B8860B', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 5 }}>
               İş Ortağı İçeriği
             </div>
             <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}>
@@ -273,11 +273,11 @@ export default async function BlogDetayPage({ params }: Props) {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)' }}>Yazar</span>
-              <span style={{ display: 'block', fontSize: 15.5, fontWeight: 700, color: 'var(--navy)', lineHeight: 1.3 }}>{y.author}</span>
+              <span style={{ display: 'block', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)' }}>Yazar</span>
+              <span style={{ display: 'block', fontSize: 15.5, fontWeight: 600, color: 'var(--navy)', lineHeight: 1.3 }}>{y.author}</span>
               {y.authorAlt && <span style={{ display: 'block', fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>{y.authorAlt}</span>}
             </span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)', whiteSpace: 'nowrap' }}>Profil ve diğer yazılar ›</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--navy)', whiteSpace: 'nowrap' }}>Profil ve diğer yazılar ›</span>
           </Link>
         )}
 
@@ -285,7 +285,7 @@ export default async function BlogDetayPage({ params }: Props) {
         {y.website && (
           <div style={{ marginTop: 26, background: '#EFF6FF', border: '1px solid #DBEAFE', borderRadius: 14, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13.5, color: 'var(--muted)' }}>Bu yazı <strong style={{ color: 'var(--navy)' }}>{y.author}</strong> tarafından hazırlanmıştır.</span>
-            <a href={y.website} target="_blank" rel="noopener" style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--navy)', textDecoration: 'none' }}>
+            <a href={y.website} target="_blank" rel="noopener" style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--navy)', textDecoration: 'none' }}>
               {y.website.replace(/^https?:\/\//, '')} ↗
             </a>
           </div>
@@ -294,11 +294,11 @@ export default async function BlogDetayPage({ params }: Props) {
         {/* Bu konuda bakan hekimler — hekimin panelde "Baktığınız hastalıklar" listesine eklediği konu */}
         {konuKutusu && (
           <div style={{ marginTop: 32, background: '#F9FBFF', border: '1px solid var(--border)', borderRadius: 16, padding: '20px 22px' }}>
-            <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--navy)', marginBottom: 12 }}>{konuKutusu.ad} konusuna bakan hekimler</div>
+            <div style={{ fontWeight: 600, fontSize: 16, color: 'var(--navy)', marginBottom: 12 }}>{konuKutusu.ad} konusuna bakan hekimler</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 10 }}>
               {konuKutusu.hekimler.map(h => (
                 <Link key={h.href} href={h.href} style={{ textDecoration: 'none', background: 'white', border: '1px solid var(--border)', borderRadius: 12, padding: '11px 14px', display: 'block' }}>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy)', lineHeight: 1.3 }}>{h.isim}</div>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--navy)', lineHeight: 1.3 }}>{h.isim}</div>
                   {h.alt && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>{h.alt}</div>}
                 </Link>
               ))}
@@ -309,10 +309,10 @@ export default async function BlogDetayPage({ params }: Props) {
         {/* Randevu CTA */}
         <div style={{ marginTop: 32, background: 'white', border: '1px solid var(--border)', borderRadius: 16, padding: '22px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>
-            <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--navy)', marginBottom: 4 }}>{cta.baslik}</div>
+            <div style={{ fontWeight: 600, fontSize: 16, color: 'var(--navy)', marginBottom: 4 }}>{cta.baslik}</div>
             <div style={{ fontSize: 14, color: 'var(--muted)' }}>{cta.metin}</div>
           </div>
-          <Link href={cta.href} style={{ flexShrink: 0, padding: '11px 22px', borderRadius: 11, background: 'var(--navy)', color: 'white', fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>
+          <Link href={cta.href} style={{ flexShrink: 0, padding: '11px 22px', borderRadius: 11, background: 'var(--navy)', color: 'white', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}>
             {cta.dugme}
           </Link>
         </div>
@@ -321,12 +321,12 @@ export default async function BlogDetayPage({ params }: Props) {
       {/* Diğer yazılar */}
       {digerYazilar.length > 0 && (
         <section className="container" style={{ maxWidth: 900, padding: '24px 32px 64px' }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--navy)', marginBottom: 18 }}>Diğer Yazılar</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--navy)', marginBottom: 18 }}>Diğer Yazılar</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
             {digerYazilar.map(o => (
               <Link key={o.slug} href={`/blog/${o.slug}`} style={{ textDecoration: 'none', background: 'white', border: '1px solid var(--border)', borderRadius: 14, padding: '18px 20px', display: 'block' }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold2)', textTransform: 'uppercase', letterSpacing: '.4px' }}>{o.category}</span>
-                <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--text)', margin: '8px 0 6px', lineHeight: 1.35 }}>{o.title}</div>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--gold2)', textTransform: 'uppercase', letterSpacing: '.4px' }}>{o.category}</span>
+                <div style={{ fontWeight: 600, fontSize: 15, color: 'var(--text)', margin: '8px 0 6px', lineHeight: 1.35 }}>{o.title}</div>
                 <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{o.summary.slice(0, 90)}…</div>
               </Link>
             ))}

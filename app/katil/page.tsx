@@ -309,7 +309,7 @@ export default function KatilPage() {
         {step === 'tamam' && (
           <div style={{ background: 'white', borderRadius: 20, border: '1px solid var(--border)', padding: '44px 32px', textAlign: 'center', maxWidth: 540, margin: '0 auto', boxShadow: '0 1px 2px rgba(14,26,44,.04), 0 14px 34px -22px rgba(18,41,77,.28)' }}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}><HkIconAnim name="success" size={52} playOnView /></div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, letterSpacing: '-0.02em', color: 'var(--ink)', margin: '0 0 10px' }}>Teşekkürler</h2>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 24, letterSpacing: '-0.01em', color: 'var(--ink)', margin: '0 0 10px' }}>Teşekkürler</h2>
             <p style={{ color: 'var(--ink-secondary)', fontSize: 15, lineHeight: 1.7, margin: '0 0 26px' }}>
               <strong style={{ color: 'var(--ink)' }}>{form.isletme_adi}</strong> için başvurunuz kaydedildi.
               Çoğu başvuruyu birkaç saat içinde, en geç 24 saatte yanıtlıyoruz; sonucu <strong style={{ color: 'var(--ink)' }}>{form.email}</strong> adresine yazacağız.
@@ -319,7 +319,7 @@ export default function KatilPage() {
                 Ana sayfaya dön
               </Link>
               <button type="button" onClick={() => { resetAll(); setSeciliType(null); setStep('kategori'); window.scrollTo({ top: 0 }); }}
-                style={{ padding: '12px 22px', border: '1.5px solid var(--border)', background: 'white', color: '#12294D', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ padding: '12px 22px', border: '1.5px solid var(--border)', background: 'white', color: '#12294D', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Başka bir işletme ekle
               </button>
             </div>

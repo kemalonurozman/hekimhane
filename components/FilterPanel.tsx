@@ -56,7 +56,7 @@ export default function FilterPanel({ iller, filters }: Props) {
         borderBottom: '1px solid var(--border)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--navy)' }}>
+        <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--navy)' }}>
           <i className="fa-solid fa-sliders" style={{ marginRight: '8px' }} />
           Filtrele
         </span>
@@ -159,7 +159,7 @@ export default function FilterPanel({ iller, filters }: Props) {
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--muted)' }}>
             <span>1.0</span>
-            <span style={{ fontWeight: 700, color: 'var(--navy)' }}>
+            <span style={{ fontWeight: 600, color: 'var(--navy)' }}>
               ≥ {filters.minRat?.toFixed(1) || '1.0'} ⭐
             </span>
             <span>5.0</span>
@@ -184,7 +184,7 @@ function Section({
           width: '100%', padding: '14px 20px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           background: 'none', border: 'none', cursor: 'pointer',
-          fontSize: '13px', fontWeight: 700, color: 'var(--text)',
+          fontSize: '13px', fontWeight: 600, color: 'var(--text)',
         }}
       >
         {label}

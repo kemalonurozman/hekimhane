@@ -106,7 +106,7 @@ Hekimhane; 6698 sayılı KVKK, 5651 sayılı İnternet Ortamında Yapılan Yayı
             <i className="fa-solid fa-chevron-right" style={{ fontSize: 8 }} />
             <span style={{ color: 'rgba(255,255,255,.9)' }}>Kullanım Şartları</span>
           </div>
-          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 34, fontWeight: 800, color: 'white', marginBottom: 10 }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 34, fontWeight: 600, color: 'white', marginBottom: 10 }}>
             📋 Kullanım Şartları
           </h1>
           <p style={{ color: 'rgba(255,255,255,.65)', fontSize: 14 }}>
@@ -128,7 +128,7 @@ Hekimhane; 6698 sayılı KVKK, 5651 sayılı İnternet Ortamında Yapılan Yayı
 
           {SECTIONS.map((s, i) => (
             <div key={i} style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '28px 32px', marginBottom: 16 }}>
-              <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 18, fontWeight: 800, color: 'var(--navy)', marginBottom: 14 }}>{s.title}</h2>
+              <h2 style={{ fontFamily: 'var(--font-playfair,serif)', fontSize: 18, fontWeight: 600, color: 'var(--navy)', marginBottom: 14 }}>{s.title}</h2>
               <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.9 }}>
                 {s.content.split('\n').map((line, j) => {
                   if (line.startsWith('• ')) {
@@ -149,7 +149,7 @@ Hekimhane; 6698 sayılı KVKK, 5651 sayılı İnternet Ortamında Yapılan Yayı
         {/* Sağ panel */}
         <div className="hastalik-sidebar" style={{ position: 'sticky', top: 84 }}>
           <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '22px', marginBottom: 16 }}>
-            <h4 style={{ fontWeight: 800, fontSize: 14, color: 'var(--navy)', marginBottom: 14 }}>İçindekiler</h4>
+            <h4 style={{ fontWeight: 600, fontSize: 14, color: 'var(--navy)', marginBottom: 14 }}>İçindekiler</h4>
             {SECTIONS.map((s, i) => (
               <div key={i} style={{ fontSize: 12, color: 'var(--muted)', paddingBottom: 8, marginBottom: 8, borderBottom: i < SECTIONS.length - 1 ? '1px solid var(--border)' : 'none' }}>
                 {s.title}
@@ -158,7 +158,7 @@ Hekimhane; 6698 sayılı KVKK, 5651 sayılı İnternet Ortamında Yapılan Yayı
           </div>
 
           <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', padding: '20px 22px', marginBottom: 16 }}>
-            <h4 style={{ fontWeight: 800, fontSize: 14, color: 'var(--navy)', marginBottom: 12 }}>İlgili Sayfalar</h4>
+            <h4 style={{ fontWeight: 600, fontSize: 14, color: 'var(--navy)', marginBottom: 12 }}>İlgili Sayfalar</h4>
             {[
               { label: 'Gizlilik Politikası', href: '/gizlilik', icon: 'fa-shield-halved' },
               { label: 'Yorum Yayınlama Kuralları', href: '/yorum-kurallari', icon: 'fa-comment-dots' },
@@ -174,11 +174,11 @@ Hekimhane; 6698 sayılı KVKK, 5651 sayılı İnternet Ortamında Yapılan Yayı
 
           <div style={{ background: 'linear-gradient(135deg, #FEF3C7, #FDE68A20)', border: '1.5px solid #FDE68A', borderRadius: 16, padding: '20px 22px' }}>
             <div style={{ fontSize: 22, marginBottom: 8 }}>⚖️</div>
-            <h4 style={{ fontWeight: 800, fontSize: 14, color: '#92400E', marginBottom: 6 }}>Hukuki Sorular</h4>
+            <h4 style={{ fontWeight: 600, fontSize: 14, color: '#92400E', marginBottom: 6 }}>Hukuki Sorular</h4>
             <p style={{ fontSize: 13, color: '#78350F', lineHeight: 1.6, marginBottom: 14 }}>
               Şartlarla ilgili sorularınız için ekibimizle iletişime geçebilirsiniz.
             </p>
-            <Link href="/iletisim" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 16px', background: '#92400E', color: 'white', borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+            <Link href="/iletisim" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 16px', background: '#92400E', color: 'white', borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
               İletişime Geç
             </Link>
           </div>

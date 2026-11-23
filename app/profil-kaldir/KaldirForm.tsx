@@ -72,7 +72,7 @@ export default function KaldirForm({ entityId, entityType, entityName }: Props) 
       <div className="kf-grup__kutu" style={{ padding: 'clamp(28px,5vw,44px) 24px' }}>
         <div style={{ display: 'grid', justifyItems: 'center', gap: 10, textAlign: 'center' }}>
           <HkIcon name="success" size={56} />
-          <h2 style={{ margin: '6px 0 0', fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 800, letterSpacing: '-.03em', color: '#0E1A2C' }}>Talebinizi aldık</h2>
+          <h2 style={{ margin: '6px 0 0', fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 600, letterSpacing: '-.015em', color: '#0E1A2C' }}>Talebinizi aldık</h2>
           <p style={{ margin: 0, maxWidth: 460, fontSize: 15, lineHeight: 1.65, color: '#586273' }}>
             <strong style={{ color: '#0E1A2C' }}>{entityName}</strong> profili için talebiniz yönetici incelemesine alındı.
             Karar en geç {UYUM_SURE.kaldirma_duraklatma_saat} saat içinde verilir; verilmezse profil geçici olarak yayından alınır.{' '}

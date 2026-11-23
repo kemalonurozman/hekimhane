@@ -53,7 +53,7 @@ export default function IptalIadePage() {
       ozet="Pro üyeliğin iptali ve iade koşulları, kısa ve açık biçimde."
     >
       <div style={{ background: 'var(--tint-50)', border: '1px solid var(--tint-200)', borderRadius: 16, padding: '16px 22px', marginBottom: 14, fontSize: 14.5, color: 'var(--ink-secondary)' }}>
-        Hemen iptal etmek mi istiyorsunuz? <Link href="/abonelik-iptali" style={{ color: 'var(--brand)', fontWeight: 700 }}>Abonelik iptali sayfasına gidin →</Link>
+        Hemen iptal etmek mi istiyorsunuz? <Link href="/abonelik-iptali" style={{ color: 'var(--brand)', fontWeight: 600 }}>Abonelik iptali sayfasına gidin →</Link>
       </div>
     </YasalSayfa>
   );

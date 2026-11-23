@@ -72,7 +72,7 @@ export default async function YorumlarPage() {
       {/* Başlık */}
       <div style={{ background: 'linear-gradient(135deg, #1A335E 0%, #163D6E 100%)', padding: '28px 0' }}>
         <div className="container">
-          <h1 style={{ fontFamily: 'var(--font-playfair, serif)', fontSize: '24px', fontWeight: 800, color: 'white', marginBottom: '4px' }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair, serif)', fontSize: '24px', fontWeight: 600, color: 'white', marginBottom: '4px' }}>
             Yorum Inbox
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '13px' }}>
@@ -88,7 +88,7 @@ export default async function YorumlarPage() {
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="1.5" style={{ marginBottom: '16px' }}>
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
-            <h3 style={{ fontWeight: 700, marginBottom: '8px' }}>Henüz yorum yok</h3>
+            <h3 style={{ fontWeight: 600, marginBottom: '8px' }}>Henüz yorum yok</h3>
             <p style={{ color: 'var(--muted)', fontSize: '14px' }}>İşletmelerinize yorum yapıldığında burada görünecek.</p>
           </div>
         ) : (
@@ -96,7 +96,7 @@ export default async function YorumlarPage() {
             {/* Yanıt bekleyenler */}
             {unanswered.length > 0 && (
               <div style={{ marginBottom: '32px' }}>
-                <h2 style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h2 style={{ fontWeight: 600, fontSize: '15px', color: 'var(--text)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ background: 'var(--gold-fill)', color: 'var(--on-gold)', borderRadius: '12px', padding: '2px 10px', fontSize: '12px' }}>{unanswered.length}</span>
                   Yanıt Bekliyor
                 </h2>
@@ -106,7 +106,7 @@ export default async function YorumlarPage() {
                       {/* Yorum başlığı */}
                       <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                          <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text)' }}>{r.author}</div>
+                          <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text)' }}>{r.author}</div>
                           <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px' }}>
                             {entityMap[r.entity_id] || r.entity_id} · {r.date ? new Date(r.date).toLocaleDateString('tr') : ''}
                           </div>
@@ -136,7 +136,7 @@ export default async function YorumlarPage() {
             {/* Yanıtlananlar */}
             {answered.length > 0 && (
               <div>
-                <h2 style={{ fontWeight: 700, fontSize: '15px', color: 'var(--muted)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h2 style={{ fontWeight: 600, fontSize: '15px', color: 'var(--muted)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
                   Yanıtlananlar ({answered.length})
                 </h2>

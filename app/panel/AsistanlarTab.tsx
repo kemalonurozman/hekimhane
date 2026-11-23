@@ -35,7 +35,7 @@ function YetkiSecici({ secili, onChange, kucuk = false }: { secili: AsistanYetki
             <input type="checkbox" checked={on} onChange={() => degistir(y.key)}
               style={{ marginTop: 2, width: 16, height: 16, accentColor: NAVY, flexShrink: 0 }} />
             <span style={{ minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: on ? NAVY : TEXT }}>{y.baslik}</span>
+              <span style={{ display: 'block', fontSize: 13, fontWeight: 600, color: on ? NAVY : TEXT }}>{y.baslik}</span>
               {!kucuk && <span style={{ display: 'block', fontSize: 11.5, color: MUTED, lineHeight: 1.45, marginTop: 2 }}>{y.aciklama}</span>}
             </span>
           </label>
@@ -56,8 +56,8 @@ export function AsistanErisimKarti({ kayitlar, onGit, onAyril, ayriliyor }: {
   return (
     <div style={{ background: 'white', borderRadius: 16, border: `1px solid ${BORDER}`, overflow: 'hidden', marginBottom: 20 }}>
       <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.6px', color: '#0F766E', background: '#CCFBF1', borderRadius: 6, padding: '2px 7px' }}>ASİSTAN</span>
-        <span style={{ fontSize: 14, fontWeight: 800, color: TEXT }}>Asistan olarak eriştiğiniz işletmeler</span>
+        <span style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: '.6px', color: '#0F766E', background: '#CCFBF1', borderRadius: 6, padding: '2px 7px' }}>ASİSTAN</span>
+        <span style={{ fontSize: 14, fontWeight: 600, color: TEXT }}>Asistan olarak eriştiğiniz işletmeler</span>
       </div>
       <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         {kayitlar.map(k => {
@@ -68,17 +68,17 @@ export function AsistanErisimKarti({ kayitlar, onGit, onAyril, ayriliyor }: {
             <div key={k.id} style={{ border: `1px solid ${BORDER}`, borderRadius: 13, padding: '13px 15px', background: '#FBFCFE' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 14.5, fontWeight: 700, color: TEXT, overflowWrap: 'anywhere' }}>{k.entity_name || 'İşletme'}</div>
+                  <div style={{ fontSize: 14.5, fontWeight: 600, color: TEXT, overflowWrap: 'anywhere' }}>{k.entity_name || 'İşletme'}</div>
                   {davetci && <div style={{ fontSize: 11.5, color: MUTED, marginTop: 1 }}>Ekleyen: {davetci}</div>}
                 </div>
                 {onAyril && (
                   <button onClick={() => onAyril(k.id, k.entity_name || 'İşletme')} disabled={ayriliyor === k.id}
-                    style={{ padding: '6px 11px', borderRadius: 9, border: '1px solid #FCA5A5', background: 'transparent', color: '#B91C1C', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    style={{ padding: '6px 11px', borderRadius: 9, border: '1px solid #FCA5A5', background: 'transparent', color: '#B91C1C', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                     {ayriliyor === k.id ? '…' : 'Asistanlıktan ayrıl'}
                   </button>
                 )}
               </div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: MUTED, letterSpacing: '.5px', textTransform: 'uppercase', margin: '11px 0 6px' }}>Erişebildiğiniz alanlar</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: MUTED, letterSpacing: '.5px', textTransform: 'uppercase', margin: '11px 0 6px' }}>Erişebildiğiniz alanlar</div>
               <ul style={{ margin: 0, paddingLeft: 17, fontSize: 12.5, color: TEXT, lineHeight: 1.65 }}>
                 {ASISTAN_YETKILERI.filter(y => yetkiler.includes(y.key)).map(y => (
                   <li key={y.key}><strong>{y.baslik}</strong> <span style={{ color: MUTED }}>— {y.aciklama}</span></li>
@@ -88,7 +88,7 @@ export function AsistanErisimKarti({ kayitlar, onGit, onAyril, ayriliyor }: {
                 <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginTop: 11 }}>
                   {sekmeler.map(s => (
                     <button key={s} onClick={() => onGit(s)}
-                      style={{ padding: '7px 13px', borderRadius: 9, border: 'none', background: NAVY, color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      style={{ padding: '7px 13px', borderRadius: 9, border: 'none', background: NAVY, color: 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                       {SEKME_ADI[s]} →
                     </button>
                   ))}
@@ -194,7 +194,7 @@ export default function AsistanlarTab({ aktifEntityId, onGit }: { aktifEntityId:
 
   return (
     <div style={{ maxWidth: 860 }}>
-      <h1 style={{ fontSize: 26, fontWeight: 700, color: TEXT, margin: 0, letterSpacing: '-0.6px' }}>Ekip</h1>
+      <h1 style={{ fontSize: 26, fontWeight: 600, color: TEXT, margin: 0, letterSpacing: '-0.3px' }}>Ekip</h1>
       <p style={{ fontSize: 13.5, color: MUTED, margin: '6px 0 22px', lineHeight: 1.55 }}>
         Ekibinizdeki sekreter, resepsiyon veya klinik asistanınıza hesabınızın <strong style={{ color: TEXT }}>yalnızca seçtiğiniz bölümlerine</strong> erişim verin —
         örneğin randevu girişleri ve düzenlemeleri. Şifrenizi paylaşmanıza gerek kalmaz; her asistan kendi hesabıyla girer.
@@ -225,13 +225,13 @@ export default function AsistanlarTab({ aktifEntityId, onGit }: { aktifEntityId:
               <div style={{ ...kutu, background: '#FBFCFE' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 18 }}>
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: NAVY, letterSpacing: '.4px', textTransform: 'uppercase', marginBottom: 8 }}>Verebileceğiniz yetkiler</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: NAVY, letterSpacing: '.4px', textTransform: 'uppercase', marginBottom: 8 }}>Verebileceğiniz yetkiler</div>
                     <ul style={{ margin: 0, paddingLeft: 17, fontSize: 12.8, color: TEXT, lineHeight: 1.65 }}>
                       {ASISTAN_YETKILERI.map(y => <li key={y.key}><strong>{y.baslik}</strong> <span style={{ color: MUTED }}>— {y.aciklama}</span></li>)}
                     </ul>
                   </div>
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: '#B91C1C', letterSpacing: '.4px', textTransform: 'uppercase', marginBottom: 8 }}>Asistan hiçbir zaman</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#B91C1C', letterSpacing: '.4px', textTransform: 'uppercase', marginBottom: 8 }}>Asistan hiçbir zaman</div>
                     <ul style={{ margin: 0, paddingLeft: 17, fontSize: 12.8, color: TEXT, lineHeight: 1.65 }}>
                       {ASISTAN_YAPAMAZ.map(m => <li key={m}>{m}</li>)}
                     </ul>
@@ -241,7 +241,7 @@ export default function AsistanlarTab({ aktifEntityId, onGit }: { aktifEntityId:
 
               {/* Yeni asistan */}
               <div style={kutu}>
-                <div style={{ fontSize: 15.5, fontWeight: 700, color: TEXT, marginBottom: 12 }}>Asistan ekle</div>
+                <div style={{ fontSize: 15.5, fontWeight: 600, color: TEXT, marginBottom: 12 }}>Asistan ekle</div>
                 {yonetilen.length > 1 && (
                   <label style={{ display: 'block', marginBottom: 10 }}>
                     <span style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: MUTED, marginBottom: 4 }}>İşletme</span>
@@ -264,7 +264,7 @@ export default function AsistanlarTab({ aktifEntityId, onGit }: { aktifEntityId:
                 <YetkiSecici secili={yetkiler} onChange={setYetkiler} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 14, flexWrap: 'wrap' }}>
                   <button onClick={ekle} disabled={ekleniyor || !entityId}
-                    style={{ padding: '11px 20px', borderRadius: 11, border: 'none', background: NAVY, color: 'white', fontSize: 13.5, fontWeight: 700, cursor: ekleniyor ? 'default' : 'pointer', fontFamily: 'inherit', opacity: ekleniyor ? .6 : 1 }}>
+                    style={{ padding: '11px 20px', borderRadius: 11, border: 'none', background: NAVY, color: 'white', fontSize: 13.5, fontWeight: 600, cursor: ekleniyor ? 'default' : 'pointer', fontFamily: 'inherit', opacity: ekleniyor ? .6 : 1 }}>
                     {ekleniyor ? 'Ekleniyor…' : 'Asistan ekle ve davet gönder'}
                   </button>
                   <span style={{ fontSize: 12, color: MUTED }}>Hesabı yoksa hesap oluşturma daveti gider. İşletme başına en fazla {MAKS_ASISTAN} asistan.</span>
@@ -278,7 +278,7 @@ export default function AsistanlarTab({ aktifEntityId, onGit }: { aktifEntityId:
               {yonetilen.map(y => (
                 <div key={y.entity_id} style={kutu}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
-                    <span style={{ fontSize: 15, fontWeight: 700, color: TEXT }}>{y.entity_name}</span>
+                    <span style={{ fontSize: 15, fontWeight: 600, color: TEXT }}>{y.entity_name}</span>
                     <span style={{ fontSize: 12, color: MUTED }}>· {y.asistanlar.length}/{MAKS_ASISTAN} asistan</span>
                   </div>
                   {y.asistanlar.length === 0 ? (
@@ -291,19 +291,19 @@ export default function AsistanlarTab({ aktifEntityId, onGit }: { aktifEntityId:
                         return (
                           <div key={a.id} style={{ border: `1px solid ${BORDER}`, borderRadius: 13, padding: '12px 14px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 10 }}>
-                              <span style={{ width: 32, height: 32, borderRadius: '50%', background: BG, color: NAVY, fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <span style={{ width: 32, height: 32, borderRadius: '50%', background: BG, color: NAVY, fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 {(a.ad || a.email).charAt(0).toLocaleUpperCase('tr')}
                               </span>
                               <div style={{ minWidth: 0, flex: 1 }}>
-                                <div style={{ fontSize: 13.5, fontWeight: 700, color: TEXT }}>{a.ad || a.email}</div>
+                                <div style={{ fontSize: 13.5, fontWeight: 600, color: TEXT }}>{a.ad || a.email}</div>
                                 <div style={{ fontSize: 11.5, color: MUTED, overflowWrap: 'anywhere' }}>{a.ad ? `${a.email} · ` : ''}eklendi {new Date(a.eklenme).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                               </div>
-                              <span style={{ fontSize: 11, fontWeight: 700, borderRadius: 999, padding: '3px 9px',
+                              <span style={{ fontSize: 11, fontWeight: 600, borderRadius: 999, padding: '3px 9px',
                                 background: a.durum === 'aktif' ? '#DCFCE7' : '#FEF3C7', color: a.durum === 'aktif' ? '#166534' : '#92400E', border: `1px solid ${a.durum === 'aktif' ? '#86EFAC' : '#FDE68A'}` }}>
                                 {a.durum === 'aktif' ? 'Aktif' : 'Davet bekliyor'}
                               </span>
                               <button onClick={() => kaldir(a.id, a.ad || a.email)} disabled={kaldiriliyor === a.id}
-                                style={{ padding: '6px 11px', borderRadius: 9, border: '1px solid #FCA5A5', background: 'white', color: '#B91C1C', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                                style={{ padding: '6px 11px', borderRadius: 9, border: '1px solid #FCA5A5', background: 'white', color: '#B91C1C', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                                 {kaldiriliyor === a.id ? '…' : 'Kaldır'}
                               </button>
                             </div>
@@ -311,7 +311,7 @@ export default function AsistanlarTab({ aktifEntityId, onGit }: { aktifEntityId:
                             {degisti && (
                               <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                                 <button onClick={() => yetkiKaydet(a.id)} disabled={kaydediliyor === a.id || !secili.length}
-                                  style={{ padding: '8px 15px', borderRadius: 9, border: 'none', background: secili.length ? NAVY : '#9CA3AF', color: 'white', fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                                  style={{ padding: '8px 15px', borderRadius: 9, border: 'none', background: secili.length ? NAVY : '#9CA3AF', color: 'white', fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                                   {kaydediliyor === a.id ? 'Kaydediliyor…' : secili.length ? 'Yetkileri kaydet' : 'En az bir yetki seçin'}
                                 </button>
                                 <button onClick={() => setTaslak(p => { const n = { ...p }; delete n[a.id]; return n; })}
@@ -332,7 +332,7 @@ export default function AsistanlarTab({ aktifEntityId, onGit }: { aktifEntityId:
         </>
       )}
       <div style={{ fontSize: 11.5, color: MUTED, lineHeight: 1.6 }}>
-        <span style={{ color: GOLD, fontWeight: 700 }}>Not:</span> Yetkiler sunucuda uygulanır — asistan, izin verilmeyen bir bölüme bağlantıyla ya da doğrudan istekle de erişemez.
+        <span style={{ color: GOLD, fontWeight: 600 }}>Not:</span> Yetkiler sunucuda uygulanır — asistan, izin verilmeyen bir bölüme bağlantıyla ya da doğrudan istekle de erişemez.
       </div>
     </div>
   );

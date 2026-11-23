@@ -580,7 +580,7 @@ function EmptyState({ href }: { href: string }) {
           <path d="M32 32 43 43" stroke="#C7D2E0" strokeWidth="3" strokeLinecap="round"/>
         </svg>
       </div>
-      <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Sonuç bulunamadı</h3>
+      <h3 style={{ fontWeight: 600, marginBottom: 8 }}>Sonuç bulunamadı</h3>
       <p style={{ color: 'var(--muted)', fontSize: 14 }}>Filtreleri değiştirerek tekrar deneyin.</p>
       <a href={href} className="btn btn-navy" style={{ marginTop: 16, display: 'inline-flex' }}>Filtreleri Temizle</a>
     </div>

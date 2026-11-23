@@ -77,7 +77,7 @@ export default function HastalikSecici({
 
       {secili.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12, padding: '10px 12px', background: T.bg, borderRadius: 10, border: `1px solid ${T.border}` }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '.5px', width: '100%', marginBottom: 4 }}>Seçili ({secili.length}/{EN_FAZLA})</span>
+          <span style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '.5px', width: '100%', marginBottom: 4 }}>Seçili ({secili.length}/{EN_FAZLA})</span>
           {secili.map(ad => (
             <span key={ad} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: 'rgba(26,51,94,.1)', color: T.navy, border: '1px solid rgba(26,51,94,.2)' }}>
               {ad.replace(/-/g, ' ')}
@@ -95,7 +95,7 @@ export default function HastalikSecici({
           style={{ flex: 1, padding: '10px 13px', borderRadius: 10, border: `1.5px solid ${T.border}`, fontSize: 13.5, fontFamily: 'inherit', color: T.text, outline: 'none', background: 'white', boxSizing: 'border-box', minWidth: 0 }} />
         {q.trim() && !tamEsles && (
           <button type="button" onClick={serbestEkle}
-            style={{ flexShrink: 0, padding: '0 14px', borderRadius: 10, border: `1.5px solid ${T.navy}`, background: 'white', color: T.navy, fontWeight: 700, fontSize: 12.5, cursor: 'pointer', fontFamily: 'inherit' }}>
+            style={{ flexShrink: 0, padding: '0 14px', borderRadius: 10, border: `1.5px solid ${T.navy}`, background: 'white', color: T.navy, fontWeight: 600, fontSize: 12.5, cursor: 'pointer', fontFamily: 'inherit' }}>
             “{q.trim().length > 18 ? q.trim().slice(0, 18) + '…' : q.trim()}” ekle
           </button>
         )}
@@ -112,7 +112,7 @@ export default function HastalikSecici({
         <>
           {oneriler.length > 0 ? (
             <div style={{ border: `1.5px solid ${T.border}`, borderRadius: 10, padding: '12px 14px', background: '#FAFBFF', marginBottom: 8 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: T.gold, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 9 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: T.gold, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 9 }}>
                 Uzmanlığınıza göre öneriler{spec ? ` · ${spec}` : ''}
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
@@ -120,7 +120,7 @@ export default function HastalikSecici({
               </div>
               {oneriler.length > ONERI_ILK && (
                 <button type="button" onClick={() => setOneriTum(v => !v)}
-                  style={{ marginTop: 10, background: 'none', border: 'none', color: T.navy, fontWeight: 700, fontSize: 12.5, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
+                  style={{ marginTop: 10, background: 'none', border: 'none', color: T.navy, fontWeight: 600, fontSize: 12.5, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
                   {oneriTum ? 'Daha az göster' : `Tümünü göster (${oneriler.length})`}
                 </button>
               )}
@@ -132,7 +132,7 @@ export default function HastalikSecici({
           )}
 
           <button type="button" onClick={() => setTumunu(v => !v)}
-            style={{ background: 'none', border: 'none', color: T.navy, fontWeight: 700, fontSize: 12.5, cursor: 'pointer', fontFamily: 'inherit', padding: '2px 0' }}>
+            style={{ background: 'none', border: 'none', color: T.navy, fontWeight: 600, fontSize: 12.5, cursor: 'pointer', fontFamily: 'inherit', padding: '2px 0' }}>
             {tumunu ? '▾ Tüm konuları gizle' : `▸ Tüm hastalıklara göz at (${HASTALIK_SECENEKLERI.length})`}
           </button>
 
@@ -146,7 +146,7 @@ export default function HastalikSecici({
                     <button type="button" onClick={() => setAcikKat(acik ? null : g.kategori)}
                       style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 13px', border: 'none', cursor: 'pointer', fontFamily: 'inherit', background: acik ? T.bg : 'white', fontSize: 13, fontWeight: 600, color: T.text }}>
                       <span>{g.kategori} <span style={{ color: T.muted, fontWeight: 500 }}>({g.ogeler.length})</span></span>
-                      {n > 0 && <span style={{ background: T.navy, color: 'white', borderRadius: 9, fontSize: 10, fontWeight: 800, padding: '1px 7px' }}>{n}</span>}
+                      {n > 0 && <span style={{ background: T.navy, color: 'white', borderRadius: 9, fontSize: 10, fontWeight: 600, padding: '1px 7px' }}>{n}</span>}
                     </button>
                     {acik && (
                       <div style={{ padding: '10px 13px', display: 'flex', flexWrap: 'wrap', gap: 7, background: T.bg }}>

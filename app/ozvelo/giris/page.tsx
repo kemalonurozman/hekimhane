@@ -64,7 +64,7 @@ function Bilgi({ baslik, metin, baglanti }: { baslik: string; metin: string; bag
   return (
     <main style={{ minHeight: '60vh', display: 'grid', placeItems: 'center', padding: '48px 16px', background: '#FBFBFD' }}>
       <div style={{ maxWidth: 460, width: '100%', background: 'white', border: '1px solid #E5E5EA', borderRadius: 20, padding: '32px 28px', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
-        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, letterSpacing: '-0.6px', color: '#1B3A69' }}>{baslik}</h1>
+        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, letterSpacing: '-0.3px', color: '#1B3A69' }}>{baslik}</h1>
         <p style={{ margin: '12px 0 0', fontSize: 15, lineHeight: 1.55, color: '#4B5563' }}>{metin}</p>
         {baglanti && (
           <Link href={baglanti.href} style={{ display: 'inline-block', marginTop: 20, padding: '11px 18px', borderRadius: 12, background: '#1B3A69', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>

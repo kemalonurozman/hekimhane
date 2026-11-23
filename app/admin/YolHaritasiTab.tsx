@@ -131,7 +131,7 @@ export default function YolHaritasiTab() {
     <div className="yh" style={{ maxWidth: 920 }}>
       {/* Başlık */}
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: C.text, margin: 0, letterSpacing: '-.4px' }}>Yol Haritası</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 600, color: C.text, margin: 0, letterSpacing: '-.2px' }}>Yol Haritası</h1>
         <p style={{ fontSize: 13.5, color: C.muted, margin: '6px 0 0', lineHeight: 1.5 }}>
           Sırayla yapılacaklar ve siteye eklenenler. Her güncellemede Claude tarafından yenilenir.
           {ozet.sonGuncelleme && <> Son güncelleme: <strong style={{ color: C.text, fontWeight: 600 }}>{uzunTarih(ozet.sonGuncelleme)}</strong>.</>}
@@ -147,7 +147,7 @@ export default function YolHaritasiTab() {
           { etiket: 'Yapılan güncelleme', deger: veri.yapilanlar.length, renk: C.green },
         ].map(k => (
           <div key={k.etiket} style={{ background: C.card, padding: '14px 18px' }}>
-            <div style={{ fontSize: 26, fontWeight: 700, color: k.renk, letterSpacing: '-.5px', fontVariantNumeric: 'tabular-nums', lineHeight: 1.1 }}>{k.deger}</div>
+            <div style={{ fontSize: 26, fontWeight: 600, color: k.renk, letterSpacing: '-.25px', fontVariantNumeric: 'tabular-nums', lineHeight: 1.1 }}>{k.deger}</div>
             <div style={{ fontSize: 12.5, color: C.muted, marginTop: 4 }}>{k.etiket}</div>
           </div>
         ))}
@@ -185,13 +185,13 @@ export default function YolHaritasiTab() {
               return (
                 <li key={g.id} className="yh-grup" style={{ position: 'relative', paddingLeft: 52, paddingBottom: gi < gruplar.length - 1 ? 26 : 0 }}>
                   {gi < gruplar.length - 1 && <span aria-hidden className="yh-dikey" style={{ position: 'absolute', left: 17, top: 36, bottom: 0, width: 2, background: C.border }} />}
-                  <span aria-hidden className="yh-no" style={{ position: 'absolute', left: 0, top: 0, width: 36, height: 36, borderRadius: 11, background: sira === 1 ? C.navy : C.card, border: `1px solid ${sira === 1 ? C.navy : C.border}`, color: sira === 1 ? '#fff' : C.text, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 15, fontVariantNumeric: 'tabular-nums' }}>
+                  <span aria-hidden className="yh-no" style={{ position: 'absolute', left: 0, top: 0, width: 36, height: 36, borderRadius: 11, background: sira === 1 ? C.navy : C.card, border: `1px solid ${sira === 1 ? C.navy : C.border}`, color: sira === 1 ? '#fff' : C.text, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 15, fontVariantNumeric: 'tabular-nums' }}>
                     {sira}
                   </span>
 
                   <div style={{ paddingTop: 6, marginBottom: 12 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      <h2 style={{ fontSize: 17, fontWeight: 700, color: C.text, margin: 0, letterSpacing: '-.3px' }}>{g.baslik}</h2>
+                      <h2 style={{ fontSize: 17, fontWeight: 600, color: C.text, margin: 0, letterSpacing: '-.3px' }}>{g.baslik}</h2>
                       {sira === 1 && <Cip renk={C.navy}>Şimdi</Cip>}
                       {yapiliyor && <Cip renk={C.blue}><span className="yh-nabiz" style={{ width: 6, height: 6, borderRadius: '50%', background: C.blue }} />Yapılıyor</Cip>}
                     </div>
@@ -207,7 +207,7 @@ export default function YolHaritasiTab() {
                           <span style={{ fontSize: 12.5, fontWeight: 600, color: C.dim, fontVariantNumeric: 'tabular-nums', paddingTop: 2 }}>{sira}.{no}</span>
                           <div style={{ minWidth: 0 }}>
                             <div style={{ fontSize: 14.5, fontWeight: 600, color: C.text, lineHeight: 1.4, wordBreak: 'break-word' }}>
-                              {m.oncelikli && <span style={{ color: C.red, marginRight: 6, fontSize: 12, fontWeight: 700 }}>ÖNCELİKLİ</span>}
+                              {m.oncelikli && <span style={{ color: C.red, marginRight: 6, fontSize: 12, fontWeight: 600 }}>ÖNCELİKLİ</span>}
                               {m.baslik}
                             </div>
                             {m.aciklama && <p style={{ fontSize: 13, color: C.muted, margin: '4px 0 0', lineHeight: 1.55 }}>{m.aciklama}</p>}
@@ -246,7 +246,7 @@ export default function YolHaritasiTab() {
           {aylar.map(ay => (
             <section key={ay.anahtar} style={{ marginBottom: 28 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 14 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 700, color: C.text, margin: 0, letterSpacing: '-.3px' }}>{ay.baslik}</h2>
+                <h2 style={{ fontSize: 18, fontWeight: 600, color: C.text, margin: 0, letterSpacing: '-.3px' }}>{ay.baslik}</h2>
                 <span style={{ fontSize: 12.5, color: C.muted, fontVariantNumeric: 'tabular-nums' }}>{ay.sayi} güncelleme</span>
               </div>
               <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
@@ -256,7 +256,7 @@ export default function YolHaritasiTab() {
                   return (
                     <li key={tarih} className="yh-gun" style={{ display: 'grid', gridTemplateColumns: '84px 20px minmax(0, 1fr)', gap: 12, position: 'relative' }}>
                       <div className="yh-gun-tarih" style={{ textAlign: 'right', paddingTop: 1 }}>
-                        <div style={{ fontSize: 15, fontWeight: 700, color: C.text, fontVariantNumeric: 'tabular-nums', lineHeight: 1.2 }}>{g.gun} {g.ay.slice(0, 3)}</div>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: C.text, fontVariantNumeric: 'tabular-nums', lineHeight: 1.2 }}>{g.gun} {g.ay.slice(0, 3)}</div>
                         <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{g.haftaGunu}</div>
                       </div>
                       <div aria-hidden className="yh-gun-cizgi" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
@@ -264,7 +264,7 @@ export default function YolHaritasiTab() {
                         {!son && <span style={{ position: 'absolute', top: 16, bottom: -6, width: 2, background: C.border }} />}
                       </div>
                       <div style={{ paddingBottom: son ? 0 : 18, minWidth: 0 }}>
-                        <div className="yh-gun-tarih-mobil" style={{ display: 'none', fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 6 }}>{g.gun} {g.ay} · <span style={{ fontWeight: 500, color: C.muted }}>{g.haftaGunu}</span></div>
+                        <div className="yh-gun-tarih-mobil" style={{ display: 'none', fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 6 }}>{g.gun} {g.ay} · <span style={{ fontWeight: 500, color: C.muted }}>{g.haftaGunu}</span></div>
                         <div style={{ ...YUZEY.kart, overflow: 'hidden' }}>
                           {kayitlar.map((k, ki) => (
                             <div key={ki} style={{ padding: '12px 16px', borderTop: ki ? `1px solid ${C.border}` : 'none' }}>

@@ -201,16 +201,16 @@ function Sahne() {
     <OzSahne ikon="appointment">
       <OzSahneBaslik ikon="appointment" baslik="Randevu al" alt="Dr. Aksoy · Diş Hekimi" durum="Açık saatler" />
       <div className="vt-h-belir" style={{ position: 'relative', padding: 18, borderRadius: 18, background: '#fff', boxShadow: '0 10px 28px -16px rgba(18,41,77,.35), inset 0 0 0 1px #E6E8EC', animationDelay: '.3s' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#586273', marginBottom: 10 }}>Gün seçin</div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#586273', marginBottom: 10 }}>Gün seçin</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: 6 }}>
           {gunler.map(g => (
-            <span key={g} style={{ display: 'grid', placeItems: 'center', height: 38, borderRadius: 10, fontSize: 13, fontWeight: 700, ...(g === 'Sal' ? { background: '#12294D', color: '#DEC283' } : { background: '#F4F6F9', color: '#3C4A61' }) }}>{g}</span>
+            <span key={g} style={{ display: 'grid', placeItems: 'center', height: 38, borderRadius: 10, fontSize: 13, fontWeight: 600, ...(g === 'Sal' ? { background: '#12294D', color: '#DEC283' } : { background: '#F4F6F9', color: '#3C4A61' }) }}>{g}</span>
           ))}
         </div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#586273', margin: '16px 0 10px' }}>Saat seçin</div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#586273', margin: '16px 0 10px' }}>Saat seçin</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8 }}>
           {saatler.map(x => (
-            <span key={x.s} className={x.d === 'secili' ? 'vt-h-sec' : undefined} style={{ display: 'grid', placeItems: 'center', height: 40, borderRadius: 10, fontSize: 14, fontWeight: 800, ...SLOT_STIL[x.d] }}>{x.s}</span>
+            <span key={x.s} className={x.d === 'secili' ? 'vt-h-sec' : undefined} style={{ display: 'grid', placeItems: 'center', height: 40, borderRadius: 10, fontSize: 14, fontWeight: 600, ...SLOT_STIL[x.d] }}>{x.s}</span>
           ))}
         </div>
       </div>
@@ -225,7 +225,7 @@ function MiniSaatler() {
   return (
     <div style={{ width: '100%', maxWidth: 220, display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 7 }}>
       {s.map((d, i) => (
-        <span key={i} className={d === 'secili' ? 'vt-h-sec' : undefined} style={{ display: 'grid', placeItems: 'center', height: 36, borderRadius: 8, fontSize: 12, fontWeight: 800, ...SLOT_STIL[d] }}>{t[i]}</span>
+        <span key={i} className={d === 'secili' ? 'vt-h-sec' : undefined} style={{ display: 'grid', placeItems: 'center', height: 36, borderRadius: 8, fontSize: 12, fontWeight: 600, ...SLOT_STIL[d] }}>{t[i]}</span>
       ))}
     </div>
   );
@@ -257,10 +257,10 @@ function MiniCiftMail() {
 function MiniHatirlatma() {
   return (
     <div style={{ width: '100%', maxWidth: 230, padding: 14, borderRadius: 14, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 11.5, fontWeight: 800, color: '#0B5F55', textTransform: 'uppercase', letterSpacing: '.04em' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 11.5, fontWeight: 600, color: '#0B5F55', textTransform: 'uppercase', letterSpacing: '.04em' }}>
         <HkIcon name="notification" size={16} color="#0B5F55" />Hatırlatma
       </div>
-      <div style={{ marginTop: 8, fontSize: 13.5, fontWeight: 700, color: '#0E1A2C' }}>Yarın 09:30 randevunuz var.</div>
+      <div style={{ marginTop: 8, fontSize: 13.5, fontWeight: 600, color: '#0E1A2C' }}>Yarın 09:30 randevunuz var.</div>
       <div style={{ marginTop: 4, fontSize: 12, lineHeight: 1.4, color: '#586273' }}>Gelemeyecekseniz lütfen bilgi verin.</div>
     </div>
   );
@@ -269,8 +269,8 @@ function MiniHatirlatma() {
 function MiniAcKapa() {
   const satir = (saat: string, acik: boolean) => (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '9px 12px', borderRadius: 10, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE' }}>
-      <span style={{ fontSize: 12.5, fontWeight: 700, color: acik ? '#12294D' : '#9AA1AD', textDecoration: acik ? 'none' : 'line-through' }}>{saat}</span>
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 700, color: acik ? '#0B5F55' : '#9AA1AD' }}>
+      <span style={{ fontSize: 12.5, fontWeight: 600, color: acik ? '#12294D' : '#9AA1AD', textDecoration: acik ? 'none' : 'line-through' }}>{saat}</span>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 600, color: acik ? '#0B5F55' : '#9AA1AD' }}>
         {acik ? 'Açık' : 'Bloke'}
         <span style={{ position: 'relative', width: 30, height: 18, borderRadius: 9, background: acik ? '#0D7C79' : '#C9CED6' }}>
           <span style={{ position: 'absolute', top: 2, left: acik ? 14 : 2, width: 14, height: 14, borderRadius: '50%', background: '#fff' }} />
@@ -309,8 +309,8 @@ function TakvimPaneli() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 10 }}>
         {slotlar.map(x => (
           <div key={x.s} style={{ padding: '10px 4px', borderRadius: 12, textAlign: 'center', ...(x.st === 'acik' ? { background: '#E6F6F2', boxShadow: 'inset 0 0 0 1px #A8DDD3' } : { background: '#F1F2F5', boxShadow: 'inset 0 0 0 1px #E3E5EA' }) }}>
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#12294D', textDecoration: x.st === 'bloke' ? 'line-through' : 'none', opacity: x.st === 'bloke' ? 0.5 : 1 }}>{x.s}</div>
-            <div style={{ marginTop: 3, fontSize: 10.5, fontWeight: 800, letterSpacing: '.04em', textTransform: 'uppercase', color: x.st === 'acik' ? '#0B5F55' : '#9AA1AD' }}>{x.st === 'acik' ? 'Açık' : 'Bloke'}</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#12294D', textDecoration: x.st === 'bloke' ? 'line-through' : 'none', opacity: x.st === 'bloke' ? 0.5 : 1 }}>{x.s}</div>
+            <div style={{ marginTop: 3, fontSize: 10.5, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', color: x.st === 'acik' ? '#0B5F55' : '#9AA1AD' }}>{x.st === 'acik' ? 'Açık' : 'Bloke'}</div>
           </div>
         ))}
       </div>

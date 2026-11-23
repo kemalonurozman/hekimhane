@@ -122,8 +122,8 @@ export default function DegerlendirmeSistemiPage() {
         sahne={<Sahne />}
         alt={
           <p style={{ margin: '18px 0 0', fontSize: 14, lineHeight: 1.6, color: '#586273' }}>
-            Hasta mısınız? <Link href="/klinikler" style={{ color: '#1B3A69', fontWeight: 700, textDecoration: 'underline' }}>Diş kliniklerini keşfedin</Link>
-            {' '}ya da <a href="#puan" style={{ color: '#1B3A69', fontWeight: 700, textDecoration: 'underline' }}>puanın nasıl hesaplandığını</a> okuyun.
+            Hasta mısınız? <Link href="/klinikler" style={{ color: '#1B3A69', fontWeight: 600, textDecoration: 'underline' }}>Diş kliniklerini keşfedin</Link>
+            {' '}ya da <a href="#puan" style={{ color: '#1B3A69', fontWeight: 600, textDecoration: 'underline' }}>puanın nasıl hesaplandığını</a> okuyun.
           </p>
         }
       />
@@ -179,7 +179,7 @@ export default function DegerlendirmeSistemiPage() {
             </div>
           </div>
           <div className="oz-panel" style={{ marginTop: 18 }}>
-            <h3 style={{ margin: '0 0 12px', fontFamily: 'var(--font-display)', fontSize: 'clamp(22px, 2.4vw, 28px)', fontWeight: 800, letterSpacing: '-.03em', color: '#0E1A2C' }}>
+            <h3 style={{ margin: '0 0 12px', fontFamily: 'var(--font-display)', fontSize: 'clamp(22px, 2.4vw, 28px)', fontWeight: 600, letterSpacing: '-.015em', color: '#0E1A2C' }}>
               Puan nasıl hesaplanır?
             </h3>
             <p style={P}>
@@ -227,7 +227,7 @@ function Yildizlar({ n = 5, boyut = 16 }: { n?: number; boyut?: number }) {
 
 function OnayliRozet() {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11.5, fontWeight: 700, color: '#166534', background: '#F0FDF4', boxShadow: 'inset 0 0 0 1px #BBF7D0', borderRadius: 999, padding: '3px 9px', whiteSpace: 'nowrap' }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11.5, fontWeight: 600, color: '#166534', background: '#F0FDF4', boxShadow: 'inset 0 0 0 1px #BBF7D0', borderRadius: 999, padding: '3px 9px', whiteSpace: 'nowrap' }}>
       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
       Onaylı hasta
     </span>
@@ -242,7 +242,7 @@ function Sahne() {
       {/* Yorum kartı */}
       <div className="oz-b oz-b--asistan" style={{ maxWidth: '100%', alignSelf: 'stretch', padding: '16px 18px', animationDelay: '.2s' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <span style={{ display: 'grid', placeItems: 'center', width: 34, height: 34, borderRadius: '50%', background: '#EEF3FA', color: '#12294D', fontSize: 13, fontWeight: 800 }}>ZK</span>
+          <span style={{ display: 'grid', placeItems: 'center', width: 34, height: 34, borderRadius: '50%', background: '#EEF3FA', color: '#12294D', fontSize: 13, fontWeight: 600 }}>ZK</span>
           <div style={{ minWidth: 0 }}>
             <strong style={{ display: 'block', fontSize: 14.5, color: '#0E1A2C' }}>Zeynep K.</strong>
             <Yildizlar n={5} boyut={14} />
@@ -256,7 +256,7 @@ function Sahne() {
 
       {/* İşletme yanıtı */}
       <div className="oz-b" style={{ maxWidth: '88%', alignSelf: 'flex-end', padding: '14px 16px', borderRadius: '16px 16px 4px 16px', background: 'linear-gradient(135deg, #E1F7F4, #CDEFEA)', boxShadow: 'inset 0 0 0 1px rgba(13,124,121,.2)', animationDelay: '1.4s' }}>
-        <small style={{ display: 'block', fontSize: 11.5, fontWeight: 800, letterSpacing: '.04em', textTransform: 'uppercase', color: '#0B5F55' }}>İşletme yanıtı</small>
+        <small style={{ display: 'block', fontSize: 11.5, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', color: '#0B5F55' }}>İşletme yanıtı</small>
         <span style={{ display: 'block', marginTop: 4, fontSize: 14, lineHeight: 1.5, color: '#0E1A2C' }}>
           Değerlendirmeniz için teşekkür ederiz Zeynep Hanım. Kontrol randevunuzda görüşmek üzere.
         </span>
@@ -264,7 +264,7 @@ function Sahne() {
 
       {/* Puan özeti (temsili) */}
       <div className="oz-b oz-b--asistan" style={{ maxWidth: '100%', alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', animationDelay: '2.6s' }}>
-        <strong style={{ fontFamily: 'var(--font-display)', fontSize: 26, letterSpacing: '-.03em', color: '#0E1A2C' }}>4,8</strong>
+        <strong style={{ fontFamily: 'var(--font-display)', fontSize: 26, letterSpacing: '-.015em', color: '#0E1A2C' }}>4,8</strong>
         <div>
           <Yildizlar n={5} boyut={13} />
           <small style={{ display: 'block', fontSize: 12, color: '#586273' }}>Dengeli ortalama</small>
@@ -308,14 +308,14 @@ function MiniAd() {
 function MiniOlcek() {
   return (
     <div style={{ width: '100%', maxWidth: 230 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: '#586273' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 600, color: '#586273' }}>
         <span>1</span><span>5</span>
       </div>
       <div style={{ position: 'relative', height: 10, marginTop: 6, borderRadius: 5, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE' }}>
         <i style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '80%', borderRadius: 5, background: 'linear-gradient(90deg, #0D7C79, #5FD6CE)' }} />
         <span style={{ position: 'absolute', left: '80%', top: '50%', width: 18, height: 18, marginLeft: -9, marginTop: -9, borderRadius: '50%', background: '#12294D', boxShadow: '0 0 0 3px #fff' }} />
       </div>
-      <div style={{ marginTop: 12, textAlign: 'center', fontSize: 12, fontWeight: 700, color: '#12294D' }}>Başlangıç puanı 4.2</div>
+      <div style={{ marginTop: 12, textAlign: 'center', fontSize: 12, fontWeight: 600, color: '#12294D' }}>Başlangıç puanı 4.2</div>
     </div>
   );
 }
@@ -332,7 +332,7 @@ function MiniYanit() {
 function PuanOlcegi() {
   return (
     <div aria-hidden="true" style={{ padding: 'clamp(20px, 3vw, 32px)', borderRadius: 22, background: 'linear-gradient(160deg, #FBF8F2, #F1F5FA)', boxShadow: 'inset 0 0 0 1px #E6E8EC' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 700, color: '#586273' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, color: '#586273' }}>
         <span>1 yıldız</span><span>5 yıldız</span>
       </div>
       <div style={{ position: 'relative', height: 12, marginTop: 10, borderRadius: 6, background: '#fff', boxShadow: 'inset 0 0 0 1px #DCE3EE' }}>
@@ -345,7 +345,7 @@ function PuanOlcegi() {
           { b: 'Yorumlar biriktikçe', m: 'Gerçek ortalamaya doğru kayar' },
         ].map((x, i) => (
           <div key={x.b} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 14px', borderRadius: 14, background: '#fff', boxShadow: 'inset 0 0 0 1px #E6E8EC' }}>
-            <span style={{ display: 'grid', placeItems: 'center', width: 26, height: 26, borderRadius: 8, background: i === 2 ? '#0D7C79' : '#12294D', color: '#DEC283', fontSize: 13, fontWeight: 800, flex: 'none' }}>{i + 1}</span>
+            <span style={{ display: 'grid', placeItems: 'center', width: 26, height: 26, borderRadius: 8, background: i === 2 ? '#0D7C79' : '#12294D', color: '#DEC283', fontSize: 13, fontWeight: 600, flex: 'none' }}>{i + 1}</span>
             <div style={{ minWidth: 0 }}>
               <strong style={{ display: 'block', fontSize: 14.5, color: '#0E1A2C' }}>{x.b}</strong>
               <span style={{ fontSize: 13.5, color: '#586273' }}>{x.m}</span>

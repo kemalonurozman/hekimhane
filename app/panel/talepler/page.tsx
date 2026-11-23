@@ -45,7 +45,7 @@ function Badge({ status }: { status: string }) {
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 5,
       padding: '4px 12px', borderRadius: 20,
-      fontSize: 12, fontWeight: 700,
+      fontSize: 12, fontWeight: 600,
       background: s.bg, color: s.color, border: `1px solid ${s.border}`,
     }}>
       <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.color, display: 'inline-block' }} />
@@ -109,7 +109,7 @@ export default function TaleplerPage() {
       minHeight: '100vh',
       background: '#F0F4FF',
       paddingTop: 80,
-      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif',
+      fontFamily: 'var(--font-system)',
     }}>
       <div className="container" style={{ maxWidth: 760, margin: '0 auto', padding: '32px 16px' }}>
 
@@ -121,7 +121,7 @@ export default function TaleplerPage() {
                 ← Panel
               </Link>
             </div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, color: '#111C2E', letterSpacing: '-0.5px', margin: 0 }}>
+            <h1 style={{ fontSize: 24, fontWeight: 600, color: '#111C2E', letterSpacing: '-0.25px', margin: 0 }}>
               Sahiplenme Taleplerim
             </h1>
             <p style={{ fontSize: 13, color: '#4A5568', marginTop: 4 }}>
@@ -132,7 +132,7 @@ export default function TaleplerPage() {
             display: 'inline-flex', alignItems: 'center', gap: 7,
             padding: '10px 18px', borderRadius: 11,
             background: '#1A335E', color: 'white',
-            fontSize: 13, fontWeight: 700, textDecoration: 'none',
+            fontSize: 13, fontWeight: 600, textDecoration: 'none',
           }}>
             <IcPlus /> Yeni Başvuru
           </Link>
@@ -147,7 +147,7 @@ export default function TaleplerPage() {
               { label: 'Reddedilen', count: rejected.length, bg: '#FEF2F2', color: '#991B1B', border: '#FCA5A5' },
             ].map(s => (
               <div key={s.label} style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 14, padding: '16px 20px', textAlign: 'center' }}>
-                <div style={{ fontSize: 28, fontWeight: 800, color: s.color }}>{s.count}</div>
+                <div style={{ fontSize: 28, fontWeight: 600, color: s.color }}>{s.count}</div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: s.color, marginTop: 2 }}>{s.label}</div>
               </div>
             ))}
@@ -169,11 +169,11 @@ export default function TaleplerPage() {
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#1A335E' }}>
               <IcBuilding />
             </div>
-            <h2 style={{ fontSize: 17, fontWeight: 800, color: '#111C2E', marginBottom: 8 }}>Henüz başvurunuz yok</h2>
+            <h2 style={{ fontSize: 17, fontWeight: 600, color: '#111C2E', marginBottom: 8 }}>Henüz başvurunuz yok</h2>
             <p style={{ fontSize: 13, color: '#4A5568', maxWidth: 320, margin: '0 auto 24px', lineHeight: 1.7 }}>
               İşletmenizi Hekimhane'ye ekleyin veya mevcut profilin sahipliğini talep edin.
             </p>
-            <Link href="/katil" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: '#1A335E', color: 'white', borderRadius: 11, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+            <Link href="/katil" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: '#1A335E', color: 'white', borderRadius: 11, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
               <IcPlus /> Başvuru Oluştur
             </Link>
           </div>
@@ -197,11 +197,11 @@ export default function TaleplerPage() {
                   </div>
                   {/* Bilgiler */}
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 15, color: '#111C2E', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontWeight: 600, fontSize: 15, color: '#111C2E', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {c.entity_name || 'Yeni İşletme Başvurusu'}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: ENTITY_COLOR[c.entity_type] || '#4A5568' }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: ENTITY_COLOR[c.entity_type] || '#4A5568' }}>
                         {ENTITY_LABEL[c.entity_type] || c.entity_type}
                       </span>
                       <span style={{ fontSize: 11, color: '#9CA3AF' }}>·</span>
@@ -226,7 +226,7 @@ export default function TaleplerPage() {
                       display: 'inline-flex', alignItems: 'center', gap: 4,
                       padding: '6px 14px', borderRadius: 9,
                       background: '#1A335E', color: 'white',
-                      fontSize: 12, fontWeight: 700, textDecoration: 'none',
+                      fontSize: 12, fontWeight: 600, textDecoration: 'none',
                     }}>
                       Panele Git <IcArrow />
                     </Link>
